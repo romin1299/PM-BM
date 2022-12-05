@@ -1,0 +1,299 @@
+// @import url(https://fonts.googleapis.com/css?family=Oswald:500);
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: auto;
+}
+
+.sections {
+    display: flex;
+}
+
+.header a {
+    margin-left: 1rem;
+    color: #CC4949;
+}
+
+.ems_logo img {
+    width: 10%;
+}
+
+/* Profile Card Section */
+
+.profile {
+    cursor: pointer;
+}
+
+.profile:hover #profile_card {
+    display: block;
+    transform-origin: 100% 0%;
+    -webkit-animation: fadeIn 0.4s ease;
+    animation: fadeIn 0.4s ease;
+
+}
+
+#profile_card:hover {
+    display: block;
+}
+
+/* The Profile Card */
+#profile_card {
+
+    display: none;
+    font-family: sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    background-color: #f1f1f1;
+    padding: 1rem;
+    width: 180px;
+    height: auto;
+    color: #000;
+    text-align: center;
+    margin-top: -11px;
+    position: absolute;
+    right: -8%;
+    transform: translate(-50%, 5%);
+    /* border: 1px solid #263A4A; */
+    font-size: 12px;
+    line-height: 18px;
+    z-index: 99;
+    border-radius: 4px;
+    box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px !important;
+
+}
+
+#profile_card h6 {
+    color: white;
+    text-align: center;
+    margin-bottom: 1rem;
+
+}
+
+#profile_card p {
+    text-align: center;
+}
+
+#profile_card a {
+    text-decoration: none;
+    font-size: 13px;
+    margin: 0.5rem;
+    color: white;
+    text-align: left;
+}
+
+#profile_card a:hover {
+    color: black;
+}
+
+
+.profile:hover #device_card {
+    display: block;
+    transform-origin: 100% 0%;
+    -webkit-animation: fadeIn 0.4s ease;
+    animation: fadeIn 0.4s ease;
+
+}
+
+#device_card:hover {
+    display: block;
+}
+
+#device_card {
+
+    display: none;
+    font-family: sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    background-color: #262B40;
+    padding: 15px 15px;
+    width: 178px;
+    height: auto;
+    color: white;
+    margin-top: -15px !important;
+    position: absolute;
+    right: -1px;
+    transform: translate(-50%, 5%);
+    /* border: 1px solid #263A4A; */
+    font-size: 12px;
+    line-height: 18px;
+    z-index: 99;
+    border-radius: 4px;
+    box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px !important;
+}
+
+#device_card h6 {
+    color: white;
+    text-align: center;
+    margin-bottom: 1rem;
+
+}
+
+#device_card p {
+    text-align: center;
+}
+
+#device_card a {
+    text-decoration: none;
+    font-size: 13px;
+    margin: 0.5rem;
+    color: white;
+    text-align: left;
+}
+
+#device_card a:hover {
+    color: black;
+}
+
+.updatePassBtn {
+
+    align-items: center;
+    background-color: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: .25rem;
+    box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+    box-sizing: border-box;
+    color: rgba(0, 0, 0, 0.85);
+    cursor: pointer;
+    display: inline-flex;
+    font-family: system-ui, -apple-system, system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    justify-content: center;
+    line-height: 1.25;
+    margin: 0 0 1rem 0;
+    min-height: 3rem;
+    padding: calc(.875rem - 10px) calc(1.5rem - 10px);
+    position: relative;
+    text-decoration: none;
+    transition: all 250ms;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: baseline;
+    width: auto;
+}
+
+.updatePassBtn:hover,
+.updatePassBtn:focus {
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+    color: rgba(0, 0, 0, 0.65);
+}
+
+.updatePassBtn:hover {
+    transform: translateY(-1px);
+}
+
+.updatePassBtn:active {
+    background-color: #F0F0F1;
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
+    color: rgba(0, 0, 0, 0.65);
+    transform: translateY(0);
+}
+
+
+.meters {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 1rem 0 0 0;
+    border-radius: 10px;
+}
+
+.meters:hover {
+    background-color: aliceblue;
+    color: black;
+}
+
+@-webkit-keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 100%;
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 100%;
+    }
+}
+
+.header_title {
+    margin-left: 2rem;
+}
+
+@media screen and (max-width: 600px) {
+    .header_title {
+        font-size: 1.5rem;
+    }
+}
+
+
+
+
+
+
+.navigation {
+    width: 100%;
+    /* background-color: black; */
+}
+
+.profileImages {
+    width: 25px;
+    border-radius: 50px;
+    float: left;
+    margin-left: -9px;
+}
+
+.logout {
+    font-size: .8em;
+    font-family: 'Oswald', sans-serif;
+    position: relative;
+    right: -7px;
+    bottom: -4px;
+    overflow: hidden;
+    letter-spacing: 3px;
+    // opacity: 0;
+    // transition: opacity .45s;
+    // -webkit-transition: opacity .35s;
+
+}
+
+.button {
+    text-decoration: none;
+    float: left;
+    // padding: 10px;
+    /* margin: 15px; */
+    opacity: 1;
+    color: #E71E25;
+    // margin-left: -0.8rem;
+    border-radius: 5px;
+    // width: 8rem;
+    // background-color: rgba(230, 226, 226, 0.806);
+    transition: width .35s;
+    -webkit-transition: width .35s;
+    // overflow: hidden
+}
+
+.button:hover {
+    // width: 8rem;
+    cursor: pointer;
+}
+
+.button:hover .logout {
+    opacity: .9;
+}
+
+.button {
+    text-decoration: none;
+}

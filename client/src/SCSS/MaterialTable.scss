@@ -1,0 +1,285 @@
+.dashboardTable {
+    margin: 0.5rem;
+    padding: 0 1rem 1rem 1rem;
+    border: 2px solid #000000;
+    // background-color: white;
+
+    word-wrap: break-word !important;
+    height: auto;
+}
+
+
+.MuiTableCell-root {
+    text-align: center;
+    padding: 5px 5px !important;
+    // border: 2px solid #000000;
+}
+
+.MuiToolbar-regular {
+    min-height: 2.5rem !important;
+    margin-top: 0.5rem !important;
+}
+
+// div {
+//     box-shadow: none !important;
+// }
+
+th div {
+    position: relative !important;
+}
+
+.MuiTypography-h6 {
+    color: #000000;
+    font-size: 1.2rem !important;
+}
+
+.MuiTableCell-head {
+    z-index: 1 !important;
+    text-align: center !important;
+    /* background-color: #184e77 !important; */
+    color: rgb(0, 0, 0) !important;
+}
+
+.MuiTablePagination-root {
+    border: none !important;
+}
+
+.MuiTable-root {
+    border-top: 0px solid !important;
+    /* border: 2px solid #184e77; */
+}
+
+.MuiIconButton-root {
+    color: #E71E25 !important;
+}
+
+.pwd-container {
+    position: relative;
+    /* margin: 1rem 0; */
+}
+
+.pwd-container input {
+    border: none;
+    text-align: center;
+    /* width: 4rem; */
+    margin-left: 1rem;
+
+}
+
+.pwd-container img {
+    cursor: pointer;
+    position: absolute;
+    width: 17px;
+    right: 20px;
+    top: 24px;
+}
+
+.addbutton {
+    /* background: linear-gradient(315.76deg, #2A3A8F 25.04%, #77CEEC 100%); */
+    /* background-color: #184e77; */
+    color: white;
+    font-size: 0.9rem;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 2px;
+}
+
+.viewBtn {
+    /* background: linear-gradient(315.76deg, #2A3A8F 25.04%, #77CEEC 100%); */
+    /* background: #184e77; */
+    color: white;
+    width: 3rem;
+    font-weight: 500;
+    padding: 0.5rem;
+    font-size: 12px;
+    border: none;
+    border-radius: 3px;
+}
+
+.addRowBtn {
+    /* background: linear-gradient(315.76deg, #2A3A8F 25.04%, #77CEEC 100%); */
+    background: green;
+    color: white;
+    /* width: 5rem; */
+    font-weight: 500;
+    padding: 0.5rem;
+    font-size: 12px;
+    border: none;
+    border-radius: 3px;
+}
+
+.deleteRowBtn {
+    /* background: linear-gradient(315.76deg, #2A3A8F 25.04%, #77CEEC 100%); */
+    background: #ff0000;
+    color: white;
+    /* width: 10rem; */
+    font-weight: 500;
+    padding: 0.5rem;
+    font-size: 12px;
+    border: none;
+    border-radius: 3px;
+    margin-left: 1rem;
+}
+
+#acceptBtn {
+    background-color: green;
+    color: white;
+    /* display: none; */
+    width: 4rem;
+    font-weight: 500;
+    padding: 0.5rem;
+    font-size: 12px;
+    border: none;
+    border-radius: 3px;
+    text-overflow: ellipsis;
+    /* overflow: hidden; */
+    white-space: nowrap;
+}
+
+#rejectBtn {
+    background-color: red;
+    color: white;
+    width: 3rem;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 3px;
+    border: none;
+    padding: 0.5rem;
+}
+
+#acceptBtnForHead {
+    background-color: green;
+    color: white;
+    /* display: none; */
+    width: 5rem;
+    font-weight: 700;
+    padding: 0.5rem;
+    font-size: 15px;
+    border: none;
+    border-radius: 3px;
+    text-overflow: ellipsis;
+    /* overflow: hidden; */
+    white-space: nowrap;
+}
+
+#rejectBtnForHead {
+    background-color: red;
+    color: white;
+    width: 5rem;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 3px;
+    border: none;
+    padding: 0.5rem;
+}
+
+.totalWorkOrder {
+    display: flex;
+    justify-content: space-between;
+    /* background-color: #184e77; */
+    color: white;
+    border-radius: 5px;
+    height: 2rem;
+    padding: 0rem 0 0 0.5rem;
+}
+
+.tags {
+    color: white;
+    margin-top: 0.4rem;
+
+    font-weight: 550;
+}
+
+#status_button {
+    padding-top: 0.2rem;
+    font-weight: 650;
+
+    text-align: center;
+    background-color: white;
+    border: 0.5px solid #fafafa;
+    width: 2.3em;
+    margin-right: 1rem;
+    cursor: pointer;
+    height: 2.3em;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    border-radius: 50% !important;
+    margin-left: 1rem;
+}
+
+
+
+
+//Creation Dashboard
+
+select {
+    // appearance: none;
+    // background-color: #fafafa;
+    border: 2px solid #8f8f8f;
+    border-radius: 3px;
+    padding: 0.2rem 0.5rem;
+    // margin: 0;
+    // width: 8.5rem !important;
+    // font-family: inherit;
+    // font-size: inherit;
+    // cursor: inherit;
+    // line-height: inherit;
+    // z-index: 1;
+
+    // &::-ms-expand {
+    //     display: none;
+    // }
+
+    outline: none;
+}
+
+.selection_div {
+    // width: 100%;
+    display: flex;
+    justify-content: space-around;
+    overflow-x: scroll;
+}
+
+.selection_div div {
+    padding: 1rem;
+    width: 100%;
+}
+
+// .MuiOutlinedInput-input{
+//     padding: 0 !important;
+// }
+.MuiSelect-selectMenu {
+    white-space: normal !important;
+}
+
+@media screen and (max-width: 600px) {
+    select {
+        width: 7rem;
+    }
+
+    .MTableToolbar-root-5 {
+        padding: 0 !important;
+    }
+
+    .totalWorkOrder {
+        display: flex;
+        justify-content: space-between !important;
+        /* background-color: #2A3A8F; */
+        color: white;
+        margin-right: -0.5rem;
+        border-radius: 5px;
+        /* height: 2.2rem; */
+        padding: 0 0 0 0.5rem;
+    }
+
+}
+
+.css-1hi7cb7-MuiTableSortLabel-icon,
+.css-1qgma8u-MuiButtonBase-root-MuiTableSortLabel-root.Mui-active .MuiTableSortLabel-icon {
+    opacity: 1 !important;
+    color: #c9c9c9 !important;
+    font-size: medium !important;
+}
+
+.css-10hburv-MuiTypography-root{
+    font-weight: bold !important;
+}

@@ -1,0 +1,1534 @@
+import React, { useState, useEffect, useContext } from "react";
+import RoutingContext from "../../context/routing/RoutingContext";
+import "./MainDashboard.css";
+import { Container, Row, Col } from "reactstrap";
+import CheckSheet from "./CheckSheet";
+import { useNavigate } from "react-router-dom";
+
+import CheckSheetForImplementation from "../Operator/CheckSheetForImplementation";
+import GettingMachineDataForCheckSheetImplementation from "../Operator/GettingMachineDataForCheckSheetImplementation";
+
+const MainDashboard = () => {
+  const [sections, setsections] = useState();
+  const [subSection, setSubSection] = useState("");
+
+  //for showing sub-section data based on it's selection
+  const [selectedSubSectionId, setSelectedSubSectionId] = useState();
+
+  const [
+    selectedSubSectionIdForDefaultDashboard,
+    setSelectedSubSectionIdForDefaultDashboard,
+  ] = useState();
+
+  //display default sub-section list when dashboard level NO
+  const [defaultSubSection, setDefaultSubSection] = useState([]);
+
+  const [sectionList, setSectionList] = useState("");
+  const [subSectionList, setSubSectionList] = useState("");
+
+  const [allDataSectionWise, setallDataSectionWise] = useState("");
+
+  const [
+    machineWiseCheckSheetForImplementation,
+    setMachineWiseCheckSheetForImplementation,
+  ] = useState("");
+
+  const [refKey, setRefKey] = useState(0);
+  const [refKey2, setRefKey2] = useState(0);
+
+  // const [checkSheetState, setCheckSheetState] = useState("");
+  const context = useContext(RoutingContext);
+  const navigate = useNavigate();
+
+  const postPlantToGetSectionList = async (selectedPlant) => {
+    setsections(undefined);
+    try {
+      const res = await fetch("/postPlantToGetSectionList", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          plants: context.plant_data,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // window.alert(data.abcd);
+        // console.log("Data post", data);
+
+        setSectionList(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const postSectionToGetSubSectionList = async (selectedSection) => {
+    setSubSection(undefined);
+    try {
+      const res = await fetch("/postSectionToGetSubSectionList", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          section: selectedSection,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // window.alert(data.abcd);
+        console.log("Data post.............", data);
+
+        setSubSectionList(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //for operator user
+  const postSectionToGetAllDataForMainDashboard = async (selectedSection) => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch("/postSectionToGetAllDataForMainDashboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          section: selectedSection,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // window.alert(data.abcd);
+        // console.log("Data post");
+        console.log(data);
+        setallDataSectionWise(data);
+        setDefaultSubSection(data.defaultSubSectionArray);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //for other user
+  const postSectionToGetAllDataForMainDashboardForOtherUser = async (
+    selectedSection
+  ) => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch(
+        "/postSectionToGetAllDataForMainDashboardForOtherUser",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            section: selectedSection,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // window.alert(data.abcd);
+        // console.log("Data post");
+        console.log(data);
+        setallDataSectionWise(data);
+        setDefaultSubSection(data.defaultSubSectionArray);
+        setDeafaultDataForNoDashboard(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  console.log(subSection);
+
+  const getSelectedSubsection = (selectedData) => {
+    if (subSectionList) {
+      subSectionList.subSectionsInfo.map((id) => {
+        // console.log(selectedData)
+        let subSectionSplit = selectedData.split("-");
+        console.log(subSectionSplit[0]);
+        if (id.subSection_id === subSectionSplit[0]) {
+          // console.log(id._id)
+          setSelectedSubSectionId(id._id);
+        }
+      });
+    } else {
+      allDataSectionWise.subSectionsData.map((id) => {
+        // console.log(selectedData)
+        let subSectionSplit = selectedData.split("-");
+        console.log(subSectionSplit[0]);
+        if (id.subSection_id === subSectionSplit[0]) {
+          // console.log(id._id)
+          setSelectedSubSectionId(id._id);
+        }
+      });
+    }
+  };
+
+  const closeCheckSheet = () => {
+    postSectionToGetAllDataForMainDashboard(context.section_data);
+    setMachineWiseCheckSheetForImplementation("");
+    document.querySelector(".operatorDashboard").style.pointerEvents = "auto";
+  };
+
+  const pathToCheckSheet = (machine, lineName) => {
+    // context.user_type === "Operator"
+    //   ? navigate("/machineWiseCheckSheetForImplemetation", {
+    //       state: { machineData: machine, lineName: lineName },
+    //     })
+    //   : navigate("/machineWiseCheckSheet", {
+    //       state: { machineData: machine, lineName: lineName },
+    //     });
+
+    setMachineWiseCheckSheetForImplementation(
+      <GettingMachineDataForCheckSheetImplementation
+        machineData={machine}
+        lineName={lineName}
+        closeCheckSheet={closeCheckSheet}
+        loggedUserType={context.user_type}
+      />
+    );
+
+    document.querySelector(".operatorDashboard").style.pointerEvents = "none";
+
+    // const postMachineIdToGetAllDetailsOfMachine = async () => {
+    //   try {
+    //     const res = await fetch("/postMachineIdToGetAllDetailsOfMachine", {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       body: JSON.stringify({
+    //         machineID: machine._id,
+    //       }),
+    //     });
+    //     const data = await res.json();
+
+    //     if (res.status === 400 || res.status === 422 || !data) {
+    //       console.log("Invalid");
+    //     } else {
+    //       console.log(data.machineData.checkSheet);
+
+    //       context.user_type === "Operator"
+    //         ? setMachineWiseCheckSheetForImplementation(
+    //             <CheckSheetForImplementation
+    //               machineData={data.machineData}
+    //               lineName={lineName}
+    //               closeCheckSheet={closeCheckSheet}
+    //             />
+    //           )
+    //         : setMachineWiseCheckSheetForImplementation(
+    //             <CheckSheet
+    //               machineData={data.machineData}
+    //               lineName={lineName}
+    //               closeCheckSheet={closeCheckSheet}
+    //             />
+    //           );
+
+    //       document.querySelector(".operatorDashboard").style.pointerEvents =
+    //         "none";
+    //     }
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // };
+
+    // postMachineIdToGetAllDetailsOfMachine();
+    // useEffect(() => {
+    // }, []);
+  };
+
+  // console.log(subSectionList);
+  // console.log(subSection);
+
+  // console.log(selectedSubSectionId);
+  let subSectionArray = [];
+
+  const defaultSubsectionListArray = () => {
+    for (let i = 0; i < allDataSectionWise.subSectionsData?.length; i++) {
+      subSectionArray.push(
+        `${allDataSectionWise.subSectionsData[i].subSection_id}-${allDataSectionWise.subSectionsData[i].subSection_name}`
+      );
+    }
+    setDefaultSubSection(subSectionArray);
+  };
+
+  useEffect(() => {
+    // if () {
+    // }
+
+    postPlantToGetSectionList();
+  }, [refKey]);
+
+  useEffect(() => {
+    if (sections) {
+      if (context.user_type === "Operator") {
+        postSectionToGetAllDataForMainDashboard(sections);
+      } else {
+        postSectionToGetAllDataForMainDashboardForOtherUser(sections);
+      }
+    }
+  }, [sections]);
+
+  useEffect(() => {
+    if (sections) {
+      postSectionToGetSubSectionList(sections);
+    }
+  }, [sections, refKey2]);
+
+  useEffect(() => {
+    if (context.user_type === "Operator") {
+      postSectionToGetAllDataForMainDashboard(context.section_data);
+    } else {
+      postSectionToGetAllDataForMainDashboardForOtherUser(context.section_data);
+    }
+  }, [context.section_data]);
+
+  const setDeafaultDataForNoDashboard = (data) => {
+    // console.log(allDataSectionWise)
+    if (data.sectionInfo) {
+      // console.log( context.subSection_data.length)
+
+      if (data.sectionInfo[0].dashboardLevel === "No") {
+        if (context.subSection_data.length === 1) {
+          data.subSectionsData.map((id) => {
+            console.log(context.subSection_data[0]);
+            let subSectionSplit = context.subSection_data[0].split("-");
+            // console.log(subSectionSplit[0]);
+            if (id.subSection_id === subSectionSplit[0]) {
+              // console.log(id._id)
+              setSelectedSubSectionIdForDefaultDashboard(id._id);
+            }
+          });
+        }
+      }
+    }
+  };
+
+  console.log(selectedSubSectionIdForDefaultDashboard);
+
+  const monthKeyArray = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "June",
+    "July",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
+
+  // console.log(subSectionList.sectionInfo);
+  return (
+    <>
+      {machineWiseCheckSheetForImplementation}
+      <div className="operatorDashboard">
+        <div style={{ display: "flex", padding: "0.5rem" }}>
+          <div className="dropDown">
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ fontWeight: "500", fontSize: "12px" }}>
+                Section
+              </span>
+              <select
+                class="form-select form-select-sm"
+                aria-label=".form-select-sm example"
+                style={{ width: "100%" }}
+                id="standard-select-currency"
+                name="plant"
+                className="textField"
+                select
+                fullWidth // label="Select"
+                autoComplete="off"
+                value={sections === undefined ? "" : sections}
+                onChange={(e) => {
+                  setsections(e.target.value);
+                }}
+                variant="standard"
+              >
+                {/* {plant.map((option) => {
+                  return (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  );
+                })} */}
+                <option
+                  selected
+                  disabled
+                  value=""
+                  style={{ backgroundColor: "skyblue" }}
+                >
+                  {context.section_data}
+                </option>
+
+                {sectionList !== ""
+                  ? sectionList.sectionArray.map((option) => {
+                      return <option value={option}>{option}</option>;
+                    })
+                  : ""}
+              </select>
+            </div>
+            {allDataSectionWise ? (
+              allDataSectionWise.sectionInfo[0].dashboardLevel === "Yes" ? (
+                ""
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <span style={{ fontWeight: "500", fontSize: "12px" }}>
+                    Sub Section
+                  </span>
+                  <select
+                    class="form-select form-select-sm"
+                    aria-label=".form-select-sm example"
+                    style={{ width: "100%" }}
+                    // id="standard-select-currency"
+                    name="plant"
+                    className="textField"
+                    select
+                    fullWidth // label="Select"
+                    autoComplete="off"
+                    value={
+                      subSection === undefined
+                        ? ""
+                        : subSection === ""
+                        ? context.subSection_data[0]
+                        : subSection
+                    }
+                    onChange={(e) => {
+                      getSelectedSubsection(e.target.value);
+                      setSubSection(e.target.value);
+                    }}
+                    variant="standard"
+                  >
+                    {/* {plant.map((option) => {
+                return (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                );
+              })} */}
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {allDataSectionWise
+                      ? defaultSubSection?.map((option) => {
+                          return (
+                            <option className="optionStyle" value={option}>
+                              {option}
+                            </option>
+                          );
+                        })
+                      : subSectionList !== ""
+                      ? subSectionList.subSectionArray.map((option) => {
+                          return (
+                            <option className="optionStyle" value={option}>
+                              {option}
+                            </option>
+                          );
+                        })
+                      : ""}
+                  </select>
+                </div>
+              )
+            ) : subSectionList.sectionInfo ? (
+              subSectionList.sectionInfo.dashboardLevel === "Yes" ? (
+                ""
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <span style={{ fontWeight: "500", fontSize: "12px" }}>
+                    Sub Section
+                  </span>
+                  <select
+                    class="form-select form-select-sm"
+                    aria-label=".form-select-sm example"
+                    style={{ width: "100%" }}
+                    // id="standard-select-currency"
+                    name="plant"
+                    className="textField"
+                    select
+                    fullWidth // label="Select"
+                    autoComplete="off"
+                    value={subSection === undefined ? "" : subSection}
+                    onChange={(e) => {
+                      getSelectedSubsection(e.target.value);
+                      setSubSection(e.target.value);
+                    }}
+                    variant="standard"
+                  >
+                    {/* {plant.map((option) => {
+                  return (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  );
+                })} */}
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {subSectionList !== ""
+                      ? subSectionList.subSectionArray.map((option) => {
+                          return (
+                            <option className="optionStyle" value={option}>
+                              {option}
+                            </option>
+                          );
+                        })
+                      : ""}
+                  </select>
+                </div>
+              )
+            ) : (
+              ""
+            )}
+          </div>
+        </div>
+        {/* <div>{checkSheetState}</div> */}
+        {/* dashboardCard section */}
+
+        <div className="dashboardCard">
+          {/* {allDataSectionWise !== ""
+            ? console.log(allDataSectionWise.subSectionsData)
+            : ""} */}
+
+          {subSectionList.sectionInfo ? (
+            subSectionList.sectionInfo.dashboardLevel === "No" ? (
+              context.subSection_data.includes(subSection) ? (
+                selectedSubSectionId ? (
+                  <div className="cards">
+                    <Container fluid>
+                      <Row>
+                        {allDataSectionWise.cellData.map((cell) => {
+                          return selectedSubSectionId ===
+                            cell.subSection_names ? (
+                            <>
+                              <div className="cell">
+                                <p>{cell.cell_name}</p>
+
+                                <div>
+                                  <Row
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "flex-start",
+                                      // margin: "0.5rem",
+                                    }}
+                                  >
+                                    {allDataSectionWise.lineData.map((line) => {
+                                      return cell._id === line.cell_names ? (
+                                        <>
+                                          <Col
+                                            xs={12}
+                                            md={6}
+                                            lg={3}
+                                            // key={subSection}
+                                          >
+                                            <div className="line">
+                                              <div className="line_name">
+                                                <p>{line.line_name}</p>
+                                              </div>
+                                              <div className="machineCard">
+                                                {allDataSectionWise.machineData.map(
+                                                  (machine) => {
+                                                    return line._id ===
+                                                      machine.line_names ? (
+                                                      <>
+                                                        <button
+                                                          style={{
+                                                            background:
+                                                              machine.PMStatus
+                                                                ? machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                  "Current Plan"
+                                                                  ? "white"
+                                                                  : machine
+                                                                      .PMStatus[
+                                                                      monthForCompareSystemMonth
+                                                                    ] ===
+                                                                    "Ongoing"
+                                                                  ? "#ffff59"
+                                                                  : machine
+                                                                      .PMStatus[
+                                                                      monthForCompareSystemMonth
+                                                                    ] ===
+                                                                    "Completed"
+                                                                  ? "#5fe15f"
+                                                                  : machine
+                                                                      .PMStatus[
+                                                                      monthForCompareSystemMonth
+                                                                    ] ===
+                                                                    "Done with delay"
+                                                                  ? "#ffc356"
+                                                                  : machine
+                                                                      .PMStatus[
+                                                                      monthForCompareSystemMonth
+                                                                    ] ===
+                                                                      "PM Skip" ||
+                                                                    machine
+                                                                      .PMStatus[
+                                                                      monthForCompareSystemMonth
+                                                                    ] ===
+                                                                      "No Completion"
+                                                                  ? "#ff8888"
+                                                                  : "#ababab"
+                                                                : "",
+                                                          }}
+                                                          className="machine"
+                                                          onClick={() =>
+                                                            pathToCheckSheet(
+                                                              machine,
+                                                              line.line_name
+                                                            )
+                                                          }
+                                                        >
+                                                          {
+                                                            machine.machine_nickname
+                                                          }
+                                                        </button>
+                                                      </>
+                                                    ) : (
+                                                      ""
+                                                    );
+                                                  }
+                                                )}
+                                              </div>
+                                            </div>
+                                          </Col>
+                                        </>
+                                      ) : (
+                                        ""
+                                      );
+                                    })}
+                                  </Row>
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            ""
+                          );
+                        })}
+                      </Row>
+                    </Container>
+                  </div>
+                ) : (
+                  ""
+                )
+              ) : selectedSubSectionId ? (
+                <div className="cards">
+                  <Container fluid>
+                    <Row>
+                      {allDataSectionWise.cellData.map((cell) => {
+                        return selectedSubSectionId ===
+                          cell.subSection_names ? (
+                          <>
+                            <div className="cell">
+                              <p>{cell.cell_name}</p>
+
+                              <div>
+                                <Row
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "flex-start",
+                                    // margin: "0.5rem",
+                                  }}
+                                >
+                                  {allDataSectionWise.lineData.map((line) => {
+                                    return cell._id === line.cell_names ? (
+                                      <>
+                                        <Col
+                                          xs={12}
+                                          md={6}
+                                          lg={3}
+                                          // key={subSection}
+                                        >
+                                          <div className="line">
+                                            <div className="line_name">
+                                              <p>{line.line_name}</p>
+                                            </div>
+                                            <div className="machineCard">
+                                              {allDataSectionWise.machineData.map(
+                                                (machine) => {
+                                                  return line._id ===
+                                                    machine.line_names ? (
+                                                    <>
+                                                      <button
+                                                        style={{
+                                                          background:
+                                                            machine.PMStatus
+                                                              ? machine
+                                                                  .PMStatus[
+                                                                  monthForCompareSystemMonth
+                                                                ] ===
+                                                                "Current Plan"
+                                                                ? "white"
+                                                                : machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                  "Ongoing"
+                                                                ? "#ffff59"
+                                                                : machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                  "Completed"
+                                                                ? "#5fe15f"
+                                                                : machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                  "Done with delay"
+                                                                ? "#ffc356"
+                                                                : machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                    "PM Skip" ||
+                                                                  machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                    "No Completion"
+                                                                ? "#ff8888"
+                                                                : "#ababab"
+                                                              : "",
+                                                        }}
+                                                        className="machine"
+                                                        disabled
+                                                        onClick={() =>
+                                                          pathToCheckSheet(
+                                                            machine,
+                                                            line.line_name
+                                                          )
+                                                        }
+                                                      >
+                                                        {
+                                                          machine.machine_nickname
+                                                        }
+                                                      </button>
+                                                    </>
+                                                  ) : (
+                                                    ""
+                                                  );
+                                                }
+                                              )}
+                                            </div>
+                                          </div>
+                                        </Col>
+                                      </>
+                                    ) : (
+                                      ""
+                                    );
+                                  })}
+                                </Row>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          ""
+                        );
+                      })}
+                    </Row>
+                  </Container>
+                </div>
+              ) : (
+                ""
+              )
+            ) : (
+              <div className="cards">
+                <Container fluid>
+                  <Row>
+                    {context.section_data === sections
+                      ? allDataSectionWise !== ""
+                        ? allDataSectionWise.subSectionsData.map(
+                            (subSection) => {
+                              return (
+                                <>
+                                  <Col xs={12} md={12} lg={12} key={subSection}>
+                                    <div className="subSection">
+                                      <div className="subSectionText">
+                                        {subSection.subSection_name}
+                                      </div>
+
+                                      {allDataSectionWise.cellData.map(
+                                        (cell) => {
+                                          return subSection._id ===
+                                            cell.subSection_names ? (
+                                            <>
+                                              <div className="cell">
+                                                <p>{cell.cell_name}</p>
+
+                                                <div>
+                                                  <Row
+                                                    style={{
+                                                      display: "flex",
+                                                      justifyContent:
+                                                        "flex-start",
+                                                      // margin: "0.5rem",
+                                                    }}
+                                                  >
+                                                    {allDataSectionWise.lineData.map(
+                                                      (line) => {
+                                                        return cell._id ===
+                                                          line.cell_names ? (
+                                                          <>
+                                                            <Col
+                                                              xs={12}
+                                                              md={6}
+                                                              lg={3}
+                                                              // key={subSection}
+                                                            >
+                                                              <div className="line">
+                                                                <div className="line_name">
+                                                                  <p>
+                                                                    {
+                                                                      line.line_name
+                                                                    }
+                                                                  </p>
+                                                                </div>
+                                                                <div className="machineCard">
+                                                                  {allDataSectionWise.machineData.map(
+                                                                    (
+                                                                      machine
+                                                                    ) => {
+                                                                      return line._id ===
+                                                                        machine.line_names ? (
+                                                                        <>
+                                                                          <button
+                                                                            style={{
+                                                                              background:
+                                                                                machine.PMStatus
+                                                                                  ? machine
+                                                                                      .PMStatus[
+                                                                                      monthForCompareSystemMonth
+                                                                                    ] ===
+                                                                                    "Current Plan"
+                                                                                    ? "white"
+                                                                                    : machine
+                                                                                        .PMStatus[
+                                                                                        monthForCompareSystemMonth
+                                                                                      ] ===
+                                                                                      "Ongoing"
+                                                                                    ? "#ffff59"
+                                                                                    : machine
+                                                                                        .PMStatus[
+                                                                                        monthForCompareSystemMonth
+                                                                                      ] ===
+                                                                                      "Completed"
+                                                                                    ? "#5fe15f"
+                                                                                    : machine
+                                                                                        .PMStatus[
+                                                                                        monthForCompareSystemMonth
+                                                                                      ] ===
+                                                                                      "Done with delay"
+                                                                                    ? "#ffc356"
+                                                                                    : machine
+                                                                                        .PMStatus[
+                                                                                        monthForCompareSystemMonth
+                                                                                      ] ===
+                                                                                        "PM Skip" ||
+                                                                                      machine
+                                                                                        .PMStatus[
+                                                                                        monthForCompareSystemMonth
+                                                                                      ] ===
+                                                                                        "No Completion"
+                                                                                    ? "#ff8888"
+                                                                                    : "#ababab"
+                                                                                  : "",
+                                                                            }}
+                                                                            className="machine"
+                                                                            onClick={() =>
+                                                                              pathToCheckSheet(
+                                                                                machine,
+                                                                                line.line_name
+                                                                              )
+                                                                            }
+                                                                          >
+                                                                            {
+                                                                              machine.machine_nickname
+                                                                            }
+                                                                          </button>
+                                                                        </>
+                                                                      ) : (
+                                                                        ""
+                                                                      );
+                                                                    }
+                                                                  )}
+                                                                </div>
+                                                              </div>
+                                                            </Col>
+                                                          </>
+                                                        ) : (
+                                                          ""
+                                                        );
+                                                      }
+                                                    )}
+                                                  </Row>
+                                                </div>
+                                              </div>
+                                            </>
+                                          ) : (
+                                            ""
+                                          );
+                                        }
+                                      )}
+                                    </div>
+                                  </Col>
+                                </>
+                              );
+                            }
+                          )
+                        : ""
+                      : allDataSectionWise !== ""
+                      ? allDataSectionWise.subSectionsData.map((subSection) => {
+                          return (
+                            <>
+                              <Col xs={12} md={12} lg={12} key={subSection}>
+                                <div className="subSection">
+                                  <div className="subSectionText">
+                                    {subSection.subSection_name}
+                                  </div>
+
+                                  {allDataSectionWise.cellData.map((cell) => {
+                                    return subSection._id ===
+                                      cell.subSection_names ? (
+                                      <>
+                                        <div className="cell">
+                                          <p>{cell.cell_name}</p>
+
+                                          <div>
+                                            <Row
+                                              style={{
+                                                display: "flex",
+                                                justifyContent: "flex-start",
+                                                // margin: "0.5rem",
+                                              }}
+                                            >
+                                              {allDataSectionWise.lineData.map(
+                                                (line) => {
+                                                  return cell._id ===
+                                                    line.cell_names ? (
+                                                    <>
+                                                      <Col
+                                                        xs={12}
+                                                        md={6}
+                                                        lg={3}
+                                                        // key={subSection}
+                                                      >
+                                                        <div className="line">
+                                                          <div className="line_name">
+                                                            <p>
+                                                              {line.line_name}
+                                                            </p>
+                                                          </div>
+                                                          <div className="machineCard">
+                                                            {allDataSectionWise.machineData.map(
+                                                              (machine) => {
+                                                                return line._id ===
+                                                                  machine.line_names ? (
+                                                                  <>
+                                                                    <button
+                                                                      style={{
+                                                                        background:
+                                                                          machine.PMStatus
+                                                                            ? machine
+                                                                                .PMStatus[
+                                                                                monthForCompareSystemMonth
+                                                                              ] ===
+                                                                              "Current Plan"
+                                                                              ? "white"
+                                                                              : machine
+                                                                                  .PMStatus[
+                                                                                  monthForCompareSystemMonth
+                                                                                ] ===
+                                                                                "Ongoing"
+                                                                              ? "#ffff59"
+                                                                              : machine
+                                                                                  .PMStatus[
+                                                                                  monthForCompareSystemMonth
+                                                                                ] ===
+                                                                                "Completed"
+                                                                              ? "#5fe15f"
+                                                                              : machine
+                                                                                  .PMStatus[
+                                                                                  monthForCompareSystemMonth
+                                                                                ] ===
+                                                                                "Done with delay"
+                                                                              ? "#ffc356"
+                                                                              : machine
+                                                                                  .PMStatus[
+                                                                                  monthForCompareSystemMonth
+                                                                                ] ===
+                                                                                  "PM Skip" ||
+                                                                                machine
+                                                                                  .PMStatus[
+                                                                                  monthForCompareSystemMonth
+                                                                                ] ===
+                                                                                  "No Completion"
+                                                                              ? "#ff8888"
+                                                                              : "#ababab"
+                                                                            : "",
+                                                                      }}
+                                                                      className="machine"
+                                                                      disabled
+                                                                      onClick={() =>
+                                                                        pathToCheckSheet(
+                                                                          machine,
+                                                                          line.line_name
+                                                                        )
+                                                                      }
+                                                                    >
+                                                                      {
+                                                                        machine.machine_nickname
+                                                                      }
+                                                                    </button>
+                                                                  </>
+                                                                ) : (
+                                                                  ""
+                                                                );
+                                                              }
+                                                            )}
+                                                          </div>
+                                                        </div>
+                                                      </Col>
+                                                    </>
+                                                  ) : (
+                                                    ""
+                                                  );
+                                                }
+                                              )}
+                                            </Row>
+                                          </div>
+                                        </div>
+                                      </>
+                                    ) : (
+                                      ""
+                                    );
+                                  })}
+                                </div>
+                              </Col>
+                            </>
+                          );
+                        })
+                      : ""}
+                  </Row>
+                </Container>
+              </div>
+            )
+          ) : allDataSectionWise ? (
+            allDataSectionWise.sectionInfo[0].dashboardLevel === "Yes" ? (
+              allDataSectionWise !== "" ? (
+                allDataSectionWise.subSectionsData.map((subSection) => {
+                  return (
+                    <>
+                      <Col xs={12} md={12} lg={12} key={subSection}>
+                        <div className="subSection">
+                          <div className="subSectionText">
+                            {subSection.subSection_name}
+                          </div>
+
+                          {allDataSectionWise.cellData.map((cell) => {
+                            return subSection._id === cell.subSection_names ? (
+                              <>
+                                <div className="cell">
+                                  <p>{cell.cell_name}</p>
+
+                                  <div>
+                                    <Row
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "flex-start",
+                                        // margin: "0.5rem",
+                                      }}
+                                    >
+                                      {allDataSectionWise.lineData.map(
+                                        (line) => {
+                                          return cell._id ===
+                                            line.cell_names ? (
+                                            <>
+                                              <Col
+                                                xs={12}
+                                                md={6}
+                                                lg={3}
+                                                // key={subSection}
+                                              >
+                                                <div className="line">
+                                                  <div className="line_name">
+                                                    <p>{line.line_name}</p>
+                                                  </div>
+                                                  <div className="machineCard">
+                                                    {allDataSectionWise.machineData.map(
+                                                      (machine) => {
+                                                        return line._id ===
+                                                          machine.line_names ? (
+                                                          <>
+                                                            <button
+                                                              style={{
+                                                                background:
+                                                                  machine.PMStatus
+                                                                    ? machine
+                                                                        .PMStatus[
+                                                                        monthForCompareSystemMonth
+                                                                      ] ===
+                                                                      "Current Plan"
+                                                                      ? "white"
+                                                                      : machine
+                                                                          .PMStatus[
+                                                                          monthForCompareSystemMonth
+                                                                        ] ===
+                                                                        "Ongoing"
+                                                                      ? "#ffff59"
+                                                                      : machine
+                                                                          .PMStatus[
+                                                                          monthForCompareSystemMonth
+                                                                        ] ===
+                                                                        "Completed"
+                                                                      ? "#5fe15f"
+                                                                      : machine
+                                                                          .PMStatus[
+                                                                          monthForCompareSystemMonth
+                                                                        ] ===
+                                                                        "Done with delay"
+                                                                      ? "#ffc356"
+                                                                      : machine
+                                                                          .PMStatus[
+                                                                          monthForCompareSystemMonth
+                                                                        ] ===
+                                                                          "PM Skip" ||
+                                                                        machine
+                                                                          .PMStatus[
+                                                                          monthForCompareSystemMonth
+                                                                        ] ===
+                                                                          "No Completion"
+                                                                      ? "#ff8888"
+                                                                      : "#ababab"
+                                                                    : "",
+                                                              }}
+                                                              className="machine"
+                                                              onClick={() =>
+                                                                pathToCheckSheet(
+                                                                  machine,
+                                                                  line.line_name
+                                                                )
+                                                              }
+                                                            >
+                                                              {
+                                                                machine.machine_nickname
+                                                              }
+                                                            </button>
+                                                          </>
+                                                        ) : (
+                                                          ""
+                                                        );
+                                                      }
+                                                    )}
+                                                  </div>
+                                                </div>
+                                              </Col>
+                                            </>
+                                          ) : (
+                                            ""
+                                          );
+                                        }
+                                      )}
+                                    </Row>
+                                  </div>
+                                </div>
+                              </>
+                            ) : (
+                              ""
+                            );
+                          })}
+                        </div>
+                      </Col>
+                    </>
+                  );
+                })
+              ) : (
+                ""
+              )
+            ) : selectedSubSectionId ? (
+              context.subSection_data.includes(subSection) ? (
+                <div className="cards">
+                  <Container fluid>
+                    <Row>
+                      {allDataSectionWise.cellData.map((cell) => {
+                        return selectedSubSectionIdForDefaultDashboard ===
+                          cell.subSection_names ? (
+                          <>
+                            <div className="cell">
+                              <p>{cell.cell_name}</p>
+
+                              <div>
+                                <Row
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "flex-start",
+                                    // margin: "0.5rem",
+                                  }}
+                                >
+                                  {allDataSectionWise.lineData.map((line) => {
+                                    return cell._id === line.cell_names ? (
+                                      <>
+                                        <Col
+                                          xs={12}
+                                          md={6}
+                                          lg={3}
+                                          // key={subSection}
+                                        >
+                                          <div className="line">
+                                            <div className="line_name">
+                                              <p>{line.line_name}</p>
+                                            </div>
+                                            <div className="machineCard">
+                                              {allDataSectionWise.machineData.map(
+                                                (machine) => {
+                                                  return line._id ===
+                                                    machine.line_names ? (
+                                                    <>
+                                                      <button
+                                                        style={{
+                                                          background:
+                                                            machine.PMStatus
+                                                              ? machine
+                                                                  .PMStatus[
+                                                                  monthForCompareSystemMonth
+                                                                ] ===
+                                                                "Current Plan"
+                                                                ? "white"
+                                                                : machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                  "Ongoing"
+                                                                ? "#ffff59"
+                                                                : machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                  "Completed"
+                                                                ? "#5fe15f"
+                                                                : machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                  "Done with delay"
+                                                                ? "#ffc356"
+                                                                : machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                    "PM Skip" ||
+                                                                  machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                    "No Completion"
+                                                                ? "#ff8888"
+                                                                : "#ababab"
+                                                              : "",
+                                                        }}
+                                                        className="machine"
+                                                        onClick={() =>
+                                                          pathToCheckSheet(
+                                                            machine,
+                                                            line.line_name
+                                                          )
+                                                        }
+                                                      >
+                                                        {
+                                                          machine.machine_nickname
+                                                        }
+                                                      </button>
+                                                    </>
+                                                  ) : (
+                                                    ""
+                                                  );
+                                                }
+                                              )}
+                                            </div>
+                                          </div>
+                                        </Col>
+                                      </>
+                                    ) : (
+                                      ""
+                                    );
+                                  })}
+                                </Row>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          ""
+                        );
+                      })}
+                    </Row>
+                  </Container>
+                </div>
+              ) : (
+                <div className="cards">
+                  <Container fluid>
+                    <Row>
+                      {allDataSectionWise.cellData.map((cell) => {
+                        return selectedSubSectionId ===
+                          cell.subSection_names ? (
+                          <>
+                            <div className="cell">
+                              <p>{cell.cell_name}</p>
+
+                              <div>
+                                <Row
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "flex-start",
+                                    // margin: "0.5rem",
+                                  }}
+                                >
+                                  {allDataSectionWise.lineData.map((line) => {
+                                    return cell._id === line.cell_names ? (
+                                      <>
+                                        <Col
+                                          xs={12}
+                                          md={6}
+                                          lg={3}
+                                          // key={subSection}
+                                        >
+                                          <div className="line">
+                                            <div className="line_name">
+                                              <p>{line.line_name}</p>
+                                            </div>
+                                            <div className="machineCard">
+                                              {allDataSectionWise.machineData.map(
+                                                (machine) => {
+                                                  return line._id ===
+                                                    machine.line_names ? (
+                                                    <>
+                                                      <button
+                                                        style={{
+                                                          background:
+                                                            machine.PMStatus
+                                                              ? machine
+                                                                  .PMStatus[
+                                                                  monthForCompareSystemMonth
+                                                                ] ===
+                                                                "Current Plan"
+                                                                ? "white"
+                                                                : machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                  "Ongoing"
+                                                                ? "#ffff59"
+                                                                : machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                  "Completed"
+                                                                ? "#5fe15f"
+                                                                : machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                  "Done with delay"
+                                                                ? "#ffc356"
+                                                                : machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                    "PM Skip" ||
+                                                                  machine
+                                                                    .PMStatus[
+                                                                    monthForCompareSystemMonth
+                                                                  ] ===
+                                                                    "No Completion"
+                                                                ? "#ff8888"
+                                                                : "#ababab"
+                                                              : "",
+                                                        }}
+                                                        className="machine"
+                                                        disabled
+                                                        onClick={() =>
+                                                          pathToCheckSheet(
+                                                            machine,
+                                                            line.line_name
+                                                          )
+                                                        }
+                                                      >
+                                                        {
+                                                          machine.machine_nickname
+                                                        }
+                                                      </button>
+                                                    </>
+                                                  ) : (
+                                                    ""
+                                                  );
+                                                }
+                                              )}
+                                            </div>
+                                          </div>
+                                        </Col>
+                                      </>
+                                    ) : (
+                                      ""
+                                    );
+                                  })}
+                                </Row>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          ""
+                        );
+                      })}
+                    </Row>
+                  </Container>
+                </div>
+              )
+            ) : selectedSubSectionIdForDefaultDashboard ? (
+              <div className="cards">
+                <Container fluid>
+                  <Row>
+                    {allDataSectionWise.cellData.map((cell) => {
+                      return selectedSubSectionIdForDefaultDashboard ===
+                        cell.subSection_names ? (
+                        <>
+                          <div className="cell">
+                            <p>{cell.cell_name}</p>
+
+                            <div>
+                              <Row
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "flex-start",
+                                  // margin: "0.5rem",
+                                }}
+                              >
+                                {allDataSectionWise.lineData.map((line) => {
+                                  return cell._id === line.cell_names ? (
+                                    <>
+                                      <Col
+                                        xs={12}
+                                        md={6}
+                                        lg={3}
+                                        // key={subSection}
+                                      >
+                                        <div className="line">
+                                          <div className="line_name">
+                                            <p>{line.line_name}</p>
+                                          </div>
+                                          <div className="machineCard">
+                                            {allDataSectionWise.machineData.map(
+                                              (machine) => {
+                                                return line._id ===
+                                                  machine.line_names ? (
+                                                  <>
+                                                    <button
+                                                      style={{
+                                                        background:
+                                                          machine.PMStatus
+                                                            ? machine.PMStatus[
+                                                                monthForCompareSystemMonth
+                                                              ] ===
+                                                              "Current Plan"
+                                                              ? "white"
+                                                              : machine
+                                                                  .PMStatus[
+                                                                  monthForCompareSystemMonth
+                                                                ] === "Ongoing"
+                                                              ? "#ffff59"
+                                                              : machine
+                                                                  .PMStatus[
+                                                                  monthForCompareSystemMonth
+                                                                ] ===
+                                                                "Completed"
+                                                              ? "#5fe15f"
+                                                              : machine
+                                                                  .PMStatus[
+                                                                  monthForCompareSystemMonth
+                                                                ] ===
+                                                                "Done with delay"
+                                                              ? "#ffc356"
+                                                              : machine
+                                                                  .PMStatus[
+                                                                  monthForCompareSystemMonth
+                                                                ] ===
+                                                                  "PM Skip" ||
+                                                                machine
+                                                                  .PMStatus[
+                                                                  monthForCompareSystemMonth
+                                                                ] ===
+                                                                  "No Completion"
+                                                              ? "#ff8888"
+                                                              : "#ababab"
+                                                            : "",
+                                                      }}
+                                                      className="machine"
+                                                      onClick={() =>
+                                                        pathToCheckSheet(
+                                                          machine,
+                                                          line.line_name
+                                                        )
+                                                      }
+                                                    >
+                                                      {machine.machine_nickname}
+                                                    </button>
+                                                  </>
+                                                ) : (
+                                                  ""
+                                                );
+                                              }
+                                            )}
+                                          </div>
+                                        </div>
+                                      </Col>
+                                    </>
+                                  ) : (
+                                    ""
+                                  );
+                                })}
+                              </Row>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        ""
+                      );
+                    })}
+                  </Row>
+                </Container>
+              </div>
+            ) : (
+              ""
+            )
+          ) : (
+            ""
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default MainDashboard;

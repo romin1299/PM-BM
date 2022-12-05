@@ -1,0 +1,175 @@
+import React, { useState, useEffect, useContext } from "react";
+import RoutingContext from "../../../context/routing/RoutingContext";
+import "./index.css";
+// import "./tableColor.scss"
+
+function PMSheetApproval() {
+  const context = useContext(RoutingContext);
+
+  const [tableData, setTableData] = useState([]);
+
+  let columns = [
+    {
+      header: "Line",
+      sort: "true",
+    },
+    {
+      header: "Machine Code",
+      sort: "true",
+    },
+    {
+      header: "Machine Name",
+      sort: "true",
+    },
+    {
+      header: "Preparation",
+      sort: "true",
+    },
+    {
+      header: "Planning",
+      sort: "true",
+    },
+  ];
+
+  let columns1 = [
+    {
+      header: "TL Preparation",
+      sort: "true",
+    },
+    {
+      header: "TL/HOSS Checked",
+      sort: "true",
+    },
+    {
+      header: "HOS Approval",
+      sort: "true",
+    },
+    {
+      header: "MTD-TL Prepared",
+      sort: "true",
+    },
+    {
+      header: "PRD-TL Approval",
+      sort: "true",
+    },
+  ];
+
+  // console.log(context.section_data);
+  const postSectionToGetAllDataForMainDashboard = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch("/postSectionToGetAllData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          section: context.section_data,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        console.log(data);
+        setTableData(data.machineData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    postSectionToGetAllDataForMainDashboard();
+  }, []);
+  return (
+    <>
+      <div className="container-fluid" style={{ overflow: "auto" }}>
+        <table className="ar-table pmSheetApprovalTableCol">
+          <thead className="mt-5">
+            <tr>
+              {columns.map((tColumn) => (
+                <th
+                  className={"ar-table-thead-header5 td-padding"}
+                  colSpan={
+                    tColumn.header === "Preparation"
+                      ? 3
+                      : tColumn.header === "Planning"
+                      ? 2
+                      : 0
+                  }
+                >
+                  {tColumn.header}
+                </th>
+              ))}
+            </tr>
+            <tr className="ar-table-thead-header4">
+              <th></th>
+              <th></th>
+              <th></th>
+              {columns1.map((tColumn) => (
+                <th className={"ar-table-thead-header4 td-padding"}>
+                  {tColumn.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {tableData.map((index) => (
+              <tr className="ar-table-thead-header4 tableRowColor">
+                <td className="td-padding">{index.line_names.line_name}</td>
+                <td className="td-padding">{index.machine_code}</td>
+                <td className="td-padding">{index.machine_name}</td>
+                <td className="td-padding">
+                  {/* {index.sender_tm_name[idx]}
+                  <br />
+                  {index.preparation_TL_date[idx]
+                    } */}
+                  {index.sender_tm_name.map((value, idx) => (
+                    <p>
+                      {value}-{index.preparation_TL_date[idx]}
+                    </p>
+                  ))}
+                </td>
+                <td className="td-padding">
+                  {index.tl_approval_status.map((value, idx) => (
+                    <p>
+                      <b>{value}</b>-{index.assign_TL_name[idx]}-
+                      {index.preparation_TL_HOSS_date[idx]}
+                    </p>
+                  ))}
+                </td>
+                <td className="td-padding">
+                  {index.hos_approval_status.map((value, idx) => (
+                    <p>
+                      <b>{value}</b>-{index.assign_HOS_name[idx]}-
+                      {index.preparation_HOS_date[idx]}
+                    </p>
+                  ))}
+                </td>
+                <td className="td-padding">
+                  {index.plan_prepared_tm_name.map((value, idx) => (
+                    <p>
+                      {value}-{index.planning_TL_date[idx]}
+                    </p>
+                  ))}
+                </td>
+                <td className="td-padding">
+                  {index.prd_tl_approval_status.map((value, idx) => (
+                    <p>
+                      <b>{value}</b>-{index.assign_PRD_TL_name[idx]}-
+                      {index.planning_PRD_TL_date[idx]}
+                    </p>
+                  ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+export default PMSheetApproval;

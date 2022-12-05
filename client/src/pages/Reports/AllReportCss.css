@@ -1,0 +1,8 @@
+.lineWisePmMonthlyReportButton {
+    background-color: red !important;
+    background-repeat: no-repeat;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+}

@@ -1,0 +1,40 @@
+.container {
+    display: flex;
+    align-items: center;
+    padding: 0.1rem 1rem;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px !important;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+
+    svg {
+        font-size: 1.2rem;
+    }
+}
+
+.burger_container {
+    cursor: pointer;
+    padding: 0.2rem;
+
+    @media screen and (max-width: 1024px) {
+        display: flex;
+    }
+
+    svg {
+        font-size: 1.8rem;
+    }
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    gap: 0.5rem;
+    cursor: pointer;
+
+    @media screen and (max-width: 360px) {
+        justify-content: flex-start;
+        margin-left: 1rem;
+    }
+}

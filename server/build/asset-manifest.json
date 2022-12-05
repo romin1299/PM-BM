@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/static/css/main.b9cfa52b.css",
+    "main.js": "/static/js/main.a7063e7b.js",
+    "static/js/498.c7b9ab65.chunk.js": "/static/js/498.c7b9ab65.chunk.js",
+    "static/js/703.b2fd8034.chunk.js": "/static/js/703.b2fd8034.chunk.js",
+    "static/js/513.eda6b742.chunk.js": "/static/js/513.eda6b742.chunk.js",
+    "static/media/denso_wallpaper.jpg": "/static/media/denso_wallpaper.0f66885b36a4b9292f7b.jpg",
+    "static/media/denso_logo.png": "/static/media/denso_logo.c45846932fccf1f1f232.png",
+    "static/media/user.png": "/static/media/user.0c95baeb87678cfdf54d.png",
+    "static/media/hide-password.svg": "/static/media/hide-password.2aaf769dde9be37e683f78d543bb61d8.svg",
+    "index.html": "/index.html",
+    "static/media/show-password.svg": "/static/media/show-password.7468b27017e6d779e083dd0beabf4efa.svg",
+    "main.b9cfa52b.css.map": "/static/css/main.b9cfa52b.css.map",
+    "main.a7063e7b.js.map": "/static/js/main.a7063e7b.js.map",
+    "498.c7b9ab65.chunk.js.map": "/static/js/498.c7b9ab65.chunk.js.map",
+    "703.b2fd8034.chunk.js.map": "/static/js/703.b2fd8034.chunk.js.map",
+    "513.eda6b742.chunk.js.map": "/static/js/513.eda6b742.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b9cfa52b.css",
+    "static/js/main.a7063e7b.js"
+  ]
+}

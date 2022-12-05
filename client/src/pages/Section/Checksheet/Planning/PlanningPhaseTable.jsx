@@ -1,0 +1,409 @@
+import React from "react";
+import {
+  tableIcons,
+  MaterialTable,
+  useState,
+  useEffect,
+  useLocation,
+} from "../../../../modules/PageModules";
+import { updateSelectedMachineCheckSheetTableRowData } from "../../../../Integration/APIExports";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Navigate, useNavigate } from "react-router-dom";
+
+function PlanningPhaseTable() {
+  const [tableData, setTableData] = useState([]);
+  const selectedMachineData = useLocation();
+  const [sendPlanningApproval, setSendPlanningApproval] = useState(0);
+  const [refKey, setRefKey] = useState(0);
+  const [machineData, setMachineData] = useState([]);
+
+  const [planningApprovalShow, setPlanningApprovalShow] = useState(0);
+
+  const navigate = useNavigate();
+
+  const showChecksheet = () => {
+    navigate("/checkSheetForm", {
+      state: {
+        selectedRowForViewForm: machineData,
+        planningApprovalShow: planningApprovalShow,
+      },
+    });
+  };
+
+  const fetchSelectedMachineCheckSheetTableData = async () => {
+    try {
+      const res = await fetch("/fetchSelectedMachineChecksheetTableData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          machineId: selectedMachineData.state.selectedRow.machine_code,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // window.alert(data.abcd);
+        console.log("Data post", data.getSelectedMachineChecksheet);
+        setTableData(data.getSelectedMachineChecksheet);
+        setMachineData(data.machineData);
+        // checkFieldExistsInPlanningPhase(data.getSelectedMachineChecksheet);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSelectedMachineCheckSheetTableData();
+  }, [refKey]);
+
+  useEffect(() => {
+    if (tableData.length > 0) checkFieldExistsInPlanningPhase(tableData);
+  }, [tableData]);
+
+  let count = 0;
+  const checkFieldExistsInPlanningPhase = (table1) => {
+    table1.map((key) => {
+      if ("start_month" in key) {
+        count = count + 1;
+      }
+      setSendPlanningApproval(count);
+    });
+
+    if (sendPlanningApproval === tableData.length) {
+      setPlanningApprovalShow(1);
+    } else {
+      setPlanningApprovalShow(0);
+    }
+  };
+  // console.log(sendPlanningApproval);
+
+  const monthList = [
+    {
+      label: "Apr",
+      value: "0",
+    },
+    {
+      label: "May",
+      value: "1",
+    },
+    {
+      label: "Jun",
+      value: "2",
+    },
+    {
+      label: "Jul",
+      value: "3",
+    },
+    {
+      label: "Aug",
+      value: "4",
+    },
+    {
+      label: "Sep",
+      value: "5",
+    },
+    {
+      label: "Oct",
+      value: "6",
+    },
+    {
+      label: "Nov",
+      value: "7",
+    },
+    {
+      label: "Dec",
+      value: "8",
+    },
+    {
+      label: "Jan",
+      value: "9",
+    },
+    {
+      label: "Feb",
+      value: "10",
+    },
+    {
+      label: "Mar",
+      value: "11",
+    },
+  ];
+
+  const columns = [
+    {
+      title: "SR. NO.",
+      render: (rowData) => `${rowData.tableData.id + 1}`,
+      width: "10%",
+      align: "center",
+    },
+    {
+      title: "C",
+      field: "category",
+      filtering: false,
+      align: "center",
+      editable: false,
+    },
+    {
+      title: "Inspection Item",
+      editable: false,
+      field: "inspection_parent_name",
+      filtering: false,
+      align: "center",
+      // render: (data) => {
+      //     return `${data.inspection_parent_name} ${data.inspection_child_name}`;
+      //   },
+    },
+    // {
+    //   title: "Inspection Item Child",
+    //   editable: false,
+    //   field: "inspection_child_name",
+    //   filtering: false,
+    //   align: "center",
+    //   // render: (data) => {
+    //   //     return `${data.inspection_parent_name} ${data.inspection_child_name}`;
+    //   //   },
+    // },
+    {
+      title: "Inspection Point",
+      field: "inspection_point",
+      filtering: false,
+      editable: false,
+      align: "center",
+    },
+    {
+      title: "Judgement Criteria",
+      field: "judgement_criteria",
+      editable: false,
+      align: "center",
+    },
+    {
+      title: "Action",
+      field: "action",
+      align: "center",
+      editable: false,
+      width: "10%",
+    },
+    {
+      title: "Cycle",
+      field: "cycle",
+      align: "center",
+      editable: false,
+      width: "10%",
+    },
+    {
+      title: "Person In Charge",
+      field: "personInCharge",
+      align: "center",
+      editable: false,
+      width: "10%",
+    },
+    {
+      title: "PM Time",
+      field: "PM_time",
+      align: "center",
+      editable: false,
+      width: "10%",
+    },
+    {
+      title: "Start Month",
+      field: "start_month",
+      render: (rowData) => {
+        return monthList.map((index) => {
+          if (rowData.start_month === index.value) {
+            // console.log(rowData.start_month);
+            return index.label;
+          }
+        });
+      },
+      align: "center",
+      editComponent: ({ value, onChange }) => (
+        <select
+          //   class="form-select form-select-sm"
+          aria-label=".form-select-sm example"
+          id="standard-select-currency"
+          name="monthList"
+          fullWidth
+          select // label="Select"
+          autoComplete="off"
+          onChange={(e) => onChange(e.target.value)}
+          variant="standard"
+        >
+          <option selected disabled value="">
+            Please select
+          </option>
+          {monthList.map((option) => {
+            return <option value={option.value}>{option.label}</option>;
+          })}
+        </select>
+      ),
+      width: "10%",
+    },
+  ];
+
+  return (
+    <>
+      <div style={{ margin: "0.5rem" }}>
+        <div className="pageCard">
+          <a
+            className="mb-2"
+            style={{ color: "Black" }}
+            href="/checkSheetDashboard"
+          >
+            <button
+              style={{
+                border: "none",
+                background: "white",
+                borderRadius: 5,
+              }}
+              className="mb-2"
+            >
+              <ArrowBackIcon />
+            </button>
+          </a>
+          <div class="row g-3">
+            <div class="col-2">
+              <div class="p-3 border bg-white rounded">
+                <span style={{ fontWeight: "bold" }}>
+                  Line Name:{" "}
+                  {selectedMachineData.state.selectedRow.line_names.line_name}
+                </span>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="p-3 border bg-white rounded">
+                <span style={{ fontWeight: "bold" }}>
+                  Machine Name:{" "}
+                  {selectedMachineData.state.selectedRow.machine_name}
+                </span>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="p-3 border bg-white rounded">
+                <span style={{ fontWeight: "bold" }}>
+                  Machine No:{" "}
+                  {selectedMachineData.state.selectedRow.machine_code}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ padding: "1rem" }}>
+            <MaterialTable
+              localization={
+                {
+                  // toolbar: {
+                  //   exportCSVName: "Export some Excel format",
+                  //   exportPDFName: "Export as pdf!!"
+                  // }
+                }
+              }
+              icons={tableIcons}
+              columns={columns}
+              data={tableData}
+              // title="User Management"
+              // tableRef={this.tableRef.current.onQueryChange()}
+
+              editable={{
+                // isDeleteHidden: (rowData) => rowData.user_type === 0,
+                // onRowAdd: (newRow) =>
+                //   new Promise((resolve, reject) => {
+                //     // const updatedRows = [tableData, { user_id: "", ...newRow }];
+                //     console.log(newRow);
+                //     console.log("Checking ");
+                //     // addNewChecksheetData(newRow);
+
+                //     // setTimeout(() => {
+                //     //   // setTableData(updatedRows);
+                //     //   setRefKey((refKey) => refKey + 1);
+                //     //   resolve();
+                //     // }, 500);
+                //     //refreshPage();
+                //   }),
+                // onRowDelete: (selectedRow) =>
+                //   new Promise((resolve, reject) => {
+                //     const index = selectedRow.tableData.id;
+                //     console.log(index);
+                //     const updatedRows = [...tableData];
+                //     updatedRows.splice(index, 1);
+
+                //     //call the delete user function and pass the user data
+                //     // deleteSelectedMachineChecksheetTableRowData(selectedRow);
+
+                //     // setTimeout(() => {
+                //     //   setTableData(updatedRows);
+                //     //   resolve();
+                //     // }, 500);
+                //   }),
+
+                onRowUpdate: (updatedRow, oldRow) =>
+                  new Promise((resolve, reject) => {
+                    const index = oldRow.tableData.id;
+                    const updatedRows = [...tableData];
+                    updatedRows[index] = updatedRow;
+                    updateSelectedMachineCheckSheetTableRowData(
+                      oldRow,
+                      updatedRow,
+                      selectedMachineData.state.selectedRow.machine_code
+                    );
+                    setTimeout(() => {
+                      setRefKey((refKey) => refKey + 1);
+                      setTableData(updatedRows);
+                      resolve();
+                    }, 500);
+                    //refreshPage();
+                  }),
+              }}
+              options={{
+                showTitle: false,
+                paging: false,
+                sorting: true,
+                search: true,
+                filtering: false,
+                exportButton: true,
+                exportAllData: true,
+                draggable: false,
+                actionsColumnIndex: -1,
+                pageSize: 10,
+                pageSizeOptions: false,
+                paginationType: "stepped",
+                addRowPosition: "first",
+                headerStyle: {
+                  position: "sticky",
+                  top: "0",
+                  fontWeight: "bold",
+                },
+                maxBodyHeight: "70vh",
+                rowStyle: {
+                  // fontStyle:'bold'
+
+                  boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                  // color:"rgba(255,255,255,0.8)",
+                  borderRadius: "5px",
+                  border: "1px solid rgba(255,255,255)",
+                  WebkitBackdropFilter: "blur( 2px )",
+                  background: "rgba(255,255,255,0.1)",
+                  backdropFilter: "blur(5px)",
+                },
+              }}
+            />
+            <div className="col-4 mt-2" style={{ float: "right" }}>
+              <button
+                className="btn-primary"
+                onClick={showChecksheet}
+                style={{ float: "right" }}
+              >
+                View & Send for Approval
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default PlanningPhaseTable;
