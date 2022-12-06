@@ -382,7 +382,7 @@ function CheckSheetForm() {
     // }
     // console.log(myProps);
     setNewTableData(myProps);
-  };;
+  };
 
   // console.log(tableData);
   useEffect(() => {

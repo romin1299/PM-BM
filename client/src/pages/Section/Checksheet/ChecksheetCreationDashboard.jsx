@@ -474,7 +474,7 @@ const ChecksheetCreationDashboard = ({}) => {
               <ArrowBackIcon />
             </button>
           </a>
-          {selectedMachineData.state.selectedRow.checkSheet.length < 1 ? (
+          {/* {selectedMachineData.state.selectedRow.checkSheet.length < 1 ? (
             <div class="row g-3">
               <div class="col-2">
                 <div class="p-3 border bg-white rounded">
@@ -613,7 +613,7 @@ const ChecksheetCreationDashboard = ({}) => {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
 
           <h4 style={{ padding: "1rem 0 0 1rem" }}>Checksheet Data</h4>
           <div style={{ padding: "1rem" }}>

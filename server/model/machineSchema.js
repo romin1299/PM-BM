@@ -62,7 +62,7 @@ const machineSchema = mongoose.Schema({
 
     checkSheet_data: [
         {
-            current_year: { type: String},
+            current_year: { type: String },
             checkSheet: [
                 {
                     tableRowId: {
@@ -98,30 +98,30 @@ const machineSchema = mongoose.Schema({
                     planningTableAnimationArray2:
                     {
                         Apr: { type: [String] },
-        
+
                         May: { type: [String] },
-        
+
                         June: { type: [String] },
-        
+
                         July: { type: [String] },
-        
+
                         Aug: { type: [String] },
-        
+
                         Sep: { type: [String] },
-        
+
                         Oct: { type: [String] },
-        
+
                         Nov: { type: [String] },
-        
+
                         Dec: { type: [String] },
-        
+
                         Jan: { type: [String] },
-        
+
                         Feb: { type: [String] },
-        
+
                         Mar: { type: [String] },
                     },
-        
+
                     abnormalityDetails:
                     {
                         Apr: {
@@ -133,7 +133,7 @@ const machineSchema = mongoose.Schema({
                             doneDate: { type: String, },
                             doneBy: { type: String, },
                         },
-        
+
                         May: {
                             abnormalityRemarks: { type: String, },
                             abnormalityStatus: { type: String, },
@@ -143,7 +143,7 @@ const machineSchema = mongoose.Schema({
                             doneDate: { type: String, },
                             doneBy: { type: String, },
                         },
-        
+
                         June: {
                             abnormalityRemarks: { type: String, },
                             abnormalityStatus: { type: String, },
@@ -153,7 +153,7 @@ const machineSchema = mongoose.Schema({
                             doneDate: { type: String, },
                             doneBy: { type: String, },
                         },
-        
+
                         July: {
                             abnormalityRemarks: { type: String, },
                             abnormalityStatus: { type: String, },
@@ -163,7 +163,7 @@ const machineSchema = mongoose.Schema({
                             doneDate: { type: String, },
                             doneBy: { type: String, },
                         },
-        
+
                         Aug: {
                             abnormalityRemarks: { type: String, },
                             abnormalityStatus: { type: String, },
@@ -173,7 +173,7 @@ const machineSchema = mongoose.Schema({
                             doneDate: { type: String, },
                             doneBy: { type: String, },
                         },
-        
+
                         Sep: {
                             abnormalityRemarks: { type: String, },
                             abnormalityStatus: { type: String, },
@@ -183,7 +183,7 @@ const machineSchema = mongoose.Schema({
                             doneDate: { type: String, },
                             doneBy: { type: String, },
                         },
-        
+
                         Oct: {
                             abnormalityRemarks: { type: String, },
                             abnormalityStatus: { type: String, },
@@ -193,7 +193,7 @@ const machineSchema = mongoose.Schema({
                             doneDate: { type: String, },
                             doneBy: { type: String, },
                         },
-        
+
                         Nov: {
                             abnormalityRemarks: { type: String, },
                             abnormalityStatus: { type: String, },
@@ -203,7 +203,7 @@ const machineSchema = mongoose.Schema({
                             doneDate: { type: String, },
                             doneBy: { type: String, },
                         },
-        
+
                         Dec: {
                             abnormalityRemarks: { type: String, },
                             abnormalityStatus: { type: String, },
@@ -213,7 +213,7 @@ const machineSchema = mongoose.Schema({
                             doneDate: { type: String, },
                             doneBy: { type: String, },
                         },
-        
+
                         Jan: {
                             abnormalityRemarks: { type: String, },
                             abnormalityStatus: { type: String, },
@@ -223,7 +223,7 @@ const machineSchema = mongoose.Schema({
                             doneDate: { type: String, },
                             doneBy: { type: String, },
                         },
-        
+
                         Feb: {
                             abnormalityRemarks: { type: String, },
                             abnormalityStatus: { type: String, },
@@ -233,7 +233,7 @@ const machineSchema = mongoose.Schema({
                             doneDate: { type: String, },
                             doneBy: { type: String, },
                         },
-        
+
                         Mar: {
                             abnormalityRemarks: { type: String, },
                             abnormalityStatus: { type: String, },
@@ -251,77 +251,77 @@ const machineSchema = mongoose.Schema({
                             partNo: { type: String, },
                             cost: { type: String, },
                         },
-        
+
                         May: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
                             cost: { type: String, },
                         },
-        
+
                         June: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
                             cost: { type: String, },
                         },
-        
+
                         July: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
                             cost: { type: String, },
                         },
-        
+
                         Aug: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
                             cost: { type: String, },
                         },
-        
+
                         Sep: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
                             cost: { type: String, },
                         },
-        
+
                         Oct: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
                             cost: { type: String, },
                         },
-        
+
                         Nov: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
                             cost: { type: String, },
                         },
-        
+
                         Dec: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
                             cost: { type: String, },
                         },
-        
+
                         Jan: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
                             cost: { type: String, },
                         },
-        
+
                         Feb: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
                             cost: { type: String, },
                         },
-        
+
                         Mar: {
                             spareParts: { type: String, },
                             partName: { type: String, },
@@ -390,509 +390,509 @@ const machineSchema = mongoose.Schema({
             },
             PMworkedTMName: {
                 Apr: { type: [String] },
-        
+
                 May: { type: [String] },
-        
+
                 June: { type: [String] },
-        
+
                 July: { type: [String] },
-        
+
                 Aug: { type: [String] },
-        
+
                 Sep: { type: [String] },
-        
+
                 Oct: { type: [String] },
-        
+
                 Nov: { type: [String] },
-        
+
                 Dec: { type: [String] },
-        
+
                 Jan: { type: [String] },
-        
+
                 Feb: { type: [String] },
-        
+
                 Mar: { type: [String] },
             },
             PMStatus: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             carriedPMStatus: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             PMDelayRemark: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implemetation_completed_date: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implemetation_completed_tm_no: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implemetation_completed_tm_name: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implementation_assign_PRD_TL: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implementation_assign_MTD_TL: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implementation_assign_MTD_HOS: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implementation_rejected_remarks: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implementation_approved_by_PRD_TL: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implementation_approved_by_MTD_TL: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implementation_approved_by_MTD_HOS: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implementation_approved_PRD_TL_date: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implementation_approved_MTD_TL_date: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implementation_approved_MTD_HOS_date: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implemetation_prd_tl_approval_status: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implemetation_mtd_tl_approval_status: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
             implemetation_mtd_hos_approval_status: {
                 Apr: { type: String },
-        
+
                 May: { type: String },
-        
+
                 June: { type: String },
-        
+
                 July: { type: String },
-        
+
                 Aug: { type: String },
-        
+
                 Sep: { type: String },
-        
+
                 Oct: { type: String },
-        
+
                 Nov: { type: String },
-        
+
                 Dec: { type: String },
-        
+
                 Jan: { type: String },
-        
+
                 Feb: { type: String },
-        
+
                 Mar: { type: String },
             },
         }
     ]
 
-    
+
 })
 
-const Machine = new mongoose.model('Machines', machineSchema);
+const Machine = new mongoose.model('MachinesAllData', machineSchema);
 module.exports = Machine;
