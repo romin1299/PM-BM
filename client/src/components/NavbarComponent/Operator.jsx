@@ -21,6 +21,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
 
 const NavUrl = ({ url, icon, description }) => {
@@ -83,6 +84,11 @@ const Operator = ({ userData }) => {
             url="/"
             icon={<DashboardIcon style={{ color: "#E71E25" }} />}
             description="Dashboard"
+          />
+          <NavUrl
+            url="/pmSheetApprovalOfImplementationPhase"
+            icon={<AssignmentTurnedInIcon style={{ color: "#E71E25" }} />}
+            description="PM Plan vs Actual Approval"
           />
           <List
             sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}

@@ -45,6 +45,11 @@ import CheckSheetForImplementation from "./pages/Operator/CheckSheetForImplement
 
 import CheckSheet from "./pages/Dashboard/CheckSheet";
 
+//implementation approval flow
+import PMSheetApprovalOfImplementationPhase from "./pages/Section/Checksheet/PMSheetApprovalOfImplementationPhase";
+
+import ViewChecksheet from "./pages/Section/Checksheet/ViewChecksheet";
+
 function App() {
 
   const [nav, setNav] = useState(false);
@@ -113,6 +118,8 @@ function App() {
                 <Route path="/machineWiseCheckSheet" element={<CheckSheet />} />
                 <Route path="/checksheetCreationDashboardForMTDTLandHOS" element={<MTDTLandHOSChecksheetCreationDashboard />} />
                 <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} />
+                <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
+                <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
 
                 {/* <Route path="/checkSheet" element={<CheckSheet />} /> */}
 
@@ -136,6 +143,8 @@ function App() {
                 <Route path="/machineWiseCheckSheetForImplemetation" element={<CheckSheetForImplementation />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} />
+                <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
+                <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
 
                 {/* <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
@@ -173,6 +182,8 @@ function App() {
                 <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} />
                 <Route path="/openAbnormalityTrack" element={<OpenAbnormalityTrack />} />
                 <Route path="/checksheetCreationDashboardForMTDTLandHOS" element={<MTDTLandHOSChecksheetCreationDashboard />} />
+                <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
+                <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
 
 
 

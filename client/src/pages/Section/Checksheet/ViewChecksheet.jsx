@@ -12,34 +12,70 @@ import { Container, Row, Col } from "react-bootstrap";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
 
-function ChecksheetFormApprovalForTL() {
+function ViewChecksheet() {
   const context = useContext(RoutingContext);
   const selectedMachineCheckSheetData = useLocation();
   const [newTableData, setNewTableData] = useState([]);
   const [refKey, setRefKey] = useState("");
-  const navigate = useNavigate();
-  let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
+  const [TLList, setTLList] = useState([]);
+  const [HOSList, setHOSList] = useState([]);
+  const [PRDTLlist, setPRDTLlist] = useState([]);
   const [stateForOpeningSummeryPopups, setStateForOpeningSummeryPopups] =
     useState("");
 
+  const navigate = useNavigate();
+
+  let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
   const validationSchema = yup.object({
     request: yup.string().required("Please select one"),
-    rejected_remarks: yup.string().when(["request"], {
-      is: () => formik.values.request === "No",
-      then: yup.string().required("Please enter remarks"),
+    tl_list: yup.string().when(["request"], {
+      is: () => formik.values.request === "Yes",
+      then: yup.string().required("Please select one"),
     }),
+    hos_list: yup.string().required("Please select one"),
+  });
+  const validationSchema1 = yup.object({
+    prd_tl_list: yup.string().required("Please select one"),
   });
 
-  let tableData =
-    selectedMachineCheckSheetData.state.selectedRowForViewForm.checkSheet_data
-      .checkSheet;
-  // console.log(tableData);
+  const getListForApproval = async () => {
+    try {
+      const res = await fetch("/getListForApproval", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      // console.log(data)
+      setTLList(data.MTDTLlist);
+      setHOSList(data.HOSlist);
+      setPRDTLlist(data.PRDTLlist);
+      // setTableData(finalData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   let machineAllData =
     selectedMachineCheckSheetData.state.selectedRowForViewForm;
-
   console.log(machineAllData);
+
+  let phaseStatus =
+    selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data
+      ?.checksheet_status;
+
+  let tableData =
+    selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data
+      ?.checkSheet;
+
+  let varForConditionChecking =
+    selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data;
   let columns = [
     {
       header: "SN",
@@ -130,6 +166,7 @@ function ChecksheetFormApprovalForTL() {
       sort: "true",
     },
   ];
+
   const monthKeyArray = [
     "Jan",
     "Feb",
@@ -196,11 +233,12 @@ function ChecksheetFormApprovalForTL() {
     return comparison;
   }
 
+  let count = 0;
   // console.log(context);
   const getDataModelled = () => {
     let data = tableData?.sort(compareCycle);
     let newRowData = [];
-    for (var i = 0; i < data.length; i++) {
+    for (var i = 0; i < data?.length; i++) {
       let obj = data[i];
       // console.log(obj['planningTableAnimationArray2'])
       let newColData = [];
@@ -342,7 +380,7 @@ function ChecksheetFormApprovalForTL() {
     getDataWithSpanCount(newRowData);
   };
   const getDataWithSpanCount = (myProps) => {
-    // console.log(myProps);
+    console.log(myProps);
     for (let i = 1; i < myProps.length; i++) {
       for (let j = 3; j < 4; j++) {
         for (
@@ -382,16 +420,16 @@ function ChecksheetFormApprovalForTL() {
   // console.log(tableData);
   useEffect(() => {
     getDataModelled();
-    for (let i = 0; i < tableData.length; i++) {
-      let output = "inspection_child_name" in tableData[i];
+    // for (let i = 0; i < tableData.length; i++) {
+    //   let output = "inspection_child_name" in tableData[i];
 
-      console.log(output);
+    //   // console.log(output);
 
-      if (output === true) {
-        setRefKey(true);
-        break;
-      }
-    }
+    //   if (output === true) {
+    //     setRefKey(true);
+    //     break;
+    //   }
+    // }
   }, []);
 
   //get the date and time
@@ -409,31 +447,58 @@ function ChecksheetFormApprovalForTL() {
     return `${day}/${month}/${year} - ${getTime}`;
   };
 
+  //for planning phase approval
+  const formik1 = useFormik({
+    initialValues: {
+      prd_tl_list: "",
+    },
+    validationSchema: validationSchema1,
+    onSubmit: async (values) => {
+      const res = await fetch("/sendRequestForApproval", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phaseStatus,
+          prd_tl_list: values.prd_tl_list,
+          selected_machine_data:
+            selectedMachineCheckSheetData.state.selectedRowForViewForm,
+          planning_TL_date: timeStamp(),
+        }),
+      });
+      const data = await res.json();
+      if (res.status === 400 || res.status === 422 || !data) {
+        window.alert("Invalid credentials !");
+      } else {
+        console.log("Send request sucessfully...");
+        navigate("/checkSheetDashboard");
+        // if (values.email) {
+        //   newPasswordLink(values.email);
+        // }
+      }
+    },
+  });
+
+  //for preparation phase approval
   const formik = useFormik({
     initialValues: {
       request: "",
-      rejected_remarks: "",
+      tl_list: "",
+      hos_list: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      // console.log("________");
-      const res = await fetch("/approveRequestFromTLandHOS", {
+      const res = await fetch("/sendRequestForApproval", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           request: values.request,
-          rejected_remarks: values.rejected_remarks,
+          tl_list: values.tl_list,
+          hos_list: values.hos_list,
           selected_machine_data:
             selectedMachineCheckSheetData.state.selectedRowForViewForm,
-          approved_by_TL: context.tm_name,
-          approved_by_PRD_TL: context.tm_name,
-          preparation_TL_HOSS_date: timeStamp(),
-          planning_PRD_TL_date: timeStamp(),
-          implementation_approved_PRD_TL_date: timeStamp(),
-          implementation_approved_by_PRD_TL: context.tm_name,
-          implementation_approved_MTD_TL_date: timeStamp(),
-          implementation_approved_by_MTD_TL: context.tm_name,
-          implemetation_quality_remarks: values.qaulity_remarks,
+          preparation_TL_date: timeStamp(),
         }),
       });
       const data = res.json();
@@ -441,9 +506,8 @@ function ChecksheetFormApprovalForTL() {
       if (res.status === 400 || res.status === 422 || !data) {
         window.alert("Invalid credentials !");
       } else {
-        console.log("User added sucessfully...");
-        navigate("/approvalDashboard");
-
+        console.log("Send request sucessfully...");
+        navigate("/checkSheetDashboard");
         // refreshPage();
         // if (values.email) {
         //   newPasswordLink(values.email);
@@ -451,6 +515,42 @@ function ChecksheetFormApprovalForTL() {
       }
     },
   });
+
+  // console.log(formik.values.tl_list, formik.values.hos_list);
+  const sendRequestForApprovalToPRDTL = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch("/sendRequestForApproval", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phaseStatus,
+          prd_tl_list: formik.values.prd_tl_list,
+          selected_machine_data:
+            selectedMachineCheckSheetData.state.selectedRowForViewForm,
+        }),
+      });
+      const data = await res.json();
+      if (res.status === 400 || res.status === 422 || !data) {
+        window.alert("Invalid credentials !");
+      } else {
+        console.log("Send request sucessfully...");
+        navigate("/checkSheetDashboard");
+        // if (values.email) {
+        //   newPasswordLink(values.email);
+        // }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getListForApproval();
+    // checkFieldExistsInPlanningPhase();
+  }, []);
 
   const close = () => {
     setStateForOpeningSummeryPopups("");
@@ -468,206 +568,44 @@ function ChecksheetFormApprovalForTL() {
     ).style.pointerEvents = "none";
   };
 
-  // const approveRequestFromTL = async () => {
-  //   // setSubSection(undefined);
-  //   try {
-  //     const res = await fetch("/approveRequestFromTL", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         request: formik.values.request,
-  //         rejected_remarks: formik.values.rejected_remarks,
-  //         selected_machine_data:
-  //           selectedMachineCheckSheetData.state.selectedRowForViewForm,
-  //       }),
-  //     });
-  //     const data = await res.json();
-  //     if (res.status === 400 || res.status === 422 || !data) {
-  //       window.alert("Invalid credentials !");
-  //     } else {
-  //       console.log("approve request sucessfully...");
-  //       navigate("/approvalDashboard");
-  //       // if (values.email) {
-  //       //   newPasswordLink(values.email);
-  //       // }
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // console.log(selectedMachineCheckSheetData.state.selectedRowForViewForm);
+  // console.log(sendPlanningApproval)
+  // console.log(
+  //   selectedMachineCheckSheetData.state.selectedRowForViewForm
+  //     .tl_approval_status
+  // );
+  console.log(context.user_type)
   return (
     <>
       {stateForOpeningSummeryPopups}
-
       <div className="checkSheetForImplementation1">
         <Container fluid>
           <Row>
             <Col lg={6} md={6} sm={6}>
-              <div className="col-1">
-                <a
-                  className="mb-2"
-                  style={{ color: "Black" }}
-                  href="/approvalDashboard"
-                >
-                  <button
-                    style={{
-                      border: "none",
-                      background: "white",
-                      borderRadius: 5,
-                      marginTop: "1rem",
-                    }}
-                  >
-                    <ArrowBackIcon />
-                  </button>
-                </a>
-              </div>
+              {" "}
               <div>
-                <form onSubmit={formik.handleSubmit}>
-                  <div className="row">
-                    {machineAllData.checkSheet_data.checksheet_status ===
-                      "Implementation" && context.tm_department === "PRD" ? (
-                      <div className="row mb-3 mt-3">
-                        <span>
-                          Machine quality conformation. &nbsp;
-                          <input
-                            type="radio"
-                            name="request"
-                            id="outlined-number"
-                            value="Yes"
-                            onChange={formik.handleChange}
-                          />
-                          <span
-                            style={{
-                              paddingLeft: "0.5rem",
-                              fontWeight: "550",
-                              color: "black",
-                            }}
-                          >
-                            Yes &nbsp;
-                          </span>
-                          <p
-                            style={{
-                              color: "#F44336",
-                              fontWeight: "normal",
-                              fontSize: "0.80rem",
-                              float: "right",
-                              marginRight: "12rem",
-                              // paddingTop: "0.5rem",
-                            }}
-                          >
-                            {formik.touched.request && formik.errors.request}
-                          </p>
-                        </span>
-                        <div className="col-6">
-                          <span>Remarks: </span>
-                          <TextField
-                            // id="outlined-number"
-                            name="qaulity_remarks"
-                            className="ApproveOrdRejectTextField"
-                            value={formik.values.qaulity_remarks}
-                            onChange={formik.handleChange}
-                            autoComplete="off"
-                            // label="Number"
-                            fullWidth
-                            type="text"
-                          />
-                          <br />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="row mb-3 mt-3">
-                        <span>
-                          Kindly approve checkSheet. &nbsp;
-                          <input
-                            type="radio"
-                            name="request"
-                            id="outlined-number"
-                            value="Yes"
-                            onChange={formik.handleChange}
-                          />
-                          <span
-                            style={{
-                              paddingLeft: "0.5rem",
-                              fontWeight: "550",
-                              color: "black",
-                            }}
-                          >
-                            Yes &nbsp;
-                          </span>
-                          <input
-                            type="radio"
-                            name="request"
-                            id="outlined-number"
-                            value="No"
-                            onChange={formik.handleChange}
-                          />
-                          <span
-                            style={{
-                              paddingLeft: "0.5rem",
-                              fontWeight: "550",
-                              color: "black",
-                            }}
-                          >
-                            No
-                          </span>
-                          <p
-                            style={{
-                              color: "#F44336",
-                              fontWeight: "normal",
-                              fontSize: "0.80rem",
-                              float: "right",
-                              marginRight: "12rem",
-                              // paddingTop: "0.5rem",
-                            }}
-                          >
-                            {formik.touched.request && formik.errors.request}
-                          </p>
-                        </span>
-                      </div>
-                    )}
-
-                    {formik.values.request === "No" ? (
-                      <div className="col-6">
-                        <span>Remarks: </span>
-                        <TextField
-                          // id="outlined-number"
-                          name="rejected_remarks"
-                          className="ApproveOrdRejectTextField"
-                          value={formik.values.rejected_remarks}
-                          onChange={formik.handleChange}
-                          autoComplete="off"
-                          // label="Number"
-                          fullWidth
-                          type="text"
-                        />
-                        <br />
-                        <p
-                          style={{
-                            color: "#F44336",
-                            fontWeight: "normal",
-                            fontSize: "0.80rem",
-                            float: "left",
-                            paddingTop: "0.5rem",
-                          }}
-                        >
-                          {formik.touched.rejected_remarks &&
-                            formik.errors.rejected_remarks}
-                        </p>
-                      </div>
-                    ) : (
-                      ""
-                    )}
-                    <div className="col-6 d-flex align-items-center">
-                      <button type="submit" className="btn">
-                        Submit
-                      </button>
-                    </div>
-                  </div>
-                </form>
+                <div className="col-2 mt-2">
+                  <a
+                    style={{ color: "Black" }}
+                    href={
+                      context.tm_department === "MTD" && context.user_type === "TL/HOSS"
+                        ? "/checkSheetDashboard"
+                        : context.tm_department === "PRD" && context.user_type === "TL/HOSS" ||
+                          context.user_type === "Section-Admin"
+                        ? "/approvalDashboard"
+                        : "/checkSheetDashboard"
+                    }
+                  >
+                    <button
+                      style={{
+                        border: "none",
+                        background: "white",
+                        borderRadius: 5,
+                      }}
+                    >
+                      <ArrowBackIcon />
+                    </button>
+                  </a>
+                </div>
               </div>
             </Col>
             <Col lg={6} md={6} sm={6}>
@@ -699,14 +637,14 @@ function ChecksheetFormApprovalForTL() {
                       // colSpan={2}
                       //  rowSpan={5}
                     >
-                      {machineAllData.checkSheet_data.approved_by_PRD_TL[
-                        machineAllData.checkSheet_data.approved_by_PRD_TL
+                      {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                        machineAllData?.checkSheet_data?.approved_by_PRD_TL
                           .length - 1
                       ]
                         ? `${
-                            machineAllData.checkSheet_data.approved_by_PRD_TL[
-                              machineAllData.checkSheet_data.approved_by_PRD_TL
-                                .length - 1
+                            machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                              machineAllData?.checkSheet_data
+                                ?.approved_by_PRD_TL.length - 1
                             ]
                           }`
                         : ""}
@@ -716,15 +654,15 @@ function ChecksheetFormApprovalForTL() {
                       // colSpan={2}
                       //  rowSpan={5}
                     >
-                      {machineAllData.checkSheet_data.plan_prepared_tm_name[
-                        machineAllData.checkSheet_data.plan_prepared_tm_name
+                      {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
+                        machineAllData?.checkSheet_data?.plan_prepared_tm_name
                           .length - 1
                       ]
                         ? `${
-                            machineAllData.checkSheet_data
-                              .plan_prepared_tm_name[
-                              machineAllData.checkSheet_data
-                                .plan_prepared_tm_name.length - 1
+                            machineAllData?.checkSheet_data
+                              ?.plan_prepared_tm_name[
+                              machineAllData?.checkSheet_data
+                                ?.plan_prepared_tm_name.length - 1
                             ]
                           }`
                         : ""}
@@ -736,8 +674,9 @@ function ChecksheetFormApprovalForTL() {
           </Row>
         </Container>
       </div>
-      {machineAllData.checksheet_status === "Planning" ||
-      machineAllData.checksheet_status === "Implementation" ? (
+      {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
+      machineAllData?.checkSheet_data?.checksheet_status ===
+        "Implementation" ? (
         <div className="row mt-3">
           <div className="col-6"></div>
           <span className="col-6">
@@ -752,130 +691,135 @@ function ChecksheetFormApprovalForTL() {
       ) : (
         ""
       )}
-      <Container fluid>
-        <Row>
-          <Col className="table-scrolling">
-            <table className="ar-table tableCol">
-              <thead>
-                <tr style={{ height: "2rem" }}>
-                  <th
-                    className="ar-table-thead-header2 headerPD"
-                    colSpan={3}
-                    rowSpan={5}
-                  >
-                    Line:- {machineAllData.line_names.lineName}
-                    <br />
-                    M/c No : {machineAllData.machine_code}
-                  </th>
-                  <th
-                    className="ar-table-thead-header2 headerPD"
-                    colSpan={2}
-                    rowSpan={5}
-                  >
-                    Machine Name: {machineAllData.machine_name}
-                  </th>
-                  <th
-                    className="ar-table-thead-header1 headerPD  align-items-center"
-                    colSpan={2}
-                    style={{ textAlign: "center" }}
-                    // rowSpan={2}
-                  >
-                    Approved by
-                    <br />
-                    (MTD HOS)
-                  </th>
-                  <th
-                    className="ar-table-thead-header1 headerPD"
-                    colSpan={2}
-                    style={{ textAlign: "center" }}
-                    // rowSpan={2}
-                  >
-                    Prepared by
-                    <br />
-                    (MTD TL)
-                  </th>
-                  <th className="ar-table-thead-header1">
-                    Checked & Verify by
-                    <br />
-                    (MTD TL)
-                  </th>
-                  {machineAllData.checkSheet_data
-                    .implementation_approved_by_MTD_TL
-                    ? Object.values(
-                        machineAllData.checkSheet_data
-                          .implementation_approved_by_MTD_TL
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
-                    : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
-                </tr>
-                <tr>
-                  <th className="approvalName" colSpan={2} rowSpan={5}>
-                    {machineAllData.checkSheet_data.approved_by_HOS[
-                      machineAllData.checkSheet_data.approved_by_HOS.length - 1
-                    ]
-                      ? machineAllData.checkSheet_data.approved_by_HOS[
-                          machineAllData.checkSheet_data.approved_by_HOS
-                            .length - 1
-                        ]
-                      : ""}
-                    <br />
 
-                    {machineAllData.checkSheet_data.approved_by_TL[
-                      machineAllData.checkSheet_data.approved_by_TL.length - 1
-                    ]
-                      ? `,${
-                          machineAllData.checkSheet_data.approved_by_TL[
-                            machineAllData.checkSheet_data.approved_by_TL
+      <div>
+        <Container fluid>
+          <Row>
+            <Col className="table-scrolling">
+              <table className="ar-table tableCol">
+                <thead>
+                  <tr style={{ height: "2rem" }}>
+                    <th
+                      className="ar-table-thead-header2 headerPD"
+                      colSpan={3}
+                      rowSpan={5}
+                    >
+                      Line:- {machineAllData.line_names.line_name}
+                      <br />
+                      M/c No : {machineAllData.machine_code}
+                    </th>
+                    <th
+                      className="ar-table-thead-header2 headerPD"
+                      colSpan={2}
+                      rowSpan={5}
+                    >
+                      Machine Name: {machineAllData.machine_name}
+                    </th>
+                    <th
+                      className="ar-table-thead-header1 headerPD  align-items-center"
+                      colSpan={2}
+                      style={{ textAlign: "center" }}
+                      // rowSpan={2}
+                    >
+                      Approved by
+                      <br />
+                      (MTD HOS)
+                    </th>
+                    <th
+                      className="ar-table-thead-header1 headerPD"
+                      colSpan={2}
+                      style={{ textAlign: "center" }}
+                      // rowSpan={2}
+                    >
+                      Prepared by
+                      <br />
+                      (MTD TL)
+                    </th>
+                    <th className="ar-table-thead-header1">
+                      Checked & Verify by
+                      <br />
+                      (MTD TL)
+                    </th>
+                    {machineAllData?.checkSheet_data
+                      ?.implementation_approved_by_MTD_TL
+                      ? Object.values(
+                          machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_MTD_TL
+                        ).map((index) => (
+                          <td className="ar-table-col1">
+                            {index[index.length - 1]}
+                          </td>
+                        ))
+                      : refArrayForTDMapping.map((index) => (
+                          <td className="ar-table-col1"></td>
+                        ))}
+                  </tr>
+                  <tr>
+                    <th className="approvalName" colSpan={2} rowSpan={5}>
+                      {machineAllData?.checkSheet_data?.approved_by_HOS[
+                        machineAllData?.checkSheet_data?.approved_by_HOS
+                          .length - 1
+                      ]
+                        ? machineAllData?.checkSheet_data?.approved_by_HOS[
+                            machineAllData?.checkSheet_data?.approved_by_HOS
                               .length - 1
                           ]
-                        }`
-                      : ""}
-                  </th>
-                  <th className="approvalName" colSpan={2} rowSpan={5}>
-                    {machineAllData.checkSheet_data.sender_tm_name[
-                      machineAllData.checkSheet_data.sender_tm_name.length - 1
-                    ]
-                      ? machineAllData.checkSheet_data.sender_tm_name[
-                          machineAllData.checkSheet_data.sender_tm_name.length -
-                            1
-                        ]
-                      : ""}
-                  </th>
-                  <th className="ar-table-thead-header1">
-                    Approved by
-                    <br />
-                    (MTD HOS)
-                  </th>
-                  {machineAllData.checkSheet_data
-                    .implementation_approved_by_MTD_HOS
-                    ? Object.values(
-                        machineAllData.checkSheet_data
-                          .implementation_approved_by_MTD_HOS
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
-                    : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
-                </tr>
-                <tr>
-                  <th className="ar-table-thead-header1">
-                    Approved by
-                    <br />
-                    (MTD HOD)
-                  </th>
-                  <th className="ar-table-col1" colSpan={6}></th>
-                  <th className="ar-table-col1" colSpan={6}></th>
-                </tr>
-              </thead>
-              {/* <thead className="ar-table-thead1">
+                        : ""}
+                      <br />
+
+                      {machineAllData?.checkSheet_data?.approved_by_TL[
+                        machineAllData?.checkSheet_data?.approved_by_TL.length -
+                          1
+                      ]
+                        ? `,${
+                            machineAllData?.checkSheet_data?.approved_by_TL[
+                              machineAllData?.checkSheet_data?.approved_by_TL
+                                .length - 1
+                            ]
+                          }`
+                        : ""}
+                    </th>
+                    <th className="approvalName" colSpan={2} rowSpan={5}>
+                      {machineAllData?.checkSheet_data?.sender_tm_name[
+                        machineAllData?.checkSheet_data?.sender_tm_name.length -
+                          1
+                      ]
+                        ? machineAllData?.checkSheet_data?.sender_tm_name[
+                            machineAllData?.checkSheet_data?.sender_tm_name
+                              .length - 1
+                          ]
+                        : ""}
+                    </th>
+                    <th className="ar-table-thead-header1">
+                      Approved by
+                      <br />
+                      (MTD HOS)
+                    </th>
+                    {machineAllData?.checkSheet_data
+                      ?.implementation_approved_by_MTD_HOS
+                      ? Object.values(
+                          machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_MTD_HOS
+                        ).map((index) => (
+                          <td className="ar-table-col1">
+                            {index[index.length - 1]}
+                          </td>
+                        ))
+                      : refArrayForTDMapping.map((index) => (
+                          <td className="ar-table-col1"></td>
+                        ))}
+                  </tr>
+                  <tr>
+                    <th className="ar-table-thead-header1">
+                      Approved by
+                      <br />
+                      (MTD HOD)
+                    </th>
+                    <th className="ar-table-col1" colSpan={6}></th>
+                    <th className="ar-table-col1" colSpan={6}></th>
+                  </tr>
+                </thead>
+                {/* <thead className="ar-table-thead1">
                   <tr>
                     {refArrayForTDMapping.map((index) => (
                       <td className="ar-table-col1"></td>
@@ -891,90 +835,90 @@ function ChecksheetFormApprovalForTL() {
                     <td className="ar-table-col1" colSpan={6}></td>
                   </tr>
                 </thead> */}
-              <thead className="mt-5">
-                <tr>
-                  {columns.map((tColumn) => (
-                    <th
-                      className={
-                        tColumn.header === ""
-                          ? "ar-table-thead-header3"
-                          : "ar-table-thead-header"
+                <thead className="mt-5">
+                  <tr>
+                    {columns.map((tColumn) => (
+                      <th
+                        className={
+                          tColumn.header === ""
+                            ? "ar-table-thead-header3"
+                            : "ar-table-thead-header"
+                        }
+                        // colSpan={
+                        //   tColumn.header === "Inspection item"
+                        //     ? refKey === true
+                        //       ? 2
+                        //       : 0
+                        //     : 0
+                        // }
+                      >
+                        {tColumn.header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {newTableData.map((rData) => (
+                    <Rows
+                      rData={rData}
+                      checkSheet_status={
+                        machineAllData?.checkSheet_data?.checksheet_status
                       }
-                      colSpan={
-                        tColumn.header === "Inspection item"
-                          ? refKey === true
-                            ? 2
-                            : 0
-                          : 0
-                      }
-                    >
-                      {tColumn.header}
+                    />
+                  ))}
+                  <tr>
+                    <th colSpan={9}></th>
+                    <th className="ar-table-thead-header1">
+                      Done By
+                      <br />
+                      (MTD TM's)
                     </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {newTableData.map((rData) => (
-                  <Rows
-                    rData={rData}
-                    checkSheet_status={
-                      machineAllData.checkSheet_data.checksheet_status
-                    }
-                  />
-                ))}
-                <tr>
-                  <th colSpan={9}></th>
-                  <th className="ar-table-thead-header1">
-                    Done By
-                    <br />
-                    (MTD TM's)
-                  </th>
-                  {machineAllData.checkSheet_data.PMworkedTMName
-                    ? Object.values(
-                        machineAllData.checkSheet_data.PMworkedTMName
-                      ).map((index) => (
-                        <td className="ar-table-col1">{index.join(" ,")}</td>
-                      ))
-                    : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
-                </tr>
-                <tr>
-                  <th colSpan={9}></th>
-                  <th className="ar-table-thead-header1">
-                    Quality Check
-                    <br />
-                    (By PRD TL)
-                  </th>
-                  {machineAllData.checkSheet_data
-                    .implementation_approved_by_PRD_TL
-                    ? Object.values(
-                        machineAllData.checkSheet_data
-                          .implementation_approved_by_PRD_TL
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
-                    : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
-                </tr>
-                <tr>
-                  <th colSpan={9}></th>
-                  <th className="ar-table-thead-header1">
-                    Revised Plan
-                    <br />
-                    Approved(MTD HOS)
-                  </th>
-                  {refArrayForTDMapping.map((index) => (
-                    <td className="ar-table-col1"></td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </Col>
-          {/* <Col lg={6} md={6} sm={6}>
+                    {machineAllData?.checkSheet_data?.PMworkedTMName
+                      ? Object.values(
+                          machineAllData?.checkSheet_data?.PMworkedTMName
+                        ).map((index) => (
+                          <td className="ar-table-col1">{index.join(" ,")}</td>
+                        ))
+                      : refArrayForTDMapping.map((index) => (
+                          <td className="ar-table-col1"></td>
+                        ))}
+                  </tr>
+                  <tr>
+                    <th colSpan={9}></th>
+                    <th className="ar-table-thead-header1">
+                      Quality Check
+                      <br />
+                      (By PRD TL)
+                    </th>
+                    {machineAllData?.checkSheet_data
+                      ?.implementation_approved_by_PRD_TL
+                      ? Object.values(
+                          machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_PRD_TL
+                        ).map((index) => (
+                          <td className="ar-table-col1">
+                            {index[index.length - 1]}
+                          </td>
+                        ))
+                      : refArrayForTDMapping.map((index) => (
+                          <td className="ar-table-col1"></td>
+                        ))}
+                  </tr>
+                  <tr>
+                    <th colSpan={9}></th>
+                    <th className="ar-table-thead-header1">
+                      Revised Plan
+                      <br />
+                      Approved(MTD HOS)
+                    </th>
+                    {refArrayForTDMapping.map((index) => (
+                      <td className="ar-table-col1"></td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </Col>
+            {/* <Col lg={6} md={6} sm={6}>
               {phaseStatus === "Planning" ? (
                 <div>
                   <div>
@@ -1081,13 +1025,13 @@ function ChecksheetFormApprovalForTL() {
                 console.log("not plannig")
               )}
             </Col> */}
-        </Row>
-        <Row>
-          <Col></Col>
-          <Col className="ar-table tableCol">
-            <div className="mb-2 row">
-              <div className="col-6"> </div>
-              {/* <TextField
+          </Row>
+          <Row>
+            <Col></Col>
+            <Col className="ar-table tableCol">
+              <div className="mb-2 row">
+                <div className="col-6"> </div>
+                {/* <TextField
                         type="text"
                         className="col-6"
                         name="pmTime"
@@ -1101,18 +1045,19 @@ function ChecksheetFormApprovalForTL() {
                           formik.touched.pmTime && formik.errors.pmTime
                         }
                       /> */}
-              <button
-                className="btn col-3"
-                onClick={funForOpeningSummeryPopups}
-              >
-                Summary
-              </button>
-            </div>
-          </Col>
-        </Row>
-      </Container>
+                <button
+                  className="btn col-3"
+                  onClick={funForOpeningSummeryPopups}
+                >
+                  Summary
+                </button>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </div>
     </>
   );
 }
 
-export default ChecksheetFormApprovalForTL;
+export default ViewChecksheet;

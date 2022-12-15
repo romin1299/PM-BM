@@ -19,8 +19,9 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
 
   const location = useLocation();
   let machineAllData = machineData;
+  // console.log(machineAllData)
   // console.log(location.state);
-  let tableData = machineData.checkSheet;
+  let tableData = machineData?.checkSheet_data?.checkSheet;
   let columns = [
     {
       header: "SN",
@@ -161,12 +162,25 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
       console.log(error);
     }
   };
+  function compareCycle(a, b) {
+    // converting to uppercase to have case-insensitive comparison
+    const name1 = a.cycle.toUpperCase();
+    const name2 = b.cycle.toUpperCase();
 
+    let comparison = 0;
+
+    if (name1 > name2) {
+      comparison = 1;
+    } else if (name1 < name2) {
+      comparison = -1;
+    }
+    return comparison;
+  }
   // console.log(context);
   const getDataModelled = () => {
-    let data = tableData;
+    let data = tableData?.sort(compareCycle);
     let newRowData = [];
-    for (var i = 0; i < data.length; i++) {
+    for (var i = 0; i < data?.length; i++) {
       let obj = data[i];
       // console.log(obj['planningTableAnimationArray2'])
       let newColData = [];
@@ -183,15 +197,33 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
           continue;
         }
 
-        newColData.push(
-          new Object({
-            key: key,
-            value: obj[key],
-            rowspan: 1,
-            // colspan: 1,
-            print: true,
-          })
-        );
+        key === "tableRowId"
+          ? newColData.push(
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: false,
+              }),
+
+              new Object({
+                key: "rowId",
+                value: i + 1,
+                rowspan: 1,
+                // colspan: 1,
+                print: true,
+              })
+            )
+          : newColData.push(
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: true,
+              })
+            );
       }
       for (let key in obj) {
         // console.log(obj[key]);
@@ -292,7 +324,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
   const getDataWithSpanCount = (myProps) => {
     // console.log(myProps);
     for (let i = 1; i < myProps.length; i++) {
-      for (let j = 2; j < 3; j++) {
+      for (let j = 3; j < 4; j++) {
         for (
           let k = i - 1;
           k >= 0 && myProps[i][j].value == myProps[k][j].value;
@@ -302,7 +334,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
           myProps[k + 1][j].print = false;
         }
       }
-      for (let j = 9; j < 10; j++) {
+      for (let j = 10; j < 11; j++) {
         for (
           let k = i - 1;
           k >= 0 && myProps[i][j].value == myProps[k][j].value;
@@ -330,16 +362,16 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
   // console.log(tableData);
   useEffect(() => {
     getDataModelled();
-    for (let i = 0; i < tableData.length; i++) {
-      let output = "inspection_child_name" in tableData[i];
+    // for (let i = 0; i < tableData.length; i++) {
+    //   let output = "inspection_child_name" in tableData[i];
 
-      console.log(output);
+    //   console.log(output);
 
-      if (output === true) {
-        setRefKey(true);
-        break;
-      }
-    }
+    //   if (output === true) {
+    //     setRefKey(true);
+    //     break;
+    //   }
+    // }
   }, []);
   const [stateForOpeningSummeryPopups, setStateForOpeningSummeryPopups] =
     useState("");
@@ -364,7 +396,6 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
       {stateForOpeningSummeryPopups}
       <div className="checkSheetForImplementation">
         <div className="row">
-          <div className="col-11"></div>
           <div className="col-1">
             <button
               className="btn-closeForChecksheet"
@@ -373,6 +404,8 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
               Close
             </button>
           </div>
+          <div className="col-11"></div>
+
         </div>
 
         <br />
@@ -411,12 +444,14 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         // colSpan={2}
                         //  rowSpan={5}
                       >
-                        {machineAllData.approved_by_PRD_TL[
-                          machineAllData.approved_by_PRD_TL.length - 1
+                        {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                          machineAllData?.checkSheet_data?.approved_by_PRD_TL
+                            .length - 1
                         ]
                           ? `${
-                              machineAllData.approved_by_PRD_TL[
-                                machineAllData.approved_by_PRD_TL.length - 1
+                              machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                                machineAllData?.checkSheet_data
+                                  .approved_by_PRD_TL.length - 1
                               ]
                             }`
                           : ""}
@@ -426,12 +461,15 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         // colSpan={2}
                         //  rowSpan={5}
                       >
-                        {machineAllData.plan_prepared_tm_name[
-                          machineAllData.plan_prepared_tm_name.length - 1
+                        {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
+                          machineAllData?.checkSheet_data?.plan_prepared_tm_name
+                            .length - 1
                         ]
                           ? `${
-                              machineAllData.plan_prepared_tm_name[
-                                machineAllData.plan_prepared_tm_name.length - 1
+                              machineAllData?.checkSheet_data
+                                .plan_prepared_tm_name[
+                                machineAllData?.checkSheet_data
+                                  .plan_prepared_tm_name.length - 1
                               ]
                             }`
                           : ""}
@@ -508,11 +546,13 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         <br />
                         (MTD TL)
                       </th>
-                      {machineAllData.implementation_approved_by_MTD_TL
+                      {machineAllData?.checkSheet_data
+                        ?.implementation_approved_by_MTD_TL
                         ? Object.values(
-                            machineAllData.implementation_approved_by_MTD_TL
+                            machineAllData?.checkSheet_data
+                              ?.implementation_approved_by_MTD_TL
                           ).map((index) => (
-                            <td className="ar-table-col1">{index}</td>
+                            <td className="ar-table-col1">{index[index.length - 1]}</td>
                           ))
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
@@ -520,31 +560,37 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                     </tr>
                     <tr>
                       <th className="approvalName" colSpan={2} rowSpan={5}>
-                        {machineAllData.approved_by_HOS[
-                          machineAllData.approved_by_HOS.length - 1
+                        {machineAllData?.checkSheet_data?.approved_by_HOS[
+                          machineAllData?.checkSheet_data?.approved_by_HOS
+                            .length - 1
                         ]
-                          ? machineAllData.approved_by_HOS[
-                              machineAllData.approved_by_HOS.length - 1
+                          ? machineAllData?.checkSheet_data?.approved_by_HOS[
+                              machineAllData?.checkSheet_data?.approved_by_HOS
+                                .length - 1
                             ]
                           : ""}
                         <br />
 
-                        {machineAllData.approved_by_TL[
-                          machineAllData.approved_by_TL.length - 1
+                        {machineAllData?.checkSheet_data?.approved_by_TL[
+                          machineAllData?.checkSheet_data?.approved_by_TL.length -
+                            1
                         ]
                           ? `,${
-                              machineAllData.approved_by_TL[
-                                machineAllData.approved_by_TL.length - 1
+                              machineAllData?.checkSheet_data?.approved_by_TL[
+                                machineAllData?.checkSheet_data?.approved_by_TL
+                                  .length - 1
                               ]
                             }`
                           : ""}
                       </th>
                       <th className="approvalName" colSpan={2} rowSpan={5}>
-                        {machineAllData.sender_tm_name[
-                          machineAllData.sender_tm_name.length - 1
+                        {machineAllData?.checkSheet_data?.sender_tm_name[
+                          machineAllData?.checkSheet_data?.sender_tm_name.length -
+                            1
                         ]
-                          ? machineAllData.sender_tm_name[
-                              machineAllData.sender_tm_name.length - 1
+                          ? machineAllData?.checkSheet_data?.sender_tm_name[
+                              machineAllData?.checkSheet_data?.sender_tm_name
+                                .length - 1
                             ]
                           : ""}
                       </th>
@@ -553,11 +599,13 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         <br />
                         (MTD HOS)
                       </th>
-                      {machineAllData.implementation_approved_by_MTD_HOS
+                      {machineAllData?.checkSheet_data
+                        ?.implementation_approved_by_MTD_HOS
                         ? Object.values(
-                            machineAllData.implementation_approved_by_MTD_HOS
+                            machineAllData?.checkSheet_data
+                              ?.implementation_approved_by_MTD_HOS
                           ).map((index) => (
-                            <td className="ar-table-col1">{index}</td>
+                            <td className="ar-table-col1">{index[index.length - 1]}</td>
                           ))
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
@@ -780,11 +828,17 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         <br />
                         (MTD TM's)
                       </th>
-                      {Object.values(machineAllData.PMworkedTMName).map(
-                        (index) => (
-                          <td className="ar-table-col1">{index.join(" ,")}</td>
-                        )
-                      )}
+                      {machineAllData?.checkSheet_data?.PMworkedTMName
+                        ? Object.values(
+                            machineAllData?.checkSheet_data?.PMworkedTMName
+                          ).map((index) => (
+                            <td className="ar-table-col1">
+                              {index.join(" ,")}
+                            </td>
+                          ))
+                        : refArrayForTDMapping.map((index) => (
+                            <td className="ar-table-col1"></td>
+                          ))}
                     </tr>
                     <tr>
                       <th colSpan={9}></th>
@@ -793,11 +847,13 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         <br />
                         (By PRD TL)
                       </th>
-                      {machineAllData.implementation_approved_by_PRD_TL
+                      {machineAllData?.checkSheet_data
+                        ?.implementation_approved_by_PRD_TL
                         ? Object.values(
-                            machineAllData.implementation_approved_by_PRD_TL
+                            machineAllData?.checkSheet_data
+                              ?.implementation_approved_by_PRD_TL
                           ).map((index) => (
-                            <td className="ar-table-col1">{index}</td>
+                            <td className="ar-table-col1">{index[index.length - 1]}</td>
                           ))
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
@@ -953,24 +1009,24 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                 </div>
               </Col>
             </Row>
-            {machineAllData.implemetation_prd_tl_approval_status ||
-            machineAllData.implemetation_mtd_tl_approval_status ||
-            machineAllData.implemetation_mtd_hos_approval_status ? (
-              machineAllData.implemetation_prd_tl_approval_status[
+            {machineAllData?.checkSheet_data?.implemetation_prd_tl_approval_status ||
+            machineAllData?.checkSheet_data?.implemetation_mtd_tl_approval_status ||
+            machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status ? (
+              machineAllData?.checkSheet_data?.implemetation_prd_tl_approval_status[
                 monthForCompareSystemMonth
               ] !== "Rejected" ||
-              machineAllData.implemetation_mtd_tl_approval_status[
+              machineAllData?.checkSheet_data?.implemetation_mtd_tl_approval_status[
                 monthForCompareSystemMonth
               ] !== "Rejected" ||
-              machineAllData.implemetation_mtd_hos_approval_status[
+              machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status[
                 monthForCompareSystemMonth
               ] !== "Rejected" ? (
                 <>
                   <Row>
                     <Col></Col>
                     <Col className="ar-table tableCol">
-                      {machineAllData.PMDelayRemark ? (
-                        machineAllData.PMDelayRemark[
+                      {machineAllData?.checkSheet_data?.PMDelayRemark ? (
+                        machineAllData?.checkSheet_data?.PMDelayRemark[
                           monthForCompareSystemMonth
                         ] ? (
                           <div className="mb-2 row">
@@ -986,7 +1042,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                               name="delayRemarks"
                               autoComplete="off"
                               value={
-                                machineAllData.PMDelayRemark[
+                                machineAllData?.checkSheet_data?.PMDelayRemark[
                                   monthForCompareSystemMonth
                                 ]
                               }
@@ -1007,12 +1063,11 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                               autoComplete="off"
                               // value={formik.values.delayRemarks}
                               placeholder={
-                                machineAllData.PMDelayRemark[
+                                machineAllData?.checkSheet_data?.PMDelayRemark[
                                   monthForCompareSystemMonth
                                 ]
-                                  ? machineAllData.PMDelayRemark[
-                                      monthForCompareSystemMonth
-                                    ]
+                                  ? machineAllData?.checkSheet_data
+                                      .PMDelayRemark[monthForCompareSystemMonth]
                                   : ""
                               }
                             />
@@ -1031,9 +1086,10 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           name="pmStatus"
                           autoComplete="off"
                           value={
-                            machineAllData.PMStatus === undefined
+                            machineAllData?.checkSheet_data?.PMStatus ===
+                            undefined
                               ? "Pending"
-                              : machineAllData.PMStatus[
+                              : machineAllData?.checkSheet_data?.PMStatus[
                                   monthForCompareSystemMonth
                                 ]
                           }
@@ -1055,7 +1111,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           className="col-8"
                           name="pmTime"
                           autoComplete="off"
-                          value={machineAllData.totalPMTime}
+                          value={machineAllData?.checkSheet_data?.totalPMTime}
                         />
                       </div>
                       <div className="mb-2 row">
@@ -1068,7 +1124,10 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           name="supportingOperator"
                           multiline
                           autoComplete="off"
-                          value={machineAllData.supportingOperatorList}
+                          value={
+                            machineAllData?.checkSheet_data
+                              .supportingOperatorList
+                          }
                         />
                       </div>
                     </Col>
@@ -1079,8 +1138,8 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                   <Row>
                     <Col></Col>
                     <Col className="ar-table tableCol">
-                      {machineAllData.PMDelayRemark ? (
-                        machineAllData.PMDelayRemark[
+                      {machineAllData?.checkSheet_data?.PMDelayRemark ? (
+                        machineAllData?.checkSheet_data?.PMDelayRemark[
                           monthForCompareSystemMonth
                         ] ? (
                           <div className="mb-2 row">
@@ -1096,7 +1155,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                               name="delayRemarks"
                               autoComplete="off"
                               value={
-                                machineAllData.PMDelayRemark[
+                                machineAllData?.checkSheet_data?.PMDelayRemark[
                                   monthForCompareSystemMonth
                                 ]
                               }
@@ -1117,12 +1176,11 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                               autoComplete="off"
                               // value={formik.values.delayRemarks}
                               placeholder={
-                                machineAllData.PMDelayRemark[
+                                machineAllData?.checkSheet_data?.PMDelayRemark[
                                   monthForCompareSystemMonth
                                 ]
-                                  ? machineAllData.PMDelayRemark[
-                                      monthForCompareSystemMonth
-                                    ]
+                                  ? machineAllData?.checkSheet_data
+                                      .PMDelayRemark[monthForCompareSystemMonth]
                                   : ""
                               }
                             />
@@ -1141,9 +1199,10 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           name="pmStatus"
                           autoComplete="off"
                           value={
-                            machineAllData.PMStatus === undefined
+                            machineAllData?.checkSheet_data?.PMStatus ===
+                            undefined
                               ? "Pending"
-                              : machineAllData.PMStatus[
+                              : machineAllData?.checkSheet_data?.PMStatus[
                                   monthForCompareSystemMonth
                                 ]
                           }
@@ -1165,7 +1224,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           className="col-8"
                           name="pmTime"
                           autoComplete="off"
-                          value={machineAllData.totalPMTime}
+                          value={machineAllData?.checkSheet_data?.totalPMTime}
                         />
                       </div>
                       <div className="mb-2 row">
@@ -1179,8 +1238,10 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           multiline
                           autoComplete="off"
                           value={
-                            machineAllData.supportingOperatorList
-                              ? machineAllData.supportingOperatorList
+                            machineAllData?.checkSheet_data
+                              .supportingOperatorList
+                              ? machineAllData?.checkSheet_data
+                                  .supportingOperatorList
                               : ""
                           }
                         />
@@ -1195,8 +1256,10 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           name="implementation_rejected_remarks"
                           autoComplete="off"
                           value={
-                            machineAllData.implementation_rejected_remarks
-                              ? machineAllData.implementation_rejected_remarks[
+                            machineAllData?.checkSheet_data
+                              .implementation_rejected_remarks
+                              ? machineAllData?.checkSheet_data
+                                  .implementation_rejected_remarks[
                                   monthForCompareSystemMonth
                                 ]
                               : ""

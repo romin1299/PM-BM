@@ -10,6 +10,7 @@ function WorkOnImplementationPM({
   close,
   disabledButtonAfterPM,
   tableRowId,
+  yearOfCheckSheet,
   machineId,
   monthForCompareSystemMonth,
   previousMonth,
@@ -108,6 +109,7 @@ function WorkOnImplementationPM({
       );
       formData.append("machineId", machineId);
       formData.append("tableRowId", tableRowId);
+      formData.append("yearOfCheckSheet", yearOfCheckSheet);
       formData.append("monthForCompareSystemMonth", monthForCompareSystemMonth);
       formData.append("previousMonth", previousMonth);
       // Abnormality Details
@@ -233,15 +235,29 @@ function WorkOnImplementationPM({
             </div>
 
             {formik.values.workedOnPM === "Yes" ? (
-              <div className="mb-3">
-                <span>Remarks: </span>
-                <input
-                  type="text"
-                  maxLength={5}
-                  // id={rData[0].value}
-                  name="remarksOfImplementation"
-                  onChange={formik.handleChange}
-                />
+              <div>
+                <div className="mb-3">
+                  <span>Remarks: </span>
+                  <input
+                    type="text"
+                    maxLength={5}
+                    // id={rData[0].value}
+                    name="remarksOfImplementation"
+                    onChange={formik.handleChange}
+                  />
+                </div>
+                <div className="mb-3">
+                  <span>Photo Upload: </span>
+                  <input
+                    type="file"
+                    className="col-6"
+                    name="photoUpload"
+                    // onChange={(e) => {
+                    //   formik.handleChange(e.target.files[0]);
+                    // }}
+                    onChange={(e) => setUserPhoto(e.target.files[0])}
+                  />
+                </div>
               </div>
             ) : formik.values.workedOnPM === "No" ||
               formik.values.workedOnPM === "Rectify" ? (
@@ -340,15 +356,29 @@ function WorkOnImplementationPM({
                         </div>
                       </div>
                     ) : (
-                      <div className="mb-2 row">
-                        <span className="col-6">Abnormality Status: </span>
-                        <input
-                          type="text"
-                          className="col-6"
-                          name="abnormalityStatus"
-                          // onChange={formik.handleChange}
-                          value={"Closed"}
-                        />
+                      <div>
+                        <div className="mb-2 row">
+                          <span className="col-6">Abnormality Status: </span>
+                          <input
+                            type="text"
+                            className="col-6"
+                            name="abnormalityStatus"
+                            // onChange={formik.handleChange}
+                            value={"Closed"}
+                          />
+                        </div>
+                        <div className="mb-2 row">
+                          <span className="col-6">Photo Upload: </span>
+                          <input
+                            type="file"
+                            className="col-6"
+                            name="photoUpload"
+                            // onChange={(e) => {
+                            //   formik.handleChange(e.target.files[0]);
+                            // }}
+                            onChange={(e) => setUserPhoto(e.target.files[0])}
+                          />
+                        </div>
                       </div>
                     )}
                   </div>

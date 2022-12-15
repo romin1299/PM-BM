@@ -10,7 +10,6 @@ const GettingMachineDataForCheckSheetImplementation = ({
 }) => {
   const [implementationPhaseCheckSheet, setImplementationPhaseCheckSheet] =
     useState("");
-
   const [refKey, setRefKey] = useState(0);
 
   const functionToSetRefKey = () => {
@@ -24,7 +23,7 @@ const GettingMachineDataForCheckSheetImplementation = ({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          machineID: machineData._id,
+          machineID: machineData,
         }),
       });
       const data = await res.json();
@@ -32,13 +31,13 @@ const GettingMachineDataForCheckSheetImplementation = ({
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        console.log(data.machineData.checkSheet);
+        // console.log(data.machineLastData);
 
         // setMachineDataState(data.machineData);
         loggedUserType === "Operator"
           ? setImplementationPhaseCheckSheet(
               <CheckSheetForImplementation
-                machineData={data.machineData}
+                machineData={data.machineLastData}
                 lineName={lineName}
                 closeCheckSheet={closeCheckSheet}
                 functionToSetRefKey={functionToSetRefKey}
@@ -46,7 +45,7 @@ const GettingMachineDataForCheckSheetImplementation = ({
             )
           : setImplementationPhaseCheckSheet(
               <CheckSheet
-                machineData={data.machineData}
+                machineData={data.machineLastData}
                 lineName={lineName}
                 closeCheckSheet={closeCheckSheet}
               />

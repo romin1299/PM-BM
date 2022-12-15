@@ -16,6 +16,7 @@ function PlanningPhaseTable() {
   const [sendPlanningApproval, setSendPlanningApproval] = useState(0);
   const [refKey, setRefKey] = useState(0);
   const [machineData, setMachineData] = useState([]);
+  const [yearOfCheckSheet, setYearOfCheckSheet] = useState();
 
   const [planningApprovalShow, setPlanningApprovalShow] = useState(0);
 
@@ -24,7 +25,7 @@ function PlanningPhaseTable() {
   const showChecksheet = () => {
     navigate("/checkSheetForm", {
       state: {
-        selectedRowForViewForm: machineData,
+        selectedRowForViewForm: machineData[0],
         planningApprovalShow: planningApprovalShow,
       },
     });
@@ -50,6 +51,8 @@ function PlanningPhaseTable() {
         console.log("Data post", data.getSelectedMachineChecksheet);
         setTableData(data.getSelectedMachineChecksheet);
         setMachineData(data.machineData);
+        setYearOfCheckSheet(data.yearOfCheckSheet);
+
         // checkFieldExistsInPlanningPhase(data.getSelectedMachineChecksheet);
       }
     } catch (error) {
@@ -265,7 +268,7 @@ function PlanningPhaseTable() {
             </button>
           </a>
           <div class="row g-3">
-            <div class="col-2">
+            <div class="col-4">
               <div class="p-3 border bg-white rounded">
                 <span style={{ fontWeight: "bold" }}>
                   Line Name:{" "}
@@ -273,7 +276,7 @@ function PlanningPhaseTable() {
                 </span>
               </div>
             </div>
-            <div class="col-3">
+            <div class="col-4">
               <div class="p-3 border bg-white rounded">
                 <span style={{ fontWeight: "bold" }}>
                   Machine Name:{" "}
@@ -281,7 +284,7 @@ function PlanningPhaseTable() {
                 </span>
               </div>
             </div>
-            <div class="col-2">
+            <div class="col-4">
               <div class="p-3 border bg-white rounded">
                 <span style={{ fontWeight: "bold" }}>
                   Machine No:{" "}
@@ -347,7 +350,8 @@ function PlanningPhaseTable() {
                     updateSelectedMachineCheckSheetTableRowData(
                       oldRow,
                       updatedRow,
-                      selectedMachineData.state.selectedRow.machine_code
+                      selectedMachineData.state.selectedRow.machine_code,
+                      yearOfCheckSheet
                     );
                     setTimeout(() => {
                       setRefKey((refKey) => refKey + 1);

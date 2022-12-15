@@ -17,6 +17,9 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 const ChecksheetCreationDashboard = ({}) => {
   const [tableData, setTableData] = useState([]);
   const [lineArray, setLineArray] = useState([]);
+
+  const [yearOfCheckSheet, setYearOfCheckSheet] = useState();
+
   const context = useContext(RoutingContext);
 
   const [machineData, setMachineData] = useState([]);
@@ -265,6 +268,7 @@ const ChecksheetCreationDashboard = ({}) => {
         // console.log("Data post", data);
         setTableData(data.getSelectedMachineChecksheet);
         setMachineData(data.machineData);
+        setYearOfCheckSheet(data.yearOfCheckSheet);
       }
     } catch (error) {
       console.log(error);
@@ -315,6 +319,7 @@ const ChecksheetCreationDashboard = ({}) => {
         body: JSON.stringify({
           rowData: updatedRow,
           machineId: selectedMachineData.state.selectedRow.machine_code,
+          yearOfCheckSheet,
         }),
       });
 
@@ -347,6 +352,7 @@ const ChecksheetCreationDashboard = ({}) => {
         body: JSON.stringify({
           rowData: selectedRow,
           machineId: selectedMachineData.state.selectedRow.machine_code,
+          yearOfCheckSheet,
         }),
       });
       const data = await res.json();
@@ -444,11 +450,26 @@ const ChecksheetCreationDashboard = ({}) => {
   const showChecksheet = () => {
     navigate("/checkSheetForm", {
       state: {
-        selectedRowForViewForm: machineData,
+        selectedRowForViewForm: machineData[0],
         // planningApprovalShow: planningApprovalShow,
       },
     });
   };
+
+  function compareCycle(a, b) {
+    // converting to uppercase to have case-insensitive comparison
+    const name1 = a.cycle.toUpperCase();
+    const name2 = b.cycle.toUpperCase();
+
+    let comparison = 0;
+
+    if (name1 > name2) {
+      comparison = 1;
+    } else if (name1 < name2) {
+      comparison = -1;
+    }
+    return comparison;
+  }
 
   return (
     <>
@@ -474,7 +495,7 @@ const ChecksheetCreationDashboard = ({}) => {
               <ArrowBackIcon />
             </button>
           </a>
-          {/* {selectedMachineData.state.selectedRow.checkSheet.length < 1 ? (
+          {selectedMachineData.state.selectedRow.checkSheet_data === undefined ? (
             <div class="row g-3">
               <div class="col-2">
                 <div class="p-3 border bg-white rounded">
@@ -568,7 +589,10 @@ const ChecksheetCreationDashboard = ({}) => {
                               {machineArray != undefined
                                 ? machineArray.map((option) => {
                                     return (
-                                      <option value={option.machine_code}>{option.machine_code}-{option.machine_name}</option>
+                                      <option value={option.machine_code}>
+                                        {option.machine_code}-
+                                        {option.machine_name}
+                                      </option>
                                     );
                                   })
                                 : ""}
@@ -613,7 +637,7 @@ const ChecksheetCreationDashboard = ({}) => {
                 </div>
               </div>
             </div>
-          )} */}
+          )}
 
           <h4 style={{ padding: "1rem 0 0 1rem" }}>Checksheet Data</h4>
           <div style={{ padding: "1rem" }}>
@@ -628,7 +652,7 @@ const ChecksheetCreationDashboard = ({}) => {
               }
               icons={tableIcons}
               columns={columns}
-              data={tableData}
+              data={tableData?.sort(compareCycle)}
               // title="User Management"
               // tableRef={this.tableRef.current.onQueryChange()}
 

@@ -66,6 +66,9 @@
 /* .ar-table-row, */
 .ar-table-col,
 .ar-table-col1,
+.table-col-bg-skip,
+.table-col-bg-delay,
+.table-col-bg-ongoing
 .ar-table-thead-header {
     border: 2px solid rgb(80, 80, 80);
     padding: 0.25rem 0.3rem;
@@ -84,7 +87,9 @@
     border: 2px solid rgb(80, 80, 80);
 
 }
-
+.table-col-bg-ongoing,
+.table-col-bg-delay,
+.table-col-bg-skip,
 .ar-table-col {
     /* max-width: 10rem; */
     width: 100px;
@@ -270,24 +275,18 @@
 }
 
 .table-col-bg-ongoing {
-    width: 5px;
-    padding: 0 !important;
     background-color:rgb(241, 127, 127);
     border: 2px solid rgb(80, 80, 80);
 
 }
 
 .table-col-bg-delay {
-    width: 5px;
-    padding: 0 !important;
     background-color: rgb(255, 181, 43);
     border: 2px solid rgb(80, 80, 80);
 
 }
 
 .table-col-bg-skip {
-    width: 5px;
-    padding: 0 !important;
     background-color: rgb(241, 127, 127);
     border: 2px solid rgb(80, 80, 80);
 

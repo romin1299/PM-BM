@@ -443,9 +443,24 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
 
   const showChecksheet = () => {
     navigate("/checksheetFormApproval", {
-      state: { selectedRowForViewForm: machineData },
+      state: { selectedRowForViewForm: machineData[0] },
     });
   };
+
+  function compareCycle(a, b) {
+    // converting to uppercase to have case-insensitive comparison
+    const name1 = a.cycle.toUpperCase();
+    const name2 = b.cycle.toUpperCase();
+
+    let comparison = 0;
+
+    if (name1 > name2) {
+      comparison = 1;
+    } else if (name1 < name2) {
+      comparison = -1;
+    }
+    return comparison;
+  }
 
   return (
     <>
@@ -508,7 +523,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
               }
               icons={tableIcons}
               columns={columns}
-              data={tableData}
+              data={tableData?.sort(compareCycle)}
               // title="User Management"
               // tableRef={this.tableRef.current.onQueryChange()}
 

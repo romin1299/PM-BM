@@ -32,34 +32,6 @@ const machineSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Lines"
     },
-    checksheet_status: {
-        type: String
-    },
-    tl_approval_status: {
-        type: [String]
-    },
-    hos_approval_status: {
-        type: [String]
-    },
-    prd_tl_approval_status: {
-        type: [String]
-    },
-    sender_tm_no: {
-        type: [Number]
-    },
-    sender_tm_name: {
-        type: [String]
-    },
-    plan_prepared_tm_no: {
-        type: [Number]
-    },
-    plan_prepared_tm_name: {
-        type: [String]
-    },
-    plan_prepared_email: {
-        type: [String]
-    },
-
     checkSheet_data: [
         {
             current_year: { type: String },
@@ -121,7 +93,6 @@ const machineSchema = mongoose.Schema({
 
                         Mar: { type: [String] },
                     },
-
                     abnormalityDetails:
                     {
                         Apr: {
@@ -329,8 +300,60 @@ const machineSchema = mongoose.Schema({
                             cost: { type: String, },
                         },
                     },
+                    PMOkImage: {
+                        Apr: { type: String },
+        
+                        May: { type: String },
+        
+                        June: { type: String },
+        
+                        July: { type: String },
+        
+                        Aug: { type: String },
+        
+                        Sep: { type: String },
+        
+                        Oct: { type: String },
+        
+                        Nov: { type: String },
+        
+                        Dec: { type: String },
+        
+                        Jan: { type: String },
+        
+                        Feb: { type: String },
+        
+                        Mar: { type: String },
+                    },
                 }
             ],
+            checksheet_status: {
+                type: String
+            },
+            tl_approval_status: {
+                type: [String]
+            },
+            hos_approval_status: {
+                type: [String]
+            },
+            prd_tl_approval_status: {
+                type: [String]
+            },
+            sender_tm_no: {
+                type: [Number]
+            },
+            sender_tm_name: {
+                type: [String]
+            },
+            plan_prepared_tm_no: {
+                type: [Number]
+            },
+            plan_prepared_tm_name: {
+                type: [String]
+            },
+            plan_prepared_email: {
+                type: [String]
+            },
             checkSheetSendingUser: {
                 type: [String]
             },
@@ -379,15 +402,134 @@ const machineSchema = mongoose.Schema({
             planning_PRD_TL_date: {
                 type: [String]
             },
-            supportingOperatorList: {
-                type: [String]
-            },
+            // supportingOperatorList: {
+            //     type: [String]
+            // },
             totalPMTime: {
-                type: Number
+                Apr: {
+                    totalWorkedPMTime: {type : Number},
+                    supportingTMData: [
+                        {
+                            tm_name: {type: String},
+                            tm_no: {type: Number},
+                            workedTime: {type: Number}
+                        }
+                    ]
+                 },
+                May: {
+                    totalWorkedPMTime: {type : Number},
+                    supportingTMData: [
+                        {
+                            tm_name: {type: String},
+                            tm_no: {type: Number},
+                            workedTime: {type: Number}
+                        }
+                    ]
+                 },
+                June: {
+                    totalWorkedPMTime: {type : Number},
+                    supportingTMData: [
+                        {
+                            tm_name: {type: String},
+                            tm_no: {type: Number},
+                            workedTime: {type: Number}
+                        }
+                    ]
+                 },
+                July: {
+                    totalWorkedPMTime: {type : Number},
+                    supportingTMData: [
+                        {
+                            tm_name: {type: String},
+                            tm_no: {type: Number},
+                            workedTime: {type: Number}
+                        }
+                    ]
+                 },
+                Aug: {
+                    totalWorkedPMTime: {type : Number},
+                    supportingTMData: [
+                        {
+                            tm_name: {type: String},
+                            tm_no: {type: Number},
+                            workedTime: {type: Number}
+                        }
+                    ]
+                 },
+                Sep: {
+                    totalWorkedPMTime: {type : Number},
+                    supportingTMData: [
+                        {
+                            tm_name: {type: String},
+                            tm_no: {type: Number},
+                            workedTime: {type: Number}
+                        }
+                    ]
+                 },
+                Oct: {
+                    totalWorkedPMTime: {type : Number},
+                    supportingTMData: [
+                        {
+                            tm_name: {type: String},
+                            tm_no: {type: Number},
+                            workedTime: {type: Number}
+                        }
+                    ]
+                 },
+                Nov: {
+                    totalWorkedPMTime: {type : Number},
+                    supportingTMData: [
+                        {
+                            tm_name: {type: String},
+                            tm_no: {type: Number},
+                            workedTime: {type: Number}
+                        }
+                    ]
+                 },
+                Dec: {
+                    totalWorkedPMTime: {type : Number},
+                    supportingTMData: [
+                        {
+                            tm_name: {type: String},
+                            tm_no: {type: Number},
+                            workedTime: {type: Number}
+                        }
+                    ]
+                 },
+                Jan: {
+                    totalWorkedPMTime: {type : Number},
+                    supportingTMData: [
+                        {
+                            tm_name: {type: String},
+                            tm_no: {type: Number},
+                            workedTime: {type: Number}
+                        }
+                    ]
+                 },
+                Feb: {
+                    totalWorkedPMTime: {type : Number},
+                    supportingTMData: [
+                        {
+                            tm_name: {type: String},
+                            tm_no: {type: Number},
+                            workedTime: {type: Number}
+                        }
+                    ]
+                 },
+                Mar: {
+                    totalWorkedPMTime: {type : Number},
+                    supportingTMData: [
+                        {
+                            tm_name: {type: String},
+                            tm_no: {type: Number},
+                            workedTime: {type: Number}
+                        }
+                    ]
+                 },
             },
-            finishedPMTime: {
-                type: String
-            },
+            // finishedPMTime: {
+            //     type: String
+            // },
             PMworkedTMName: {
                 Apr: { type: [String] },
 
@@ -489,404 +631,429 @@ const machineSchema = mongoose.Schema({
                 Mar: { type: String },
             },
             implemetation_completed_date: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implemetation_completed_tm_no: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implemetation_completed_tm_name: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implementation_assign_PRD_TL: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implementation_assign_MTD_TL: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implementation_assign_MTD_HOS: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
+            },
+            implemetation_quality_remarks: {
+                Apr: { type: [String] },
+
+                May: { type: [String] },
+
+                June: { type: [String] },
+
+                July: { type: [String] },
+
+                Aug: { type: [String] },
+
+                Sep: { type: [String] },
+
+                Oct: { type: [String] },
+
+                Nov: { type: [String] },
+
+                Dec: { type: [String] },
+
+                Jan: { type: [String] },
+
+                Feb: { type: [String] },
+
+                Mar: { type: [String] },
             },
             implementation_rejected_remarks: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implementation_approved_by_PRD_TL: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implementation_approved_by_MTD_TL: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implementation_approved_by_MTD_HOS: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implementation_approved_PRD_TL_date: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implementation_approved_MTD_TL_date: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implementation_approved_MTD_HOS_date: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implemetation_prd_tl_approval_status: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implemetation_mtd_tl_approval_status: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
             implemetation_mtd_hos_approval_status: {
-                Apr: { type: String },
+                Apr: { type: [String] },
 
-                May: { type: String },
+                May: { type: [String] },
 
-                June: { type: String },
+                June: { type: [String] },
 
-                July: { type: String },
+                July: { type: [String] },
 
-                Aug: { type: String },
+                Aug: { type: [String] },
 
-                Sep: { type: String },
+                Sep: { type: [String] },
 
-                Oct: { type: String },
+                Oct: { type: [String] },
 
-                Nov: { type: String },
+                Nov: { type: [String] },
 
-                Dec: { type: String },
+                Dec: { type: [String] },
 
-                Jan: { type: String },
+                Jan: { type: [String] },
 
-                Feb: { type: String },
+                Feb: { type: [String] },
 
-                Mar: { type: String },
+                Mar: { type: [String] },
             },
         }
     ]

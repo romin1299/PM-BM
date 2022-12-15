@@ -13,6 +13,7 @@ import MaterialTable from "@material-table/core";
 import EastIcon from "@mui/icons-material/East";
 import { useNavigate } from "react-router-dom";
 import SummeryPopups from "./PopupsForChecksheet/SummeryPopups";
+import { Multiselect } from "multiselect-react-dropdown";
 
 import {
   Checkbox,
@@ -56,10 +57,10 @@ function CheckSheet({
 
   const location = useLocation();
   let machineAllData = machineData;
-  // console.log(machineAllData.PMworkedTMName);
-  let tableData = machineData.checkSheet;
+  console.log(machineAllData);
+  let tableData = machineData?.checkSheet_data?.checkSheet;
 
-  // console.log(machineData);
+  // console.log(selectedSupportedTM);
 
   let count = 0;
 
@@ -68,8 +69,10 @@ function CheckSheet({
     pmTime: yup.string().required("Please enter PM time"),
     delayRemarks: yup.string().when([], {
       is: () =>
-        machineAllData.PMStatus
-          ? machineAllData.PMStatus[monthForCompareSystemMonth] === ""
+        machineAllData?.checkSheet_data?.PMStatus
+          ? machineAllData?.checkSheet_data?.PMStatus[
+              monthForCompareSystemMonth
+            ] === ""
           : "",
       then: yup.string().required("Please enter delay reason"),
     }),
@@ -110,12 +113,18 @@ function CheckSheet({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           totalPMTime: values.pmTime,
-          delayRemarks: machineAllData.PMDelayRemark
-            ? machineAllData.PMDelayRemark[monthForCompareSystemMonth]
-              ? machineAllData.PMDelayRemark[monthForCompareSystemMonth]
+          yearOfCheckSheet: machineAllData?.checkSheet_data?.current_year,
+          delayRemarks: machineAllData?.checkSheet_data?.PMDelayRemark
+            ? machineAllData?.checkSheet_data?.PMDelayRemark[
+                monthForCompareSystemMonth
+              ]
+              ? machineAllData?.checkSheet_data?.PMDelayRemark[
+                  monthForCompareSystemMonth
+                ]
               : values.delayRemarks
             : "",
           PMworkedTMName: context.tm_name.split(" ")[0],
+          PMworkedTMNo: context.tm_no,
           selectedSupportedTM,
           finishedPMTime: timeStamp(),
           machine_code: machineAllData.machine_code,
@@ -156,7 +165,7 @@ function CheckSheet({
           implemetation_completed_date: timeStamp(),
           selected_machine_data: machineAllData,
           monthForCompareSystemMonth,
-          phaseStatus: machineAllData.checksheet_status,
+          phaseStatus: machineAllData?.checkSheet_data?.checksheet_status,
         }),
       });
       const data = res.json();
@@ -193,11 +202,11 @@ function CheckSheet({
       });
 
       const data = await res.json();
-      // console.log(data.supportingOperatorList)
+      console.log(data);
       setPRDTLlist(data.PRDTLlist);
       setHOSList(data.HOSlist);
       setMTDTLlist(data.MTDTLlist);
-      setSupportingTMList(data.supportingOperatorListArray);
+      setSupportingTMList(data.supportingOperatorList);
       // setTableData(finalData);
     } catch (error) {
       console.log(error);
@@ -327,8 +336,24 @@ function CheckSheet({
 
   // const postMachineIdToGetAllDetailsOfMachine = () => {};
 
+  function compareCycle(a, b) {
+    // converting to uppercase to have case-insensitive comparison
+    const name1 = a.cycle.toUpperCase();
+    const name2 = b.cycle.toUpperCase();
+
+    let comparison = 0;
+
+    if (name1 > name2) {
+      comparison = 1;
+    } else if (name1 < name2) {
+      comparison = -1;
+    }
+    return comparison;
+  }
+
   const getDataModelled = () => {
-    let data = tableData;
+    let data = tableData?.sort(compareCycle);
+
     let newRowData = [];
     for (var i = 0; i < data.length; i++) {
       let obj = data[i];
@@ -342,20 +367,39 @@ function CheckSheet({
           key === "planningTableAnimationArray2" ||
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
-          key === "start_month"
+          key === "start_month" ||
+          key === "PMOkImage"
         ) {
           continue;
         }
 
-        newColData.push(
-          new Object({
-            key: key,
-            value: obj[key],
-            rowspan: 1,
-            // colspan: 1,
-            print: true,
-          })
-        );
+        key === "tableRowId"
+          ? newColData.push(
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: false,
+              }),
+
+              new Object({
+                key: "rowId",
+                value: i + 1,
+                rowspan: 1,
+                // colspan: 1,
+                print: true,
+              })
+            )
+          : newColData.push(
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: true,
+              })
+            );
       }
       for (let key in obj) {
         // console.log(obj[key]);
@@ -388,6 +432,7 @@ function CheckSheet({
             ) {
               PMCarryOnToNextMonth(tableRowId);
             }
+
             // else if (
             //   key1 === monthKeyArray[new Date().getMonth() - 1] &&
             //   obj[key][key1].length < 2 &&
@@ -456,7 +501,7 @@ function CheckSheet({
   const getDataWithSpanCount = (myProps) => {
     // console.log(myProps);
     for (let i = 1; i < myProps.length; i++) {
-      for (let j = 2; j < 3; j++) {
+      for (let j = 3; j < 4; j++) {
         for (
           let k = i - 1;
           k >= 0 && myProps[i][j].value == myProps[k][j].value;
@@ -466,7 +511,7 @@ function CheckSheet({
           myProps[k + 1][j].print = false;
         }
       }
-      for (let j = 9; j < 10; j++) {
+      for (let j = 10; j < 11; j++) {
         for (
           let k = i - 1;
           k >= 0 && myProps[i][j].value == myProps[k][j].value;
@@ -502,77 +547,6 @@ function CheckSheet({
     document.getElementById(tableRowId).setAttribute("disabled", "");
   };
 
-  const columns1 = [
-    {
-      title: "SR. NO.",
-      render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "10%",
-      align: "center",
-    },
-    {
-      title: "Abnormality Remarks",
-      field: "abnormalityRemarks",
-      // editable: false,
-      filtering: false,
-      align: "center",
-      editable: "false",
-      width: "10%",
-    },
-    {
-      title: "Abnormality Status",
-      field: "abnormalityStatus",
-      filtering: false,
-      align: "center",
-      width: "10%",
-    },
-    {
-      title: "Target Date",
-      field: "targetDate",
-      align: "center",
-      editable: "false",
-      width: "10%",
-    },
-  ];
-
-  const columns2 = [
-    {
-      title: "SR. NO.",
-      render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "10%",
-      align: "center",
-    },
-    {
-      title: "Spare Parts",
-      field: "spareParts",
-      // editable: false,
-      filtering: false,
-      align: "center",
-      editable: "false",
-      width: "10%",
-    },
-    {
-      title: "Part Name",
-      field: "partName",
-      filtering: false,
-      align: "center",
-      width: "10%",
-    },
-    {
-      title: "Part No.",
-      field: "partNo",
-      align: "center",
-      editable: "false",
-      width: "10%",
-    },
-    {
-      title: "Cost",
-      field: "cost",
-      align: "center",
-      editable: "false",
-      width: "10%",
-    },
-  ];
-
   const funForOpeningSummeryPopups = () => {
     setStateForOpeningSummeryPopups(
       <SummeryPopups close={close} tableData={tableData} />
@@ -595,6 +569,7 @@ function CheckSheet({
         },
         body: JSON.stringify({
           machine_code: machineAllData.machine_code,
+          yearOfCheckSheet: machineAllData?.checkSheet_data?.current_year,
           monthForCompareSystemMonth,
           tableRowId,
           previousMonth,
@@ -655,7 +630,6 @@ function CheckSheet({
       {stateForOpeningSummeryPopups}
       <div className="checkSheetForImplementation">
         <div className="row">
-          <div className="col-11"></div>
           <div className="col-1">
             <button
               className="btn-closeForChecksheet"
@@ -664,6 +638,7 @@ function CheckSheet({
               Close
             </button>
           </div>
+          <div className="col-11"></div>
         </div>
         <br />
         <div>
@@ -701,12 +676,14 @@ function CheckSheet({
                         // colSpan={2}
                         //  rowSpan={5}
                       >
-                        {machineAllData.approved_by_PRD_TL[
-                          machineAllData.approved_by_PRD_TL.length - 1
+                        {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                          machineAllData?.checkSheet_data?.approved_by_PRD_TL
+                            .length - 1
                         ]
                           ? `${
-                              machineAllData.approved_by_PRD_TL[
-                                machineAllData.approved_by_PRD_TL.length - 1
+                              machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                                machineAllData?.checkSheet_data
+                                  .approved_by_PRD_TL.length - 1
                               ]
                             }`
                           : ""}
@@ -716,12 +693,15 @@ function CheckSheet({
                         // colSpan={2}
                         //  rowSpan={5}
                       >
-                        {machineAllData.plan_prepared_tm_name[
-                          machineAllData.plan_prepared_tm_name.length - 1
+                        {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
+                          machineAllData?.checkSheet_data?.plan_prepared_tm_name
+                            .length - 1
                         ]
                           ? `${
-                              machineAllData.plan_prepared_tm_name[
-                                machineAllData.plan_prepared_tm_name.length - 1
+                              machineAllData?.checkSheet_data
+                                .plan_prepared_tm_name[
+                                machineAllData?.checkSheet_data
+                                  .plan_prepared_tm_name.length - 1
                               ]
                             }`
                           : ""}
@@ -798,11 +778,15 @@ function CheckSheet({
                         <br />
                         (MTD TL)
                       </th>
-                      {machineAllData.implementation_approved_by_MTD_TL
+                      {machineAllData?.checkSheet_data
+                        .implementation_approved_by_MTD_TL
                         ? Object.values(
-                            machineAllData.implementation_approved_by_MTD_TL
+                            machineAllData?.checkSheet_data
+                              .implementation_approved_by_MTD_TL
                           ).map((index) => (
-                            <td className="ar-table-col1">{index}</td>
+                            <td className="ar-table-col1">
+                              {index[index.length - 1]}
+                            </td>
                           ))
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
@@ -810,31 +794,37 @@ function CheckSheet({
                     </tr>
                     <tr>
                       <th className="approvalName" colSpan={2} rowSpan={5}>
-                        {machineAllData.approved_by_HOS[
-                          machineAllData.approved_by_HOS.length - 1
+                        {machineAllData?.checkSheet_data?.approved_by_HOS[
+                          machineAllData?.checkSheet_data?.approved_by_HOS
+                            .length - 1
                         ]
-                          ? machineAllData.approved_by_HOS[
-                              machineAllData.approved_by_HOS.length - 1
+                          ? machineAllData?.checkSheet_data?.approved_by_HOS[
+                              machineAllData?.checkSheet_data?.approved_by_HOS
+                                .length - 1
                             ]
                           : ""}
                         <br />
 
-                        {machineAllData.approved_by_TL[
-                          machineAllData.approved_by_TL.length - 1
+                        {machineAllData?.checkSheet_data?.approved_by_TL[
+                          machineAllData?.checkSheet_data?.approved_by_TL.length -
+                            1
                         ]
                           ? `,${
-                              machineAllData.approved_by_TL[
-                                machineAllData.approved_by_TL.length - 1
+                              machineAllData?.checkSheet_data?.approved_by_TL[
+                                machineAllData?.checkSheet_data?.approved_by_TL
+                                  .length - 1
                               ]
                             }`
                           : ""}
                       </th>
                       <th className="approvalName" colSpan={2} rowSpan={5}>
-                        {machineAllData.sender_tm_name[
-                          machineAllData.sender_tm_name.length - 1
+                        {machineAllData?.checkSheet_data?.sender_tm_name[
+                          machineAllData?.checkSheet_data?.sender_tm_name.length -
+                            1
                         ]
-                          ? machineAllData.sender_tm_name[
-                              machineAllData.sender_tm_name.length - 1
+                          ? machineAllData?.checkSheet_data?.sender_tm_name[
+                              machineAllData?.checkSheet_data?.sender_tm_name
+                                .length - 1
                             ]
                           : ""}
                       </th>
@@ -843,11 +833,15 @@ function CheckSheet({
                         <br />
                         (MTD HOS)
                       </th>
-                      {machineAllData.implementation_approved_by_MTD_HOS
+                      {machineAllData?.checkSheet_data
+                        .implementation_approved_by_MTD_HOS
                         ? Object.values(
-                            machineAllData.implementation_approved_by_MTD_HOS
+                            machineAllData?.checkSheet_data
+                              .implementation_approved_by_MTD_HOS
                           ).map((index) => (
-                            <td className="ar-table-col1">{index}</td>
+                            <td className="ar-table-col1">
+                              {index[index.length - 1]}
+                            </td>
                           ))
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
@@ -906,7 +900,7 @@ function CheckSheet({
                       <tr className="ar-table-row">
                         {" "}
                         {rData.map((colData) =>
-                          machineAllData.checksheet_status ===
+                          machineAllData?.checkSheet_data?.checksheet_status ===
                             "Implementation" &&
                           context.user_type === "Operator" ? (
                             colData.print == true ? (
@@ -968,6 +962,10 @@ function CheckSheet({
                                                 machineAllData.machine_code
                                               }
                                               tableRowId={rData[0].value}
+                                              yearOfCheckSheet={
+                                                machineData?.checkSheet_data
+                                                  .current_year
+                                              }
                                               monthForCompareSystemMonth={
                                                 monthForCompareSystemMonth
                                               }
@@ -1117,7 +1115,7 @@ function CheckSheet({
                                 : colData.value[0] === "1" &&
                                   colData.key !== "cycle" &&
                                   colData.key !== "PM_time"
-                                ? "-->"
+                                ? "---->"
                                 : colData.value}{" "}
                             </td>
                           ) : (
@@ -1133,11 +1131,17 @@ function CheckSheet({
                         <br />
                         (MTD TM's)
                       </th>
-                      {Object.values(machineAllData.PMworkedTMName).map(
-                        (index) => (
-                          <td className="ar-table-col1">{index.join(" ,")}</td>
-                        )
-                      )}
+                      {machineAllData?.checkSheet_data?.PMworkedTMName
+                        ? Object.values(
+                            machineAllData?.checkSheet_data?.PMworkedTMName
+                          ).map((index) => (
+                            <td className="ar-table-col1">
+                              {index.join(" ,")}
+                            </td>
+                          ))
+                        : refArrayForTDMapping.map((index) => (
+                            <td className="ar-table-col1"></td>
+                          ))}
                     </tr>
                     <tr>
                       <th colSpan={9}></th>
@@ -1146,11 +1150,15 @@ function CheckSheet({
                         <br />
                         (By PRD TL)
                       </th>
-                      {machineAllData.implementation_approved_by_PRD_TL
+                      {machineAllData?.checkSheet_data
+                        .implementation_approved_by_PRD_TL
                         ? Object.values(
-                            machineAllData.implementation_approved_by_PRD_TL
+                            machineAllData?.checkSheet_data
+                              .implementation_approved_by_PRD_TL
                           ).map((index) => (
-                            <td className="ar-table-col1">{index}</td>
+                            <td className="ar-table-col1">
+                              {index[index.length - 1]}
+                            </td>
                           ))
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
@@ -1307,50 +1315,120 @@ function CheckSheet({
               </Col>
             </Row>
 
-            {machineAllData.checksheet_status === "Implementation" &&
-            context.user_type === "Operator" ? (
-              machineAllData.implemetation_prd_tl_approval_status ||
-              machineAllData.implemetation_mtd_tl_approval_status ||
-              machineAllData.implemetation_mtd_hos_approval_status ? (
-                machineAllData.implemetation_prd_tl_approval_status[
+            {machineAllData?.checkSheet_data?.checksheet_status ===
+              "Implementation" && context.user_type === "Operator" ? (
+              machineAllData?.checkSheet_data
+                .implemetation_prd_tl_approval_status ||
+              machineAllData?.checkSheet_data
+                .implemetation_mtd_tl_approval_status ||
+              machineAllData?.checkSheet_data
+                .implemetation_mtd_hos_approval_status ? (
+                machineAllData?.checkSheet_data
+                  .implemetation_prd_tl_approval_status[
                   monthForCompareSystemMonth
+                ][
+                  machineAllData?.checkSheet_data
+                    .implemetation_prd_tl_approval_status[
+                    monthForCompareSystemMonth
+                  ].length - 1
                 ] === "Rejected" ||
-                machineAllData.implemetation_mtd_tl_approval_status[
+                machineAllData?.checkSheet_data
+                  .implemetation_prd_tl_approval_status[
                   monthForCompareSystemMonth
+                ].length === 0 ||
+                machineAllData?.checkSheet_data
+                  .implemetation_mtd_tl_approval_status[
+                  monthForCompareSystemMonth
+                ][
+                  machineAllData?.checkSheet_data
+                    .implemetation_mtd_tl_approval_status[
+                    monthForCompareSystemMonth
+                  ].length - 1
                 ] === "Rejected" ||
-                machineAllData.implemetation_mtd_hos_approval_status[
+                machineAllData?.checkSheet_data
+                  .implemetation_mtd_tl_approval_status[
                   monthForCompareSystemMonth
-                ] === "Rejected" ? (
+                ].length === 0 ||
+                machineAllData?.checkSheet_data
+                  .implemetation_mtd_hos_approval_status[
+                  monthForCompareSystemMonth
+                ][
+                  machineAllData?.checkSheet_data
+                    .implemetation_mtd_hos_approval_status[
+                    monthForCompareSystemMonth
+                  ].length - 1
+                ] === "Rejected" ||
+                machineAllData?.checkSheet_data
+                  .implemetation_mtd_hos_approval_status[
+                  monthForCompareSystemMonth
+                ].length === 0 ? (
                   <>
                     <Row>
                       <Col></Col>
                       <Col className="ar-table tableCol">
                         <form onSubmit={formik.handleSubmit}>
-                          <div className="mb-2 row">
-                            <span
-                              className="col-3"
-                              style={{ textAlign: "left" }}
-                            >
-                              Rejected Remarks:{" "}
-                            </span>
-                            <TextField
-                              type="text"
-                              className="col-8"
-                              name="pmStatus"
-                              autoComplete="off"
-                              value={
-                                machineAllData.implementation_rejected_remarks
-                                  ? machineAllData
-                                      .implementation_rejected_remarks[
-                                      monthForCompareSystemMonth
-                                    ]
-                                  : ""
-                              }
-                            />
-                          </div>
+                          {machineAllData?.checkSheet_data
+                            .implemetation_mtd_hos_approval_status[
+                            monthForCompareSystemMonth
+                          ][
+                            machineAllData?.checkSheet_data
+                              .implemetation_mtd_hos_approval_status[
+                              monthForCompareSystemMonth
+                            ].length - 1
+                          ] === "Rejected" ||
+                          machineAllData?.checkSheet_data
+                            .implemetation_mtd_tl_approval_status[
+                            monthForCompareSystemMonth
+                          ][
+                            machineAllData?.checkSheet_data
+                              .implemetation_mtd_tl_approval_status[
+                              monthForCompareSystemMonth
+                            ].length - 1
+                          ] === "Rejected" ||
+                          machineAllData?.checkSheet_data
+                            .implemetation_prd_tl_approval_status[
+                            monthForCompareSystemMonth
+                          ][
+                            machineAllData?.checkSheet_data
+                              .implemetation_prd_tl_approval_status[
+                              monthForCompareSystemMonth
+                            ].length - 1
+                          ] === "Rejected" ? (
+                            <div className="mb-2 row">
+                              <span
+                                className="col-3"
+                                style={{ textAlign: "left" }}
+                              >
+                                Rejected Remarks:{" "}
+                              </span>
+                              <TextField
+                                type="text"
+                                className="col-8"
+                                name="pmStatus"
+                                autoComplete="off"
+                                value={
+                                  machineAllData?.checkSheet_data
+                                    .implementation_rejected_remarks
+                                    ? machineAllData?.checkSheet_data
+                                        .implementation_rejected_remarks[
+                                        monthForCompareSystemMonth
+                                      ][
+                                        machineAllData?.checkSheet_data
+                                          .implementation_rejected_remarks[
+                                          monthForCompareSystemMonth
+                                        ].length - 1
+                                      ]
+                                    : ""
+                                }
+                              />
+                            </div>
+                          ) : (
+                            ""
+                          )}
+
                           {delayRemarks === 1 ? (
-                            machineAllData.PMDelayRemark ? (
-                              machineAllData.PMDelayRemark[
+                            machineAllData?.checkSheet_data?.PMDelayRemark ? (
+                              machineAllData?.checkSheet_data?.PMDelayRemark[
                                 monthForCompareSystemMonth
                               ] ? (
                                 <div className="mb-2 row">
@@ -1366,7 +1444,8 @@ function CheckSheet({
                                     name="delayRemarks"
                                     autoComplete="off"
                                     value={
-                                      machineAllData.PMDelayRemark[
+                                      machineAllData?.checkSheet_data
+                                        .PMDelayRemark[
                                         monthForCompareSystemMonth
                                       ]
                                     }
@@ -1387,10 +1466,12 @@ function CheckSheet({
                                     autoComplete="off"
                                     value={formik.values.delayRemarks}
                                     placeholder={
-                                      machineAllData.PMDelayRemark[
+                                      machineAllData?.checkSheet_data
+                                        .PMDelayRemark[
                                         monthForCompareSystemMonth
                                       ]
-                                        ? machineAllData.PMDelayRemark[
+                                        ? machineAllData?.checkSheet_data
+                                            .PMDelayRemark[
                                             monthForCompareSystemMonth
                                           ]
                                         : ""
@@ -1426,8 +1507,8 @@ function CheckSheet({
                               name="pmStatus"
                               autoComplete="off"
                               value={
-                                machineAllData.PMStatus
-                                  ? machineAllData.PMStatus[
+                                machineAllData?.checkSheet_data?.PMStatus
+                                  ? machineAllData?.checkSheet_data?.PMStatus[
                                       monthForCompareSystemMonth
                                     ]
                                   : ""
@@ -1472,38 +1553,17 @@ function CheckSheet({
                               Supporting TM:{" "}
                             </span>
 
-                            <FormControl className="col-8">
-                              <InputLabel>Please select</InputLabel>
-                              <Select
-                                labelId="demo-multiple-checkbox-label"
-                                // id="demo-multiple-checkbox"
-                                id="supportingOperator"
-                                name="supportingOperator"
-                                multiple
-                                value={selectedSupportedTM}
-                                // fullWidth
-                                style={{ whiteSpace: "normal !important" }}
-                                // onChange={handleChange}
-                                onChange={(e) => {
-                                  formik.handleChange(e);
-                                  setSelectedSupportedTM(e.target.value);
-                                }}
-                                // input={<OutlinedInput label="Tag" />}
-                                renderValue={(selected) => selected.join(", ")}
-                                MenuProps={MenuProps}
-                              >
-                                {supportingTMList.map((name) => (
-                                  <MenuItem key={name} value={name}>
-                                    <Checkbox
-                                      checked={
-                                        selectedSupportedTM.indexOf(name) > -1
-                                      }
-                                    />
-                                    <ListItemText primary={name} />
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
+                            <Multiselect
+                              displayValue="tm_name"
+                              options={supportingTMList} // Options to display in the dropdown
+                              // selectedValues={departmentList} // Preselected value to persist in dropdown
+                              onSelect={async (selectedList) => {
+                                await setSelectedSupportedTM(selectedList);
+                              }} // Function will trigger on select event
+                              onRemove={async (selectedList) => {
+                                await setSelectedSupportedTM(selectedList);
+                              }} // Function will trigger on remove event
+                            />
                           </div>
 
                           <button className="btn" type="submit">
@@ -1515,8 +1575,8 @@ function CheckSheet({
                     <Row>
                       <Col></Col>
                       <Col>
-                        {machineAllData.PMStatus ? (
-                          machineAllData.PMStatus[
+                        {machineAllData?.checkSheet_data?.PMStatus ? (
+                          machineAllData?.checkSheet_data?.PMStatus[
                             monthForCompareSystemMonth
                           ] === "Completed" ? (
                             <form onSubmit={formik1.handleSubmit}>
@@ -1699,9 +1759,13 @@ function CheckSheet({
                     <Col className="ar-table tableCol">
                       <form onSubmit={formik.handleSubmit}>
                         {delayRemarks === 1 ? (
-                          machineAllData.PMDelayRemark ? (
-                            machineAllData.PMDelayRemark[
+                          machineAllData?.checkSheet_data?.PMDelayRemark ? (
+                            machineAllData?.checkSheet_data?.PMDelayRemark[
                               monthForCompareSystemMonth
+                            ][
+                              machineAllData?.checkSheet_data?.PMDelayRemark[
+                                monthForCompareSystemMonth
+                              ].length - 1
                             ] ? (
                               <div className="mb-2 row">
                                 <span
@@ -1716,7 +1780,8 @@ function CheckSheet({
                                   name="delayRemarks"
                                   autoComplete="off"
                                   value={
-                                    machineAllData.PMDelayRemark[
+                                    machineAllData?.checkSheet_data
+                                      .PMDelayRemark[
                                       monthForCompareSystemMonth
                                     ]
                                   }
@@ -1737,10 +1802,10 @@ function CheckSheet({
                                   autoComplete="off"
                                   value={formik.values.delayRemarks}
                                   placeholder={
-                                    machineAllData.PMDelayRemark[
-                                      monthForCompareSystemMonth
-                                    ]
-                                      ? machineAllData.PMDelayRemark[
+                                    machineAllData?.checkSheet_data
+                                      .PMDelayRemark[monthForCompareSystemMonth]
+                                      ? machineAllData?.checkSheet_data
+                                          .PMDelayRemark[
                                           monthForCompareSystemMonth
                                         ]
                                       : ""
@@ -1773,8 +1838,8 @@ function CheckSheet({
                             name="pmStatus"
                             autoComplete="off"
                             value={
-                              machineAllData.PMStatus
-                                ? machineAllData.PMStatus[
+                              machineAllData?.checkSheet_data?.PMStatus
+                                ? machineAllData?.checkSheet_data?.PMStatus[
                                     monthForCompareSystemMonth
                                   ]
                                 : ""
@@ -1813,38 +1878,17 @@ function CheckSheet({
                             Supporting TM:{" "}
                           </span>
 
-                          <FormControl className="col-8">
-                            <InputLabel>Please select</InputLabel>
-                            <Select
-                              labelId="demo-multiple-checkbox-label"
-                              // id="demo-multiple-checkbox"
-                              id="supportingOperator"
-                              name="supportingOperator"
-                              multiple
-                              value={selectedSupportedTM}
-                              // fullWidth
-                              style={{ whiteSpace: "normal !important" }}
-                              // onChange={handleChange}
-                              onChange={(e) => {
-                                formik.handleChange(e);
-                                setSelectedSupportedTM(e.target.value);
-                              }}
-                              // input={<OutlinedInput label="Tag" />}
-                              renderValue={(selected) => selected.join(", ")}
-                              MenuProps={MenuProps}
-                            >
-                              {supportingTMList.map((name) => (
-                                <MenuItem key={name} value={name}>
-                                  <Checkbox
-                                    checked={
-                                      selectedSupportedTM.indexOf(name) > -1
-                                    }
-                                  />
-                                  <ListItemText primary={name} />
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
+                          <Multiselect
+                            displayValue="tm_name"
+                            options={supportingTMList} // Options to display in the dropdown
+                            // selectedValues={departmentList} // Preselected value to persist in dropdown
+                            onSelect={async (selectedList) => {
+                              await setSelectedSupportedTM(selectedList);
+                            }} // Function will trigger on select event
+                            onRemove={async (selectedList) => {
+                              await setSelectedSupportedTM(selectedList);
+                            }} // Function will trigger on remove event
+                          />
                         </div>
 
                         <button className="btn" type="submit">
@@ -1856,9 +1900,10 @@ function CheckSheet({
                   <Row>
                     <Col></Col>
                     <Col>
-                      {machineAllData.PMStatus ? (
-                        machineAllData.PMStatus[monthForCompareSystemMonth] ===
-                        "Completed" ? (
+                      {machineAllData?.checkSheet_data?.PMStatus ? (
+                        machineAllData?.checkSheet_data?.PMStatus[
+                          monthForCompareSystemMonth
+                        ] === "Completed" ? (
                           <form onSubmit={formik1.handleSubmit}>
                             <div>
                               <div className="d-flex">

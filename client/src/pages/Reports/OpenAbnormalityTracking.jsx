@@ -12,10 +12,10 @@ function OpenAbnormalityTracking() {
   const [refKey2, setRefKey2] = useState(0);
   const [MTDTLandOperatorList, setMTDTLandOperatorList] = useState([]);
 
-  const postSectionToGetAllDataForMainDashboard = async (selectedSection) => {
+  const getDataForOpenAbnormalityTracking = async (selectedSection) => {
     // setSubSection(undefined);
     try {
-      const res = await fetch("/postSectionToGetAllDataForMainDashboard", {
+      const res = await fetch("/getDataForOpenAbnormalityTracking", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -333,8 +333,8 @@ function OpenAbnormalityTracking() {
   };
 
   useEffect(() => {
-    postSectionToGetAllDataForMainDashboard(context.section_data);
-  }, [context.section_data, refKey1, refKey2 ]);
+    getDataForOpenAbnormalityTracking(context.section_data);
+  }, [context.section_data, refKey1, refKey2]);
 
   useEffect(() => {
     getListForApproval();

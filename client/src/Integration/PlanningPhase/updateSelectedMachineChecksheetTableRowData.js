@@ -1,4 +1,4 @@
-const updateSelectedMachineCheckSheetTableRowData = async (oldRow, updatedRow, machineCode) => {
+const updateSelectedMachineCheckSheetTableRowData = async (oldRow, updatedRow, machineCode, yearOfCheckSheet) => {
     try {
         const res = await fetch("/updateSelectedMachineCheckSheetTableRowDataForStartingMonth", {
             method: "POST",
@@ -7,6 +7,7 @@ const updateSelectedMachineCheckSheetTableRowData = async (oldRow, updatedRow, m
                 oldRow,
                 rowData: updatedRow,
                 machineId: machineCode,
+                yearOfCheckSheet
             }),
         });
 

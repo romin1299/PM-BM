@@ -113,8 +113,10 @@ const CheckSheetApprovalDashboardForTL = () => {
     (rowData) => {
       return {
         hidden:
-          rowData.checksheet_status === "Implementation" ||
-          rowData.checksheet_status === "Planning",
+          rowData.checkSheet_data != null
+            ? rowData.checkSheet_data.checksheet_status === "Implementation" ||
+              rowData.checkSheet_data.checksheet_status === "Planning"
+            : "",
 
         icon: () => <button className="btn-reset">Preparation</button>,
         // tooltip: <h1>I am a tooltip</h1>,
@@ -149,9 +151,16 @@ const CheckSheetApprovalDashboardForTL = () => {
       icon: () => <button className="btn-primary">View</button>,
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
-        navigate("/checksheetFormApproval", {
-          state: { selectedRowForViewForm: selectedRow },
-        });
+        if(context.tm_department === "MTD"){
+          navigate("/viewCheckSheet", {
+            state: { selectedRowForViewForm: selectedRow },
+          });
+        }else{
+          navigate("/checksheetFormApproval", {
+            state: { selectedRowForViewForm: selectedRow },
+          });
+        }
+        
       },
       disabled: false, // Set disabled to false by default for all actions
       position: "row",

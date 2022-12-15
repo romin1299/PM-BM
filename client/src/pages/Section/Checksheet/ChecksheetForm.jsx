@@ -64,19 +64,18 @@ function CheckSheetForm() {
 
   let machineAllData =
     selectedMachineCheckSheetData.state.selectedRowForViewForm;
+  console.log(machineAllData);
 
   let phaseStatus =
-    selectedMachineCheckSheetData.state.selectedRowForViewForm
-      .checksheet_status;
+    selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data
+      ?.checksheet_status;
 
   let tableData =
-    selectedMachineCheckSheetData.state.selectedRowForViewForm.checkSheet;
-
-  console.log(tableData);
+    selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data
+      ?.checkSheet;
 
   let varForConditionChecking =
-    selectedMachineCheckSheetData.state.selectedRowForViewForm;
-
+    selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data;
   let columns = [
     {
       header: "SN",
@@ -218,12 +217,28 @@ function CheckSheetForm() {
       console.log(error);
     }
   };
+
+  function compareCycle(a, b) {
+    // converting to uppercase to have case-insensitive comparison
+    const name1 = a.cycle.toUpperCase();
+    const name2 = b.cycle.toUpperCase();
+
+    let comparison = 0;
+
+    if (name1 > name2) {
+      comparison = 1;
+    } else if (name1 < name2) {
+      comparison = -1;
+    }
+    return comparison;
+  }
+
   let count = 0;
   // console.log(context);
   const getDataModelled = () => {
-    let data = tableData;
+    let data = tableData?.sort(compareCycle);
     let newRowData = [];
-    for (var i = 0; i < data.length; i++) {
+    for (var i = 0; i < data?.length; i++) {
       let obj = data[i];
       // console.log(obj['planningTableAnimationArray2'])
       let newColData = [];
@@ -240,15 +255,33 @@ function CheckSheetForm() {
           continue;
         }
 
-        newColData.push(
-          new Object({
-            key: key,
-            value: obj[key],
-            rowspan: 1,
-            // colspan: 1,
-            print: true,
-          })
-        );
+        key === "tableRowId"
+          ? newColData.push(
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: false,
+              }),
+
+              new Object({
+                key: "rowId",
+                value: i + 1,
+                rowspan: 1,
+                // colspan: 1,
+                print: true,
+              })
+            )
+          : newColData.push(
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: true,
+              })
+            );
       }
       for (let key in obj) {
         // console.log(obj[key]);
@@ -347,9 +380,9 @@ function CheckSheetForm() {
     getDataWithSpanCount(newRowData);
   };
   const getDataWithSpanCount = (myProps) => {
-    // console.log(myProps);
+    console.log(myProps);
     for (let i = 1; i < myProps.length; i++) {
-      for (let j = 2; j < 3; j++) {
+      for (let j = 3; j < 4; j++) {
         for (
           let k = i - 1;
           k >= 0 && myProps[i][j].value == myProps[k][j].value;
@@ -359,7 +392,7 @@ function CheckSheetForm() {
           myProps[k + 1][j].print = false;
         }
       }
-      for (let j = 9; j < 10; j++) {
+      for (let j = 10; j < 11; j++) {
         for (
           let k = i - 1;
           k >= 0 && myProps[i][j].value == myProps[k][j].value;
@@ -414,6 +447,7 @@ function CheckSheetForm() {
     return `${day}/${month}/${year} - ${getTime}`;
   };
 
+  //for planning phase approval
   const formik1 = useFormik({
     initialValues: {
       prd_tl_list: "",
@@ -446,6 +480,7 @@ function CheckSheetForm() {
     },
   });
 
+  //for preparation phase approval
   const formik = useFormik({
     initialValues: {
       request: "",
@@ -561,7 +596,7 @@ function CheckSheetForm() {
                   </a>
                 </div>
                 <div>
-                  {tableData.length > 0 ? (
+                  {tableData?.length > 0 ? (
                     varForConditionChecking.tl_approval_status[
                       varForConditionChecking.tl_approval_status.length - 1
                     ] === "Pending" ||
@@ -925,7 +960,7 @@ function CheckSheetForm() {
                     ""
                   )}
                 </div>
-                {tableData.length > 0 &&
+                {tableData?.length > 0 &&
                 selectedMachineCheckSheetData.state.planningApprovalShow ===
                   1 ? (
                   varForConditionChecking.prd_tl_approval_status[
@@ -1037,12 +1072,14 @@ function CheckSheetForm() {
                       // colSpan={2}
                       //  rowSpan={5}
                     >
-                      {machineAllData.approved_by_PRD_TL[
-                        machineAllData.approved_by_PRD_TL.length - 1
+                      {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                        machineAllData?.checkSheet_data?.approved_by_PRD_TL
+                          .length - 1
                       ]
                         ? `${
-                            machineAllData.approved_by_PRD_TL[
-                              machineAllData.approved_by_PRD_TL.length - 1
+                            machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                              machineAllData?.checkSheet_data
+                                ?.approved_by_PRD_TL.length - 1
                             ]
                           }`
                         : ""}
@@ -1052,12 +1089,15 @@ function CheckSheetForm() {
                       // colSpan={2}
                       //  rowSpan={5}
                     >
-                      {machineAllData.plan_prepared_tm_name[
-                        machineAllData.plan_prepared_tm_name.length - 1
+                      {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
+                        machineAllData?.checkSheet_data?.plan_prepared_tm_name
+                          .length - 1
                       ]
                         ? `${
-                            machineAllData.plan_prepared_tm_name[
-                              machineAllData.plan_prepared_tm_name.length - 1
+                            machineAllData?.checkSheet_data
+                              ?.plan_prepared_tm_name[
+                              machineAllData?.checkSheet_data
+                                ?.plan_prepared_tm_name.length - 1
                             ]
                           }`
                         : ""}
@@ -1069,8 +1109,9 @@ function CheckSheetForm() {
           </Row>
         </Container>
       </div>
-      {machineAllData.checksheet_status === "Planning" ||
-      machineAllData.checksheet_status === "Implementation" ? (
+      {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
+      machineAllData?.checkSheet_data?.checksheet_status ===
+        "Implementation" ? (
         <div className="row mt-3">
           <div className="col-6"></div>
           <span className="col-6">
@@ -1134,11 +1175,15 @@ function CheckSheetForm() {
                       <br />
                       (MTD TL)
                     </th>
-                    {machineAllData.implementation_approved_by_MTD_TL
+                    {machineAllData?.checkSheet_data
+                      ?.implementation_approved_by_MTD_TL
                       ? Object.values(
-                          machineAllData.implementation_approved_by_MTD_TL
+                          machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_MTD_TL
                         ).map((index) => (
-                          <td className="ar-table-col1">{index}</td>
+                          <td className="ar-table-col1">
+                            {index[index.length - 1]}
+                          </td>
                         ))
                       : refArrayForTDMapping.map((index) => (
                           <td className="ar-table-col1"></td>
@@ -1146,31 +1191,37 @@ function CheckSheetForm() {
                   </tr>
                   <tr>
                     <th className="approvalName" colSpan={2} rowSpan={5}>
-                      {machineAllData.approved_by_HOS[
-                        machineAllData.approved_by_HOS.length - 1
+                      {machineAllData?.checkSheet_data?.approved_by_HOS[
+                        machineAllData?.checkSheet_data?.approved_by_HOS
+                          .length - 1
                       ]
-                        ? machineAllData.approved_by_HOS[
-                            machineAllData.approved_by_HOS.length - 1
+                        ? machineAllData?.checkSheet_data?.approved_by_HOS[
+                            machineAllData?.checkSheet_data?.approved_by_HOS
+                              .length - 1
                           ]
                         : ""}
                       <br />
 
-                      {machineAllData.approved_by_TL[
-                        machineAllData.approved_by_TL.length - 1
+                      {machineAllData?.checkSheet_data?.approved_by_TL[
+                        machineAllData?.checkSheet_data?.approved_by_TL.length -
+                          1
                       ]
                         ? `,${
-                            machineAllData.approved_by_TL[
-                              machineAllData.approved_by_TL.length - 1
+                            machineAllData?.checkSheet_data?.approved_by_TL[
+                              machineAllData?.checkSheet_data?.approved_by_TL
+                                .length - 1
                             ]
                           }`
                         : ""}
                     </th>
                     <th className="approvalName" colSpan={2} rowSpan={5}>
-                      {machineAllData.sender_tm_name[
-                        machineAllData.sender_tm_name.length - 1
+                      {machineAllData?.checkSheet_data?.sender_tm_name[
+                        machineAllData?.checkSheet_data?.sender_tm_name.length -
+                          1
                       ]
-                        ? machineAllData.sender_tm_name[
-                            machineAllData.sender_tm_name.length - 1
+                        ? machineAllData?.checkSheet_data?.sender_tm_name[
+                            machineAllData?.checkSheet_data?.sender_tm_name
+                              .length - 1
                           ]
                         : ""}
                     </th>
@@ -1179,11 +1230,15 @@ function CheckSheetForm() {
                       <br />
                       (MTD HOS)
                     </th>
-                    {machineAllData.implementation_approved_by_MTD_HOS
+                    {machineAllData?.checkSheet_data
+                      ?.implementation_approved_by_MTD_HOS
                       ? Object.values(
-                          machineAllData.implementation_approved_by_MTD_HOS
+                          machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_MTD_HOS
                         ).map((index) => (
-                          <td className="ar-table-col1">{index}</td>
+                          <td className="ar-table-col1">
+                            {index[index.length - 1]}
+                          </td>
                         ))
                       : refArrayForTDMapping.map((index) => (
                           <td className="ar-table-col1"></td>
@@ -1241,7 +1296,9 @@ function CheckSheetForm() {
                   {newTableData.map((rData) => (
                     <Rows
                       rData={rData}
-                      checkSheet_status={machineAllData.checksheet_status}
+                      checkSheet_status={
+                        machineAllData?.checkSheet_data?.checksheet_status
+                      }
                     />
                   ))}
                   <tr>
@@ -1251,14 +1308,12 @@ function CheckSheetForm() {
                       <br />
                       (MTD TM's)
                     </th>
-                    {machineAllData.PMworkedTMName
-                      ? Object.values(machineAllData.PMworkedTMName).map(
-                          (index) => (
-                            <td className="ar-table-col1">
-                              {index.join(" ,")}
-                            </td>
-                          )
-                        )
+                    {machineAllData?.checkSheet_data?.PMworkedTMName
+                      ? Object.values(
+                          machineAllData?.checkSheet_data?.PMworkedTMName
+                        ).map((index) => (
+                          <td className="ar-table-col1">{index.join(" ,")}</td>
+                        ))
                       : refArrayForTDMapping.map((index) => (
                           <td className="ar-table-col1"></td>
                         ))}
@@ -1270,11 +1325,15 @@ function CheckSheetForm() {
                       <br />
                       (By PRD TL)
                     </th>
-                    {machineAllData.implementation_approved_by_PRD_TL
+                    {machineAllData?.checkSheet_data
+                      ?.implementation_approved_by_PRD_TL
                       ? Object.values(
-                          machineAllData.implementation_approved_by_PRD_TL
+                          machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_PRD_TL
                         ).map((index) => (
-                          <td className="ar-table-col1">{index}</td>
+                          <td className="ar-table-col1">
+                            {index[index.length - 1]}
+                          </td>
                         ))
                       : refArrayForTDMapping.map((index) => (
                           <td className="ar-table-col1"></td>

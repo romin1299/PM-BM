@@ -11,6 +11,7 @@ import "../../SCSS/MaterialTable.scss";
 import RoutingContext from "../../context/routing/RoutingContext";
 import ChecksheetCreationDashboard from "./Checksheet/ChecksheetCreationDashboard";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import ViewChecksheet from "./Checksheet/ViewChecksheet";
 
 const CheckSheetDashboard = () => {
   const context = useContext(RoutingContext);
@@ -40,15 +41,15 @@ const CheckSheetDashboard = () => {
       } else {
         // window.alert(data.abcd);
         // console.log("Data post");
-        console.log(data);
+        // console.log(data);
         setLineData(data.lineData);
-        setTableData(data.machineDataForChecksheet);
+        setTableData(data.machineLastData);
       }
     } catch (error) {
       console.log(error);
     }
   };
-
+  console.log(tableData);
   const deleteCheckSheet = async (selectedRow) => {
     try {
       const res = await fetch("/deleteCheckSheet", {
@@ -171,17 +172,22 @@ const CheckSheetDashboard = () => {
     (rowData) => {
       return {
         hidden:
-          rowData.checksheet_status === "Implementation" ||
-          rowData.checksheet_status === "Planning",
+          rowData.checkSheet_data != null
+            ? rowData.checkSheet_data.checksheet_status === "Implementation" ||
+              rowData.checkSheet_data.checksheet_status === "Planning"
+            : "",
 
         icon: () => (
           <button className="btn-reset">
-            {rowData.checkSheet
-              ? rowData.checkSheet.length < 1
-                ? "Preparation"
-                : rowData.assign_TL.length > 0 || rowData.assign_HOS.length > 0
-                ? "Preparation Under Approval"
-                : "Under-Preparation"
+            {rowData.checkSheet_data != null
+              ? rowData.checkSheet_data.checkSheet.length > 0
+                ? rowData.checkSheet_data.checkSheet.length < 1
+                  ? "Preparation"
+                  : rowData.checkSheet_data.assign_TL.length > 0 ||
+                    rowData.checkSheet_data.assign_HOS.length > 0
+                  ? "Preparation Under Approval"
+                  : "Under-Preparation"
+                : "Preparation"
               : "Preparation"}
           </button>
         ),
@@ -199,24 +205,26 @@ const CheckSheetDashboard = () => {
     (rowData) => {
       return {
         hidden:
-          rowData.checksheet_status === "Preparation" ||
-          rowData.checksheet_status === "Implementation" ||
-          rowData.checksheet_status === undefined,
+          rowData.checkSheet_data != null
+            ? rowData.checkSheet_data.checksheet_status === "Preparation" ||
+              rowData.checkSheet_data.checksheet_status === "Implementation" ||
+              rowData.checkSheet_data.checksheet_status === undefined
+            : rowData.checkSheet_data === undefined,
         icon: () => (
           <button className="btn-warning">
-            {
-              rowData.checkSheet.map((key) => {
-                if ("start_month" in key) {
-                  if (rowData.assign_PRD_TL.length > 0) {
-                    return "Planning Under Approval";
+            {rowData.checkSheet_data != null
+              ? rowData.checkSheet_data.checkSheet.map((key) => {
+                  if ("start_month" in key) {
+                    if (rowData.checkSheet_data.assign_PRD_TL.length > 0) {
+                      return "Planning Under Approval";
+                    } else {
+                      return "Under-Planning";
+                    }
                   } else {
-                    return "Under-Planning";
+                    return "Planning";
                   }
-                } else {
-                  return "Planning";
-                }
-              })[0]
-            }
+                })[0]
+              : ""}
           </button>
         ),
         // tooltip: <h1>I am a tooltip</h1>,
@@ -233,7 +241,7 @@ const CheckSheetDashboard = () => {
       icon: () => <button className="btn-primary">View</button>,
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
-        navigate("/checkSheetForm", {
+        navigate("/viewCheckSheet", {
           state: { selectedRowForViewForm: selectedRow },
         });
       },

@@ -73,7 +73,7 @@ function PMSheetApproval() {
         console.log("Invalid");
       } else {
         console.log(data);
-        setTableData(data.machineData);
+        setTableData(data.machineDataOfPrepAndPlanApproval);
       }
     } catch (error) {
       console.log(error);
@@ -116,7 +116,7 @@ function PMSheetApproval() {
             </tr>
           </thead>
           <tbody>
-            {tableData.map((index) => (
+            {tableData?.map((index) => (
               <tr className="ar-table-thead-header4 tableRowColor">
                 <td className="td-padding">{index.line_names.line_name}</td>
                 <td className="td-padding">{index.machine_code}</td>
@@ -126,40 +126,40 @@ function PMSheetApproval() {
                   <br />
                   {index.preparation_TL_date[idx]
                     } */}
-                  {index.sender_tm_name.map((value, idx) => (
+                  {index?.checkSheet_data?.sender_tm_name?.map((value, idx) => (
                     <p>
-                      {value}-{index.preparation_TL_date[idx]}
+                      {value}-{index?.checkSheet_data?.preparation_TL_date[idx]}
                     </p>
                   ))}
                 </td>
                 <td className="td-padding">
-                  {index.tl_approval_status.map((value, idx) => (
+                  {index?.checkSheet_data?.tl_approval_status?.map((value, idx) => (
                     <p>
-                      <b>{value}</b>-{index.assign_TL_name[idx]}-
-                      {index.preparation_TL_HOSS_date[idx]}
+                      <b>{value}</b>-{index?.checkSheet_data?.assign_TL_name[idx]}-
+                      {index?.checkSheet_data?.preparation_TL_HOSS_date[idx]}
                     </p>
                   ))}
                 </td>
                 <td className="td-padding">
-                  {index.hos_approval_status.map((value, idx) => (
+                  {index?.checkSheet_data?.hos_approval_status?.map((value, idx) => (
                     <p>
-                      <b>{value}</b>-{index.assign_HOS_name[idx]}-
-                      {index.preparation_HOS_date[idx]}
+                      <b>{value}</b>-{index?.checkSheet_data?.assign_HOS_name[idx]}-
+                      {index?.checkSheet_data?.preparation_HOS_date[idx]}
                     </p>
                   ))}
                 </td>
                 <td className="td-padding">
-                  {index.plan_prepared_tm_name.map((value, idx) => (
+                  {index?.checkSheet_data?.plan_prepared_tm_name?.map((value, idx) => (
                     <p>
-                      {value}-{index.planning_TL_date[idx]}
+                      {value}-{index?.checkSheet_data?.planning_TL_date[idx]}
                     </p>
                   ))}
                 </td>
                 <td className="td-padding">
-                  {index.prd_tl_approval_status.map((value, idx) => (
+                  {index?.checkSheet_data?.prd_tl_approval_status?.map((value, idx) => (
                     <p>
-                      <b>{value}</b>-{index.assign_PRD_TL_name[idx]}-
-                      {index.planning_PRD_TL_date[idx]}
+                      <b>{value}</b>-{index?.checkSheet_data?.assign_PRD_TL_name[idx]}-
+                      {index?.checkSheet_data?.planning_PRD_TL_date[idx]}
                     </p>
                   ))}
                 </td>
