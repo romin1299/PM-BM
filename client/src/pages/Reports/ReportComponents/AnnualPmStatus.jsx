@@ -4,11 +4,17 @@ import { Row, Col, Container } from "react-bootstrap";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import ClipLoader from "react-spinners/ClipLoader";
 
+import currentYear from "../../Dashboard/DashboardComponent/currentYear";
+import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
+
+import LoadingAnimation from "./LoadingAnimation";
+
 const AnnualPmStatus = () => {
   // console.log(tableData);
   const context = useContext(RoutingContext);
 
   const [graphData, setGraphData] = useState({});
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const postSectionToGetAllDataForAnnualStatusReport = async () => {
     // setSubSection(undefined);
@@ -20,6 +26,7 @@ const AnnualPmStatus = () => {
         },
         body: JSON.stringify({
           section: context.section_data,
+          selectedYear,
           // month: selectedMonth,
         }),
       });
@@ -40,7 +47,7 @@ const AnnualPmStatus = () => {
 
   useEffect(() => {
     postSectionToGetAllDataForAnnualStatusReport();
-  }, []);
+  }, [selectedYear]);
 
   // console.log(graphData);
 
@@ -141,9 +148,23 @@ const AnnualPmStatus = () => {
     },
     legend: { x: 0.3, y: "4", orientation: "h" },
   };
+
+  useEffect(() => {
+    setGraphData("");
+  }, [selectedYear]);
   return (
     <>
       <div>
+        <Container fluid>
+          <Row className="p-2">
+            <Col sm={12} lg={3}>
+              <YearDropDown
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+              />
+            </Col>
+          </Row>
+        </Container>
         <Container>
           <Row className="pt-2">
             {graphData?.annual_total_current_schedule?.length > 0 ? (
@@ -186,15 +207,7 @@ const AnnualPmStatus = () => {
               </Col>
             ) : (
               <Col className="d-flex justify-content-around align-items-center pt-5">
-                <ClipLoader
-                  color="blue"
-                  loading={true}
-                  // style={{ color: "while" }}
-                  // cssOverride={override}
-                  size={50}
-                  aria-label="Loading Spinner"
-                  data-testid="loader"
-                />
+                <LoadingAnimation />
               </Col>
             )}
           </Row>

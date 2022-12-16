@@ -13,6 +13,9 @@ const subSectionSchema = new mongoose.Schema({
     },
     subSection_sequence: {
         type: Number
+    },
+    remarksOnMainDashboard: {
+        type: String
     }
 })
 

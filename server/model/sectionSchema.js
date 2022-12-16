@@ -13,6 +13,9 @@ const sectionSchema = new mongoose.Schema({
     plant_names: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Plants'
+    },
+    remarksOnMainDashboard: {
+        type: String
     }
 })
 

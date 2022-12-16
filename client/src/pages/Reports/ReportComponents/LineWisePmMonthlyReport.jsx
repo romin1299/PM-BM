@@ -13,6 +13,15 @@ import { Button } from "@mui/material";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import LineWIsePmMonthlyGraph from "./Graph/LineWIsePmMonthlyGraph";
 import LineWiseMachineDetailDashboard from "./ReportPopups/LineWiseMachineDetailDashboard";
+
+import currentMonth from "../../Dashboard/DashboardComponent/currentMonth";
+import currentYear from "../../Dashboard/DashboardComponent/currentYear";
+import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
+import MonthDropDown from "../../Dashboard/DashboardComponent/MonthDropDown";
+
+import LoadingAnimation from "./LoadingAnimation";
+import NotFound from "./NotFound";
+
 const LineWisePmMonthlyReport = () => {
   const context = useContext(RoutingContext);
 
@@ -21,6 +30,10 @@ const LineWisePmMonthlyReport = () => {
   const [tableData, setTableData] = useState([]);
   const [csvData, setCsvData] = useState([]);
 
+  const [loadingAnimationState, setLoadingAnimationState] = useState(
+    <LoadingAnimation />
+  );
+
   const [statusSum, setStatusSum] = useState({
     totalPmSchedule: 0,
     lastMonthPendingStatusSum: 0,
@@ -28,25 +41,9 @@ const LineWisePmMonthlyReport = () => {
     pendingStatusSum: 0,
   });
 
-  const monthKeyArray = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "June",
-    "July",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
-  const [selectedMonth, setSelectedMonth] = useState(
-    monthForCompareSystemMonth
-  );
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
   const closePopup = () => {
     setMachineDetailPage("");
@@ -222,6 +219,7 @@ const LineWisePmMonthlyReport = () => {
         },
         body: JSON.stringify({
           section: context.section_data,
+          selectedYear,
           month: selectedMonth,
         }),
       });
@@ -341,7 +339,7 @@ const LineWisePmMonthlyReport = () => {
     });
     setCsvData(rows);
   };
-  // console.log(statusSum);
+  console.log(statusSum);
 
   // const [refKey, setRefKey] = useState(0);
 
@@ -350,7 +348,7 @@ const LineWisePmMonthlyReport = () => {
     postSectionToGetAllDataForMainDashboard();
     // setRefKey((refKey) => refKey + 1);
     // console.log(refKey);
-  }, [selectedMonth]);
+  }, [selectedYear, selectedMonth]);
 
   useEffect(() => {
     // setTimeout(() => {
@@ -360,42 +358,41 @@ const LineWisePmMonthlyReport = () => {
     // }, 1000);
   }, [selectedMonth, tableData]);
 
+  useEffect(() => {
+    setSelectedMonth(currentMonth);
+  }, [selectedYear]);
+
+  useEffect(() => {
+    setLoadingAnimationState(<LoadingAnimation />);
+    setStatusSum({
+      ...statusSum,
+      totalPmSchedule: 0,
+      completedStatusSum: 0,
+      lastMonthPendingStatusSum: 0,
+    });
+    setTimeout(() => {
+      setLoadingAnimationState(<NotFound />);
+    }, 3000);
+  }, [selectedYear, selectedMonth]);
+
   return (
     <>
       <div>
         {machineDetailPage}
         <div className="lineWisePmMonthlyReport">
           <Container fluid>
-            <Row className="pt-2 ">
+            <Row className="p-2">
               <Col sm={12} lg={3}>
-                <span>Month:</span>
+                <YearDropDown
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                />
               </Col>
               <Col sm={12} lg={3}>
-                <div>
-                  <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="selectedPlant"
-                    value={selectedMonth}
-                    className="textField"
-                    onChange={(e) => {
-                      setSelectedMonth(e.target.value);
-                    }}
-                    fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {monthKeyArray?.map((option) => {
-                      return <option value={option}>{option}</option>;
-                    })}
-                  </select>
-                </div>
+                <MonthDropDown
+                  selectedMonth={selectedMonth}
+                  setSelectedMonth={setSelectedMonth}
+                />
               </Col>
             </Row>
           </Container>
@@ -450,15 +447,7 @@ const LineWisePmMonthlyReport = () => {
                   </Col>
                 ) : (
                   <Col className="d-flex justify-content-around align-items-center pt-5">
-                    <ClipLoader
-                      color="blue"
-                      loading={true}
-                      // style={{ color: "while" }}
-                      // cssOverride={override}
-                      size={50}
-                      aria-label="Loading Spinner"
-                      data-testid="loader"
-                    />
+                    {loadingAnimationState}
                   </Col>
                 )}
 
@@ -475,15 +464,7 @@ const LineWisePmMonthlyReport = () => {
                   </Col>
                 ) : (
                   <Col className="d-flex justify-content-around align-items-center pt-5">
-                    <ClipLoader
-                      color="blue"
-                      loading={true}
-                      // style={{ color: "while" }}
-                      // cssOverride={override}
-                      size={50}
-                      aria-label="Loading Spinner"
-                      data-testid="loader"
-                    />
+                    {loadingAnimationState}
                   </Col>
                 )}
               </Row>

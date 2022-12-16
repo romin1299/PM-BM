@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import Plot from "react-plotly.js";
-import { Row, Col, Container } from "react-bootstrap";
+import { Row, Col, Container, Card } from "react-bootstrap";
+
+import ManHourMonthWiseGraph from "./PmTimeMonitoringCharts/ManHourMonthWiseGraph";
 
 const TotalTimeManHourMonthWise = ({ context }) => {
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
@@ -42,9 +44,6 @@ const TotalTimeManHourMonthWise = ({ context }) => {
 
   const y1 = [23, 45, 67, 30, 40, 50, 60, 70, 80, 90, 20, 30];
   const x1 = [
-    "Jan",
-    "Feb",
-    "Mar",
     "Apr",
     "May",
     "June",
@@ -54,6 +53,9 @@ const TotalTimeManHourMonthWise = ({ context }) => {
     "Oct",
     "Nov",
     "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
   ];
 
   var trace1 = {
@@ -106,52 +108,63 @@ const TotalTimeManHourMonthWise = ({ context }) => {
     },
     legend: { x: 0.3, y: "4", orientation: "h" },
   };
+
   return (
     <>
       <div>
         <Container>
-          <Row>
-            <Col style={{ backgroundColor: "white" }}>
-              <h3>Total time Man-Hour (Month Wise)</h3>
-            </Col>
-          </Row>
-          <Row className="pt-2">
-            <Col>
-              <div>
-                <select
-                  style={{ width: "100%" }}
-                  name="selectedCell"
-                  fullWidth
-                  select // label="Select"
-                  autoComplete="off"
-                  variant="standard"
-                  value={selectedLine}
-                  onChange={(e) => setSelectedLine(e.target.value)}
-                >
-                  <option selected disabled value="">
-                    Please select Line
-                  </option>
-                  {allDataSectionWise?.lineData?.map((option) => {
-                    return (
-                      <option value={option._id}>{option.line_name}</option>
-                    );
-                  })}
-                </select>
-              </div>
-            </Col>
-            <Col>
-              <button className="btn1" onClick={functionForTotalData}>
-                Total
-              </button>
-            </Col>
+          <Row className="pt-2  cell">
+            <Row>
+              <Col
+              // className="cell"
+              // style={{ backgroundColor: "white" }}
+              >
+                <h3>Total time Man-Hour (Month Wise)</h3>
+              </Col>
+            </Row>
+
+            <Row className="p-2">
+              <Col>
+                <div>
+                  <select
+                    style={{ width: "100%" }}
+                    name="selectedCell"
+                    fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    variant="standard"
+                    value={selectedLine}
+                    onChange={(e) => setSelectedLine(e.target.value)}
+                  >
+                    <option selected disabled value="">
+                      Please select Line
+                    </option>
+                    {allDataSectionWise?.lineData?.map((option) => {
+                      return (
+                        <option value={option._id}>{option.line_name}</option>
+                      );
+                    })}
+                  </select>
+                </div>
+              </Col>
+              <Col>
+                <button className="btn1" onClick={functionForTotalData}>
+                  Total
+                </button>
+              </Col>
+            </Row>
           </Row>
         </Container>
-        <div className="pt-2">
-          <Plot
+        <div>
+          {/* <Plot
             data={[trace1]}
             layout={layout}
+            config={{ displayModeBar: false }}
             style={{ width: "100%", height: "100%" }}
-          />
+          /> */}
+          <Card className="d-flex justify-content-center align-items-center">
+            <ManHourMonthWiseGraph xValue={x1} yValue={y1} />
+          </Card>
         </div>
       </div>
     </>

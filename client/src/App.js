@@ -48,6 +48,11 @@ import CheckSheet from "./pages/Dashboard/CheckSheet";
 //implementation approval flow
 import PMSheetApprovalOfImplementationPhase from "./pages/Section/Checksheet/PMSheetApprovalOfImplementationPhase";
 
+
+//Common Pages
+
+import SummeryDashboard from "./pages/Dashboard/SummeryDashboard/SummeryDashboard";
+
 import ViewChecksheet from "./pages/Section/Checksheet/ViewChecksheet";
 
 function App() {
@@ -71,6 +76,8 @@ function App() {
                 <Route path="/adminDashboard" element={<AdminDashboard />} />
                 <Route path="/" element={<AdminCreationDashboard />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/summeryDashboard" element={<SummeryDashboard />} />
+
               </Routes>
             }
           />
@@ -92,6 +99,8 @@ function App() {
                 <Route path="/userAssign" element={<UserAssign />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/machineWiseCheckSheet" element={<CheckSheet />} />
+                <Route path="/summeryDashboard" element={<SummeryDashboard />} />
+
               </Routes>
             }
           />
@@ -120,6 +129,7 @@ function App() {
                 <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} />
                 <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
                 <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
+                <Route path="/summeryDashboard" element={<SummeryDashboard />} />
 
                 {/* <Route path="/checkSheet" element={<CheckSheet />} /> */}
 
@@ -145,6 +155,7 @@ function App() {
                 <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} />
                 <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
                 <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
+                <Route path="/summeryDashboard" element={<SummeryDashboard />} />
 
                 {/* <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
@@ -168,10 +179,10 @@ function App() {
                 <Route path="/" element={<OperatorDashboard />} />
                 <Route path="/machineWiseCheckSheet" element={<CheckSheet />} />
                 <Route path="/profile" element={<Profile />} />
-                {context.tm_department === "MTD" ? 
-                <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
-                : 
-                ""
+                {context.tm_department === "MTD" ?
+                  <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
+                  :
+                  ""
                 }
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
                 <Route path="/checkSheetForm" element={<CheckSheetForm />} />
@@ -185,6 +196,7 @@ function App() {
                 <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
                 <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
 
+                <Route path="/summeryDashboard" element={<SummeryDashboard />} />
 
 
               </Routes>

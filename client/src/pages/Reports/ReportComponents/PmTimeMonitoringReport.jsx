@@ -14,19 +14,20 @@ const PmTimeMonitoringReport = () => {
   return (
     <>
       <div>
-        <Container>
+        <Container fluid>
           <Row>
-            <Col className="pt-3">
+            <Col className=" mt-3 col-md-6 col-sm-6 col-lg-6">
               <TotalMonthWiseGraph context={context} />
             </Col>
-            <Col className="pt-3">
+            <Col className=" mt-3 col-md-6 col-sm-6 col-lg-6">
               <TotalTimeManHourMonthWise context={context} />
             </Col>
           </Row>
           <Row>
-            <Col className="pt-3">
+            <Col className=" mt-3 col-md-6 col-sm-6 col-lg-6">
               <TotalTimeTMWise context={context} />
             </Col>
+            {/* <Col></Col> */}
           </Row>
         </Container>
       </div>

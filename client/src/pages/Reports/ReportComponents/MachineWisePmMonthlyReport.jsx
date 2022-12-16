@@ -15,12 +15,18 @@ import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import RoutingContext from "../../../context/routing/RoutingContext";
+
+import currentMonth from "../../Dashboard/DashboardComponent/currentMonth";
+import currentYear from "../../Dashboard/DashboardComponent/currentYear";
+import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
+import MonthDropDown from "../../Dashboard/DashboardComponent/MonthDropDown";
+
 const MachineWisePmMonthlyReport = () => {
   const context = useContext(RoutingContext);
 
   const [tableData1, setTableData1] = useState();
 
-  // console.log(context);
+  // console.log(currentYear);
 
   const [csvDataForCurrentMonth, setCsvDataForCurrentMonth] = useState([]);
   const [csvDataForPreviousMonth, setCsvDataForPreviousMonth] = useState([]);
@@ -31,6 +37,8 @@ const MachineWisePmMonthlyReport = () => {
     pending: 0,
     onGoing: 0,
   });
+
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const monthKeyArray = [
     "Jan",
@@ -46,11 +54,8 @@ const MachineWisePmMonthlyReport = () => {
     "Nov",
     "Dec",
   ];
-  let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
 
-  const [selectedMonth, setSelectedMonth] = useState(
-    monthForCompareSystemMonth
-  );
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
   let previousMonth =
     monthKeyArray[monthKeyArray.indexOf(selectedMonth) - 1] === undefined
@@ -67,7 +72,8 @@ const MachineWisePmMonthlyReport = () => {
     },
     {
       title: "Line",
-      field: "line_names.line_name",
+      // field: "line_names.line_name",
+      render: (rowData) => rowData?.line_names.line_name,
       editable: "false",
       align: "center",
     },
@@ -88,19 +94,17 @@ const MachineWisePmMonthlyReport = () => {
       field: "rowData.PMStatus?.[monthForCompareSystemMonth]",
       // width: "10%",
       render: (rowData) =>
-        rowData.PMStatus?.[selectedMonth] === "Completed" ? (
+        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ? (
           <PanoramaFishEyeIcon fontSize="small" />
-        ) : // : rowData.PMStatus?.[selectedMonth] === "Current Plan" ? (
+        ) : // : rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Current Plan" ? (
         //   <PanoramaFishEyeIcon fontSize="small" />
         // )
-        rowData.PMStatus?.[selectedMonth] === "Ongoing" ? (
+        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing" ? (
           <ArrowDropUpIcon />
         ) : (
           <CloseIcon />
         ),
-      // console.log(
-      //   rowData.PMStatus ? rowData.PMStatus.monthForCompareSystemMonth : "ACD"
-      // ),
+      // console.log(rowData?.checkSheet_data?.PMStatus),
     },
   ];
 
@@ -113,7 +117,8 @@ const MachineWisePmMonthlyReport = () => {
     },
     {
       title: "Line",
-      field: "line_names.line_name",
+      render: (rowData) => rowData?.line_names.line_name,
+      // field: "line_names.line_name",
       editable: "false",
       align: "center",
     },
@@ -134,16 +139,16 @@ const MachineWisePmMonthlyReport = () => {
       field: "rowData.PMStatus?.[monthForCompareSystemMonth]",
       // width: "10%",
       render: (rowData) =>
-        rowData.PMStatus?.[previousMonth] === "Completed" ? (
+        rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Completed" ? (
           <PanoramaFishEyeIcon fontSize="small" />
-        ) : // : rowData.PMStatus?.[previousMonth] === "Current Plan" ? (
+        ) : // : rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Current Plan" ? (
         //   <PanoramaFishEyeIcon fontSize="small" />
         // )
-        rowData.PMStatus?.[previousMonth] === "Ongoing" ? (
+        rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing" ? (
           <ArrowDropUpIcon />
         ) : (
           // <CloseIcon />
-          rowData.PMStatus?.[previousMonth]
+          rowData?.checkSheet_data?.PMStatus?.[previousMonth]
         ),
       // console.log(
       //   rowData.PMStatus ? rowData.PMStatus.monthForCompareSystemMonth : "ACD"
@@ -265,9 +270,9 @@ const MachineWisePmMonthlyReport = () => {
         item.line_names.line_name,
         item.machine_name,
         item.machine_code,
-        item.PMStatus?.[selectedMonth] === "Completed"
+        item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed"
           ? "O"
-          : item.PMStatus?.[selectedMonth] === "Ongoing"
+          : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
           ? "^"
           : "X",
       ])
@@ -292,9 +297,9 @@ const MachineWisePmMonthlyReport = () => {
         item.line_names.line_name,
         item.machine_name,
         item.machine_code,
-        item.PMStatus?.[previousMonth] === "Completed"
+        item.checkSheet_data?.PMStatus?.[previousMonth] === "Completed"
           ? "O"
-          : item.PMStatus?.[previousMonth] === "Ongoing"
+          : item.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing"
           ? "^"
           : "X",
       ])
@@ -320,11 +325,13 @@ const MachineWisePmMonthlyReport = () => {
 
     tableData1?.machineDataForCurrentMonth.map((item, index) => {
       // console.log(item.PMStatus);
-      // console.log(item.PMStatus?.[selectedMonth]);
+      // console.log(item.checkSheet_data?.PMStatus?.[selectedMonth]);
 
-      if (item.PMStatus?.[selectedMonth] === "Completed") {
+      if (item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed") {
         completedStatusCounter++;
-      } else if (item.PMStatus?.[selectedMonth] === "Ongoing") {
+      } else if (
+        item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
+      ) {
         // console.log("kjhgcfgh");
         onGoingPM++;
       }
@@ -332,7 +339,7 @@ const MachineWisePmMonthlyReport = () => {
       //   pendingStatusCounter++;
       // }
 
-      if (item.PMStatus?.[selectedMonth] !== "") {
+      if (item.checkSheet_data?.PMStatus?.[selectedMonth] !== "") {
         // console.log("kjhgcfgh");
         schedulePM++;
       }
@@ -352,9 +359,9 @@ const MachineWisePmMonthlyReport = () => {
         item.line_names.line_name,
         item.machine_name,
         item.machine_code,
-        item.PMStatus?.[selectedMonth] === "Completed"
+        item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed"
           ? "O"
-          : item.PMStatus?.[selectedMonth] === "Ongoing"
+          : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
           ? "^"
           : "X",
       ]);
@@ -366,9 +373,9 @@ const MachineWisePmMonthlyReport = () => {
         item.line_names.line_name,
         item.machine_name,
         item.machine_code,
-        item.PMStatus?.[previousMonth] === "Completed"
+        item.checkSheet_data?.PMStatus?.[previousMonth] === "Completed"
           ? "O"
-          : item.PMStatus?.[previousMonth] === "Ongoing"
+          : item.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing"
           ? "^"
           : "X",
       ]);
@@ -389,6 +396,7 @@ const MachineWisePmMonthlyReport = () => {
           section: context.section_data,
           currentMonth: selectedMonth,
           previousMonth: previousMonth,
+          selectedYear,
         }),
       });
       const data = await res.json();
@@ -396,7 +404,7 @@ const MachineWisePmMonthlyReport = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        // console.log(data);
+        console.log(data);
         setTableData1(data);
       }
     } catch (error) {
@@ -406,7 +414,7 @@ const MachineWisePmMonthlyReport = () => {
 
   useEffect(() => {
     postSectionAndMonthToGetAllDataForReport();
-  }, [selectedMonth]);
+  }, [selectedYear, selectedMonth]);
 
   // console.log(statusCounter);
   useEffect(() => {
@@ -421,42 +429,27 @@ const MachineWisePmMonthlyReport = () => {
   }, [selectedMonth, tableData1]);
 
   // console.log(statusCounter);
+  useEffect(() => {
+    setSelectedMonth(currentMonth);
+  }, [selectedYear]);
 
   return (
     <>
       <div>
         <div>
           <Container fluid>
-            <Row className="pt-2 ">
+            <Row className="p-2">
               <Col sm={12} lg={3}>
-                <span>Month:</span>
+                <YearDropDown
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                />
               </Col>
               <Col sm={12} lg={3}>
-                <div>
-                  <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="selectedPlant"
-                    value={selectedMonth}
-                    className="textField"
-                    onChange={(e) => {
-                      setSelectedMonth(e.target.value);
-                    }}
-                    fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {monthKeyArray?.map((option) => {
-                      return <option value={option}>{option}</option>;
-                    })}
-                  </select>
-                </div>
+                <MonthDropDown
+                  selectedMonth={selectedMonth}
+                  setSelectedMonth={setSelectedMonth}
+                />
               </Col>
             </Row>
           </Container>

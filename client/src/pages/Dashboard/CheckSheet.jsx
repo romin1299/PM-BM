@@ -405,7 +405,6 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
             </button>
           </div>
           <div className="col-11"></div>
-
         </div>
 
         <br />
@@ -444,12 +443,13 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         // colSpan={2}
                         //  rowSpan={5}
                       >
-                        {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                        {machineAllData?.checkSheet_data?.approved_by_PRD_TL?.[
                           machineAllData?.checkSheet_data?.approved_by_PRD_TL
-                            .length - 1
+                            ?.length - 1
                         ]
                           ? `${
-                              machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                              machineAllData?.checkSheet_data
+                                ?.approved_by_PRD_TL[
                                 machineAllData?.checkSheet_data
                                   .approved_by_PRD_TL.length - 1
                               ]
@@ -461,9 +461,10 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         // colSpan={2}
                         //  rowSpan={5}
                       >
-                        {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
+                        {machineAllData?.checkSheet_data
+                          ?.plan_prepared_tm_name?.[
                           machineAllData?.checkSheet_data?.plan_prepared_tm_name
-                            .length - 1
+                            ?.length - 1
                         ]
                           ? `${
                               machineAllData?.checkSheet_data
@@ -552,7 +553,9 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                             machineAllData?.checkSheet_data
                               ?.implementation_approved_by_MTD_TL
                           ).map((index) => (
-                            <td className="ar-table-col1">{index[index.length - 1]}</td>
+                            <td className="ar-table-col1">
+                              {index[index.length - 1]}
+                            </td>
                           ))
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
@@ -572,8 +575,8 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         <br />
 
                         {machineAllData?.checkSheet_data?.approved_by_TL[
-                          machineAllData?.checkSheet_data?.approved_by_TL.length -
-                            1
+                          machineAllData?.checkSheet_data?.approved_by_TL
+                            .length - 1
                         ]
                           ? `,${
                               machineAllData?.checkSheet_data?.approved_by_TL[
@@ -584,13 +587,13 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           : ""}
                       </th>
                       <th className="approvalName" colSpan={2} rowSpan={5}>
-                        {machineAllData?.checkSheet_data?.sender_tm_name[
-                          machineAllData?.checkSheet_data?.sender_tm_name.length -
-                            1
+                        {machineAllData?.checkSheet_data?.sender_tm_name?.[
+                          machineAllData?.checkSheet_data?.sender_tm_name
+                            ?.length - 1
                         ]
-                          ? machineAllData?.checkSheet_data?.sender_tm_name[
+                          ? machineAllData?.checkSheet_data?.sender_tm_name?.[
                               machineAllData?.checkSheet_data?.sender_tm_name
-                                .length - 1
+                                ?.length - 1
                             ]
                           : ""}
                       </th>
@@ -605,7 +608,9 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                             machineAllData?.checkSheet_data
                               ?.implementation_approved_by_MTD_HOS
                           ).map((index) => (
-                            <td className="ar-table-col1">{index[index.length - 1]}</td>
+                            <td className="ar-table-col1">
+                              {index[index.length - 1]}
+                            </td>
                           ))
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
@@ -853,7 +858,9 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                             machineAllData?.checkSheet_data
                               ?.implementation_approved_by_PRD_TL
                           ).map((index) => (
-                            <td className="ar-table-col1">{index[index.length - 1]}</td>
+                            <td className="ar-table-col1">
+                              {index[index.length - 1]}
+                            </td>
                           ))
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
@@ -1009,16 +1016,22 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                 </div>
               </Col>
             </Row>
-            {machineAllData?.checkSheet_data?.implemetation_prd_tl_approval_status ||
-            machineAllData?.checkSheet_data?.implemetation_mtd_tl_approval_status ||
-            machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status ? (
-              machineAllData?.checkSheet_data?.implemetation_prd_tl_approval_status[
+            {machineAllData?.checkSheet_data
+              ?.implemetation_prd_tl_approval_status ||
+            machineAllData?.checkSheet_data
+              ?.implemetation_mtd_tl_approval_status ||
+            machineAllData?.checkSheet_data
+              ?.implemetation_mtd_hos_approval_status ? (
+              machineAllData?.checkSheet_data
+                ?.implemetation_prd_tl_approval_status[
                 monthForCompareSystemMonth
               ] !== "Rejected" ||
-              machineAllData?.checkSheet_data?.implemetation_mtd_tl_approval_status[
+              machineAllData?.checkSheet_data
+                ?.implemetation_mtd_tl_approval_status[
                 monthForCompareSystemMonth
               ] !== "Rejected" ||
-              machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status[
+              machineAllData?.checkSheet_data
+                ?.implemetation_mtd_hos_approval_status[
                 monthForCompareSystemMonth
               ] !== "Rejected" ? (
                 <>

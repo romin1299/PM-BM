@@ -1382,14 +1382,41 @@ router.post('/updateMachine', authenticate, async (req, res) => {
 
 router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
     try {
-        let { section } = req.body
+        let { section, selectedYear } = req.body
         let loggedUserData = req.rootUser;
+
+
+        let currentYear =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+                    {
+                        "checkSheet_data": []
+
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+
+                ]
 
         // console.log(section);
         let sectionSplit = section.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
         // console.log("____________", sectionInfo[0]._id)
         let subSectionsData, subSectionIdArray = [], cellData, cellIdArray = [], lineData, lineIdArray = [], machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = [], machineLastData
+
+
+
         if (sectionInfo.dashboardLevel === "Yes") {
             subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
 
@@ -1542,11 +1569,14 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
             // console.log(machineData)
             machineDataOfPrepAndPlanApproval = await Machine.populate(machineDataOfPrepAndPlanApproval, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
+            // console.log(selectedYear, typeof (selectedYear))
             // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
             machineLastData = await Machine.aggregate([
                 {
                     $match: {
-                        line_names: { $in: lineIdArray }
+                        line_names: { $in: lineIdArray },
+
+                        $or: selectedYearOfCheckSheet
                     }
                 },
                 {
@@ -1561,6 +1591,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                         manufacturingDate: 1,
                         isPM: 1,
                         line_names: 1,
+                        // checkSheet_data: 1
                         checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
                     }
                 }
@@ -1683,7 +1714,9 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
             machineLastData = await Machine.aggregate([
                 {
                     $match: {
-                        line_names: { $in: lineIdArray }
+                        line_names: { $in: lineIdArray },
+                        $or: selectedYearOfCheckSheet
+
                     }
                 },
                 {
@@ -1718,8 +1751,35 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
 //for main dashboard of meters display for operator user
 router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req, res) => {
     try {
-        let { section } = req.body
-        // console.log(section, "_________", req.rootUser);
+        let { section, selectedYear } = req.body
+        // console.log("1755==>",selectedYear);
+
+
+        let currentYear =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+                    {
+                        "checkSheet_data": []
+
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+
+                ]
+
+
+
         let sectionSplit = section.split("-")
         const sectionInfo = await Section.find({ section_id: sectionSplit[0] })
         // console.log("____________", sectionInfo[0]._id)
@@ -1815,7 +1875,9 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         let machineData = await Machine.aggregate([
             {
                 $match: {
-                    line_names: { $in: lineIdArray }
+                    line_names: { $in: lineIdArray },
+                    $or: selectedYearOfCheckSheet
+
                 }
             },
             {
@@ -1962,7 +2024,34 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
 //for main dashboard of meters display for other users
 router.post('/postSectionToGetAllDataForMainDashboardForOtherUser', authenticate, async (req, res) => {
     try {
-        let { section } = req.body
+        let { section, selectedYear } = req.body
+
+        // console.log("2029==>", selectedYear)
+
+        let currentYear =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+                    {
+                        "checkSheet_data": []
+
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+
+                ]
+
+
         // console.log(section, "_________", req.rootUser);
         let sectionSplit = section.split("-")
         const sectionInfo = await Section.find({ section_id: sectionSplit[0] })
@@ -1995,7 +2084,8 @@ router.post('/postSectionToGetAllDataForMainDashboardForOtherUser', authenticate
         let machineData = await Machine.aggregate([
             {
                 $match: {
-                    line_names: { $in: lineIdArray }
+                    line_names: { $in: lineIdArray },
+                    $or: selectedYearOfCheckSheet
                 }
             },
             {
@@ -2399,7 +2489,7 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
         let sectionSplit = loggedUserData.section_data.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
 
-        let TLlist, HOSlist, PRDTLlist, supportingOperatorList, MTDTLlist, MTDTLandOperatorList, supportingOperatorListArray = []
+        let TLlist, HOSlist, PRDTLlist, supportingOperatorList, MTDTLlist, MTDTLandOperatorList, supportingOperatorListArray, supportingOperatorListForReportDashboard = []
 
         if (sectionInfo.dashboardLevel === "Yes") {
 
@@ -2411,6 +2501,8 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
 
             supportingOperatorList = await User.find({ section_data: loggedUserData.section_data, user_type: "Operator", tm_department: "MTD", tm_no: { $ne: loggedUserData.tm_no } })
 
+            supportingOperatorListForReportDashboard = await User.find({ section_data: loggedUserData.section_data, user_type: "Operator", tm_department: "MTD" })
+
             MTDTLlist = await User.find({ section_data: loggedUserData.section_data, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
 
             MTDTLandOperatorList = await User.find({
@@ -2420,10 +2512,10 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
                 ]
             })
 
-            supportingOperatorList.map((key) => {
-                supportingOperatorListArray.push(key.tm_name)
-            })
-            // console.log(supportingOperatorList)
+            // supportingOperatorList.map((key) => {
+            //     supportingOperatorListArray.push(key.tm_name)
+            // })
+
         } else {
 
             TLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no } }, { tm_name: 1, email: 1, _id: 0 })
@@ -2433,6 +2525,8 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
             PRDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
             supportingOperatorList = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "Operator", tm_department: "MTD", tm_no: { $ne: loggedUserData.tm_no } }, { tm_name: 1, _id: 0 })
+
+            supportingOperatorListForReportDashboard = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "Operator", tm_department: "MTD", }, { tm_name: 1, _id: 0 })
 
             MTDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
 
@@ -2458,17 +2552,17 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
                 ]
             }, { tm_name: 1, _id: 0 })
 
-            supportingOperatorList.map((key) => {
-                supportingOperatorListArray.push(key.tm_name)
-            })
+            // supportingOperatorList.map((key) => {
+            //     supportingOperatorListArray.push(key.tm_name)
+            // })
         }
 
 
 
-        res.json({ TLlist, HOSlist, PRDTLlist, supportingOperatorList, MTDTLlist, MTDTLandOperatorList });
+        res.json({ TLlist, HOSlist, PRDTLlist, supportingOperatorListArray, MTDTLlist, MTDTLandOperatorList, supportingOperatorListForReportDashboard });
     } catch (error) {
         console.log("User data not send or get!!!");
-        // console.log(error)
+        console.log(error)
     }
 })
 
@@ -4345,7 +4439,7 @@ router.post('/savedWorkedPMData', async (req, res) => {
                 machine_code: machine_code
             },
                 {
-                    $set:{
+                    $set: {
                         [keyOfDelayRemarksMonthPM]: delayRemarks
                     },
                     $push: {
@@ -4461,7 +4555,7 @@ router.post('/deleteCheckSheet', authenticate, async (req, res) => {
 
 router.post('/PMCarryOnToNextMonth', async (req, res) => {
     try {
-        const { machine_code, monthForCompareSystemMonth, tableRowId, previousMonth, cycleOfPerticularRow, skipCountForStatusUpdate, previousToPreviousMonth , yearOfCheckSheet} = req.body
+        const { machine_code, monthForCompareSystemMonth, tableRowId, previousMonth, cycleOfPerticularRow, skipCountForStatusUpdate, previousToPreviousMonth, yearOfCheckSheet } = req.body
         // console.log(machine_code, monthForCompareSystemMonth, tableRowId, previousMonth, cycleOfPerticularRow, skipCountForStatusUpdate, previousToPreviousMonth, yearOfCheckSheet)
 
         let CarriedPMStatusArray =
@@ -4549,8 +4643,31 @@ router.post('/PMCarryOnToNextMonth', async (req, res) => {
 
 router.post('/postMachineIdToGetAllDetailsOfMachine', authenticate, async (req, res) => {
     try {
-        let { machineID } = req.body
+        let { machineID, selectedYear } = req.body
         // console.log(machineID)
+
+        let currentYear =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+                    {
+                        "checkSheet_data": []
+
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+
+                ]
 
         // const machineData = await Machine.findOne({ _id: machineID })
 
@@ -4558,7 +4675,9 @@ router.post('/postMachineIdToGetAllDetailsOfMachine', authenticate, async (req, 
         machineLastData = await Machine.aggregate([
             {
                 $match: {
-                    machine_code: machineID
+                    machine_code: machineID,
+                    $or: selectedYearOfCheckSheet
+
                 }
             },
             {
@@ -4690,7 +4809,7 @@ router.post('/postLineToGetMachineListForReportDashboard', authenticate, async (
 
 router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) => {
     try {
-        let { section, month } = req.body
+        let { section, month, selectedYear } = req.body
         let loggedUserData = req.rootUser;
 
         let sectionSplit = section.split("-")
@@ -4717,11 +4836,42 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
             lineIdArray.push(lineData[i]._id);
         }
 
+        let currentYear =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+
+
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+                    {
+                        "checkSheet_data": []
+
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+
+                ]
+
+
+
+
+
+        // console.log(selectedYear, month)
 
         let groupData
         let allData = []
         // y = "Nov"
-        let x = `$PMStatus.${month}`
+        let x = `$checkSheet_data.PMStatus.${month}`
 
         const monthKeyArray = [
             "Jan",
@@ -4742,23 +4892,52 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
                 ? monthKeyArray.splice(-1)[0]
                 : monthKeyArray[monthKeyArray.indexOf(month) - 1];
 
-        let keyForPreviousMonth = `$PMStatus.${previousMonth}`
+        let keyForPreviousMonth = `$checkSheet_data.PMStatus.${previousMonth}`
 
 
         for (let i = 0; i < lineData.length; i++) {
 
 
             groupData = await Machine.aggregate([
-
                 {
+
                     $match: {
-
                         line_names: lineData[i]._id,
-                        "PMStatus": { $ne: undefined }
-
+                        $or: selectedYearOfCheckSheet,
 
                     }
                 },
+                {
+                    $project: {
+                        machine_code: 1,
+                        machine_name: 1,
+                        machine_nickname: 1,
+                        machine_sequence: 1,
+                        installation_date: 1,
+                        maker_name: 1,
+                        maker_sr_no: 1,
+                        manufacturingDate: 1,
+                        isPM: 1,
+                        line_names: 1,
+                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    }
+                },
+                {
+                    $match: {
+                        "checkSheet_data.PMStatus": { $ne: undefined },
+
+                    }
+                },
+
+                // {
+                //     $match: {
+
+                //         line_names: lineData[i]._id,
+                //         "PMStatus": { $ne: undefined }
+
+
+                //     }
+                // },
                 {
                     $group: {
                         _id: "$line_names",
@@ -4908,7 +5087,7 @@ router.post('/updateOpenPMData', authenticate, async (req, res) => {
                 {
                     arrayFilters: [{ 'outer.current_year': updateRow.yearOfCheckSheet }, { 'inner.tableRowId': updateRow.table_id }],
                 }
-                )
+            )
         } else {
             updateChecksheetPMData = await Machine.updateOne({ machine_code: updateRow.machine_code },
                 {
@@ -4919,7 +5098,7 @@ router.post('/updateOpenPMData', authenticate, async (req, res) => {
                 {
                     arrayFilters: [{ 'outer.current_year': updateRow.yearOfCheckSheet }, { 'inner.tableRowId': updateRow.table_id }],
                 }
-                )
+            )
         }
 
         if (updateChecksheetPMData) {
@@ -4960,7 +5139,7 @@ router.post('/updateOpenPMToClose', authenticate, async (req, res) => {
             {
                 arrayFilters: [{ 'outer.current_year': selectedRow.yearOfCheckSheet }, { 'inner.tableRowId': selectedRow.table_id }],
             }
-            )
+        )
 
         if (updatePM) {
             return res.status(201).json("Checksheet status updated!!!");
@@ -4976,13 +5155,37 @@ router.post('/updateOpenPMToClose', authenticate, async (req, res) => {
 
 router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (req, res) => {
     try {
-        let { section, currentMonth } = req.body
+        let { section, currentMonth, selectedYear } = req.body
         let loggedUserData = req.rootUser;
 
+        let currentYear =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
-        let keyForCurrentMonthPMStatus = `PMStatus.${currentMonth}`
-        let keyForPreviousMonthPMStatus = `carriedPMStatus.${currentMonth}`
+        let keyForCurrentMonthPMStatus = `checkSheet_data.PMStatus.${currentMonth}`
+        let keyForPreviousMonthPMStatus = `checkSheet_data.carriedPMStatus.${currentMonth}`
 
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+                    {
+                        "checkSheet_data": []
+
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+
+                ]
+
+        // console.log(currentMonth, selectedYear)
         // console.log(monthKeyArray[monthKeyArray.indexOf(currentMonth) - 1], monthKeyArray.splice(-1)[0])
 
         // console.log(section);
@@ -5010,9 +5213,86 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                 lineIdArray.push(lineData[i]._id);
             }
 
-            machineDataForCurrentMonth = await Machine.find({ line_names: { $in: lineIdArray }, [keyForCurrentMonthPMStatus]: { $ne: "" }, PMStatus: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-            machineDataForPreviousMonth = await Machine.find({ line_names: { $in: lineIdArray }, [keyForPreviousMonthPMStatus]: { $ne: "" }, carriedPMStatus: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            // machineDataForCurrentMonth = await Machine.find({ line_names: { $in: lineIdArray }, [keyForCurrentMonthPMStatus]: { $ne: "" }, PMStatus: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            // machineDataForPreviousMonth = await Machine.find({ line_names: { $in: lineIdArray }, [keyForPreviousMonthPMStatus]: { $ne: "" }, carriedPMStatus: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
+
+
+
+            // const machineData = await Machine.findOne({ _id: machineID })
+
+            machineDataForCurrentMonth = await Machine.aggregate([
+                {
+                    $match: {
+                        line_names: { $in: lineIdArray },
+                        $or: selectedYearOfCheckSheet,
+
+                    }
+                },
+                {
+                    $project: {
+                        machine_code: 1,
+                        machine_name: 1,
+                        machine_nickname: 1,
+                        machine_sequence: 1,
+                        installation_date: 1,
+                        maker_name: 1,
+                        maker_sr_no: 1,
+                        manufacturingDate: 1,
+                        isPM: 1,
+                        line_names: 1,
+                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    }
+                },
+                {
+                    $match: {
+                        [keyForCurrentMonthPMStatus]: { $ne: "" },
+                        "checkSheet_data.PMStatus": { $ne: "" },
+
+                    }
+                },
+            ])
+
+
+            // console.log("========>", machineDataForCurrentMonth)
+
+            machineDataForPreviousMonth = await Machine.aggregate([
+                {
+                    $match: {
+                        line_names: { $in: lineIdArray },
+                        $or: selectedYearOfCheckSheet
+
+                    }
+                },
+                {
+                    $project: {
+                        machine_code: 1,
+                        machine_name: 1,
+                        machine_nickname: 1,
+                        machine_sequence: 1,
+                        installation_date: 1,
+                        maker_name: 1,
+                        maker_sr_no: 1,
+                        manufacturingDate: 1,
+                        isPM: 1,
+                        line_names: 1,
+                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    }
+                },
+                {
+                    $match: {
+                        [keyForPreviousMonthPMStatus]: { $ne: "" },
+                        "checkSheet_data.PMStatus": { $ne: "" },
+
+                    }
+                },
+            ])
+
+            machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+
+            // console.log("========>", machineDataForCurrentMonth)
+            // console.log("========>", machineDataForPreviousMonth)
 
 
             // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
@@ -5041,8 +5321,75 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                 lineIdArray.push(lineData[i]._id);
             }
 
-            machineDataForCurrentMonth = await Machine.find({ line_names: { $in: lineIdArray }, [keyForCurrentMonthPMStatus]: { $ne: "" }, PMStatus: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-            machineDataForPreviousMonth = await Machine.find({ line_names: { $in: lineIdArray }, [keyForPreviousMonthPMStatus]: { $ne: "" }, carriedPMStatus: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            machineDataForCurrentMonth = await Machine.aggregate([
+                {
+                    $match: {
+                        line_names: { $in: lineIdArray },
+                        $or: selectedYearOfCheckSheet,
+
+                    }
+                },
+                {
+                    $project: {
+                        machine_code: 1,
+                        machine_name: 1,
+                        machine_nickname: 1,
+                        machine_sequence: 1,
+                        installation_date: 1,
+                        maker_name: 1,
+                        maker_sr_no: 1,
+                        manufacturingDate: 1,
+                        isPM: 1,
+                        line_names: 1,
+                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    }
+                },
+                {
+                    $match: {
+                        [keyForCurrentMonthPMStatus]: { $ne: "" },
+                        "checkSheet_data.PMStatus": { $ne: "" },
+
+                    }
+                },
+            ])
+
+
+            // console.log("========>", machineDataForCurrentMonth)
+
+            machineDataForPreviousMonth = await Machine.aggregate([
+                {
+                    $match: {
+                        line_names: { $in: lineIdArray },
+                        $or: selectedYearOfCheckSheet
+
+                    }
+                },
+                {
+                    $project: {
+                        machine_code: 1,
+                        machine_name: 1,
+                        machine_nickname: 1,
+                        machine_sequence: 1,
+                        installation_date: 1,
+                        maker_name: 1,
+                        maker_sr_no: 1,
+                        manufacturingDate: 1,
+                        isPM: 1,
+                        line_names: 1,
+                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    }
+                },
+                {
+                    $match: {
+                        [keyForPreviousMonthPMStatus]: { $ne: "" },
+                        "checkSheet_data.PMStatus": { $ne: "" },
+
+                    }
+                },
+            ])
+
+            machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
         }
 
 
@@ -5060,7 +5407,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
 
 router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async (req, res) => {
     try {
-        let { section } = req.body
+        let { section, selectedYear } = req.body
         let loggedUserData = req.rootUser;
 
         let sectionSplit = section.split("-")
@@ -5088,7 +5435,32 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
         }
         // console.log(lineData)
 
+        let currentYear =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
+
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+                    {
+                        "checkSheet_data": []
+
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+
+                ]
+
+        console.log(selectedYear)
         let groupData
         let allData = []
         // y = "Nov"
@@ -5127,9 +5499,11 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
 
             for (let i = 0; i < lineData.length; i++) {
 
-                let x = `$PMStatus.${monthKeyArray[j]}`
+                let x = `$checkSheet_data.PMStatus.${monthKeyArray[j]}`
                 // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
-                let keyForPreviousMonth = `$carriedPMStatus.${monthKeyArray[j]}`
+                let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthKeyArray[j]}`
+
+                // console.log(x, keyForPreviousMonth)
 
                 // let previousMonth =
                 //     monthKeyArray[monthKeyArray.indexOf(month) - 1] === undefined
@@ -5138,11 +5512,32 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
                 groupData = await Machine.aggregate([
 
                     {
+
                         $match: {
-
                             line_names: lineData[i]._id,
-                            "PMStatus": { $ne: undefined }
+                            $or: selectedYearOfCheckSheet,
 
+                        }
+                    },
+                    {
+                        $project: {
+                            machine_code: 1,
+                            machine_name: 1,
+                            machine_nickname: 1,
+                            machine_sequence: 1,
+                            installation_date: 1,
+                            maker_name: 1,
+                            maker_sr_no: 1,
+                            manufacturingDate: 1,
+                            isPM: 1,
+                            line_names: 1,
+                            checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                        }
+                    },
+                    {
+                        $match: {
+                            "checkSheet_data.PMStatus": { $ne: undefined },
+                            "checkSheet_data.carriedPMStatus": { $ne: undefined },
 
                         }
                     },
@@ -5174,7 +5569,7 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
                                 $sum: {
                                     $cond: [
                                         {
-                                            $eq: [keyForPreviousMonth, "keyForPreviousMonth"]
+                                            $eq: [keyForPreviousMonth, "CarriedPM"]
                                         },
                                         1, 0
                                     ]
@@ -5190,6 +5585,7 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
                         $project: {
                             _id: 0,
                             line_names: "$_id",
+                            machine: 1,
                             "total_pmSchedule": 1,
                             "total_completed": 1,
                             "total_Previous": 1
@@ -5198,8 +5594,8 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
 
 
                 ])
+                // console.log("---------------------------", groupData)
                 if (groupData.length > 0) {
-                    // console.log(groupData)
                     sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData[0].total_pmSchedule
                     sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData[0].total_completed
                     sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData[0].total_Previous
@@ -5650,6 +6046,137 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
         // console.log(onlyOpenAbnormalityWithAllMonths)
 
         res.json({ onlyOpenAbnormalityWithAllMonths })
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+//                      SUMMERY DASHBOARD
+
+
+router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async (req, res) => {
+    try {
+        let { plants } = req.body
+
+        // console.log(plants.map(item => item._id))
+        // const SectionInfo = await Section.find({ plant_names: { $in: plants.map(item => item._id) } }).populate({ path: "plant_names", model: "Plants" })
+        const SectionInfo = await Section.find({ plant_names: { $in: plants.map(item => item._id) } })
+
+        // console.log(SectionInfo);
+
+
+        // console.log(sectionArray)
+
+        res.json({ SectionInfo })
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+router.post('/postSectionToGetSubSectionForSummeryDashboard', authenticate, async (req, res) => {
+    try {
+        let { section } = req.body
+
+        let idForDashboardLevelNo = []
+        await section.map(item => {
+            if (item.dashboardLevel === "No") idForDashboardLevelNo.push(item)
+        });
+
+        // console.log(idForDashboardLevelNo)
+
+        const subSectionInfo = await SubSection.find({ section_names: { $in: idForDashboardLevelNo.map(item => item._id) } })
+        // const subSectionInfo = await SubSection.find({ section_names: { $in: section.map(item => item.dashboardLevel === "No" ? item._id : "") } })
+
+
+        // console.log(subSectionInfo);
+
+
+        res.json({ subSectionInfo })
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+router.post('/submitRemarksForMainDashboardSectionWise', authenticate, async (req, res) => {
+    try {
+        let { section, remarks } = req.body
+        let sectionSplit = section.split("-")
+
+
+        let updatedSectionInfo = await Section.updateOne({ section_id: sectionSplit[0] }, {
+            $set: {
+                remarksOnMainDashboard: remarks
+            }
+        })
+
+        if (updatedSectionInfo) {
+            res.status(200).json({ msg: "uploaded successfully" })
+        }
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+router.post('/submitRemarksForMainDashboardSubSectionWise', authenticate, async (req, res) => {
+    try {
+        let { subSection, remarks } = req.body
+        let subSectionSplit = subSection.split("-")
+
+        // console.log(subSection, subSectionSplit[0])
+
+        let updatedSubSectionInfo = await SubSection.updateOne({ subSection_id: subSectionSplit[0] }, {
+            $set: {
+                remarksOnMainDashboard: remarks
+            }
+        })
+
+        if (updatedSubSectionInfo) {
+            res.status(200).json({ msg: "uploaded successfully" })
+        }
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+router.get('/fetchRemarksForMainDashboardSectionWise', authenticate, async (req, res) => {
+    try {
+        let sectionSplit = req.rootUser.section_data.split("-")
+
+        // console.log(req.rootUser)
+        const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+
+        if (sectionInfo?.dashboardLevel === "Yes") {
+            res.json({ sectionInfo })
+        } else {
+            console.log("No")
+        }
+
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+
+router.post('/fetchRemarksForMainDashboardSubSectionWise', authenticate, async (req, res) => {
+    try {
+        let { subSection, } = req.body
+        let subSectionSplit = subSection.split("-")
+
+        // console.log(subSection, subSectionSplit[0])
+
+        let subSectionInfo = await SubSection.findOne({ subSection_id: subSectionSplit[0] })
+
+        // console.log(subSectionInfo)
+
+        res.json({ subSectionInfo })
+        // if (subSectionInfo) {
+        // }
     } catch (error) {
         console.log(error)
         console.log("User id not received!!!");
