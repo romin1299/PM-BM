@@ -7,6 +7,7 @@ const GettingMachineDataForCheckSheetImplementation = ({
   lineName,
   closeCheckSheet,
   loggedUserType,
+  selectedYear,
 }) => {
   const [implementationPhaseCheckSheet, setImplementationPhaseCheckSheet] =
     useState("");
@@ -15,6 +16,8 @@ const GettingMachineDataForCheckSheetImplementation = ({
   const functionToSetRefKey = () => {
     setRefKey((refKey) => refKey + 1);
   };
+
+  console.log(selectedYear);
   const postMachineIdToGetAllDetailsOfMachine = async () => {
     try {
       const res = await fetch("/postMachineIdToGetAllDetailsOfMachine", {
@@ -24,6 +27,7 @@ const GettingMachineDataForCheckSheetImplementation = ({
         },
         body: JSON.stringify({
           machineID: machineData,
+          selectedYear,
         }),
       });
       const data = await res.json();

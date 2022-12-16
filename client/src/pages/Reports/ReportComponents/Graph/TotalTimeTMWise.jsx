@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import Plot from "react-plotly.js";
-import { Row, Col, Container } from "react-bootstrap";
+import { Row, Col, Container, Card } from "react-bootstrap";
+
+import TmWiseGraph from "./PmTimeMonitoringCharts/TmWiseGraph";
 
 const TotalTimeTMWise = () => {
   const [selectedTM, setSelectedTM] = useState("");
@@ -9,12 +11,8 @@ const TotalTimeTMWise = () => {
     setSelectedTM("");
   };
 
-  const dummyTm = ["TM-1", "TM-2", "TM-3", "TM-4", "TM-5"];
   const y1 = [23, 45, 67, 30, 40, 50, 60, 70, 80, 90, 20, 30];
   const x1 = [
-    "Jan",
-    "Feb",
-    "Mar",
     "Apr",
     "May",
     "June",
@@ -24,6 +22,9 @@ const TotalTimeTMWise = () => {
     "Oct",
     "Nov",
     "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
   ];
 
   var trace1 = {
@@ -76,52 +77,90 @@ const TotalTimeTMWise = () => {
     },
     legend: { x: 0.3, y: "4", orientation: "h" },
   };
+
+  const [tmList, setTmList] = useState([]);
+
+  const getListForApproval = async () => {
+    try {
+      const res = await fetch("/getListForApproval", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      console.log(data?.supportingOperatorListForReportDashboard);
+      setTmList(data?.supportingOperatorListForReportDashboard);
+
+      // setTableData(finalData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getListForApproval();
+  }, []);
   return (
     <>
       <div>
         <Container>
-          <Row>
-            <Col style={{ backgroundColor: "white" }}>
-              <h3>Actual time taken TM wise</h3>
-            </Col>
-            <Col></Col>
-          </Row>
-          <Row className="pt-2">
-            <Col>
-              <div>
-                <select
-                  style={{ width: "100%" }}
-                  name="selectedCell"
-                  fullWidth
-                  select // label="Select"
-                  autoComplete="off"
-                  variant="standard"
-                  value={selectedTM}
-                  onChange={(e) => setSelectedTM(e.target.value)}
-                >
-                  <option selected disabled value="">
-                    Please select TM
-                  </option>
-                  {dummyTm.map((option) => {
-                    return <option value={option}>{option}</option>;
-                  })}
-                </select>
-              </div>
-            </Col>
-            <Col>
-              <button className="btn1" onClick={functionForTotalData}>
-                Total
-              </button>
-            </Col>
-            <Col></Col>
+          <Row className="pt-2 cell">
+            <Row>
+              <Col
+              // className="cell"
+              // style={{ backgroundColor: "white" }}
+              >
+                <h3>Actual time taken TM wise</h3>
+              </Col>
+            </Row>
+            <Row className="p-2">
+              <Col>
+                <div>
+                  <select
+                    style={{ width: "100%" }}
+                    name="selectedCell"
+                    fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    variant="standard"
+                    value={selectedTM}
+                    onChange={(e) => setSelectedTM(e.target.value)}
+                  >
+                    <option selected disabled value="">
+                      Please select TM
+                    </option>
+                    {tmList?.map((option) => {
+                      return (
+                        <option value={option._id}>{option.tm_name}</option>
+                      );
+                    })}
+                  </select>
+                </div>
+              </Col>
+              <Col>
+                <button className="btn1" onClick={functionForTotalData}>
+                  Total
+                </button>
+              </Col>
+            </Row>
           </Row>
         </Container>
-        <div className="pt-2">
-          <Plot
+
+        <div>
+          {/* <Plot
             data={[trace1]}
             layout={layout}
+            config={{ displayModeBar: false }}
             style={{ width: "100%", height: "100%" }}
-          />
+          /> */}
+
+          <Card className="d-flex justify-content-center align-items-center">
+            <TmWiseGraph xValue={x1} yValue={y1} />
+          </Card>
         </div>
       </div>
     </>

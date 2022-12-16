@@ -1,0 +1,87 @@
+import React from "react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
+
+import Gradient from "javascript-color-gradient";
+
+
+const ManHourMonthWiseGraph = ({ xValue, yValue }) => {
+
+  ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+  );
+
+  const colorArr = new Gradient()
+    .setColorGradient("#FF597B", "#0D4C92")
+    // .setColorGradient("#3F2CAF", "#e9446a", "#edc988")
+    .setMidpoint(15)
+    .getColors();
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+
+      },
+      // title: {
+      //   display: true,
+      //   text: "Chart.js Bar Chart",
+      // },
+    },
+
+
+
+    scales: {
+      y: {
+        title: {
+          display: true,
+          text: 'Total Time'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Total Month'
+        }
+      }
+    }
+
+
+  };
+
+
+  //   const labels = monthKeyArray;
+
+  const data =
+
+  {
+    labels: xValue,
+    datasets: [
+      {
+        label: "Minute",
+        data: yValue,
+        backgroundColor: colorArr.map((color) => color),
+        // borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+  return <Bar options={options} height={200} data={data} />;
+
+}
+
+export default ManHourMonthWiseGraph

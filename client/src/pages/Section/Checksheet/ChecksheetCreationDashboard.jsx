@@ -290,7 +290,7 @@ const ChecksheetCreationDashboard = ({}) => {
           inspection_point: selectedRow.inspection_point,
           judgement_criteria: selectedRow.judgement_criteria,
           action: selectedRow.action,
-          cycle: selectedRow.cycle,
+          cycle: selectedRow.cycle,line,
           personInCharge: selectedRow.personInCharge,
           PM_time: selectedRow.PM_time,
           machineId: selectedMachineData.state.selectedRow.machine_code,

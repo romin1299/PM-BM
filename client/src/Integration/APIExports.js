@@ -1,3 +1,9 @@
+// All fetch APIs
+
+import fetchPlantInfo from "./AllFetchApis/fetchPlantInfo.js"
+import postPlantToGetSectionInfo from "./AllFetchApis/postPlantToGetSectionInfo.js"
+import postSectionToGetSubSectionInfo from "./AllFetchApis/postSectionToGetSubSectionInfo.js"
+
 // Plant ADD,Update,Delete APIS
 
 import postNewPlant from "./PlantAPIs/postNewPlant.js"
@@ -38,6 +44,13 @@ import updateMachine from "./MachineAPIs/updateMachine.js"
 import updateSelectedMachineCheckSheetTableRowData from "./PlanningPhase/updateSelectedMachineChecksheetTableRowData.js"
 
 export {
+
+    //Common fetch APIS
+
+    fetchPlantInfo,
+    postPlantToGetSectionInfo,
+    postSectionToGetSubSectionInfo,
+
     postNewPlant, updatePlant, deletePlant,
     newSection, updateSection, deleteSection,
     newSubSection, updateSubSection, deleteSubSection,
