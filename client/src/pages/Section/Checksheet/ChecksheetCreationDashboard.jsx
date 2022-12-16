@@ -13,6 +13,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useFormik } from "formik";
 import { Navigate, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 const ChecksheetCreationDashboard = ({}) => {
   const [tableData, setTableData] = useState([]);
@@ -35,8 +37,8 @@ const ChecksheetCreationDashboard = ({}) => {
   const navigate = useNavigate();
 
   const selectedMachineData = useLocation();
-  console.log(selectedMachineData.state);
-  console.log(machineData);
+  // console.log(selectedMachineData.state);
+  // console.log(tableData);
 
   const getLineArrayFromState = () => {
     let line_name_array = [];
@@ -371,7 +373,7 @@ const ChecksheetCreationDashboard = ({}) => {
     }
   };
 
-  const postLineToGetMachineList = async (selectedLine) => {
+  const postLineToGetMachineList = async (selectedLine, selectedRequest) => {
     setMachineArray(undefined);
     try {
       const res = await fetch("/postLineToGetMachineList", {
@@ -381,6 +383,7 @@ const ChecksheetCreationDashboard = ({}) => {
         },
         body: JSON.stringify({
           line: selectedLine,
+          selectedRequest,
         }),
       });
       const data = await res.json();
@@ -402,9 +405,11 @@ const ChecksheetCreationDashboard = ({}) => {
     initialValues: {
       lineName: "",
       machineName: "",
+      request: "",
     },
     // validationSchema: validationSchema1,
     onSubmit: async (values) => {
+      console.log(values.request);
       const res = await fetch("/postMachineToGetChacksheetPreparationData", {
         method: "POST",
         headers: {
@@ -414,6 +419,7 @@ const ChecksheetCreationDashboard = ({}) => {
           selectedMachine,
           copyPreparationDataToSelectedMachine:
             selectedMachineData.state.selectedRow.machine_code,
+          request: values.request,
         }),
       });
       const data = await res.json();
@@ -424,7 +430,8 @@ const ChecksheetCreationDashboard = ({}) => {
         setCopiedPreparationData(
           data.newUpdatedPreparationDataOfSelectedmachine
         );
-        window.location.reload();
+        setRefKey((refKey) => refKey + 1);
+        // window.location.reload();
         // navigate("/checkSheetDashboard");
         // if (values.email) {
         //   newPasswordLink(values.email);
@@ -441,11 +448,11 @@ const ChecksheetCreationDashboard = ({}) => {
     getLineArrayFromState();
   }, []);
 
-  useEffect(() => {
-    if (line) {
-      postLineToGetMachineList(line);
-    }
-  }, [line]);
+  // useEffect(() => {
+  //   if (line) {
+  //     postLineToGetMachineList(line);
+  //   }
+  // }, [line]);
 
   const showChecksheet = () => {
     navigate("/checkSheetForm", {
@@ -495,9 +502,9 @@ const ChecksheetCreationDashboard = ({}) => {
               <ArrowBackIcon />
             </button>
           </a>
-          {selectedMachineData.state.selectedRow.checkSheet_data === undefined ? (
+          {tableData === undefined ? (
             <div class="row g-3">
-              <div class="col-2">
+              <div class="col-lg-2 col-md-12 col-sm-12">
                 <div class="p-3 border bg-white rounded">
                   <span style={{ fontWeight: "bold" }}>
                     Line Name:{" "}
@@ -505,7 +512,7 @@ const ChecksheetCreationDashboard = ({}) => {
                   </span>
                 </div>
               </div>
-              <div class="col-3">
+              <div class="col-lg-3 col-md-12 col-sm-12">
                 <div class="p-3 border bg-white rounded">
                   <span style={{ fontWeight: "bold" }}>
                     Machine Name:{" "}
@@ -513,7 +520,7 @@ const ChecksheetCreationDashboard = ({}) => {
                   </span>
                 </div>
               </div>
-              <div class="col-2">
+              <div class="col-lg-2 col-md-12 col-sm-12">
                 <div class="p-3 border bg-white rounded">
                   <span style={{ fontWeight: "bold" }}>
                     Machine No:{" "}
@@ -522,7 +529,7 @@ const ChecksheetCreationDashboard = ({}) => {
                 </div>
               </div>
 
-              <div class="col-5">
+              <div class="col-lg-5 col-md-12 col-sm-12">
                 <div class="p-3 border bg-white rounded">
                   <div>
                     <span style={{ fontWeight: "bold" }}>
@@ -530,8 +537,67 @@ const ChecksheetCreationDashboard = ({}) => {
                     </span>
                     <br />
                     <form onSubmit={formik.handleSubmit}>
-                      <div className="d-flex align-items-center justify-content-center">
-                        <div className="col-4">
+                      {line ? (
+                        <div className="row">
+                          {" "}
+                          <span>
+                            <input
+                              type="radio"
+                              name="request"
+                              id="outlined-number"
+                              value="already_created"
+                              onChange={(e) => {
+                                formik.handleChange(e);
+                                postLineToGetMachineList(line, e.target.value);
+                              }}
+                            />
+                            <span
+                              style={{
+                                paddingLeft: "0.5rem",
+                                fontWeight: "550",
+                                color: "black",
+                              }}
+                            >
+                              Already Created &nbsp;
+                            </span>
+                            <input
+                              type="radio"
+                              name="request"
+                              id="outlined-number"
+                              value="deleted"
+                              onChange={(e) => {
+                                formik.handleChange(e);
+                                postLineToGetMachineList(line, e.target.value);
+                              }}
+                            />
+                            <span
+                              style={{
+                                paddingLeft: "0.5rem",
+                                fontWeight: "550",
+                                color: "black",
+                              }}
+                            >
+                              Deleted
+                            </span>
+                            <p
+                              style={{
+                                color: "#F44336",
+                                fontWeight: "normal",
+                                fontSize: "0.80rem",
+                                float: "right",
+                                marginRight: "12rem",
+                                // paddingTop: "0.5rem",
+                              }}
+                            >
+                              {formik.touched.request && formik.errors.request}
+                            </p>
+                          </span>
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                      <Row>
+                        <Col sm>
                           <span>Line List :</span>
                           <div style={{ marginTop: "0.5rem" }}>
                             <select
@@ -558,53 +624,103 @@ const ChecksheetCreationDashboard = ({}) => {
                               })}
                             </select>
                           </div>
-                        </div>
-                        <div className="col-4">
-                          <span>Machine List :</span>
-                          <div style={{ marginTop: "0.5rem" }}>
-                            <select
-                              // class="form-select form-select-sm"
-                              // aria-label=".form-select-sm example"
-                              // style={{ width: "100%" }}
-                              id="standard-select-currency"
-                              name="machineName"
-                              // className="textField"
-                              // fullWidth
-                              select // label="Select"
-                              autoComplete="off"
-                              value={
-                                selectedMachine === undefined
-                                  ? ""
-                                  : selectedMachine
-                              }
-                              onChange={(e) => {
-                                setselectedMachine(e.target.value);
-                              }}
-                              variant="standard"
-                            >
-                              <option selected disabled value="">
-                                Please select
-                              </option>
+                        </Col>
+                        <Col sm>
+                          {formik.values.request !== "" ? (
+                            formik.values.request === "already_created" ? (
+                              <div>
+                                <span>Machine List :</span>
+                                <div style={{ marginTop: "0.5rem" }}>
+                                  <select
+                                    // class="form-select form-select-sm"
+                                    // aria-label=".form-select-sm example"
+                                    // style={{ width: "100%" }}
+                                    id="standard-select-currency"
+                                    name="machineName"
+                                    // className="textField"
+                                    // fullWidth
+                                    select // label="Select"
+                                    autoComplete="off"
+                                    value={
+                                      selectedMachine === undefined
+                                        ? ""
+                                        : selectedMachine
+                                    }
+                                    onChange={(e) => {
+                                      setselectedMachine(e.target.value);
+                                    }}
+                                    variant="standard"
+                                  >
+                                    <option selected disabled value="">
+                                      Please select
+                                    </option>
 
-                              {machineArray != undefined
-                                ? machineArray.map((option) => {
-                                    return (
-                                      <option value={option.machine_code}>
-                                        {option.machine_code}-
-                                        {option.machine_name}
-                                      </option>
-                                    );
-                                  })
-                                : ""}
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-4">
+                                    {machineArray != undefined
+                                      ? machineArray.map((option) => {
+                                          return (
+                                            <option value={option.machine_code}>
+                                              {option.machine_code}-
+                                              {option.machine_name}
+                                            </option>
+                                          );
+                                        })
+                                      : ""}
+                                  </select>
+                                </div>
+                              </div>
+                            ) : (
+                              <div>
+                                <span>Machine List of deleted:</span>
+                                <div style={{ marginTop: "0.5rem" }}>
+                                  <select
+                                    // class="form-select form-select-sm"
+                                    // aria-label=".form-select-sm example"
+                                    // style={{ width: "100%" }}
+                                    id="standard-select-currency"
+                                    name="machineName"
+                                    // className="textField"
+                                    // fullWidth
+                                    select // label="Select"
+                                    autoComplete="off"
+                                    value={
+                                      selectedMachine === undefined
+                                        ? ""
+                                        : selectedMachine
+                                    }
+                                    onChange={(e) => {
+                                      setselectedMachine(e.target.value);
+                                    }}
+                                    variant="standard"
+                                  >
+                                    <option selected disabled value="">
+                                      Please select
+                                    </option>
+
+                                    {machineArray != undefined
+                                      ? machineArray.map((option) => {
+                                          return (
+                                            <option value={option.machine_code}>
+                                              {option.machine_code}-
+                                              {option.machine_name}
+                                            </option>
+                                          );
+                                        })
+                                      : ""}
+                                  </select>
+                                </div>
+                              </div>
+                            )
+                          ) : (
+                            ""
+                          )}
+                        </Col>
+                        <Col sm className="mt-2">
+                          {" "}
                           <button className="btn-reset" type="submit">
                             Submit
                           </button>
-                        </div>
-                      </div>
+                        </Col>
+                      </Row>
                     </form>
                   </div>
                 </div>

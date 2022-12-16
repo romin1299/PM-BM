@@ -360,8 +360,10 @@ const AnnualPMSchedule = () => {
                               <td className="td-padding">
                                 {item.machine_code}
                               </td>
-                              {item.PMStatus
-                                ? Object.values(item.PMStatus).map((item1) => (
+                              {item?.checkSheet_data?.PMStatus
+                                ? Object.values(
+                                    item?.checkSheet_data?.PMStatus
+                                  ).map((item1) => (
                                     <td className="td-padding">
                                       {item1 === "Completed" ? (
                                         <CircleIcon />
@@ -385,8 +387,10 @@ const AnnualPMSchedule = () => {
                               <td className="td-padding">
                                 {item.machine_code}
                               </td>
-                              {item.PMStatus
-                                ? Object.values(item.PMStatus).map((item1) => (
+                              {item?.checkSheet_data?.PMStatus
+                                ? Object.values(
+                                    item?.checkSheet_data?.PMStatus
+                                  ).map((item1) => (
                                     <td className="td-padding">
                                       {item1 === "Completed" ? (
                                         <CircleIcon />

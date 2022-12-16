@@ -33,6 +33,8 @@ import CheckSheetApprovalDashboardForTL from "./pages/Section/Checksheet/Checksh
 import CheckSheetApprovalDashboardForHOS from "./pages/Section/Checksheet/ChecksheetApprovalDashboardForHOS";
 import ChecksheetFormApprovalForHOS from "./pages/Section/Checksheet/ChecksheetFormApprovalForHOS";
 import ChecksheetFormApprovalForTL from "./pages/Section/Checksheet/ChecksheetFormApprovalForTL";
+import BackupDataOfCheckSheet from "./pages/Section/Checksheet/BackupDataOfCheckSheet";
+import ShowBackupChecksheetTableData from "./pages/Section/Checksheet/ShowBackupChecksheetTableData";
 
 //TL dashboard For Planning phase
 import PlanningPhaseTable from "./pages/Section/Checksheet/Planning/PlanningPhaseTable";
@@ -184,8 +186,8 @@ function App() {
                 <Route path="/checksheetCreationDashboardForMTDTLandHOS" element={<MTDTLandHOSChecksheetCreationDashboard />} />
                 <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
                 <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
-
-
+                <Route path="/backupDataOfCheckSheet" element={<BackupDataOfCheckSheet />} />
+                <Route path="/backupTableData" element={<ShowBackupChecksheetTableData />} />
 
               </Routes>
             }

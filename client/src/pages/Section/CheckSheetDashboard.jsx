@@ -209,7 +209,8 @@ const CheckSheetDashboard = () => {
             ? rowData.checkSheet_data.checksheet_status === "Preparation" ||
               rowData.checkSheet_data.checksheet_status === "Implementation" ||
               rowData.checkSheet_data.checksheet_status === undefined
-            : rowData.checkSheet_data === undefined,
+            : rowData.checkSheet_data === undefined ||
+              rowData.checkSheet_data === null,
         icon: () => (
           <button className="btn-warning">
             {rowData.checkSheet_data != null
@@ -248,18 +249,24 @@ const CheckSheetDashboard = () => {
       disabled: false, // Set disabled to false by default for all actions
       position: "row",
     },
-    {
-      icon: () => (
-        <button className="btn-delete">
-          <DeleteForeverIcon />
-        </button>
-      ),
-      // tooltip: <h1>I am a tooltip</h1>,
-      onClick: (event, selectedRow) => {
-        deleteCheckSheet(selectedRow);
-      },
-      disabled: false, // Set disabled to false by default for all actions
-      position: "row",
+    (rowData) => {
+      return {
+        hidden:
+          rowData.checkSheet_data === undefined ||
+          rowData.checkSheet_data === null,
+
+        icon: () => (
+          <button className="btn-delete">
+            <DeleteForeverIcon />
+          </button>
+        ),
+        // tooltip: <h1>I am a tooltip</h1>,
+        onClick: (event, selectedRow) => {
+          deleteCheckSheet(selectedRow);
+        },
+        disabled: false, // Set disabled to false by default for all actions
+        position: "row",
+      };
     },
   ];
 

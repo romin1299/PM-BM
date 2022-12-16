@@ -381,24 +381,24 @@ function CheckSheetForm() {
   };
   const getDataWithSpanCount = (myProps) => {
     console.log(myProps);
-    for (let i = 1; i < myProps.length; i++) {
+    for (let i = 1; i < myProps?.length; i++) {
       for (let j = 3; j < 4; j++) {
         for (
           let k = i - 1;
-          k >= 0 && myProps[i][j].value == myProps[k][j].value;
+          k >= 0 && myProps?.[i][j].value == myProps?.[k][j].value;
           k--
         ) {
-          myProps[k][j].rowspan = myProps[k][j].rowspan + 1;
+          myProps[k][j].rowspan = myProps?.[k][j].rowspan + 1;
           myProps[k + 1][j].print = false;
         }
       }
       for (let j = 10; j < 11; j++) {
         for (
           let k = i - 1;
-          k >= 0 && myProps[i][j].value == myProps[k][j].value;
+          k >= 0 && myProps?.[i][j].value == myProps?.[k][j].value;
           k--
         ) {
-          myProps[k][j].rowspan = myProps[k][j].rowspan + 1;
+          myProps[k][j].rowspan = myProps?.[k][j].rowspan + 1;
           myProps[k + 1][j].print = false;
         }
       }
