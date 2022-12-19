@@ -4,14 +4,74 @@ import { Row, Col, Container, Card } from "react-bootstrap";
 
 import TmWiseGraph from "./PmTimeMonitoringCharts/TmWiseGraph";
 
-const TotalTimeTMWise = () => {
+const TotalTimeTMWise = ({ context }) => {
   const [selectedTM, setSelectedTM] = useState("");
 
-  const functionForTotalData = () => {
-    setSelectedTM("");
+  const [allDataSectionWise, setAllDataSectionWise] = useState([]);
+  const [graphData, setGraphData] = useState([]);
+
+  const postSectionToGetAllDataForTotalTimeManHoursMonthWise = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch(
+        "/postSectionToGetAllDataForTotalTimeManHoursMonthWise",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            section: context.section_data,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log(data);
+        setAllDataSectionWise(data);
+        setGraphData(data?.totalTimeManHoursMonthWise);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const y1 = [23, 45, 67, 30, 40, 50, 60, 70, 80, 90, 20, 30];
+  const postPerticularOperatorToGetDataForActualTimeTakenTMWise = async (
+    teamMemberNo
+  ) => {
+    try {
+      const res = await fetch(
+        "/postPerticularOperatorToGetDataForActualTimeTakenTMWise",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            section: context.section_data,
+            tm_no: teamMemberNo,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // window.alert(data.abcd);
+        // console.log("Data post", data);
+        // setTableData(data.machineInfo);
+        setGraphData(data?.actualTotalTimeTakenOfTM);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const y1 = graphData;
   const x1 = [
     "Apr",
     "May",
@@ -92,7 +152,7 @@ const TotalTimeTMWise = () => {
       });
 
       const data = await res.json();
-      console.log(data?.supportingOperatorListForReportDashboard);
+      // console.log(data?.supportingOperatorListForReportDashboard);
       setTmList(data?.supportingOperatorListForReportDashboard);
 
       // setTableData(finalData);
@@ -104,6 +164,15 @@ const TotalTimeTMWise = () => {
   useEffect(() => {
     getListForApproval();
   }, []);
+
+  useEffect(() => {
+    postSectionToGetAllDataForTotalTimeManHoursMonthWise();
+  }, []);
+
+  const functionForTotalData = () => {
+    setSelectedTM("");
+    postSectionToGetAllDataForTotalTimeManHoursMonthWise();
+  };
   return (
     <>
       <div>
@@ -128,14 +197,17 @@ const TotalTimeTMWise = () => {
                     autoComplete="off"
                     variant="standard"
                     value={selectedTM}
-                    onChange={(e) => setSelectedTM(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedTM(e.target.value);
+                      postPerticularOperatorToGetDataForActualTimeTakenTMWise(e.target.value)
+                    }}
                   >
                     <option selected disabled value="">
                       Please select TM
                     </option>
                     {tmList?.map((option) => {
                       return (
-                        <option value={option._id}>{option.tm_name}</option>
+                        <option value={option.tm_no}>{option.tm_name}</option>
                       );
                     })}
                   </select>

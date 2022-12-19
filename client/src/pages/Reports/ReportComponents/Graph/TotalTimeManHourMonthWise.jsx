@@ -6,19 +6,23 @@ import ManHourMonthWiseGraph from "./PmTimeMonitoringCharts/ManHourMonthWiseGrap
 
 const TotalTimeManHourMonthWise = ({ context }) => {
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
+  const [graphData, setGraphData] = useState([]);
 
-  const postSectionToGetAllDataForMainDashboard = async () => {
+  const postSectionToGetAllDataForTotalTimeManHoursMonthWise = async () => {
     // setSubSection(undefined);
     try {
-      const res = await fetch("/postSectionToGetAllData", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          section: context.section_data,
-        }),
-      });
+      const res = await fetch(
+        "/postSectionToGetAllDataForTotalTimeManHoursMonthWise",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            section: context.section_data,
+          }),
+        }
+      );
       const data = await res.json();
 
       if (res.status === 400 || res.status === 422 || !data) {
@@ -26,23 +30,57 @@ const TotalTimeManHourMonthWise = ({ context }) => {
       } else {
         console.log(data);
         setAllDataSectionWise(data);
+        setGraphData(data?.totalTimeManHoursMonthWise);
       }
     } catch (error) {
       console.log(error);
     }
   };
 
+  const postPerticularLineToGetDataForTotalTimeManHours = async (
+    selectedLine
+  ) => {
+    try {
+      const res = await fetch(
+        "/postPerticularLineToGetDataForTotalTimeManHours",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            line: selectedLine,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // window.alert(data.abcd);
+        // console.log("Data post", data);
+        // setTableData(data.machineInfo);
+        setGraphData(data?.totalTimeManHoursMonthWiseOfLineWise);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
   useEffect(() => {
-    postSectionToGetAllDataForMainDashboard();
+    postSectionToGetAllDataForTotalTimeManHoursMonthWise();
   }, []);
 
   const [selectedLine, setSelectedLine] = useState("");
 
   const functionForTotalData = () => {
     setSelectedLine("");
+    postSectionToGetAllDataForTotalTimeManHoursMonthWise();
   };
 
-  const y1 = [23, 45, 67, 30, 40, 50, 60, 70, 80, 90, 20, 30];
+  const y1 = graphData;
   const x1 = [
     "Apr",
     "May",
@@ -134,7 +172,10 @@ const TotalTimeManHourMonthWise = ({ context }) => {
                     autoComplete="off"
                     variant="standard"
                     value={selectedLine}
-                    onChange={(e) => setSelectedLine(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedLine(e.target.value);
+                      postPerticularLineToGetDataForTotalTimeManHours(e.target.value);
+                    }}
                   >
                     <option selected disabled value="">
                       Please select Line

@@ -6,26 +6,64 @@ import MonthWiseGraph from "./PmTimeMonitoringCharts/MonthWiseGraph";
 
 const TotalMonthWiseGraph = ({ context }) => {
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
+  const [selectedLine, setSelectedLine] = useState("");
+  const [graphData, setGraphData] = useState([]);
 
-  const postSectionToGetAllDataForMainDashboard = async () => {
+  const postSectionToGetAllDataForTotalTimeMonthWiseReport = async () => {
     // setSubSection(undefined);
     try {
-      const res = await fetch("/postSectionToGetAllData", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          section: context.section_data,
-        }),
-      });
+      const res = await fetch(
+        "/postSectionToGetAllDataForTotalTimeMonthWiseReport",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            section: context.section_data,
+          }),
+        }
+      );
       const data = await res.json();
 
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        console.log(data);
+        // console.log(data);
         setAllDataSectionWise(data);
+        setGraphData(data?.total_time_month_wise);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // console.log(graphData);
+
+  const postPerticularLineToGetDataForTotalTimeMonthWiseReport = async (
+    selectedLine
+  ) => {
+    try {
+      const res = await fetch(
+        "/postPerticularLineToGetDataForTotalTimeMonthWiseReport",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            line: selectedLine,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // window.alert(data.abcd);
+        // console.log("Data post", data);
+        // setTableData(data.machineInfo);
+        setGraphData(data?.totalTimeMonthWiseForPerticularLine);
       }
     } catch (error) {
       console.log(error);
@@ -33,16 +71,15 @@ const TotalMonthWiseGraph = ({ context }) => {
   };
 
   useEffect(() => {
-    postSectionToGetAllDataForMainDashboard();
+    postSectionToGetAllDataForTotalTimeMonthWiseReport();
   }, []);
-
-  const [selectedLine, setSelectedLine] = useState("");
 
   const functionForTotalData = () => {
     setSelectedLine("");
+    postSectionToGetAllDataForTotalTimeMonthWiseReport()
   };
 
-  const y1 = [23, 45, 67, 30, 40, 50, 60, 70, 80, 90, 20, 30];
+  const y1 = graphData;
   const x1 = [
     "Apr",
     "May",
@@ -235,7 +272,12 @@ const TotalMonthWiseGraph = ({ context }) => {
                     autoComplete="off"
                     variant="standard"
                     value={selectedLine}
-                    onChange={(e) => setSelectedLine(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedLine(e.target.value);
+                      postPerticularLineToGetDataForTotalTimeMonthWiseReport(
+                        e.target.value
+                      );
+                    }}
                   >
                     <option selected disabled value="">
                       Please select Line

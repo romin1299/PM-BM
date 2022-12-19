@@ -4927,7 +4927,7 @@ router.post('/postLineToGetMachineListForReportDashboard', authenticate, async (
                 ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
                 : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
-        let x =
+        let selectedYearOfCheckSheet =
             selectedYear === current_year ?
                 [
                     {
@@ -4947,7 +4947,7 @@ router.post('/postLineToGetMachineListForReportDashboard', authenticate, async (
             {
                 $match: {
                     line_names: ObjectId(line),
-                    $or: x
+                    $or: selectedYearOfCheckSheet
                 }
             },
             {
@@ -6371,6 +6371,8 @@ router.get('/getDeletedMachineCheckSheetData', authenticate, async (req, res) =>
     }
 })
 
+//below two API for total time with month and line selection
+
 router.post('/postSectionToGetAllDataForTotalTimeMonthWiseReport', authenticate, async (req, res) => {
     try {
         let { section } = req.body
@@ -6483,7 +6485,7 @@ router.post('/postSectionToGetAllDataForTotalTimeMonthWiseReport', authenticate,
                 }
 
             }
-            console.log("---------------", groupData)
+            // console.log("---------------", groupData)
 
             if (sumOfTotalTime) {
                 total_time_month_wise.push(sumOfTotalTime)
@@ -6500,5 +6502,524 @@ router.post('/postSectionToGetAllDataForTotalTimeMonthWiseReport', authenticate,
     }
 })
 
+
+router.post('/postPerticularLineToGetDataForTotalTimeMonthWiseReport', authenticate, async (req, res) => {
+    try {
+        let { line } = req.body
+        // console.log(line)
+        let selectedYear = "2022-2023"
+        let current_year =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+        let selectedYearOfCheckSheet =
+            selectedYear === current_year ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+                    },
+                    {
+                        "checkSheet_data": []
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+                    },
+                ]
+        const ObjectId = mongoose.Types.ObjectId;
+
+        let groupData
+        let allData = []
+        // y = "Nov"
+        const monthKeyArray = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "June",
+            "July",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
+        let totalTimeMonthWiseForPerticularLine = [];
+        // console.log(i, "------->")
+        for (let j = 0; j < monthKeyArray.length; j++) {
+            let sumOfTotalTime
+
+            let x = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}`
+            // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
+            let keyForTotalTime = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.totalWorkedPMTime`
+            let keyForTotalTimeForSum = `$checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.totalWorkedPMTime`
+
+            groupData = await Machine.aggregate([
+                {
+                    $match: {
+                        line_names: ObjectId(line),
+                        "checkSheet_data": { $ne: undefined },
+                        $or: selectedYearOfCheckSheet,
+                    }
+                },
+                { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                {
+                    $match: {
+                        [x]: { $ne: undefined },
+                        [keyForTotalTime]: { $ne: undefined },
+                        // "checkSheet_data.carriedPMStatus": { $ne: undefined },
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$line_names",
+                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                        total_pmTime: {
+                            $sum: keyForTotalTimeForSum
+                        },
+
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        line_names: "$_id",
+                        machine: 1,
+                        "total_pmTime": 1,
+                    }
+                },
+            ])
+
+            if (groupData.length > 0) {
+                sumOfTotalTime = groupData[0].total_pmTime
+            }
+            if (sumOfTotalTime) {
+                totalTimeMonthWiseForPerticularLine.push(sumOfTotalTime)
+            } else {
+                totalTimeMonthWiseForPerticularLine.push(0)
+            }
+        }
+
+        // console.log(totalTimeMonthWiseForPerticularLine)
+
+        res.json({ totalTimeMonthWiseForPerticularLine })
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+
+//below two API for total time man hour wise with month and line selection
+
+router.post('/postSectionToGetAllDataForTotalTimeManHoursMonthWise', authenticate, async (req, res) => {
+    try {
+        let { section } = req.body
+        let selectedYear = "2022-2023"
+        let loggedUserData = req.rootUser;
+        let sectionSplit = section.split("-")
+        const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+        // console.log("____________", sectionInfo[0]._id)
+        let subSectionsData, subSectionIdArray = [], cellData, cellIdArray = [], lineData, lineIdArray = [], machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
+        subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+        for (let i = 0; i < subSectionsData.length; i++) {
+            subSectionIdArray.push(subSectionsData[i]._id);
+        }
+        cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
+        for (let i = 0; i < cellData.length; i++) {
+            cellIdArray.push(cellData[i]._id);
+        }
+        lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
+        for (let i = 0; i < lineData.length; i++) {
+            lineIdArray.push(lineData[i]._id);
+        }
+        // console.log(lineData)
+        let currentYear =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+                    },
+                    {
+                        "checkSheet_data": []
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+                    },
+                ]
+        // console.log(selectedYear)
+        let groupData
+        let allData = []
+        // y = "Nov"
+        const monthKeyArray = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "June",
+            "July",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
+        let totalTimeManHoursMonthWise = [];
+        // console.log(i, "------->")
+        for (let j = 0; j < monthKeyArray.length; j++) {
+            let sumOfTotalTimeManHours
+
+            for (let i = 0; i < lineData.length; i++) {
+                let keyOfTotalPMTime = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}`
+                let keyOfTotalWorkedPMTime = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.totalWorkedPMTime`
+
+                // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
+                let keyofSupportingTMData = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.supportingTMData`
+                let keyForTotalTimeManHoursForSum = `$checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.supportingTMData.workedTime`
+                let keyForTotalTimeManHoursForUnwind = `$checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.supportingTMData`
+
+                groupData = await Machine.aggregate([
+                    {
+                        $match: {
+                            line_names: lineData[i]._id,
+                            "checkSheet_data": { $ne: undefined },
+                            $or: selectedYearOfCheckSheet,
+                        }
+                    },
+                    { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                    {
+                        $match: {
+                            [keyOfTotalPMTime]: { $ne: undefined },
+                            [keyOfTotalWorkedPMTime]: { $ne: undefined },
+                            [keyofSupportingTMData]: { $ne: [] },
+                            // "checkSheet_data.carriedPMStatus": { $ne: undefined },
+                        }
+                    },
+                    {
+                        $unwind: keyForTotalTimeManHoursForUnwind
+                    },
+                    {
+                        $group: {
+                            _id: "$line_names",
+                            machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                            totalTimeManHours: {
+                                $sum: keyForTotalTimeManHoursForSum
+                            },
+
+                        },
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            line_names: "$_id",
+                            machine: 1,
+                            "totalTimeManHours": 1,
+                        }
+                    },
+                ])
+                // console.log("---------------", groupData)
+
+                if (groupData.length > 0) {
+                    // console.log("---------------", groupData[0].machine)
+
+                    sumOfTotalTimeManHours = groupData[0].totalTimeManHours
+                }
+
+            }
+            // console.log("---------------", groupData)
+
+            if (sumOfTotalTimeManHours) {
+                totalTimeManHoursMonthWise.push(sumOfTotalTimeManHours)
+            } else {
+                totalTimeManHoursMonthWise.push(0)
+            }
+        }
+
+        res.json({ subSectionsData, subSectionIdArray, cellData, cellIdArray, lineData, lineIdArray, totalTimeManHoursMonthWise })
+
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+router.post('/postPerticularLineToGetDataForTotalTimeManHours', authenticate, async (req, res) => {
+    try {
+        let { line } = req.body
+        let selectedYear = "2022-2023"
+
+        let currentYear =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+                    },
+                    {
+                        "checkSheet_data": []
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+                    },
+                ]
+        // console.log(selectedYear)
+        const ObjectId = mongoose.Types.ObjectId;
+
+        let groupData
+        let allData = []
+        // y = "Nov"
+        const monthKeyArray = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "June",
+            "July",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
+        let totalTimeManHoursMonthWiseOfLineWise = [];
+        // console.log(i, "------->")
+        for (let j = 0; j < monthKeyArray.length; j++) {
+            let sumOfTotalTimeManHoursOfLineWise
+
+            let keyOfTotalPMTime = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}`
+            let keyOfTotalWorkedPMTime = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.totalWorkedPMTime`
+
+            // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
+            let keyofSupportingTMData = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.supportingTMData`
+            let keyForTotalTimeManHoursForSum = `$checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.supportingTMData.workedTime`
+            let keyForTotalTimeManHoursForUnwind = `$checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.supportingTMData`
+
+            groupData = await Machine.aggregate([
+                {
+                    $match: {
+                        line_names: ObjectId(line),
+                        "checkSheet_data": { $ne: undefined },
+                        $or: selectedYearOfCheckSheet,
+                    }
+                },
+                { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                {
+                    $match: {
+                        [keyOfTotalPMTime]: { $ne: undefined },
+                        [keyOfTotalWorkedPMTime]: { $ne: undefined },
+                        [keyofSupportingTMData]: { $ne: [] },
+                        // "checkSheet_data.carriedPMStatus": { $ne: undefined },
+                    }
+                },
+                {
+                    $unwind: keyForTotalTimeManHoursForUnwind
+                },
+                {
+                    $group: {
+                        _id: "$line_names",
+                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                        totalTimeManHours: {
+                            $sum: keyForTotalTimeManHoursForSum
+                        },
+
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        line_names: "$_id",
+                        machine: 1,
+                        "totalTimeManHours": 1,
+                    }
+                },
+            ])
+
+            if (groupData.length > 0) {
+                sumOfTotalTimeManHoursOfLineWise = groupData[0].totalTimeManHours
+            }
+            if (sumOfTotalTimeManHoursOfLineWise) {
+                totalTimeManHoursMonthWiseOfLineWise.push(sumOfTotalTimeManHoursOfLineWise)
+            } else {
+                totalTimeManHoursMonthWiseOfLineWise.push(0)
+            }
+        }
+
+        res.json({totalTimeManHoursMonthWiseOfLineWise })
+
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+
+//below API for get data for actual time taken TM wise for perticular selected TM name
+
+router.post('/postPerticularOperatorToGetDataForActualTimeTakenTMWise', authenticate, async (req, res) => {
+    try {
+        let { section, tm_no } = req.body
+        // console.log(tm_no)
+        let selectedYear = "2022-2023"
+        let loggedUserData = req.rootUser;
+        let sectionSplit = section.split("-")
+        const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+        // console.log("____________", sectionInfo[0]._id)
+        let subSectionsData, subSectionIdArray = [], cellData, cellIdArray = [], lineData, lineIdArray = [], machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
+        subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+        for (let i = 0; i < subSectionsData.length; i++) {
+            subSectionIdArray.push(subSectionsData[i]._id);
+        }
+        cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
+        for (let i = 0; i < cellData.length; i++) {
+            cellIdArray.push(cellData[i]._id);
+        }
+        lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
+        for (let i = 0; i < lineData.length; i++) {
+            lineIdArray.push(lineData[i]._id);
+        }
+        // console.log(lineData)
+        let currentYear =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+                    },
+                    {
+                        "checkSheet_data": []
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+                    },
+                ]
+        // console.log(selectedYear)
+        let groupData
+        let allData = []
+        // y = "Nov"
+        const monthKeyArray = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "June",
+            "July",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
+        let actualTotalTimeTakenOfTM = [];
+        // console.log(i, "------->")
+        for (let j = 0; j < monthKeyArray.length; j++) {
+            let sumOfActualTimeTakenTM
+
+            for (let i = 0; i < lineData.length; i++) {
+                let keyOfTotalPMTime = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}`
+                let keyOfTotalWorkedPMTime = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.totalWorkedPMTime`
+
+                // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
+                let keyofSupportingTMData = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.supportingTMData`
+                let keyForTotalTimeManHoursForSum = `$checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.supportingTMData.workedTime`
+                let keyForTotalTimeManHoursForUnwind = `$checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.supportingTMData`
+
+                let keyForTM_no = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}.supportingTMData.tm_no`
+
+
+                groupData = await Machine.aggregate([
+                    {
+                        $match: {
+                            line_names: lineData[i]._id,
+                            "checkSheet_data": { $ne: undefined },
+                            $or: selectedYearOfCheckSheet,
+                        }
+                    },
+                    { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                    {
+                        $match: {
+                            [keyOfTotalPMTime]: { $ne: undefined },
+                            [keyOfTotalWorkedPMTime]: { $ne: undefined },
+                            [keyofSupportingTMData]: { $ne: [] },
+                            // "checkSheet_data.carriedPMStatus": { $ne: undefined },
+                        }
+                    },
+                    {
+                        $unwind: keyForTotalTimeManHoursForUnwind
+                    },
+                    {
+                        $match: {
+                           [keyForTM_no] : parseInt(tm_no)
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: "$line_names",
+                            machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                            actualTotalTimeTM: {
+                                $sum: keyForTotalTimeManHoursForSum
+                            },
+
+                        },
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            line_names: "$_id",
+                            machine: 1,
+                            "actualTotalTimeTM": 1,
+                            // "checkSheet_data.totalPMTime": 1
+
+                        }
+                    },
+                ])
+                // console.log(financialYearWiseMonthKeyArray[j],"---------------", groupData)
+
+                if (groupData.length > 0) {
+                    sumOfActualTimeTakenTM = groupData[0].actualTotalTimeTM
+                }
+
+            }
+            // console.log("---------------", groupData)
+
+            if (sumOfActualTimeTakenTM) {
+                actualTotalTimeTakenOfTM.push(sumOfActualTimeTakenTM)
+            } else {
+                actualTotalTimeTakenOfTM.push(0)
+            }
+        }
+        // console.log(actualTotalTimeTakenOfTM)
+        res.json({ actualTotalTimeTakenOfTM })
+
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
 
 module.exports = router;

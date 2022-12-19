@@ -302,27 +302,27 @@ const machineSchema = mongoose.Schema({
                     },
                     PMOkImage: {
                         Apr: { type: String },
-        
+
                         May: { type: String },
-        
+
                         June: { type: String },
-        
+
                         July: { type: String },
-        
+
                         Aug: { type: String },
-        
+
                         Sep: { type: String },
-        
+
                         Oct: { type: String },
-        
+
                         Nov: { type: String },
-        
+
                         Dec: { type: String },
-        
+
                         Jan: { type: String },
-        
+
                         Feb: { type: String },
-        
+
                         Mar: { type: String },
                     },
                 }
@@ -407,125 +407,125 @@ const machineSchema = mongoose.Schema({
             // },
             totalPMTime: {
                 Apr: {
-                    totalWorkedPMTime: {type : Number},
+                    totalWorkedPMTime: { type: Number },
                     supportingTMData: [
                         {
-                            tm_name: {type: String},
-                            tm_no: {type: Number},
-                            workedTime: {type: Number}
+                            tm_name: { type: String },
+                            tm_no: { type: Number },
+                            workedTime: { type: Number }
                         }
                     ]
-                 },
+                },
                 May: {
-                    totalWorkedPMTime: {type : Number},
+                    totalWorkedPMTime: { type: Number },
                     supportingTMData: [
                         {
-                            tm_name: {type: String},
-                            tm_no: {type: Number},
-                            workedTime: {type: Number}
+                            tm_name: { type: String },
+                            tm_no: { type: Number },
+                            workedTime: { type: Number }
                         }
                     ]
-                 },
+                },
                 June: {
-                    totalWorkedPMTime: {type : Number},
+                    totalWorkedPMTime: { type: Number },
                     supportingTMData: [
                         {
-                            tm_name: {type: String},
-                            tm_no: {type: Number},
-                            workedTime: {type: Number}
+                            tm_name: { type: String },
+                            tm_no: { type: Number },
+                            workedTime: { type: Number }
                         }
                     ]
-                 },
+                },
                 July: {
-                    totalWorkedPMTime: {type : Number},
+                    totalWorkedPMTime: { type: Number },
                     supportingTMData: [
                         {
-                            tm_name: {type: String},
-                            tm_no: {type: Number},
-                            workedTime: {type: Number}
+                            tm_name: { type: String },
+                            tm_no: { type: Number },
+                            workedTime: { type: Number }
                         }
                     ]
-                 },
+                },
                 Aug: {
-                    totalWorkedPMTime: {type : Number},
+                    totalWorkedPMTime: { type: Number },
                     supportingTMData: [
                         {
-                            tm_name: {type: String},
-                            tm_no: {type: Number},
-                            workedTime: {type: Number}
+                            tm_name: { type: String },
+                            tm_no: { type: Number },
+                            workedTime: { type: Number }
                         }
                     ]
-                 },
+                },
                 Sep: {
-                    totalWorkedPMTime: {type : Number},
+                    totalWorkedPMTime: { type: Number },
                     supportingTMData: [
                         {
-                            tm_name: {type: String},
-                            tm_no: {type: Number},
-                            workedTime: {type: Number}
+                            tm_name: { type: String },
+                            tm_no: { type: Number },
+                            workedTime: { type: Number }
                         }
                     ]
-                 },
+                },
                 Oct: {
-                    totalWorkedPMTime: {type : Number},
+                    totalWorkedPMTime: { type: Number },
                     supportingTMData: [
                         {
-                            tm_name: {type: String},
-                            tm_no: {type: Number},
-                            workedTime: {type: Number}
+                            tm_name: { type: String },
+                            tm_no: { type: Number },
+                            workedTime: { type: Number }
                         }
                     ]
-                 },
+                },
                 Nov: {
-                    totalWorkedPMTime: {type : Number},
+                    totalWorkedPMTime: { type: Number },
                     supportingTMData: [
                         {
-                            tm_name: {type: String},
-                            tm_no: {type: Number},
-                            workedTime: {type: Number}
+                            tm_name: { type: String },
+                            tm_no: { type: Number },
+                            workedTime: { type: Number }
                         }
                     ]
-                 },
+                },
                 Dec: {
-                    totalWorkedPMTime: {type : Number},
+                    totalWorkedPMTime: { type: Number },
                     supportingTMData: [
                         {
-                            tm_name: {type: String},
-                            tm_no: {type: Number},
-                            workedTime: {type: Number}
+                            tm_name: { type: String },
+                            tm_no: { type: Number },
+                            workedTime: { type: Number }
                         }
                     ]
-                 },
+                },
                 Jan: {
-                    totalWorkedPMTime: {type : Number},
+                    totalWorkedPMTime: { type: Number },
                     supportingTMData: [
                         {
-                            tm_name: {type: String},
-                            tm_no: {type: Number},
-                            workedTime: {type: Number}
+                            tm_name: { type: String },
+                            tm_no: { type: Number },
+                            workedTime: { type: Number }
                         }
                     ]
-                 },
+                },
                 Feb: {
-                    totalWorkedPMTime: {type : Number},
+                    totalWorkedPMTime: { type: Number },
                     supportingTMData: [
                         {
-                            tm_name: {type: String},
-                            tm_no: {type: Number},
-                            workedTime: {type: Number}
+                            tm_name: { type: String },
+                            tm_no: { type: Number },
+                            workedTime: { type: Number }
                         }
                     ]
-                 },
+                },
                 Mar: {
-                    totalWorkedPMTime: {type : Number},
+                    totalWorkedPMTime: { type: Number },
                     supportingTMData: [
                         {
-                            tm_name: {type: String},
-                            tm_no: {type: Number},
-                            workedTime: {type: Number}
+                            tm_name: { type: String },
+                            tm_no: { type: Number },
+                            workedTime: { type: Number }
                         }
                     ]
-                 },
+                },
             },
             // finishedPMTime: {
             //     type: String
