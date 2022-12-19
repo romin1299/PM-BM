@@ -20,6 +20,8 @@ import currentMonth from "../../Dashboard/DashboardComponent/currentMonth";
 import currentYear from "../../Dashboard/DashboardComponent/currentYear";
 import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
 import MonthDropDown from "../../Dashboard/DashboardComponent/MonthDropDown";
+import LoadingAnimation from "./LoadingAnimation";
+import NotFound from "./NotFound";
 
 const MachineWisePmMonthlyReport = () => {
   const context = useContext(RoutingContext);
@@ -301,7 +303,8 @@ const MachineWisePmMonthlyReport = () => {
           ? "O"
           : item.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing"
           ? "^"
-          : "X",
+          : // : item.checkSheet_data?.PMStatus?.[previousMonth],
+            "X",
       ])
     );
 
@@ -433,6 +436,17 @@ const MachineWisePmMonthlyReport = () => {
     setSelectedMonth(currentMonth);
   }, [selectedYear]);
 
+  const [loadingAnimationState, setLoadingAnimationState] = useState(
+    <LoadingAnimation />
+  );
+  useEffect(() => {
+    setLoadingAnimationState(<LoadingAnimation />);
+
+    setTimeout(() => {
+      setLoadingAnimationState(<NotFound />);
+    }, 3000);
+  }, [selectedYear, selectedMonth]);
+
   return (
     <>
       <div>
@@ -544,15 +558,7 @@ const MachineWisePmMonthlyReport = () => {
                   </Col>
                 ) : (
                   <Col className="d-flex justify-content-around align-items-center pt-5">
-                    <ClipLoader
-                      color="blue"
-                      loading={true}
-                      // style={{ color: "while" }}
-                      // cssOverride={override}
-                      size={50}
-                      aria-label="Loading Spinner"
-                      data-testid="loader"
-                    />
+                    {loadingAnimationState}
                   </Col>
                 )}
 
@@ -602,15 +608,7 @@ const MachineWisePmMonthlyReport = () => {
                   </Col>
                 ) : (
                   <Col className="d-flex justify-content-around align-items-center pt-5">
-                    <ClipLoader
-                      color="blue"
-                      loading={true}
-                      // style={{ color: "while" }}
-                      // cssOverride={override}
-                      size={50}
-                      aria-label="Loading Spinner"
-                      data-testid="loader"
-                    />
+                    {loadingAnimationState}
                   </Col>
                 )}
               </Row>
@@ -661,15 +659,7 @@ const MachineWisePmMonthlyReport = () => {
                   </Col>
                 ) : (
                   <Col className="d-flex justify-content-around align-items-center pt-5">
-                    <ClipLoader
-                      color="blue"
-                      loading={true}
-                      // style={{ color: "while" }}
-                      // cssOverride={override}
-                      size={50}
-                      aria-label="Loading Spinner"
-                      data-testid="loader"
-                    />
+                    {loadingAnimationState}
                   </Col>
                 )}
               </Row>

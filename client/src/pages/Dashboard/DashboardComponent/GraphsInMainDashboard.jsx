@@ -5,6 +5,9 @@ import CurrentMonthStatusGraph from "./MainDashboardGraph/CurrentMonthStatusGrap
 
 import RoutingContext from "../../../context/routing/RoutingContext";
 import TextField from "@material-ui/core/TextField";
+
+// import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
+import NotFound from "../../Reports/ReportComponents/NotFound";
 import {
   Card,
   Button,
@@ -19,16 +22,24 @@ const GraphsInMainDashboard = ({
   sections,
   subSection,
   allDataSectionWise,
+  currentMonthGraphAndTableData,
 }) => {
   const context = useContext(RoutingContext);
 
   const [remarks, setRemarks] = useState("");
   const [fetchedRemarks, setFetchedRemarks] = useState("");
 
-  console.log(
-    context.section_data,
-    allDataSectionWise?.sectionInfo?.[0].dashboardLevel
-  );
+  // const [loadingAnimation, setLoadingAnimation] = useState(
+  //   <LoadingAnimation />
+  // );
+
+  // useEffect(() => {
+  //   setLoadingAnimation(<NotFound />);
+  // }, [currentMonthGraphAndTableData]);
+  // console.log(
+  //   context.section_data,
+  //   allDataSectionWise?.sectionInfo?.[0].dashboardLevel
+  // );
 
   const postRemarksSectionWise = async (sectionValue) => {
     // console.log("=================", context.section_data);
@@ -167,18 +178,21 @@ const GraphsInMainDashboard = ({
       name: "Completed",
       bgColor: "table-success",
       // colorClass: "#789c50",
-      value: 70,
+      value: currentMonthGraphAndTableData?.sumVariableForTotalCompleted,
     },
     {
       name: "Ongoing",
       bgColor: "table-warning",
       // colorClass: "#ddb14d",
-      value: 15,
+      value: currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
     },
     {
       name: "Pending(Current Month)",
       // colorClass: "table-danger",
-      value: 10,
+      value:
+        currentMonthGraphAndTableData?.sumVariableForTotalSchedule -
+        currentMonthGraphAndTableData?.sumVariableForTotalCompleted -
+        currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
     },
   ];
 
@@ -186,7 +200,7 @@ const GraphsInMainDashboard = ({
     name: "Planned",
     bgColor: "table-primary",
     // colorClass: "#5bc0de",
-    value: 95,
+    value: currentMonthGraphAndTableData?.sumVariableForTotalSchedule,
   };
   return (
     <div>
@@ -201,7 +215,15 @@ const GraphsInMainDashboard = ({
           <Row>
             <Col className="d-flex justify-content-center align-items-center">
               <div style={{ width: "20rem" }}>
-                <CurrentMonthStatusGraph TableData={TableData} />
+                {currentMonthGraphAndTableData?.sumVariableForTotalSchedule ? (
+                  <CurrentMonthStatusGraph TableData={TableData} />
+                ) : (
+                  // <div className="p-3">{loadingAnimation}</div>
+                  <div className="m-3">
+                    <NotFound />
+                    {/* <h2>No PM schedule</h2> */}
+                  </div>
+                )}
               </div>
             </Col>
           </Row>

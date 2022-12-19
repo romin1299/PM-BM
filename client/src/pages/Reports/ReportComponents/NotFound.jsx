@@ -1,10 +1,13 @@
 import React from "react";
+import Card from "react-bootstrap/Card";
 
 const NotFound = () => {
   return (
-    <div className="cell">
-      <h1>NotFound</h1>
-    </div>
+    <Card style={{ width: "18rem" }}>
+      <Card.Title className="d-flex justify-content-center align-items-center">
+        No Data To Display
+      </Card.Title>
+    </Card>
   );
 };
 

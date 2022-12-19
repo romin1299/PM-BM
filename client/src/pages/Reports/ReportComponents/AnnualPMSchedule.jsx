@@ -8,6 +8,11 @@ import CircleIcon from "@mui/icons-material/Circle";
 
 import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import RoutingContext from "../../../context/routing/RoutingContext";
+
+import LoadingAnimation from "./LoadingAnimation";
+import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
+import currentYear from "../../Dashboard/DashboardComponent/currentYear";
+
 const AnnualPMSchedule = () => {
   const context = useContext(RoutingContext);
 
@@ -15,6 +20,11 @@ const AnnualPMSchedule = () => {
 
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
   const [tableData, setTableData] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+
+  const [refKeyForAnimation, setRefKeyForAnimation] = useState(
+    <LoadingAnimation />
+  );
 
   let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
@@ -52,8 +62,9 @@ const AnnualPMSchedule = () => {
   };
 
   useEffect(() => {
+    setSelectedCell("");
     postSectionToGetAllDataForMainDashboard();
-  }, []);
+  }, [selectedYear]);
 
   const [selectedCell, setSelectedCell] = useState("");
   const [lineDropdown, setLineDropdown] = useState([]);
@@ -103,6 +114,7 @@ const AnnualPMSchedule = () => {
         },
         body: JSON.stringify({
           line: selectedLine,
+          selectedYear,
         }),
       });
       const data = await res.json();
@@ -162,15 +174,29 @@ const AnnualPMSchedule = () => {
   ];
   let refArrayForTDSpacing = [1, 1, 1];
 
-  console.log(tableData);
+  // console.log(tableData);
+
+  useEffect(() => {
+    setRefKeyForAnimation(<LoadingAnimation />);
+
+    setTimeout(() => {
+      setRefKeyForAnimation("");
+    }, 3000);
+  }, [selectedCell, selectedLine]);
 
   return (
     <>
       <div>
-        <div>
-          <Container fluid>
-            <Row className="pt-2 ">
-              <Col sm={12} lg={3}>
+        <div className="pt-4">
+          <Container className="cell p-2">
+            <Row>
+              <Col sm={12} lg={4}>
+                <YearDropDown
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                />
+              </Col>
+              <Col sm={12} lg={1}>
                 <span>Cell:</span>
               </Col>
               <Col sm={12} lg={3}>
@@ -178,7 +204,7 @@ const AnnualPMSchedule = () => {
                   <select
                     class="form-select form-select-sm"
                     aria-label=".form-select-sm example"
-                    style={{ width: "100%" }}
+                    // style={{ width: "100%" }}
                     id="standard-select-currency"
                     name="selectedCell"
                     value={
@@ -192,7 +218,7 @@ const AnnualPMSchedule = () => {
                       setSelectedCell(e.target.value);
                       postCellToGetLineList(e.target.value);
                     }}
-                    fullWidth
+                    // fullWidth
                     select // label="Select"
                     autoComplete="off"
                     variant="standard"
@@ -208,7 +234,7 @@ const AnnualPMSchedule = () => {
                   </select>
                 </div>
               </Col>
-              <Col sm={12} lg={3}>
+              <Col sm={12} lg={1}>
                 <span>Line:</span>
               </Col>
               <Col sm={12} lg={3}>
@@ -216,7 +242,7 @@ const AnnualPMSchedule = () => {
                   <select
                     class="form-select form-select-sm"
                     aria-label=".form-select-sm example"
-                    style={{ width: "100%" }}
+                    // style={{ width: "100%" }}
                     id="standard-select-currency"
                     name="selectedPlant"
                     value={
@@ -229,7 +255,7 @@ const AnnualPMSchedule = () => {
                       setSelectedLine(e.target.value);
                       postLineToGetMachineList(e.target.value);
                     }}
-                    fullWidth
+                    // fullWidth
                     select // label="Select"
                     autoComplete="off"
                     variant="standard"
@@ -343,76 +369,90 @@ const AnnualPMSchedule = () => {
                         ))}
                       </tr>
 
-                      {tableData?.map(
-                        (item, index, array) =>
-                          // console.log(item.PMStatus)
+                      {tableData.length > 0 ? (
+                        tableData?.map(
+                          (item, index, array) =>
+                            // console.log(item.PMStatus)
 
-                          index === 0 ? (
-                            <tr className="td-padding">
-                              <td rowSpan={array.length} className="td-padding">
-                                {" "}
-                                {item.line_names.line_name}
-                              </td>
-                              <td className="td-padding">{index + 1}</td>
-                              <td className="td-padding">
-                                {item.machine_name}
-                              </td>
-                              <td className="td-padding">
-                                {item.machine_code}
-                              </td>
-                              {item?.checkSheet_data?.PMStatus
-                                ? Object.values(
-                                    item?.checkSheet_data?.PMStatus
-                                  ).map((item1) => (
-                                    <td className="td-padding">
-                                      {item1 === "Completed" ? (
-                                        <CircleIcon />
-                                      ) : item1 === "Current Plan" ? (
-                                        <PanoramaFishEyeIcon />
-                                      ) : (
-                                        ""
-                                      )}
-                                    </td>
-                                  ))
-                                : refArrayForTDMapping.map((index) => (
-                                    <td className="td-padding"></td>
-                                  ))}
-                            </tr>
-                          ) : (
-                            <tr className="td-padding">
-                              <td className="td-padding">{index + 1}</td>
-                              <td className="td-padding">
-                                {item.machine_name}
-                              </td>
-                              <td className="td-padding">
-                                {item.machine_code}
-                              </td>
-                              {item?.checkSheet_data?.PMStatus
-                                ? Object.values(
-                                    item?.checkSheet_data?.PMStatus
-                                  ).map((item1) => (
-                                    <td className="td-padding">
-                                      {item1 === "Completed" ? (
-                                        <CircleIcon />
-                                      ) : item1 === "Current Plan" ? (
-                                        <PanoramaFishEyeIcon />
-                                      ) : (
-                                        ""
-                                      )}
-                                    </td>
-                                  ))
-                                : refArrayForTDMapping.map((index) => (
-                                    <td className="td-padding"></td>
-                                  ))}
-                              {/* <td className="td-padding"></td> */}
-                            </tr>
-                          )
+                            index === 0 ? (
+                              <tr className="td-padding">
+                                <td
+                                  rowSpan={array.length}
+                                  className="td-padding"
+                                >
+                                  {" "}
+                                  {item.line_names.line_name}
+                                </td>
+                                <td className="td-padding">{index + 1}</td>
+                                <td className="td-padding">
+                                  {item.machine_name}
+                                </td>
+                                <td className="td-padding">
+                                  {item.machine_code}
+                                </td>
+                                {item.PMStatus
+                                  ? Object.values(item.PMStatus).map(
+                                      (item1) => (
+                                        <td className="td-padding">
+                                          {item1 === "Completed" ? (
+                                            <CircleIcon />
+                                          ) : item1 === "Current Plan" ? (
+                                            <PanoramaFishEyeIcon />
+                                          ) : (
+                                            ""
+                                          )}
+                                        </td>
+                                      )
+                                    )
+                                  : refArrayForTDMapping.map((index) => (
+                                      <td className="td-padding"></td>
+                                    ))}
+                              </tr>
+                            ) : (
+                              <tr className="td-padding">
+                                <td className="td-padding">{index + 1}</td>
+                                <td className="td-padding">
+                                  {item.machine_name}
+                                </td>
+                                <td className="td-padding">
+                                  {item.machine_code}
+                                </td>
+                                {item.PMStatus
+                                  ? Object.values(item.PMStatus).map(
+                                      (item1) => (
+                                        <td className="td-padding">
+                                          {item1 === "Completed" ? (
+                                            <CircleIcon />
+                                          ) : item1 === "Current Plan" ? (
+                                            <PanoramaFishEyeIcon />
+                                          ) : (
+                                            ""
+                                          )}
+                                        </td>
+                                      )
+                                    )
+                                  : refArrayForTDMapping.map((index) => (
+                                      <td className="td-padding"></td>
+                                    ))}
+                                {/* <td className="td-padding"></td> */}
+                              </tr>
+                            )
 
-                        // <tr>
-                        //   <td className="td-padding">
-                        //     {item.line_names.line_name}
-                        //   </td>
-                        // </tr>
+                          // <tr>
+                          //   <td className="td-padding">
+                          //     {item.line_names.line_name}
+                          //   </td>
+                          // </tr>
+                        )
+                      ) : refKeyForAnimation === "" ? (
+                        ""
+                      ) : (
+                        <tr
+                          // colSpan={2}
+                          className=" d-flex justify-content-center align-items-center p-5"
+                        >
+                          {refKeyForAnimation}
+                        </tr>
                       )}
                       <tr>
                         <td></td>
