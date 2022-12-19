@@ -4919,9 +4919,9 @@ router.post('/postCellToGetLineListForReport', authenticate, async (req, res) =>
 
 router.post('/postLineToGetMachineListForReportDashboard', authenticate, async (req, res) => {
     try {
-        let { line } = req.body
-        // console.log(line)
-        let selectedYear = "2022-2023"
+        let { line, selectedYear } = req.body
+        // console.log(line, selectedYear)
+        // let selectedYear = "2022-2023"
         let current_year =
             new Date().getMonth() <= 3
                 ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
@@ -4987,10 +4987,22 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
 
         let sectionSplit = section.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
-        // console.log("____________", sectionInfo[0]._id)
+        // console.log("____________", sectionInfo)
+
         let subSectionsData, subSectionIdArray = [], cellData, cellIdArray = [], lineData, lineIdArray = [], machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
 
-        subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+        if (sectionInfo.dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        } else {
+            loggedUserData.subSection_data.map((ids) => {
+                let subsectionsId = ids.split("-")
+                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            })
+            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+        }
+
 
 
         for (let i = 0; i < subSectionsData.length; i++) {
@@ -5199,7 +5211,7 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
 
         let lineDataWithCounter = await Machine.populate(allData, { path: "line_names" })
 
-        // console.log("==============>", lineDataWithCounter, "<===================")
+        console.log("==============>", lineDataWithCounter, "<===================")
 
 
         res.json({ lineDataWithCounter })
@@ -5584,11 +5596,26 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
         let loggedUserData = req.rootUser;
 
         let sectionSplit = section.split("-")
+
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+
+
         // console.log("____________", sectionInfo[0]._id)
         let subSectionsData, subSectionIdArray = [], cellData, cellIdArray = [], lineData, lineIdArray = [], machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
 
-        subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        if (sectionInfo.dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        } else {
+            loggedUserData.subSection_data.map((ids) => {
+                let subsectionsId = ids.split("-")
+                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            })
+            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+        }
+
 
 
         for (let i = 0; i < subSectionsData.length; i++) {
@@ -5633,15 +5660,12 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
 
                 ]
 
-        console.log(selectedYear)
+        // console.log(selectedYear)
         let groupData
         let allData = []
         // y = "Nov"
 
         const monthKeyArray = [
-            "Jan",
-            "Feb",
-            "Mar",
             "Apr",
             "May",
             "June",
@@ -5651,6 +5675,9 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
             "Oct",
             "Nov",
             "Dec",
+            "Jan",
+            "Feb",
+            "Mar",
         ];
 
 
@@ -5670,11 +5697,12 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
 
 
 
+            let x = `$checkSheet_data.PMStatus.${monthKeyArray[j]}`
+            // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
+            let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthKeyArray[j]}`
+
             for (let i = 0; i < lineData.length; i++) {
 
-                let x = `$checkSheet_data.PMStatus.${monthKeyArray[j]}`
-                // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
-                let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthKeyArray[j]}`
 
                 // console.log(x, keyForPreviousMonth)
 
@@ -5710,7 +5738,7 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
                     {
                         $match: {
                             "checkSheet_data.PMStatus": { $ne: undefined },
-                            "checkSheet_data.carriedPMStatus": { $ne: undefined },
+                            // "checkSheet_data.carriedPMStatus": { $ne: undefined },
 
                         }
                     },
@@ -5767,8 +5795,8 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
 
 
                 ])
-                // console.log("---------------------------", groupData)
                 if (groupData.length > 0) {
+                    // console.log("---------------------------", groupData)
                     sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData[0].total_pmSchedule
                     sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData[0].total_completed
                     sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData[0].total_Previous
@@ -5806,6 +5834,195 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
             annual_total_current_schedule,
             annual_completed,
             annual_previous_pending
+        })
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+
+})
+
+router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async (req, res) => {
+    try {
+        let { section, selectedMonth, selectedYear } = req.body
+        let loggedUserData = req.rootUser;
+
+        let sectionSplit = section.split("-")
+
+        const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+
+        let subSectionsData, subSectionIdArray = [], cellData, cellIdArray = [], lineData, lineIdArray = [], machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
+
+
+        if (sectionInfo.dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        } else {
+            loggedUserData.subSection_data.map((ids) => {
+                let subsectionsId = ids.split("-")
+                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            })
+            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+        }
+
+        for (let i = 0; i < subSectionsData.length; i++) {
+            subSectionIdArray.push(subSectionsData[i]._id);
+        }
+
+        cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
+
+        for (let i = 0; i < cellData.length; i++) {
+            cellIdArray.push(cellData[i]._id);
+        }
+
+        lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
+
+        for (let i = 0; i < lineData.length; i++) {
+            lineIdArray.push(lineData[i]._id);
+        }
+        let currentYear =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+                    {
+                        "checkSheet_data": []
+
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+
+                ]
+
+
+        let groupData
+
+        let keyForSelectedMonth = `$checkSheet_data.PMStatus.${selectedMonth}`
+
+        let sumVariableForTotalSchedule = 0
+        let sumVariableForTotalCompleted = 0
+        let sumVariableForTotalOngoing = 0
+
+
+        for (let i = 0; i < lineData.length; i++) {
+
+            groupData = await Machine.aggregate([
+
+                {
+
+                    $match: {
+                        line_names: lineData[i]._id,
+                        $or: selectedYearOfCheckSheet,
+
+                    }
+                },
+                {
+                    $project: {
+                        machine_code: 1,
+                        machine_name: 1,
+                        machine_nickname: 1,
+                        machine_sequence: 1,
+                        installation_date: 1,
+                        maker_name: 1,
+                        maker_sr_no: 1,
+                        manufacturingDate: 1,
+                        isPM: 1,
+                        line_names: 1,
+                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    }
+                },
+                {
+                    $match: {
+                        "checkSheet_data.PMStatus": { $ne: undefined },
+
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$line_names",
+                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                        total_pmSchedule: {
+                            $sum: {
+                                $cond: [
+                                    {
+                                        $ne: [keyForSelectedMonth, ""]
+                                    },
+                                    1, 0
+                                ]
+                            }
+                        },
+                        total_completed: {
+                            $sum: {
+                                $cond: [
+                                    {
+                                        $eq: [keyForSelectedMonth, "Completed"]
+                                    },
+                                    1, 0
+                                ]
+                            }
+                        },
+                        total_ongoing: {
+                            $sum: {
+                                $cond: [
+                                    {
+                                        $eq: [keyForSelectedMonth, "Ongoing"]
+                                    },
+                                    1, 0
+                                ]
+                            }
+                        },
+
+
+
+
+                    },
+                },
+
+                {
+                    $project: {
+                        _id: 0,
+                        line_names: "$_id",
+                        machine: 1,
+                        "total_pmSchedule": 1,
+                        "total_completed": 1,
+                        "total_ongoing": 1,
+                    }
+                },
+
+
+            ])
+            if (groupData.length > 0) {
+                // console.log("---------------------------", groupData)
+                sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData[0].total_pmSchedule
+                sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData[0].total_completed
+                sumVariableForTotalOngoing = sumVariableForTotalOngoing + groupData[0].total_ongoing
+            }
+        }
+
+
+        // console.log(sumVariableForTotalSchedule)
+        // console.log("***************************")
+        // console.log(sumVariableForTotalCompleted)
+        // console.log("***************************")
+        // console.log(sumVariableForTotalOngoing)
+
+
+        res.json({
+            sumVariableForTotalSchedule,
+            sumVariableForTotalCompleted,
+            sumVariableForTotalOngoing
         })
     } catch (error) {
         console.log(error)

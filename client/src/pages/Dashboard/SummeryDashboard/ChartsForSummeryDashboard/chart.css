@@ -94,6 +94,31 @@
 
 }
 
+.card4 {
+
+    height: 100%;
+
+
+    margin-top: 40px;
+
+    display: flex;
+
+    /* box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1), -2px -2px 10px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(0, 0, 0, 0.1); */
+
+    border-radius: 20px;
+
+    /* background-image: url('https://github.com/OlgaKoplik/CodePen/blob/master/leaf2.png?raw=true'), url('https://github.com/OlgaKoplik/CodePen/blob/master/leaf.png?raw=true'); */
+
+    background-repeat: no-repeat, no-repeat;
+
+    background-position: 120% -5%, 200% -40%;
+
+    background-size: 40%, 80%;
+
+    /* animation: open .5s; */
+
+}
+
 .cardCssForTitle {
     width: 100%;
     justify-content: center;

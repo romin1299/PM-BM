@@ -62,9 +62,6 @@ const AnnualPmStatus = () => {
       1.25, 2.25, 3.25, 4.25, 5.25, 6.25, 7.25, 8.25, 9.25, 10.25, 11.25, 12.25,
     ],
     label: [
-      "Jan",
-      "Feb",
-      "Mar",
       "Apr",
       "May",
       "June",
@@ -74,6 +71,9 @@ const AnnualPmStatus = () => {
       "Oct",
       "Nov",
       "Dec",
+      "Jan",
+      "Feb",
+      "Mar",
     ],
   };
 
