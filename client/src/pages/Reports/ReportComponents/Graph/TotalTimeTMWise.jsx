@@ -3,15 +3,18 @@ import Plot from "react-plotly.js";
 import { Row, Col, Container, Card } from "react-bootstrap";
 
 import TmWiseGraph from "./PmTimeMonitoringCharts/TmWiseGraph";
+import YearDropDown from "../../../Dashboard/DashboardComponent/YearDropDown";
+import currentYear from "../../../Dashboard/DashboardComponent/currentYear";
 
 const TotalTimeTMWise = ({ context }) => {
   const [selectedTM, setSelectedTM] = useState("");
 
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
   const [graphData, setGraphData] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const postSectionToGetAllDataForTotalTimeManHoursMonthWise = async () => {
-    // setSubSection(undefined);
+    setSelectedTM("");
     try {
       const res = await fetch(
         "/postSectionToGetAllDataForTotalTimeManHoursMonthWise",
@@ -22,6 +25,7 @@ const TotalTimeTMWise = ({ context }) => {
           },
           body: JSON.stringify({
             section: context.section_data,
+            selectedYear
           }),
         }
       );
@@ -53,6 +57,7 @@ const TotalTimeTMWise = ({ context }) => {
           body: JSON.stringify({
             section: context.section_data,
             tm_no: teamMemberNo,
+            selectedYear
           }),
         }
       );
@@ -167,7 +172,7 @@ const TotalTimeTMWise = ({ context }) => {
 
   useEffect(() => {
     postSectionToGetAllDataForTotalTimeManHoursMonthWise();
-  }, []);
+  }, [selectedYear]);
 
   const functionForTotalData = () => {
     setSelectedTM("");
@@ -186,6 +191,14 @@ const TotalTimeTMWise = ({ context }) => {
                 <h3>Actual time taken TM wise</h3>
               </Col>
             </Row>
+            <Row>
+              <Col sm={12} lg={5}>
+                <YearDropDown
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                />
+              </Col>
+            </Row>
             <Row className="p-2">
               <Col>
                 <div>
@@ -199,7 +212,9 @@ const TotalTimeTMWise = ({ context }) => {
                     value={selectedTM}
                     onChange={(e) => {
                       setSelectedTM(e.target.value);
-                      postPerticularOperatorToGetDataForActualTimeTakenTMWise(e.target.value)
+                      postPerticularOperatorToGetDataForActualTimeTakenTMWise(
+                        e.target.value
+                      );
                     }}
                   >
                     <option selected disabled value="">

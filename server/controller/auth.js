@@ -16,6 +16,7 @@ const Machine = require('../model/machineSchema')
 const sendMail = require('../sendMail/sendMail');
 const sendApprovalOfImplementation = require('../sendMail/sendApprovalOfImplementation')
 const BackupMachineData = require('../model/backupMachine')
+const HandlingOtherActions = require('../model/handlingActions')
 
 //send request for approval mail function
 const sendApproval = require('../sendMail/sendApproval')
@@ -1593,6 +1594,9 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                             {
                                 "checkSheet_data.assign_TL": { $ne: [] }
                             },
+                            {
+                                "checkSheet_data": { $ne: undefined }
+                            },
                         ]
 
                     }
@@ -1898,8 +1902,8 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         }
 
         let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
-        let previousMonth = monthKeyArray[new Date().getMonth() - 1];
-        let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
+        let previousMonth = monthKeyArray[-1];
+        let previousToPreviousMonth = monthKeyArray[-2];
 
         //for 1/1M skip status 
         let keyOfPreviousMonth = `checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2.${previousMonth}`
@@ -2024,14 +2028,14 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         machineData?.map((key) => {
             key?.checkSheet_data?.checkSheet?.map((key1) => {
                 if (key1?.planningTableAnimationArray2) {
-                    if (key1.planningTableAnimationArray2[previousMonth][0] === "1" &&
+                    if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
                         key1.cycle === "1/1M"
                     ) {
                         updateOnesPerMonthStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
                     }
 
-                    if (key1.planningTableAnimationArray2[previousMonth][0] === "2" &&
-                        key1.planningTableAnimationArray2[previousMonth].length < 2 &&
+                    if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "2" &&
+                        key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
                         key1.cycle !== "1/1M") {
                         updateOtherCyclesStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
 
@@ -2052,7 +2056,7 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
 
             })
             if (key?.PMStatus) {
-                if (key.PMStatus[previousMonth] === "Current Plan") {
+                if (key.PMStatus?.[previousMonth] === "Current Plan") {
                     updatePMStatusOfPreviousMonthForNoCompletion(key.machine_code, key.checkSheet_data.current_year)
                 }
             }
@@ -5211,7 +5215,7 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
 
         let lineDataWithCounter = await Machine.populate(allData, { path: "line_names" })
 
-        console.log("==============>", lineDataWithCounter, "<===================")
+        // console.log("==============>", lineDataWithCounter, "<===================")
 
 
         res.json({ lineDataWithCounter })
@@ -6197,7 +6201,29 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
                     // console.log(removeFieldsFromPreviousYear)
 
                 }
-                if (removeFieldsFromPreviousYear && copyCheckSheetData) {
+                let addNewFinancialYears
+                const yearAvailableOrNot = await HandlingOtherActions.findOne({ yearId: "FY01" });
+                console.log(yearAvailableOrNot)
+                if (yearAvailableOrNot) {
+                    if (!yearAvailableOrNot.financialYears.includes(current_year)) {
+                        addNewFinancialYears = await HandlingOtherActions.updateOne({ yearId: "FY01" },
+                            {
+                                $push: {
+                                    financialYears: current_year
+                                }
+                            })
+                    }
+
+
+                } else {
+                    addNewFinancialYears = await new HandlingOtherActions({
+                        yearId: "FY01",
+                        financialYears: current_year
+                    })
+                    addNewFinancialYears.save()
+                }
+
+                if ((removeFieldsFromPreviousYear && copyCheckSheetData) ||  addNewFinancialYears) {
                     return res.status(201).json("Checksheet copied!!!");
                 }
                 else {
@@ -6312,7 +6338,27 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
                     // console.log(removeFieldsFromPreviousYear)
 
                 }
-                if (removeFieldsFromPreviousYear && copyCheckSheetData) {
+                let addNewFinancialYears
+                const yearAvailableOrNot = await HandlingOtherActions.findOne({ yearId: "FY01" });
+                console.log(yearAvailableOrNot)
+                if (yearAvailableOrNot) {
+                    if (!yearAvailableOrNot.financialYears.includes(current_year)) {
+                        addNewFinancialYears = await HandlingOtherActions.updateOne({ yearId: "FY01" },
+                            {
+                                $push: {
+                                    financialYears: current_year
+                                }
+                            })
+                    }
+
+                } else {
+                    addNewFinancialYears = await new HandlingOtherActions({
+                        yearId: "FY01",
+                        financialYears: current_year
+                    })
+                    addNewFinancialYears.save()
+                }
+                if ((removeFieldsFromPreviousYear && copyCheckSheetData) || addNewFinancialYears) {
                     return res.status(201).json("Checksheet copied!!!");
                 }
                 else {
@@ -6328,6 +6374,22 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
     } catch (error) {
         console.log(error)
         console.log("User id not received!!!");
+    }
+})
+
+router.get('/getFinancialYears', authenticate, async (req, res) => {
+    try {
+        const getFinancialYearsArray = await HandlingOtherActions.findOne({yearId: "FY01"})
+        // console.log(getFinancialYearsArray)
+        if (getFinancialYearsArray) {
+            res.json({ getFinancialYearsArray });
+
+        } else {
+            return res.status(400).json("Checksheet not copied!!!");
+        }
+    } catch (error) {
+        console.log(error)
+        console.log("User data not send or get!!!");
     }
 })
 
@@ -6592,13 +6654,26 @@ router.get('/getDeletedMachineCheckSheetData', authenticate, async (req, res) =>
 
 router.post('/postSectionToGetAllDataForTotalTimeMonthWiseReport', authenticate, async (req, res) => {
     try {
-        let { section } = req.body
-        let selectedYear = "2022-2023"
+        let { section, selectedYear } = req.body
+        // let selectedYear = "2022-2023"
         let loggedUserData = req.rootUser;
         let sectionSplit = section.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
         // console.log("____________", sectionInfo[0]._id)
         let subSectionsData, subSectionIdArray = [], cellData, cellIdArray = [], lineData, lineIdArray = [], machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
+
+        if (sectionInfo.dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        } else {
+            loggedUserData.subSection_data.map((ids) => {
+                let subsectionsId = ids.split("-")
+                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            })
+            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+        }
+
         subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
         for (let i = 0; i < subSectionsData.length; i++) {
             subSectionIdArray.push(subSectionsData[i]._id);
@@ -6722,9 +6797,9 @@ router.post('/postSectionToGetAllDataForTotalTimeMonthWiseReport', authenticate,
 
 router.post('/postPerticularLineToGetDataForTotalTimeMonthWiseReport', authenticate, async (req, res) => {
     try {
-        let { line } = req.body
+        let { line, selectedYear } = req.body
         // console.log(line)
-        let selectedYear = "2022-2023"
+        // let selectedYear = "2022-2023"
         let current_year =
             new Date().getMonth() <= 3
                 ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
@@ -6835,13 +6910,26 @@ router.post('/postPerticularLineToGetDataForTotalTimeMonthWiseReport', authentic
 
 router.post('/postSectionToGetAllDataForTotalTimeManHoursMonthWise', authenticate, async (req, res) => {
     try {
-        let { section } = req.body
-        let selectedYear = "2022-2023"
+        let { section, selectedYear } = req.body
+        // let selectedYear = "2022-2023"
         let loggedUserData = req.rootUser;
         let sectionSplit = section.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
         // console.log("____________", sectionInfo[0]._id)
         let subSectionsData, subSectionIdArray = [], cellData, cellIdArray = [], lineData, lineIdArray = [], machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
+
+        if (sectionInfo.dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        } else {
+            loggedUserData.subSection_data.map((ids) => {
+                let subsectionsId = ids.split("-")
+                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            })
+            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+        }
+
         subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
         for (let i = 0; i < subSectionsData.length; i++) {
             subSectionIdArray.push(subSectionsData[i]._id);
@@ -6974,8 +7062,8 @@ router.post('/postSectionToGetAllDataForTotalTimeManHoursMonthWise', authenticat
 
 router.post('/postPerticularLineToGetDataForTotalTimeManHours', authenticate, async (req, res) => {
     try {
-        let { line } = req.body
-        let selectedYear = "2022-2023"
+        let { line, selectedYear } = req.body
+        // let selectedYear = "2022-2023"
 
         let currentYear =
             new Date().getMonth() <= 3
@@ -7080,7 +7168,7 @@ router.post('/postPerticularLineToGetDataForTotalTimeManHours', authenticate, as
             }
         }
 
-        res.json({totalTimeManHoursMonthWiseOfLineWise })
+        res.json({ totalTimeManHoursMonthWiseOfLineWise })
 
     } catch (error) {
         console.log(error)
@@ -7093,14 +7181,27 @@ router.post('/postPerticularLineToGetDataForTotalTimeManHours', authenticate, as
 
 router.post('/postPerticularOperatorToGetDataForActualTimeTakenTMWise', authenticate, async (req, res) => {
     try {
-        let { section, tm_no } = req.body
+        let { section, tm_no, selectedYear } = req.body
         // console.log(tm_no)
-        let selectedYear = "2022-2023"
+        // let selectedYear = "2022-2023"
         let loggedUserData = req.rootUser;
         let sectionSplit = section.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
         // console.log("____________", sectionInfo[0]._id)
         let subSectionsData, subSectionIdArray = [], cellData, cellIdArray = [], lineData, lineIdArray = [], machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
+
+        if (sectionInfo.dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        } else {
+            loggedUserData.subSection_data.map((ids) => {
+                let subsectionsId = ids.split("-")
+                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            })
+            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+        }
+
         subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
         for (let i = 0; i < subSectionsData.length; i++) {
             subSectionIdArray.push(subSectionsData[i]._id);
@@ -7191,7 +7292,7 @@ router.post('/postPerticularOperatorToGetDataForActualTimeTakenTMWise', authenti
                     },
                     {
                         $match: {
-                           [keyForTM_no] : parseInt(tm_no)
+                            [keyForTM_no]: parseInt(tm_no)
                         }
                     },
                     {

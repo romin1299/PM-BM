@@ -3,13 +3,15 @@ import Plot from "react-plotly.js";
 import { Row, Col, Container, Card } from "react-bootstrap";
 
 import ManHourMonthWiseGraph from "./PmTimeMonitoringCharts/ManHourMonthWiseGraph";
+import YearDropDown from "../../../Dashboard/DashboardComponent/YearDropDown";
+import currentYear from "../../../Dashboard/DashboardComponent/currentYear";
 
 const TotalTimeManHourMonthWise = ({ context }) => {
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
   const [graphData, setGraphData] = useState([]);
-
+  const [selectedYear, setSelectedYear] = useState(currentYear);
   const postSectionToGetAllDataForTotalTimeManHoursMonthWise = async () => {
-    // setSubSection(undefined);
+    setSelectedLine("");
     try {
       const res = await fetch(
         "/postSectionToGetAllDataForTotalTimeManHoursMonthWise",
@@ -20,6 +22,7 @@ const TotalTimeManHourMonthWise = ({ context }) => {
           },
           body: JSON.stringify({
             section: context.section_data,
+            selectedYear
           }),
         }
       );
@@ -50,6 +53,7 @@ const TotalTimeManHourMonthWise = ({ context }) => {
           },
           body: JSON.stringify({
             line: selectedLine,
+            selectedYear
           }),
         }
       );
@@ -68,10 +72,9 @@ const TotalTimeManHourMonthWise = ({ context }) => {
     }
   };
 
-
   useEffect(() => {
     postSectionToGetAllDataForTotalTimeManHoursMonthWise();
-  }, []);
+  }, [selectedYear]);
 
   const [selectedLine, setSelectedLine] = useState("");
 
@@ -160,7 +163,14 @@ const TotalTimeManHourMonthWise = ({ context }) => {
                 <h3>Total time Man-Hour (Month Wise)</h3>
               </Col>
             </Row>
-
+            <Row>
+              <Col sm={12} lg={5}>
+                <YearDropDown
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                />
+              </Col>
+            </Row>
             <Row className="p-2">
               <Col>
                 <div>
@@ -174,7 +184,9 @@ const TotalTimeManHourMonthWise = ({ context }) => {
                     value={selectedLine}
                     onChange={(e) => {
                       setSelectedLine(e.target.value);
-                      postPerticularLineToGetDataForTotalTimeManHours(e.target.value);
+                      postPerticularLineToGetDataForTotalTimeManHours(
+                        e.target.value
+                      );
                     }}
                   >
                     <option selected disabled value="">

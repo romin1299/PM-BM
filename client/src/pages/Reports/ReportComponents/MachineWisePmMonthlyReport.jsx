@@ -62,7 +62,8 @@ const MachineWisePmMonthlyReport = () => {
   let previousMonth =
     monthKeyArray[monthKeyArray.indexOf(selectedMonth) - 1] === undefined
       ? monthKeyArray.splice(-1)[0]
-      : monthKeyArray[monthKeyArray.indexOf(selectedMonth) - 1];
+      : 
+      monthKeyArray[monthKeyArray.indexOf(selectedMonth) - 1];
 
   // console.log(selectedMonth, previousMonth);
   const tableColumn1 = [

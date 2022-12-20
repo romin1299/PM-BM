@@ -178,7 +178,7 @@ function OpenAbnormalityTracking() {
   const actions = [
     (rowdata) => {
       return {
-        hidden: rowdata.PMuploadedImage === "",
+        hidden: rowdata.PMuploadedImage === "" || rowdata.PMuploadedImage === undefined,
         name: "download", // Added custom name property so we know which action to check for
         icon: () => (
           <button className="btn-reset">

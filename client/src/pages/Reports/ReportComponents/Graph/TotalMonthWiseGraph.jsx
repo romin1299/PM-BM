@@ -3,14 +3,17 @@ import Plot from "react-plotly.js";
 import { Row, Col, Container, Card } from "react-bootstrap";
 
 import MonthWiseGraph from "./PmTimeMonitoringCharts/MonthWiseGraph";
+import YearDropDown from "../../../Dashboard/DashboardComponent/YearDropDown";
+import currentYear from "../../../Dashboard/DashboardComponent/currentYear";
 
 const TotalMonthWiseGraph = ({ context }) => {
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
   const [selectedLine, setSelectedLine] = useState("");
   const [graphData, setGraphData] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const postSectionToGetAllDataForTotalTimeMonthWiseReport = async () => {
-    // setSubSection(undefined);
+    setSelectedLine("");
     try {
       const res = await fetch(
         "/postSectionToGetAllDataForTotalTimeMonthWiseReport",
@@ -21,6 +24,7 @@ const TotalMonthWiseGraph = ({ context }) => {
           },
           body: JSON.stringify({
             section: context.section_data,
+            selectedYear,
           }),
         }
       );
@@ -52,6 +56,7 @@ const TotalMonthWiseGraph = ({ context }) => {
           },
           body: JSON.stringify({
             line: selectedLine,
+            selectedYear,
           }),
         }
       );
@@ -72,11 +77,11 @@ const TotalMonthWiseGraph = ({ context }) => {
 
   useEffect(() => {
     postSectionToGetAllDataForTotalTimeMonthWiseReport();
-  }, []);
+  }, [selectedYear]);
 
   const functionForTotalData = () => {
     setSelectedLine("");
-    postSectionToGetAllDataForTotalTimeMonthWiseReport()
+    postSectionToGetAllDataForTotalTimeMonthWiseReport();
   };
 
   const y1 = graphData;
@@ -259,6 +264,14 @@ const TotalMonthWiseGraph = ({ context }) => {
               // style={{ backgroundColor: "white" }}
               >
                 <h3>Total time month wise</h3>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm={12} lg={5}>
+                <YearDropDown
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                />
               </Col>
             </Row>
             <Row className="p-2">

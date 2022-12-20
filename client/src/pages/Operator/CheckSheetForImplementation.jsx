@@ -230,7 +230,6 @@ function CheckSheet({
   let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
 
   let previousMonth = monthKeyArray[new Date().getMonth() - 1];
-
   let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
 
   let Data = {};
@@ -572,7 +571,7 @@ function CheckSheet({
           yearOfCheckSheet: machineAllData?.checkSheet_data?.current_year,
           monthForCompareSystemMonth,
           tableRowId,
-          previousMonth,
+          previousMonth: previousMonth ? previousMonth : "",
           cycleOfPerticularRow,
           skipCountForStatusUpdate,
           previousToPreviousMonth,

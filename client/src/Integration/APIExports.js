@@ -43,6 +43,10 @@ import updateMachine from "./MachineAPIs/updateMachine.js"
 
 import updateSelectedMachineCheckSheetTableRowData from "./PlanningPhase/updateSelectedMachineChecksheetTableRowData.js"
 
+// Financial year list 
+import fetchFinancialYears from "./AllFetchApis/fetchFinancialYears.js"
+
+
 export {
 
     //Common fetch APIS
@@ -56,7 +60,7 @@ export {
     newSubSection, updateSubSection, deleteSubSection,
     newCell, deleteCell, updateCell,
     newLine, updateLine, deleteLine,
-    updateMachine, deleteMachine,
+    updateMachine, deleteMachine, fetchFinancialYears,
 
     // planning 
 
