@@ -258,10 +258,10 @@ const CreationDashboardForPlant = () => {
                   editable={{
                     onRowAdd: (newRow) =>
                       new Promise((resolve, reject) => {
-                        const updatedRows = [
-                          ...sectionList.sectionsInfo,
-                          { user_id: "", ...newRow },
-                        ];
+                        // const updatedRows = [
+                        //   ...sectionList.sectionsInfo,
+                        //   { user_id: "", ...newRow },
+                        // ];
 
                         // postNewPlantData(newRow);
                         newSubSection(newRow, sections);
@@ -276,10 +276,10 @@ const CreationDashboardForPlant = () => {
 
                     onRowDelete: (selectedRow) =>
                       new Promise((resolve, reject) => {
-                        const index = selectedRow.tableData.id;
-                        console.log(index);
-                        const updatedRows = [...subSectionList.subSectionsInfo];
-                        updatedRows.splice(index, 1);
+                        // const index = selectedRow.tableData.id;
+                        // console.log(index);
+                        // const updatedRows = [...subSectionList.subSectionsInfo];
+                        // updatedRows.splice(index, 1);
 
                         //call the delete user function and pass the user data
                         // deleteUserInfo(selectedRow);
@@ -292,9 +292,9 @@ const CreationDashboardForPlant = () => {
 
                     onRowUpdate: (updatedRow, oldRow) =>
                       new Promise((resolve, reject) => {
-                        const index = oldRow.tableData.id;
-                        const updatedRows = [...subSectionList.subSectionsInfo];
-                        updatedRows[index] = updatedRow;
+                        // const index = oldRow.tableData.id;
+                        // const updatedRows = [...subSectionList.subSectionsInfo];
+                        // updatedRows[index] = updatedRow;
                         //call the update user function and pass the user data
                         // updateUserInfo(updatedRow);
                         updateSubSection(updatedRow, oldRow);
@@ -380,10 +380,10 @@ const CreationDashboardForPlant = () => {
 
                   onRowDelete: (selectedRow) =>
                     new Promise((resolve, reject) => {
-                      const index = selectedRow.tableData.id;
-                      console.log(index);
-                      const updatedRows = [...sectionList.sectionsInfo];
-                      updatedRows.splice(index, 1);
+                      // const index = selectedRow.tableData.id;
+                      // console.log(index);
+                      // const updatedRows = [...sectionList.sectionsInfo];
+                      // updatedRows.splice(index, 1);
 
                       //call the delete user function and pass the user data
                       // deleteUserInfo(selectedRow);
@@ -396,9 +396,9 @@ const CreationDashboardForPlant = () => {
 
                   onRowUpdate: (updatedRow, oldRow) =>
                     new Promise((resolve, reject) => {
-                      const index = oldRow.tableData.id;
-                      const updatedRows = [...sectionList.sectionsInfo];
-                      updatedRows[index] = updatedRow;
+                      // const index = oldRow.tableData.id;
+                      // const updatedRows = [...sectionList.sectionsInfo];
+                      // updatedRows[index] = updatedRow;
                       //call the update user function and pass the user data
                       // updateUserInfo(updatedRow);
                       updateSection(updatedRow, oldRow);
@@ -412,7 +412,7 @@ const CreationDashboardForPlant = () => {
                 options={{
                   showTitle: false,
                   paging: false,
-                  sorting: true,
+                  // sorting: true,
                   search: true,
                   filtering: false,
                   exportButton: true,

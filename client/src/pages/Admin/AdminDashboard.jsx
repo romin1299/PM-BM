@@ -282,17 +282,17 @@ function AdminDashboard() {
 
                 onRowDelete: (selectedRow) =>
                   new Promise((resolve, reject) => {
-                    const index = selectedRow.tableData.id;
-                    console.log(index);
-                    const updatedRows = [...tableData];
-                    updatedRows.splice(index, 1);
+                    // const index = selectedRow.tableData.id;
+                    // console.log(index);
+                    // const updatedRows = [...tableData];
+                    // updatedRows.splice(index, 1);
 
                     //call the delete user function and pass the user data
                     deleteUserInfo(selectedRow);
 
                     setTimeout(() => {
                       setRefKey2((refKey2) => refKey2 + 1);
-                      setTableData(updatedRows);
+                      // setTableData(updatedRows);
                       resolve();
                     }, 500);
                   }),

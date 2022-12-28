@@ -27,7 +27,8 @@ app.use(express.static(path.join(__dirname, 'images')));
 app.use(express.static(path.join(__dirname, 'build')));
 //for PM images
 app.use(express.static(path.join(__dirname, 'PMimages')));
-
+//for PM data-sheets
+app.use(express.static(path.join(__dirname, 'data_sheets')));
 
 // index file path
 app.get('/*', (req, res) => {

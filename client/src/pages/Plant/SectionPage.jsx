@@ -208,10 +208,10 @@ function SectionPage() {
 
             onRowDelete: (selectedRow) =>
               new Promise((resolve, reject) => {
-                const index = selectedRow.tableData.id;
-                console.log(index);
-                const updatedRows = [...tableData];
-                updatedRows.splice(index, 1);
+                // const index = selectedRow.tableData.id;
+                // console.log(index);
+                // const updatedRows = [...tableData];
+                // updatedRows.splice(index, 1);
 
                 //call the delete user function and pass the user data
                 // deleteUserInfo(selectedRow);

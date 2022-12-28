@@ -50,7 +50,7 @@ const AnnualPMSchedule = () => {
 
         postCellToGetLineList(data?.cellData?.[0]._id);
 
-        // let finalData = await data.machineData?.map((item) => item.line_names);
+        // let finalData = await data.machineData?.map((item) => item?.line_names);
 
         // console.log(finalData);
 
@@ -196,80 +196,92 @@ const AnnualPMSchedule = () => {
                   setSelectedYear={setSelectedYear}
                 />
               </Col>
-              <Col sm={12} lg={1}>
-                <span>Cell:</span>
+              <Col>
+                <Row className="p-2 ">
+                  <Col sm={12} lg={2}>
+                    <span>Cell:</span>
+                  </Col>
+                  <Col>
+                    <div>
+                      <select
+                        class="form-select form-select-sm"
+                        aria-label=".form-select-sm example"
+                        // style={{ width: "100%" }}
+                        id="standard-select-currency"
+                        name="selectedCell"
+                        value={
+                          selectedCell === ""
+                            ? allDataSectionWise?.cellData?.[0].cell_name
+                            : selectedCell
+                        }
+                        className="textField"
+                        onChange={(e) => {
+                          // console.log(e.target.value);
+                          setSelectedCell(e.target.value);
+                          postCellToGetLineList(e.target.value);
+                        }}
+                        // fullWidth
+                        select // label="Select"
+                        autoComplete="off"
+                        variant="standard"
+                      >
+                        <option selected disabled value="">
+                          Please select
+                        </option>
+                        {allDataSectionWise?.cellData?.map((option) => {
+                          return (
+                            <option value={option._id}>
+                              {option.cell_name}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                  </Col>
+                </Row>
               </Col>
-              <Col sm={12} lg={3}>
-                <div>
-                  <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    // style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="selectedCell"
-                    value={
-                      selectedCell === ""
-                        ? allDataSectionWise?.cellData?.[0].cell_name
-                        : selectedCell
-                    }
-                    className="textField"
-                    onChange={(e) => {
-                      // console.log(e.target.value);
-                      setSelectedCell(e.target.value);
-                      postCellToGetLineList(e.target.value);
-                    }}
-                    // fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {allDataSectionWise?.cellData?.map((option) => {
-                      return (
-                        <option value={option._id}>{option.cell_name}</option>
-                      );
-                    })}
-                  </select>
-                </div>
-              </Col>
-              <Col sm={12} lg={1}>
-                <span>Line:</span>
-              </Col>
-              <Col sm={12} lg={3}>
-                <div>
-                  <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    // style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="selectedPlant"
-                    value={
-                      selectedLine === undefined
-                        ? lineDropdown?.[0]?.line_name
-                        : selectedLine
-                    }
-                    className="textField"
-                    onChange={(e) => {
-                      setSelectedLine(e.target.value);
-                      postLineToGetMachineList(e.target.value);
-                    }}
-                    // fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {lineDropdown?.map((option) => {
-                      return (
-                        <option value={option._id}>{option.line_name}</option>
-                      );
-                    })}
-                  </select>
-                </div>
+              <Col>
+                <Row className="p-2 ">
+                  <Col sm={12} lg={2}>
+                    <span>Line:</span>
+                  </Col>
+                  <Col>
+                    <div>
+                      <select
+                        class="form-select form-select-sm"
+                        aria-label=".form-select-sm example"
+                        // style={{ width: "100%" }}
+                        id="standard-select-currency"
+                        name="selectedPlant"
+                        value={
+                          selectedLine === undefined
+                            ? lineDropdown?.[0]?.line_name
+                            : selectedLine
+                        }
+                        className="textField"
+                        onChange={(e) => {
+                          setSelectedLine(e.target.value);
+                          postLineToGetMachineList(e.target.value);
+                        }}
+                        // fullWidth
+                        select // label="Select"
+                        autoComplete="off"
+                        variant="standard"
+                      >
+                        <option selected disabled value="">
+                          Please select
+                        </option>
+                        {lineDropdown?.map((option) => {
+                          return (
+                            <option value={option._id}>
+                              {option.line_name}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                  </Col>
+                </Row>
               </Col>
 
               {/* <Col sm={12} lg={3}>
@@ -337,7 +349,7 @@ const AnnualPMSchedule = () => {
                               )
                             : allDataSectionWise?.cellData?.[0].cell_name}
                         </td>
-                        <td className={"td-padding"}></td>
+                        <td className={"td-padding"}>{selectedYear}</td>
                       </tr>
                     </thead>
                   </table>
@@ -360,7 +372,7 @@ const AnnualPMSchedule = () => {
                 </Col>
               </Row>
               <Row>
-                <Col>
+                <Col className="table-scrolling">
                   <table className="ar-table  pmSheetApprovalTableCol1">
                     <thead className="mt-5">
                       <tr>
@@ -372,7 +384,7 @@ const AnnualPMSchedule = () => {
                       {tableData.length > 0 ? (
                         tableData?.map(
                           (item, index, array) =>
-                            // console.log(item.PMStatus)
+                            // console.log(item?.checkSheet_data?.PMStatus)
 
                             index === 0 ? (
                               <tr className="td-padding">
@@ -381,29 +393,29 @@ const AnnualPMSchedule = () => {
                                   className="td-padding"
                                 >
                                   {" "}
-                                  {item.line_names.line_name}
+                                  {item?.line_names?.line_name}
                                 </td>
                                 <td className="td-padding">{index + 1}</td>
                                 <td className="td-padding">
-                                  {item.machine_name}
+                                  {item?.machine_name}
                                 </td>
                                 <td className="td-padding">
-                                  {item.machine_code}
+                                  {item?.machine_code}
                                 </td>
-                                {item.PMStatus
-                                  ? Object.values(item.PMStatus).map(
-                                      (item1) => (
-                                        <td className="td-padding">
-                                          {item1 === "Completed" ? (
-                                            <CircleIcon />
-                                          ) : item1 === "Current Plan" ? (
-                                            <PanoramaFishEyeIcon />
-                                          ) : (
-                                            ""
-                                          )}
-                                        </td>
-                                      )
-                                    )
+                                {item?.checkSheet_data?.PMStatus
+                                  ? Object.values(
+                                      item?.checkSheet_data?.PMStatus
+                                    ).map((item1) => (
+                                      <td className="td-padding">
+                                        {item1 === "Completed" ? (
+                                          <CircleIcon />
+                                        ) : item1 === "Current Plan" ? (
+                                          <PanoramaFishEyeIcon />
+                                        ) : (
+                                          ""
+                                        )}
+                                      </td>
+                                    ))
                                   : refArrayForTDMapping.map((index) => (
                                       <td className="td-padding"></td>
                                     ))}
@@ -412,25 +424,25 @@ const AnnualPMSchedule = () => {
                               <tr className="td-padding">
                                 <td className="td-padding">{index + 1}</td>
                                 <td className="td-padding">
-                                  {item.machine_name}
+                                  {item?.machine_name}
                                 </td>
                                 <td className="td-padding">
-                                  {item.machine_code}
+                                  {item?.machine_code}
                                 </td>
-                                {item.PMStatus
-                                  ? Object.values(item.PMStatus).map(
-                                      (item1) => (
-                                        <td className="td-padding">
-                                          {item1 === "Completed" ? (
-                                            <CircleIcon />
-                                          ) : item1 === "Current Plan" ? (
-                                            <PanoramaFishEyeIcon />
-                                          ) : (
-                                            ""
-                                          )}
-                                        </td>
-                                      )
-                                    )
+                                {item?.checkSheet_data?.PMStatus
+                                  ? Object.values(
+                                      item?.checkSheet_data?.PMStatus
+                                    ).map((item1) => (
+                                      <td className="td-padding">
+                                        {item1 === "Completed" ? (
+                                          <CircleIcon />
+                                        ) : item1 === "Current Plan" ? (
+                                          <PanoramaFishEyeIcon />
+                                        ) : (
+                                          ""
+                                        )}
+                                      </td>
+                                    ))
                                   : refArrayForTDMapping.map((index) => (
                                       <td className="td-padding"></td>
                                     ))}
@@ -440,7 +452,7 @@ const AnnualPMSchedule = () => {
 
                           // <tr>
                           //   <td className="td-padding">
-                          //     {item.line_names.line_name}
+                          //     {item?.line_names.line_name}
                           //   </td>
                           // </tr>
                         )

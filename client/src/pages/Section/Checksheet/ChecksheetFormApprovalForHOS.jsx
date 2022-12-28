@@ -30,12 +30,12 @@ function ChecksheetFormApprovalForHOS() {
   });
 
   let tableData =
-  selectedMachineCheckSheetData.state.selectedRowForViewForm.checkSheet_data
-    .checkSheet;
+  selectedMachineCheckSheetData.state?.selectedRowForViewForm?.checkSheet_data
+    ?.checkSheet;
 // console.log(tableData);
 
 let machineAllData =
-  selectedMachineCheckSheetData.state.selectedRowForViewForm;
+  selectedMachineCheckSheetData.state?.selectedRowForViewForm;
 
 
   let columns = [
@@ -381,16 +381,16 @@ let machineAllData =
   // console.log(tableData);
   useEffect(() => {
     getDataModelled();
-    for (let i = 0; i < tableData.length; i++) {
-      let output = "inspection_child_name" in tableData[i];
+    // for (let i = 0; i < tableData.length; i++) {
+    //   let output = "inspection_child_name" in tableData[i];
 
-      console.log(output);
+    //   console.log(output);
 
-      if (output === true) {
-        setRefKey(true);
-        break;
-      }
-    }
+    //   if (output === true) {
+    //     setRefKey(true);
+    //     break;
+    //   }
+    // }
   }, []);
 
   //get the date and time
@@ -423,7 +423,7 @@ let machineAllData =
           request: formik.values.request,
           rejected_remarks: formik.values.rejected_remarks,
           selected_machine_data:
-            selectedMachineCheckSheetData.state.selectedRowForViewForm,
+            selectedMachineCheckSheetData.state?.selectedRowForViewForm,
           // approved_by_TL: context.tm_name,
           approved_by_HOS: context.tm_name,
           // approved_by_PRD_TL: context.tm_name,
@@ -474,7 +474,7 @@ let machineAllData =
   //         request: formik.values.request,
   //         rejected_remarks: formik.values.rejected_remarks,
   //         selected_machine_data:
-  //           selectedMachineCheckSheetData.state.selectedRowForViewForm,
+  //           selectedMachineCheckSheetData.state?.selectedRowForViewForm,
   //       }),
   //     });
   //     const data = await res.json();
@@ -492,7 +492,7 @@ let machineAllData =
   //   }
   // };
 
-  // console.log(selectedMachineCheckSheetData.state.selectedRowForViewForm);
+  // console.log(selectedMachineCheckSheetData.state?.selectedRowForViewForm);
   return (
     <>
       {stateForOpeningSummeryPopups}
@@ -641,12 +641,12 @@ let machineAllData =
                       // colSpan={2}
                       //  rowSpan={5}
                     >
-                      {machineAllData.checkSheet_data.approved_by_PRD_TL[
-                        machineAllData.checkSheet_data.approved_by_PRD_TL.length - 1
+                      {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                        machineAllData?.checkSheet_data?.approved_by_PRD_TL.length - 1
                       ]
                         ? `${
-                            machineAllData.checkSheet_data.approved_by_PRD_TL[
-                              machineAllData.checkSheet_data.approved_by_PRD_TL.length - 1
+                            machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                              machineAllData?.checkSheet_data?.approved_by_PRD_TL.length - 1
                             ]
                           }`
                         : ""}
@@ -656,12 +656,12 @@ let machineAllData =
                       // colSpan={2}
                       //  rowSpan={5}
                     >
-                      {machineAllData.checkSheet_data.plan_prepared_tm_name[
-                        machineAllData.checkSheet_data.plan_prepared_tm_name.length - 1
+                      {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
+                        machineAllData?.checkSheet_data?.plan_prepared_tm_name.length - 1
                       ]
                         ? `${
-                            machineAllData.checkSheet_data.plan_prepared_tm_name[
-                              machineAllData.checkSheet_data.plan_prepared_tm_name.length - 1
+                            machineAllData?.checkSheet_data?.plan_prepared_tm_name[
+                              machineAllData?.checkSheet_data?.plan_prepared_tm_name.length - 1
                             ]
                           }`
                         : ""}
@@ -736,9 +736,9 @@ let machineAllData =
                     <br />
                     (MTD TL)
                   </th>
-                  {machineAllData.checkSheet_data.implementation_approved_by_MTD_TL
+                  {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_TL
                       ? Object.values(
-                          machineAllData.checkSheet_data.implementation_approved_by_MTD_TL
+                          machineAllData?.checkSheet_data?.implementation_approved_by_MTD_TL
                         ).map((index) => (
                           <td className="ar-table-col1">{index[(index.length) - 1]}</td>
                         ))
@@ -748,31 +748,31 @@ let machineAllData =
                 </tr>
                 <tr>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
-                  {machineAllData.checkSheet_data.approved_by_HOS[
-                        machineAllData.checkSheet_data.approved_by_HOS.length - 1
+                  {machineAllData?.checkSheet_data?.approved_by_HOS[
+                        machineAllData?.checkSheet_data?.approved_by_HOS.length - 1
                       ]
-                        ? machineAllData.checkSheet_data.approved_by_HOS[
-                            machineAllData.checkSheet_data.approved_by_HOS.length - 1
+                        ? machineAllData?.checkSheet_data?.approved_by_HOS[
+                            machineAllData?.checkSheet_data?.approved_by_HOS.length - 1
                           ]
                         : ""}
                     <br />
 
-                    {machineAllData.checkSheet_data.approved_by_TL[
-                        machineAllData.checkSheet_data.approved_by_TL.length - 1
+                    {machineAllData?.checkSheet_data?.approved_by_TL[
+                        machineAllData?.checkSheet_data?.approved_by_TL.length - 1
                       ]
                         ? `,${
-                            machineAllData.checkSheet_data.approved_by_TL[
-                              machineAllData.checkSheet_data.approved_by_TL.length - 1
+                            machineAllData?.checkSheet_data?.approved_by_TL[
+                              machineAllData?.checkSheet_data?.approved_by_TL.length - 1
                             ]
                           }`
                         : ""}
                   </th>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
-                  {machineAllData.checkSheet_data.sender_tm_name[
-                        machineAllData.checkSheet_data.sender_tm_name.length - 1
+                  {machineAllData?.checkSheet_data?.sender_tm_name[
+                        machineAllData?.checkSheet_data?.sender_tm_name.length - 1
                       ]
-                        ? machineAllData.checkSheet_data.sender_tm_name[
-                            machineAllData.checkSheet_data.sender_tm_name.length - 1
+                        ? machineAllData?.checkSheet_data?.sender_tm_name[
+                            machineAllData?.checkSheet_data?.sender_tm_name.length - 1
                           ]
                         : ""}
                   </th>
@@ -781,9 +781,9 @@ let machineAllData =
                     <br />
                     (MTD HOS)
                   </th>
-                  {machineAllData.checkSheet_data.implementation_approved_by_MTD_HOS
+                  {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOS
                       ? Object.values(
-                          machineAllData.checkSheet_data.implementation_approved_by_MTD_HOS
+                          machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOS
                         ).map((index) => (
                           <td className="ar-table-col1">{index[(index.length) - 1]}</td>
                         ))
@@ -843,7 +843,7 @@ let machineAllData =
                 {newTableData.map((rData) => (
                   <Rows
                     rData={rData}
-                    checkSheet_status={machineAllData.checkSheet_data.checksheet_status}
+                    checkSheet_status={machineAllData?.checkSheet_data?.checksheet_status}
                   />
                 ))}
                 <tr>
@@ -853,8 +853,8 @@ let machineAllData =
                     <br />
                     (MTD TM's)
                   </th>
-                  {machineAllData.checkSheet_data.PMworkedTMName
-                    ? Object.values(machineAllData.checkSheet_data.PMworkedTMName).map(
+                  {machineAllData?.checkSheet_data?.PMworkedTMName
+                    ? Object.values(machineAllData?.checkSheet_data?.PMworkedTMName).map(
                         (index) => (
                           <td className="ar-table-col1">{index.join(" ,")}</td>
                         )
@@ -870,9 +870,9 @@ let machineAllData =
                     <br />
                     (By PRD TL)
                   </th>
-                  {machineAllData.checkSheet_data.implementation_approved_by_PRD_TL
+                  {machineAllData?.checkSheet_data?.implementation_approved_by_PRD_TL
                     ? Object.values(
-                        machineAllData.checkSheet_data.implementation_approved_by_PRD_TL
+                        machineAllData?.checkSheet_data?.implementation_approved_by_PRD_TL
                       ).map((index) => (
                         <td className="ar-table-col1">{index[(index.length) - 1]}</td>
                       ))

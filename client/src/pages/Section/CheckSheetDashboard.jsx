@@ -13,6 +13,11 @@ import ChecksheetCreationDashboard from "./Checksheet/ChecksheetCreationDashboar
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import ViewChecksheet from "./Checksheet/ViewChecksheet";
 import { Row, Col, Container } from "react-bootstrap";
+import EditIcon from "@mui/icons-material/Edit";
+import YearDropDown from "../Dashboard/DashboardComponent/YearDropDown";
+import currentYear from "../Dashboard/DashboardComponent/currentYear";
+import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
+import NotFound from "../Reports/ReportComponents/NotFound";
 
 const CheckSheetDashboard = () => {
   const context = useContext(RoutingContext);
@@ -22,18 +27,15 @@ const CheckSheetDashboard = () => {
   const [refKey, setRefKey] = useState(0);
   const navigate = useNavigate();
 
-  let current_year =
-    new Date().getMonth() <= 3
-      ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
-      : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [allDataSectionWise, setAllDataSectionWise] = useState([]);
+  const [selectedCell, setSelectedCell] = useState("");
+  const [lineDropdown, setLineDropdown] = useState([]);
+  const [selectedLine, setSelectedLine] = useState("");
+  const [loadingAnimationState, setLoadingAnimationState] = useState(
+    <LoadingAnimation />
+  );
 
-  console.log(current_year);
-
-  const keyArrayForYear = ["2021-2022", "2022-2023", "2023-2024", "2024-2025"];
-
-  const [selectedYear, setSelectedYear] = useState(current_year);
-
-  // console.log(context.section_data);
   const postSectionToGetAllData = async (selectedSection) => {
     // setSubSection(undefined);
     try {
@@ -52,16 +54,68 @@ const CheckSheetDashboard = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        // window.alert(data.abcd);
-        // console.log("Data post");
-        // console.log(data);
+        setAllDataSectionWise(data);
         setLineData(data.lineData);
         setTableData(data.machineLastData);
+        setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
       console.log(error);
     }
   };
+
+  const postCellToGetLineList = async (selectedCell) => {
+    setSelectedLine("");
+    try {
+      const res = await fetch("/postCellToGetLineListForReport", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cell: selectedCell,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // window.alert(data.abcd);
+        setLineDropdown(data.lineInfo);
+        setLoadingAnimationState(<NotFound />);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const postLineToGetMachineList = async (selectedLine) => {
+    // console.log(selectedLine);
+    try {
+      const res = await fetch("/postLineToGetMachineListForReportDashboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          line: selectedLine,
+          selectedYear,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        setTableData(data.machineInfo);
+        setLoadingAnimationState(<NotFound />);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // console.log(tableData);
   const deleteCheckSheet = async (selectedRow) => {
     try {
@@ -130,59 +184,10 @@ const CheckSheetDashboard = () => {
       width: "20%",
       sorting: false,
     },
-    // {
-    //     title: "Machine Seq",
-    //     field: "machine_sequence",
-    //     editable: "false",
-    //     align: "center",
-    //   },
-
-    // {
-    //   title: "Cell Seq",
-    //   field: "line_names.cell_names.cell_sequence",
-    //   align: "center",
-    // },
-
-    // {
-    //   title: "Line Seq",
-    //   field: "line_names.line_sequence",
-    //   align: "center",
-    // },
-
-    // {
-    //   title: "Installation Date",
-    //   field: "installation_date",
-    //   editable: "false",
-    //   align: "center",
-    // },
-    // {
-    //   title: "Manufacturing Date",
-    //   field: "manufacturingDate",
-    //   editable: "false",
-    //   align: "center",
-    // },
-    // {
-    //   title: "Maker Name",
-    //   field: "maker_name",
-    //   align: "center",
-    // },
-    // {
-    //   title: "Maker Sr.No.",
-    //   field: "maker_sr_no",
-    //   align: "center",
-    // },
-
-    // {
-    //   title: "Maker Sr.No.",
-    //   render: (client) => {
-    //     return `${client.machine_code} ${client.machine_name}`;
-    //   },
-    //   align: "center",
-    // },
   ];
 
   const actions =
-    current_year === selectedYear
+    currentYear === selectedYear
       ? [
           (rowData) => {
             return {
@@ -218,87 +223,120 @@ const CheckSheetDashboard = () => {
             };
           },
 
-    (rowData) => {
-      return {
-        hidden:
-          rowData.checkSheet_data != null
-            ? rowData.checkSheet_data.checksheet_status === "Preparation" ||
-              rowData.checkSheet_data.checksheet_status === "Implementation" ||
-              rowData.checkSheet_data.checksheet_status === undefined
-            : rowData.checkSheet_data === undefined ||
-              rowData.checkSheet_data === null,
-        icon: () => (
-          <button className="btn-warning">
-            {rowData.checkSheet_data != null
-              ? rowData.checkSheet_data.checkSheet.map((key) => {
-                  if ("start_month" in key) {
-                    if (rowData.checkSheet_data.assign_PRD_TL.length > 0) {
-                      return "Planning Under Approval";
-                    } else {
-                      return "Under-Planning";
-                    }
-                  } else {
-                    return "Planning";
-                  }
-                })[0]
-              : ""}
-          </button>
-        ),
-        // tooltip: <h1>I am a tooltip</h1>,
-        onClick: (event, selectedRow) => {
-          navigate("/planningPhaseTable", {
-            state: { selectedRow: selectedRow },
-          });
-        },
-        disabled: false, // Set disabled to false by default for all actions
-        position: "row",
-      };
-    },
-    {
-      icon: () => <button className="btn-primary">View</button>,
-      // tooltip: <h1>I am a tooltip</h1>,
-      onClick: (event, selectedRow) => {
-        navigate("/viewCheckSheet", {
-          state: { selectedRowForViewForm: selectedRow },
-        });
-      },
-      disabled: false, // Set disabled to false by default for all actions
-      position: "row",
-    },
-    (rowData) => {
-      return {
-        hidden:
-          rowData.checkSheet_data === undefined ||
-          rowData.checkSheet_data === null,
+          (rowData) => {
+            return {
+              hidden:
+                rowData.checkSheet_data != null
+                  ? rowData.checkSheet_data.checksheet_status ===
+                      "Preparation" ||
+                    rowData.checkSheet_data.checksheet_status ===
+                      "Implementation" ||
+                    rowData.checkSheet_data.checksheet_status === undefined
+                  : rowData.checkSheet_data === undefined ||
+                    rowData.checkSheet_data === null,
+              icon: () => (
+                <button className="btn-warning">
+                  {rowData.checkSheet_data != null
+                    ? rowData.checkSheet_data.checkSheet.map((key) => {
+                        if ("start_month" in key) {
+                          if (
+                            rowData.checkSheet_data.assign_PRD_TL.length > 0
+                          ) {
+                            return "Planning Under Approval";
+                          } else {
+                            return "Under-Planning";
+                          }
+                        } else {
+                          return "Planning";
+                        }
+                      })[0]
+                    : ""}
+                </button>
+              ),
+              // tooltip: <h1>I am a tooltip</h1>,
+              onClick: (event, selectedRow) => {
+                navigate("/planningPhaseTable", {
+                  state: { selectedRow: selectedRow },
+                });
+              },
+              disabled: false, // Set disabled to false by default for all actions
+              position: "row",
+            };
+          },
+          {
+            icon: () => <button className="btn-primary">View</button>,
+            // tooltip: <h1>I am a tooltip</h1>,
+            onClick: (event, selectedRow) => {
+              navigate("/viewCheckSheet", {
+                state: { selectedRowForViewForm: selectedRow },
+              });
+            },
+            disabled: false, // Set disabled to false by default for all actions
+            position: "row",
+          },
+          (rowData) => {
+            return {
+              hidden:
+                rowData.checkSheet_data === undefined ||
+                rowData.checkSheet_data === null,
 
-        icon: () => (
-          <button className="btn-delete">
-            <DeleteForeverIcon />
-          </button>
-        ),
-        // tooltip: <h1>I am a tooltip</h1>,
-        onClick: (event, selectedRow) => {
-          deleteCheckSheet(selectedRow);
-        },
-        disabled: false, // Set disabled to false by default for all actions
-        position: "row",
-      };
-    },
-  ]: [
-    {
-      icon: () => <button className="btn-primary">View</button>,
-      // tooltip: <h1>I am a tooltip</h1>,
-      onClick: (event, selectedRow) => {
-        navigate("/viewCheckSheet", {
-          state: { selectedRowForViewForm: selectedRow },
-        });
-      },
-      disabled: false, // Set disabled to false by default for all actions
-      position: "row",
-    },
-  ];
+              icon: () => (
+                <button className="btn-delete">
+                  <DeleteForeverIcon />
+                </button>
+              ),
+              // tooltip: <h1>I am a tooltip</h1>,
+              onClick: (event, selectedRow) => {
+                deleteCheckSheet(selectedRow);
+              },
+              disabled: false, // Set disabled to false by default for all actions
+              position: "row",
+            };
+          },
+          (rowData) => {
+            return {
+              hidden:
+                rowData.checkSheet_data != null
+                  ? rowData.checkSheet_data.checksheet_status ===
+                      "Preparation" ||
+                    rowData.checkSheet_data.checksheet_status === "Planning" ||
+                    rowData.checkSheet_data.checksheet_status === undefined
+                  : rowData.checkSheet_data === undefined ||
+                    rowData.checkSheet_data === null,
+              icon: () => (
+                <button className="btn-warning">
+                  <EditIcon />
+                </button>
+              ),
+              // tooltip: <h1>I am a tooltip</h1>,
+              onClick: (event, selectedRow) => {
+                navigate("/checksheetCreationDashboard", {
+                  state: { selectedRow: selectedRow, lineData: lineData },
+                });
+              },
+              disabled: false, // Set disabled to false by default for all actions
+              position: "row",
+            };
+          },
+        ]
+      : [
+          {
+            icon: () => <button className="btn-primary">View</button>,
+            // tooltip: <h1>I am a tooltip</h1>,
+            onClick: (event, selectedRow) => {
+              navigate("/viewCheckSheet", {
+                state: { selectedRowForViewForm: selectedRow },
+              });
+            },
+            disabled: false, // Set disabled to false by default for all actions
+            position: "row",
+          },
+        ];
 
   // console.log(tableData);
+  useEffect(() => {
+    setLoadingAnimationState(<LoadingAnimation />);
+  }, [selectedYear]);
 
   return (
     <>
@@ -307,139 +345,205 @@ const CheckSheetDashboard = () => {
           <h4 style={{ padding: "1rem 0 0 1rem" }}>Checksheet Dashboard</h4>
 
           <Container fluid>
-            <Row className="pt-2 ">
-              <Col sm={12} lg={3}>
-                <span>Year:</span>
+            <Row>
+              <Col>
+                <YearDropDown
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                />
               </Col>
-              <Col sm={12} lg={3}>
-                <div>
-                  <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="selectedPlant"
-                    value={selectedYear}
-                    className="textField"
-                    onChange={(e) => {
-                      setSelectedYear(e.target.value);
-                    }}
-                    fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {keyArrayForYear?.map((option) => {
-                      return <option value={option}>{option}</option>;
-                    })}
-                  </select>
-                </div>
+              <Col>
+                <Row className="p-2 ">
+                  <Col sm={12} lg={3}>
+                    <span>Cell:</span>
+                  </Col>
+                  <Col>
+                    <div>
+                      <select
+                        class="form-select form-select-sm"
+                        aria-label=".form-select-sm example"
+                        // style={{ width: "100%" }}
+                        id="standard-select-currency"
+                        name="selectedCell"
+                        value={selectedCell}
+                        className="textField"
+                        onChange={(e) => {
+                          // console.log(e.target.value);
+                          setSelectedCell(e.target.value);
+                          postCellToGetLineList(e.target.value);
+                          setLoadingAnimationState(<LoadingAnimation />);
+                        }}
+                        // fullWidth
+                        select // label="Select"
+                        autoComplete="off"
+                        variant="standard"
+                      >
+                        <option selected disabled value="">
+                          Please select
+                        </option>
+                        {allDataSectionWise?.cellData?.map((option) => {
+                          return (
+                            <option value={option._id}>
+                              {option.cell_name}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                  </Col>
+                </Row>
+              </Col>
+              <Col>
+                <Row className="p-2 ">
+                  <Col sm={12} lg={3}>
+                    <span>Line:</span>
+                  </Col>
+                  <Col>
+                    <div>
+                      <select
+                        class="form-select form-select-sm"
+                        aria-label=".form-select-sm example"
+                        // style={{ width: "100%" }}
+                        id="standard-select-currency"
+                        name="selectedPlant"
+                        value={selectedLine}
+                        className="textField"
+                        onChange={(e) => {
+                          setSelectedLine(e.target.value);
+                          postLineToGetMachineList(e.target.value);
+                          setLoadingAnimationState(<LoadingAnimation />);
+                        }}
+                        // fullWidth
+                        select // label="Select"
+                        autoComplete="off"
+                        variant="standard"
+                      >
+                        <option selected disabled value="">
+                          Please select
+                        </option>
+                        {lineDropdown?.map((option) => {
+                          return (
+                            <option value={option._id}>
+                              {option.line_name}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                  </Col>
+                </Row>
               </Col>
             </Row>
           </Container>
-          <div style={{ padding: "1rem" }}>
-            <MaterialTable
-              localization={{
-                header: {
-                  actions: "Actions",
-                },
-                // toolbar: {
-                //   exportCSVName: "Export some Excel format",
-                //   exportPDFName: "Export as pdf!!"
-                // }
-              }}
-              actions={actions}
-              icons={tableIcons}
-              columns={machineHeader}
-              data={tableData}
-              // title="User Management"
-              // tableRef={this.tableRef.current.onQueryChange()}
+          {tableData?.length > 0 ? (
+            <div style={{ padding: "1rem" }}>
+              <MaterialTable
+                localization={{
+                  header: {
+                    actions: "Actions",
+                  },
+                  // toolbar: {
+                  //   exportCSVName: "Export some Excel format",
+                  //   exportPDFName: "Export as pdf!!"
+                  // }
+                }}
+                actions={actions}
+                icons={tableIcons}
+                columns={machineHeader}
+                data={tableData}
+                // title="User Management"
+                // tableRef={this.tableRef.current.onQueryChange()}
 
-              editable={
-                {
-                  // onRowAdd: (newRow) =>
-                  //   new Promise((resolve, reject) => {
-                  //     const updatedRows = [
-                  //       ...tableData,
-                  //       { user_id: "", ...newRow },
-                  //     ];
-                  //     // postNewPlantData(newRow);
-                  //     // newSection(newRow, context.plant_data);
-                  //     // setTimeout(() => {
-                  //     //   // settableData(updatedRows);
-                  //     //   setRefKey((refKey) => refKey + 1);
-                  //     //   resolve();
-                  //     // }, 500);
-                  //     //refreshPage();
-                  //   }),
-                  // onRowDelete: (selectedRow) =>
-                  //   new Promise((resolve, reject) => {
-                  //     const index = selectedRow.tableData.id;
-                  //     console.log(index);
-                  //     const updatedRows = [...tableData];
-                  //     updatedRows.splice(index, 1);
-                  //     //call the delete user function and pass the user data
-                  //     // // deleteUserInfo(selectedRow);
-                  //     // deleteSection(selectedRow);
-                  //     // setTimeout(() => {
-                  //     //   setRefKey((refKey) => refKey + 1);
-                  //     //   resolve();
-                  //     // }, 500);
-                  //   }),
-                  // onRowUpdate: (updatedRow, oldRow) =>
-                  //   new Promise((resolve, reject) => {
-                  //     const index = oldRow.tableData.id;
-                  //     const updatedRows = [...tableData];
-                  //     updatedRows[index] = updatedRow;
-                  //     //call the update user function and pass the user data
-                  //     // updateUserInfo(updatedRow);
-                  //     // updateSection(updatedRow, oldRow);
-                  //     // setTimeout(() => {
-                  //     //   setRefKey((refKey) => refKey + 1);
-                  //     //   resolve();
-                  //     // }, 500);
-                  //     //refreshPage();
-                  //   }),
+                editable={
+                  {
+                    // onRowAdd: (newRow) =>
+                    //   new Promise((resolve, reject) => {
+                    //     const updatedRows = [
+                    //       ...tableData,
+                    //       { user_id: "", ...newRow },
+                    //     ];
+                    //     // postNewPlantData(newRow);
+                    //     // newSection(newRow, context.plant_data);
+                    //     // setTimeout(() => {
+                    //     //   // settableData(updatedRows);
+                    //     //   setRefKey((refKey) => refKey + 1);
+                    //     //   resolve();
+                    //     // }, 500);
+                    //     //refreshPage();
+                    //   }),
+                    // onRowDelete: (selectedRow) =>
+                    //   new Promise((resolve, reject) => {
+                    //     const index = selectedRow.tableData.id;
+                    //     console.log(index);
+                    //     const updatedRows = [...tableData];
+                    //     updatedRows.splice(index, 1);
+                    //     //call the delete user function and pass the user data
+                    //     // // deleteUserInfo(selectedRow);
+                    //     // deleteSection(selectedRow);
+                    //     // setTimeout(() => {
+                    //     //   setRefKey((refKey) => refKey + 1);
+                    //     //   resolve();
+                    //     // }, 500);
+                    //   }),
+                    // onRowUpdate: (updatedRow, oldRow) =>
+                    //   new Promise((resolve, reject) => {
+                    //     const index = oldRow.tableData.id;
+                    //     const updatedRows = [...tableData];
+                    //     updatedRows[index] = updatedRow;
+                    //     //call the update user function and pass the user data
+                    //     // updateUserInfo(updatedRow);
+                    //     // updateSection(updatedRow, oldRow);
+                    //     // setTimeout(() => {
+                    //     //   setRefKey((refKey) => refKey + 1);
+                    //     //   resolve();
+                    //     // }, 500);
+                    //     //refreshPage();
+                    //   }),
+                  }
                 }
-              }
-              options={{
-                showTitle: false,
-                paging: false,
-                sorting: true,
-                search: true,
-                filtering: false,
-                exportButton: true,
-                exportAllData: true,
-                draggable: false,
-                actionsColumnIndex: -1,
-                pageSize: 10,
-                pageSizeOptions: false,
-                paginationType: "stepped",
-                addRowPosition: "first",
-                headerStyle: {
-                  position: "sticky",
-                  top: "0",
-                  fontWeight: "bold",
-                },
-                // maxBodyHeight: "60vh",
-                overflowY: "hidden",
-                rowStyle: {
-                  // fontStyle:'bold'
+                options={{
+                  showTitle: false,
+                  paging: false,
+                  sorting: true,
+                  search: true,
+                  filtering: false,
+                  exportButton: true,
+                  exportAllData: true,
+                  draggable: false,
+                  actionsColumnIndex: -1,
+                  pageSize: 10,
+                  pageSizeOptions: false,
+                  paginationType: "stepped",
+                  addRowPosition: "first",
+                  headerStyle: {
+                    position: "sticky",
+                    top: "0",
+                    fontWeight: "bold",
+                  },
+                  // maxBodyHeight: "60vh",
+                  overflowY: "hidden",
+                  rowStyle: {
+                    // fontStyle:'bold'
 
-                  boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                  // color:"rgba(255,255,255,0.8)",
-                  borderRadius: "5px",
-                  border: "1px solid rgba(255,255,255)",
-                  WebkitBackdropFilter: "blur( 2px )",
-                  background: "rgba(255,255,255,0.1)",
-                  backdropFilter: "blur(5px)",
-                },
-              }}
-            />
-          </div>
+                    boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                    // color:"rgba(255,255,255,0.8)",
+                    borderRadius: "5px",
+                    border: "1px solid rgba(255,255,255)",
+                    WebkitBackdropFilter: "blur( 2px )",
+                    background: "rgba(255,255,255,0.1)",
+                    backdropFilter: "blur(5px)",
+                  },
+                }}
+              />
+            </div>
+          ) : (
+            <div
+              className="container-fluid d-flex justify-content-center align-items-center p-5"
+              // style={{ height: "100vh" }}
+            >
+              {loadingAnimationState}
+            </div>
+          )}
         </div>
       </div>
     </>

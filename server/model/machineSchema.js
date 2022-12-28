@@ -327,6 +327,9 @@ const machineSchema = mongoose.Schema({
                     },
                 }
             ],
+            dataSheet: {
+                type: String
+            },
             checksheet_status: {
                 type: String
             },
@@ -376,7 +379,7 @@ const machineSchema = mongoose.Schema({
                 type: [String]
             },
             rejected_remarks: {
-                type: String
+                type: [String]
             },
             approved_by_TL: {
                 type: [String]

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { SummeryBarChart } from "./ChartsForSummeryDashboard/SummeryBarChart";
 import DoughnutChart from "./ChartsForSummeryDashboard/DoughnutChart";
-
+import NotFound from "../../Reports/ReportComponents/NotFound";
 import { Card, Button, ListGroup, Row, Col, Table } from "react-bootstrap";
+import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 
 const SummeryDashboardCard = ({ cartTitle, data }) => {
   const fetchAllSummeryData = async () => {
@@ -26,8 +27,8 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
     // fetchAllSummeryData();
   }, []);
 
-  let currentMonthCompletionData =
-    parseInt(data._id.replace(/[^\d.]/g, "")) % 100;
+  // let currentMonthCompletionData =
+  //   parseInt(data._id.replace(/[^\d.]/g, "")) % 100;
 
   // console.log(
   //   parseInt(data._id.replace(/[^\d.]/g, "")),
@@ -37,48 +38,48 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
   let TotalPlan = [
     {
       name: "Completed",
-      value: currentMonthCompletionData,
+      value: data?.chartData?.sumVariableForTotalCompleted,
+    },
+    {
+      name: "Ongoing",
+      value: data?.chartData?.sumVariableForTotalOngoing,
     },
     {
       name: "Pending",
-      value: 5,
-    },
-    {
-      name: "SomeValue",
-      value: 15, //SomeValue = Planned + Last Month Pending - Completed - Ongoing - Pending
+      value:
+        data?.chartData?.sumVariableForTotalSchedule +
+        data?.chartData?.sumVariableForTotalPreviousPending -
+        data?.chartData?.sumVariableForTotalCompleted -
+        data?.chartData?.sumVariableForTotalOngoing,
     },
   ];
   let TableData = [
     {
       name: "Planned",
       bgColor: "table-primary",
-      value: 100,
+      value: data?.chartData?.sumVariableForTotalSchedule,
     },
     {
       name: "Last Month Pending",
       bgColor: "table-danger",
-      value: 20,
+      value: data?.chartData?.sumVariableForTotalPreviousPending,
     },
     {
       name: "Completed",
       bgColor: "table-success",
-      value: currentMonthCompletionData,
+      value: data?.chartData?.sumVariableForTotalCompleted,
     },
     {
       name: "Ongoing",
       bgColor: "table-warning",
-      value: 15,
+      value: data?.chartData?.sumVariableForTotalOngoing,
     },
   ];
 
   let PendingStatusData = {
     name: "Pending",
     // bgColor: "table-danger",
-    value:
-      TableData[0].value +
-      TableData[1].value -
-      TableData[2].value -
-      TableData[3].value,
+    value: TableData[0].value - TableData[2].value - TableData[3].value,
   };
 
   // console.log(
@@ -117,59 +118,87 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
   //     value: 10,
   //   },
   // ];
+  // console.log(data)
 
   return (
     <Col className="col-lg-3 col-md-12 col-sm-12 d-flex justify-content-center d-flex align-items-center">
       <Card className="pt-0">
         <h4 className="text-dark">{cartTitle}</h4>
-        <Row className=" gy-4 ">
-          <Col sm className="d-flex justify-content-center align-items-center">
-            <div class="container1">
-              <DoughnutChart TableData={TotalPlan} />
-              <div class="centered">
-                <h2 className="text-dark">{currentMonthCompletionData}%</h2>
-              </div>
-            </div>
-          </Col>
-          <Col sm className="d-flex justify-content-center align-items-center">
-            <Table bordered hover size="sm">
-              <tbody>
-                {/* <tr>
+        {data?.chartData ? (
+          <div>
+            <Row className=" gy-4 ">
+              <Col
+                sm
+                className="d-flex justify-content-center align-items-center"
+              >
+                <div class="container1">
+                  <DoughnutChart TableData={TotalPlan} />
+                  <div class="centered">
+                    <h5 className="text-dark">
+                      {(
+                        (data?.chartData?.sumVariableForTotalCompleted * 100) /
+                        (data?.chartData?.sumVariableForTotalSchedule +
+                          data?.chartData?.sumVariableForTotalPreviousPending)
+                      ).toFixed(2)}
+                      %
+                    </h5>
+                  </div>
+                </div>
+              </Col>
+              <Col
+                sm
+                className="d-flex justify-content-center align-items-center"
+              >
+                <Table bordered hover size="sm">
+                  <tbody>
+                    {/* <tr>
                   <td>{TotalPlan.name}</td>
                   <td>{TotalPlan.value}</td>
                 </tr> */}
-                {TableData.map((item) => (
-                  <tr className={item.bgColor}>
-                    <td style={{ fontSize: "8px" }}>{item.name}</td>
+                    {TableData.map((item) => (
+                      <tr className={item.bgColor}>
+                        <td style={{ fontSize: "8px" }}>{item.name}</td>
 
-                    <td style={{ fontSize: "8px" }}>{item.value}</td>
-                  </tr>
-                ))}
-                <tr>
-                  <td style={{ fontSize: "8px" }}>{PendingStatusData.name}</td>
-                  <td style={{ fontSize: "8px" }}>{PendingStatusData.value}</td>
-                </tr>
-              </tbody>
-            </Table>
-          </Col>
-        </Row>
-        <Row className=" gy-4 mt-1">
-          <Col sm className="d-flex justify-content-center align-items-center ">
-            <h5
-              className="text-dark "
-              // style={{ background: "rgba(255, 159, 64, 1)" }}
-            >
-              Achievement Ratio
-            </h5>
-          </Col>
-        </Row>
-        <Row className=" gy-4">
-          <Col sm className="d-flex justify-content-center align-items-center">
-            <SummeryBarChart
-              currentMonthCompletionData={currentMonthCompletionData}
-            />
-          </Col>
-        </Row>
+                        <td style={{ fontSize: "8px" }}>{item.value}</td>
+                      </tr>
+                    ))}
+                    <tr>
+                      <td style={{ fontSize: "8px" }}>
+                        {PendingStatusData.name}
+                      </td>
+                      <td style={{ fontSize: "8px" }}>
+                        {PendingStatusData.value}
+                      </td>
+                    </tr>
+                  </tbody>
+                </Table>
+              </Col>
+            </Row>
+            <Row className=" gy-4 mt-1">
+              <Col
+                sm
+                className="d-flex justify-content-center align-items-center "
+              >
+                <h5
+                  className="text-dark "
+                  // style={{ background: "rgba(255, 159, 64, 1)" }}
+                >
+                  Achievement Ratio
+                </h5>
+              </Col>
+            </Row>
+            <Row className=" gy-4">
+              <Col
+                sm
+                className="d-flex justify-content-center align-items-center"
+              >
+                <SummeryBarChart annualChartData={data?.annualChartData} />
+              </Col>
+            </Row>
+          </div>
+        ) : (
+          <NotFound />
+        )}
       </Card>
     </Col>
   );

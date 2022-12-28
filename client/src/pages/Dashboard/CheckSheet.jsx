@@ -451,7 +451,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                               machineAllData?.checkSheet_data
                                 ?.approved_by_PRD_TL[
                                 machineAllData?.checkSheet_data
-                                  .approved_by_PRD_TL.length - 1
+                                  ?.approved_by_PRD_TL.length - 1
                               ]
                             }`
                           : ""}
@@ -468,9 +468,9 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         ]
                           ? `${
                               machineAllData?.checkSheet_data
-                                .plan_prepared_tm_name[
+                                ?.plan_prepared_tm_name[
                                 machineAllData?.checkSheet_data
-                                  .plan_prepared_tm_name.length - 1
+                                  ?.plan_prepared_tm_name.length - 1
                               ]
                             }`
                           : ""}
@@ -482,16 +482,15 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
             </Row>
           </Container>
         </div>
-        {machineAllData.checksheet_status === "Planning" ||
-        machineAllData.checksheet_status === "Implementation" ? (
+        {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
+        machineAllData?.checkSheet_data?.checksheet_status === "Implementation" ? (
           <div className="row mt-3">
             <div className="col-6"></div>
             <span className="col-6">
               <div className="row">
                 <div className="col-6"></div>
                 <div className="col-6" style={{ fontWeight: "bold" }}>
-                  Year: {new Date().getFullYear()}-
-                  {new Date().getFullYear() + 1}{" "}
+                  Year: {machineAllData?.checkSheet_data?.current_year}{" "}
                 </div>
               </div>
             </span>
@@ -513,14 +512,14 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                       >
                         Line:- {lineName}
                         <br />
-                        M/c No : {machineAllData.machine_code}
+                        M/c No : {machineAllData?.machine_code}
                       </th>
                       <th
                         className="ar-table-thead-header2 headerPD"
                         colSpan={2}
                         rowSpan={5}
                       >
-                        Machine Name: {machineAllData.machine_name}
+                        Machine Name: {machineAllData?.machine_name}
                       </th>
                       <th
                         className="ar-table-thead-header1 headerPD  align-items-center"

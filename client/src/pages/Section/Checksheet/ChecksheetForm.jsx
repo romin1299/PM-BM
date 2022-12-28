@@ -11,6 +11,9 @@ import { useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
+import axios from "axios";
+import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
+import FileDownload from "js-file-download";
 
 function CheckSheetForm() {
   const context = useContext(RoutingContext);
@@ -23,6 +26,8 @@ function CheckSheetForm() {
   const [PRDTLlist, setPRDTLlist] = useState([]);
   const [stateForOpeningSummeryPopups, setStateForOpeningSummeryPopups] =
     useState("");
+
+  const [dataSheetName, setDataSheetName] = useState([]);
 
   const navigate = useNavigate();
 
@@ -547,6 +552,68 @@ function CheckSheetForm() {
     }
   };
 
+  //upload tag name XLS and XLSX file
+  const uploadDataSheet = async (e) => {
+    e.preventDefault();
+
+    // console.log(emp_name);
+    const formData = new FormData();
+    formData.append("data_sheet", dataSheetName);
+    formData.append("machine_code", machineAllData.machine_code);
+    formData.append(
+      "yearOfCheckSheet",
+      machineAllData?.checkSheet_data?.current_year
+    );
+    // console.log(formData);
+
+    axios
+      .post("/uploadDataSheetFile", formData)
+      .then((res) => {
+        if (res.status === 422) {
+          window.alert("Please select file");
+        }
+        window.location.reload();
+      })
+      .catch((err) => {
+        window.alert("Only .xls, .xlsx, .csv format allowed!");
+        console.log(err);
+      });
+  };
+
+  const downloadUploadedDataSheet = async () => {
+    try {
+      let selectedFileName = machineAllData?.checkSheet_data?.dataSheet;
+      const res = await fetch("/postDataSheetFileName", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName: selectedFileName,
+        }),
+      });
+      const data = await res.json();
+
+      // console.log(data);
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        console.log("FileName Posted");
+        // let fileName1 = selectedFileName.substring(14);
+        // console.log(selectedFileName, "_________-", fileName1);
+        axios({
+          url: "/downloadDataSheetFile",
+          method: "GET",
+          responseType: "blob",
+        }).then((res) => {
+          FileDownload(res.data, selectedFileName);
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     getListForApproval();
     // checkFieldExistsInPlanningPhase();
@@ -580,38 +647,89 @@ function CheckSheetForm() {
         <Container fluid>
           <Row>
             <Col lg={6} md={6} sm={6}>
+              {/* <a style={{ color: "Black" }} href="/checkSheetDashboard"> */}
+              <button
+                className="mt-2"
+                onClick={() => navigate("/checkSheetDashboard")}
+                style={{
+                  border: "none",
+                  background: "white",
+                  borderRadius: 5,
+                }}
+              >
+                <ArrowBackIcon />
+              </button>
+              {/* </a> */}
+            </Col>
+            {tableData?.length > 0 ? (
+              <Col lg={6} md={6} sm={6}>
+                <Col>
+                  <span style={{ fontWeight: "bold" }}>
+                    Upload Data-sheet XLSx/CSV:
+                  </span>
+                  &nbsp;
+                  <form
+                    onSubmit={uploadDataSheet}
+                    // method="post"
+                    encType="multipart/form-data"
+                  >
+                    <input
+                      type="file"
+                      name="data_sheet"
+                      accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                      // value={userPhoto}
+                      onChange={(e) => setDataSheetName(e.target.files[0])}
+                    />
+                    &nbsp;
+                    <button type="submit" className="btn btn-primary">
+                      Upload
+                    </button>
+                  </form>
+                </Col>
+                <Col>
+                  {machineAllData?.checkSheet_data?.dataSheet ? (
+                    <div>
+                      <button
+                        className="btn-reset mt-4"
+                        onClick={downloadUploadedDataSheet}
+                      >
+                        <SimCardDownloadIcon /> Download DATA-SHEET
+                      </button>
+                    </div>
+                  ) : (
+                    ""
+                  )}
+                </Col>
+              </Col>
+            ) : (
+              ""
+            )}
+          </Row>
+          {/* <div className="row">
+            <div className=" mt-2 col-md-6 col-sm-6 col-lg-6"></div>
+            <div className=" mt-2 col-md-6 col-sm-6 col-lg-6"></div>
+          </div> */}
+          <Row>
+            <Col lg={6} md={6} sm={6}>
               {" "}
               <div>
-                <div className="col-2 mt-2">
-                  <a style={{ color: "Black" }} href="/checkSheetDashboard">
-                    <button
-                      style={{
-                        border: "none",
-                        background: "white",
-                        borderRadius: 5,
-                      }}
-                    >
-                      <ArrowBackIcon />
-                    </button>
-                  </a>
-                </div>
                 <div>
                   {tableData?.length > 0 ? (
-                    varForConditionChecking.tl_approval_status[
-                      varForConditionChecking.tl_approval_status.length - 1
+                    varForConditionChecking?.tl_approval_status[
+                      varForConditionChecking?.tl_approval_status.length - 1
                     ] === "Pending" ||
                     // varForConditionChecking.hos_approval_status[
                     //   varForConditionChecking.hos_approval_status.length - 1
                     // ] === "Pending" ||
-                    varForConditionChecking.hos_approval_status[
-                      varForConditionChecking.hos_approval_status.length - 1
+                    varForConditionChecking?.hos_approval_status[
+                      varForConditionChecking?.hos_approval_status.length - 1
                     ] === "Accepted" ? (
                       ""
-                    ) : varForConditionChecking.tl_approval_status[
-                        varForConditionChecking.tl_approval_status.length - 1
+                    ) : varForConditionChecking?.tl_approval_status[
+                        varForConditionChecking?.tl_approval_status.length - 1
                       ] === "Accepted" &&
-                      varForConditionChecking.hos_approval_status[
-                        varForConditionChecking.hos_approval_status.length - 1
+                      varForConditionChecking?.hos_approval_status[
+                        varForConditionChecking?.hos_approval_status.length - 1
                       ] === "Rejected" ? (
                       // varForConditionChecking.tl_approval_status[(varForConditionChecking.tl_approval_status).length - 1] === "Accepted" && varForConditionChecking.hos_approval_status[(varForConditionChecking.hos_approval_status).length - 1] === "Pending"
                       <form onSubmit={formik.handleSubmit}>
@@ -770,7 +888,7 @@ function CheckSheetForm() {
 
                           <div className="col-4 d-flex align-items-center">
                             {selectedMachineCheckSheetData.state
-                              .selectedRowForViewForm.status === "Pending" ? (
+                              ?.selectedRowForViewForm?.status === "Pending" ? (
                               ""
                             ) : (
                               <div>
@@ -782,8 +900,8 @@ function CheckSheetForm() {
                           </div>
                         </div>
                       </form>
-                    ) : varForConditionChecking.tl_approval_status[
-                        varForConditionChecking.tl_approval_status.length - 1
+                    ) : varForConditionChecking?.tl_approval_status[
+                        varForConditionChecking?.tl_approval_status.length - 1
                       ] === "Accepted" ? (
                       ""
                     ) : (
@@ -943,7 +1061,7 @@ function CheckSheetForm() {
 
                           <div className="col-4 d-flex align-items-center">
                             {selectedMachineCheckSheetData.state
-                              .selectedRowForViewForm.status === "Pending" ? (
+                              ?.selectedRowForViewForm?.status === "Pending" ? (
                               ""
                             ) : (
                               <div>
@@ -961,10 +1079,10 @@ function CheckSheetForm() {
                   )}
                 </div>
                 {tableData?.length > 0 &&
-                selectedMachineCheckSheetData.state.planningApprovalShow ===
+                selectedMachineCheckSheetData.state?.planningApprovalShow ===
                   1 ? (
-                  varForConditionChecking.prd_tl_approval_status[
-                    varForConditionChecking.prd_tl_approval_status.length - 1
+                  varForConditionChecking?.prd_tl_approval_status[
+                    varForConditionChecking?.prd_tl_approval_status.length - 1
                   ] === "Pending" ||
                   phaseStatus === "Implementation" ||
                   phaseStatus === "Preparation" ||
@@ -1118,7 +1236,7 @@ function CheckSheetForm() {
             <div className="row">
               <div className="col-6"></div>
               <div className="col-6" style={{ fontWeight: "bold" }}>
-                Year: {new Date().getFullYear()}-{new Date().getFullYear() + 1}{" "}
+                Year: {machineAllData?.checkSheet_data?.current_year}{" "}
               </div>
             </div>
           </span>
@@ -1388,7 +1506,7 @@ function CheckSheetForm() {
                       </tbody>
                     </table>
                   </div>
-                  {varForConditionChecking.prd_tl_approval_status ===
+                  {varForConditionChecking?.prd_tl_approval_status ===
                   "Pending" ? (
                     ""
                   ) : (

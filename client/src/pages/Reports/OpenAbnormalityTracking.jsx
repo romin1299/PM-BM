@@ -4,6 +4,9 @@ import MaterialTable from "@material-table/core";
 import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 import FileDownload from "js-file-download";
 import axios from "axios";
+import { Row, Col } from "react-bootstrap";
+import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
+import NotFound from "./ReportComponents/NotFound";
 
 function OpenAbnormalityTracking() {
   const context = useContext(RoutingContext);
@@ -11,6 +14,11 @@ function OpenAbnormalityTracking() {
   const [refKey1, setRefKey1] = useState(0);
   const [refKey2, setRefKey2] = useState(0);
   const [MTDTLandOperatorList, setMTDTLandOperatorList] = useState([]);
+  const [selectedLine, setSelectedLine] = useState("");
+  const [lineDropdown, setLineDropdown] = useState([]);
+  const [loadingAnimationState, setLoadingAnimationState] = useState(
+    <LoadingAnimation />
+  );
 
   const getDataForOpenAbnormalityTracking = async (selectedSection) => {
     // setSubSection(undefined);
@@ -22,6 +30,7 @@ function OpenAbnormalityTracking() {
         },
         body: JSON.stringify({
           section: selectedSection,
+          selectedLine,
         }),
       });
       const data = await res.json();
@@ -33,6 +42,8 @@ function OpenAbnormalityTracking() {
         // console.log("Data post");
         console.log(data);
         setTableData(data.onlyOpenAbnormalityWithAllMonths);
+        setLineDropdown(data.lineData);
+        setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
       console.log(error);
@@ -178,7 +189,9 @@ function OpenAbnormalityTracking() {
   const actions = [
     (rowdata) => {
       return {
-        hidden: rowdata.PMuploadedImage === "" || rowdata.PMuploadedImage === undefined,
+        hidden:
+          rowdata.PMuploadedImage === "" ||
+          rowdata.PMuploadedImage === undefined,
         name: "download", // Added custom name property so we know which action to check for
         icon: () => (
           <button className="btn-reset">
@@ -334,7 +347,7 @@ function OpenAbnormalityTracking() {
 
   useEffect(() => {
     getDataForOpenAbnormalityTracking(context.section_data);
-  }, [context.section_data, refKey1, refKey2]);
+  }, [context.section_data, refKey1, refKey2, selectedLine]);
 
   useEffect(() => {
     getListForApproval();
@@ -348,78 +361,119 @@ function OpenAbnormalityTracking() {
           <h4 style={{ padding: "1rem 0 0 1rem" }}>
             Open Abnormality Tracking
           </h4>
+          <Row className="mt-3">
+            <Col lg={1} md={1} sm={1}>
+              <span style={{ padding: "1rem 0 0 1rem" }}>Line:</span>
+            </Col>
+            <Col lg={3} md={3} sm={3}>
+              <div>
+                <select
+                  class="form-select form-select-sm"
+                  aria-label=".form-select-sm example"
+                  // style={{ width: "100%" }}
+                  id="standard-select-currency"
+                  name="selectedPlant"
+                  value={selectedLine}
+                  className="textField"
+                  onChange={(e) => {
+                    setSelectedLine(e.target.value);
+                    setLoadingAnimationState(<LoadingAnimation />);
+                    // postLineToGetMachineList(e.target.value);
+                  }}
+                  // fullWidth
+                  select // label="Select"
+                  autoComplete="off"
+                  variant="standard"
+                >
+                  <option selected disabled value="">
+                    Please select
+                  </option>
+                  {lineDropdown?.map((option) => {
+                    return (
+                      <option value={option._id}>{option.line_name}</option>
+                    );
+                  })}
+                </select>
+              </div>
+            </Col>
+          </Row>
+          {tableData?.length > 0 ? (
+            <div style={{ padding: "1rem" }}>
+              <MaterialTable
+                localization={{
+                  header: {
+                    actions: "Actions",
+                  },
+                  // toolbar: {
+                  //   exportCSVName: "Export some Excel format",
+                  //   exportPDFName: "Export as pdf!!"
+                  // }
+                }}
+                actions={actions}
+                columns={tableHeade}
+                data={tableData}
+                // title="User Management"
+                // tableRef={this.tableRef.current.onQueryChange()}
 
-          <div style={{ padding: "1rem" }}>
-            <MaterialTable
-              localization={{
-                header: {
-                  actions: "Actions",
-                },
-                // toolbar: {
-                //   exportCSVName: "Export some Excel format",
-                //   exportPDFName: "Export as pdf!!"
-                // }
-              }}
-              actions={actions}
-              columns={tableHeade}
-              data={tableData}
-              // title="User Management"
-              // tableRef={this.tableRef.current.onQueryChange()}
+                editable={{
+                  onRowUpdate: (updatedRow, oldRow) =>
+                    new Promise((resolve, reject) => {
+                      const index = oldRow.tableData.id;
+                      const updatedRows = [...tableData];
+                      updatedRows[index] = updatedRow;
+                      //call the update user function and pass the user data
+                      // updateUserInfo(updatedRow);
 
-              editable={{
-                onRowUpdate: (updatedRow, oldRow) =>
-                  new Promise((resolve, reject) => {
-                    const index = oldRow.tableData.id;
-                    const updatedRows = [...tableData];
-                    updatedRows[index] = updatedRow;
-                    //call the update user function and pass the user data
-                    // updateUserInfo(updatedRow);
+                      updateOpenPMData(updatedRow, oldRow);
+                      setTimeout(() => {
+                        setRefKey2((refKey2) => refKey2 + 1);
+                        resolve();
+                      }, 500);
+                      //refreshPage();
+                    }),
+                }}
+                options={{
+                  showTitle: false,
+                  paging: false,
+                  sorting: true,
+                  search: true,
+                  filtering: false,
+                  exportButton: true,
+                  exportAllData: true,
+                  draggable: false,
+                  actionsColumnIndex: -1,
+                  pageSize: 10,
+                  pageSizeOptions: false,
+                  paginationType: "stepped",
+                  addRowPosition: "first",
+                  headerStyle: {
+                    // color: "red",
+                    position: "sticky",
+                    top: "0",
+                    fontWeight: "bold",
+                    // backgroundColor: "#E6232A",
+                  },
 
-                    updateOpenPMData(updatedRow, oldRow);
-                    setTimeout(() => {
-                      setRefKey2((refKey2) => refKey2 + 1);
-                      resolve();
-                    }, 500);
-                    //refreshPage();
-                  }),
-              }}
-              options={{
-                showTitle: false,
-                paging: false,
-                sorting: true,
-                search: true,
-                filtering: false,
-                exportButton: true,
-                exportAllData: true,
-                draggable: false,
-                actionsColumnIndex: -1,
-                pageSize: 10,
-                pageSizeOptions: false,
-                paginationType: "stepped",
-                addRowPosition: "first",
-                headerStyle: {
-                  // color: "red",
-                  position: "sticky",
-                  top: "0",
-                  fontWeight: "bold",
-                  // backgroundColor: "#E6232A",
-                },
+                  maxBodyHeight: "70vh",
+                  rowStyle: {
+                    // fontStyle:'bold'
 
-                maxBodyHeight: "70vh",
-                rowStyle: {
-                  // fontStyle:'bold'
-
-                  boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                  // color:"rgba(255,255,255,0.8)",
-                  borderRadius: "5px",
-                  border: "1px solid rgba(255,255,255)",
-                  WebkitBackdropFilter: "blur( 2px )",
-                  background: "rgba(255,255,255,0.1)",
-                  backdropFilter: "blur(5px)",
-                },
-              }}
-            />
-          </div>
+                    boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                    // color:"rgba(255,255,255,0.8)",
+                    borderRadius: "5px",
+                    border: "1px solid rgba(255,255,255)",
+                    WebkitBackdropFilter: "blur( 2px )",
+                    background: "rgba(255,255,255,0.1)",
+                    backdropFilter: "blur(5px)",
+                  },
+                }}
+              />
+            </div>
+          ) : (
+            <div className="container-fluid d-flex justify-content-center align-items-center p-5">
+              {loadingAnimationState}
+            </div>
+          )}
         </div>
       </div>
     </>

@@ -1,4 +1,4 @@
-const postPlantToGetSectionInfo = async (selectedPlant) => {
+const postPlantToGetSectionInfo = async (selectedPlant, selectedYear, selectedMonth) => {
     try {
         const res = await fetch("/postPlantToGetSectionInfoForSummeryDashboard", {
             method: "POST",
@@ -7,6 +7,7 @@ const postPlantToGetSectionInfo = async (selectedPlant) => {
             },
             body: JSON.stringify({
                 plants: selectedPlant,
+                selectedYear, selectedMonth
             }),
         });
         const data = await res.json();

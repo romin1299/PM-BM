@@ -29,6 +29,7 @@ const LineWisePmMonthlyReport = () => {
 
   const [tableData, setTableData] = useState([]);
   const [csvData, setCsvData] = useState([]);
+  const [lineDropdown, setLineDropdown] = useState([]);
 
   const [loadingAnimationState, setLoadingAnimationState] = useState(
     <LoadingAnimation />
@@ -44,6 +45,7 @@ const LineWisePmMonthlyReport = () => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedLine, setSelectedLine] = useState("");
 
   const closePopup = () => {
     setMachineDetailPage("");
@@ -75,13 +77,18 @@ const LineWisePmMonthlyReport = () => {
           <button
             style={{
               backgroundColor: "transparent",
-              backgroundRepeat: "no-repeat",
               border: "none",
+              color: "#0A58CA",
+              textDecoration: "underline",
             }}
+            // className="box-shadow"
             onClick={() => {
+              let data = rowData.machine?.map((item) =>
+                item.machineStatus !== "" ? item : undefined
+              );
               setMachineDetailPage(
                 <LineWiseMachineDetailDashboard
-                  machineData={rowData.machine}
+                  machineData={data}
                   close={closePopup}
                 />
               );
@@ -108,12 +115,13 @@ const LineWisePmMonthlyReport = () => {
           <button
             style={{
               backgroundColor: "transparent",
-              backgroundRepeat: "no-repeat",
               border: "none",
+              color: "#0A58CA",
+              textDecoration: "underline",
             }}
             onClick={() => {
               let data = rowData.machine?.map((item) =>
-                item.machineStatus === "Ongoing" ? item : undefined
+                item.machineStatus === "" ? item : undefined
               );
               setMachineDetailPage(
                 <LineWiseMachineDetailDashboard
@@ -144,8 +152,9 @@ const LineWisePmMonthlyReport = () => {
           <button
             style={{
               backgroundColor: "transparent",
-              backgroundRepeat: "no-repeat",
               border: "none",
+              color: "#0A58CA",
+              textDecoration: "underline",
             }}
             onClick={() => {
               let data = rowData.machine?.map((item) =>
@@ -181,8 +190,9 @@ const LineWisePmMonthlyReport = () => {
           <button
             style={{
               backgroundColor: "transparent",
-              backgroundRepeat: "no-repeat",
               border: "none",
+              color: "#0A58CA",
+              textDecoration: "underline",
             }}
             onClick={async () => {
               let data = rowData.machine?.map((item) =>
@@ -221,6 +231,7 @@ const LineWisePmMonthlyReport = () => {
           section: context.section_data,
           selectedYear,
           month: selectedMonth,
+          selectedLine,
         }),
       });
       const data = await res.json();
@@ -229,8 +240,9 @@ const LineWisePmMonthlyReport = () => {
         console.log("Invalid");
       } else {
         // console.log(data.machineData2[0][0].line_names.line_name);
-        // console.log(data.allData);
+        // console.log(data.lineDataWithCounter);
         setTableData(data.lineDataWithCounter);
+        setLineDropdown(data.lineData);
       }
     } catch (error) {
       console.log(error);
@@ -255,7 +267,7 @@ const LineWisePmMonthlyReport = () => {
   const actions = [
     {
       // icon: () => <button className="addbutton">Add</button>,
-      icon: () => <button className="btn">PDF</button>,
+      icon: () => <button className="downloadPDF">PDF</button>,
 
       tooltip: "PDF",
       isFreeAction: true,
@@ -269,7 +281,7 @@ const LineWisePmMonthlyReport = () => {
         <CSVLink
           data={csvData}
           filename={`${selectedMonth}_PM_Status(Machine)${timeStamp()}`}
-          className="btn btn-primary"
+          className="downloadCSV"
           target="_blank"
         >
           CSV
@@ -319,7 +331,7 @@ const LineWisePmMonthlyReport = () => {
 
     tableData.map((item, index) => {
       totalPmSchedule = totalPmSchedule + item.total_pmSchedule;
-      completed = completed + item.total_completed;
+      completed = completed + item.total_completed + item.total_done_with_delay;
       lastMonthPending = lastMonthPending + item.total_Previous;
       setStatusSum({
         ...statusSum,
@@ -348,7 +360,7 @@ const LineWisePmMonthlyReport = () => {
     postSectionToGetAllDataForMainDashboard();
     // setRefKey((refKey) => refKey + 1);
     // console.log(refKey);
-  }, [selectedYear, selectedMonth]);
+  }, [selectedYear, selectedMonth, selectedLine]);
 
   useEffect(() => {
     // setTimeout(() => {
@@ -373,7 +385,7 @@ const LineWisePmMonthlyReport = () => {
     setTimeout(() => {
       setLoadingAnimationState(<NotFound />);
     }, 3000);
-  }, [selectedYear, selectedMonth]);
+  }, [selectedYear, selectedMonth, selectedLine]);
 
   return (
     <>
@@ -393,6 +405,45 @@ const LineWisePmMonthlyReport = () => {
                   selectedMonth={selectedMonth}
                   setSelectedMonth={setSelectedMonth}
                 />
+              </Col>
+              <Col>
+                <Row className="p-2 ">
+                  <Col sm={12} lg={1}>
+                    <span>Line:</span>
+                  </Col>
+                  <Col sm={12} lg={3}>
+                    <div>
+                      <select
+                        class="form-select form-select-sm"
+                        aria-label=".form-select-sm example"
+                        // style={{ width: "100%" }}
+                        id="standard-select-currency"
+                        name="selectedPlant"
+                        value={selectedLine}
+                        className="textField"
+                        onChange={(e) => {
+                          setSelectedLine(e.target.value);
+                          // postLineToGetMachineList(e.target.value);
+                        }}
+                        // fullWidth
+                        select // label="Select"
+                        autoComplete="off"
+                        variant="standard"
+                      >
+                        <option selected disabled value="">
+                          Please select
+                        </option>
+                        {lineDropdown?.map((option) => {
+                          return (
+                            <option value={option._id}>
+                              {option.line_name}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                  </Col>
+                </Row>
               </Col>
             </Row>
           </Container>

@@ -466,22 +466,17 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
     <>
       <div style={{ margin: "0.5rem" }}>
         <div className="pageCard">
-          <a
+          <button
+            onClick={() => navigate("/approvalDashboard")}
+            style={{
+              border: "none",
+              background: "white",
+              borderRadius: 5,
+            }}
             className="mb-2"
-            style={{ color: "Black" }}
-            href={"/approvalDashboard"}
           >
-            <button
-              style={{
-                border: "none",
-                background: "white",
-                borderRadius: 5,
-              }}
-              className="mb-2"
-            >
-              <ArrowBackIcon />
-            </button>
-          </a>
+            <ArrowBackIcon />
+          </button>
 
           <div class="row g-3">
             <div class="col-4">

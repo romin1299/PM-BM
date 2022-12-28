@@ -6,3 +6,15 @@
     overflow: hidden;
     outline: none;
 }
+
+.box-shadow{
+
+   
+
+    background: #FFFFFF ;
+
+box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1), -2px -2px 10px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(0, 0, 0, 0.1) ;
+
+border-radius: 20px;
+
+}

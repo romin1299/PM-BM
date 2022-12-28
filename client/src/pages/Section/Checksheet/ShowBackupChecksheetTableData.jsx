@@ -16,12 +16,14 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
+
 const ShowBackupChecksheetTableData = ({}) => {
   const [tableData, setTableData] = useState([]);
 
   const context = useContext(RoutingContext);
 
   const selectedMachineData = useLocation();
+  const navigate = useNavigate();
 
 
   const columns = [
@@ -116,14 +118,9 @@ const ShowBackupChecksheetTableData = ({}) => {
     <>
       <div style={{ margin: "0.5rem" }}>
         <div className="pageCard">
-          <a
-            className="mb-2"
-            style={{ color: "Black" }}
-            href={
-              "/backupDataOfCheckSheet"
-            }
-          >
+          
             <button
+            onClick={()=> navigate('/backupDataOfCheckSheet')}
               style={{
                 border: "none",
                 background: "white",
@@ -133,7 +130,7 @@ const ShowBackupChecksheetTableData = ({}) => {
             >
               <ArrowBackIcon />
             </button>
-          </a>
+          
 
           <div class="row g-3">
             <div class="col-4">

@@ -5,6 +5,11 @@ import { Row, Col, Container, Card } from "react-bootstrap";
 import TmWiseGraph from "./PmTimeMonitoringCharts/TmWiseGraph";
 import YearDropDown from "../../../Dashboard/DashboardComponent/YearDropDown";
 import currentYear from "../../../Dashboard/DashboardComponent/currentYear";
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+import LoadingAnimation from "../LoadingAnimation";
 
 const TotalTimeTMWise = ({ context }) => {
   const [selectedTM, setSelectedTM] = useState("");
@@ -12,6 +17,53 @@ const TotalTimeTMWise = ({ context }) => {
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
   const [graphData, setGraphData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [csvData, setCsvData] = useState([]);
+  const [loadingAnimationState, setLoadingAnimationState] = useState(
+    <LoadingAnimation />
+  );
+
+  const label = [
+    "",
+    "Apr",
+    "May",
+    "June",
+    "July",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+  ];
+
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+  const pdfDownloadForActualTimeTakenTMWise = () => {
+    const doc = new jsPDF();
+    doc.text(`${selectedYear}. Total Time Man Hour Wise`, 15, 10);
+
+    autoTable(doc, {
+      head: [csvData[0]],
+      body: [csvData[1]],
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`${selectedYear}_Total_time_man_hour_wise${timeStamp()}`);
+  };
 
   const postSectionToGetAllDataForTotalTimeManHoursMonthWise = async () => {
     setSelectedTM("");
@@ -25,7 +77,7 @@ const TotalTimeTMWise = ({ context }) => {
           },
           body: JSON.stringify({
             section: context.section_data,
-            selectedYear
+            selectedYear,
           }),
         }
       );
@@ -37,6 +89,13 @@ const TotalTimeTMWise = ({ context }) => {
         // console.log(data);
         setAllDataSectionWise(data);
         setGraphData(data?.totalTimeManHoursMonthWise);
+        let downloadData = [];
+        downloadData.push(
+          // keyOfCsvData,
+          label,
+          ["Actual time taken TM wise"].concat(data?.totalTimeManHoursMonthWise)
+        );
+        setCsvData(downloadData);
       }
     } catch (error) {
       console.log(error);
@@ -57,7 +116,7 @@ const TotalTimeTMWise = ({ context }) => {
           body: JSON.stringify({
             section: context.section_data,
             tm_no: teamMemberNo,
-            selectedYear
+            selectedYear,
           }),
         }
       );
@@ -70,6 +129,13 @@ const TotalTimeTMWise = ({ context }) => {
         // console.log("Data post", data);
         // setTableData(data.machineInfo);
         setGraphData(data?.actualTotalTimeTakenOfTM);
+        let downloadData = [];
+        downloadData.push(
+          // keyOfCsvData,
+          label,
+          ["Actual time taken TM wise"].concat(data?.actualTotalTimeTakenOfTM)
+        );
+        setCsvData(downloadData);
       }
     } catch (error) {
       console.log(error);
@@ -178,6 +244,11 @@ const TotalTimeTMWise = ({ context }) => {
     setSelectedTM("");
     postSectionToGetAllDataForTotalTimeManHoursMonthWise();
   };
+
+  useEffect(() => {
+    setLoadingAnimationState(<LoadingAnimation />);
+
+  }, [selectedYear]);
   return (
     <>
       <div>
@@ -214,7 +285,9 @@ const TotalTimeTMWise = ({ context }) => {
                       setSelectedTM(e.target.value);
                       postPerticularOperatorToGetDataForActualTimeTakenTMWise(
                         e.target.value
+                        
                       );
+                      setLoadingAnimationState(<LoadingAnimation />);
                     }}
                   >
                     <option selected disabled value="">
@@ -233,6 +306,25 @@ const TotalTimeTMWise = ({ context }) => {
                   Total
                 </button>
               </Col>
+              <Col className="d-flex">
+                <Col className="d-flex justify-content-end">
+                  <CSVLink
+                    data={csvData}
+                    filename={`${selectedYear}_Actual_time_taken_TM_wise${timeStamp()}`}
+                    className="downloadCSV"
+                    target="_blank"
+                  >
+                    CSV
+                  </CSVLink>
+                  &nbsp;
+                  <button
+                    className="downloadPDF"
+                    onClick={pdfDownloadForActualTimeTakenTMWise}
+                  >
+                    PDF
+                  </button>
+                </Col>
+              </Col>
             </Row>
           </Row>
         </Container>
@@ -246,7 +338,11 @@ const TotalTimeTMWise = ({ context }) => {
           /> */}
 
           <Card className="d-flex justify-content-center align-items-center">
-            <TmWiseGraph xValue={x1} yValue={y1} />
+            {graphData?.length > 0 ? (
+              <TmWiseGraph xValue={x1} yValue={y1} />
+            ) : (
+              loadingAnimationState
+            )}
           </Card>
         </div>
       </div>

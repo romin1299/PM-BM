@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import "./index.css";
+import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
+
 // import "./tableColor.scss"
 
 function PMSheetApproval() {
@@ -85,7 +87,10 @@ function PMSheetApproval() {
   }, []);
   return (
     <>
+    {tableData?.length > 0 ? (
       <div className="container-fluid" style={{ overflow: "auto" }}>
+      <h4 style={{ padding: "1rem 0 0 0" }}>PM Sheet Approval</h4>
+
         <table className="ar-table pmSheetApprovalTableCol">
           <thead className="mt-5">
             <tr>
@@ -136,7 +141,10 @@ function PMSheetApproval() {
                   {index?.checkSheet_data?.tl_approval_status?.map((value, idx) => (
                     <p>
                       <b>{value}</b>-{index?.checkSheet_data?.assign_TL_name[idx]}-
-                      {index?.checkSheet_data?.preparation_TL_HOSS_date[idx]}
+                      {index?.checkSheet_data?.preparation_TL_HOSS_date[idx]},{" "}
+                      {
+                        value === "Rejected" ? `Remarks: ${index?.checkSheet_data?.rejected_remarks[idx]}` : ("")
+                      }
                     </p>
                   ))}
                 </td>
@@ -144,7 +152,10 @@ function PMSheetApproval() {
                   {index?.checkSheet_data?.hos_approval_status?.map((value, idx) => (
                     <p>
                       <b>{value}</b>-{index?.checkSheet_data?.assign_HOS_name[idx]}-
-                      {index?.checkSheet_data?.preparation_HOS_date[idx]}
+                      {index?.checkSheet_data?.preparation_HOS_date[idx]},{" "}
+                      {
+                        value === "Rejected" ? `Remarks: ${index?.checkSheet_data?.rejected_remarks[idx]}` : ("")
+                      }
                     </p>
                   ))}
                 </td>
@@ -159,7 +170,10 @@ function PMSheetApproval() {
                   {index?.checkSheet_data?.prd_tl_approval_status?.map((value, idx) => (
                     <p>
                       <b>{value}</b>-{index?.checkSheet_data?.assign_PRD_TL_name[idx]}-
-                      {index?.checkSheet_data?.planning_PRD_TL_date[idx]}
+                      {index?.checkSheet_data?.planning_PRD_TL_date[idx]},{" "}
+                      {
+                        value === "Rejected" ? `Remarks: ${index?.checkSheet_data?.rejected_remarks[idx]}` : ("")
+                      }
                     </p>
                   ))}
                 </td>
@@ -168,6 +182,14 @@ function PMSheetApproval() {
           </tbody>
         </table>
       </div>
+      ) : (
+        <div
+          className="container-fluid d-flex justify-content-center align-items-center"
+          style={{ height: "100vh" }}
+        >
+          <LoadingAnimation />
+        </div>
+      )}
     </>
   );
 }

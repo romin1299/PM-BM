@@ -10,10 +10,14 @@ import { Navigate, useNavigate } from "react-router-dom";
 import "../../../SCSS/MaterialTable.scss";
 import RoutingContext from "../../../context/routing/RoutingContext";
 //   import ChecksheetCreationDashboard from "./Checksheet/ChecksheetCreationDashboard";
+import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
+
 
 const BackupDataOfCheckSheet = () => {
   const context = useContext(RoutingContext);
   const [tableData, setTableData] = useState([]);
+  const [refKey, setRefKey] = useState(0);
+
   const navigate = useNavigate();
 
   const getDeletedMachineCheckSheetData = async () => {
@@ -35,9 +39,34 @@ const BackupDataOfCheckSheet = () => {
     }
   };
 
+  const deleteBackUpData = async (selectedRow) => {
+    try {
+      const res = await fetch("/deleteBackUpData", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          selectedRow,
+        }),
+      });
+      const data = await res.json();
+      if (res.status === 400 || res.status === 422 || !data) {
+        window.alert("Invalid");
+      } else {
+        console.log("back-up data Deleted Successful");
+        // console.log("hello");
+        // refreshPage();
+        // const dateAndTime = timeStamp();
+        // const addMessage = `${selectedRow.user_name} user deleted`;
+        // logData(dateAndTime, addMessage);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     getDeletedMachineCheckSheetData();
-  }, []);
+  }, [refKey]);
 
   const machineHeader = [
     {
@@ -61,7 +90,6 @@ const BackupDataOfCheckSheet = () => {
       field: "machine_name",
       align: "center",
     },
-
   ];
 
   const actions = [
@@ -81,8 +109,9 @@ const BackupDataOfCheckSheet = () => {
   return (
     <>
       <div className="pageCard">
+      {tableData?.length > 0 ? (
         <div className="creationDashboard">
-        <h4 style={{ padding: "1rem 0 0 1rem" }}>Back-end Data</h4>
+          <h4 style={{ padding: "1rem 0 0 1rem" }}>Back-end Data</h4>
 
           <div style={{ padding: "1rem" }}>
             <MaterialTable
@@ -99,20 +128,19 @@ const BackupDataOfCheckSheet = () => {
               // tableRef={this.tableRef.current.onQueryChange()}
 
               editable={{
-               
                 onRowDelete: (selectedRow) =>
                   new Promise((resolve, reject) => {
-                    const index = selectedRow.tableData.id;
-                    console.log(index);
-                    const updatedRows = [...tableData];
-                    updatedRows.splice(index, 1);
+                    // const index = selectedRow.tableData.id;
+                    // console.log(index);
+                    // const updatedRows = [...tableData];
+                    // updatedRows.splice(index, 1);
                     //call the delete user function and pass the user data
                     // // deleteUserInfo(selectedRow);
-                    // deleteSection(selectedRow);
-                    // setTimeout(() => {
-                    //   setRefKey((refKey) => refKey + 1);
-                    //   resolve();
-                    // }, 500);
+                    deleteBackUpData(selectedRow);
+                    setTimeout(() => {
+                      setRefKey((refKey) => refKey + 1);
+                      resolve();
+                    }, 500);
                   }),
               }}
               options={{
@@ -150,6 +178,14 @@ const BackupDataOfCheckSheet = () => {
             />
           </div>
         </div>
+        ) : (
+          <div
+            className="container-fluid d-flex justify-content-center align-items-center"
+            style={{ height: "100vh" }}
+          >
+            <LoadingAnimation />
+          </div>
+        )}
       </div>
     </>
   );

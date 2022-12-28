@@ -23,7 +23,10 @@ const GraphsInMainDashboard = ({
   subSection,
   allDataSectionWise,
   currentMonthGraphAndTableData,
+  annualGraph
 }) => {
+
+  // console.log(annualGraph)
   const context = useContext(RoutingContext);
 
   const [remarks, setRemarks] = useState("");
@@ -98,7 +101,7 @@ const GraphsInMainDashboard = ({
   };
 
   const fetchRemarksSectionWise = async () => {
-    console.log("==============================> : fetchRemarksSectionWise");
+    // console.log("==============================> : fetchRemarksSectionWise");
     try {
       const res = await fetch("/fetchRemarksForMainDashboardSectionWise", {
         method: "GET",
@@ -121,7 +124,7 @@ const GraphsInMainDashboard = ({
   };
 
   const fetchRemarksSubSectionWise = async () => {
-    console.log("fetchRemarksSubSectionWise : <===========================");
+    // console.log("fetchRemarksSubSectionWise : <===========================");
 
     try {
       const res = await fetch("/fetchRemarksForMainDashboardSubSectionWise", {
@@ -194,6 +197,36 @@ const GraphsInMainDashboard = ({
         currentMonthGraphAndTableData?.sumVariableForTotalCompleted -
         currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
     },
+    {
+      name: "Pending(Previous Month)",
+      // colorClass: "table-danger",
+      value: currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending,
+    },
+  ];
+
+  let TableDataOfCharts = [
+    {
+      name: "Completed",
+      bgColor: "table-success",
+      // colorClass: "#789c50",
+      value: currentMonthGraphAndTableData?.sumVariableForTotalCompleted,
+    },
+    {
+      name: "Ongoing",
+      bgColor: "table-warning",
+      // colorClass: "#ddb14d",
+      value: currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
+    },
+    {
+      name: "Pending",
+      // colorClass: "table-danger",
+      value:
+        currentMonthGraphAndTableData?.sumVariableForTotalSchedule +
+        currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending -
+        currentMonthGraphAndTableData?.sumVariableForTotalCompleted -
+        currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
+    },
+
   ];
 
   let Data = {
@@ -207,7 +240,7 @@ const GraphsInMainDashboard = ({
       {/* <Container className="d-flex justify-content-center align-items-center"></Container> */}
       <Row className="d-flex justify-content-center align-items-center">
         <Card>
-          <MonthlyTrendGraph />
+          <MonthlyTrendGraph annualGraph={annualGraph} />
         </Card>
       </Row>
       <Row className="d-flex justify-content-center align-items-center">
@@ -216,7 +249,7 @@ const GraphsInMainDashboard = ({
             <Col className="d-flex justify-content-center align-items-center">
               <div style={{ width: "20rem" }}>
                 {currentMonthGraphAndTableData?.sumVariableForTotalSchedule ? (
-                  <CurrentMonthStatusGraph TableData={TableData} />
+                  <CurrentMonthStatusGraph TableData={TableDataOfCharts} />
                 ) : (
                   // <div className="p-3">{loadingAnimation}</div>
                   <div className="m-3">

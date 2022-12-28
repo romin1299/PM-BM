@@ -30,6 +30,31 @@ export const options = {
       text: "Chart.js Bar Chart",
     },
   },
+  // interaction: {
+  //   mode: 'index' as const,
+  //   intersect: false,
+  // },
+  scales: {
+    x: {
+      stacked: true,
+      title: {
+        display: true,
+        text: 'Months'
+      },
+      ticks: {
+          autoSkip: false,
+          maxRotation: 90,
+          minRotation: 90,
+        },
+    },
+    y: {
+      stacked: true,
+      title: {
+        display: true,
+        text: 'No. of Machine'
+      }
+    },
+  },
 };
 
 const data1 = [
@@ -118,26 +143,33 @@ const monthKeyArray = [
 
 const labels = monthKeyArray;
 
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: "Plan",
-      data: data1.map((item) => item.uv),
-      backgroundColor: "#CFE1FD",
-      borderColor: "rgba(54, 162, 235, 1)",
-      borderWidth: 2,
-    },
-    {
-      label: "Actual",
-      data: data1.map((item) => item.pv),
-      backgroundColor: "#bde28f",
-      borderColor: "#90b466",
-      borderWidth: 2,
-    },
-  ],
-};
+export function MonthlyTrendGraph({annualGraph}) {
 
-export function MonthlyTrendGraph() {
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: "Current Month Schedule",
+        data: annualGraph?.annual_total_current_schedule,
+        backgroundColor: "#CFE1FD",
+        borderColor: "rgba(54, 162, 235, 1)",
+        stack: "Stack 0",
+      },
+      {
+        label: "Last Month Pending",
+        data: annualGraph?.annual_previous_pending,
+        backgroundColor: "rgb(250, 178, 178)",
+        stack: "Stack 0",
+      },
+      {
+        label: "Completed",
+        data: annualGraph?.annual_completed,
+        backgroundColor: "#bde28f",
+        borderColor: "#adec71",
+        stack: "Stack 1", 
+      },
+    ],
+  };
+
   return <Bar options={options} height={200} data={data} />;
 }

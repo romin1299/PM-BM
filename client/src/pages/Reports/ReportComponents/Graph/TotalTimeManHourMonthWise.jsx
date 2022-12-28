@@ -5,11 +5,65 @@ import { Row, Col, Container, Card } from "react-bootstrap";
 import ManHourMonthWiseGraph from "./PmTimeMonitoringCharts/ManHourMonthWiseGraph";
 import YearDropDown from "../../../Dashboard/DashboardComponent/YearDropDown";
 import currentYear from "../../../Dashboard/DashboardComponent/currentYear";
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+import LoadingAnimation from "../LoadingAnimation";
+import NotFound from "../NotFound";
 
 const TotalTimeManHourMonthWise = ({ context }) => {
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
   const [graphData, setGraphData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [csvData, setCsvData] = useState([]);
+  const [loadingAnimationState, setLoadingAnimationState] = useState(
+    <LoadingAnimation />
+  );
+
+  const label = [
+    "",
+    "Apr",
+    "May",
+    "June",
+    "July",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+  ];
+
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+  const pdfDownloadForTotalTimeManHourWise = () => {
+    const doc = new jsPDF();
+    doc.text(`${selectedYear}. Total Time Man Hour Wise`, 15, 10);
+
+    autoTable(doc, {
+      head: [csvData[0]],
+      body: [csvData[1]],
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`${selectedYear}_Total_time_man_hour_wise${timeStamp()}`);
+  };
+
   const postSectionToGetAllDataForTotalTimeManHoursMonthWise = async () => {
     setSelectedLine("");
     try {
@@ -22,7 +76,7 @@ const TotalTimeManHourMonthWise = ({ context }) => {
           },
           body: JSON.stringify({
             section: context.section_data,
-            selectedYear
+            selectedYear,
           }),
         }
       );
@@ -34,6 +88,13 @@ const TotalTimeManHourMonthWise = ({ context }) => {
         console.log(data);
         setAllDataSectionWise(data);
         setGraphData(data?.totalTimeManHoursMonthWise);
+        let downloadData = [];
+        downloadData.push(
+          // keyOfCsvData,
+          label,
+          ["Total time man hour wise"].concat(data?.totalTimeManHoursMonthWise)
+        );
+        setCsvData(downloadData);
       }
     } catch (error) {
       console.log(error);
@@ -53,7 +114,7 @@ const TotalTimeManHourMonthWise = ({ context }) => {
           },
           body: JSON.stringify({
             line: selectedLine,
-            selectedYear
+            selectedYear,
           }),
         }
       );
@@ -66,6 +127,15 @@ const TotalTimeManHourMonthWise = ({ context }) => {
         // console.log("Data post", data);
         // setTableData(data.machineInfo);
         setGraphData(data?.totalTimeManHoursMonthWiseOfLineWise);
+        let downloadData = [];
+        downloadData.push(
+          // keyOfCsvData,
+          label,
+          ["Total time man hour wise"].concat(
+            data?.totalTimeManHoursMonthWiseOfLineWise
+          )
+        );
+        setCsvData(downloadData);
       }
     } catch (error) {
       console.log(error);
@@ -150,6 +220,11 @@ const TotalTimeManHourMonthWise = ({ context }) => {
     legend: { x: 0.3, y: "4", orientation: "h" },
   };
 
+  useEffect(() => {
+    setLoadingAnimationState(<LoadingAnimation />);
+
+  }, [selectedYear]);
+
   return (
     <>
       <div>
@@ -187,6 +262,7 @@ const TotalTimeManHourMonthWise = ({ context }) => {
                       postPerticularLineToGetDataForTotalTimeManHours(
                         e.target.value
                       );
+                      setLoadingAnimationState(<LoadingAnimation />);
                     }}
                   >
                     <option selected disabled value="">
@@ -205,6 +281,25 @@ const TotalTimeManHourMonthWise = ({ context }) => {
                   Total
                 </button>
               </Col>
+              <Col className="d-flex">
+                <Col className="d-flex justify-content-end">
+                  <CSVLink
+                    data={csvData}
+                    filename={`${selectedYear}_Total_time_month_wise${timeStamp()}`}
+                    className="downloadCSV"
+                    target="_blank"
+                  >
+                    CSV
+                  </CSVLink>
+                  &nbsp;
+                  <button
+                    className="downloadPDF"
+                    onClick={pdfDownloadForTotalTimeManHourWise}
+                  >
+                    PDF
+                  </button>
+                </Col>
+              </Col>
             </Row>
           </Row>
         </Container>
@@ -216,7 +311,11 @@ const TotalTimeManHourMonthWise = ({ context }) => {
             style={{ width: "100%", height: "100%" }}
           /> */}
           <Card className="d-flex justify-content-center align-items-center">
-            <ManHourMonthWiseGraph xValue={x1} yValue={y1} />
+            {graphData?.length > 0 ? (
+              <ManHourMonthWiseGraph xValue={x1} yValue={y1} />
+            ) : (
+              loadingAnimationState
+            )}
           </Card>
         </div>
       </div>

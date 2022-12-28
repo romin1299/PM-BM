@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import MaterialTable from "@material-table/core";
 // import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+
 import { CSVLink, CSVDownload } from "react-csv";
 import { Row, Col, Container } from "react-bootstrap";
 
@@ -22,11 +22,15 @@ import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
 import MonthDropDown from "../../Dashboard/DashboardComponent/MonthDropDown";
 import LoadingAnimation from "./LoadingAnimation";
 import NotFound from "./NotFound";
+import { Navigate, useNavigate } from "react-router-dom";
+require('jspdf-autotable');
 
 const MachineWisePmMonthlyReport = () => {
   const context = useContext(RoutingContext);
 
   const [tableData1, setTableData1] = useState();
+  const navigate = useNavigate();
+
 
   // console.log(currentYear);
 
@@ -142,7 +146,7 @@ const MachineWisePmMonthlyReport = () => {
       field: "rowData.PMStatus?.[monthForCompareSystemMonth]",
       // width: "10%",
       render: (rowData) =>
-        rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Completed" ? (
+        rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Done with delay" ? (
           <PanoramaFishEyeIcon fontSize="small" />
         ) : // : rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Current Plan" ? (
         //   <PanoramaFishEyeIcon fontSize="small" />
@@ -151,7 +155,7 @@ const MachineWisePmMonthlyReport = () => {
           <ArrowDropUpIcon />
         ) : (
           // <CloseIcon />
-          rowData?.checkSheet_data?.PMStatus?.[previousMonth]
+          <CloseIcon />
         ),
       // console.log(
       //   rowData.PMStatus ? rowData.PMStatus.monthForCompareSystemMonth : "ACD"
@@ -184,6 +188,9 @@ const MachineWisePmMonthlyReport = () => {
       // ),
       tooltip: "click here for details",
       onClick: (event, selectedRow) => {
+        navigate("/viewCheckSheet", {
+          state: { selectedRowForViewForm: selectedRow },
+        });
         // console.log(employeePassword)
       },
       disabled: false, // Set disabled to false by default for all actions
@@ -191,7 +198,7 @@ const MachineWisePmMonthlyReport = () => {
     },
     {
       // icon: () => <button className="addbutton">Add</button>,
-      icon: () => <button className="btn">PDF</button>,
+      icon: () => <button className="downloadPDF">PDF</button>,
 
       tooltip: "PDF",
       isFreeAction: true,
@@ -205,7 +212,7 @@ const MachineWisePmMonthlyReport = () => {
         <CSVLink
           data={csvDataForCurrentMonth}
           filename={`${selectedMonth}_PM_Status(Machine)${timeStamp()}`}
-          className="btn btn-primary"
+          className="downloadCSV"
           target="_blank"
         >
           CSV
@@ -228,6 +235,9 @@ const MachineWisePmMonthlyReport = () => {
       // ),
       tooltip: "click here for details",
       onClick: (event, selectedRow) => {
+        navigate("/viewCheckSheet", {
+          state: { selectedRowForViewForm: selectedRow },
+        });
         // console.log(employeePassword)
       },
       disabled: false, // Set disabled to false by default for all actions
@@ -235,7 +245,7 @@ const MachineWisePmMonthlyReport = () => {
     },
     {
       // icon: () => <button className="addbutton">Add</button>,
-      icon: () => <button className="btn">PDF</button>,
+      icon: () => <button className="downloadPDF">PDF</button>,
 
       tooltip: "PDF",
       isFreeAction: true,
@@ -249,7 +259,7 @@ const MachineWisePmMonthlyReport = () => {
         <CSVLink
           data={csvDataForPreviousMonth}
           filename={`${previousMonth}_PM_Status(Machine)${timeStamp()}`}
-          className="btn btn-primary"
+          className="downloadCSV"
           target="_blank"
         >
           CSV
@@ -300,7 +310,7 @@ const MachineWisePmMonthlyReport = () => {
         item.line_names.line_name,
         item.machine_name,
         item.machine_code,
-        item.checkSheet_data?.PMStatus?.[previousMonth] === "Completed"
+        item.checkSheet_data?.PMStatus?.[previousMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing"
           ? "^"
@@ -308,11 +318,6 @@ const MachineWisePmMonthlyReport = () => {
             "X",
       ])
     );
-
-    // let finalTable = [];
-
-    // finalTable.push(rows);
-    console.log(rows);
 
     doc.autoTable(columns, rows);
     doc.save(`${previousMonth}_PM_Status(Machine)${timeStamp()}`);

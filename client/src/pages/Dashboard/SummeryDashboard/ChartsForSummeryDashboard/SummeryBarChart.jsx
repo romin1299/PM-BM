@@ -10,7 +10,7 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-export function SummeryBarChart({ currentMonthCompletionData }) {
+export function SummeryBarChart({ annualChartData }) {
   // console.log(currentMonthCompletionData);
 
   ChartJS.register(
@@ -38,9 +38,17 @@ export function SummeryBarChart({ currentMonthCompletionData }) {
       // y: [{}],
       x: {
         ticks: {
-          // color: ["blue", "red"],
-          // align: ["center", "start"],
+          autoSkip: false,
+          maxRotation: 90,
+          minRotation: 90,
         },
+
+        //     // color: ["blue", "red"],
+        //     // align: ["center", "start"],
+            title: {
+              display: true,
+              text: 'Months'
+            }
 
         // display: true,
         // title: {
@@ -55,6 +63,14 @@ export function SummeryBarChart({ currentMonthCompletionData }) {
         //   },
         //   padding: { top: 0, left: 0, right: 0, bottom: 0 },
         // },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Completed (%)'
+        },
+        max:100,
+
       },
     },
   };
@@ -79,94 +95,28 @@ export function SummeryBarChart({ currentMonthCompletionData }) {
   //   },
   // };
 
-  const data1 = [
-    {
-      name: "Apr-22",
-      uv: 100,
-      pv: 39,
-      amt: 20,
-    },
-    {
-      name: "May-22",
-      uv: 100,
-      pv: 48,
-      amt: 21,
-    },
-    {
-      name: "Jun-22",
-      uv: 100,
-      pv: 38,
-      amt: 25,
-    },
-    {
-      name: "Jul-22",
-      uv: 100,
-      pv: 43,
-      amt: 21,
-    },
-    {
-      name: "Aug-22",
-      uv: 100,
-      pv: 24,
-      amt: 24,
-    },
-    {
-      name: "Sep-22",
-      uv: 100,
-      pv: 13,
-      amt: 22,
-    },
-    {
-      name: "Oct-22",
-      uv: 100,
-      pv: 98,
-      amt: 22,
-    },
-    {
-      name: "Nov-22",
-      uv: 100,
-      pv: 98,
-      amt: 22,
-    },
-    {
-      name: "Dec-22",
-      uv: currentMonthCompletionData,
-      pv: 98,
-      amt: 22,
-    },
-    {
-      name: "Jan-23",
-      uv: 20,
-      pv: 98,
-      amt: 22,
-    },
-    {
-      name: "Feb-23",
-      uv: 20,
-      pv: 98,
-      amt: 22,
-    },
-    {
-      name: "Mar-23",
-      uv: 40,
-      pv: 24,
-      amt: 24,
-    },
-    {
-      name: "Apr-23",
-      uv: 20,
-      pv: 98,
-      amt: 22,
-    },
+  const monthKeyArray = [
+    "Apr",
+    "May",
+    "June",
+    "July",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
   ];
 
-  const labels = data1.map((item) => item.name);
+  const labels = monthKeyArray;
   const data = {
     labels,
     datasets: [
       {
         label: "Completion %",
-        data: data1.map((item) => item.uv),
+        data: annualChartData,
         backgroundColor: "red",
       },
       // {

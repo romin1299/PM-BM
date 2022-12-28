@@ -32,14 +32,14 @@ function ChecksheetFormApprovalForTL() {
   });
 
   let tableData =
-    selectedMachineCheckSheetData.state.selectedRowForViewForm.checkSheet_data
-      .checkSheet;
+    selectedMachineCheckSheetData.state?.selectedRowForViewForm?.checkSheet_data
+      ?.checkSheet;
   // console.log(tableData);
 
   let machineAllData =
-    selectedMachineCheckSheetData.state.selectedRowForViewForm;
+    selectedMachineCheckSheetData.state?.selectedRowForViewForm;
 
-  console.log(machineAllData);
+  // console.log(machineAllData);
   let columns = [
     {
       header: "SN",
@@ -157,7 +157,7 @@ function ChecksheetFormApprovalForTL() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          machine_code: machineAllData.machine_code,
+          machine_code: machineAllData?.machine_code,
           monthForCompareSystemMonth,
           tableRowId,
           previousMonth,
@@ -382,16 +382,16 @@ function ChecksheetFormApprovalForTL() {
   // console.log(tableData);
   useEffect(() => {
     getDataModelled();
-    for (let i = 0; i < tableData.length; i++) {
-      let output = "inspection_child_name" in tableData[i];
+    // for (let i = 0; i < tableData.length; i++) {
+    //   let output = "inspection_child_name" in tableData[i];
 
-      console.log(output);
+    //   console.log(output);
 
-      if (output === true) {
-        setRefKey(true);
-        break;
-      }
-    }
+    //   if (output === true) {
+    //     setRefKey(true);
+    //     break;
+    //   }
+    // }
   }, []);
 
   //get the date and time
@@ -424,7 +424,7 @@ function ChecksheetFormApprovalForTL() {
           request: values.request,
           rejected_remarks: values.rejected_remarks,
           selected_machine_data:
-            selectedMachineCheckSheetData.state.selectedRowForViewForm,
+            selectedMachineCheckSheetData.state?.selectedRowForViewForm,
           approved_by_TL: context.tm_name,
           approved_by_PRD_TL: context.tm_name,
           preparation_TL_HOSS_date: timeStamp(),
@@ -528,7 +528,7 @@ function ChecksheetFormApprovalForTL() {
               <div>
                 <form onSubmit={formik.handleSubmit}>
                   <div className="row">
-                    {machineAllData.checkSheet_data.checksheet_status ===
+                    {machineAllData?.checkSheet_data?.checksheet_status ===
                       "Implementation" && context.tm_department === "PRD" ? (
                       <div className="row mb-3 mt-3">
                         <span>
@@ -699,13 +699,13 @@ function ChecksheetFormApprovalForTL() {
                       // colSpan={2}
                       //  rowSpan={5}
                     >
-                      {machineAllData.checkSheet_data.approved_by_PRD_TL[
-                        machineAllData.checkSheet_data.approved_by_PRD_TL
+                      {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                        machineAllData?.checkSheet_data?.approved_by_PRD_TL
                           .length - 1
                       ]
                         ? `${
-                            machineAllData.checkSheet_data.approved_by_PRD_TL[
-                              machineAllData.checkSheet_data.approved_by_PRD_TL
+                            machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                              machineAllData?.checkSheet_data?.approved_by_PRD_TL
                                 .length - 1
                             ]
                           }`
@@ -716,15 +716,15 @@ function ChecksheetFormApprovalForTL() {
                       // colSpan={2}
                       //  rowSpan={5}
                     >
-                      {machineAllData.checkSheet_data.plan_prepared_tm_name[
-                        machineAllData.checkSheet_data.plan_prepared_tm_name
+                      {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
+                        machineAllData?.checkSheet_data?.plan_prepared_tm_name
                           .length - 1
                       ]
                         ? `${
-                            machineAllData.checkSheet_data
-                              .plan_prepared_tm_name[
-                              machineAllData.checkSheet_data
-                                .plan_prepared_tm_name.length - 1
+                            machineAllData?.checkSheet_data
+                              ?.plan_prepared_tm_name[
+                              machineAllData?.checkSheet_data
+                                ?.plan_prepared_tm_name.length - 1
                             ]
                           }`
                         : ""}
@@ -736,15 +736,15 @@ function ChecksheetFormApprovalForTL() {
           </Row>
         </Container>
       </div>
-      {machineAllData.checksheet_status === "Planning" ||
-      machineAllData.checksheet_status === "Implementation" ? (
+      {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
+      machineAllData?.checkSheet_data?.checksheet_status === "Implementation" ? (
         <div className="row mt-3">
           <div className="col-6"></div>
           <span className="col-6">
             <div className="row">
               <div className="col-6"></div>
               <div className="col-6" style={{ fontWeight: "bold" }}>
-                Year: {new Date().getFullYear()}-{new Date().getFullYear() + 1}{" "}
+                Year: {machineAllData?.checkSheet_data?.current_year}{" "}
               </div>
             </div>
           </span>
@@ -763,16 +763,16 @@ function ChecksheetFormApprovalForTL() {
                     colSpan={3}
                     rowSpan={5}
                   >
-                    Line:- {machineAllData.line_names.lineName}
+                    Line:- {machineAllData?.line_names?.lineName}
                     <br />
-                    M/c No : {machineAllData.machine_code}
+                    M/c No : {machineAllData?.machine_code}
                   </th>
                   <th
                     className="ar-table-thead-header2 headerPD"
                     colSpan={2}
                     rowSpan={5}
                   >
-                    Machine Name: {machineAllData.machine_name}
+                    Machine Name: {machineAllData?.machine_name}
                   </th>
                   <th
                     className="ar-table-thead-header1 headerPD  align-items-center"
@@ -799,11 +799,11 @@ function ChecksheetFormApprovalForTL() {
                     <br />
                     (MTD TL)
                   </th>
-                  {machineAllData.checkSheet_data
-                    .implementation_approved_by_MTD_TL
+                  {machineAllData?.checkSheet_data
+                    ?.implementation_approved_by_MTD_TL
                     ? Object.values(
-                        machineAllData.checkSheet_data
-                          .implementation_approved_by_MTD_TL
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_MTD_TL
                       ).map((index) => (
                         <td className="ar-table-col1">
                           {index[index.length - 1]}
@@ -815,33 +815,33 @@ function ChecksheetFormApprovalForTL() {
                 </tr>
                 <tr>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
-                    {machineAllData.checkSheet_data.approved_by_HOS[
-                      machineAllData.checkSheet_data.approved_by_HOS.length - 1
+                    {machineAllData?.checkSheet_data?.approved_by_HOS[
+                      machineAllData?.checkSheet_data?.approved_by_HOS.length - 1
                     ]
-                      ? machineAllData.checkSheet_data.approved_by_HOS[
-                          machineAllData.checkSheet_data.approved_by_HOS
+                      ? machineAllData?.checkSheet_data?.approved_by_HOS[
+                          machineAllData?.checkSheet_data?.approved_by_HOS
                             .length - 1
                         ]
                       : ""}
                     <br />
 
-                    {machineAllData.checkSheet_data.approved_by_TL[
-                      machineAllData.checkSheet_data.approved_by_TL.length - 1
+                    {machineAllData?.checkSheet_data?.approved_by_TL[
+                      machineAllData?.checkSheet_data?.approved_by_TL.length - 1
                     ]
                       ? `,${
-                          machineAllData.checkSheet_data.approved_by_TL[
-                            machineAllData.checkSheet_data.approved_by_TL
+                          machineAllData?.checkSheet_data?.approved_by_TL[
+                            machineAllData?.checkSheet_data?.approved_by_TL
                               .length - 1
                           ]
                         }`
                       : ""}
                   </th>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
-                    {machineAllData.checkSheet_data.sender_tm_name[
-                      machineAllData.checkSheet_data.sender_tm_name.length - 1
+                    {machineAllData?.checkSheet_data?.sender_tm_name[
+                      machineAllData?.checkSheet_data?.sender_tm_name.length - 1
                     ]
-                      ? machineAllData.checkSheet_data.sender_tm_name[
-                          machineAllData.checkSheet_data.sender_tm_name.length -
+                      ? machineAllData?.checkSheet_data?.sender_tm_name[
+                          machineAllData?.checkSheet_data?.sender_tm_name.length -
                             1
                         ]
                       : ""}
@@ -851,10 +851,10 @@ function ChecksheetFormApprovalForTL() {
                     <br />
                     (MTD HOS)
                   </th>
-                  {machineAllData.checkSheet_data
+                  {machineAllData?.checkSheet_data
                     .implementation_approved_by_MTD_HOS
                     ? Object.values(
-                        machineAllData.checkSheet_data
+                        machineAllData?.checkSheet_data
                           .implementation_approved_by_MTD_HOS
                       ).map((index) => (
                         <td className="ar-table-col1">
@@ -918,7 +918,7 @@ function ChecksheetFormApprovalForTL() {
                   <Rows
                     rData={rData}
                     checkSheet_status={
-                      machineAllData.checkSheet_data.checksheet_status
+                      machineAllData?.checkSheet_data?.checksheet_status
                     }
                   />
                 ))}
@@ -929,9 +929,9 @@ function ChecksheetFormApprovalForTL() {
                     <br />
                     (MTD TM's)
                   </th>
-                  {machineAllData.checkSheet_data.PMworkedTMName
+                  {machineAllData?.checkSheet_data?.PMworkedTMName
                     ? Object.values(
-                        machineAllData.checkSheet_data.PMworkedTMName
+                        machineAllData?.checkSheet_data?.PMworkedTMName
                       ).map((index) => (
                         <td className="ar-table-col1">{index.join(" ,")}</td>
                       ))
@@ -946,10 +946,10 @@ function ChecksheetFormApprovalForTL() {
                     <br />
                     (By PRD TL)
                   </th>
-                  {machineAllData.checkSheet_data
+                  {machineAllData?.checkSheet_data
                     .implementation_approved_by_PRD_TL
                     ? Object.values(
-                        machineAllData.checkSheet_data
+                        machineAllData?.checkSheet_data
                           .implementation_approved_by_PRD_TL
                       ).map((index) => (
                         <td className="ar-table-col1">

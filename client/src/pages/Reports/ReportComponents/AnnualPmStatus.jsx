@@ -8,6 +8,10 @@ import currentYear from "../../Dashboard/DashboardComponent/currentYear";
 import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
 
 import LoadingAnimation from "./LoadingAnimation";
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
 
 const AnnualPmStatus = () => {
   // console.log(tableData);
@@ -15,7 +19,23 @@ const AnnualPmStatus = () => {
 
   const [graphData, setGraphData] = useState({});
   const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [csvData, setCsvData] = useState([]);
 
+  const label = [
+    "",
+    "Apr",
+    "May",
+    "June",
+    "July",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+  ];
   const postSectionToGetAllDataForAnnualStatusReport = async () => {
     // setSubSection(undefined);
     try {
@@ -38,6 +58,16 @@ const AnnualPmStatus = () => {
         // console.log(data.machineData2[0][0].line_names.line_name);
         // console.log(data);
         setGraphData(data);
+        let downloadData = [];
+        downloadData.push(
+          // keyOfCsvData,
+          label,
+          ["Total current schedule"].concat(data.annual_total_current_schedule),
+          ["Total previous pending"].concat(data.annual_previous_pending),
+          ["Total completed"].concat(data.annual_completed)
+        );
+        setCsvData(downloadData);
+
         // setTableData(data.lineDataWithCounter);
       }
     } catch (error) {
@@ -48,8 +78,6 @@ const AnnualPmStatus = () => {
   useEffect(() => {
     postSectionToGetAllDataForAnnualStatusReport();
   }, [selectedYear]);
-
-  // console.log(graphData);
 
   // const y1 = [23, 45, 67, 30, 40, 50, 60, 70, 80, 90, 20, 30];
   // const y2 = [3, 6, 7, 1, 2, 3, 4, 5, 6, 2, 2, 3];
@@ -138,7 +166,7 @@ const AnnualPmStatus = () => {
 
     yaxis: {
       title: {
-        text: "No. of Machine(2022)",
+        text: `No. of Machine(${selectedYear})`,
         font: {
           // family: 'Courier New, monospace',
           size: 14,
@@ -149,23 +177,72 @@ const AnnualPmStatus = () => {
     legend: { x: 0.3, y: "4", orientation: "h" },
   };
 
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+  const pdfDownloadForAnnualPMStatus = () => {
+    const doc = new jsPDF();
+    doc.text(`${selectedYear}. PM Status(Machine)`, 15, 10);
+
+    autoTable(doc, {
+      head: [csvData[0]],
+      body: [csvData[1], csvData[2], csvData[3]],
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`${selectedYear}_Annual_PM_Status${timeStamp()}`);
+  };
+
   useEffect(() => {
     setGraphData("");
   }, [selectedYear]);
   return (
     <>
       <div>
-        <Container fluid>
-          <Row className="p-2">
-            <Col sm={12} lg={3}>
-              <YearDropDown
-                selectedYear={selectedYear}
-                setSelectedYear={setSelectedYear}
-              />
-            </Col>
-          </Row>
-        </Container>
         <Container>
+          <Container fluid>
+            <Row className="p-2">
+              <Col sm={12} lg={3}>
+                <YearDropDown
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                />
+              </Col>
+              <Col></Col>
+              <Col
+                sm={12}
+                lg={1}
+                className="d-flex justify-content-around align-items-center"
+              >
+                <CSVLink
+                  data={csvData}
+                  filename={`${selectedYear}_PM_Status(Machine)${timeStamp()}`}
+                  className="downloadCSV"
+                  target="_blank"
+                >
+                  CSV
+                </CSVLink>
+                &nbsp;
+                <button
+                  className="downloadPDF"
+                  onClick={pdfDownloadForAnnualPMStatus}
+                >
+                  PDF
+                </button>
+              </Col>
+            </Row>
+          </Container>
           <Row className="pt-2">
             {graphData?.annual_total_current_schedule?.length > 0 ? (
               <Col>

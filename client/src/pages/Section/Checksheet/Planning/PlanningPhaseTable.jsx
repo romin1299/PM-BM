@@ -247,26 +247,37 @@ function PlanningPhaseTable() {
     },
   ];
 
+  function compareCycle(a, b) {
+    // converting to uppercase to have case-insensitive comparison
+    const name1 = a.cycle.toUpperCase();
+    const name2 = b.cycle.toUpperCase();
+
+    let comparison = 0;
+
+    if (name1 > name2) {
+      comparison = 1;
+    } else if (name1 < name2) {
+      comparison = -1;
+    }
+    return comparison;
+  }
+
   return (
     <>
       <div style={{ margin: "0.5rem" }}>
         <div className="pageCard">
-          <a
+          <button
+            onClick={() => navigate("/checkSheetDashboard")}
+            style={{
+              border: "none",
+              background: "white",
+              borderRadius: 5,
+            }}
             className="mb-2"
-            style={{ color: "Black" }}
-            href="/checkSheetDashboard"
           >
-            <button
-              style={{
-                border: "none",
-                background: "white",
-                borderRadius: 5,
-              }}
-              className="mb-2"
-            >
-              <ArrowBackIcon />
-            </button>
-          </a>
+            <ArrowBackIcon />
+          </button>
+
           <div class="row g-3">
             <div class="col-4">
               <div class="p-3 border bg-white rounded">
@@ -306,7 +317,7 @@ function PlanningPhaseTable() {
               }
               icons={tableIcons}
               columns={columns}
-              data={tableData}
+              data={tableData?.sort(compareCycle)}
               // title="User Management"
               // tableRef={this.tableRef.current.onQueryChange()}
 

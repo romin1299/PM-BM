@@ -1902,8 +1902,8 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         }
 
         let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
-        let previousMonth = monthKeyArray[-1];
-        let previousToPreviousMonth = monthKeyArray[-2];
+        let previousMonth = monthKeyArray[new Date().getMonth() - 1];
+        let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
 
         //for 1/1M skip status 
         let keyOfPreviousMonth = `checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2.${previousMonth}`
@@ -1986,6 +1986,7 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         }
 
         const updatePMStatusOfPreviousMonthForNoCompletion = async (machine_code, yearOfCheckSheet) => {
+            // console.log(machine_code, yearOfCheckSheet)
             updatePreviousMonth = await Machine.updateOne({ machine_code: machine_code },
                 {
                     $set: {
@@ -2055,8 +2056,10 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
 
 
             })
-            if (key?.PMStatus) {
-                if (key.PMStatus?.[previousMonth] === "Current Plan") {
+
+            if (key?.checkSheet_data?.PMStatus) {
+                // console.log(key?.checkSheet_data?.PMStatus)
+                if (key?.checkSheet_data?.PMStatus[previousMonth] === "Current Plan") {
                     updatePMStatusOfPreviousMonthForNoCompletion(key.machine_code, key.checkSheet_data.current_year)
                 }
             }
@@ -2611,7 +2614,7 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
 
 
 
-        res.json({ TLlist, HOSlist, PRDTLlist, supportingOperatorListArray, MTDTLlist, MTDTLandOperatorList, supportingOperatorListForReportDashboard });
+        res.json({ TLlist, HOSlist, PRDTLlist, supportingOperatorList, MTDTLlist, MTDTLandOperatorList, supportingOperatorListForReportDashboard });
     } catch (error) {
         console.log("User data not send or get!!!");
         console.log(error)
@@ -2861,13 +2864,39 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
                         $match: {
 
                             $or: [
-                                { $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.assign_TL", -1] }, loggedUserData.email], $eq: [{ $arrayElemAt: ["$checkSheet_data.tl_approval_status", -1] }, "Pending"] } },
-                                { $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.assign_PRD_TL", -1] }, loggedUserData.email], $eq: [{ $arrayElemAt: ["$checkSheet_data.prd_tl_approval_status", -1] }, "Pending"], $eq: [{ $arrayElemAt: ["$checkSheet_data.prd_tl_approval_status", -1] }, "Pending"] } },
                                 {
-                                    $expr: {
-                                        $eq: [{ $arrayElemAt: [keyOfImplementation_assign_PRD_TL, -1] }, loggedUserData.email],
-                                        $eq: [{ $arrayElemAt: [keyOfImplemetation_prd_tl_approval_status, -1] }, "Pending"]
-                                    },
+                                    $and: [
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.assign_TL", -1] }, loggedUserData.email] }
+                                        },
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.tl_approval_status", -1] }, "Pending"] }
+                                        },
+
+                                    ]
+                                },
+                                {
+                                    $and: [
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.assign_PRD_TL", -1] }, loggedUserData.email] }
+                                        },
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.prd_tl_approval_status", -1] }, "Pending"] }
+                                        },
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.prd_tl_approval_status", -1] }, "Pending"] }
+                                        }
+                                    ]
+                                },
+                                {
+                                    $and: [
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: [keyOfImplementation_assign_PRD_TL, -1] }, loggedUserData.email] }
+                                        },
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: [keyOfImplemetation_prd_tl_approval_status, -1] }, "Pending"] }
+                                        }
+                                    ]
                                 }
                             ]
 
@@ -2913,20 +2942,57 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
                     {
                         $match: {
                             $or: [
-                                { $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.assign_HOS", -1] }, loggedUserData.email], $eq: [{ $arrayElemAt: ["$checkSheet_data.tl_approval_status", -1] }, "Accepted"], $eq: [{ $arrayElemAt: ["$checkSheet_data.hos_approval_status", -1] }, "Pending"] }, "checkSheet_data.checksheet_status": "Preparation" },
-                                { $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.hos_approval_status", -1] }, "Pending"], $eq: [{ $arrayElemAt: ["$checkSheet_data.assign_TL", -1] }, ""], $eq: [{ $arrayElemAt: ["$checkSheet_data.assign_HOS", -1] }, loggedUserData.email] }, "checkSheet_data.checksheet_status": "Preparation" },
                                 {
-                                    $expr: {
-                                        $eq: [{ $arrayElemAt: [keyOfImplementation_assign_MTD_HOS, -1] }, loggedUserData.email],
-                                        $eq: [{ $arrayElemAt: [keyOfImplemetation_prd_tl_approval_status, -1] }, "Accepted"],
-                                        $eq: [{ $arrayElemAt: [keyOfImplemetation_mtd_tl_approval_status, -1] }, "Accepted"],
-                                        $eq: [{ $arrayElemAt: [keyOfImplemetation_mtd_hos_approval_status, -1] }, "Pending"]
-                                    },
-                                    // [keyOfImplementation_assign_MTD_HOS]: loggedUserData.email, 
-                                    // [keyOfImplemetation_prd_tl_approval_status]: "Accepted", 
-                                    // [keyOfImplemetation_mtd_tl_approval_status]: "Accepted", 
-                                    // [keyOfImplemetation_mtd_hos_approval_status]: "Pending", 
-                                    "checkSheet_data.checksheet_status": "Implementation"
+                                    $and: [
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.assign_HOS", -1] }, loggedUserData.email] }
+                                        },
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.tl_approval_status", -1] }, "Accepted"] }
+                                        },
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.hos_approval_status", -1] }, "Pending"] }
+                                        },
+                                        {
+                                            "checkSheet_data.checksheet_status": "Preparation"
+                                        }
+                                    ]
+                                },
+                                {
+                                    $and: [
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.hos_approval_status", -1] }, "Pending"] }
+                                        },
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.assign_TL", -1] }, ""] }
+                                        },
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.assign_HOS", -1] }, loggedUserData.email] }
+                                        },
+                                        {
+                                            "checkSheet_data.checksheet_status": "Preparation"
+                                        }
+                                    ]
+
+                                },
+                                {
+                                    $and: [
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: [keyOfImplementation_assign_MTD_HOS, -1] }, loggedUserData.email] }
+                                        },
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: [keyOfImplemetation_prd_tl_approval_status, -1] }, "Accepted"] }
+                                        },
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: [keyOfImplemetation_mtd_tl_approval_status, -1] }, "Accepted"] }
+                                        },
+                                        {
+                                            $expr: { $eq: [{ $arrayElemAt: [keyOfImplemetation_mtd_hos_approval_status, -1] }, "Pending"] }
+                                        },
+                                        {
+                                            "checkSheet_data.checksheet_status": "Implementation"
+                                        }
+                                    ]
                                 }
                             ]
                         }
@@ -3347,8 +3413,8 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
 
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code },
                     {
-                        $set: { "checkSheet_data.$[outer].tl_approval_status": selected_machine_data.checkSheet_data.tl_approval_status, "checkSheet_data.$[outer].rejected_remarks": rejected_remarks },
-                        $push: { "checkSheet_data.$[outer].preparation_TL_HOSS_date": preparation_TL_HOSS_date, "checkSheet_data.$[outer].approved_by_TL": "", "checkSheet_data.$[outer].approved_by_HOS": "", "checkSheet_data.$[outer].preparation_HOS_date": "" }
+                        $set: { "checkSheet_data.$[outer].tl_approval_status": selected_machine_data.checkSheet_data.tl_approval_status, },
+                        $push: { "checkSheet_data.$[outer].preparation_TL_HOSS_date": preparation_TL_HOSS_date, "checkSheet_data.$[outer].approved_by_TL": "", "checkSheet_data.$[outer].approved_by_HOS": "", "checkSheet_data.$[outer].preparation_HOS_date": "", "checkSheet_data.$[outer].rejected_remarks": rejected_remarks }
                     },
                     {
                         arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
@@ -3372,8 +3438,8 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] = "Rejected"
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code },
                     {
-                        $set: { "checkSheet_data.$[outer].hos_approval_status": selected_machine_data.checkSheet_data.hos_approval_status, "checkSheet_data.$[outer].rejected_remarks": rejected_remarks },
-                        $push: { "checkSheet_data.$[outer].preparation_HOS_date": preparation_HOS_date }
+                        $set: { "checkSheet_data.$[outer].hos_approval_status": selected_machine_data.checkSheet_data.hos_approval_status, },
+                        $push: { "checkSheet_data.$[outer].preparation_HOS_date": preparation_HOS_date, "checkSheet_data.$[outer].rejected_remarks": rejected_remarks }
                     },
                     {
                         arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
@@ -3393,8 +3459,8 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] = "Rejected"
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code },
                     {
-                        $set: { "checkSheet_data.$[outer].hos_approval_status": selected_machine_data.checkSheet_data.hos_approval_status, "checkSheet_data.$[outer].rejected_remarks": rejected_remarks },
-                        $push: { "checkSheet_data.$[outer].preparation_HOS_date": preparation_HOS_date }
+                        $set: { "checkSheet_data.$[outer].hos_approval_status": selected_machine_data.checkSheet_data.hos_approval_status, },
+                        $push: { "checkSheet_data.$[outer].preparation_HOS_date": preparation_HOS_date, "checkSheet_data.$[outer].rejected_remarks": rejected_remarks }
                     },
                     {
                         arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
@@ -4986,7 +5052,8 @@ router.post('/postLineToGetMachineListForReportDashboard', authenticate, async (
 
 router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) => {
     try {
-        let { section, month, selectedYear } = req.body
+        let { section, month, selectedYear, selectedLine } = req.body
+        // console.log(selectedLine, "********")
         let loggedUserData = req.rootUser;
 
         let sectionSplit = section.split("-")
@@ -5051,10 +5118,6 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
 
                 ]
 
-
-
-
-
         // console.log(selectedYear, month)
 
         let groupData
@@ -5082,16 +5145,167 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
                 : monthKeyArray[monthKeyArray.indexOf(month) - 1];
 
         let keyForPreviousMonth = `$checkSheet_data.PMStatus.${previousMonth}`
+        let keyForPreviousMonthCarriedPM = `$checkSheet_data.carriedPMStatus.${month}`
+        let lineDataWithCounter
+        //by default all line
+        if (selectedLine === "") {
+            for (let i = 0; i < lineData.length; i++) {
 
 
-        for (let i = 0; i < lineData.length; i++) {
+                groupData = await Machine.aggregate([
+                    {
 
+                        $match: {
+                            line_names: lineData[i]._id,
+                            $or: selectedYearOfCheckSheet,
+
+                        }
+                    },
+                    {
+                        $project: {
+                            machine_code: 1,
+                            machine_name: 1,
+                            machine_nickname: 1,
+                            machine_sequence: 1,
+                            installation_date: 1,
+                            maker_name: 1,
+                            maker_sr_no: 1,
+                            manufacturingDate: 1,
+                            isPM: 1,
+                            line_names: 1,
+                            checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                        }
+                    },
+                    {
+                        $match: {
+                            "checkSheet_data.PMStatus": { $ne: undefined },
+
+                        }
+                    },
+
+                    // {
+                    //     $match: {
+
+                    //         line_names: lineData[i]._id,
+                    //         "PMStatus": { $ne: undefined }
+
+
+                    //     }
+                    // },
+                    {
+                        $group: {
+                            _id: "$line_names",
+                            machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", machineStatus: x, previousStatus: keyForPreviousMonth } },
+                            total_pmSchedule: {
+                                $sum: {
+                                    $cond: [
+                                        {
+                                            $ne: [x, ""]
+                                        },
+                                        1, 0
+                                    ]
+                                }
+                            },
+                            total_current: {
+                                $sum: {
+                                    $cond: [
+                                        {
+                                            $eq: [x, "Current Plan"]
+                                        },
+                                        1, 0
+                                    ]
+                                }
+                            },
+                            total_completed: {
+                                $sum: {
+                                    $cond: [
+                                        {
+                                            $eq: [x, "Completed"]
+                                        },
+                                        1, 0
+                                    ]
+                                }
+                            },
+                            total_done_with_delay: {
+                                $sum: {
+                                    $cond: [
+                                        {
+                                            $eq: [keyForPreviousMonth, "Done with delay"]
+                                        },
+                                        1, 0
+                                    ]
+                                }
+                            },
+                            total_Previous: {
+                                $sum: {
+                                    $cond: [
+                                        {
+                                            $and: [
+                                                {
+                                                    $eq: [keyForPreviousMonthCarriedPM, "CarriedPM"]
+                                                },
+                                                {
+                                                    $eq: [x, ""]
+                                                }
+                                            ]
+                                        },
+                                        1, 0
+                                    ]
+                                }
+                            },
+                            // $group: {
+                            //     _id: "$line_names",
+                            //     machinePrevious: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", machineStatus: keyForPreviousMonth } },
+                            //     total_Previous: {
+                            //         $sum: {
+                            //             $cond: [
+                            //                 {
+                            //                     $eq: [keyForPreviousMonth, "Current Plan"]
+                            //                 },
+                            //                 1, 0
+                            //             ]
+                            //         }
+                            //     },
+
+                            // }
+                        },
+
+
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            line_names: "$_id",
+                            "total_pmSchedule": 1,
+                            "total_current": 1,
+                            "total_completed": 1,
+                            machine: 1,
+                            "total_Previous": 1,
+                            "total_done_with_delay": 1
+                        }
+                    },
+
+                ])
+
+                if (groupData.length > 0) {
+                    for (let i = 0; i < groupData.length; i++) {
+                        allData.push(groupData[i])
+                    }
+                }
+                // console.log(groupData)
+
+            }
+
+            lineDataWithCounter = await Machine.populate(allData, { path: "line_names" })
+        }
+        //for line selection
+        else {
 
             groupData = await Machine.aggregate([
                 {
 
                     $match: {
-                        line_names: lineData[i]._id,
+                        line_names: mongoose.Types.ObjectId(selectedLine),
                         $or: selectedYearOfCheckSheet,
 
                     }
@@ -5117,16 +5331,6 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
 
                     }
                 },
-
-                // {
-                //     $match: {
-
-                //         line_names: lineData[i]._id,
-                //         "PMStatus": { $ne: undefined }
-
-
-                //     }
-                // },
                 {
                     $group: {
                         _id: "$line_names",
@@ -5161,31 +5365,34 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
                                 ]
                             }
                         },
-                        total_Previous: {
+                        total_done_with_delay: {
                             $sum: {
                                 $cond: [
                                     {
-                                        $eq: [keyForPreviousMonth, "Ongoing"]
+                                        $eq: [keyForPreviousMonth, "Done with delay"]
                                     },
                                     1, 0
                                 ]
                             }
                         },
-                        // $group: {
-                        //     _id: "$line_names",
-                        //     machinePrevious: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", machineStatus: keyForPreviousMonth } },
-                        //     total_Previous: {
-                        //         $sum: {
-                        //             $cond: [
-                        //                 {
-                        //                     $eq: [keyForPreviousMonth, "Current Plan"]
-                        //                 },
-                        //                 1, 0
-                        //             ]
-                        //         }
-                        //     },
+                        total_Previous: {
+                            $sum: {
+                                $cond: [
+                                    {
+                                        $and: [
+                                            {
+                                                $eq: [keyForPreviousMonthCarriedPM, "CarriedPM"]
+                                            },
+                                            {
+                                                $eq: [x, ""]
+                                            }
+                                        ]
+                                    },
+                                    1, 0
+                                ]
+                            }
+                        },
 
-                        // }
                     },
 
 
@@ -5199,6 +5406,7 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
                         "total_completed": 1,
                         machine: 1,
                         "total_Previous": 1,
+                        "total_done_with_delay": 1
                     }
                 },
 
@@ -5211,14 +5419,14 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
             }
             // console.log(groupData)
 
+            lineDataWithCounter = await Machine.populate(allData, { path: "line_names" })
         }
 
-        let lineDataWithCounter = await Machine.populate(allData, { path: "line_names" })
 
         // console.log("==============>", lineDataWithCounter, "<===================")
 
 
-        res.json({ lineDataWithCounter })
+        res.json({ lineDataWithCounter, lineData })
     } catch (error) {
         console.log(error)
         console.log("User id not received!!!");
@@ -5382,6 +5590,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
         // console.log("____________", sectionInfo[0]._id)
         let subSectionsData, subSectionIdArray = [], cellData, cellIdArray = [], lineData, lineIdArray = [], machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
+        let machineDataForPreviousMonth, machineDataForCurrentMonth
         if (sectionInfo.dashboardLevel === "Yes") {
             subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
 
@@ -5415,7 +5624,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                     $match: {
                         line_names: { $in: lineIdArray },
                         $or: selectedYearOfCheckSheet,
-
+                        "checkSheet_data": { $ne: [] },
                     }
                 },
                 {
@@ -5436,8 +5645,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                 {
                     $match: {
                         [keyForCurrentMonthPMStatus]: { $ne: "" },
-                        "checkSheet_data.PMStatus": { $ne: "" },
-
+                        "checkSheet_data.PMStatus": { $ne: undefined },
                     }
                 },
             ])
@@ -5449,8 +5657,8 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                 {
                     $match: {
                         line_names: { $in: lineIdArray },
-                        $or: selectedYearOfCheckSheet
-
+                        $or: selectedYearOfCheckSheet,
+                        "checkSheet_data": { $ne: [] },
                     }
                 },
                 {
@@ -5471,8 +5679,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                 {
                     $match: {
                         [keyForPreviousMonthPMStatus]: { $ne: "" },
-                        "checkSheet_data.PMStatus": { $ne: "" },
-
+                        "checkSheet_data.PMStatus": { $ne: undefined },
                     }
                 },
             ])
@@ -5515,7 +5722,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                     $match: {
                         line_names: { $in: lineIdArray },
                         $or: selectedYearOfCheckSheet,
-
+                        "checkSheet_data": { $ne: [] },
                     }
                 },
                 {
@@ -5536,8 +5743,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                 {
                     $match: {
                         [keyForCurrentMonthPMStatus]: { $ne: "" },
-                        "checkSheet_data.PMStatus": { $ne: "" },
-
+                        "checkSheet_data.PMStatus": { $ne: undefined },
                     }
                 },
             ])
@@ -5549,8 +5755,8 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                 {
                     $match: {
                         line_names: { $in: lineIdArray },
-                        $or: selectedYearOfCheckSheet
-
+                        $or: selectedYearOfCheckSheet,
+                        "checkSheet_data": { $ne: [] },
                     }
                 },
                 {
@@ -5571,8 +5777,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                 {
                     $match: {
                         [keyForPreviousMonthPMStatus]: { $ne: "" },
-                        "checkSheet_data.PMStatus": { $ne: "" },
-
+                        "checkSheet_data.PMStatus": { $ne: undefined },
                     }
                 },
             ])
@@ -5702,6 +5907,8 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
 
 
             let x = `$checkSheet_data.PMStatus.${monthKeyArray[j]}`
+            let keyOfTotalDoneWithDelay = `$checkSheet_data.PMStatus.${monthKeyArray[j - 1]}`
+
             // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
             let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthKeyArray[j]}`
 
@@ -5770,11 +5977,28 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
                                     ]
                                 }
                             },
+                            total_done_with_delay: {
+                                $sum: {
+                                    $cond: [
+                                        {
+                                            $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
+                                        },
+                                        1, 0
+                                    ]
+                                }
+                            },
                             total_Previous: {
                                 $sum: {
                                     $cond: [
                                         {
-                                            $eq: [keyForPreviousMonth, "CarriedPM"]
+                                            $and: [
+                                                {
+                                                    $eq: [keyForPreviousMonth, "CarriedPM"]
+                                                },
+                                                {
+                                                    $eq: [x, ""]
+                                                }
+                                            ]
                                         },
                                         1, 0
                                     ]
@@ -5793,7 +6017,8 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
                             machine: 1,
                             "total_pmSchedule": 1,
                             "total_completed": 1,
-                            "total_Previous": 1
+                            "total_Previous": 1,
+                            "total_done_with_delay": 1
                         }
                     },
 
@@ -5802,7 +6027,7 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
                 if (groupData.length > 0) {
                     // console.log("---------------------------", groupData)
                     sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData[0].total_pmSchedule
-                    sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData[0].total_completed
+                    sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData[0].total_completed + groupData[0].total_done_with_delay
                     sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData[0].total_Previous
                 }
             }
@@ -5856,7 +6081,6 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
 
         let subSectionsData, subSectionIdArray = [], cellData, cellIdArray = [], lineData, lineIdArray = [], machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
-
 
         if (sectionInfo.dashboardLevel === "Yes") {
             subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
@@ -5914,10 +6138,14 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
         let groupData
 
         let keyForSelectedMonth = `$checkSheet_data.PMStatus.${selectedMonth}`
+        let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${selectedMonth}`
+
 
         let sumVariableForTotalSchedule = 0
         let sumVariableForTotalCompleted = 0
         let sumVariableForTotalOngoing = 0
+        let sumVariableForTotalPreviousPending = 0
+
 
 
         for (let i = 0; i < lineData.length; i++) {
@@ -5987,9 +6215,23 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
                                 ]
                             }
                         },
-
-
-
+                        total_previous_pending: {
+                            $sum: {
+                                $cond: [
+                                    {
+                                        $and: [
+                                            {
+                                                $eq: [keyForPreviousMonth, "CarriedPM"]
+                                            },
+                                            {
+                                                $eq: [keyForSelectedMonth, ""]
+                                            }
+                                        ]
+                                    },
+                                    1, 0
+                                ]
+                            }
+                        },
 
                     },
                 },
@@ -6002,6 +6244,7 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
                         "total_pmSchedule": 1,
                         "total_completed": 1,
                         "total_ongoing": 1,
+                        "total_previous_pending": 1
                     }
                 },
 
@@ -6012,6 +6255,7 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
                 sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData[0].total_pmSchedule
                 sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData[0].total_completed
                 sumVariableForTotalOngoing = sumVariableForTotalOngoing + groupData[0].total_ongoing
+                sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData[0].total_previous_pending
             }
         }
 
@@ -6020,13 +6264,14 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
         // console.log("***************************")
         // console.log(sumVariableForTotalCompleted)
         // console.log("***************************")
-        // console.log(sumVariableForTotalOngoing)
+        // console.log(sumVariableForTotalPreviousPending)
 
 
         res.json({
             sumVariableForTotalSchedule,
             sumVariableForTotalCompleted,
-            sumVariableForTotalOngoing
+            sumVariableForTotalOngoing,
+            sumVariableForTotalPreviousPending
         })
     } catch (error) {
         console.log(error)
@@ -6223,7 +6468,7 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
                     addNewFinancialYears.save()
                 }
 
-                if ((removeFieldsFromPreviousYear && copyCheckSheetData) ||  addNewFinancialYears) {
+                if ((removeFieldsFromPreviousYear && copyCheckSheetData) || addNewFinancialYears) {
                     return res.status(201).json("Checksheet copied!!!");
                 }
                 else {
@@ -6379,7 +6624,7 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
 
 router.get('/getFinancialYears', authenticate, async (req, res) => {
     try {
-        const getFinancialYearsArray = await HandlingOtherActions.findOne({yearId: "FY01"})
+        const getFinancialYearsArray = await HandlingOtherActions.findOne({ yearId: "FY01" })
         // console.log(getFinancialYearsArray)
         if (getFinancialYearsArray) {
             res.json({ getFinancialYearsArray });
@@ -6396,8 +6641,10 @@ router.get('/getFinancialYears', authenticate, async (req, res) => {
 
 router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res) => {
     try {
-        let { section } = req.body
+        let { section, selectedLine } = req.body
         // console.log(section, "_________", req.rootUser);
+        let onlyOpenAbnormalityWithAllMonths = [];
+
         let sectionSplit = section.split("-")
         const sectionInfo = await Section.find({ section_id: sectionSplit[0] })
         // console.log("____________", sectionInfo[0]._id)
@@ -6425,79 +6672,150 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
         for (let i = 0; i < lineData.length; i++) {
             lineIdArray.push(lineData[i]._id);
         }
+        if (selectedLine === "") {
 
-        const machineData = await Machine.find({ line_names: { $in: lineIdArray } }).sort({ machine_sequence: 1 });
+            const machineData = await Machine.find({ line_names: { $in: lineIdArray } }).sort({ machine_sequence: 1 });
 
-        let openAbnormality = await Machine.aggregate([
-            {
-                $match: {
-                    line_names: { $in: lineIdArray }
-                }
-            },
-            {
-                $project: {
-                    machine_code: 1,
-                    machine_name: 1,
-                    machine_nickname: 1,
-                    machine_sequence: 1,
-                    installation_date: 1,
-                    maker_name: 1,
-                    maker_sr_no: 1,
-                    manufacturingDate: 1,
-                    isPM: 1,
-                    line_names: 1,
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
-                }
-            },
-            {
-                $match: {
-                    "checkSheet_data.checkSheet.abnormalityDetails": { $ne: "" },
-                    // machine_code: "666"
-                }
-            },
-
-        ])
-        // console.log(openAbnormality)
-        openAbnormality = await Machine.populate(openAbnormality, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-        // const openAbnormality = await Machine.find({ line_names: { $in: lineIdArray }, "checkSheet.abnormalityDetails": { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
-
-        let onlyOpenAbnormalityWithAllMonths = [];
-        openAbnormality.map((keyForCheckSheet) => {
-            keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
-                for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
-                    let month = financialYearWiseMonthKeyArray[i]
-                    if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus != undefined) {
-                        if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus === "Open") {
-                            onlyOpenAbnormalityWithAllMonths.push(
-                                new Object({
-                                    line_name: keyForCheckSheet.line_names.line_name,
-                                    machine_name: keyForCheckSheet.machine_name,
-                                    machine_code: keyForCheckSheet.machine_code,
-                                    yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-                                    schedule_month: month,
-                                    table_id: keyForAbnormality.tableRowId,
-                                    checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
-                                    abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
-                                    targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
-                                    PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
-                                    remarksOnClose: keyForAbnormality?.abnormalityDetails[month]?.remarksOnClose,
-                                    doneDate: keyForAbnormality?.abnormalityDetails[month]?.doneDate,
-                                    doneBy: keyForAbnormality?.abnormalityDetails[month]?.doneBy,
-                                })
-                            );
-                        }
+            let openAbnormality = await Machine.aggregate([
+                {
+                    $match: {
+                        line_names: { $in: lineIdArray }
                     }
+                },
+                {
+                    $project: {
+                        machine_code: 1,
+                        machine_name: 1,
+                        machine_nickname: 1,
+                        machine_sequence: 1,
+                        installation_date: 1,
+                        maker_name: 1,
+                        maker_sr_no: 1,
+                        manufacturingDate: 1,
+                        isPM: 1,
+                        line_names: 1,
+                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    }
+                },
+                {
+                    $match: {
+                        "checkSheet_data.checkSheet.abnormalityDetails": { $ne: "" },
+                        // machine_code: "666"
+                    }
+                },
+
+            ])
+            // console.log(openAbnormality)
+            openAbnormality = await Machine.populate(openAbnormality, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+
+            // const openAbnormality = await Machine.find({ line_names: { $in: lineIdArray }, "checkSheet.abnormalityDetails": { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
+            openAbnormality.map((keyForCheckSheet) => {
+                keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
+                    for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
+                        let month = financialYearWiseMonthKeyArray[i]
+                        if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus != undefined) {
+                            if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus === "Open") {
+                                onlyOpenAbnormalityWithAllMonths.push(
+                                    new Object({
+                                        line_name: keyForCheckSheet.line_names.line_name,
+                                        machine_name: keyForCheckSheet.machine_name,
+                                        machine_code: keyForCheckSheet.machine_code,
+                                        yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
+                                        schedule_month: month,
+                                        table_id: keyForAbnormality.tableRowId,
+                                        checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
+                                        abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
+                                        targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
+                                        PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
+                                        remarksOnClose: keyForAbnormality?.abnormalityDetails[month]?.remarksOnClose,
+                                        doneDate: keyForAbnormality?.abnormalityDetails[month]?.doneDate,
+                                        doneBy: keyForAbnormality?.abnormalityDetails[month]?.doneBy,
+                                    })
+                                );
+                            }
+                        }
 
 
 
-                }
+                    }
+                })
             })
-        })
+        } else {
+            let openAbnormality = await Machine.aggregate([
+                {
+                    $match: {
+                        line_names: mongoose.Types.ObjectId(selectedLine)
+                    }
+                },
+                {
+                    $project: {
+                        machine_code: 1,
+                        machine_name: 1,
+                        machine_nickname: 1,
+                        machine_sequence: 1,
+                        installation_date: 1,
+                        maker_name: 1,
+                        maker_sr_no: 1,
+                        manufacturingDate: 1,
+                        isPM: 1,
+                        line_names: 1,
+                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    }
+                },
+                {
+                    $match: {
+                        "checkSheet_data.checkSheet.abnormalityDetails": { $ne: "" },
+                        // machine_code: "666"
+                    }
+                },
+
+            ])
+            // console.log(openAbnormality)
+            openAbnormality = await Machine.populate(openAbnormality, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+
+            // const openAbnormality = await Machine.find({ line_names: { $in: lineIdArray }, "checkSheet.abnormalityDetails": { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
+            openAbnormality.map((keyForCheckSheet) => {
+                keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
+                    for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
+                        let month = financialYearWiseMonthKeyArray[i]
+                        if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus != undefined) {
+                            if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus === "Open") {
+                                onlyOpenAbnormalityWithAllMonths.push(
+                                    new Object({
+                                        line_name: keyForCheckSheet.line_names.line_name,
+                                        machine_name: keyForCheckSheet.machine_name,
+                                        machine_code: keyForCheckSheet.machine_code,
+                                        yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
+                                        schedule_month: month,
+                                        table_id: keyForAbnormality.tableRowId,
+                                        checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
+                                        abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
+                                        targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
+                                        PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
+                                        remarksOnClose: keyForAbnormality?.abnormalityDetails[month]?.remarksOnClose,
+                                        doneDate: keyForAbnormality?.abnormalityDetails[month]?.doneDate,
+                                        doneBy: keyForAbnormality?.abnormalityDetails[month]?.doneBy,
+                                    })
+                                );
+                            }
+                        }
+
+
+
+                    }
+                })
+            })
+        }
+
+
+
         // console.log(onlyOpenAbnormalityWithAllMonths)
 
-        res.json({ onlyOpenAbnormalityWithAllMonths })
+        res.json({ onlyOpenAbnormalityWithAllMonths, lineData })
     } catch (error) {
         console.log(error)
         console.log("User id not received!!!");
@@ -6509,18 +6827,769 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
 
 router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async (req, res) => {
     try {
-        let { plants } = req.body
+        let { plants, selectedMonth, selectedYear } = req.body
+        let loggedUserData = req.rootUser;
+        let SectionInfo, subSectionsData, cellData, lineData
+        let monthlyChartDataOfSummery = []
 
+        let currentYear =
+            new Date().getMonth() <= 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ?
+                [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+                    {
+                        "checkSheet_data": []
+
+                    }
+                ] : [
+                    {
+                        "checkSheet_data.current_year": selectedYear
+
+                    },
+
+                ]
+
+        const monthKeyArray = [
+            "Apr",
+            "May",
+            "June",
+            "July",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+            "Jan",
+            "Feb",
+            "Mar",
+        ];
+
+        let groupData, annual_completed = []
+
+        let keyForSelectedMonth = `$checkSheet_data.PMStatus.${selectedMonth}`
+        let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${selectedMonth}`
+
+
+        let sumVariableForTotalSchedule = 0
+        let sumVariableForTotalCompleted = 0
+        let sumVariableForTotalOngoing = 0
+        let sumVariableForTotalPreviousPending = 0
+
+        let groupData2
         // console.log(plants.map(item => item._id))
         // const SectionInfo = await Section.find({ plant_names: { $in: plants.map(item => item._id) } }).populate({ path: "plant_names", model: "Plants" })
-        const SectionInfo = await Section.find({ plant_names: { $in: plants.map(item => item._id) } })
 
-        // console.log(SectionInfo);
+        for (let j = 0; j < plants.length; j++) {
+
+            SectionInfo = await Section.find({ plant_names: plants[j]._id })
 
 
-        // console.log(sectionArray)
+            for (let i = 0; i < SectionInfo.length; i++) {
+                // console.log("----------------------------")
 
-        res.json({ SectionInfo })
+                if (SectionInfo[i].dashboardLevel === "Yes") {
+                    //  console.log(plants[j].plant_name, "----" ,SectionInfo[i].section_name, "---", SectionInfo[i].dashboardLevel)
+
+                    subSectionsData = await SubSection.find({ section_names: SectionInfo[i]._id }).sort({ subSection_sequence: 1 })
+
+                    cellData = await Cell.find({ subSection_names: { $in: subSectionsData.map(item => item._id) } }).sort({ cell_sequence: 1 });
+
+                    lineData = await Line.find({ cell_names: { $in: cellData.map(item => item._id) } }).sort({ line_sequence: 1 });
+
+                    for (let k = 0; k < lineData.length; k++) {
+
+                        groupData = await Machine.aggregate([
+
+                            {
+
+                                $match: {
+                                    line_names: lineData[k]._id,
+                                    // "checkSheet_data": { $ne: undefined },
+                                    $or: selectedYearOfCheckSheet,
+                                }
+                            },
+                            {
+                                $project: {
+                                    machine_code: 1,
+                                    machine_name: 1,
+                                    machine_nickname: 1,
+                                    machine_sequence: 1,
+                                    installation_date: 1,
+                                    maker_name: 1,
+                                    maker_sr_no: 1,
+                                    manufacturingDate: 1,
+                                    isPM: 1,
+                                    line_names: 1,
+                                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                                }
+                            },
+                            {
+                                $match: {
+                                    "checkSheet_data.PMStatus": { $ne: undefined },
+                                    "checkSheet_data": { $ne: undefined }
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: "$line_names",
+                                    machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                                    total_pmSchedule: {
+                                        $sum: {
+                                            $cond: [
+                                                {
+                                                    $ne: [keyForSelectedMonth, ""]
+                                                },
+                                                1, 0
+                                            ]
+                                        }
+                                    },
+                                    total_completed: {
+                                        $sum: {
+                                            $cond: [
+                                                {
+                                                    $eq: [keyForSelectedMonth, "Completed"]
+                                                },
+                                                1, 0
+                                            ]
+                                        }
+                                    },
+                                    total_ongoing: {
+                                        $sum: {
+                                            $cond: [
+                                                {
+                                                    $eq: [keyForSelectedMonth, "Ongoing"]
+                                                },
+                                                1, 0
+                                            ]
+                                        }
+                                    },
+                                    total_previous_pending: {
+                                        $sum: {
+                                            $cond: [
+                                                {
+                                                    $and: [
+                                                        {
+                                                            $eq: [keyForPreviousMonth, "CarriedPM"]
+                                                        },
+                                                        {
+                                                            $eq: [keyForSelectedMonth, ""]
+                                                        }
+                                                    ]
+                                                },
+                                                1, 0
+                                            ]
+                                        }
+                                    },
+
+                                },
+                            },
+
+                            {
+                                $project: {
+                                    _id: 0,
+                                    line_names: "$_id",
+                                    machine: 1,
+                                    "total_pmSchedule": 1,
+                                    "total_completed": 1,
+                                    "total_ongoing": 1,
+                                    "total_previous_pending": 1
+                                }
+                            },
+
+
+                        ])
+                        // console.log(groupData)
+                        if (groupData.length > 0) {
+                            // console.log(plants[j]?.plant_name, "---->", SectionInfo[i]?.section_name, "--->", SectionInfo[i]?.dashboardLevel)
+
+                            // console.log("---------------------------", groupData)
+                            sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData?.[0]?.total_pmSchedule
+                            sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData?.[0]?.total_completed
+                            sumVariableForTotalOngoing = sumVariableForTotalOngoing + groupData?.[0]?.total_ongoing
+                            sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData?.[0]?.total_previous_pending
+
+                            monthlyChartDataOfSummery.push(
+                                new Object({
+                                    chartData: {
+                                        sumVariableForTotalSchedule: sumVariableForTotalSchedule,
+                                        sumVariableForTotalCompleted: sumVariableForTotalCompleted,
+                                        sumVariableForTotalOngoing: sumVariableForTotalOngoing,
+                                        sumVariableForTotalPreviousPending: sumVariableForTotalPreviousPending,
+                                    },
+                                    plant_name: plants[j]?._id,
+                                    section_name: SectionInfo[i]?.section_name,
+                                    section_id: SectionInfo[i]?._id
+
+                                })
+                            )
+                            // console.log(groupData)
+                        }
+                    }
+
+                    if (!monthlyChartDataOfSummery.some(e => e?.section_id === SectionInfo[i]?._id)) {
+                        SectionInfo[i]?._id ?
+                            monthlyChartDataOfSummery.push(
+
+                                new Object({
+                                    plant_name: plants[j]._id,
+                                    section_name: SectionInfo[i]?.section_name,
+                                    section_id: SectionInfo[i]?._id
+                                })
+                            ) : ""
+                    }
+
+                    // for annual chart
+                    for (let m = 0; m < monthKeyArray.length; m++) {
+
+                        let sumVariableForTotalCompletedForAnnualChart = 0
+                        let x = `$checkSheet_data.PMStatus.${monthKeyArray[m]}`
+                        // let previousMonth = monthKeyArray[m - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[m - 1]
+                        let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthKeyArray[m]}`
+
+                        for (let n = 0; n < lineData.length; n++) {
+                            // console.log(lineData[n].line_name)
+                            groupData2 = await Machine.aggregate([
+
+                                {
+
+                                    $match: {
+                                        line_names: lineData[n]._id,
+                                        // line_names: mongoose.Types.ObjectId('633d0627416d0f692a1fc3ca'),
+                                        $or: selectedYearOfCheckSheet,
+                                        "checkSheet_data": { $ne: undefined }
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        machine_code: 1,
+                                        machine_name: 1,
+                                        machine_nickname: 1,
+                                        machine_sequence: 1,
+                                        installation_date: 1,
+                                        maker_name: 1,
+                                        maker_sr_no: 1,
+                                        manufacturingDate: 1,
+                                        isPM: 1,
+                                        line_names: 1,
+                                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                                    }
+                                },
+                                {
+                                    $match: {
+                                        "checkSheet_data.PMStatus": { $ne: undefined },
+                                        // "checkSheet_data.carriedPMStatus": { $ne: undefined },
+
+                                    }
+                                },
+                                {
+                                    $group: {
+                                        _id: "$line_names",
+                                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                                        total_pmSchedule: {
+                                            $sum: {
+                                                $cond: [
+                                                    {
+                                                        $ne: [x, ""]
+                                                    },
+                                                    1, 0
+                                                ]
+                                            }
+                                        },
+
+                                        total_completed: {
+                                            $sum: {
+                                                $cond: [
+                                                    {
+                                                        $eq: [x, "Completed"]
+                                                    },
+                                                    1, 0
+                                                ]
+                                            }
+                                        },
+                                        // total_done_with_delay: {
+                                        //     $sum: {
+                                        //         $cond: [
+                                        //             {
+                                        //                 $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
+                                        //             },
+                                        //             1, 0
+                                        //         ]
+                                        //     }
+                                        // },
+                                        total_Previous: {
+                                            $sum: {
+                                                $cond: [
+                                                    {
+                                                        $and: [
+                                                            {
+                                                                $eq: [keyForPreviousMonth, "CarriedPM"]
+                                                            },
+                                                            {
+                                                                $eq: [x, ""]
+                                                            }
+                                                        ]
+                                                    },
+                                                    1, 0
+                                                ]
+                                            }
+                                        },
+
+                                    },
+                                },
+
+                                {
+                                    $project: {
+                                        _id: 0,
+                                        line_names: "$_id",
+                                        "total_pmSchedule": 1,
+                                        "total_completed": 1,
+                                        // "total_done_with_delay": 1,
+                                        "total_Previous": 1
+                                    }
+                                },
+
+
+                            ])
+                            if (groupData2.length > 0) {
+                                // console.log("**********", monthKeyArray[m])
+                                // console.log( groupData2)
+                                sumVariableForTotalCompletedForAnnualChart = sumVariableForTotalCompletedForAnnualChart + groupData2[0].total_completed
+                                // console.log(sumVariableForTotalCompletedForAnnualChart)
+                                // console.log((sumVariableForTotalCompletedForAnnualChart *100) / (groupData2[0].total_pmSchedule + groupData2[0].total_Previous))
+                                sumVariableForTotalCompletedForAnnualChart = ((sumVariableForTotalCompletedForAnnualChart * 100) / (groupData2[0].total_pmSchedule + groupData2[0].total_Previous)).toFixed(2)
+                                annual_completed.push(sumVariableForTotalCompletedForAnnualChart)
+
+                            }
+                        }
+
+                    }
+
+                    if (monthlyChartDataOfSummery.some(e => e?.section_id === SectionInfo[i]?._id)) {
+
+
+                        monthlyChartDataOfSummery.map(key => {
+                            if (key?.section_id === SectionInfo[i]?._id && key?.chartData != undefined) {
+                                // console.log(annual_completed, "-----", SectionInfo[i]?.section_name),
+                                key["annualChartData"] = annual_completed
+                            }
+                        })
+                    }
+
+                }
+
+                else {
+
+                    subSectionsData = await SubSection.find({ section_names: SectionInfo[i]._id }).sort({ subSection_sequence: 1 })
+
+
+                    for (let l = 0; l < subSectionsData.length; l++) {
+                        // console.log("****************************")
+                        // console.log(subSectionsData[l].subSection_name)
+
+                        cellData = await Cell.find({ subSection_names: { $in: subSectionsData[l]._id } }).sort({ cell_sequence: 1 });
+
+                        lineData = await Line.find({ cell_names: { $in: cellData.map(item => item._id) } }).sort({ line_sequence: 1 });
+
+                        for (let k = 0; k < lineData.length; k++) {
+
+                            groupData = await Machine.aggregate([
+
+                                {
+
+                                    $match: {
+                                        line_names: lineData[k]._id,
+                                        // "checkSheet_data": { $ne: undefined },
+                                        $or: selectedYearOfCheckSheet,
+
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        machine_code: 1,
+                                        machine_name: 1,
+                                        machine_nickname: 1,
+                                        machine_sequence: 1,
+                                        installation_date: 1,
+                                        maker_name: 1,
+                                        maker_sr_no: 1,
+                                        manufacturingDate: 1,
+                                        isPM: 1,
+                                        line_names: 1,
+                                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                                    }
+                                },
+                                {
+                                    $match: {
+                                        "checkSheet_data.PMStatus": { $ne: undefined },
+
+                                    }
+                                },
+                                {
+                                    $group: {
+                                        _id: "$line_names",
+                                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                                        total_pmSchedule: {
+                                            $sum: {
+                                                $cond: [
+                                                    {
+                                                        $ne: [keyForSelectedMonth, ""]
+                                                    },
+                                                    1, 0
+                                                ]
+                                            }
+                                        },
+                                        total_completed: {
+                                            $sum: {
+                                                $cond: [
+                                                    {
+                                                        $eq: [keyForSelectedMonth, "Completed"]
+                                                    },
+                                                    1, 0
+                                                ]
+                                            }
+                                        },
+                                        total_ongoing: {
+                                            $sum: {
+                                                $cond: [
+                                                    {
+                                                        $eq: [keyForSelectedMonth, "Ongoing"]
+                                                    },
+                                                    1, 0
+                                                ]
+                                            }
+                                        },
+                                        total_previous_pending: {
+                                            $sum: {
+                                                $cond: [
+                                                    {
+                                                        $and: [
+                                                            {
+                                                                $eq: [keyForPreviousMonth, "CarriedPM"]
+                                                            },
+                                                            {
+                                                                $eq: [keyForSelectedMonth, ""]
+                                                            }
+                                                        ]
+                                                    },
+                                                    1, 0
+                                                ]
+                                            }
+                                        },
+
+                                    },
+                                },
+
+                                {
+                                    $project: {
+                                        _id: 0,
+                                        line_names: "$_id",
+                                        machine: 1,
+                                        "total_pmSchedule": 1,
+                                        "total_completed": 1,
+                                        "total_ongoing": 1,
+                                        "total_previous_pending": 1
+                                    }
+                                },
+
+
+                            ])
+                            if (groupData.length > 0) {
+                                // console.log("---------------------------", groupData)
+                                sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData?.[0]?.total_pmSchedule
+                                sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData?.[0]?.total_completed
+                                sumVariableForTotalOngoing = sumVariableForTotalOngoing + groupData?.[0]?.total_ongoing
+                                sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData?.[0]?.total_previous_pending
+
+                                monthlyChartDataOfSummery.push(
+                                    new Object({
+                                        chartData: {
+                                            sumVariableForTotalSchedule: sumVariableForTotalSchedule,
+                                            sumVariableForTotalCompleted: sumVariableForTotalCompleted,
+                                            sumVariableForTotalOngoing: sumVariableForTotalOngoing,
+                                            sumVariableForTotalPreviousPending: sumVariableForTotalPreviousPending,
+                                        },
+                                        plant_name: plants[j]._id,
+                                        section_name: subSectionsData[l]?.subSection_name,
+                                        section_id: subSectionsData[l]?._id
+                                    })
+                                )
+                                // console.log(groupData)
+
+                            }
+                            // else {
+                            //     subSectionsData[j]?.subSection_name ?
+                            //         monthlyChartDataOfSummery.push(
+                            //             new Object({
+                            //                 plant_name: plants[j]._id,
+                            //                 section_name: subSectionsData[l]?.subSection_name
+                            // section_id: subSectionsData[l]?._id
+                            //             })
+                            //         ) : ""
+                            // }
+                        }
+                        if (!monthlyChartDataOfSummery.some(e => e?.section_id === subSectionsData[l]?._id)) {
+                            subSectionsData[j]?.subSection_name ?
+                                monthlyChartDataOfSummery.push(
+                                    new Object({
+                                        plant_name: plants[j]?._id,
+                                        section_name: subSectionsData[l]?.subSection_name,
+                                        section_id: subSectionsData[l]?._id
+                                    })
+                                ) : ""
+                        }
+
+
+                        // for annual chart
+                        for (let o = 0; o < monthKeyArray.length; o++) {
+
+                            let sumVariableForTotalCompletedForAnnualChart = 0
+                            let x = `$checkSheet_data.PMStatus.${monthKeyArray[o]}`
+                            // let previousMonth = monthKeyArray[m - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[m - 1]
+                            let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthKeyArray[o]}`
+
+                            for (let p = 0; p < lineData.length; p++) {
+                                // console.log(lineData[n].line_name)
+                                groupData2 = await Machine.aggregate([
+
+                                    {
+
+                                        $match: {
+                                            line_names: lineData[p]._id,
+                                            // line_names: mongoose.Types.ObjectId('633d0627416d0f692a1fc3ca'),
+                                            $or: selectedYearOfCheckSheet,
+                                            "checkSheet_data": { $ne: undefined }
+                                        }
+                                    },
+                                    {
+                                        $project: {
+                                            machine_code: 1,
+                                            machine_name: 1,
+                                            machine_nickname: 1,
+                                            machine_sequence: 1,
+                                            installation_date: 1,
+                                            maker_name: 1,
+                                            maker_sr_no: 1,
+                                            manufacturingDate: 1,
+                                            isPM: 1,
+                                            line_names: 1,
+                                            checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                                        }
+                                    },
+                                    {
+                                        $match: {
+                                            "checkSheet_data.PMStatus": { $ne: undefined },
+                                            // "checkSheet_data.carriedPMStatus": { $ne: undefined },
+
+                                        }
+                                    },
+                                    {
+                                        $group: {
+                                            _id: "$line_names",
+                                            machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                                            total_pmSchedule: {
+                                                $sum: {
+                                                    $cond: [
+                                                        {
+                                                            $ne: [x, ""]
+                                                        },
+                                                        1, 0
+                                                    ]
+                                                }
+                                            },
+
+                                            total_completed: {
+                                                $sum: {
+                                                    $cond: [
+                                                        {
+                                                            $eq: [x, "Completed"]
+                                                        },
+                                                        1, 0
+                                                    ]
+                                                }
+                                            },
+                                            // total_done_with_delay: {
+                                            //     $sum: {
+                                            //         $cond: [
+                                            //             {
+                                            //                 $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
+                                            //             },
+                                            //             1, 0
+                                            //         ]
+                                            //     }
+                                            // },
+                                            total_Previous: {
+                                                $sum: {
+                                                    $cond: [
+                                                        {
+                                                            $and: [
+                                                                {
+                                                                    $eq: [keyForPreviousMonth, "CarriedPM"]
+                                                                },
+                                                                {
+                                                                    $eq: [x, ""]
+                                                                }
+                                                            ]
+                                                        },
+                                                        1, 0
+                                                    ]
+                                                }
+                                            },
+
+                                        },
+                                    },
+
+                                    {
+                                        $project: {
+                                            _id: 0,
+                                            line_names: "$_id",
+                                            "total_completed": 1,
+                                            "total_done_with_delay": 1
+                                        }
+                                    },
+
+
+                                ])
+                                if (groupData2.length > 0) {
+                                    // console.log("**********", monthKeyArray[m])
+                                    // console.log( groupData2[0].total_completed)
+                                    sumVariableForTotalCompletedForAnnualChart = ((sumVariableForTotalCompletedForAnnualChart * 100) / (groupData2[0].total_pmSchedule + groupData2[0].total_Previous)).toFixed(2)
+                                    annual_completed.push(sumVariableForTotalCompletedForAnnualChart)
+
+                                }
+                            }
+
+                        }
+                        // console.log(annual_completed)
+                        if (monthlyChartDataOfSummery.some(e => e?.section_id === subSectionsData[l]?._id)) {
+                            monthlyChartDataOfSummery.map((key) => {
+                                if (key?.section_id === subSectionsData[l]?._id?._id && key?.chartData != undefined) {
+                                    key["annualChartData"] = annual_completed
+                                }
+                            })
+                        }
+
+                    }
+
+
+
+                }
+
+
+            }
+
+
+        }
+
+
+        // for (let m = 0; m < monthKeyArray.length; m++) {
+
+        //     let sumVariableForTotalCompletedForAnnualChart = 0
+        //     let x = `$checkSheet_data.PMStatus.${monthKeyArray[m]}`
+        //     // let previousMonth = monthKeyArray[m - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[m - 1]
+        //     let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthKeyArray[m]}`
+
+        //     for (let n = 0; n < lineData.length; n++) {
+        //         // console.log(lineData[n].line_name)
+        //         groupData2 = await Machine.aggregate([
+
+        //             {
+
+        //                 $match: {
+        //                     line_names: lineData[n]._id,
+        //                     // line_names: mongoose.Types.ObjectId('633d0627416d0f692a1fc3ca'),
+        //                     $or: selectedYearOfCheckSheet,
+        //                     "checkSheet_data": { $ne: undefined }
+        //                 }
+        //             },
+        //             {
+        //                 $project: {
+        //                     machine_code: 1,
+        //                     machine_name: 1,
+        //                     machine_nickname: 1,
+        //                     machine_sequence: 1,
+        //                     installation_date: 1,
+        //                     maker_name: 1,
+        //                     maker_sr_no: 1,
+        //                     manufacturingDate: 1,
+        //                     isPM: 1,
+        //                     line_names: 1,
+        //                     checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+        //                 }
+        //             },
+        //             {
+        //                 $match: {
+        //                     "checkSheet_data.PMStatus": { $ne: undefined },
+        //                     // "checkSheet_data.carriedPMStatus": { $ne: undefined },
+
+        //                 }
+        //             },
+        //             {
+        //                 $group: {
+        //                     _id: "$line_names",
+        //                     machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+
+        //                     total_completed: {
+        //                         $sum: {
+        //                             $cond: [
+        //                                 {
+        //                                     $eq: [x, "Completed"]
+        //                                 },
+        //                                 1, 0
+        //                             ]
+        //                         }
+        //                     },
+        //                     // total_done_with_delay: {
+        //                     //     $sum: {
+        //                     //         $cond: [
+        //                     //             {
+        //                     //                 $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
+        //                     //             },
+        //                     //             1, 0
+        //                     //         ]
+        //                     //     }
+        //                     // },
+
+        //                 },
+        //             },
+
+        //             {
+        //                 $project: {
+        //                     _id: 0,
+        //                     line_names: "$_id",
+        //                     machine:1,
+        //                     "total_completed": 1,
+        //                     "total_done_with_delay": 1
+        //                 }
+        //             },
+
+
+        //         ])
+        //         if (groupData2.length > 0) {
+        //             console.log(groupData2)
+        //             sumVariableForTotalCompletedForAnnualChart = sumVariableForTotalCompletedForAnnualChart + groupData2[0].total_completed
+        //         }
+        //     }
+
+        //     annual_completed.push(sumVariableForTotalCompletedForAnnualChart)
+
+        //     // if (groupData.length > 0) {
+        //     //     for (let i = 0; i < groupData.length; i++) {
+        //     //         allData.push(groupData[i])
+        //     //     }
+        //     // }
+
+        // }
+        // console.log(annual_completed)
+
+
+        res.json({ SectionInfo, monthlyChartDataOfSummery })
     } catch (error) {
         console.log(error)
         console.log("User id not received!!!");
@@ -7337,6 +8406,135 @@ router.post('/postPerticularOperatorToGetDataForActualTimeTakenTMWise', authenti
     } catch (error) {
         console.log(error)
         console.log("User id not received!!!");
+    }
+})
+
+
+//for tag name XLSx file upload
+const storage2 = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './data_sheets/');
+    },
+    filename: function (req, file, cb) {
+        // cb(null, Date.now() + '_' + file.originalname);
+        cb(null, file.originalname);
+
+    }
+});
+
+const fileFilter2 = (req, file, cb) => {
+    const allowedFileTypes = ['xls', 'xlsx'];
+    if (!file.originalname.match(/\.(xls|xlsx|csv)$/)) {
+        return cb(new Error('Only .xls, .xlsx, .csv format allowed!'));
+    } else {
+        cb(null, true);
+
+        // cb(null, false);
+    }
+}
+
+const upload2 = multer({
+    storage: storage2,
+    limits: {
+        fileSize: 52428800
+    },
+    fileFilter: fileFilter2
+});
+
+
+
+//upload tag ( XLS , XLSX ) file 
+router.post('/uploadDataSheetFile', upload2.single('data_sheet'), async (req, res) => {
+    try {
+        // console.log(req.body)
+        const machine_code = req.body.machine_code
+        const yearOfCheckSheet = req.body.yearOfCheckSheet
+        let keyForUpdateDataSheet = `checkSheet_data.$[outer].dataSheet`
+
+        let uploadDataSheet
+        if (req.file === undefined) {
+            return res.status(422).json({ error: 'plz select the file' })
+        }
+        else {
+            const dataSheet = req.file?.filename
+            uploadDataSheet = await Machine.updateOne({
+                machine_code: machine_code
+            },
+                {
+                    $set: {
+                        [keyForUpdateDataSheet]: dataSheet
+                    }
+                },
+                {
+                    arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
+                }
+            )
+        }
+        if (uploadDataSheet) {
+            res.status(200).send("Data sheet uploaded successfully")
+        } else {
+            res.status(200).send("Data sheet not uploaded ")
+
+        }
+    }
+    catch (err) {
+        console.log(err)
+        // res.status(400).send("error")
+    }
+});
+
+
+router.post('/deleteBackUpData', authenticate, async (req, res) => {
+    try {
+        const { selectedRow } = req.body;
+        // const plant_no = Object.values(plant_id);
+        // console.log(plant_id);
+
+        if (!selectedRow) {
+            return res.status(422).send(" Back-up data is not valid!!!");
+        }
+
+        // const result = await Section.find({ plant_names: _id })
+        // console.log(result)
+        const deleteBackupData = await BackupMachineData.deleteOne({ machine_code: selectedRow.machine_code });
+
+        if (deleteBackupData) {
+            // console.log("Plant deleted!!!")
+            return res.status(201).json("Backup Data deleted!!!");
+        }
+        else {
+            return res.status(400).json("Backup data not deleted!!!");
+        }
+    } catch (error) {
+        console.log(error)
+        console.log("Data not valid or received !!!");
+    }
+})
+
+
+let downloadDataSheetFileName
+
+router.post('/postDataSheetFileName', authenticate, async (req, res) => {
+    // const file = fs.createWriteStream(filePath);
+
+    try {
+        const { fileName } = req.body
+        let filePath = path.join(__dirname, `../data_sheets/${fileName}`)
+        downloadDataSheetFileName = filePath
+        if (downloadDataSheetFileName) {
+            res.status(201).json({ message: "File name posted" });
+        }
+    } catch (error) {
+        // console.log("2032", error)
+        console.log("Filename not received");
+    }
+})
+router.get('/downloadDataSheetFile', authenticate, async (req, res) => {
+    try {
+        // console.log(downloadDataSheetFileName)
+        res.download(downloadDataSheetFileName)
+    } catch (error) {
+        console.log("Filename not received");
     }
 })
 

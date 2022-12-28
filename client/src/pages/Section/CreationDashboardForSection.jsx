@@ -477,10 +477,10 @@ const CreationDashboardForSection = () => {
 
                       onRowDelete: (selectedRow) =>
                         new Promise((resolve, reject) => {
-                          const index = selectedRow.tableData.id;
-                          console.log(index);
-                          const updatedRows = [...machine];
-                          updatedRows.splice(index, 1);
+                          // const index = selectedRow.tableData.id;
+                          // console.log(index);
+                          // const updatedRows = [...machine];
+                          // updatedRows.splice(index, 1);
 
                           //call the delete user function and pass the user data
                           // deleteUserInfo(selectedRow);
@@ -583,10 +583,10 @@ const CreationDashboardForSection = () => {
 
                       onRowDelete: (selectedRow) =>
                         new Promise((resolve, reject) => {
-                          const index = selectedRow.tableData.id;
-                          console.log(index);
-                          const updatedRows = [...lineList.lineInfo];
-                          updatedRows.splice(index, 1);
+                          // const index = selectedRow.tableData.id;
+                          // console.log(index);
+                          // const updatedRows = [...lineList.lineInfo];
+                          // updatedRows.splice(index, 1);
 
                           //call the delete user function and pass the user data
                           // deleteUserInfo(selectedRow);
@@ -690,10 +690,10 @@ const CreationDashboardForSection = () => {
 
                       onRowDelete: (selectedRow) =>
                         new Promise((resolve, reject) => {
-                          const index = selectedRow.tableData.id;
-                          console.log(index);
-                          const updatedRows = [...cellList.cellInfo];
-                          updatedRows.splice(index, 1);
+                          // const index = selectedRow.tableData.id;
+                          // console.log(index);
+                          // const updatedRows = [...cellList.cellInfo];
+                          // updatedRows.splice(index, 1);
 
                           //call the delete user function and pass the user data
                           // deleteUserInfo(selectedRow);

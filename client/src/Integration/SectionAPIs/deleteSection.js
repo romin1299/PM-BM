@@ -1,6 +1,6 @@
 const deleteSection = async (deleteRow) => {
     const section_id = deleteRow.section_id;
-
+    console.log(section_id)
     try {
         const res = await fetch("/deleteSection", {
             method: "POST",

@@ -463,7 +463,7 @@ function ViewChecksheet() {
           phaseStatus,
           prd_tl_list: values.prd_tl_list,
           selected_machine_data:
-            selectedMachineCheckSheetData.state.selectedRowForViewForm,
+            selectedMachineCheckSheetData.state?.selectedRowForViewForm,
           planning_TL_date: timeStamp(),
         }),
       });
@@ -497,7 +497,7 @@ function ViewChecksheet() {
           tl_list: values.tl_list,
           hos_list: values.hos_list,
           selected_machine_data:
-            selectedMachineCheckSheetData.state.selectedRowForViewForm,
+            selectedMachineCheckSheetData.state?.selectedRowForViewForm,
           preparation_TL_date: timeStamp(),
         }),
       });
@@ -529,7 +529,7 @@ function ViewChecksheet() {
           phaseStatus,
           prd_tl_list: formik.values.prd_tl_list,
           selected_machine_data:
-            selectedMachineCheckSheetData.state.selectedRowForViewForm,
+            selectedMachineCheckSheetData.state?.selectedRowForViewForm,
         }),
       });
       const data = await res.json();
@@ -573,7 +573,7 @@ function ViewChecksheet() {
   //   selectedMachineCheckSheetData.state.selectedRowForViewForm
   //     .tl_approval_status
   // );
-  console.log(context.user_type)
+  // console.log(context.user_type);
   return (
     <>
       {stateForOpeningSummeryPopups}
@@ -584,27 +584,27 @@ function ViewChecksheet() {
               {" "}
               <div>
                 <div className="col-2 mt-2">
-                  <a
-                    style={{ color: "Black" }}
-                    href={
-                      context.tm_department === "MTD" && context.user_type === "TL/HOSS"
-                        ? "/checkSheetDashboard"
-                        : context.tm_department === "PRD" && context.user_type === "TL/HOSS" ||
+                  <button
+                    onClick={() =>
+                      context.tm_department === "MTD" &&
+                      context.user_type === "TL/HOSS"
+                        ? navigate("/checkSheetDashboard")
+                        : (context.tm_department === "PRD" &&
+                            context.user_type === "TL/HOSS") ||
                           context.user_type === "Section-Admin"
-                        ? "/approvalDashboard"
-                        : "/checkSheetDashboard"
+                        ? navigate("/approvalDashboard")
+                        : context.user_type === "Operator"
+                        ? navigate("/pmMonthlyReport")
+                        : navigate("/checkSheetDashboard")
                     }
+                    style={{
+                      border: "none",
+                      background: "white",
+                      borderRadius: 5,
+                    }}
                   >
-                    <button
-                      style={{
-                        border: "none",
-                        background: "white",
-                        borderRadius: 5,
-                      }}
-                    >
-                      <ArrowBackIcon />
-                    </button>
-                  </a>
+                    <ArrowBackIcon />
+                  </button>
                 </div>
               </div>
             </Col>
@@ -683,7 +683,7 @@ function ViewChecksheet() {
             <div className="row">
               <div className="col-6"></div>
               <div className="col-6" style={{ fontWeight: "bold" }}>
-                Year: {new Date().getFullYear()}-{new Date().getFullYear() + 1}{" "}
+                Year: {machineAllData?.checkSheet_data?.current_year}{" "}
               </div>
             </div>
           </span>
@@ -704,16 +704,16 @@ function ViewChecksheet() {
                       colSpan={3}
                       rowSpan={5}
                     >
-                      Line:- {machineAllData.line_names.line_name}
+                      Line:- {machineAllData?.line_names?.line_name}
                       <br />
-                      M/c No : {machineAllData.machine_code}
+                      M/c No : {machineAllData?.machine_code}
                     </th>
                     <th
                       className="ar-table-thead-header2 headerPD"
                       colSpan={2}
                       rowSpan={5}
                     >
-                      Machine Name: {machineAllData.machine_name}
+                      Machine Name: {machineAllData?.machine_name}
                     </th>
                     <th
                       className="ar-table-thead-header1 headerPD  align-items-center"

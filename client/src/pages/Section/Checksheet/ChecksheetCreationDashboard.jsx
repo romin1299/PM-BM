@@ -290,7 +290,8 @@ const ChecksheetCreationDashboard = ({}) => {
           inspection_point: selectedRow.inspection_point,
           judgement_criteria: selectedRow.judgement_criteria,
           action: selectedRow.action,
-          cycle: selectedRow.cycle,line,
+          cycle: selectedRow.cycle,
+          line,
           personInCharge: selectedRow.personInCharge,
           PM_time: selectedRow.PM_time,
           machineId: selectedMachineData.state.selectedRow.machine_code,
@@ -482,26 +483,21 @@ const ChecksheetCreationDashboard = ({}) => {
     <>
       <div style={{ margin: "0.5rem" }}>
         <div className="pageCard">
-          <a
-            className="mb-2"
-            style={{ color: "Black" }}
-            href={
+          <button
+            onClick={() =>
               context.user_type === "Section-Admin"
-                ? "/approvalDashboard"
-                : "/checkSheetDashboard"
+                ? navigate("/approvalDashboard")
+                : navigate("/checkSheetDashboard")
             }
+            style={{
+              border: "none",
+              background: "white",
+              borderRadius: 5,
+            }}
+            className="mb-2"
           >
-            <button
-              style={{
-                border: "none",
-                background: "white",
-                borderRadius: 5,
-              }}
-              className="mb-2"
-            >
-              <ArrowBackIcon />
-            </button>
-          </a>
+            <ArrowBackIcon />
+          </button>
           {tableData === undefined ? (
             <div class="row g-3">
               <div class="col-lg-2 col-md-12 col-sm-12">

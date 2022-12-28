@@ -158,6 +158,7 @@ function App() {
                 <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
                 <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
                 <Route path="/summeryDashboard" element={<SummeryDashboard />} />
+                <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
 
                 {/* <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
