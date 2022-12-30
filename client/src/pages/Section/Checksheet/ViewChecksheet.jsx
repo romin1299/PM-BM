@@ -250,7 +250,9 @@ function ViewChecksheet() {
           key === "planningTableAnimationArray2" ||
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
-          key === "start_month"
+          key === "start_month"||
+          key === "PMOkImage" ||
+          key === "handlingSkipPending"
         ) {
           continue;
         }
@@ -573,7 +575,7 @@ function ViewChecksheet() {
   //   selectedMachineCheckSheetData.state.selectedRowForViewForm
   //     .tl_approval_status
   // );
-  // console.log(context.user_type);
+  // console.log(context?.user_type);
   return (
     <>
       {stateForOpeningSummeryPopups}
@@ -586,14 +588,14 @@ function ViewChecksheet() {
                 <div className="col-2 mt-2">
                   <button
                     onClick={() =>
-                      context.tm_department === "MTD" &&
-                      context.user_type === "TL/HOSS"
+                      context?.tm_department === "MTD" &&
+                      context?.user_type === "TL/HOSS"
                         ? navigate("/checkSheetDashboard")
-                        : (context.tm_department === "PRD" &&
-                            context.user_type === "TL/HOSS") ||
-                          context.user_type === "Section-Admin"
+                        : (context?.tm_department === "PRD" &&
+                            context?.user_type === "TL/HOSS") ||
+                          context?.user_type === "Section-Admin"
                         ? navigate("/approvalDashboard")
-                        : context.user_type === "Operator"
+                        : context?.user_type === "Operator"
                         ? navigate("/pmMonthlyReport")
                         : navigate("/checkSheetDashboard")
                     }
@@ -637,12 +639,12 @@ function ViewChecksheet() {
                       // colSpan={2}
                       //  rowSpan={5}
                     >
-                      {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                      {machineAllData?.checkSheet_data?.approved_by_PRD_TL?.[
                         machineAllData?.checkSheet_data?.approved_by_PRD_TL
                           .length - 1
                       ]
                         ? `${
-                            machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                            machineAllData?.checkSheet_data?.approved_by_PRD_TL?.[
                               machineAllData?.checkSheet_data
                                 ?.approved_by_PRD_TL.length - 1
                             ]
@@ -654,13 +656,13 @@ function ViewChecksheet() {
                       // colSpan={2}
                       //  rowSpan={5}
                     >
-                      {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
+                      {machineAllData?.checkSheet_data?.plan_prepared_tm_name?.[
                         machineAllData?.checkSheet_data?.plan_prepared_tm_name
                           .length - 1
                       ]
                         ? `${
                             machineAllData?.checkSheet_data
-                              ?.plan_prepared_tm_name[
+                              ?.plan_prepared_tm_name?.[
                               machineAllData?.checkSheet_data
                                 ?.plan_prepared_tm_name.length - 1
                             ]
@@ -756,23 +758,23 @@ function ViewChecksheet() {
                   </tr>
                   <tr>
                     <th className="approvalName" colSpan={2} rowSpan={5}>
-                      {machineAllData?.checkSheet_data?.approved_by_HOS[
+                      {machineAllData?.checkSheet_data?.approved_by_HOS?.[
                         machineAllData?.checkSheet_data?.approved_by_HOS
                           .length - 1
                       ]
-                        ? machineAllData?.checkSheet_data?.approved_by_HOS[
+                        ? machineAllData?.checkSheet_data?.approved_by_HOS?.[
                             machineAllData?.checkSheet_data?.approved_by_HOS
                               .length - 1
                           ]
                         : ""}
                       <br />
 
-                      {machineAllData?.checkSheet_data?.approved_by_TL[
+                      {machineAllData?.checkSheet_data?.approved_by_TL?.[
                         machineAllData?.checkSheet_data?.approved_by_TL.length -
                           1
                       ]
                         ? `,${
-                            machineAllData?.checkSheet_data?.approved_by_TL[
+                            machineAllData?.checkSheet_data?.approved_by_TL?.[
                               machineAllData?.checkSheet_data?.approved_by_TL
                                 .length - 1
                             ]
@@ -780,11 +782,11 @@ function ViewChecksheet() {
                         : ""}
                     </th>
                     <th className="approvalName" colSpan={2} rowSpan={5}>
-                      {machineAllData?.checkSheet_data?.sender_tm_name[
+                      {machineAllData?.checkSheet_data?.sender_tm_name?.[
                         machineAllData?.checkSheet_data?.sender_tm_name.length -
                           1
                       ]
-                        ? machineAllData?.checkSheet_data?.sender_tm_name[
+                        ? machineAllData?.checkSheet_data?.sender_tm_name?.[
                             machineAllData?.checkSheet_data?.sender_tm_name
                               .length - 1
                           ]

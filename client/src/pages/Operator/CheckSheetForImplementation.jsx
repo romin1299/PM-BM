@@ -232,20 +232,15 @@ function CheckSheet({
     "Nov",
     "Dec",
   ];
+
   let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
 
-  let previousMonth = monthKeyArray[new Date().getMonth() - 1];
-  let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
+  let previousMonth =
+    monthKeyArray[new Date().getMonth() - 1] === undefined
+      ? monthKeyArray.splice(-1)[0]
+      : monthKeyArray[new Date().getMonth() - 1];
 
-  let Data = {};
-
-  const showInputValue = (Values) => {
-    // console.log(Values.target.name);
-
-    Data[Values.target.name] = Values.target.value;
-
-    // console.log(Data);
-  };
+  // let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
 
   let columns = [
     {
@@ -372,7 +367,8 @@ function CheckSheet({
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
           key === "start_month" ||
-          key === "PMOkImage"
+          key === "PMOkImage" ||
+          key === "handlingSkipPending"
         ) {
           continue;
         }
@@ -428,14 +424,19 @@ function CheckSheet({
             if (key1 === "_id") {
               continue;
             }
-            if (
-              key1 === monthKeyArray[new Date().getMonth() - 1] &&
-              obj[key][key1].length < 2 &&
-              obj[key][key1][0] === "1" &&
-              cycleOfPerticularRow != "1/1M"
-            ) {
-              PMCarryOnToNextMonth(tableRowId);
-            }
+            // if (previousMonth != "Mar") {
+            //   if (
+            //     key1 ===
+            //       (monthKeyArray[new Date().getMonth() - 1] === undefined
+            //         ? monthKeyArray.splice(-1)[0]
+            //         : monthKeyArray[new Date().getMonth() - 1]) &&
+            //     obj[key][key1].length < 2 &&
+            //     obj[key][key1][0] === "1" &&
+            //     cycleOfPerticularRow != "1/1M"
+            //   ) {
+            //     PMCarryOnToNextMonth(tableRowId);
+            //   }
+            // }
 
             // else if (
             //   key1 === monthKeyArray[new Date().getMonth() - 1] &&
@@ -457,12 +458,18 @@ function CheckSheet({
             //     obj[key][key1][0]
             //   );
             // }
-            if (
-              key1 === monthKeyArray[new Date().getMonth() - 1] &&
-              (obj[key][key1][1] === "dummy" || obj[key][key1][1] === "delay")
-            ) {
-              setDelayRemarks(1);
+            if (previousMonth != "Mar") {
+              if (
+                key1 ===
+                  (monthKeyArray[new Date().getMonth() - 1] === undefined
+                    ? monthKeyArray.splice(-1)[0]
+                    : monthKeyArray[new Date().getMonth() - 1]) &&
+                (obj[key][key1][1] === "dummy" || obj[key][key1][1] === "delay")
+              ) {
+                setDelayRemarks(1);
+              }
             }
+
             newColData.push(
               new Object({
                 key: key1,
@@ -576,10 +583,10 @@ function CheckSheet({
           yearOfCheckSheet: machineAllData?.checkSheet_data?.current_year,
           monthForCompareSystemMonth,
           tableRowId,
-          previousMonth: previousMonth ? previousMonth : "",
+          previousMonth,
           cycleOfPerticularRow,
           skipCountForStatusUpdate,
-          previousToPreviousMonth,
+          // previousToPreviousMonth,
         }),
       });
 

@@ -212,7 +212,9 @@ function ChecksheetFormApprovalForTL() {
           key === "planningTableAnimationArray2" ||
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
-          key === "start_month"
+          key === "start_month"||
+          key === "PMOkImage" ||
+          key === "handlingSkipPending"
         ) {
           continue;
         }
@@ -508,12 +510,9 @@ function ChecksheetFormApprovalForTL() {
           <Row>
             <Col lg={6} md={6} sm={6}>
               <div className="col-1">
-                <a
-                  className="mb-2"
-                  style={{ color: "Black" }}
-                  href="/approvalDashboard"
-                >
+                
                   <button
+                  onClick={() => navigate("/approvalDashboard")}
                     style={{
                       border: "none",
                       background: "white",
@@ -523,7 +522,6 @@ function ChecksheetFormApprovalForTL() {
                   >
                     <ArrowBackIcon />
                   </button>
-                </a>
               </div>
               <div>
                 <form onSubmit={formik.handleSubmit}>
