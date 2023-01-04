@@ -192,9 +192,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
           key === "planningTableAnimationArray2" ||
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
-          key === "start_month"||
-          key === "PMOkImage" ||
-          key === "handlingSkipPending"
+          key === "start_month"
         ) {
           continue;
         }
@@ -453,7 +451,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                               machineAllData?.checkSheet_data
                                 ?.approved_by_PRD_TL[
                                 machineAllData?.checkSheet_data
-                                  ?.approved_by_PRD_TL?.length - 1
+                                  ?.approved_by_PRD_TL.length - 1
                               ]
                             }`
                           : ""}
@@ -472,7 +470,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                               machineAllData?.checkSheet_data
                                 ?.plan_prepared_tm_name[
                                 machineAllData?.checkSheet_data
-                                  ?.plan_prepared_tm_name?.length - 1
+                                  ?.plan_prepared_tm_name.length - 1
                               ]
                             }`
                           : ""}
@@ -555,7 +553,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                               ?.implementation_approved_by_MTD_TL
                           ).map((index) => (
                             <td className="ar-table-col1">
-                              {index[index?.length - 1]}
+                              {index[index.length - 1]}
                             </td>
                           ))
                         : refArrayForTDMapping.map((index) => (
@@ -564,25 +562,25 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                     </tr>
                     <tr>
                       <th className="approvalName" colSpan={2} rowSpan={5}>
-                        {machineAllData?.checkSheet_data?.approved_by_HOS?.[
+                        {machineAllData?.checkSheet_data?.approved_by_HOS[
                           machineAllData?.checkSheet_data?.approved_by_HOS
-                            ?.length - 1
+                            .length - 1
                         ]
-                          ? machineAllData?.checkSheet_data?.approved_by_HOS?.[
+                          ? machineAllData?.checkSheet_data?.approved_by_HOS[
                               machineAllData?.checkSheet_data?.approved_by_HOS
-                                ?.length - 1
+                                .length - 1
                             ]
                           : ""}
                         <br />
 
-                        {machineAllData?.checkSheet_data?.approved_by_TL?.[
+                        {machineAllData?.checkSheet_data?.approved_by_TL[
                           machineAllData?.checkSheet_data?.approved_by_TL
-                            ?.length - 1
+                            .length - 1
                         ]
                           ? `,${
-                              machineAllData?.checkSheet_data?.approved_by_TL?.[
+                              machineAllData?.checkSheet_data?.approved_by_TL[
                                 machineAllData?.checkSheet_data?.approved_by_TL
-                                  ?.length - 1
+                                  .length - 1
                               ]
                             }`
                           : ""}
@@ -610,7 +608,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                               ?.implementation_approved_by_MTD_HOS
                           ).map((index) => (
                             <td className="ar-table-col1">
-                              {index[index?.length - 1]}
+                              {index[index.length - 1]}
                             </td>
                           ))
                         : refArrayForTDMapping.map((index) => (
@@ -860,7 +858,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                               ?.implementation_approved_by_PRD_TL
                           ).map((index) => (
                             <td className="ar-table-col1">
-                              {index[index?.length - 1]}
+                              {index[index.length - 1]}
                             </td>
                           ))
                         : refArrayForTDMapping.map((index) => (

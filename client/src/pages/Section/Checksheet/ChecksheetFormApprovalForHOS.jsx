@@ -20,7 +20,7 @@ function ChecksheetFormApprovalForHOS() {
   const navigate = useNavigate();
   let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
   const [stateForOpeningSummeryPopups, setStateForOpeningSummeryPopups] =
-    useState("");
+  useState("");
   const validationSchema = yup.object({
     request: yup.string().required("Please select one"),
     rejected_remarks: yup.string().when(["request"], {
@@ -30,12 +30,13 @@ function ChecksheetFormApprovalForHOS() {
   });
 
   let tableData =
-    selectedMachineCheckSheetData.state?.selectedRowForViewForm?.checkSheet_data
-      ?.checkSheet;
-  // console.log(tableData);
+  selectedMachineCheckSheetData.state?.selectedRowForViewForm?.checkSheet_data
+    ?.checkSheet;
+// console.log(tableData);
 
-  let machineAllData =
-    selectedMachineCheckSheetData.state?.selectedRowForViewForm;
+let machineAllData =
+  selectedMachineCheckSheetData.state?.selectedRowForViewForm;
+
 
   let columns = [
     {
@@ -178,6 +179,7 @@ function ChecksheetFormApprovalForHOS() {
     }
   };
 
+
   function compareCycle(a, b) {
     // converting to uppercase to have case-insensitive comparison
     const name1 = a.cycle.toUpperCase();
@@ -209,9 +211,7 @@ function ChecksheetFormApprovalForHOS() {
           key === "planningTableAnimationArray2" ||
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
-          key === "start_month" ||
-          key === "PMOkImage" ||
-          key === "handlingSkipPending"
+          key === "start_month"
         ) {
           continue;
         }
@@ -450,18 +450,16 @@ function ChecksheetFormApprovalForHOS() {
 
   const close = () => {
     setStateForOpeningSummeryPopups("");
-    document.querySelector(
-      ".checkSheetForImplementation1"
-    ).style.pointerEvents = "auto";
+    document.querySelector(".checkSheetForImplementation1").style.pointerEvents =
+      "auto";
   };
 
   const funForOpeningSummeryPopups = () => {
     setStateForOpeningSummeryPopups(
       <SummeryPopups close={close} tableData={tableData} />
     );
-    document.querySelector(
-      ".checkSheetForImplementation1"
-    ).style.pointerEvents = "none";
+    document.querySelector(".checkSheetForImplementation1").style.pointerEvents =
+      "none";
   };
 
   // const approveRequestFromTL = async () => {
@@ -504,17 +502,22 @@ function ChecksheetFormApprovalForHOS() {
           <Row>
             <Col lg={6} md={6} sm={6}>
               <div className="col-1">
-                <button
-                  onClick={() => navigate("/approvalDashboard")}
-                  style={{
-                    border: "none",
-                    background: "white",
-                    borderRadius: 5,
-                    marginTop: "1rem",
-                  }}
+                <a
+                  className="mb-2"
+                  style={{ color: "Black" }}
+                  href="/approvalDashboard"
                 >
-                  <ArrowBackIcon />
-                </button>
+                  <button
+                    style={{
+                      border: "none",
+                      background: "white",
+                      borderRadius: 5,
+                      marginTop: "1rem",
+                    }}
+                  >
+                    <ArrowBackIcon />
+                  </button>
+                </a>
               </div>
               <div>
                 <form onSubmit={formik.handleSubmit}>
@@ -639,13 +642,11 @@ function ChecksheetFormApprovalForHOS() {
                       //  rowSpan={5}
                     >
                       {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
-                        machineAllData?.checkSheet_data?.approved_by_PRD_TL
-                          .length - 1
+                        machineAllData?.checkSheet_data?.approved_by_PRD_TL.length - 1
                       ]
                         ? `${
                             machineAllData?.checkSheet_data?.approved_by_PRD_TL[
-                              machineAllData?.checkSheet_data
-                                ?.approved_by_PRD_TL.length - 1
+                              machineAllData?.checkSheet_data?.approved_by_PRD_TL.length - 1
                             ]
                           }`
                         : ""}
@@ -656,14 +657,11 @@ function ChecksheetFormApprovalForHOS() {
                       //  rowSpan={5}
                     >
                       {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
-                        machineAllData?.checkSheet_data?.plan_prepared_tm_name
-                          .length - 1
+                        machineAllData?.checkSheet_data?.plan_prepared_tm_name.length - 1
                       ]
                         ? `${
-                            machineAllData?.checkSheet_data
-                              ?.plan_prepared_tm_name[
-                              machineAllData?.checkSheet_data
-                                ?.plan_prepared_tm_name.length - 1
+                            machineAllData?.checkSheet_data?.plan_prepared_tm_name[
+                              machineAllData?.checkSheet_data?.plan_prepared_tm_name.length - 1
                             ]
                           }`
                         : ""}
@@ -738,72 +736,60 @@ function ChecksheetFormApprovalForHOS() {
                     <br />
                     (MTD TL)
                   </th>
-                  {machineAllData?.checkSheet_data
-                    ?.implementation_approved_by_MTD_TL
-                    ? Object.values(
-                        machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_MTD_TL
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
-                    : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
+                  {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_TL
+                      ? Object.values(
+                          machineAllData?.checkSheet_data?.implementation_approved_by_MTD_TL
+                        ).map((index) => (
+                          <td className="ar-table-col1">{index[(index.length) - 1]}</td>
+                        ))
+                      : refArrayForTDMapping.map((index) => (
+                          <td className="ar-table-col1"></td>
+                        ))}
                 </tr>
                 <tr>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
-                    {machineAllData?.checkSheet_data?.approved_by_HOS[
-                      machineAllData?.checkSheet_data?.approved_by_HOS.length -
-                        1
-                    ]
-                      ? machineAllData?.checkSheet_data?.approved_by_HOS[
-                          machineAllData?.checkSheet_data?.approved_by_HOS
-                            .length - 1
-                        ]
-                      : ""}
+                  {machineAllData?.checkSheet_data?.approved_by_HOS[
+                        machineAllData?.checkSheet_data?.approved_by_HOS.length - 1
+                      ]
+                        ? machineAllData?.checkSheet_data?.approved_by_HOS[
+                            machineAllData?.checkSheet_data?.approved_by_HOS.length - 1
+                          ]
+                        : ""}
                     <br />
 
                     {machineAllData?.checkSheet_data?.approved_by_TL[
-                      machineAllData?.checkSheet_data?.approved_by_TL.length - 1
-                    ]
-                      ? `,${
-                          machineAllData?.checkSheet_data?.approved_by_TL[
-                            machineAllData?.checkSheet_data?.approved_by_TL
-                              .length - 1
-                          ]
-                        }`
-                      : ""}
+                        machineAllData?.checkSheet_data?.approved_by_TL.length - 1
+                      ]
+                        ? `,${
+                            machineAllData?.checkSheet_data?.approved_by_TL[
+                              machineAllData?.checkSheet_data?.approved_by_TL.length - 1
+                            ]
+                          }`
+                        : ""}
                   </th>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
-                    {machineAllData?.checkSheet_data?.sender_tm_name[
-                      machineAllData?.checkSheet_data?.sender_tm_name.length - 1
-                    ]
-                      ? machineAllData?.checkSheet_data?.sender_tm_name[
-                          machineAllData?.checkSheet_data?.sender_tm_name
-                            .length - 1
-                        ]
-                      : ""}
+                  {machineAllData?.checkSheet_data?.sender_tm_name[
+                        machineAllData?.checkSheet_data?.sender_tm_name.length - 1
+                      ]
+                        ? machineAllData?.checkSheet_data?.sender_tm_name[
+                            machineAllData?.checkSheet_data?.sender_tm_name.length - 1
+                          ]
+                        : ""}
                   </th>
                   <th className="ar-table-thead-header1">
                     Approved by
                     <br />
                     (MTD HOS)
                   </th>
-                  {machineAllData?.checkSheet_data
-                    ?.implementation_approved_by_MTD_HOS
-                    ? Object.values(
-                        machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_MTD_HOS
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
-                    : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
+                  {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOS
+                      ? Object.values(
+                          machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOS
+                        ).map((index) => (
+                          <td className="ar-table-col1">{index[(index.length) - 1]}</td>
+                        ))
+                      : refArrayForTDMapping.map((index) => (
+                          <td className="ar-table-col1"></td>
+                        ))}
                 </tr>
                 <tr>
                   <th className="ar-table-thead-header1">
@@ -857,9 +843,7 @@ function ChecksheetFormApprovalForHOS() {
                 {newTableData.map((rData) => (
                   <Rows
                     rData={rData}
-                    checkSheet_status={
-                      machineAllData?.checkSheet_data?.checksheet_status
-                    }
+                    checkSheet_status={machineAllData?.checkSheet_data?.checksheet_status}
                   />
                 ))}
                 <tr>
@@ -870,11 +854,11 @@ function ChecksheetFormApprovalForHOS() {
                     (MTD TM's)
                   </th>
                   {machineAllData?.checkSheet_data?.PMworkedTMName
-                    ? Object.values(
-                        machineAllData?.checkSheet_data?.PMworkedTMName
-                      ).map((index) => (
-                        <td className="ar-table-col1">{index.join(" ,")}</td>
-                      ))
+                    ? Object.values(machineAllData?.checkSheet_data?.PMworkedTMName).map(
+                        (index) => (
+                          <td className="ar-table-col1">{index.join(" ,")}</td>
+                        )
+                      )
                     : refArrayForTDMapping.map((index) => (
                         <td className="ar-table-col1"></td>
                       ))}
@@ -886,15 +870,11 @@ function ChecksheetFormApprovalForHOS() {
                     <br />
                     (By PRD TL)
                   </th>
-                  {machineAllData?.checkSheet_data
-                    ?.implementation_approved_by_PRD_TL
+                  {machineAllData?.checkSheet_data?.implementation_approved_by_PRD_TL
                     ? Object.values(
-                        machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_PRD_TL
+                        machineAllData?.checkSheet_data?.implementation_approved_by_PRD_TL
                       ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
+                        <td className="ar-table-col1">{index[(index.length) - 1]}</td>
                       ))
                     : refArrayForTDMapping.map((index) => (
                         <td className="ar-table-col1"></td>
@@ -1023,11 +1003,11 @@ function ChecksheetFormApprovalForHOS() {
             </Col> */}
         </Row>
         <Row>
-          <Col></Col>
-          <Col className="ar-table tableCol">
-            <div className="mb-2 row">
-              <div className="col-6"> </div>
-              {/* <TextField
+            <Col></Col>
+            <Col className="ar-table tableCol">
+              <div className="mb-2 row">
+                <div className="col-6"> </div>
+                {/* <TextField
                         type="text"
                         className="col-6"
                         name="pmTime"
@@ -1041,15 +1021,15 @@ function ChecksheetFormApprovalForHOS() {
                           formik.touched.pmTime && formik.errors.pmTime
                         }
                       /> */}
-              <button
-                className="btn col-3"
-                onClick={funForOpeningSummeryPopups}
-              >
-                Summary
-              </button>
-            </div>
-          </Col>
-        </Row>
+                <button
+                  className="btn col-3"
+                  onClick={funForOpeningSummeryPopups}
+                >
+                  Summary
+                </button>
+              </div>
+            </Col>
+          </Row>
       </Container>
     </>
   );

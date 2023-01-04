@@ -1902,9 +1902,7 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         }
 
         let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
-        let previousMonth = monthKeyArray[new Date().getMonth() - 1] === undefined
-            ? monthKeyArray.splice(-1)[0]
-            : monthKeyArray[new Date().getMonth() - 1];
+        let previousMonth = monthKeyArray[new Date().getMonth() - 1];
         let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
 
         //for 1/1M skip status 
@@ -1970,74 +1968,22 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
                 }
             )
         }
-        let carryData
-        let arrayForPMData = []
-        arrayForPMData.push(1, "dummy")
 
-        //for carry forward data at once
-        const carryForwardOtherCycleData = async (machine_code, tableRowId, yearOfCheckSheet) => {
-            updatePreviousMonth = await Machine.updateOne({ machine_code: machine_code },
+        const updateOtherCyclesStatusSkip = async (machine_code, tableRowId, yearOfCheckSheet) => {
+
+            updatePreviousMonth = await Machine.updateOne({ machine_code: machine_code, yearOfCheckSheet },
                 {
                     $set: {
-                        [keyOfPreviousMonth]: arrayForPMData
+                        [keyOfPreviousMonth]: arrayForPreviousMonthSkipPMData,
+                        [keyOfPreviousToPreviousMonthForSkipPM]: arrayForSkipPerMonthPMData,
+                        [keyOfCarriedSkipMonthPMForPreviousToPrevious]: "PM Skip",
                     }
                 },
                 {
-                    arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
+                    arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
                 }
             )
-
-            carryData = await Machine.updateOne({ machine_code: machine_code },
-                {
-                    $set: {
-                        [keyOfMonth]: "2"
-                    }
-                },
-                {
-                    arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
-                }
-            )
-            // updatePreviousMonth = await Machine.updateOne({ machine_code: machine_code, yearOfCheckSheet },
-            //     {
-            //         $set: {
-            //             [keyOfPreviousMonth]: arrayForPreviousMonthSkipPMData,
-            //             [keyOfPreviousToPreviousMonthForSkipPM]: arrayForSkipPerMonthPMData,
-            //             [keyOfCarriedSkipMonthPMForPreviousToPrevious]: "PM Skip",
-            //         }
-            //     },
-            //     {
-            //         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
-            //     }
-            // )
         }
-
-        //for already pending 
-        const carryForwardOtherCycleDataForAlreadyPending = async (machine_code, tableRowId, yearOfCheckSheet) => {
-
-            carryData = await Machine.updateOne({ machine_code: machine_code },
-                {
-                    $set: {
-                        [keyOfMonth]: "2"
-                    }
-                },
-                {
-                    arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
-                }
-            )
-            // updatePreviousMonth = await Machine.updateOne({ machine_code: machine_code, yearOfCheckSheet },
-            //     {
-            //         $set: {
-            //             [keyOfPreviousMonth]: arrayForPreviousMonthSkipPMData,
-            //             [keyOfPreviousToPreviousMonthForSkipPM]: arrayForSkipPerMonthPMData,
-            //             [keyOfCarriedSkipMonthPMForPreviousToPrevious]: "PM Skip",
-            //         }
-            //     },
-            //     {
-            //         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
-            //     }
-            // )
-        }
-
 
         const updatePMStatusOfPreviousMonthForNoCompletion = async (machine_code, yearOfCheckSheet) => {
             // console.log(machine_code, yearOfCheckSheet)
@@ -2079,77 +2025,47 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
             }
         }
 
-
-        let keyOfMonth = `checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2.${monthForCompareSystemMonth}`
-
-
         let updatePreviousMonth, carriedPMStatusExistsOrNot
-        if (previousMonth != "Mar") {
-            machineData?.map((key) => {
-                key?.checkSheet_data?.checkSheet?.map((key1) => {
-                    if (key1?.planningTableAnimationArray2) {
-                        if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
-                            key1.cycle === "1/1M"
-                        ) {
-                            updateOnesPerMonthStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
-                        }
-
-                        // if ((key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
-                        //     key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
-                        //     key1.cycle !== "1/1M") &&
-                        //     (key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.[0] != "1" &&
-                        //         key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.length < 2 &&
-                        //         key1.cycle !== "1/1M")) {
-
-                        //     carryForwardOtherCycleData(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
-                        //     //add dummy key word 1,dummy
-                        // }
-                        // else if ((key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "2" &&
-                        //     key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
-                        //     key1.cycle !== "1/1M") && 
-                        //     (key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.[0] != "1" &&
-                        //     key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.length < 2 &&
-                        //     key1.cycle !== "1/1M")) {
-                        //     carryForwardOtherCycleDataForAlreadyPending(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
-                        //     //add dummy key word 2
-                        // }
-                        // else{
-                        //     //skip status
-                        //     for( let flagKey in key1.handlingSkipPending ){
-                        //         if(key1.handlingSkipPending[flagKey] === "flag"){
-                        //             //get key of handlingskip and set skip status in planningAnimation array and PMStatus
-                        //             //get index of current flag + cycle count
-                        //             //check whether the sum is <12 if not then set flag as it is
-                        //             //if yes then set new flag at last sum index 
-                        //         }
-                        //     }
-                        // }
-
-
-                        if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "2" &&
-                            key1.cycle !== "1/1M") {
-                            // console.log(key?.checkSheet_data?.carriedPMStatus)
-                            if (key?.checkSheet_data?.carriedPMStatus != undefined) {
-                                carriedPMStatusExistsOrNot = 1
-                            } else {
-                                carriedPMStatusExistsOrNot = 0
-                            }
-                            updateStatusOfLastMonthPendingForCount(key.machine_code, key.checkSheet_data.current_year, carriedPMStatusExistsOrNot)
-                        }
+        machineData?.map((key) => {
+            key?.checkSheet_data?.checkSheet?.map((key1) => {
+                if (key1?.planningTableAnimationArray2) {
+                    if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
+                        key1.cycle === "1/1M"
+                    ) {
+                        updateOnesPerMonthStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
                     }
 
+                    if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "2" &&
+                        key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
+                        key1.cycle !== "1/1M") {
+                        updateOtherCyclesStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
 
-                })
+                    }
 
-                if (key?.checkSheet_data?.PMStatus) {
-                    // console.log(key?.checkSheet_data?.PMStatus)
-                    if (key?.checkSheet_data?.PMStatus[previousMonth] === "Current Plan") {
-                        updatePMStatusOfPreviousMonthForNoCompletion(key.machine_code, key.checkSheet_data.current_year)
+                    if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "2" &&
+                        key1.cycle !== "1/1M") {
+                        // console.log(key?.checkSheet_data?.carriedPMStatus)
+                        if (key?.checkSheet_data?.carriedPMStatus != undefined) {
+                            carriedPMStatusExistsOrNot = 1
+                        } else {
+                            carriedPMStatusExistsOrNot = 0
+                        }
+                        updateStatusOfLastMonthPendingForCount(key.machine_code, key.checkSheet_data.current_year, carriedPMStatusExistsOrNot)
                     }
                 }
 
+
             })
-        }
+
+            if (key?.checkSheet_data?.PMStatus) {
+                // console.log(key?.checkSheet_data?.PMStatus)
+                if (key?.checkSheet_data?.PMStatus[previousMonth] === "Current Plan") {
+                    updatePMStatusOfPreviousMonthForNoCompletion(key.machine_code, key.checkSheet_data.current_year)
+                }
+            }
+
+        })
+
 
 
         res.json({ sectionInfo, subSectionsData, subSectionIdArray, cellData, cellIdArray, lineData, lineIdArray, machineData, defaultSubSectionArray })
@@ -3174,8 +3090,6 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
             Mar: "",
         }
 
-
-
         let keyOfImplemetation_prd_tl_approval_status = `checkSheet_data.$[outer].implemetation_prd_tl_approval_status.${monthForCompareSystemMonth}`
         let keyOfImplemetation_mtd_tl_approval_status = `checkSheet_data.$[outer].implemetation_mtd_tl_approval_status.${monthForCompareSystemMonth}`
         let keyOfImplementation_approved_by_PRD_TL = `checkSheet_data.$[outer].implementation_approved_by_PRD_TL.${monthForCompareSystemMonth}`
@@ -3269,55 +3183,12 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
             }
             else if (selected_machine_data.checkSheet_data.prd_tl_approval_status[(selected_machine_data.checkSheet_data.prd_tl_approval_status).length - 1] === "Pending") {
                 for (let i = 0; i < selected_machine_data.checkSheet_data.checkSheet.length; i++) {
-                    let handleSkipPendingFlag =
-                    {
-                        Apr: "",
-
-                        May: "",
-
-                        June: "",
-
-                        July: "",
-
-                        Aug: "",
-
-                        Sep: "",
-
-                        Oct: "",
-
-                        Nov: "",
-
-                        Dec: "",
-
-                        Jan: "",
-
-                        Feb: "",
-
-                        Mar: "",
-                    }
                     for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
                         let month = financialYearWiseMonthKeyArray[j]
                         if (selected_machine_data.checkSheet_data.checkSheet[i].planningTableAnimationArray2[month][0] === "1") {
                             PMStatusArray[financialYearWiseMonthKeyArray[j]] = "Current Plan"
                         }
                     }
-                    let monthForFlag = financialYearWiseMonthKeyArray[selected_machine_data.checkSheet_data.checkSheet[i].start_month]
-                    // console.log(monthForFlag, "-----0", selected_machine_data.machine_code, "*******", selected_machine_data.checkSheet_data.current_year)
-                    // console.log("----------")
-                    // console.log(selected_machine_data.checkSheet_data.checkSheet[i].tableRowId)
-                    handleSkipPendingFlag[monthForFlag] = "flag"
-                    // console.log(handleSkipPendingFlag)
-                    let addFlagForPending = await Machine.updateOne({ machine_code: selected_machine_data.machine_code },
-                        {
-                            $set: { "checkSheet_data.$[outer].checkSheet.$[inner].handlingSkipPending": handleSkipPendingFlag },
-
-                        },
-                        {
-                            arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }, { 'inner.tableRowId': selected_machine_data.checkSheet_data.checkSheet[i].tableRowId }],
-                        }
-                    )
-                    // console.log(addFlagForPending)
-
                 }
 
                 selected_machine_data.checkSheet_data.prd_tl_approval_status[(selected_machine_data.checkSheet_data.prd_tl_approval_status).length - 1] = "Accepted"
@@ -4802,17 +4673,54 @@ router.post('/deleteCheckSheet', authenticate, async (req, res) => {
 
 router.post('/PMCarryOnToNextMonth', async (req, res) => {
     try {
-        const { machine_code, monthForCompareSystemMonth, tableRowId, previousMonth, yearOfCheckSheet } = req.body
+        const { machine_code, monthForCompareSystemMonth, tableRowId, previousMonth, cycleOfPerticularRow, skipCountForStatusUpdate, previousToPreviousMonth, yearOfCheckSheet } = req.body
         // console.log(machine_code, monthForCompareSystemMonth, tableRowId, previousMonth, cycleOfPerticularRow, skipCountForStatusUpdate, previousToPreviousMonth, yearOfCheckSheet)
+
+        let CarriedPMStatusArray =
+        {
+            Apr: "",
+
+            May: "",
+
+            June: "",
+
+            July: "",
+
+            Aug: "",
+
+            Sep: "",
+
+            Oct: "",
+
+            Nov: "",
+
+            Dec: "",
+
+            Jan: "",
+
+            Feb: "",
+
+            Mar: "",
+        }
 
         let keyOfMonth = `checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2.${monthForCompareSystemMonth}`
 
         let keyOfPreviousMonth = `checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2.${previousMonth}`
+        let keyOfCarriedSkipMonthPM = `checkSheet_data.$[outer].PMStatus.${previousMonth}`
+
+        let keyOfPreviousToPreviousMonthForSkipPM = `checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2.${previousToPreviousMonth}`
+        let keyOfCarriedSkipMonthPMForPreviousToPrevious = `checkSheet_data.$[outer].PMStatus.${previousToPreviousMonth}`
 
         let carryData
-        let updatePreviousMonth
+        let updatePreviousMonth, updateCarriedPMStatus
         let arrayForPMData = []
         arrayForPMData.push(1, "dummy")
+
+        let arrayForPreviousMonthSkipPMData = []
+        arrayForPreviousMonthSkipPMData.push(2, "skip_previous")
+
+        let arrayForSkipPerMonthPMData = []
+        arrayForSkipPerMonthPMData.push(1, "skip")
 
         updatePreviousMonth = await Machine.updateOne({ machine_code: machine_code },
             {
@@ -6803,36 +6711,34 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
             // const openAbnormality = await Machine.find({ line_names: { $in: lineIdArray }, "checkSheet.abnormalityDetails": { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
             const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
 
-            openAbnormality?.map?.((keyForCheckSheet) => {
-                keyForCheckSheet?.checkSheet_data?.checkSheet?.map?.((keyForAbnormality) => {
-                    if (keyForAbnormality?.abnormalityDetails != undefined) {
-                        for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
-                            let month = financialYearWiseMonthKeyArray[i]
-                            if (keyForAbnormality?.abnormalityDetails[month]?.abnormalityStatus != undefined) {
-                                if (keyForAbnormality?.abnormalityDetails[month]?.abnormalityStatus === "Open") {
-                                    onlyOpenAbnormalityWithAllMonths.push(
-                                        new Object({
-                                            line_name: keyForCheckSheet?.line_names.line_name,
-                                            machine_name: keyForCheckSheet?.machine_name,
-                                            machine_code: keyForCheckSheet?.machine_code,
-                                            yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-                                            schedule_month: month,
-                                            table_id: keyForAbnormality?.tableRowId,
-                                            checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
-                                            abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
-                                            targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
-                                            PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
-                                            remarksOnClose: keyForAbnormality?.abnormalityDetails[month]?.remarksOnClose,
-                                            doneDate: keyForAbnormality?.abnormalityDetails[month]?.doneDate,
-                                            doneBy: keyForAbnormality?.abnormalityDetails[month]?.doneBy,
-                                        })
-                                    );
-                                }
+            openAbnormality.map((keyForCheckSheet) => {
+                keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
+                    for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
+                        let month = financialYearWiseMonthKeyArray[i]
+                        if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus != undefined) {
+                            if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus === "Open") {
+                                onlyOpenAbnormalityWithAllMonths.push(
+                                    new Object({
+                                        line_name: keyForCheckSheet.line_names.line_name,
+                                        machine_name: keyForCheckSheet.machine_name,
+                                        machine_code: keyForCheckSheet.machine_code,
+                                        yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
+                                        schedule_month: month,
+                                        table_id: keyForAbnormality.tableRowId,
+                                        checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
+                                        abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
+                                        targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
+                                        PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
+                                        remarksOnClose: keyForAbnormality?.abnormalityDetails[month]?.remarksOnClose,
+                                        doneDate: keyForAbnormality?.abnormalityDetails[month]?.doneDate,
+                                        doneBy: keyForAbnormality?.abnormalityDetails[month]?.doneBy,
+                                    })
+                                );
                             }
-
-
-
                         }
+
+
+
                     }
                 })
             })
@@ -6872,36 +6778,34 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
             // const openAbnormality = await Machine.find({ line_names: { $in: lineIdArray }, "checkSheet.abnormalityDetails": { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
             const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
 
-            openAbnormality?.map((keyForCheckSheet) => {
-                keyForCheckSheet?.checkSheet_data?.checkSheet?.map?.((keyForAbnormality) => {
-                    if (keyForAbnormality?.abnormalityDetails != undefined) {
-                        for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
-                            let month = financialYearWiseMonthKeyArray[i]
-                            if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus != undefined) {
-                                if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus === "Open") {
-                                    onlyOpenAbnormalityWithAllMonths.push(
-                                        new Object({
-                                            line_name: keyForCheckSheet?.line_names?.line_name,
-                                            machine_name: keyForCheckSheet?.machine_name,
-                                            machine_code: keyForCheckSheet?.machine_code,
-                                            yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-                                            schedule_month: month,
-                                            table_id: keyForAbnormality?.tableRowId,
-                                            checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
-                                            abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
-                                            targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
-                                            PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
-                                            remarksOnClose: keyForAbnormality?.abnormalityDetails[month]?.remarksOnClose,
-                                            doneDate: keyForAbnormality?.abnormalityDetails[month]?.doneDate,
-                                            doneBy: keyForAbnormality?.abnormalityDetails[month]?.doneBy,
-                                        })
-                                    );
-                                }
+            openAbnormality.map((keyForCheckSheet) => {
+                keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
+                    for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
+                        let month = financialYearWiseMonthKeyArray[i]
+                        if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus != undefined) {
+                            if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus === "Open") {
+                                onlyOpenAbnormalityWithAllMonths.push(
+                                    new Object({
+                                        line_name: keyForCheckSheet.line_names.line_name,
+                                        machine_name: keyForCheckSheet.machine_name,
+                                        machine_code: keyForCheckSheet.machine_code,
+                                        yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
+                                        schedule_month: month,
+                                        table_id: keyForAbnormality.tableRowId,
+                                        checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
+                                        abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
+                                        targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
+                                        PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
+                                        remarksOnClose: keyForAbnormality?.abnormalityDetails[month]?.remarksOnClose,
+                                        doneDate: keyForAbnormality?.abnormalityDetails[month]?.doneDate,
+                                        doneBy: keyForAbnormality?.abnormalityDetails[month]?.doneBy,
+                                    })
+                                );
                             }
-
-
-
                         }
+
+
+
                     }
                 })
             })
