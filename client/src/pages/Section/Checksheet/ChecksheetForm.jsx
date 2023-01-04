@@ -255,9 +255,7 @@ function CheckSheetForm() {
           key === "planningTableAnimationArray2" ||
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
-          key === "start_month"||
-          key === "PMOkImage" ||
-          key === "handlingSkipPending"
+          key === "start_month"
         ) {
           continue;
         }

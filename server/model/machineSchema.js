@@ -93,31 +93,6 @@ const machineSchema = mongoose.Schema({
 
                         Mar: { type: [String] },
                     },
-                    handlingSkipPending: {
-                        Apr: { type: String },
-
-                        May: { type: String },
-
-                        June: { type: String },
-
-                        July: { type: String },
-
-                        Aug: { type: String },
-
-                        Sep: { type: String },
-
-                        Oct: { type: String },
-
-                        Nov: { type: String },
-
-                        Dec: { type: String },
-
-                        Jan: { type: String },
-
-                        Feb: { type: String },
-
-                        Mar: { type: String },
-                    },
                     abnormalityDetails:
                     {
                         Apr: {

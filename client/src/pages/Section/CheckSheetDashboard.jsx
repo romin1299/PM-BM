@@ -152,7 +152,7 @@ const CheckSheetDashboard = () => {
   const machineHeader = [
     {
       title: "Serial no",
-      render: (rowData) => `${rowData?.tableData.id + 1}`,
+      render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
       width: "5%",
       sorting: false,
@@ -192,20 +192,20 @@ const CheckSheetDashboard = () => {
           (rowData) => {
             return {
               hidden:
-                rowData?.checkSheet_data != null
-                  ? rowData?.checkSheet_data?.checksheet_status ===
+                rowData.checkSheet_data != null
+                  ? rowData.checkSheet_data.checksheet_status ===
                       "Implementation" ||
-                    rowData?.checkSheet_data?.checksheet_status === "Planning"
+                    rowData.checkSheet_data.checksheet_status === "Planning"
                   : "",
 
               icon: () => (
                 <button className="btn-reset">
-                  {rowData?.checkSheet_data != null
-                    ? rowData?.checkSheet_data?.checkSheet?.length > 0
-                      ? rowData?.checkSheet_data?.checkSheet?.length < 1
+                  {rowData.checkSheet_data != null
+                    ? rowData.checkSheet_data.checkSheet.length > 0
+                      ? rowData.checkSheet_data.checkSheet.length < 1
                         ? "Preparation"
-                        : rowData?.checkSheet_data?.assign_TL?.length > 0 ||
-                          rowData?.checkSheet_data?.assign_HOS?.length > 0
+                        : rowData.checkSheet_data.assign_TL.length > 0 ||
+                          rowData.checkSheet_data.assign_HOS.length > 0
                         ? "Preparation Under Approval"
                         : "Under-Preparation"
                       : "Preparation"
@@ -226,21 +226,21 @@ const CheckSheetDashboard = () => {
           (rowData) => {
             return {
               hidden:
-                rowData?.checkSheet_data != null
-                  ? rowData?.checkSheet_data?.checksheet_status ===
+                rowData.checkSheet_data != null
+                  ? rowData.checkSheet_data.checksheet_status ===
                       "Preparation" ||
-                    rowData?.checkSheet_data?.checksheet_status ===
+                    rowData.checkSheet_data.checksheet_status ===
                       "Implementation" ||
-                    rowData?.checkSheet_data?.checksheet_status === undefined
-                  : rowData?.checkSheet_data === undefined ||
-                    rowData?.checkSheet_data === null,
+                    rowData.checkSheet_data.checksheet_status === undefined
+                  : rowData.checkSheet_data === undefined ||
+                    rowData.checkSheet_data === null,
               icon: () => (
                 <button className="btn-warning">
-                  {rowData?.checkSheet_data != null
-                    ? rowData?.checkSheet_data?.checkSheet.map((key) => {
+                  {rowData.checkSheet_data != null
+                    ? rowData.checkSheet_data.checkSheet.map((key) => {
                         if ("start_month" in key) {
                           if (
-                            rowData?.checkSheet_data?.assign_PRD_TL?.length > 0
+                            rowData.checkSheet_data.assign_PRD_TL.length > 0
                           ) {
                             return "Planning Under Approval";
                           } else {
@@ -277,8 +277,8 @@ const CheckSheetDashboard = () => {
           (rowData) => {
             return {
               hidden:
-                rowData?.checkSheet_data === undefined ||
-                rowData?.checkSheet_data === null,
+                rowData.checkSheet_data === undefined ||
+                rowData.checkSheet_data === null,
 
               icon: () => (
                 <button className="btn-delete">
@@ -296,14 +296,13 @@ const CheckSheetDashboard = () => {
           (rowData) => {
             return {
               hidden:
-                rowData?.checkSheet_data != null
-                  ? rowData?.checkSheet_data?.checksheet_status ===
+                rowData.checkSheet_data != null
+                  ? rowData.checkSheet_data.checksheet_status ===
                       "Preparation" ||
-                    rowData?.checkSheet_data?.checksheet_status ===
-                      "Planning" ||
-                    rowData?.checkSheet_data?.checksheet_status === undefined
-                  : rowData?.checkSheet_data === undefined ||
-                    rowData?.checkSheet_data === null,
+                    rowData.checkSheet_data.checksheet_status === "Planning" ||
+                    rowData.checkSheet_data.checksheet_status === undefined
+                  : rowData.checkSheet_data === undefined ||
+                    rowData.checkSheet_data === null,
               icon: () => (
                 <button className="btn-warning">
                   <EditIcon />
