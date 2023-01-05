@@ -166,7 +166,7 @@ select {
 
 .machine {
     padding: 0.2rem;
-    width: 3rem;
+    /* width: 3rem; */
     height: 2rem;
     /* flex: 0.1; */
     display: flex;

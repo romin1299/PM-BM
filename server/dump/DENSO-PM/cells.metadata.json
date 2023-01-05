@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"DENSO-PM.cells"}],"uuid":"e3a84ebea6044a3aa41eb3368e733249"}
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"1061a548231c42abb4e7f03924d03318","collectionName":"cells","type":"collection"}

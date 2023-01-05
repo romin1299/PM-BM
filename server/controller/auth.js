@@ -17,7 +17,7 @@ const sendMail = require('../sendMail/sendMail');
 const sendApprovalOfImplementation = require('../sendMail/sendApprovalOfImplementation')
 const BackupMachineData = require('../model/backupMachine')
 const HandlingOtherActions = require('../model/handlingActions')
-
+// const MachineDummy = require('../model/machineOldSchema')
 //send request for approval mail function
 const sendApproval = require('../sendMail/sendApproval')
 
@@ -1055,7 +1055,7 @@ router.post('/postLineToGetMachineList', authenticate, async (req, res) => {
                         line_names: lineInfo[0]._id
                     }
                 },
-                { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
                 {
                     $match: {
                         $and: [
@@ -1541,7 +1541,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                         line_names: { $in: lineIdArray }
                     }
                 },
-                { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ]} } },
                 {
                     $match: {
                         $and: [
@@ -1581,7 +1581,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                         line_names: { $in: lineIdArray }
                     }
                 },
-                { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
                 {
                     $match: {
                         $and: [
@@ -1728,7 +1728,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                         line_names: { $in: lineIdArray }
                     }
                 },
-                { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } }},
                 {
                     $match: {
                         $and: [
@@ -2857,7 +2857,7 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
         if (loggedUserData.user_type === "TL/HOSS") {
             if (loggedUserData.tm_department === "PRD") {
                 requestData = await Machine.aggregate([
-                    { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
 
                     // { $unwind: '$checkSheet_data' },
                     {
@@ -2907,7 +2907,7 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
                 machineDataWithPopulate = await Machine.populate(requestData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
             } else {
                 requestData = await Machine.aggregate([
-                    { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
 
                     // { $unwind: '$checkSheet_data' },
                     {
@@ -2937,7 +2937,7 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
             if (loggedUserData.user_type === "Section-Admin" && loggedUserData.tm_grade === "HOS") {
                 requestData = await Machine.aggregate([
 
-                    { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
                     // { $unwind: '$checkSheet_data' },
                     {
                         $match: {
@@ -7813,7 +7813,7 @@ router.post('/postSectionToGetAllDataForTotalTimeMonthWiseReport', authenticate,
                             $or: selectedYearOfCheckSheet,
                         }
                     },
-                    { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
                     {
                         $match: {
                             [x]: { $ne: undefined },
@@ -7927,7 +7927,7 @@ router.post('/postPerticularLineToGetDataForTotalTimeMonthWiseReport', authentic
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
                 {
                     $match: {
                         [x]: { $ne: undefined },
@@ -8072,7 +8072,7 @@ router.post('/postSectionToGetAllDataForTotalTimeManHoursMonthWise', authenticat
                             $or: selectedYearOfCheckSheet,
                         }
                     },
-                    { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
                     {
                         $match: {
                             [keyOfTotalPMTime]: { $ne: undefined },
@@ -8195,7 +8195,7 @@ router.post('/postPerticularLineToGetDataForTotalTimeManHours', authenticate, as
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
                 {
                     $match: {
                         [keyOfTotalPMTime]: { $ne: undefined },
@@ -8347,7 +8347,7 @@ router.post('/postPerticularOperatorToGetDataForActualTimeTakenTMWise', authenti
                             $or: selectedYearOfCheckSheet,
                         }
                     },
-                    { $addFields: { checkSheet_data: { $last: "$checkSheet_data" } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
                     {
                         $match: {
                             [keyOfTotalPMTime]: { $ne: undefined },

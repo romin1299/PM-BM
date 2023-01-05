@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"DENSO-PM.subsections"}],"uuid":"c15dbd11a7dd4013bbe6bfd3075a4b8a"}
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"e4627649dd41485bb8860ea41297f604","collectionName":"subsections","type":"collection"}
