@@ -1055,7 +1055,7 @@ router.post('/postLineToGetMachineList', authenticate, async (req, res) => {
                         line_names: lineInfo[0]._id
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         $and: [
@@ -1541,7 +1541,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                         line_names: { $in: lineIdArray }
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ]} } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         $and: [
@@ -1581,7 +1581,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                         line_names: { $in: lineIdArray }
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         $and: [
@@ -1728,7 +1728,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                         line_names: { $in: lineIdArray }
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } }},
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         $and: [
@@ -1902,7 +1902,9 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         }
 
         let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
-        let previousMonth = monthKeyArray[new Date().getMonth() - 1];
+        let previousMonth = monthKeyArray[new Date().getMonth() - 1] === undefined
+            ? monthKeyArray.splice(-1)[0]
+            : monthKeyArray[new Date().getMonth() - 1];
         let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
 
         //for 1/1M skip status 
@@ -2026,46 +2028,47 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         }
 
         let updatePreviousMonth, carriedPMStatusExistsOrNot
-        machineData?.map((key) => {
-            key?.checkSheet_data?.checkSheet?.map((key1) => {
-                if (key1?.planningTableAnimationArray2) {
-                    if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
-                        key1.cycle === "1/1M"
-                    ) {
-                        updateOnesPerMonthStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
-                    }
-
-                    if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "2" &&
-                        key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
-                        key1.cycle !== "1/1M") {
-                        updateOtherCyclesStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
-
-                    }
-
-                    if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "2" &&
-                        key1.cycle !== "1/1M") {
-                        // console.log(key?.checkSheet_data?.carriedPMStatus)
-                        if (key?.checkSheet_data?.carriedPMStatus != undefined) {
-                            carriedPMStatusExistsOrNot = 1
-                        } else {
-                            carriedPMStatusExistsOrNot = 0
+        if (previousMonth != "Mar") {
+            machineData?.map((key) => {
+                key?.checkSheet_data?.checkSheet?.map((key1) => {
+                    if (key1?.planningTableAnimationArray2) {
+                        if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
+                            key1.cycle === "1/1M"
+                        ) {
+                            updateOnesPerMonthStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
                         }
-                        updateStatusOfLastMonthPendingForCount(key.machine_code, key.checkSheet_data.current_year, carriedPMStatusExistsOrNot)
+
+                        if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "2" &&
+                            key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
+                            key1.cycle !== "1/1M") {
+                            updateOtherCyclesStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
+
+                        }
+
+                        if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "2" &&
+                            key1.cycle !== "1/1M") {
+                            // console.log(key?.checkSheet_data?.carriedPMStatus)
+                            if (key?.checkSheet_data?.carriedPMStatus != undefined) {
+                                carriedPMStatusExistsOrNot = 1
+                            } else {
+                                carriedPMStatusExistsOrNot = 0
+                            }
+                            updateStatusOfLastMonthPendingForCount(key.machine_code, key.checkSheet_data.current_year, carriedPMStatusExistsOrNot)
+                        }
+                    }
+
+
+                })
+
+                if (key?.checkSheet_data?.PMStatus) {
+                    // console.log(key?.checkSheet_data?.PMStatus)
+                    if (key?.checkSheet_data?.PMStatus[previousMonth] === "Current Plan") {
+                        updatePMStatusOfPreviousMonthForNoCompletion(key.machine_code, key.checkSheet_data.current_year)
                     }
                 }
-
 
             })
-
-            if (key?.checkSheet_data?.PMStatus) {
-                // console.log(key?.checkSheet_data?.PMStatus)
-                if (key?.checkSheet_data?.PMStatus[previousMonth] === "Current Plan") {
-                    updatePMStatusOfPreviousMonthForNoCompletion(key.machine_code, key.checkSheet_data.current_year)
-                }
-            }
-
-        })
-
+        }
 
 
         res.json({ sectionInfo, subSectionsData, subSectionIdArray, cellData, cellIdArray, lineData, lineIdArray, machineData, defaultSubSectionArray })
@@ -2857,7 +2860,7 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
         if (loggedUserData.user_type === "TL/HOSS") {
             if (loggedUserData.tm_department === "PRD") {
                 requestData = await Machine.aggregate([
-                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
 
                     // { $unwind: '$checkSheet_data' },
                     {
@@ -2907,7 +2910,7 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
                 machineDataWithPopulate = await Machine.populate(requestData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
             } else {
                 requestData = await Machine.aggregate([
-                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
 
                     // { $unwind: '$checkSheet_data' },
                     {
@@ -2937,7 +2940,7 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
             if (loggedUserData.user_type === "Section-Admin" && loggedUserData.tm_grade === "HOS") {
                 requestData = await Machine.aggregate([
 
-                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                     // { $unwind: '$checkSheet_data' },
                     {
                         $match: {
@@ -3858,7 +3861,8 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
             spareParts,
             partName,
             partNo,
-            cost } = req.body
+            cost,
+            completionDateOfInspection } = req.body
 
         let arrayForPMData = []
         arrayForPMData.push(1, workedOnPM, remarksOfImplementation)
@@ -3966,6 +3970,7 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
 
         let keyOfMonth = `checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2.${monthForCompareSystemMonth}`
         let keyOfPMOkImage = `checkSheet_data.$[outer].checkSheet.$[inner].PMOkImage.${monthForCompareSystemMonth}`
+        let keyOfCompletionDateOfInspection = `checkSheet_data.$[outer].checkSheet.$[inner].completionDateOfInspection.${monthForCompareSystemMonth}`
 
         //for abnormality
         let keyOfAbnormalityRemarks = `checkSheet_data.$[outer].checkSheet.$[inner].abnormalityDetails.${monthForCompareSystemMonth}.abnormalityRemarks`
@@ -4006,6 +4011,7 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
                             // [keyOfMonth]: {$each:[workedOnPM, remarksOfImplementation]}
                             [keyOfMonth]: arrayForDonePreviousMonthPMPMData,
                             [keyOfPreviousMonth]: arrayForUpdatePreviousMonthDelayPMData,
+                            [keyOfCompletionDateOfInspection]: completionDateOfInspection
                         }
                     },
                     {
@@ -4019,6 +4025,8 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
                             $set: {
                                 // [keyOfMonth]: {$each:[workedOnPM, remarksOfImplementation]}
                                 [keyOfMonth]: arrayForPMData,
+                                [keyOfCompletionDateOfInspection]: completionDateOfInspection
+
                             }
                         },
                         {
@@ -4032,7 +4040,9 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
                             $set: {
                                 // [keyOfMonth]: {$each:[workedOnPM, remarksOfImplementation]}
                                 [keyOfMonth]: arrayForPMData,
-                                [keyOfPMOkImage]: PMuploadedImage
+                                [keyOfPMOkImage]: PMuploadedImage,
+                                [keyOfCompletionDateOfInspection]: completionDateOfInspection
+
                             }
                         },
                         {
@@ -4071,7 +4081,9 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
                                 [keyOfSpareParts]: spareParts,
                                 [keyOfPartName]: partName,
                                 [keyOfPartNo]: partNo,
-                                [keyOfCost]: cost
+                                [keyOfCost]: cost,
+                                [keyOfCompletionDateOfInspection]: completionDateOfInspection
+
                             }
                         },
                         {
@@ -4090,7 +4102,9 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
                                 [keyOfSpareParts]: spareParts,
                                 [keyOfPartName]: partName,
                                 [keyOfPartNo]: partNo,
-                                [keyOfCost]: cost
+                                [keyOfCost]: cost,
+                                [keyOfCompletionDateOfInspection]: completionDateOfInspection
+
                             }
                         },
                         {
@@ -4125,7 +4139,9 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
                                 [keyOfSpareParts]: spareParts,
                                 [keyOfPartName]: partName,
                                 [keyOfPartNo]: partNo,
-                                [keyOfCost]: cost
+                                [keyOfCost]: cost,
+                                [keyOfCompletionDateOfInspection]: completionDateOfInspection
+
                             }
                         },
                         {
@@ -4145,7 +4161,9 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
                                 [keyOfSpareParts]: spareParts,
                                 [keyOfPartName]: partName,
                                 [keyOfPartNo]: partNo,
-                                [keyOfCost]: cost
+                                [keyOfCost]: cost,
+                                [keyOfCompletionDateOfInspection]: completionDateOfInspection
+
                             }
                         },
                         {
@@ -4185,7 +4203,9 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
                                 [keyOfSpareParts]: spareParts,
                                 [keyOfPartName]: partName,
                                 [keyOfPartNo]: partNo,
-                                [keyOfCost]: cost
+                                [keyOfCost]: cost,
+                                [keyOfCompletionDateOfInspection]: completionDateOfInspection
+
 
                             }
                         },
@@ -4205,7 +4225,9 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
                                 [keyOfSpareParts]: spareParts,
                                 [keyOfPartName]: partName,
                                 [keyOfPartNo]: partNo,
-                                [keyOfCost]: cost
+                                [keyOfCost]: cost,
+                                [keyOfCompletionDateOfInspection]: completionDateOfInspection
+
 
                             }
                         },
@@ -4241,7 +4263,9 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
                                 [keyOfSpareParts]: spareParts,
                                 [keyOfPartName]: partName,
                                 [keyOfPartNo]: partNo,
-                                [keyOfCost]: cost
+                                [keyOfCost]: cost,
+                                [keyOfCompletionDateOfInspection]: completionDateOfInspection
+
                             }
                         },
                         {
@@ -4262,7 +4286,9 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), asyn
                                 [keyOfSpareParts]: spareParts,
                                 [keyOfPartName]: partName,
                                 [keyOfPartNo]: partNo,
-                                [keyOfCost]: cost
+                                [keyOfCost]: cost,
+                                [keyOfCompletionDateOfInspection]: completionDateOfInspection
+
                             }
                         },
                         {
@@ -5554,14 +5580,40 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
     try {
         let { section, currentMonth, selectedYear } = req.body
         let loggedUserData = req.rootUser;
+        let skipMachineDataWithEveryMonth = []
+
+        const monthKeyArray = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "June",
+            "July",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
 
         let currentYear =
             new Date().getMonth() <= 3
                 ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
                 : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
+        let previousMonth = monthKeyArray[new Date().getMonth() - 1] === undefined
+            ? monthKeyArray.splice(-1)[0]
+            : monthKeyArray[new Date().getMonth() - 1];
+
+        let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
+
+
         let keyForCurrentMonthPMStatus = `checkSheet_data.PMStatus.${currentMonth}`
         let keyForPreviousMonthPMStatus = `checkSheet_data.carriedPMStatus.${currentMonth}`
+
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
 
         let selectedYearOfCheckSheet =
             selectedYear === currentYear ?
@@ -5612,7 +5664,6 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
             }
 
             // machineDataForCurrentMonth = await Machine.find({ line_names: { $in: lineIdArray }, [keyForCurrentMonthPMStatus]: { $ne: "" }, PMStatus: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-            // machineDataForPreviousMonth = await Machine.find({ line_names: { $in: lineIdArray }, [keyForPreviousMonthPMStatus]: { $ne: "" }, carriedPMStatus: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
 
 
@@ -5678,14 +5729,68 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                 },
                 {
                     $match: {
-                        [keyForPreviousMonthPMStatus]: { $ne: "" },
+                        // [keyForPreviousMonthPMStatus]: { $ne: "" },
                         "checkSheet_data.PMStatus": { $ne: undefined },
                     }
                 },
             ])
+            machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+
+            machineDataForPreviousMonth.map((keyForCheckSheet) => {
+
+                for (let i = 0; i < Object.keys(keyForCheckSheet?.checkSheet_data?.PMStatus)?.length; i++) {
+                    let month = financialYearWiseMonthKeyArray[i]
+
+                    if (keyForCheckSheet?.checkSheet_data?.PMStatus[month] === "PM Skip" ||
+                        (keyForCheckSheet?.checkSheet_data?.PMStatus[month] === "Done with delay" && keyForCheckSheet?.flagOfDoneWithDelayForOneMonth)) {
+                        for (let j = 0; j < keyForCheckSheet?.checkSheet_data?.checkSheet?.length; j++) {
+
+                            if (
+                                (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle !== "1/1M" ||
+                                    keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle !== "1/2M") &&
+                                    (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.planningTableAnimationArray2[month][1] === "skip")
+                            ) {
+                                console.log(keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.tableRowId, "-----", keyForCheckSheet?.machine_code, "--->", keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle, "---", j)
+
+
+                                skipMachineDataWithEveryMonth.push(
+                                    new Object({
+                                        machine_name: keyForCheckSheet?.machine_name,
+                                        machine_code: keyForCheckSheet?.machine_code,
+                                        yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
+                                        schedule_month: month,
+                                        line_name: keyForCheckSheet?.line_names?.line_name,
+                                        cell_name: keyForCheckSheet?.line_names?.cell_names?.cell_name,
+                                        PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month]
+                                    })
+                                );
+
+                            }
+
+                        }
+
+                    }
+
+                }
+                if (previousMonth != "Mar") {
+                    if (keyForCheckSheet?.checkSheet_data?.carriedPMStatus?.[monthForCompareSystemMonth] != "" && keyForCheckSheet?.checkSheet_data?.carriedPMStatus != undefined) {
+                        skipMachineDataWithEveryMonth.push(
+                            new Object({
+                                machine_name: keyForCheckSheet?.machine_name,
+                                machine_code: keyForCheckSheet?.machine_code,
+                                yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
+                                line_name: keyForCheckSheet?.line_names?.line_name,
+                                cell_name: keyForCheckSheet?.line_names?.cell_names?.cell_name,
+                                PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[previousMonth],
+                                checkSheet_data: keyForCheckSheet?.checkSheet_data
+                            })
+                        )
+                    }
+                }
+
+            })
 
             machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-            machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
             // console.log("========>", machineDataForCurrentMonth)
             // console.log("========>", machineDataForPreviousMonth)
@@ -5789,6 +5894,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
 
 
         res.json({
+            skipMachineDataWithEveryMonth,
             machineDataForCurrentMonth
             , machineDataForPreviousMonth
         })
@@ -7813,7 +7919,7 @@ router.post('/postSectionToGetAllDataForTotalTimeMonthWiseReport', authenticate,
                             $or: selectedYearOfCheckSheet,
                         }
                     },
-                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                     {
                         $match: {
                             [x]: { $ne: undefined },
@@ -7927,7 +8033,7 @@ router.post('/postPerticularLineToGetDataForTotalTimeMonthWiseReport', authentic
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         [x]: { $ne: undefined },
@@ -8072,7 +8178,7 @@ router.post('/postSectionToGetAllDataForTotalTimeManHoursMonthWise', authenticat
                             $or: selectedYearOfCheckSheet,
                         }
                     },
-                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                     {
                         $match: {
                             [keyOfTotalPMTime]: { $ne: undefined },
@@ -8195,7 +8301,7 @@ router.post('/postPerticularLineToGetDataForTotalTimeManHours', authenticate, as
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         [keyOfTotalPMTime]: { $ne: undefined },
@@ -8347,7 +8453,7 @@ router.post('/postPerticularOperatorToGetDataForActualTimeTakenTMWise', authenti
                             $or: selectedYearOfCheckSheet,
                         }
                     },
-                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                     {
                         $match: {
                             [keyOfTotalPMTime]: { $ne: undefined },

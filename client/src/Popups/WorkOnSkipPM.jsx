@@ -6,7 +6,7 @@ import { Select } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import axios from "axios";
 
-function WorkOnImplementationPM({
+function WorkOnSkipPM({
   close,
   disabledButtonAfterPM,
   tableRowId,
@@ -76,20 +76,20 @@ function WorkOnImplementationPM({
     }),
   });
 
-    //get the date and time
-    const timeStamp = () => {
-      let date = new Date();
-      let getTime = date
-        .toLocaleTimeString("en-IN", {
-          hour12: true,
-        })
-        .replace(/(.*)\D\d+/, "$1");
-      const year = date.getFullYear(); // 2019
-      const month = date.getMonth() + 1;
-      const day = date.getDate(); // 23
-  
-      return `${day}/${month}/${year} - ${getTime}`;
-    };
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -139,7 +139,7 @@ function WorkOnImplementationPM({
       formData.append("partName", values.partName);
       formData.append("partNo", values.partNo);
       formData.append("cost", values.cost);
-      formData.append("completionDateOfInspection", timeStamp)
+      formData.append("completionDateOfInspection", timeStamp);
       // console.log(formData);
 
       axios
@@ -505,4 +505,4 @@ function WorkOnImplementationPM({
   );
 }
 
-export default WorkOnImplementationPM;
+export default WorkOnSkipPM;

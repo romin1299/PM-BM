@@ -234,7 +234,9 @@ function CheckSheet({
   ];
   let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
 
-  let previousMonth = monthKeyArray[new Date().getMonth() - 1];
+  let previousMonth = monthKeyArray[new Date().getMonth() - 1] === undefined
+            ? monthKeyArray.splice(-1)[0]
+            : monthKeyArray[new Date().getMonth() - 1];
   let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
 
   let Data = {};
@@ -372,7 +374,8 @@ function CheckSheet({
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
           key === "start_month" ||
-          key === "PMOkImage"
+          key === "PMOkImage"||
+          key === "completionDateOfInspection"
         ) {
           continue;
         }

@@ -22,15 +22,15 @@ import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
 import MonthDropDown from "../../Dashboard/DashboardComponent/MonthDropDown";
 import LoadingAnimation from "./LoadingAnimation";
 import NotFound from "./NotFound";
+import WorkOnSkipPM from "../../../Popups/WorkOnSkipPM";
 import { Navigate, useNavigate } from "react-router-dom";
-require('jspdf-autotable');
+require("jspdf-autotable");
 
 const MachineWisePmMonthlyReport = () => {
   const context = useContext(RoutingContext);
 
   const [tableData1, setTableData1] = useState();
   const navigate = useNavigate();
-
 
   // console.log(currentYear);
 
@@ -66,8 +66,7 @@ const MachineWisePmMonthlyReport = () => {
   let previousMonth =
     monthKeyArray[monthKeyArray.indexOf(selectedMonth) - 1] === undefined
       ? monthKeyArray.splice(-1)[0]
-      : 
-      monthKeyArray[monthKeyArray.indexOf(selectedMonth) - 1];
+      : monthKeyArray[monthKeyArray.indexOf(selectedMonth) - 1];
 
   // console.log(selectedMonth, previousMonth);
   const tableColumn1 = [
@@ -76,6 +75,13 @@ const MachineWisePmMonthlyReport = () => {
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
       // width: "10%",
+    },
+    {
+      title: "Cell",
+      render: (rowData) => rowData?.line_names.cell_names.cell_name,
+      // field: "line_names.line_name",
+      editable: "false",
+      align: "center",
     },
     {
       title: "Line",
@@ -123,9 +129,21 @@ const MachineWisePmMonthlyReport = () => {
       // width: "10%",
     },
     {
+      title: "Schedule Month",
+      field: "schedule_month",
+      align: "center",
+    },
+    {
+      title: "Cell",
+      // render: (rowData) => rowData?.line_names.cell_names.cell_name,
+      field: "cell_name",
+      editable: "false",
+      align: "center",
+    },
+    {
       title: "Line",
-      render: (rowData) => rowData?.line_names.line_name,
-      // field: "line_names.line_name",
+      // render: (rowData) => rowData?.line_names.line_name,
+      field: "line_name",
       editable: "false",
       align: "center",
     },
@@ -139,24 +157,30 @@ const MachineWisePmMonthlyReport = () => {
       field: "machine_code",
       align: "center",
     },
+    {
+      title: "Completion Target Date",
+      field: "completionTargetDate",
+      align: "center",
+    },
 
     {
       title: "PM Status",
       align: "center",
-      field: "rowData.PMStatus?.[monthForCompareSystemMonth]",
+      field: "PMStatus",
       // width: "10%",
-      render: (rowData) =>
-        rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Done with delay" ? (
-          <PanoramaFishEyeIcon fontSize="small" />
-        ) : // : rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Current Plan" ? (
-        //   <PanoramaFishEyeIcon fontSize="small" />
-        // )
-        rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing" ? (
-          <ArrowDropUpIcon />
-        ) : (
-          // <CloseIcon />
-          <CloseIcon />
-        ),
+      // render: (rowData) =>
+      //   rowData?.checkSheet_data?.PMStatus?.[previousMonth]
+      //  === "Done with delay" ? (
+      //   <PanoramaFishEyeIcon fontSize="small" />
+      // ) : // : rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Current Plan" ? (
+      // //   <PanoramaFishEyeIcon fontSize="small" />
+      // // )
+      // rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing" ? (
+      //   <ArrowDropUpIcon />
+      // ) : (
+      //   // <CloseIcon />
+      //   <CloseIcon />
+      // ),
       // console.log(
       //   rowData.PMStatus ? rowData.PMStatus.monthForCompareSystemMonth : "ACD"
       // ),
@@ -226,22 +250,37 @@ const MachineWisePmMonthlyReport = () => {
   ];
 
   const actionsForPreviousMonth = [
-    {
-      icon: () => <button className="btn">Details</button>,
-      // (
-      //   <a href="" style={{ fontWeight: "normal", fontSize: "16px" }}>
-      //     Details
-      //   </a>
-      // ),
-      tooltip: "click here for details",
-      onClick: (event, selectedRow) => {
-        navigate("/viewCheckSheet", {
-          state: { selectedRowForViewForm: selectedRow },
-        });
-        // console.log(employeePassword)
-      },
-      disabled: false, // Set disabled to false by default for all actions
-      position: "row",
+    (rowData) => {
+      return {
+        hidden: rowData.PMStatus !== "PM Skip",
+
+        icon: () => <button className="btn">Edit</button>,
+        // tooltip: <h1>I am a tooltip</h1>,
+        onClick: (event, selectedRow) => {
+          // navigate("/viewCheckSheet", {
+          //   state: { selectedRowForViewForm: selectedRow },
+          // });
+          // console.log(employeePassword)
+        },
+        disabled: false, // Set disabled to false by default for all actions
+        position: "row",
+      };
+    },
+    (rowData) => {
+      return {
+        hidden: rowData.PMStatus === "PM Skip",
+
+        icon: () => <button className="btn">Details</button>,
+        // tooltip: <h1>I am a tooltip</h1>,
+        onClick: (event, selectedRow) => {
+          navigate("/viewCheckSheet", {
+            state: { selectedRowForViewForm: selectedRow },
+          });
+          // console.log(employeePassword)
+        },
+        disabled: false, // Set disabled to false by default for all actions
+        position: "row",
+      };
     },
     {
       // icon: () => <button className="addbutton">Add</button>,
@@ -551,13 +590,19 @@ const MachineWisePmMonthlyReport = () => {
                         rowStyle: {
                           // fontStyle:'bold'
 
-                          boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                          // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
                           // color:"rgba(255,255,255,0.8)",
                           borderRadius: "5px",
-                          border: "1px solid rgba(255,255,255)",
+                          border: "2px solid black",
                           WebkitBackdropFilter: "blur( 2px )",
                           background: "rgba(255,255,255,0.1)",
-                          backdropFilter: "blur(5px)",
+                          // backdropFilter: "blur(5px)",
+                        },
+                        cellStyle: {
+                          border: "2px solid black",
+                        },
+                        headerStyle: {
+                          border: "2px solid black",
                         },
                       }}
                     />
@@ -619,14 +664,14 @@ const MachineWisePmMonthlyReport = () => {
                 )}
               </Row>
               <Row>
-                {tableData1?.machineDataForPreviousMonth?.length > 0 ? (
+                {tableData1?.skipMachineDataWithEveryMonth?.length > 0 ? (
                   <Col lg={10}>
                     <MaterialTable
                       localization={{}}
                       actions={actionsForPreviousMonth}
                       columns={tableColumn2}
-                      data={tableData1?.machineDataForPreviousMonth}
-                      title={previousMonth}
+                      data={tableData1?.skipMachineDataWithEveryMonth}
+                      title={"Pending Machine"}
                       editable={{}}
                       options={{
                         showTitle: true,
@@ -652,13 +697,19 @@ const MachineWisePmMonthlyReport = () => {
                         rowStyle: {
                           // fontStyle:'bold'
 
-                          boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                          // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
                           // color:"rgba(255,255,255,0.8)",
                           borderRadius: "5px",
-                          border: "1px solid rgba(255,255,255)",
+                          border: "2px solid black",
                           WebkitBackdropFilter: "blur( 2px )",
                           background: "rgba(255,255,255,0.1)",
-                          backdropFilter: "blur(5px)",
+                          // backdropFilter: "blur(5px)",
+                        },
+                        cellStyle: {
+                          border: "2px solid black",
+                        },
+                        headerStyle: {
+                          border: "2px solid black",
                         },
                       }}
                     />
