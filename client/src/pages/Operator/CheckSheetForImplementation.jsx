@@ -375,7 +375,8 @@ function CheckSheet({
           key === "abnormalityDetails" ||
           key === "start_month" ||
           key === "PMOkImage"||
-          key === "completionDateOfInspection"
+          key === "completionDateOfInspection" ||
+          key === "reasonForDelayWhenSkip"
         ) {
           continue;
         }

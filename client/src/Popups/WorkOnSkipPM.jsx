@@ -6,16 +6,7 @@ import { Select } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import axios from "axios";
 
-function WorkOnSkipPM({
-  close,
-  disabledButtonAfterPM,
-  tableRowId,
-  yearOfCheckSheet,
-  machineId,
-  monthForCompareSystemMonth,
-  previousMonth,
-  functionToSetRefKey,
-}) {
+function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
   const [workedData, setWorkedData] = useState([]);
   const [userPhoto, setUserPhoto] = useState([]);
 
@@ -55,7 +46,7 @@ function WorkOnSkipPM({
   ];
   const validationSchema = yup.object({
     workedOnPM: yup.string().required("Please select one"),
-
+    // reasonForDelayWhenSkip: yup.string().required("Please enter reason for delay"),
     abnormalityRemarks: yup.string().when({
       is: () =>
         formik.values.workedOnPM === "Rectify" ||
@@ -95,7 +86,7 @@ function WorkOnSkipPM({
     initialValues: {
       workedOnPM: "",
       remarksOfImplementation: "",
-
+      reasonForDelayWhenSkip: "",
       // Abnormality Details
       abnormalityRemarks: "",
       abnormalityStatus: "",
@@ -115,18 +106,21 @@ function WorkOnSkipPM({
     validationSchema: validationSchema,
 
     onSubmit: async (values) => {
+      let currentDateAndTime = timeStamp()
       let formData = new FormData();
       formData.append("photoUpload", userPhoto);
       formData.append("workedOnPM", values.workedOnPM);
+      formData.append("reasonForDelayWhenSkip", values.reasonForDelayWhenSkip);
       formData.append(
         "remarksOfImplementation",
         values.remarksOfImplementation
       );
-      formData.append("machineId", machineId);
-      formData.append("tableRowId", tableRowId);
-      formData.append("yearOfCheckSheet", yearOfCheckSheet);
-      formData.append("monthForCompareSystemMonth", monthForCompareSystemMonth);
-      formData.append("previousMonth", previousMonth);
+      formData.append("machineId", selectedRow.machine_code);
+      formData.append("tableRowId", selectedRow.tableRowId);
+      formData.append("yearOfCheckSheet", selectedRow.yearOfCheckSheet);
+      formData.append("schedule_month", selectedRow.schedule_month)
+      // formData.append("monthForCompareSystemMonth", monthForCompareSystemMonth);
+      // formData.append("previousMonth", previousMonth);
       // Abnormality Details
       formData.append("abnormalityRemarks", values.abnormalityRemarks);
       formData.append(
@@ -139,11 +133,11 @@ function WorkOnSkipPM({
       formData.append("partName", values.partName);
       formData.append("partNo", values.partNo);
       formData.append("cost", values.cost);
-      formData.append("completionDateOfInspection", timeStamp);
+      formData.append("completionDateOfInspection", currentDateAndTime);
       // console.log(formData);
 
       axios
-        .post("/postImplementationWorkedData", formData)
+        .post("/postSkipWorkedData", formData)
         .then((res) => {
           if (res.status === 400 || res.status === 422) {
             window.alert("Invalid !");
@@ -170,6 +164,7 @@ function WorkOnSkipPM({
     formik.values.partName = "";
     formik.values.partNo = "";
     formik.values.cost = "";
+    formik.values.reasonForDelayWhenSkip = ""
   };
 
   return (
@@ -252,16 +247,40 @@ function WorkOnSkipPM({
 
             {formik.values.workedOnPM === "Yes" ? (
               <div>
-                <div className="mb-3">
-                  <span>Remarks: </span>
-                  <input
-                    type="text"
-                    maxLength={5}
-                    // id={rData[0].value}
-                    name="remarksOfImplementation"
-                    onChange={formik.handleChange}
-                  />
+                <div className="row">
+                  <div className="col-6">
+                    <div className="mb-3">
+                      <span>Remarks: </span>
+                      <input
+                        type="text"
+                        maxLength={5}
+                        // id={rData[0].value}
+                        name="remarksOfImplementation"
+                        onChange={formik.handleChange}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <div className="mb-3">
+                      <span>Reason for delay: </span>
+                      <input
+                        type="text"
+                        // id={rData[0].value}
+                        name="reasonForDelayWhenSkip"
+                        onChange={formik.handleChange}
+                        // error={
+                        //   formik.touched.reasonForDelayWhenSkip &&
+                        //   Boolean(formik.errors.reasonForDelayWhenSkip)
+                        // }
+                        // helperText={
+                        //   formik.touched.reasonForDelayWhenSkip &&
+                        //   formik.errors.reasonForDelayWhenSkip
+                        // }
+                      />
+                    </div>
+                  </div>
                 </div>
+
                 <div className="mb-3">
                   <span>Photo Upload: </span>
                   <input
@@ -278,16 +297,38 @@ function WorkOnSkipPM({
             ) : formik.values.workedOnPM === "No" ||
               formik.values.workedOnPM === "Rectify" ? (
               <div>
-                <div className="mb-3">
-                  <span>Remarks: </span>
-                  <input
-                    type="text"
-                    maxLength={5}
-                    // id={rData[0].value}
-                    name="remarksOfImplementation"
-                    onChange={formik.handleChange}
-                    autoComplete="off"
-                  />
+                <div className="row">
+                  <div className="col-6">
+                    <div className="mb-3">
+                      <span>Remarks: </span>
+                      <input
+                        type="text"
+                        maxLength={5}
+                        // id={rData[0].value}
+                        name="remarksOfImplementation"
+                        onChange={formik.handleChange}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <div className="mb-3">
+                      <span>Reason for delay: </span>
+                      <input
+                        type="text"
+                        // id={rData[0].value}
+                        name="reasonForDelayWhenSkip"
+                        onChange={formik.handleChange}
+                        // error={
+                        //   formik.touched.reasonForDelayWhenSkip &&
+                        //   Boolean(formik.errors.reasonForDelayWhenSkip)
+                        // }
+                        // helperText={
+                        //   formik.touched.reasonForDelayWhenSkip &&
+                        //   formik.errors.reasonForDelayWhenSkip
+                        // }
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="row">
                   <div className="col-6">
@@ -308,7 +349,7 @@ function WorkOnSkipPM({
                       <input
                         type="text"
                         className="col-6"
-                        value={tableRowId}
+                        value={selectedRow.tableRowId}
                         // onChange={formik.handleChange}
                       />
                     </div>

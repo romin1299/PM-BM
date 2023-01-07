@@ -44,7 +44,7 @@ import OpenAbnormalityTrack from "./pages/Reports/OpenAbnormalityTracking"
 import MTDTLandHOSChecksheetCreationDashboard from "./pages/Section/Checksheet/MTDTLandHOSChecksheetCreationDashboard";
 //for Operator
 import CheckSheetForImplementation from "./pages/Operator/CheckSheetForImplementation"
-
+import SkipPMWorkData from "./pages/Section/Checksheet/SkipPMWorkData";
 import CheckSheet from "./pages/Dashboard/CheckSheet";
 
 //implementation approval flow
@@ -202,6 +202,8 @@ function App() {
                 <Route path="/backupTableData" element={<ShowBackupChecksheetTableData />} />
 
                 <Route path="/summeryDashboard" element={<SummeryDashboard />} />
+                <Route path="/skipedPMWorkData" element={<SkipPMWorkData />} />
+
 
 
               </Routes>

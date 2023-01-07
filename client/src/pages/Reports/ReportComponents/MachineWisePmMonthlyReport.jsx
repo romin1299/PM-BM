@@ -22,6 +22,7 @@ import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
 import MonthDropDown from "../../Dashboard/DashboardComponent/MonthDropDown";
 import LoadingAnimation from "./LoadingAnimation";
 import NotFound from "./NotFound";
+import SkipPMWorkData from "../../Section/Checksheet/SkipPMWorkData";
 import WorkOnSkipPM from "../../../Popups/WorkOnSkipPM";
 import { Navigate, useNavigate } from "react-router-dom";
 require("jspdf-autotable");
@@ -71,10 +72,10 @@ const MachineWisePmMonthlyReport = () => {
   // console.log(selectedMonth, previousMonth);
   const tableColumn1 = [
     {
-      title: "Serial no",
+      title: "Sr. no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
-      // width: "10%",
+      width: "5%",
     },
     {
       title: "Cell",
@@ -123,15 +124,19 @@ const MachineWisePmMonthlyReport = () => {
 
   const tableColumn2 = [
     {
-      title: "Serial no",
+      title: "Sr. no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
-      // width: "10%",
+      width: "5%",
+      editable: "false",
     },
     {
       title: "Schedule Month",
       field: "schedule_month",
       align: "center",
+      editable: "false",
+      width: "5%",
+
     },
     {
       title: "Cell",
@@ -139,6 +144,8 @@ const MachineWisePmMonthlyReport = () => {
       field: "cell_name",
       editable: "false",
       align: "center",
+      width: "15%",
+
     },
     {
       title: "Line",
@@ -146,44 +153,44 @@ const MachineWisePmMonthlyReport = () => {
       field: "line_name",
       editable: "false",
       align: "center",
+      width: "15%",
+
     },
     {
       title: "Machine",
       field: "machine_name",
       align: "center",
+      editable: "false",
+      width: "15%",
+
     },
     {
       title: "Machine No.",
       field: "machine_code",
       align: "center",
+      editable: "false",
+      // width: "15%",
+
     },
     {
       title: "Completion Target Date",
       field: "completionTargetDate",
       align: "center",
+      editComponent: ({ value, onChange }) => (
+        <input
+          type="date"
+          //   className="col-6"
+          name="completionTargetDate"
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
     },
 
     {
       title: "PM Status",
       align: "center",
       field: "PMStatus",
-      // width: "10%",
-      // render: (rowData) =>
-      //   rowData?.checkSheet_data?.PMStatus?.[previousMonth]
-      //  === "Done with delay" ? (
-      //   <PanoramaFishEyeIcon fontSize="small" />
-      // ) : // : rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Current Plan" ? (
-      // //   <PanoramaFishEyeIcon fontSize="small" />
-      // // )
-      // rowData?.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing" ? (
-      //   <ArrowDropUpIcon />
-      // ) : (
-      //   // <CloseIcon />
-      //   <CloseIcon />
-      // ),
-      // console.log(
-      //   rowData.PMStatus ? rowData.PMStatus.monthForCompareSystemMonth : "ACD"
-      // ),
+      editable: "false",
     },
   ];
 
@@ -254,12 +261,12 @@ const MachineWisePmMonthlyReport = () => {
       return {
         hidden: rowData.PMStatus !== "PM Skip",
 
-        icon: () => <button className="btn">Edit</button>,
+        icon: () => <button className="btn">PM Edit</button>,
         // tooltip: <h1>I am a tooltip</h1>,
         onClick: (event, selectedRow) => {
-          // navigate("/viewCheckSheet", {
-          //   state: { selectedRowForViewForm: selectedRow },
-          // });
+          navigate("/skipedPMWorkData", {
+            state: { selectedRowForSkipData: selectedRow },
+          });
           // console.log(employeePassword)
         },
         disabled: false, // Set disabled to false by default for all actions
@@ -672,7 +679,25 @@ const MachineWisePmMonthlyReport = () => {
                       columns={tableColumn2}
                       data={tableData1?.skipMachineDataWithEveryMonth}
                       title={"Pending Machine"}
-                      editable={{}}
+                      editable={
+                        {
+                          isEditHidden: rowData => rowData.PMStatus !== 'PM Skip',
+                          onRowUpdate: (updatedRow, oldRow) =>
+                            new Promise((resolve, reject) => {
+                              const index = oldRow.tableData.id;
+                              const updatedRows = [...tableData1];
+                              updatedRows[index] = updatedRow;
+                              //call the update user function and pass the user data
+                              // updateUserInfo(updatedRow);
+                              // updateSection(updatedRow, oldRow);
+                              // setTimeout(() => {
+                              //   setRefKey((refKey) => refKey + 1);
+                              //   resolve();
+                              // }, 500);
+                              //refreshPage();
+                            }),
+                        }
+                      }
                       options={{
                         showTitle: true,
                         paging: false,

@@ -196,7 +196,8 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
           key === "abnormalityDetails" ||
           key === "start_month" ||
           key === "PMOkImage"||
-          key === "completionDateOfInspection"
+          key === "completionDateOfInspection" ||
+          key === "reasonForDelayWhenSkip"
         ) {
           continue;
         }
