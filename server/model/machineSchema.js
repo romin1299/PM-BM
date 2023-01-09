@@ -325,8 +325,108 @@ const machineSchema = mongoose.Schema({
 
                         Mar: { type: String },
                     },
+                    completionDateOfInspection: {
+                        Apr: { type: String },
+
+                        May: { type: String },
+
+                        June: { type: String },
+
+                        July: { type: String },
+
+                        Aug: { type: String },
+
+                        Sep: { type: String },
+
+                        Oct: { type: String },
+
+                        Nov: { type: String },
+
+                        Dec: { type: String },
+
+                        Jan: { type: String },
+
+                        Feb: { type: String },
+
+                        Mar: { type: String },
+                    },
+                    reasonForDelayWhenSkip: {
+                        Apr: { type: String },
+
+                        May: { type: String },
+
+                        June: { type: String },
+
+                        July: { type: String },
+
+                        Aug: { type: String },
+
+                        Sep: { type: String },
+
+                        Oct: { type: String },
+
+                        Nov: { type: String },
+
+                        Dec: { type: String },
+
+                        Jan: { type: String },
+
+                        Feb: { type: String },
+
+                        Mar: { type: String },
+                    },
                 }
             ],
+            flagOfDoneWithDelayForOneMonth: {
+                Apr: { type: Number },
+
+                May: { type: Number },
+
+                June: { type: Number },
+
+                July: { type: Number },
+
+                Aug: { type: Number },
+
+                Sep: { type: Number },
+
+                Oct: { type: Number },
+
+                Nov: { type: Number },
+
+                Dec: { type: Number },
+
+                Jan: { type: Number },
+
+                Feb: { type: Number },
+
+                Mar: { type: Number },
+            },
+            completionTargetDate: {
+                Apr: { type: String },
+
+                May: { type: String },
+
+                June: { type: String },
+
+                July: { type: String },
+
+                Aug: { type: String },
+
+                Sep: { type: String },
+
+                Oct: { type: String },
+
+                Nov: { type: String },
+
+                Dec: { type: String },
+
+                Jan: { type: String },
+
+                Feb: { type: String },
+
+                Mar: { type: String },
+            },
             dataSheet: {
                 type: String
             },

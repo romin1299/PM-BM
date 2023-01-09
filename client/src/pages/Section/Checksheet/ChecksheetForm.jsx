@@ -188,7 +188,9 @@ function CheckSheetForm() {
   ];
   let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
 
-  let previousMonth = monthKeyArray[new Date().getMonth() - 1];
+  let previousMonth = monthKeyArray[new Date().getMonth() - 1] === undefined
+            ? monthKeyArray.splice(-1)[0]
+            : monthKeyArray[new Date().getMonth() - 1];
 
   const PMCarryOnToNextMonth = async (tableRowId) => {
     // console.log(tableRowId);
@@ -255,7 +257,10 @@ function CheckSheetForm() {
           key === "planningTableAnimationArray2" ||
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
-          key === "start_month"
+          key === "start_month"||
+          key === "PMOkImage"||
+          key === "completionDateOfInspection" ||
+          key === "reasonForDelayWhenSkip"
         ) {
           continue;
         }

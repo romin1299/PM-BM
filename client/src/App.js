@@ -46,7 +46,7 @@ import CreationDashboardForTLHOSS from "./pages/MTD_TL_HOSS/CreationDashboardFor
 import UserAssignTLHOSS from "./pages/MTD_TL_HOSS/UserAssignTLHOSS";
 //for Operator
 import CheckSheetForImplementation from "./pages/Operator/CheckSheetForImplementation"
-
+import SkipPMWorkData from "./pages/Section/Checksheet/SkipPMWorkData";
 import CheckSheet from "./pages/Dashboard/CheckSheet";
 
 //implementation approval flow
@@ -209,6 +209,8 @@ function App() {
                 <Route path="/backupTableData" element={<ShowBackupChecksheetTableData />} />
 
                 <Route path="/summeryDashboard" element={<SummeryDashboard />} />
+                <Route path="/skipedPMWorkData" element={<SkipPMWorkData />} />
+
 
 
               </Routes>
