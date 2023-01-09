@@ -7,6 +7,7 @@ import {
   denso_logo,
   FaTimes,
   AccountCircleIcon,
+  PersonAddAltIcon,
   DashboardIcon,
   NoteAddIcon,
   AddTaskIcon,
@@ -21,10 +22,10 @@ import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import SummarizeIcon from "@mui/icons-material/Summarize";
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 
 const NavUrl = ({ url, icon, description }) => {
   const { nav, setNav } = useContext(NavContext);
@@ -47,7 +48,6 @@ const NavUrl = ({ url, icon, description }) => {
 };
 
 const TL = ({ userData, userDepartment }) => {
-
   const { nav, setNav } = useContext(NavContext);
 
   const [open, setOpen] = React.useState(true);
@@ -91,12 +91,25 @@ const TL = ({ userData, userDepartment }) => {
             icon={<DashboardIcon style={{ color: "#E71E25" }} />}
             description="Dashboard"
           />
+
           {userDepartment === "MTD" ? (
-            <NavUrl
-              url="/checkSheetDashboard"
-              icon={<NoteAddIcon style={{ color: "#E71E25" }} />}
-              description="CheckSheet Dashboard"
-            />
+            <>
+              <NavUrl
+                url="/creationDashboard"
+                icon={<NoteAddIcon style={{ color: "#E71E25" }} />}
+                description="Creation Dashboard"
+              />
+              <NavUrl
+                url="/userAssign"
+                icon={<PersonAddAltIcon style={{ color: "#E71E25" }} />}
+                description="User Assign"
+              />
+              <NavUrl
+                url="/checkSheetDashboard"
+                icon={<NoteAddIcon style={{ color: "#E71E25" }} />}
+                description="CheckSheet Dashboard"
+              />
+            </>
           ) : (
             ""
           )}

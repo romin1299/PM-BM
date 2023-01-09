@@ -606,7 +606,7 @@ router.post('/updateSubSection', authenticate, async (req, res) => {
         await SubSection.updateOne({ subSection_id: subSection_id }, { $set: { subSection_name: subSection_name, subSection_sequence } });
         res.status(201).json({ message: 'SubSection updated successfully' })
         let subSectionIdLiteral = `${subSection_id}-${oldRow.subSection_name}`
-        console.log(subSectionIdLiteral)
+        // console.log(subSectionI  dLiteral)
         let newSubSectionIdLiteral = `${subSection_id}-${subSection_name}`
         const result = await User.updateMany({ subSection_data: subSectionIdLiteral }, { $set: { "subSection_data.$": newSubSectionIdLiteral } })
 
@@ -887,7 +887,7 @@ router.post('/clearTokens', async (req, res) => {
             return res.status(422).json({ error: 'Employee number not received' })
         } else {
             const result = await User.updateOne({ tm_no: tm_no }, { $unset: { jwtTokens: "", moduleType: "" } });
-            console.log(result);
+            // console.log(result);
             res.status(201).json({ message: 'Removed token !!!' })
         }
     } catch (error) {
@@ -971,13 +971,23 @@ router.post('/postSectionToGetSubSectionList', authenticate, async (req, res) =>
         // console.log(section);
         let sectionSplit = section.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
-        // console.log("____________", sectionInfo)
+        // console.log("____________", sectionInfo?.dashboardLevel)
+
+        // console.log(req.rootUser?.subSection_data)
+
+
+
+
         const subSectionsInfo = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
         // console.log("____________", subSectionsInfo)
 
         let subSectionArray = []
-        for (let i = 0; i < subSectionsInfo.length; i++) {
-            subSectionArray.push(`${subSectionsInfo[i].subSection_id}-${subSectionsInfo[i].subSection_name}`);
+        if (sectionInfo?.dashboardLevel === "No") {
+            subSectionArray = req.rootUser?.subSection_data
+        } else {
+            for (let i = 0; i < subSectionsInfo.length; i++) {
+                subSectionArray.push(`${subSectionsInfo[i].subSection_id}-${subSectionsInfo[i].subSection_name}`);
+            }
         }
 
         // console.log(subSectionArray)
@@ -1055,7 +1065,7 @@ router.post('/postLineToGetMachineList', authenticate, async (req, res) => {
                         line_names: lineInfo[0]._id
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         $and: [
@@ -1216,6 +1226,22 @@ router.post('/postUserAssign', async (req, res) => {
             address,
         } = req.body
 
+
+        console.log(tm_name,
+            tm_no,
+            user_type,
+            tm_grade,
+            email,
+            // operator_password,
+            joining_date,
+            plant_data,
+            section_data,
+            tm_department,
+            subSection_data,
+            cell_data,
+            contact_no,
+            address)
+
         const userExist = await User.findOne({ tm_no: req.body.tm_no })
         if (userExist) {
             return res.status(409).json({ error: 'Employee number already exists' })
@@ -1264,6 +1290,8 @@ router.get('/displayAssignUser', authenticate, async (req, res) => {
 router.post('/updateAssignUser', async (req, res) => {
     try {
         let { tm_no, tm_name, user_type, tm_grade, tm_department, email, operator_password, address, plant_data, section_data, subSection_data, cell_data, contact_no, joining_date } = req.body
+
+        // console.log(tm_grade)
         if (tm_grade === "HOD") {
             subSection_data = "";
             // cell_data= "";
@@ -1275,7 +1303,13 @@ router.post('/updateAssignUser', async (req, res) => {
 
             await User.updateOne({ tm_no: tm_no }, { $set: { tm_name, tm_grade, tm_department, email, address, plant_data, section_data, subSection_data, cell_data, contact_no, joining_date } });
 
-        } else {
+        }
+        else if (user_type) {
+
+            await User.updateOne({ tm_no: tm_no }, { $set: { tm_name, tm_grade, user_type, tm_department, email, address, plant_data, section_data, subSection_data, cell_data, contact_no, joining_date } });
+
+        }
+        else {
             await User.updateOne({ tm_no: tm_no }, { $set: { tm_name, tm_grade, tm_department, email, operator_password, address, plant_data, section_data, subSection_data, cell_data, contact_no, joining_date } });
         }
         res.status(201).json({ message: 'Employee updated successfully' })
@@ -1313,14 +1347,66 @@ router.post('/deleteAssignUser', async (req, res) => {
 router.get('/displaySectionAssignUser', authenticate, async (req, res) => {
     try {
         let sectionId = req.rootUser.section_data;
-        // console.log(sectionId)
-        const usersInfo = await User.find({ section_data: sectionId, user_type: { $in: ["Operator", "TL/HOSS"] } }).sort({ _id: -1 });
+        // let sectionSplitId = sectionId?.split("-")?.[0]
+        // // console.log(sectionSplitId) 
+
+        // const sectionInfo = await Section.findOne({ section_id: sectionSplitId })
+        // console.log(sectionInfo?.dashboardLevel)
+
+        // let usersInfo
+        // if (sectionInfo?.dashboardLevel === "Yes") {
+
+        //     usersInfo = await User.find({ section_data: sectionId, tm_department: "MTD", user_type: { $in: ["TL/HOSS"] } }).sort({ _id: -1 });
+        // } else {
+        usersInfo = await User.find({ section_data: sectionId, tm_department: "MTD", user_type: { $in: ["TL/HOSS"] } }).sort({ _id: -1 });
+
+        // }
+
+        // console.log(req.rootUser, sectionId)
         //req.usersInfo=usersInfo;
+
+        // console.log(usersInfo)
         res.json(usersInfo);
     } catch (error) {
         console.log("User data not send or get!!!");
     }
 })
+
+router.get('/displayTLHOSSAssignUser', authenticate, async (req, res) => {
+    try {
+        let sectionId = req.rootUser.section_data;
+        // let sectionSubID = sectionId?.split("-")
+
+        // console.log(sectionSubID)
+        // console.log(req.rootUser, sectionId)
+        const usersInfo = await User.find({
+            section_data: sectionId,
+            $or: [
+                {
+                    $and: [
+                        {
+                            user_type: "TL/HOSS"
+                        },
+                        {
+                            tm_department: "PRD"
+                        }
+                    ]
+                },
+                {
+                    user_type: "Operator"
+                }
+            ]
+        }).sort({ _id: -1 });
+        //req.usersInfo=usersInfo;
+
+        // console.log(usersInfo)
+        res.json(usersInfo);
+    } catch (error) {
+        // console.log(error)
+        console.log("User data not send or get!!!");
+    }
+})
+
 
 //post new machine in machine management in section admin
 router.post('/addNewMachine', async (req, res) => {
@@ -1541,7 +1627,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                         line_names: { $in: lineIdArray }
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ]} } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         $and: [
@@ -1581,7 +1667,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                         line_names: { $in: lineIdArray }
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         $and: [
@@ -1728,7 +1814,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                         line_names: { $in: lineIdArray }
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } }},
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         $and: [
@@ -2857,7 +2943,7 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
         if (loggedUserData.user_type === "TL/HOSS") {
             if (loggedUserData.tm_department === "PRD") {
                 requestData = await Machine.aggregate([
-                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
 
                     // { $unwind: '$checkSheet_data' },
                     {
@@ -2907,7 +2993,7 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
                 machineDataWithPopulate = await Machine.populate(requestData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
             } else {
                 requestData = await Machine.aggregate([
-                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
 
                     // { $unwind: '$checkSheet_data' },
                     {
@@ -2937,7 +3023,7 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
             if (loggedUserData.user_type === "Section-Admin" && loggedUserData.tm_grade === "HOS") {
                 requestData = await Machine.aggregate([
 
-                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                     // { $unwind: '$checkSheet_data' },
                     {
                         $match: {
@@ -7813,7 +7899,7 @@ router.post('/postSectionToGetAllDataForTotalTimeMonthWiseReport', authenticate,
                             $or: selectedYearOfCheckSheet,
                         }
                     },
-                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                     {
                         $match: {
                             [x]: { $ne: undefined },
@@ -7927,7 +8013,7 @@ router.post('/postPerticularLineToGetDataForTotalTimeMonthWiseReport', authentic
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         [x]: { $ne: undefined },
@@ -8072,7 +8158,7 @@ router.post('/postSectionToGetAllDataForTotalTimeManHoursMonthWise', authenticat
                             $or: selectedYearOfCheckSheet,
                         }
                     },
-                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                     {
                         $match: {
                             [keyOfTotalPMTime]: { $ne: undefined },
@@ -8195,7 +8281,7 @@ router.post('/postPerticularLineToGetDataForTotalTimeManHours', authenticate, as
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         [keyOfTotalPMTime]: { $ne: undefined },
@@ -8347,7 +8433,7 @@ router.post('/postPerticularOperatorToGetDataForActualTimeTakenTMWise', authenti
                             $or: selectedYearOfCheckSheet,
                         }
                     },
-                    { $addFields: { checkSheet_data: { $arrayElemAt: [ "$checkSheet_data", -1 ] } } },
+                    { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                     {
                         $match: {
                             [keyOfTotalPMTime]: { $ne: undefined },

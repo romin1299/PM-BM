@@ -42,6 +42,8 @@ import PMSheetApproval from "./pages/Section/Checksheet/PMSheetApproval";
 import PmAllReportDashboard from "./pages/Reports/PmAllReportDashboard";
 import OpenAbnormalityTrack from "./pages/Reports/OpenAbnormalityTracking"
 import MTDTLandHOSChecksheetCreationDashboard from "./pages/Section/Checksheet/MTDTLandHOSChecksheetCreationDashboard";
+import CreationDashboardForTLHOSS from "./pages/MTD_TL_HOSS/CreationDashboardForTLHOSS";
+import UserAssignTLHOSS from "./pages/MTD_TL_HOSS/UserAssignTLHOSS";
 //for Operator
 import CheckSheetForImplementation from "./pages/Operator/CheckSheetForImplementation"
 
@@ -176,10 +178,15 @@ function App() {
         <NavContext.Provider value={value}>
           <Navbar />
           <Container
+
             stickyNav={<RightNavbar />}
             content={
               <Routes>
+
+
                 <Route path="/" element={<OperatorDashboard />} />
+                <Route path="/creationDashboard" element={<CreationDashboardForTLHOSS />} />
+                <Route path="/userAssign" element={<UserAssignTLHOSS />} />
                 <Route path="/machineWiseCheckSheet" element={<CheckSheet />} />
                 <Route path="/profile" element={<Profile />} />
                 {context.tm_department === "MTD" ?

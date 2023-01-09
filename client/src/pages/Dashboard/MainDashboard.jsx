@@ -480,7 +480,7 @@ const MainDashboard = () => {
         body: JSON.stringify({
           section: context.section_data,
           selectedYear,
-          // month: selectedMonth,
+          // month: selectedMonth,setsections
         }),
       });
       const data = await res.json();
