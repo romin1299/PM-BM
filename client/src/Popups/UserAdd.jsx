@@ -247,7 +247,10 @@ const UserAdd = () => {
       // console.log(data);
       if (res.status === 400 || res.status === 422 || !data) {
         window.alert("Invalid credentials !");
-      } else {
+      }else if (res.status === 409) {
+        window.alert("Employee number already exists !");
+      }
+      else {
         console.log("User added sucessfully...");
         refreshPage();
         // if (values.email) {

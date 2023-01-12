@@ -46,7 +46,7 @@ import CreationDashboardForTLHOSS from "./pages/MTD_TL_HOSS/CreationDashboardFor
 import UserAssignTLHOSS from "./pages/MTD_TL_HOSS/UserAssignTLHOSS";
 //for Operator
 import CheckSheetForImplementation from "./pages/Operator/CheckSheetForImplementation"
-import SkipPMWorkData from "./pages/Section/Checksheet/SkipPMWorkData";
+import SkipPMWorkData from "./pages/Reports/SkipPMWorkData";
 import CheckSheet from "./pages/Dashboard/CheckSheet";
 
 //implementation approval flow
@@ -58,6 +58,10 @@ import PMSheetApprovalOfImplementationPhase from "./pages/Section/Checksheet/PMS
 import SummeryDashboard from "./pages/Dashboard/SummeryDashboard/SummeryDashboard";
 
 import ViewChecksheet from "./pages/Section/Checksheet/ViewChecksheet";
+
+import LogHistory from "./pages/Reports/LogHistory";
+
+import PendingPMLogHistory from "./pages/Reports/PendingPMLogHistory";
 
 function App() {
 
@@ -104,6 +108,9 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/machineWiseCheckSheet" element={<CheckSheet />} />
                 <Route path="/summeryDashboard" element={<SummeryDashboard />} />
+                <Route path="/logHistory" element={<LogHistory />} />
+                <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
+
 
               </Routes>
             }
@@ -134,6 +141,8 @@ function App() {
                 <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
                 <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
                 <Route path="/summeryDashboard" element={<SummeryDashboard />} />
+                <Route path="/logHistory" element={<LogHistory />} />
+                <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
 
                 {/* <Route path="/checkSheet" element={<CheckSheet />} /> */}
 
@@ -161,6 +170,8 @@ function App() {
                 <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
                 <Route path="/summeryDashboard" element={<SummeryDashboard />} />
                 <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
+                <Route path="/logHistory" element={<LogHistory />} />
+                <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
 
                 {/* <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
@@ -210,6 +221,8 @@ function App() {
 
                 <Route path="/summeryDashboard" element={<SummeryDashboard />} />
                 <Route path="/skipedPMWorkData" element={<SkipPMWorkData />} />
+                <Route path="/logHistory" element={<LogHistory />} />
+                <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
 
 
 

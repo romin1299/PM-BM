@@ -5,10 +5,17 @@ import { useNavigate } from "react-router-dom";
 import { Select } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import axios from "axios";
+import { Multiselect } from "multiselect-react-dropdown";
+import { useContext } from "react";
+import RoutingContext from "../context/routing/RoutingContext";
 
 function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
   const [workedData, setWorkedData] = useState([]);
   const [userPhoto, setUserPhoto] = useState([]);
+
+  const [supportingTMList, setSupportingTMList] = useState([]);
+  const [selectedSupportedTM, setSelectedSupportedTM] = useState([]);
+  const context = useContext(RoutingContext);
 
   const navigate = useNavigate();
 
@@ -46,7 +53,9 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
   ];
   const validationSchema = yup.object({
     workedOnPM: yup.string().required("Please select one"),
-    // reasonForDelayWhenSkip: yup.string().required("Please enter reason for delay"),
+    reasonForDelayWhenSkip: yup
+      .string()
+      .required("Please enter reason for delay"),
     abnormalityRemarks: yup.string().when({
       is: () =>
         formik.values.workedOnPM === "Rectify" ||
@@ -65,6 +74,7 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
       is: () => formik.values.spareParts === "Yes",
       then: yup.string().required("Please enter cost"),
     }),
+    pmTime: yup.string().required("Please enter time"),
   });
 
   //get the date and time
@@ -81,7 +91,15 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
 
     return `${day}/${month}/${year} - ${getTime}`;
   };
-
+  let x = [
+    {
+      xyz: 1,
+    },
+    {
+      abc: 2,
+    },
+  ];
+  console.log(selectedSupportedTM);
   const formik = useFormik({
     initialValues: {
       workedOnPM: "",
@@ -106,7 +124,7 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
     validationSchema: validationSchema,
 
     onSubmit: async (values) => {
-      let currentDateAndTime = timeStamp()
+      let currentDateAndTime = timeStamp();
       let formData = new FormData();
       formData.append("photoUpload", userPhoto);
       formData.append("workedOnPM", values.workedOnPM);
@@ -118,7 +136,11 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
       formData.append("machineId", selectedRow.machine_code);
       formData.append("tableRowId", selectedRow.tableRowId);
       formData.append("yearOfCheckSheet", selectedRow.yearOfCheckSheet);
-      formData.append("schedule_month", selectedRow.schedule_month)
+      formData.append("schedule_month", selectedRow.schedule_month);
+      formData.append("pmTime", values.pmTime);
+      formData.append("selectedSupportedTM", JSON.stringify(selectedSupportedTM));
+      formData.append("PMworkedTMName", context.tm_name.split(" ")[0]);
+      formData.append("PMworkedTMNo", context.tm_no);
       // formData.append("monthForCompareSystemMonth", monthForCompareSystemMonth);
       // formData.append("previousMonth", previousMonth);
       // Abnormality Details
@@ -157,6 +179,29 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
     },
   });
 
+  console.log(formik.values.reasonForDelayWhenSkip);
+
+  //fetch supported operator list
+  const getListForApproval = async () => {
+    try {
+      const res = await fetch("/getListForApproval", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      setSupportingTMList(data.supportingOperatorList);
+      // setTableData(finalData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const clearState = () => {
     formik.values.remarksOfImplementation = "";
     formik.values.abnormalityRemarks = "";
@@ -164,8 +209,12 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
     formik.values.partName = "";
     formik.values.partNo = "";
     formik.values.cost = "";
-    formik.values.reasonForDelayWhenSkip = ""
+    formik.values.reasonForDelayWhenSkip = "";
   };
+
+  useEffect(() => {
+    getListForApproval();
+  }, []);
 
   return (
     <>
@@ -263,19 +312,21 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
                   <div className="col-6">
                     <div className="mb-3">
                       <span>Reason for delay: </span>
-                      <input
+                      <TextField
                         type="text"
                         // id={rData[0].value}
+                        value={formik.values.reasonForDelayWhenSkip}
+                        autoComplete="off"
                         name="reasonForDelayWhenSkip"
                         onChange={formik.handleChange}
-                        // error={
-                        //   formik.touched.reasonForDelayWhenSkip &&
-                        //   Boolean(formik.errors.reasonForDelayWhenSkip)
-                        // }
-                        // helperText={
-                        //   formik.touched.reasonForDelayWhenSkip &&
-                        //   formik.errors.reasonForDelayWhenSkip
-                        // }
+                        error={
+                          formik.touched.reasonForDelayWhenSkip &&
+                          Boolean(formik.errors.reasonForDelayWhenSkip)
+                        }
+                        helperText={
+                          formik.touched.reasonForDelayWhenSkip &&
+                          formik.errors.reasonForDelayWhenSkip
+                        }
                       />
                     </div>
                   </div>
@@ -292,6 +343,50 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
                     // }}
                     onChange={(e) => setUserPhoto(e.target.files[0])}
                   />
+                </div>
+
+                <div className="row">
+                  <div className="col-6">
+                    <div className="mb-3">
+                      <span>PM Time(min): </span>
+                      <TextField
+                        type="text"
+                        className="col-8"
+                        name="pmTime"
+                        autoComplete="off"
+                        value={formik.values.pmTime}
+                        onChange={formik.handleChange}
+                        error={
+                          formik.touched.pmTime && Boolean(formik.errors.pmTime)
+                        }
+                        helperText={
+                          formik.touched.pmTime && formik.errors.pmTime
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <div className="mb-3">
+                      <span>Supporting TM: </span>
+
+                      <Multiselect
+                        displayValue="tm_name"
+                        options={supportingTMList} // Options to display in the dropdown
+                        // selectedValues={departmentList} // Preselected value to persist in dropdown
+                        onSelect={async (selectedList) => {
+                          await setSelectedSupportedTM(selectedList);
+                        }} // Function will trigger on select event
+                        onRemove={async (selectedList) => {
+                          await setSelectedSupportedTM(selectedList);
+                        }} // Function will trigger on remove event
+                        style={{
+                          optionContainer: {
+                            maxHeight: "8rem",
+                          },
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : formik.values.workedOnPM === "No" ||
@@ -313,19 +408,19 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
                   <div className="col-6">
                     <div className="mb-3">
                       <span>Reason for delay: </span>
-                      <input
+                      <TextField
                         type="text"
                         // id={rData[0].value}
                         name="reasonForDelayWhenSkip"
                         onChange={formik.handleChange}
-                        // error={
-                        //   formik.touched.reasonForDelayWhenSkip &&
-                        //   Boolean(formik.errors.reasonForDelayWhenSkip)
-                        // }
-                        // helperText={
-                        //   formik.touched.reasonForDelayWhenSkip &&
-                        //   formik.errors.reasonForDelayWhenSkip
-                        // }
+                        error={
+                          formik.touched.reasonForDelayWhenSkip &&
+                          Boolean(formik.errors.reasonForDelayWhenSkip)
+                        }
+                        helperText={
+                          formik.touched.reasonForDelayWhenSkip &&
+                          formik.errors.reasonForDelayWhenSkip
+                        }
                       />
                     </div>
                   </div>
@@ -528,6 +623,49 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
                     ) : (
                       ""
                     )}
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-6">
+                    <div className="mb-3">
+                      <span>PM Time(min): </span>
+                      <TextField
+                        type="text"
+                        className="col-8"
+                        name="pmTime"
+                        autoComplete="off"
+                        value={formik.values.pmTime}
+                        onChange={formik.handleChange}
+                        error={
+                          formik.touched.pmTime && Boolean(formik.errors.pmTime)
+                        }
+                        helperText={
+                          formik.touched.pmTime && formik.errors.pmTime
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <div className="mb-3">
+                      <span>Supporting TM: </span>
+
+                      <Multiselect
+                        displayValue="tm_name"
+                        options={supportingTMList} // Options to display in the dropdown
+                        // selectedValues={departmentList} // Preselected value to persist in dropdown
+                        onSelect={async (selectedList) => {
+                          await setSelectedSupportedTM(selectedList);
+                        }} // Function will trigger on select event
+                        onRemove={async (selectedList) => {
+                          await setSelectedSupportedTM(selectedList);
+                        }} // Function will trigger on remove event
+                        style={{
+                          optionContainer: {
+                            maxHeight: "8rem",
+                          },
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
