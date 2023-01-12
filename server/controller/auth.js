@@ -17,9 +17,11 @@ const sendMail = require('../sendMail/sendMail');
 const sendApprovalOfImplementation = require('../sendMail/sendApprovalOfImplementation')
 const BackupMachineData = require('../model/backupMachine')
 const HandlingOtherActions = require('../model/handlingActions')
+const ApprovalOfSkipPM = require('../model/approvalSchemaOfSkipData')
 // const MachineDummy = require('../model/machineOldSchema')
 //send request for approval mail function
 const sendApproval = require('../sendMail/sendApproval')
+const sendApprovalOfSkippedPM = require('../sendMail/sendApprovalOfSkippedPM')
 
 const bcrypt = require('bcryptjs')
 const crypto = require('crypto');
@@ -2483,13 +2485,19 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
         let sectionSplit = loggedUserData.section_data.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
 
-        let TLlist, HOSlist, PRDTLlist, supportingOperatorList, MTDTLlist, MTDTLandOperatorList, supportingOperatorListArray, supportingOperatorListForReportDashboard = []
+        let TLlist, HOSlist, PRDHOSlist, MTDHODlist, PRDHODlist, PRDTLlist, supportingOperatorList, MTDTLlist, MTDTLandOperatorList, supportingOperatorListArray, supportingOperatorListForReportDashboard = []
 
         if (sectionInfo.dashboardLevel === "Yes") {
 
             TLlist = await User.find({ section_data: loggedUserData.section_data, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no } }, { tm_name: 1, email: 1, _id: 0 })
 
             HOSlist = await User.find({ section_data: loggedUserData.section_data, tm_grade: "HOS", tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
+
+            PRDHOSlist = await User.find({ section_data: loggedUserData.section_data, tm_grade: "HOS", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
+
+            MTDHODlist = await User.find({ section_data: loggedUserData.section_data, tm_grade: "HOD", tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
+
+            PRDHODlist = await User.find({ section_data: loggedUserData.section_data, tm_grade: "HOD", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
             PRDTLlist = await User.find({ section_data: loggedUserData.section_data, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
@@ -2515,6 +2523,12 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
             TLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no } }, { tm_name: 1, email: 1, _id: 0 })
 
             HOSlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_grade: "HOS", tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
+
+            PRDHOSlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_grade: "HOS", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
+
+            MTDHODlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_grade: "HOD", tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
+
+            PRDHODlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_grade: "HOD", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
             PRDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
@@ -2553,7 +2567,7 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
 
 
 
-        res.json({ TLlist, HOSlist, PRDTLlist, supportingOperatorList, MTDTLlist, MTDTLandOperatorList, supportingOperatorListForReportDashboard });
+        res.json({ TLlist, HOSlist, PRDHOSlist, MTDHODlist, PRDHODlist, PRDTLlist, supportingOperatorList, MTDTLlist, MTDTLandOperatorList, supportingOperatorListForReportDashboard });
     } catch (error) {
         console.log("User data not send or get!!!");
         console.log(error)
@@ -5486,7 +5500,10 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                                         schedule_month: month,
                                         line_name: keyForCheckSheet?.line_names?.line_name,
                                         cell_name: keyForCheckSheet?.line_names?.cell_names?.cell_name,
-                                        PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month]
+                                        PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
+                                        completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate[month],
+                                        checkSheet_data: keyForCheckSheet?.checkSheet_data,
+
                                     })
                                 );
                                 break;
@@ -5507,7 +5524,9 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                                 line_name: keyForCheckSheet?.line_names?.line_name,
                                 cell_name: keyForCheckSheet?.line_names?.cell_names?.cell_name,
                                 PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
-                                checkSheet_data: keyForCheckSheet?.checkSheet_data
+                                checkSheet_data: keyForCheckSheet?.checkSheet_data,
+                                completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate[month]
+
                             })
                         );
                     }
@@ -8400,9 +8419,12 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
             remarksOfImplementation,
             reasonForDelayWhenSkip,
             schedule_month,
+            pmTime,
             machineId,
             tableRowId,
             yearOfCheckSheet,
+            PMworkedTMName,
+            PMworkedTMNo,
             // monthForCompareSystemMonth,
             // previousMonth,
             abnormalityRemarks,
@@ -8415,60 +8437,11 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
             completionDateOfInspection
         } = req.body
 
+        let selectedSupportedTM = JSON.parse(req.body?.selectedSupportedTM)
+        // console.log(selectedSupportedTM)
+
         let arrayForPMData = []
         arrayForPMData.push(1, workedOnPM, remarksOfImplementation)
-
-        let PMStatusArray = {
-            Apr: "",
-
-            May: "",
-
-            June: "",
-
-            July: "",
-
-            Aug: "",
-
-            Sep: "",
-
-            Oct: "",
-
-            Nov: "",
-
-            Dec: "",
-
-            Jan: "",
-
-            Feb: "",
-
-            Mar: "",
-        }
-
-        let PMDelayRemarksMonthArray = {
-            Apr: "",
-
-            May: "",
-
-            June: "",
-
-            July: "",
-
-            Aug: "",
-
-            Sep: "",
-
-            Oct: "",
-
-            Nov: "",
-
-            Dec: "",
-
-            Jan: "",
-
-            Feb: "",
-
-            Mar: "",
-        }
 
         let plannedPMCount = 0;
         let completedPMCount = 0;
@@ -8500,6 +8473,53 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
         let keyOfCost = `checkSheet_data.$[outer].checkSheet.$[inner].spareDetails.${schedule_month}.cost`
 
         let currentMonth = new Date().getMonth();
+
+        //for add time and worked PM operator for skip pm data
+        let PMworkedTMNameArray = {
+            Apr: [],
+
+            May: [],
+
+            June: [],
+
+            July: [],
+
+            Aug: [],
+
+            Sep: [],
+
+            Oct: [],
+
+            Nov: [],
+
+            Dec: [],
+
+            Jan: [],
+
+            Feb: [],
+
+            Mar: [],
+        }
+        let keyOfMonthPMworkedTMName = `checkSheet_data.$[outer].PMworkedTMName.${schedule_month}`
+        let workedOperator = {
+            tm_name: PMworkedTMName,
+            tm_no: PMworkedTMNo
+        }
+        selectedSupportedTM.push(workedOperator)
+
+        let keyOfTotalWorkedPMTime = `checkSheet_data.$[outer].totalPMTime.${schedule_month}.totalWorkedPMTime`
+        let keyOfSupportingTMData = `checkSheet_data.$[outer].totalPMTime.${schedule_month}.supportingTMData`
+        // let keyOfSupportingTMDataTm_name = `checkSheet_data.$[outer].totalPMTime.${schedule_month}.supportingTMData.tm_name`
+        // let keyOfSupportingTMDataTm_no = `checkSheet_data.$[outer].totalPMTime.${schedule_month}.supportingTMData.tm_no`
+        let keyOfTotalWorkedPMTimeIncrement = `checkSheet_data.$.totalPMTime.${schedule_month}.totalWorkedPMTime`
+
+        let keyOfFindSupportingTM = `checkSheet_data.totalPMTime.${schedule_month}.supportingTMData.tm_no`
+        let keyOfSupportingTMDataWorkedIncrementTime = `checkSheet_data.$[outer].totalPMTime.${schedule_month}.supportingTMData.$[inner].workedTime`
+
+        let keyOfDelayRemarksMonthPM = `checkSheet_data.$[outer].PMDelayRemark.${schedule_month}`
+        PMworkedTMNameArray[schedule_month].push(PMworkedTMName)
+
+
 
         // console.log(perticularMachine)
         let addPmData
@@ -8663,14 +8683,18 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
             if (key.planningTableAnimationArray2[schedule_month][0] === "1") {
                 plannedPMCount = plannedPMCount + 1
             }
-            if (key.planningTableAnimationArray2[schedule_month].length >= 2 && key.planningTableAnimationArray2[schedule_month][0] === "1") {
+            if (key.planningTableAnimationArray2[schedule_month].length >= 2 &&
+                key.planningTableAnimationArray2[schedule_month][0] === "1" &&
+                (key.planningTableAnimationArray2[schedule_month][1] !== "dummy" ||
+                    key.planningTableAnimationArray2[schedule_month][1] !== "delay" ||
+                    key.planningTableAnimationArray2[schedule_month][1] !== "skip")) {
                 completedPMCount = completedPMCount + 1
             }
 
             // console.log(key.planningTableAnimationArray2[monthForCompareSystemMonth])
             // console.log(count)
         })
-
+        console.log(plannedPMCount, "----", completedPMCount)
         //for completed status
         if (plannedPMCount) {
             if (plannedPMCount === completedPMCount) {
@@ -8685,7 +8709,91 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
             }
         }
 
-        if (addPmData || updateStatus) {
+        //for add time and worked PM operator for skip pm data
+        let updateTotalTimeAndWorkedAndSupportingOperator, incrementTotalTime;
+        if (machineDataAfterSaveAllData[0].checkSheet_data.totalPMTime?.[schedule_month].totalWorkedPMTime != undefined) {
+            incrementTotalTime = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": yearOfCheckSheet }, {
+                $inc: {
+                    [keyOfTotalWorkedPMTimeIncrement]: pmTime
+                }
+
+            })
+            for (let i = 0; i < selectedSupportedTM.length; i++) {
+                let isOperatorOrNot = machineDataAfterSaveAllData[0].checkSheet_data.totalPMTime[schedule_month].supportingTMData.some(
+                    value => value.tm_no === selectedSupportedTM[i].tm_no)
+                if (isOperatorOrNot) {
+                    updateTotalTimeAndWorkedAndSupportingOperator = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": yearOfCheckSheet, [keyOfFindSupportingTM]: selectedSupportedTM[i].tm_no }, {
+                        // $inc: { [keyOfTotalWorkedPMTimeIncrement]: pmTime },
+                        $inc: {
+                            [keyOfSupportingTMDataWorkedIncrementTime]: pmTime
+                        },
+
+                    }, {
+                        arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tm_no': selectedSupportedTM[i].tm_no }],
+                    })
+                } else {
+                    console.log(typeof(selectedSupportedTM[i].tm_name))
+
+                    console.log(selectedSupportedTM[i].tm_name)
+                    updateTotalTimeAndWorkedAndSupportingOperator = await Machine.updateOne({ machine_code: machineId }, {
+                        $push: {
+                            [keyOfSupportingTMData]: {
+                                tm_name: selectedSupportedTM[i].tm_name,
+                                tm_no: selectedSupportedTM[i].tm_no,
+                                workedTime: pmTime
+                            }
+                        }
+                    }, {
+                        arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
+                    })
+                }
+            }
+
+        } else {
+            for (let i = 0; i < selectedSupportedTM.length; i++) {
+                updateTotalTimeAndWorkedAndSupportingOperator = await Machine.updateOne({ machine_code: machineId }, {
+                    $set: {
+                        [keyOfTotalWorkedPMTime]: pmTime,
+                    },
+                    $push: {
+                        [keyOfSupportingTMData]: {
+                            tm_name: selectedSupportedTM[i].tm_name,
+                            tm_no: selectedSupportedTM[i].tm_no,
+                            workedTime: pmTime
+                        }
+                    }
+                }, {
+                    arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
+                })
+            }
+            // console.log(updateTotalTimeAndWorkedAndSupportingOperator)
+        }
+
+        let updatePMworkedTMName
+        if (machineDataAfterSaveAllData[0].checkSheet_data.PMworkedTMName != undefined) {
+            updatePMworkedTMName = await Machine.updateOne({
+                machine_code: machineId
+            }, {
+                $push: {
+                    [keyOfMonthPMworkedTMName]: PMworkedTMName,
+                }
+            }, {
+                arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
+            })
+        } else {
+            updatePMworkedTMName = await Machine.updateOne({
+                machine_code: machineId
+            }, {
+                $set: {
+                    PMworkedTMName: PMworkedTMNameArray,
+                }
+            }, {
+                arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
+            })
+        }
+
+
+        if (addPmData || updateStatus || updateTotalTimeAndWorkedAndSupportingOperator || updatePMworkedTMName) {
             return res.status(201).json("Checksheet worked data posted!!!");
         } else {
             return res.status(400).json("Checksheet worked data not posted!!!");
@@ -8693,6 +8801,649 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
     } catch (error) {
         console.log(error)
         console.log("Data not valid or received !!!");
+    }
+})
+
+//add and update completion target date of skip data 
+router.post('/updateCompletionTargetDateForSkipPM', authenticate, async (req, res) => {
+
+    try {
+        const { updatedRow } = req.body
+        // console.log(updatedRow)
+        if (!updatedRow) {
+            return res.status(422).send("Employee number is not valid!!!");
+        }
+
+        let completionTargetDateArray = {
+            Apr: "",
+
+            May: "",
+
+            June: "",
+
+            July: "",
+
+            Aug: "",
+
+            Sep: "",
+
+            Oct: "",
+
+            Nov: "",
+
+            Dec: "",
+
+            Jan: "",
+
+            Feb: "",
+
+            Mar: "",
+        }
+        completionTargetDateArray[updatedRow.schedule_month] = updatedRow.completionTargetDate
+        let keyOfCompletiontargertDateOfSkipPM = `checkSheet_data.$[outer].completionTargetDate.${updatedRow.schedule_month}`
+        const updateCompletionTargetDate = await Machine.updateOne(
+            {
+                machine_code: updatedRow.machine_code
+            },
+            {
+                $set: {
+                    [keyOfCompletiontargertDateOfSkipPM]: updatedRow.completionTargetDate
+                }
+            },
+            {
+                arrayFilters: [{ 'outer.current_year': updatedRow.yearOfCheckSheet }],
+            }
+        )
+        if (updateCompletionTargetDate) {
+            res.status(201).json({ message: "Completion date added" });
+        }
+    } catch (error) {
+        // console.log("2032", error)
+        console.log("Filename not received");
+    }
+})
+
+router.post('/sendRequestForApprovalOfSkipPMDataWork', authenticate, async (req, res) => {
+
+    try {
+        const { mtd_hod_list, mtd_hos_list, prd_hod_list, prd_hos_list, reasonForDelayOfTL } = req.body
+        // console.log(mtd_hod_list, mtd_hos_list, prd_hod_list, prd_hos_list, reasonForDelayOfTL)
+        const loggedUserData = req.rootUser
+        // console.log(updatedRow)
+        if (!mtd_hod_list || !mtd_hos_list || !prd_hod_list || !prd_hos_list || !reasonForDelayOfTL) {
+            return res.status(422).send("Employee number is not valid!!!");
+        }
+        const approvalStatusOfMTDHOS = "Pending"
+        const approvalStatusOfMTDHOD = "Pending"
+        const approvalStatusOfPRDHOS = "Pending"
+        const approvalStatusOfPRDHOD = "Pending"
+
+        const findApprovalRequestID = await ApprovalOfSkipPM.findOne({ approvalID: "Approval1" });
+        let newApprovalOfSkipPM, updateStatusOfSkippedPM
+
+        if (!findApprovalRequestID) {
+            newApprovalOfSkipPM = await new ApprovalOfSkipPM({
+                approvalID: "Approval1",
+                reasonForDelayOfTL,
+                skippedDataApprovalSender: {
+                    senderTLNo: loggedUserData.tm_no,
+                    senderTLName: loggedUserData.tm_name,
+                    senderTLEmail: loggedUserData.email
+                },
+                assignAndApprovedHOSlist: {
+                    assignMTDHOSemail: mtd_hos_list.email,
+                    assignMTDHOSname: mtd_hos_list.tm_name
+                },
+                assignAndApprovedMTDHODlist: {
+                    assignMTDHODname: mtd_hod_list.tm_name,
+                    assignMTDHODemail: mtd_hod_list.email
+                },
+                assignAndApprovedPRDHOSlist: {
+                    assignPRDHOSname: prd_hos_list.tm_name,
+                    assignPRDHOSemail: prd_hos_list.email
+                },
+                assignAndApprovedPRDHODlist: {
+                    assignPRDHODname: prd_hod_list.tm_name,
+                    assignPRDHODemail: prd_hod_list.email
+                },
+                approvalStatusOfMTDHOS: "Pending",
+                approvalStatusOfMTDHOD: "Pending",
+                approvalStatusOfPRDHOS: "Pending",
+                approvalStatusOfPRDHOD: "Pending"
+
+            })
+            await newApprovalOfSkipPM.save()
+        }
+
+        else {
+            updateStatusOfSkippedPM = await ApprovalOfSkipPM.updateOne(
+                {
+                    approvalID: "Approval1"
+                },
+                {
+                    $set: {
+                        reasonForDelayOfTL,
+                        skippedDataApprovalSender: {
+                            senderTLNo: loggedUserData.tm_no,
+                            senderTLName: loggedUserData.tm_name,
+                            senderTLEmail: loggedUserData.email
+                        },
+                        assignAndApprovedHOSlist: {
+                            assignMTDHOSemail: mtd_hos_list.email,
+                            assignMTDHOSname: mtd_hos_list.tm_name
+                        },
+                        assignAndApprovedMTDHODlist: {
+                            assignMTDHODname: mtd_hod_list.tm_name,
+                            assignMTDHODemail: mtd_hod_list.email
+                        },
+                        assignAndApprovedPRDHOSlist: {
+                            assignPRDHOSname: prd_hos_list.tm_name,
+                            assignPRDHOSemail: prd_hos_list.email
+                        },
+                        assignAndApprovedPRDHODlist: {
+                            assignPRDHODname: prd_hod_list.tm_name,
+                            assignPRDHODemail: prd_hod_list.email
+                        },
+                        approvalStatusOfMTDHOS: "Pending",
+                        approvalStatusOfMTDHOD: "Pending",
+                        approvalStatusOfPRDHOS: "Pending",
+                        approvalStatusOfPRDHOD: "Pending"
+
+                    }
+                }
+            )
+        }
+        sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
+            mtd_hos_list.email, mtd_hod_list.email, prd_hos_list.email, prd_hod_list.email,
+            approvalStatusOfMTDHOS, approvalStatusOfMTDHOD, approvalStatusOfPRDHOS, approvalStatusOfPRDHOD, undefined, reasonForDelayOfTL)
+
+
+        if (updateCompletionTargetDate) {
+            res.status(201).json({ message: "Completion date added" });
+        }
+    } catch (error) {
+        console.log("2032", error)
+        console.log("Filename not received");
+    }
+})
+
+router.get('/getDataOfSkippedApprovalStatus', authenticate, async (req, res) => {
+    try {
+        let getApprovalDataOfSkipPM = await ApprovalOfSkipPM.findOne({ approvalID: "Approval1" })
+
+        res.json({ getApprovalDataOfSkipPM: getApprovalDataOfSkipPM })
+    } catch (error) {
+        console.log("User data not send or get!!!");
+    }
+})
+
+//all skip machines data approved by different deparment and grade Section Admin 
+router.post('/approvedSkipMachinesBySectionAdmins', authenticate, async (req, res) => {
+    try {
+        const { request, rejectedRemarksOfSkipPMMachines, skipApprovalStatusData } = req.body
+        // console.log(skipApprovalStatusData)
+        const loggedUserData = req.rootUser
+
+        let updateStatusOfSkipPM
+        if (request === "Yes") {
+            if (skipApprovalStatusData.approvalStatusOfMTDHOS === "Pending") {
+                let approvalStatusOfMTDHOS = "Accepted"
+                updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
+                    {
+                        approvalID: "Approval1",
+                    },
+                    {
+                        $set: {
+                            approvalStatusOfMTDHOS
+                        }
+                    }
+                )
+                sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
+                    skipApprovalStatusData.skippedDataApprovalSender.senderTLEmail, skipApprovalStatusData.assignAndApprovedMTDHODlist.assignMTDHODemail, skipApprovalStatusData.assignAndApprovedPRDHOSlist.assignPRDHOSemail, skipApprovalStatusData.assignAndApprovedPRDHODlist.assignPRDHODemail,
+                    approvalStatusOfMTDHOS, skipApprovalStatusData.approvalStatusOfMTDHOD, skipApprovalStatusData.approvalStatusOfPRDHOS, skipApprovalStatusData.approvalStatusOfPRDHOD, undefined, skipApprovalStatusData.reasonForDelayOfTL)
+            }
+            else if (skipApprovalStatusData.approvalStatusOfMTDHOS === "Accepted" &&
+                skipApprovalStatusData.approvalStatusOfMTDHOD === "Pending") {
+                let approvalStatusOfMTDHOD = "Accepted"
+                updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
+                    {
+                        approvalID: "Approval1",
+                    },
+                    {
+                        $set: {
+                            approvalStatusOfMTDHOD
+                        }
+                    }
+                )
+                sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
+                    skipApprovalStatusData.skippedDataApprovalSender.senderTLEmail, skipApprovalStatusData.assignAndApprovedHOSlist.assignMTDHOSemail, skipApprovalStatusData.assignAndApprovedPRDHOSlist.assignPRDHOSemail, skipApprovalStatusData.assignAndApprovedPRDHODlist.assignPRDHODemail,
+                    skipApprovalStatusData.approvalStatusOfMTDHOS, approvalStatusOfMTDHOD, skipApprovalStatusData.approvalStatusOfPRDHOS, skipApprovalStatusData.approvalStatusOfPRDHOD, undefined, skipApprovalStatusData.reasonForDelayOfTL)
+            }
+            else if (skipApprovalStatusData.approvalStatusOfMTDHOS === "Accepted" &&
+                skipApprovalStatusData.approvalStatusOfMTDHOD === "Accepted" &&
+                skipApprovalStatusData.approvalStatusOfPRDHOS === "Pending") {
+                let approvalStatusOfPRDHOS = "Accepted"
+                updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
+                    {
+                        approvalID: "Approval1",
+                    },
+                    {
+                        $set: {
+                            approvalStatusOfPRDHOS
+                        }
+                    }
+                )
+                sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
+                    skipApprovalStatusData.skippedDataApprovalSender.senderTLEmail, skipApprovalStatusData.assignAndApprovedHOSlist.assignMTDHOSemail, skipApprovalStatusData.assignAndApprovedMTDHODlist.assignMTDHODemail, skipApprovalStatusData.assignAndApprovedPRDHODlist.assignPRDHODemail,
+                    skipApprovalStatusData.approvalStatusOfMTDHOS, skipApprovalStatusData.approvalStatusOfMTDHOD, approvalStatusOfPRDHOS, skipApprovalStatusData.approvalStatusOfPRDHOD, undefined, skipApprovalStatusData.reasonForDelayOfTL)
+            }
+            else if (skipApprovalStatusData.approvalStatusOfMTDHOS === "Accepted" &&
+                skipApprovalStatusData.approvalStatusOfMTDHOD === "Accepted" &&
+                skipApprovalStatusData.approvalStatusOfPRDHOS === "Accepted" &&
+                skipApprovalStatusData.approvalStatusOfPRDHOD === "Pending") {
+                let approvalStatusOfPRDHOD = "Accepted"
+                updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
+                    {
+                        approvalID: "Approval1",
+                    },
+                    {
+                        $set: {
+                            approvalStatusOfPRDHOD
+                        }
+                    }
+                )
+                sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
+                    skipApprovalStatusData.skippedDataApprovalSender.senderTLEmail, skipApprovalStatusData.assignAndApprovedHOSlist.assignMTDHOSemail, skipApprovalStatusData.assignAndApprovedMTDHODlist.assignMTDHODemail, skipApprovalStatusData.assignAndApprovedPRDHOSlist.assignPRDHOSemail,
+                    skipApprovalStatusData.approvalStatusOfMTDHOS, skipApprovalStatusData.approvalStatusOfMTDHOD, skipApprovalStatusData.approvalStatusOfPRDHOS, approvalStatusOfPRDHOD, undefined, skipApprovalStatusData.reasonForDelayOfTL)
+            }
+        }
+        else {
+            if (skipApprovalStatusData.approvalStatusOfMTDHOS === "Pending") {
+                let approvalStatusOfMTDHOS = "Rejected"
+                updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
+                    {
+                        approvalID: "Approval1",
+                    },
+                    {
+                        $set: {
+                            approvalStatusOfMTDHOS,
+                            rejectedRemarksOfSkipPMMachines
+                        }
+                    }
+                )
+                sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
+                    skipApprovalStatusData.skippedDataApprovalSender.senderTLEmail, skipApprovalStatusData.assignAndApprovedMTDHODlist.assignMTDHODemail, skipApprovalStatusData.assignAndApprovedPRDHOSlist.assignPRDHOSemail, skipApprovalStatusData.assignAndApprovedPRDHODlist.assignPRDHODemail,
+                    approvalStatusOfMTDHOS, skipApprovalStatusData.approvalStatusOfMTDHOD, skipApprovalStatusData.approvalStatusOfPRDHOS, skipApprovalStatusData.approvalStatusOfPRDHOD, rejectedRemarksOfSkipPMMachines, skipApprovalStatusData.reasonForDelayOfTL)
+            }
+            else if (skipApprovalStatusData.approvalStatusOfMTDHOS === "Accepted" &&
+                skipApprovalStatusData.approvalStatusOfMTDHOD === "Pending") {
+                let approvalStatusOfMTDHOD = "Rejected"
+                updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
+                    {
+                        approvalID: "Approval1",
+                    },
+                    {
+                        $set: {
+                            approvalStatusOfMTDHOD,
+                            rejectedRemarksOfSkipPMMachines
+                        }
+                    }
+                )
+                sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
+                    skipApprovalStatusData.skippedDataApprovalSender.senderTLEmail, skipApprovalStatusData.assignAndApprovedHOSlist.assignMTDHOSemail, skipApprovalStatusData.assignAndApprovedPRDHOSlist.assignPRDHOSemail, skipApprovalStatusData.assignAndApprovedPRDHODlist.assignPRDHODemail,
+                    skipApprovalStatusData.approvalStatusOfMTDHOS, approvalStatusOfMTDHOD, skipApprovalStatusData.approvalStatusOfPRDHOS, skipApprovalStatusData.approvalStatusOfPRDHOD, rejectedRemarksOfSkipPMMachines, skipApprovalStatusData.reasonForDelayOfTL)
+            }
+            else if (skipApprovalStatusData.approvalStatusOfMTDHOS === "Accepted" &&
+                skipApprovalStatusData.approvalStatusOfMTDHOD === "Accepted" &&
+                skipApprovalStatusData.approvalStatusOfPRDHOS === "Pending") {
+                let approvalStatusOfPRDHOS = "Rejected"
+                updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
+                    {
+                        approvalID: "Approval1",
+                    },
+                    {
+                        $set: {
+                            approvalStatusOfPRDHOS,
+                            rejectedRemarksOfSkipPMMachines
+                        }
+                    }
+                )
+                sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
+                    skipApprovalStatusData.skippedDataApprovalSender.senderTLEmail, skipApprovalStatusData.assignAndApprovedHOSlist.assignMTDHOSemail, skipApprovalStatusData.assignAndApprovedMTDHODlist.assignMTDHODemail, skipApprovalStatusData.assignAndApprovedPRDHODlist.assignPRDHODemail,
+                    skipApprovalStatusData.approvalStatusOfMTDHOS, skipApprovalStatusData.approvalStatusOfMTDHOD, approvalStatusOfPRDHOS, skipApprovalStatusData.approvalStatusOfPRDHOD, rejectedRemarksOfSkipPMMachines, skipApprovalStatusData.reasonForDelayOfTL)
+            }
+            else if (skipApprovalStatusData.approvalStatusOfMTDHOS === "Accepted" &&
+                skipApprovalStatusData.approvalStatusOfMTDHOD === "Accepted" &&
+                skipApprovalStatusData.approvalStatusOfPRDHOS === "Accepted" &&
+                skipApprovalStatusData.approvalStatusOfPRDHOD === "Pending") {
+                let approvalStatusOfPRDHOD = "Rejected"
+                updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
+                    {
+                        approvalID: "Approval1",
+                    },
+                    {
+                        $set: {
+                            approvalStatusOfPRDHOD,
+                            rejectedRemarksOfSkipPMMachines
+                        }
+                    }
+                )
+                sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
+                    skipApprovalStatusData.skippedDataApprovalSender.senderTLEmail, skipApprovalStatusData.assignAndApprovedHOSlist.assignMTDHOSemail, skipApprovalStatusData.assignAndApprovedMTDHODlist.assignMTDHODemail, skipApprovalStatusData.assignAndApprovedPRDHOSlist.assignPRDHOSemail,
+                    skipApprovalStatusData.approvalStatusOfMTDHOS, skipApprovalStatusData.approvalStatusOfMTDHOD, skipApprovalStatusData.approvalStatusOfPRDHOS, approvalStatusOfPRDHOD, rejectedRemarksOfSkipPMMachines, skipApprovalStatusData.reasonForDelayOfTL)
+            }
+        }
+        console.log(updateStatusOfSkipPM)
+        if (updateStatusOfSkipPM) {
+            res.status(201).json({ message: "Skip PM approval status updated" });
+
+        }
+
+    } catch (error) {
+        // console.log("2032", error)
+        console.log("Filename not received");
+    }
+})
+
+
+router.post('/postSectionToGetAllDataForLogHistory', authenticate, async (req, res) => {
+
+    try {
+        let { section, selectedYear } = req.body
+        let loggedUserData = req.rootUser;
+
+        let sectionSplit = section.split("-")
+
+        const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+
+
+        // console.log("____________", sectionInfo[0]._id)
+        let subSectionsData, subSectionIdArray = [],
+            cellData, cellIdArray = [],
+            lineData, lineIdArray = [],
+            machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
+
+
+        if (sectionInfo.dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        } else {
+            loggedUserData.subSection_data.map((ids) => {
+                let subsectionsId = ids.split("-")
+                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            })
+            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+        }
+
+        for (let i = 0; i < subSectionsData.length; i++) {
+            subSectionIdArray.push(subSectionsData[i]._id);
+        }
+
+        cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
+
+        for (let i = 0; i < cellData.length; i++) {
+            cellIdArray.push(cellData[i]._id);
+        }
+
+        lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
+
+        for (let i = 0; i < lineData.length; i++) {
+            lineIdArray.push(lineData[i]._id);
+        }
+        // console.log(lineData)
+
+        let currentYear =
+            new Date().getMonth() <= 3 ?
+                `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
+                `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ? [{
+                "checkSheet_data.current_year": selectedYear
+
+            },
+            {
+                "checkSheet_data": []
+
+            }
+            ] : [{
+                "checkSheet_data.current_year": selectedYear
+
+            },
+            ]
+
+        machineData = await Machine.aggregate([{
+            $match: {
+                line_names: { $in: lineIdArray },
+                $or: selectedYearOfCheckSheet,
+                "checkSheet_data": { $ne: undefined }
+            }
+        },
+        {
+            $project: {
+                machine_code: 1,
+                machine_name: 1,
+                machine_nickname: 1,
+                machine_sequence: 1,
+                installation_date: 1,
+                maker_name: 1,
+                maker_sr_no: 1,
+                manufacturingDate: 1,
+                isPM: 1,
+                line_names: 1,
+                checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+            }
+        },
+        {
+            $sort: {
+                machine_sequence: 1
+            }
+        }
+        ])
+        machineData = await Machine.populate(machineData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+        let logHistoryAllData = [], serialNoForLogHistory = 0
+        machineData?.map((keyForCheckSheet) => {
+            keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyOfChecksheetData) => {
+                if (keyOfChecksheetData?.reasonForDelayWhenSkip === undefined) {
+                    for (let i = 0; i < financialYearWiseMonthKeyArray.length; i++) {
+                        let month = financialYearWiseMonthKeyArray[i]
+                        if (keyOfChecksheetData?.planningTableAnimationArray2?.[month]?.length >= 2 &&
+                            (keyOfChecksheetData?.planningTableAnimationArray2?.[month][1] !== "dummy" ||
+                                keyOfChecksheetData?.planningTableAnimationArray2?.[month][1] !== "delay")) {
+                            let abnormality = keyOfChecksheetData?.abnormalityDetails?.[month]?.abnormalityRemarks ? "Yes" : "No"
+
+                            logHistoryAllData.push(
+                                new Object({
+                                    sr_no: ++serialNoForLogHistory,
+                                    schedule_month: month,
+                                    cell_names: keyForCheckSheet?.line_names?.cell_names,
+                                    line_names: keyForCheckSheet?.line_names,
+                                    machine_code: keyForCheckSheet?.machine_code,
+                                    machine_name: keyForCheckSheet?.machine_name,
+                                    tableRowId: keyOfChecksheetData?.tableRowId,
+                                    inspection_parent_name: keyOfChecksheetData?.inspection_parent_name,
+                                    completionDateOfInspection: keyOfChecksheetData?.completionDateOfInspection?.[month],
+                                    remarksOfWorkedImplementaion: keyOfChecksheetData?.planningTableAnimationArray2?.[month]?.[2],
+                                    abnormality,
+                                    abnormalityRemarks: keyOfChecksheetData?.abnormalityDetails?.[month]?.abnormalityRemarks,
+                                    abnormalityStatus: keyOfChecksheetData?.abnormalityDetails?.[month]?.abnormalityStatus,
+                                    targetDate: keyOfChecksheetData?.abnormalityDetails?.[month]?.targetDate,
+                                    spareParts: keyOfChecksheetData?.spareDetails?.[month]?.spareParts,
+                                    partName: keyOfChecksheetData?.spareDetails?.[month]?.partName,
+                                    partNo: keyOfChecksheetData?.spareDetails?.[month]?.partNo,
+                                    cost: keyOfChecksheetData?.spareDetails?.[month]?.cost,
+                                    doneBy: keyForCheckSheet?.checkSheet_data?.PMworkedTMName?.[month]
+                                })
+                            )
+                        }
+                    }
+                }
+            })
+        })
+
+
+
+        res.json({ sectionInfo, subSectionsData, subSectionIdArray, cellData, cellIdArray, lineData, lineIdArray, logHistoryAllData })
+
+    } catch (error) {
+        // console.log("2032", error)
+        console.log("Filename not received");
+    }
+})
+
+//pending PM log history dashboard
+router.post('/postSectionToGetAllPendingPMLogHistory', authenticate, async (req, res) => {
+
+    try {
+        let { section, selectedYear } = req.body
+        let loggedUserData = req.rootUser;
+
+        let sectionSplit = section.split("-")
+
+        const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+
+
+        // console.log("____________", sectionInfo[0]._id)
+        let subSectionsData, subSectionIdArray = [],
+            cellData, cellIdArray = [],
+            lineData, lineIdArray = [],
+            machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
+
+
+        if (sectionInfo.dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        } else {
+            loggedUserData.subSection_data.map((ids) => {
+                let subsectionsId = ids.split("-")
+                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            })
+            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+        }
+
+        for (let i = 0; i < subSectionsData.length; i++) {
+            subSectionIdArray.push(subSectionsData[i]._id);
+        }
+
+        cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
+
+        for (let i = 0; i < cellData.length; i++) {
+            cellIdArray.push(cellData[i]._id);
+        }
+
+        lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
+
+        for (let i = 0; i < lineData.length; i++) {
+            lineIdArray.push(lineData[i]._id);
+        }
+        // console.log(lineData)
+
+        let currentYear =
+            new Date().getMonth() <= 3 ?
+                `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
+                `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ? [{
+                "checkSheet_data.current_year": selectedYear
+
+            },
+            {
+                "checkSheet_data": []
+
+            }
+            ] : [{
+                "checkSheet_data.current_year": selectedYear
+
+            },
+            ]
+
+        machineData = await Machine.aggregate([{
+            $match: {
+                line_names: { $in: lineIdArray },
+                $or: selectedYearOfCheckSheet,
+                "checkSheet_data": { $ne: undefined }
+            }
+        },
+        {
+            $project: {
+                machine_code: 1,
+                machine_name: 1,
+                machine_nickname: 1,
+                machine_sequence: 1,
+                installation_date: 1,
+                maker_name: 1,
+                maker_sr_no: 1,
+                manufacturingDate: 1,
+                isPM: 1,
+                line_names: 1,
+                checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+            }
+        },
+        {
+            $sort: {
+                machine_sequence: 1
+            }
+        }
+        ])
+        machineData = await Machine.populate(machineData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+        let logHistoryAllPendingPMData = [], serialNoForLogHistory = 0
+        machineData?.map((keyForCheckSheet) => {
+            keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyOfChecksheetData) => {
+                for (let i = 0; i < financialYearWiseMonthKeyArray.length; i++) {
+                    let month = financialYearWiseMonthKeyArray[i]
+                    if (keyOfChecksheetData?.reasonForDelayWhenSkip?.[month]) {
+
+                        if (keyOfChecksheetData?.planningTableAnimationArray2?.[month]?.length >= 2 &&
+                            (keyOfChecksheetData?.planningTableAnimationArray2?.[month][1] !== "dummy" ||
+                                keyOfChecksheetData?.planningTableAnimationArray2?.[month][1] !== "delay")) {
+                            let abnormality = keyOfChecksheetData?.abnormalityDetails?.[month]?.abnormalityRemarks ? "Yes" : "No"
+
+                            logHistoryAllPendingPMData.push(
+                                new Object({
+                                    sr_no: ++serialNoForLogHistory,
+                                    schedule_month: month,
+                                    cell_names: keyForCheckSheet?.line_names?.cell_names,
+                                    line_names: keyForCheckSheet?.line_names,
+                                    machine_code: keyForCheckSheet?.machine_code,
+                                    machine_name: keyForCheckSheet?.machine_name,
+                                    tableRowId: keyOfChecksheetData?.tableRowId,
+                                    reasonForDelayWhenSkip: keyOfChecksheetData?.reasonForDelayWhenSkip?.[month],
+                                    inspection_parent_name: keyOfChecksheetData?.inspection_parent_name,
+                                    completionDateOfInspection: keyOfChecksheetData?.completionDateOfInspection?.[month],
+                                    remarksOfWorkedImplementaion: keyOfChecksheetData?.planningTableAnimationArray2?.[month]?.[2],
+                                    abnormality,
+                                    abnormalityRemarks: keyOfChecksheetData?.abnormalityDetails?.[month]?.abnormalityRemarks,
+                                    abnormalityStatus: keyOfChecksheetData?.abnormalityDetails?.[month]?.abnormalityStatus,
+                                    targetDate: keyOfChecksheetData?.abnormalityDetails?.[month]?.targetDate,
+                                    spareParts: keyOfChecksheetData?.spareDetails?.[month]?.spareParts,
+                                    partName: keyOfChecksheetData?.spareDetails?.[month]?.partName,
+                                    partNo: keyOfChecksheetData?.spareDetails?.[month]?.partNo,
+                                    cost: keyOfChecksheetData?.spareDetails?.[month]?.cost,
+                                    doneBy: keyForCheckSheet?.checkSheet_data?.PMworkedTMName?.[month]
+                                })
+                            )
+                        }
+                    }
+                }
+            })
+        })
+
+
+
+        res.json({ sectionInfo, subSectionsData, subSectionIdArray, cellData, cellIdArray, lineData, lineIdArray, logHistoryAllPendingPMData })
+
+    } catch (error) {
+        console.log("2032", error)
+        console.log("Filename not received");
     }
 })
 

@@ -1,0 +1,245 @@
+.ar-table-thead-row,
+/* .ar-table-row, */
+.ar-table-col,
+.ar-table-col1,
+.table-col-bg-skip,
+.table-col-bg-delay,
+.table-col-bg-ongoing
+.ar-table-thead-header {
+    border: 2px solid rgb(80, 80, 80);
+    padding: 0.25rem 0.3rem;
+    text-align: center;
+    font-size: small;
+    /* padding: 0; */
+    /* width: 15px !important; */
+    margin: 0;
+    /* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */
+}
+
+/* .ar-table-thead-row, */
+.ar-table-thead-header {
+    background-color: rgba(216, 3, 3, 0.904);
+    color: white;
+    border: 2px solid rgb(80, 80, 80);
+
+}
+.table-col-bg-ongoing,
+.table-col-bg-delay,
+.table-col-bg-skip,
+.ar-table-col {
+    /* max-width: 10rem; */
+    width: 100px;
+    padding: 0 !important;
+}
+
+.col-width {
+    background-color: #ED6B86 !important;
+}
+
+.ar-table {
+    border-collapse: collapse;
+    /* width: 100%; */
+    margin: 1rem auto;
+    background-color: white;
+
+}
+
+.annualPmScheduleHeading {
+    border-collapse: collapse;
+    /* width: 100%; */
+    margin: 1rem auto;
+    /* background-color: white; */
+
+}
+
+.table_div {
+    margin: 1rem auto;
+    /* width: 97%; */
+    /* border-radius: 50px; */
+    background: #e0e0e0;
+    box-shadow: 10px 10px 20px #d6d5d5,
+        -10px -10px 20px #ffffff !important;
+    border-radius: 10px;
+    /* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */
+    padding: 0.5rem 1rem;
+    overflow-x: auto;
+    /* background-color: rgba(231, 231, 231, 0.829); */
+}
+
+.ApproveOrdRejectTextField {
+    color: rgb(34, 34, 34);
+    outline: auto;
+    border: 2px;
+    /* width: 500px; */
+    padding-left: 10px;
+    font-size: 1rem;
+}
+
+.ar-table-thead-header1 {
+    font-size: small;
+    border: 2px solid rgb(80, 80, 80);
+    width: 0.5%;
+    /* padding: 0.25rem 0.3rem; */
+}
+
+
+.ar-table-thead-header2 {
+    /* font-size: small; */
+    border: 2px solid rgb(80, 80, 80);
+    /* width: 10%; */
+    /* padding: 0.25rem 0.3rem; */
+}
+
+.ar-table-thead-header3 {
+    width: 147px;
+
+}
+
+.tableCol {
+    height: 90%;
+    width: 100vw;
+}
+
+.pmSheetApprovalTableCol {
+    height: 90%;
+    width: 100%;
+    /* overflow: auto; */
+}
+
+.pmSheetApprovalTableCol1 {
+    /* height: 90%; */
+    width: 100%;
+    /* overflow: auto; */
+}
+
+.tableCol1 {
+    height: 90%;
+    /* width: 2000px; */
+}
+
+
+
+.headerPD {
+    padding-bottom: 1.85rem;
+}
+
+.approvalName {
+    border: 2px solid rgb(80, 80, 80);
+    font-weight: normal;
+}
+
+.ar-table-col1 {
+    /* max-width: 40rem; */
+    /* height: 4.5rem; */
+}
+
+.ar-table-col2 {
+    border: none;
+}
+
+/* .ar-table-thead-row, */
+.ar-table-thead-header4 {
+    /* background-color: rgba(216, 3, 3, 0.904); */
+    /* color: white; */
+    /* box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.1 ); */
+    border-radius: 5px;
+    /* border: 1px solid rgba(255, 255, 255);
+    border: 1px solid black; */
+    /* -webkit-backdrop-filter: blur(2px); */
+    background: rgba(255, 255, 255, 0.1);
+    /* backdrop-filter: blur(5px); */
+}
+
+.ar-table-thead-header5 {
+    /* box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); */
+    border-radius: 5px;
+    border: 1px solid black;
+    /* border: 1px solid rgba(255, 255, 255); */
+    /* -webkit-backdrop-filter: blur(2px); */
+    background: rgba(255, 255, 255, 0.1);
+    /* backdrop-filter: blur(5px); */
+    color: red;
+    font-size: 0.8rem;
+}
+
+.table_text_alignment {
+    text-align: left;
+    border: 2px solid rgb(80, 80, 80);
+    padding: 0.25rem 0.3rem;
+    font-size: small;
+    width: 12rem;
+}
+
+.td-padding {
+    border: 1px solid black;
+    padding: 0.6rem;
+}
+
+.table-scrolling {
+    overflow: scroll;
+}
+
+.remarksTextBox {
+    width: 3rem;
+    height: 1rem;
+    display: none;
+    margin: auto;
+}
+
+.pmImplementationBtn {
+    box-sizing: border-box;
+    /* position: absolute; */
+    font-weight: 800;
+    width: 3rem;
+    height: 1.5rem;
+    background: linear-gradient(249.4deg, #FAB3A9 -26.09%, #ED6B86 100.83%);
+    border-radius: 23.3087px;
+    border: 2px solid #FFFFFF;
+    border-radius: 7px;
+    margin: auto;
+    padding-bottom: 1.5rem;
+}
+
+.remarksText {
+    margin: 0;
+}
+
+.tableRowColor:nth-child(odd) {
+    /* background: linear-gradient(213.32deg, #b9d5fe 7.27%, #ffd0d0 87.59%); */
+    background: linear-gradient(213.32deg, #FEB9B9 7.27%, #FFF1D0 87.59%);
+
+}
+
+.table-col-bg-ongoing {
+    background-color:rgb(241, 127, 127);
+    border: 2px solid rgb(80, 80, 80);
+
+}
+
+.table-col-bg-delay {
+    background-color: rgb(255, 181, 43);
+    border: 2px solid rgb(80, 80, 80);
+
+}
+
+.table-col-bg-skip {
+    background-color: rgb(241, 127, 127);
+    border: 2px solid rgb(80, 80, 80);
+
+}
+@media screen and (min-width: 200px) and (max-width: 1024px) {
+
+    .checkSheetForImplementation {
+        width: 100vw;
+
+
+    }
+}
+
+
+
+/* 
+.checkSheetForImplementation {
+    overflow: auto;
+    width: 2000px;
+} */

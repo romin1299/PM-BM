@@ -22,9 +22,14 @@ import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
 import MonthDropDown from "../../Dashboard/DashboardComponent/MonthDropDown";
 import LoadingAnimation from "./LoadingAnimation";
 import NotFound from "./NotFound";
-import SkipPMWorkData from "../../Section/Checksheet/SkipPMWorkData";
+import TextField from "@material-ui/core/TextField";
+import SkipApprovalComponent from "../SkipApprovalComponent";
+import SkipPMWorkData from '../SkipPMWorkData'
 import WorkOnSkipPM from "../../../Popups/WorkOnSkipPM";
 import { Navigate, useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as yup from "yup";
+
 require("jspdf-autotable");
 
 const MachineWisePmMonthlyReport = () => {
@@ -38,6 +43,14 @@ const MachineWisePmMonthlyReport = () => {
   const [csvDataForCurrentMonth, setCsvDataForCurrentMonth] = useState([]);
   const [csvDataForPreviousMonth, setCsvDataForPreviousMonth] = useState([]);
 
+  const [skipApprovalStatusData, setSkipApprovalStatusData] = useState([]);
+
+  //for approval
+  const [HOSList, setHOSList] = useState([]);
+  const [PRDHOSlist, setPRDHOSlist] = useState([]);
+  const [MTDHODlist, setMTDHODlist] = useState([]);
+  const [PRDHODlist, setPRDHODlist] = useState([]);
+
   const [statusCounter, setStatusCounter] = useState({
     schedulePm: 0,
     completed: 0,
@@ -46,6 +59,12 @@ const MachineWisePmMonthlyReport = () => {
   });
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [refKey, setRefKey] = useState(0);
+  const [refKey2, setRefKey2] = useState(0);
+
+  const functionToSetRefKey = () => {
+    setRefKey2((refKey2) => refKey2 + 1);
+  };
 
   const monthKeyArray = [
     "Jan",
@@ -136,7 +155,6 @@ const MachineWisePmMonthlyReport = () => {
       align: "center",
       editable: "false",
       width: "5%",
-
     },
     {
       title: "Cell",
@@ -145,7 +163,6 @@ const MachineWisePmMonthlyReport = () => {
       editable: "false",
       align: "center",
       width: "15%",
-
     },
     {
       title: "Line",
@@ -154,7 +171,6 @@ const MachineWisePmMonthlyReport = () => {
       editable: "false",
       align: "center",
       width: "15%",
-
     },
     {
       title: "Machine",
@@ -162,7 +178,6 @@ const MachineWisePmMonthlyReport = () => {
       align: "center",
       editable: "false",
       width: "15%",
-
     },
     {
       title: "Machine No.",
@@ -170,7 +185,6 @@ const MachineWisePmMonthlyReport = () => {
       align: "center",
       editable: "false",
       // width: "15%",
-
     },
     {
       title: "Completion Target Date",
@@ -256,10 +270,13 @@ const MachineWisePmMonthlyReport = () => {
     },
   ];
 
-  const actionsForPreviousMonth = [
+  const actionsForPreviousMonthForOpratorAndTL = [
     (rowData) => {
       return {
-        hidden: rowData.PMStatus !== "PM Skip",
+        hidden:
+          rowData.PMStatus !== "PM Skip" ||
+          context.user_type === "Section-Admin" ||
+          (context.user_type === "TL/HOSS" && context.tm_department === "PRD"),
 
         icon: () => <button className="btn">PM Edit</button>,
         // tooltip: <h1>I am a tooltip</h1>,
@@ -273,6 +290,52 @@ const MachineWisePmMonthlyReport = () => {
         position: "row",
       };
     },
+    (rowData) => {
+      return {
+        hidden: rowData.PMStatus === "PM Skip",
+
+        icon: () => <button className="btn">Details</button>,
+        // tooltip: <h1>I am a tooltip</h1>,
+        onClick: (event, selectedRow) => {
+          navigate("/viewCheckSheet", {
+            state: { selectedRowForViewForm: selectedRow },
+          });
+          // console.log(employeePassword)
+        },
+        disabled: false, // Set disabled to false by default for all actions
+        position: "row",
+      };
+    },
+    {
+      // icon: () => <button className="addbutton">Add</button>,
+      icon: () => <button className="downloadPDF">PDF</button>,
+
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event, rowData) => {
+        pdfDownloadForPreviousMonth();
+      },
+    },
+    {
+      // icon: () => <button className="addbutton">Add</button>,
+      icon: () => (
+        <CSVLink
+          data={csvDataForPreviousMonth}
+          filename={`${previousMonth}_PM_Status(Machine)${timeStamp()}`}
+          className="downloadCSV"
+          target="_blank"
+        >
+          CSV
+        </CSVLink>
+      ),
+
+      tooltip: "CSV",
+      isFreeAction: true,
+      onClick: (event, rowData) => {},
+    },
+  ];
+
+  const actionsForPreviousMonthForOtherUser = [
     (rowData) => {
       return {
         hidden: rowData.PMStatus === "PM Skip",
@@ -459,6 +522,32 @@ const MachineWisePmMonthlyReport = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
+        // console.log(data);
+        setTableData1(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //add and update completion target date of skip data
+  const updateCompletionTargetDateForSkipPM = async (updatedRow) => {
+    // console.log(previousMonthForCompareSystemMonth);
+    try {
+      const res = await fetch("/updateCompletionTargetDateForSkipPM", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          updatedRow,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
         console.log(data);
         setTableData1(data);
       }
@@ -467,9 +556,103 @@ const MachineWisePmMonthlyReport = () => {
     }
   };
 
+  const getListForApproval = async () => {
+    try {
+      const res = await fetch("/getListForApproval", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      // console.log(data);
+      setHOSList(data.HOSlist);
+      setPRDHOSlist(data.PRDHOSlist);
+      setMTDHODlist(data.MTDHODlist);
+      setPRDHODlist(data.PRDHODlist);
+
+      // setTableData(finalData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const validationSchema1 = yup.object({
+    mtd_hod_list: yup.string().required("Please select MTD HOD"),
+    mtd_hos_list: yup.string().required("Please select MTD HOS"),
+    prd_hod_list: yup.string().required("Please select PRD HOD"),
+    prd_hos_list: yup.string().required("Please select PRD HOS"),
+    reasonForDelayOfTL: yup.string().required("Please enter reason for delay"),
+  });
+
+  const formik1 = useFormik({
+    initialValues: {
+      mtd_hod_list: {},
+      mtd_hos_list: {},
+      prd_hod_list: {},
+      prd_hos_list: {},
+      reasonForDelayOfTL: {},
+    },
+    // validationSchema: validationSchema1,
+    onSubmit: async (values) => {
+      const res = await fetch("/sendRequestForApprovalOfSkipPMDataWork", {
+        method: "Post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mtd_hod_list: MTDHODlist[values.mtd_hod_list],
+          mtd_hos_list: HOSList[values.mtd_hos_list],
+          prd_hod_list: PRDHODlist[values.prd_hod_list],
+          prd_hos_list: PRDHOSlist[values.prd_hos_list],
+          reasonForDelayOfTL: values.reasonForDelayOfTL,
+        }),
+      });
+      const data = await res.json();
+      // console.log(data.getApprovalDataOfSkipPM);
+      if (res.status === 400 || res.status === 422 || !data) {
+        window.alert("Invalid credentials !");
+      } else if (res.status === 409) {
+        console.log("Machine code already exists!");
+      } else {
+        console.log("PM worked data save sucessfully...");
+        setRefKey2((refKey2) => refKey2 + 1);
+        // closeCheckSheet();
+        // navigate("/");
+        // clearState();
+      }
+    },
+  });
+
+  const getDataOfSkippedApprovalStatus = async () => {
+    try {
+      const res = await fetch("/getDataOfSkippedApprovalStatus", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      // console.log(data);
+
+      setSkipApprovalStatusData(data.getApprovalDataOfSkipPM);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     postSectionAndMonthToGetAllDataForReport();
-  }, [selectedYear, selectedMonth]);
+  }, [selectedYear, selectedMonth, refKey]);
+
+  useEffect(() => {
+    getListForApproval();
+    getDataOfSkippedApprovalStatus();
+  }, [refKey2]);
 
   // console.log(statusCounter);
   useEffect(() => {
@@ -670,207 +853,374 @@ const MachineWisePmMonthlyReport = () => {
                   </Col>
                 )}
               </Row>
-              <Row>
-                {tableData1?.skipMachineDataWithEveryMonth?.length > 0 ? (
-                  <Col lg={10}>
-                    <MaterialTable
-                      localization={{}}
-                      actions={actionsForPreviousMonth}
-                      columns={tableColumn2}
-                      data={tableData1?.skipMachineDataWithEveryMonth}
-                      title={"Pending Machine"}
-                      editable={
-                        {
-                          isEditHidden: rowData => rowData.PMStatus !== 'PM Skip',
+              {tableData1?.skipMachineDataWithEveryMonth?.length > 0 ? (
+                <div>
+                  <Row>
+                    <Col lg={10}>
+                      <MaterialTable
+                        localization={{}}
+                        actions={actionsForPreviousMonthForOpratorAndTL}
+                        columns={tableColumn2}
+                        data={tableData1?.skipMachineDataWithEveryMonth}
+                        title={"Pending Machine"}
+                        editable={{
+                          isEditHidden: (rowData) =>
+                            rowData.PMStatus !== "PM Skip" ||
+                            context.user_type === "Section-Admin" ||
+                            context.user_type === "Plant-Admin" || 
+                            (context.user_type === "TL/HOSS" && context.tm_department === "PRD"),
                           onRowUpdate: (updatedRow, oldRow) =>
                             new Promise((resolve, reject) => {
-                              const index = oldRow.tableData.id;
-                              const updatedRows = [...tableData1];
-                              updatedRows[index] = updatedRow;
                               //call the update user function and pass the user data
-                              // updateUserInfo(updatedRow);
-                              // updateSection(updatedRow, oldRow);
-                              // setTimeout(() => {
-                              //   setRefKey((refKey) => refKey + 1);
-                              //   resolve();
-                              // }, 500);
+                              updateCompletionTargetDateForSkipPM(updatedRow);
+                              setTimeout(() => {
+                                setRefKey((refKey) => refKey + 1);
+                                resolve();
+                              }, 500);
                               //refreshPage();
                             }),
-                        }
-                      }
-                      options={{
-                        showTitle: true,
-                        paging: false,
-                        sorting: true,
-                        search: true,
-                        filtering: false,
-                        exportButton: true,
-                        exportAllData: true,
-                        draggable: false,
-                        actionsColumnIndex: -1,
-                        pageSize: 10,
-                        pageSizeOptions: false,
-                        paginationType: "stepped",
-                        addRowPosition: "first",
-                        headerStyle: {
-                          position: "sticky",
-                          top: "0",
-                          fontWeight: "bold",
-                        },
-                        maxBodyHeight: "40vh",
+                        }}
+                        options={{
+                          showTitle: true,
+                          paging: false,
+                          sorting: true,
+                          search: true,
+                          filtering: false,
+                          exportButton: true,
+                          exportAllData: true,
+                          draggable: false,
+                          actionsColumnIndex: -1,
+                          pageSize: 10,
+                          pageSizeOptions: false,
+                          paginationType: "stepped",
+                          addRowPosition: "first",
+                          headerStyle: {
+                            position: "sticky",
+                            top: "0",
+                            fontWeight: "bold",
+                          },
+                          maxBodyHeight: "40vh",
 
-                        rowStyle: {
-                          // fontStyle:'bold'
+                          rowStyle: {
+                            // fontStyle:'bold'
 
-                          // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                          // color:"rgba(255,255,255,0.8)",
-                          borderRadius: "5px",
-                          border: "2px solid black",
-                          WebkitBackdropFilter: "blur( 2px )",
-                          background: "rgba(255,255,255,0.1)",
-                          // backdropFilter: "blur(5px)",
-                        },
-                        cellStyle: {
-                          border: "2px solid black",
-                        },
-                        headerStyle: {
-                          border: "2px solid black",
-                        },
-                      }}
+                            // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                            // color:"rgba(255,255,255,0.8)",
+                            borderRadius: "5px",
+                            border: "2px solid black",
+                            WebkitBackdropFilter: "blur( 2px )",
+                            background: "rgba(255,255,255,0.1)",
+                            // backdropFilter: "blur(5px)",
+                          },
+                          cellStyle: {
+                            border: "2px solid black",
+                          },
+                          headerStyle: {
+                            border: "2px solid black",
+                          },
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                  {(skipApprovalStatusData.approvalStatusOfMTDHOS ===
+                    undefined ||
+                    skipApprovalStatusData.approvalStatusOfMTDHOS ===
+                      "Rejected" ||
+                    skipApprovalStatusData.approvalStatusOfMTDHOD ===
+                      "Rejected" ||
+                    skipApprovalStatusData.approvalStatusOfPRDHOS ===
+                      "Rejected" ||
+                    skipApprovalStatusData.approvalStatusOfPRDHOD ===
+                      "Rejected" ||
+                    skipApprovalStatusData.approvalStatusOfPRDHOD ===
+                      "Accepted") &&
+                  (context.user_type === "Operator" ||
+                    (context.user_type === "TL/HOSS" &&
+                      context.tm_department === "MTD")) ? (
+                    <Row>
+                      <form
+                        className="d-flex mt-2 p-3 border bg-white rounded"
+                        onSubmit={formik1.handleSubmit}
+                      >
+                        <Col sm>
+                          <span>MTD HOS :</span>
+                          <div style={{ marginTop: "0.5rem" }}>
+                            <select
+                              // class="form-select form-select-sm"
+                              // aria-label=".form-select-sm example"
+                              // style={{ width: "100%" }}
+                              id="standard-select-currency"
+                              name="mtd_hos_list"
+                              // className="textField"
+                              // fullWidth
+                              select // label="Select"
+                              autoComplete="off"
+                              value={formik1.values.mtd_hos_list?.tm_name}
+                              onChange={(e) => {
+                                // setUsertype(e.target.value);
+                                console.log(e.target.value);
+                                formik1.handleChange(e);
+                              }}
+                              variant="standard"
+                            >
+                              <option selected disabled value="">
+                                Please select
+                              </option>
+                              {HOSList?.map((index, idx) => {
+                                return (
+                                  <option value={idx}>{index.tm_name}</option>
+                                );
+                              })}
+                            </select>
+                            <div>
+                              <p
+                                style={{
+                                  color: "#F44336",
+                                  fontWeight: "normal",
+                                  fontSize: "0.80rem",
+                                  // float: "left",
+                                  paddingTop: "0.5rem",
+                                }}
+                              >
+                                {formik1.touched.mtd_hos_list &&
+                                  formik1.errors.mtd_hos_list}
+                              </p>
+                            </div>
+                          </div>
+                        </Col>
+                        <Col sm>
+                          <span>MTD HOD :</span>
+                          <div style={{ marginTop: "0.5rem" }}>
+                            <select
+                              // class="form-select form-select-sm"
+                              // aria-label=".form-select-sm example"
+                              // style={{ width: "100%" }}
+                              id="standard-select-currency"
+                              name="mtd_hod_list"
+                              // className="textField"
+                              // fullWidth
+                              select // label="Select"
+                              autoComplete="off"
+                              value={formik1.values.mtd_hod_list?.tm_name}
+                              onChange={(e) => {
+                                // setUsertype(e.target.value);
+                                formik1.handleChange(e);
+                              }}
+                              variant="standard"
+                            >
+                              <option selected disabled value="">
+                                Please select
+                              </option>
+                              {MTDHODlist?.map((index, idx) => {
+                                return (
+                                  <option value={idx}>{index.tm_name}</option>
+                                );
+                              })}
+                            </select>
+                            <div>
+                              <p
+                                style={{
+                                  color: "#F44336",
+                                  fontWeight: "normal",
+                                  fontSize: "0.80rem",
+                                  // float: "left",
+                                  paddingTop: "0.5rem",
+                                }}
+                              >
+                                {formik1.touched.mtd_hod_list &&
+                                  formik1.errors.mtd_hod_list}
+                              </p>
+                            </div>
+                          </div>
+                        </Col>
+
+                        <Col sm>
+                          <span>PRD HOS :</span>
+                          <div style={{ marginTop: "0.5rem" }}>
+                            <select
+                              // class="form-select form-select-sm"
+                              // aria-label=".form-select-sm example"
+                              // style={{ width: "100%" }}
+                              id="standard-select-currency"
+                              name="prd_hos_list"
+                              // className="textField"
+                              // fullWidth
+                              select // label="Select"
+                              autoComplete="off"
+                              value={formik1.values.prd_hos_list?.tm_name}
+                              onChange={(e) => {
+                                // setUsertype(e.target.value);
+                                formik1.handleChange(e);
+                              }}
+                              variant="standard"
+                            >
+                              <option selected disabled value="">
+                                Please select
+                              </option>
+                              {PRDHOSlist?.map((index, idx) => {
+                                return (
+                                  <option value={idx}>{index.tm_name}</option>
+                                );
+                              })}
+                            </select>
+                            <div>
+                              <p
+                                style={{
+                                  color: "#F44336",
+                                  fontWeight: "normal",
+                                  fontSize: "0.80rem",
+                                  // float: "left",
+                                  paddingTop: "0.5rem",
+                                }}
+                              >
+                                {formik1.touched.prd_hos_list &&
+                                  formik1.errors.prd_hos_list}
+                              </p>
+                            </div>
+                          </div>
+                        </Col>
+                        <Col sm>
+                          <span>PRD HOD :</span>
+                          <div style={{ marginTop: "0.5rem" }}>
+                            <select
+                              // class="form-select form-select-sm"
+                              // aria-label=".form-select-sm example"
+                              // style={{ width: "100%" }}
+                              id="standard-select-currency"
+                              name="prd_hod_list"
+                              // className="textField"
+                              // fullWidth
+                              select // label="Select"
+                              autoComplete="off"
+                              value={formik1.values.prd_hod_list?.tm_name}
+                              onChange={(e) => {
+                                // setUsertype(e.target.value);
+                                formik1.handleChange(e);
+                              }}
+                              variant="standard"
+                            >
+                              <option selected disabled value="">
+                                Please select
+                              </option>
+                              {PRDHODlist?.map((index, idx) => {
+                                return (
+                                  <option value={idx}>{index.tm_name}</option>
+                                );
+                              })}
+                            </select>
+                            <div>
+                              <p
+                                style={{
+                                  color: "#F44336",
+                                  fontWeight: "normal",
+                                  fontSize: "0.80rem",
+                                  // float: "left",
+                                  paddingTop: "0.5rem",
+                                }}
+                              >
+                                {formik1.touched.prd_hod_list &&
+                                  formik1.errors.prd_hod_list}
+                              </p>
+                            </div>
+                          </div>
+                        </Col>
+                        <Col>
+                          <span>Reason for delay :</span>
+                          <div style={{ marginTop: "0.5rem" }}>
+                            <TextField
+                              fullWidth
+                              id="reasonForDelayOfTL"
+                              name="reasonForDelayOfTL"
+                              onChange={(e) => {
+                                formik1.handleChange(e);
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <p
+                              style={{
+                                color: "#F44336",
+                                fontWeight: "normal",
+                                fontSize: "0.80rem",
+                                // float: "left",
+                                paddingTop: "0.5rem",
+                              }}
+                            >
+                              {formik1.touched.reasonForDelayOfTL &&
+                                formik1.errors.reasonForDelayOfTL}
+                            </p>
+                          </div>
+                        </Col>
+                        <Col className="d-flex justify-content-center align-items-center">
+                          <button className="btn-approval" type="submit">
+                            Send for Approval
+                          </button>
+                        </Col>
+                      </form>
+                    </Row>
+                  ) : (
+                    ""
+                  )}
+                  {context.email ===
+                    skipApprovalStatusData?.assignAndApprovedHOSlist
+                      ?.assignMTDHOSemail &&
+                  skipApprovalStatusData?.approvalStatusOfMTDHOS ===
+                    "Pending" ? (
+                    <SkipApprovalComponent
+                      skipApprovalStatusData={skipApprovalStatusData}
+                      functionToSetRefKey={functionToSetRefKey}
                     />
-                  </Col>
-                ) : (
-                  <Col className="d-flex justify-content-around align-items-center pt-5">
-                    {loadingAnimationState}
-                  </Col>
-                )}
-              </Row>
+                  ) : context.email ===
+                      skipApprovalStatusData?.assignAndApprovedMTDHODlist
+                        ?.assignMTDHODemail &&
+                    skipApprovalStatusData?.approvalStatusOfMTDHOS ===
+                      "Accepted" &&
+                    skipApprovalStatusData?.approvalStatusOfMTDHOD ===
+                      "Pending" ? (
+                    <SkipApprovalComponent
+                      skipApprovalStatusData={skipApprovalStatusData}
+                      functionToSetRefKey={functionToSetRefKey}
+                    />
+                  ) : context.email ===
+                      skipApprovalStatusData?.assignAndApprovedPRDHOSlist
+                        ?.assignPRDHOSemail &&
+                    skipApprovalStatusData?.approvalStatusOfMTDHOS ===
+                      "Accepted" &&
+                    skipApprovalStatusData?.approvalStatusOfMTDHOD ===
+                      "Accepted" &&
+                    skipApprovalStatusData?.approvalStatusOfPRDHOS ===
+                      "Pending" ? (
+                    <SkipApprovalComponent
+                      skipApprovalStatusData={skipApprovalStatusData}
+                      functionToSetRefKey={functionToSetRefKey}
+                    />
+                  ) : context.email ===
+                      skipApprovalStatusData?.assignAndApprovedPRDHODlist
+                        ?.assignPRDHODemail &&
+                    skipApprovalStatusData?.approvalStatusOfMTDHOS ===
+                      "Accepted" &&
+                    skipApprovalStatusData?.approvalStatusOfMTDHOD ===
+                      "Accepted" &&
+                    skipApprovalStatusData?.approvalStatusOfPRDHOS ===
+                      "Accepted" &&
+                    skipApprovalStatusData?.approvalStatusOfPRDHOD ===
+                      "Pending" ? (
+                    <SkipApprovalComponent
+                      skipApprovalStatusData={skipApprovalStatusData}
+                      functionToSetRefKey={functionToSetRefKey}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </div>
+              ) : (
+                <Col className="d-flex justify-content-around align-items-center pt-5">
+                  {loadingAnimationState}
+                </Col>
+              )}
             </Container>
           </div>
         </div>
-        {/* <CSVLink
-          data={csvData}
-          filename={`Monthly_PM_Status(Machine)${timeStamp()}`}
-          className="btn btn-primary"
-          target="_blank"
-        >
-          CSV
-        </CSVLink> */}
-        {/* <Button onClick={pdfDownload}>PDF</Button> */}
-        {/* <div id="pdfStage">
-          <table className="ar-table pmSheetApprovalTableCol">
-            <thead className="mt-5">
-              <tr className="ar-table-thead-header4">
-                {columns.map((tColumn) => (
-                  <th className={"ar-table-thead-header4 td-padding"}>
-                    {tColumn.header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {tableData.map((index, rowId) => (
-                <tr className="ar-table-thead-header4 tableRowColor">
-                  <td className="td-padding">{rowId + 1}</td>
-                  <td className="td-padding">{index.line_names.line_name}</td>
-                  <td className="td-padding">{index.machine_name}</td>
-                  <td className="td-padding">{index.machine_code}</td>
-                  <td className="td-padding">
-                    {index.PMStatus?.[monthForCompareSystemMonth] ===
-                    "Completed"
-                      ? "0"
-                      : "X"}
-                  </td>
-                  <td className="td-padding">
-                    <a href="">click here for details</a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div> */}
-        {/* <MaterialTable
-          localization={
-            {
-              // toolbar: {
-              //   exportCSVName: "Export some Excel format",
-              //   exportPDFName: "Export as pdf!!"
-              // }
-            }
-          }
-          actions={actions}
-          //   icons={tableIcons}
-          columns={tableColumn}
-          data={tableData}
-          // title="User Management"
-          // tableRef={this.tableRef.current.onQueryChange()}
-
-          editable={
-            {
-              // isDeleteHidden: (rowData) => rowData.user_type === 0,
-              // onRowUpdate: (updatedRow, oldRow) =>
-              //   new Promise((resolve, reject) => {
-              //     const index = oldRow.tableData.id;
-              //     const updatedRows = [...tableData];
-              //     updatedRows[index] = updatedRow;
-              //     //call the update user function and pass the user data
-              //     updateUserInfo(updatedRow);
-              //     setTimeout(() => {
-              //       setTableData(updatedRows);
-              //       resolve();
-              //     }, 500);
-              //     //refreshPage();
-              //   }),
-            }
-          }
-          options={{
-            // exportMenu: [
-            //   {
-            //     label: "Export PDF",
-            //     //// You can do whatever you wish in this function. We provide the
-            //     //// raw table columns and table data for you to modify, if needed.
-            //     // exportFunc: (cols, datas) => console.log({ cols, datas })
-            //     exportFunc: (cols, datas) => console.log(cols, tableData),
-            //     // ExportPdf(cols, datas, "myPdfFileName"),
-            //   },
-            //   {
-            //     label: "Export CSV",
-            //     exportFunc: (cols, datas) =>
-            //       ExportCsv(cols, datas, "myCsvFileName"),
-            //   },
-            // ],
-            showTitle: false,
-            paging: false,
-            sorting: true,
-            search: true,
-            filtering: false,
-            exportButton: true,
-            exportAllData: true,
-            draggable: false,
-            actionsColumnIndex: -1,
-            pageSize: 10,
-            pageSizeOptions: false,
-            paginationType: "stepped",
-            addRowPosition: "first",
-            headerStyle: {
-              position: "sticky",
-              top: "0",
-              fontWeight: "bold",
-            },
-            maxBodyHeight: "70vh",
-            rowStyle: {
-              // fontStyle:'bold'
-
-              boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-              // color:"rgba(255,255,255,0.8)",
-              borderRadius: "5px",
-              border: "1px solid rgba(255,255,255)",
-              WebkitBackdropFilter: "blur( 2px )",
-              background: "rgba(255,255,255,0.1)",
-              backdropFilter: "blur(5px)",
-            },
-          }}
-        /> */}
       </div>
     </>
   );

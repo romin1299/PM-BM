@@ -150,10 +150,10 @@ const UserAdd = () => {
   const validationSchema = yup.object({
     tm_name: yup.string().required("Please enter TM name"),
     // tm_no: yup.string().required("Please enter employee number"),
-    user_type:
-      context.user_type === "Section-Admin"
-        ? yup.string().required("Please select user type")
-        : "",
+    // user_type:
+    //   context.user_type === "Section-Admin"
+    //     ? yup.string().required("Please select user type")
+    //     : "",
     email: yup.string().when(["user_type"], {
       is: () =>
         formik.values.user_type === "TL/HOSS" ||
@@ -231,7 +231,10 @@ const UserAdd = () => {
       // console.log(data);
       if (res.status === 400 || res.status === 422 || !data) {
         window.alert("Invalid credentials !");
-      } else {
+      }else if (res.status === 409) {
+        window.alert("Employee number already exists !");
+      }
+      else {
         console.log("User added sucessfully...");
         refreshPage();
         // if (values.email) {

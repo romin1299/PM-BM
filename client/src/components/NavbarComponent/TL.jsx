@@ -25,6 +25,8 @@ import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
 
 const NavUrl = ({ url, icon, description }) => {
   const { nav, setNav } = useContext(NavContext);
@@ -120,6 +122,16 @@ const TL = ({ userData, userDepartment }) => {
             url="/backupDataOfCheckSheet"
             icon={<CloudDownloadIcon style={{ color: "#E71E25" }} />}
             description="Back-end Data"
+          />
+          <NavUrl
+            url="/logHistory"
+            icon={<LibraryBooksIcon style={{ color: "#E71E25" }} />}
+            description="Log History"
+          />
+          <NavUrl
+            url="/pendingPMLogHistory"
+            icon={<PendingActionsIcon style={{ color: "#E71E25" }} />}
+            description="Pending PM Log History"
           />
           <List
             sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
