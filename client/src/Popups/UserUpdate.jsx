@@ -35,6 +35,7 @@ const UserUpdate = ({ selectedRow }) => {
   const [sections, setsections] = useState();
   const [subsections, setsubsections] = useState([]);
   const [cells, setcells] = useState([]);
+  const [usertype, setUsertype] = useState();
 
   //for dropdown list
   const [sectionList, setSectionList] = useState([]);
@@ -98,10 +99,18 @@ const UserUpdate = ({ selectedRow }) => {
         body: JSON.stringify({
           tm_name: values.tm_name ? values.tm_name : selectedRow.tm_name,
           tm_no: selectedRow.tm_no,
-          // user_type: teamGroup ? teamGroup : selectedRow.user_type,
+          user_type: usertype ? usertype : selectedRow.user_type,
           tm_grade: values.tm_grade ? values.tm_grade : selectedRow.tm_grade,
           tm_department: values.tm_department
             ? values.tm_department
+            : values.user_type === "TL/HOSS"
+            ? // ||
+              //   selectedRow.user_type === "TL/HOSS"
+              "PRD"
+            : values.user_type === "Operator"
+            ? // ||
+              //   selectedRow.user_type === "TL/HOSS"
+              "MTD"
             : selectedRow.tm_department,
           plant_data: values.plant_data
             ? values.plant_data
@@ -109,10 +118,9 @@ const UserUpdate = ({ selectedRow }) => {
           section_data: values.section_data
             ? values.section_data
             : selectedRow.section_data,
-          subSection_data: subsections
-            ? subsections
-            : selectedRow.subSection_data,
-          cell_data: cells ? cells : selectedRow.cell_data,
+          subSection_data:
+            subsections.length > 0 ? subsections : selectedRow.subSection_data,
+          cell_data: cells.length > 0 ? cells : selectedRow.cell_data,
           joining_date: values.joining_date
             ? values.joining_date
             : selectedRow.joining_date,
@@ -225,7 +233,10 @@ const UserUpdate = ({ selectedRow }) => {
   }, [subsections]);
 
   useEffect(() => {
-    if (context.user_type === "Section-Admin") {
+    if (
+      context.user_type === "Section-Admin" ||
+      context.user_type === "TL/HOSS"
+    ) {
       // postPlantToGetSectionListOfUserAssign(context.plant_data);
       postSectionToGetSubSectionListOfUserAssign(context.section_data);
     }
@@ -244,6 +255,17 @@ const UserUpdate = ({ selectedRow }) => {
       },
     },
   };
+
+  const userType = [
+    {
+      lable: "TL/HOSS",
+      value: "TL/HOSS",
+    },
+    {
+      lable: "Operator",
+      value: "Operator",
+    },
+  ];
 
   // console.log(teamGroup);
   return (
@@ -299,21 +321,143 @@ const UserUpdate = ({ selectedRow }) => {
             </div>
 
             {context.user_type === "Section-Admin" ? (
-              <div className="pwd-container">
-                <span>User Type:</span>
-                <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                  <TextField
-                    id="outlined-number"
-                    name="user_type"
-                    className="textField"
-                    autoComplete="off"
-                    value={selectedRow.user_type}
-                    fullWidth
-                    // onChange={formik.handleChange}
-                    // label="Number"
-                    type="text"
-                  />
+              // <div className="pwd-container">
+              //   <span>User Type:</span>
+              //   <div style={{ width: "100%", marginTop: "0.5rem" }}>
+              //     <TextField
+              //       id="outlined-number"
+              //       name="user_type"
+              //       className="textField"
+              //       autoComplete="off"
+              //       value={selectedRow.user_type}
+              //       fullWidth
+              //       // onChange={formik.handleChange}
+              //       // label="Number"
+              //       type="text"
+              //     />
+              //   </div>
+              // </div>
+
+              <div>
+                <div className="pwd-container">
+                  <span>User Type:</span>
+                  <div style={{ width: "100%", marginTop: "0.5rem" }}>
+                    <TextField
+                      id="outlined-number"
+                      name="user_type"
+                      className="textField"
+                      autoComplete="off"
+                      value={selectedRow.user_type}
+                      fullWidth
+                      // onChange={formik.handleChange}
+                      // label="Number"
+                      type="text"
+                    />
+                  </div>
                 </div>
+                <div className="pwd-container">
+                  <span>TM Department:</span>
+                  <div style={{ width: "100%", marginTop: "0.5rem" }}>
+                    <TextField
+                      id="outlined-number"
+                      className="textField"
+                      autoComplete="off"
+                      fullWidth
+                      value={selectedRow.tm_department}
+                      // onChange={formik.handleChange}
+                      // label="Number"
+                      type="text"
+                      name="tm_department"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : context.user_type === "TL/HOSS" &&
+              context.tm_department === "MTD" ? (
+              <div>
+                <div className="pwd-container">
+                  <span>User Type:</span>
+
+                  <div style={{ width: "100%", marginTop: "0.5rem" }}>
+                    <p
+                      style={{
+                        textAlign: "left",
+                        color: "black",
+                        fontSize: "13px",
+                        fontWeight: "normal",
+                      }}
+                    >
+                      {`Previous User Type: `}
+                      <span
+                        style={{ fontWeight: "bold" }}
+                      >{`${selectedRow.user_type} `}</span>
+                      {`Previous Department: `}
+                      <span
+                        style={{ fontWeight: "bold" }}
+                      >{`${selectedRow.tm_department} `}</span>
+                    </p>
+                    <select
+                      class="form-select form-select-sm"
+                      aria-label=".form-select-sm example"
+                      style={{ width: "100%" }}
+                      id="standard-select-currency"
+                      name="user_type"
+                      className="textField"
+                      fullWidth
+                      select // label="Select"
+                      autoComplete="off"
+                      value={formik.values.user_type}
+                      onChange={(e) => {
+                        setUsertype(e.target.value);
+                        formik.handleChange(e);
+                      }}
+                      variant="standard"
+                    >
+                      <option selected disabled value="">
+                        Please select
+                      </option>
+                      {userType.map((option) => {
+                        return (
+                          <option value={option.label}>{option.value}</option>
+                        );
+                      })}
+                    </select>
+                    <div>
+                      <p
+                        style={{
+                          color: "#F44336",
+                          fontWeight: "normal",
+                          fontSize: "0.80rem",
+                          float: "left",
+                          paddingTop: "0.5rem",
+                        }}
+                      >
+                        {formik.touched.user_type && formik.errors.user_type}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {usertype === "TL/HOSS" ? (
+                  <div className="pwd-container">
+                    <span>TM Department:</span>
+                    <div style={{ width: "100%", marginTop: "0.5rem" }}>
+                      <TextField
+                        id="outlined-number"
+                        className="textField"
+                        autoComplete="off"
+                        fullWidth
+                        // onChange={formik.handleChange}
+                        // label="Number"
+                        type="text"
+                        name="tm_department"
+                        value="PRD"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
             ) : (
               // <div className="pwd-container">
@@ -442,9 +586,8 @@ const UserUpdate = ({ selectedRow }) => {
               </div>
             )}
 
-            {grade === "HOS" ||
-            grade === "HOD" ||
-            selectedRow.user_type === "TL/HOSS" ? (
+            {grade === "HOS" || grade === "HOD" ? (
+              // || selectedRow.user_type === "TL/HOSS"
               <div className="pwd-container">
                 <span>TM Department:</span>
                 <div style={{ width: "100%", marginTop: "0.5rem" }}>
@@ -475,7 +618,7 @@ const UserUpdate = ({ selectedRow }) => {
                         margin: "0 0 0.5rem 0.5rem",
                         fontWeight: "550",
                         color: "black",
-                        float: "left"
+                        float: "left",
                       }}
                     >
                       PRD
@@ -494,7 +637,7 @@ const UserUpdate = ({ selectedRow }) => {
                         margin: "0 0 0.5rem 0.5rem",
                         fontWeight: "550",
                         color: "black",
-                        float: "left"
+                        float: "left",
                       }}
                     >
                       MTD
@@ -583,7 +726,8 @@ const UserUpdate = ({ selectedRow }) => {
                   </div>
                 </div>
               </div>
-            ) : context.user_type === "Section-Admin" ? (
+            ) : context.user_type === "Section-Admin" ||
+              context.user_type === "TL/HOSS" ? (
               <div>
                 <div className="pwd-container">
                   <span>Plant: </span>

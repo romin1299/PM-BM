@@ -7,6 +7,7 @@ import {
   denso_logo,
   FaTimes,
   AccountCircleIcon,
+  PersonAddAltIcon,
   DashboardIcon,
   NoteAddIcon,
   AddTaskIcon,
@@ -49,7 +50,6 @@ const NavUrl = ({ url, icon, description }) => {
 };
 
 const TL = ({ userData, userDepartment }) => {
-
   const { nav, setNav } = useContext(NavContext);
 
   const [open, setOpen] = React.useState(true);
@@ -93,12 +93,25 @@ const TL = ({ userData, userDepartment }) => {
             icon={<DashboardIcon style={{ color: "#E71E25" }} />}
             description="Dashboard"
           />
+
           {userDepartment === "MTD" ? (
-            <NavUrl
-              url="/checkSheetDashboard"
-              icon={<NoteAddIcon style={{ color: "#E71E25" }} />}
-              description="CheckSheet Dashboard"
-            />
+            <>
+              <NavUrl
+                url="/creationDashboard"
+                icon={<NoteAddIcon style={{ color: "#E71E25" }} />}
+                description="Creation Dashboard"
+              />
+              <NavUrl
+                url="/userAssign"
+                icon={<PersonAddAltIcon style={{ color: "#E71E25" }} />}
+                description="User Assign"
+              />
+              <NavUrl
+                url="/checkSheetDashboard"
+                icon={<NoteAddIcon style={{ color: "#E71E25" }} />}
+                description="CheckSheet Dashboard"
+              />
+            </>
           ) : (
             ""
           )}

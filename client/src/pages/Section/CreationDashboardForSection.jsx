@@ -152,9 +152,9 @@ const CreationDashboardForSection = () => {
 
   const postSectionToGetSubSectionList = async () => {
     setSubSection(undefined);
-    setCell(undefined);
-    setLine(undefined);
-    setMachine(undefined);
+    // setCell(undefined);
+    // setLine(undefined);
+    // setMachine(undefined);
     try {
       const res = await fetch("/postSectionToGetSubSectionList", {
         method: "POST",
@@ -181,9 +181,9 @@ const CreationDashboardForSection = () => {
   };
 
   const postSubSectionToGetCellList = async (selectedSubSection) => {
-    setCell(undefined);
-    setLine(undefined);
-    setMachine(undefined);
+    // setCell(undefined);
+    // setLine(undefined);
+    // setMachine(undefined);
     try {
       const res = await fetch("/postSubSectionToGetCellList", {
         method: "POST",
@@ -209,65 +209,65 @@ const CreationDashboardForSection = () => {
     }
   };
 
-  const postCellToGetLineList = async (selectedCell) => {
-    setLine(undefined);
-    setMachine(undefined);
-    try {
-      const res = await fetch("/postCellToGetLineList", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          cell: selectedCell,
-        }),
-      });
-      const data = await res.json();
+  // const postCellToGetLineList = async (selectedCell) => {
+  //   setLine(undefined);
+  //   setMachine(undefined);
+  //   try {
+  //     const res = await fetch("/postCellToGetLineList", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         cell: selectedCell,
+  //       }),
+  //     });
+  //     const data = await res.json();
 
-      if (res.status === 400 || res.status === 422 || !data) {
-        console.log("Invalid");
-      } else {
-        // window.alert(data.abcd);
-        console.log("Data post", data);
+  //     if (res.status === 400 || res.status === 422 || !data) {
+  //       console.log("Invalid");
+  //     } else {
+  //       // window.alert(data.abcd);
+  //       console.log("Data post", data);
 
-        setLineList(data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //       setLineList(data);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  const postLineToGetMachineList = async (selectedLine) => {
-    setMachine(undefined);
-    try {
-      const res = await fetch("/postLineToGetMachineList", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          line: selectedLine,
-        }),
-      });
-      const data = await res.json();
+  // const postLineToGetMachineList = async (selectedLine) => {
+  //   setMachine(undefined);
+  //   try {
+  //     const res = await fetch("/postLineToGetMachineList", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         line: selectedLine,
+  //       }),
+  //     });
+  //     const data = await res.json();
 
-      if (res.status === 400 || res.status === 422 || !data) {
-        console.log("Invalid");
-      } else {
-        // window.alert(data.abcd);
-        console.log("Data post", data);
+  //     if (res.status === 400 || res.status === 422 || !data) {
+  //       console.log("Invalid");
+  //     } else {
+  //       // window.alert(data.abcd);
+  //       console.log("Data post", data);
 
-        setMachine(data.machineInfo);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //       setMachine(data.machineInfo);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  const refreshForMachineData = () => {
-    // console.log("******");
-    setRefKey3((refKey3) => refKey3 + 1);
-  };
+  // const refreshForMachineData = () => {
+  //   // console.log("******");
+  //   setRefKey3((refKey3) => refKey3 + 1);
+  // };
 
   useEffect(() => {
     postSectionToGetSubSectionList();
@@ -279,37 +279,37 @@ const CreationDashboardForSection = () => {
     }
   }, [subSection, refKey]);
 
-  useEffect(() => {
-    if (cell) {
-      postCellToGetLineList(cell);
-    }
-  }, [cell, refKey2]);
+  // useEffect(() => {
+  //   if (cell) {
+  //     postCellToGetLineList(cell);
+  //   }
+  // }, [cell, refKey2]);
 
-  useEffect(() => {
-    if (line) {
-      postLineToGetMachineList(line);
-    }
-  }, [line, refKey3]);
+  // useEffect(() => {
+  //   if (line) {
+  //     postLineToGetMachineList(line);
+  //   }
+  // }, [line, refKey3]);
 
-  const actionsForMachineTable = [
-    {
-      // icon: () => <button className="addbutton">Add</button>,
-      icon: () =>
-        window.innerWidth > 1024 ? (
-          <button className="btn">Add Machine</button>
-        ) : (
-          <AddBoxIcon />
-        ),
+  // const actionsForMachineTable = [
+  //   {
+  //     // icon: () => <button className="addbutton">Add</button>,
+  //     icon: () =>
+  //       window.innerWidth > 1024 ? (
+  //         <button className="btn">Add Machine</button>
+  //       ) : (
+  //         <AddBoxIcon />
+  //       ),
 
-      tooltip: "Add Machine",
-      isFreeAction: true,
-      onClick: (event, rowData) => {
-        document.getElementById("main_div_reg3").style.display = "block";
-        document.getElementById("main_div_reg3").style.pointerEvents = "auto";
-        document.querySelector(".App").style.pointerEvents = "none";
-      },
-    },
-  ];
+  //     tooltip: "Add Machine",
+  //     isFreeAction: true,
+  //     onClick: (event, rowData) => {
+  //       document.getElementById("main_div_reg3").style.display = "block";
+  //       document.getElementById("main_div_reg3").style.pointerEvents = "auto";
+  //       document.querySelector(".App").style.pointerEvents = "none";
+  //     },
+  //   },
+  // ];
 
   // console.log(
   //   subSectionList !== ""
@@ -322,7 +322,7 @@ const CreationDashboardForSection = () => {
   return (
     <>
       <div className="mainPage">
-        <MachineAdd line={line} refreshForMachineData={refreshForMachineData} />
+        {/* <MachineAdd line={line} refreshForMachineData={refreshForMachineData} /> */}
         <div className="pageCard">
           <div className="creationDashboard">
             <div className="selection_div">
@@ -331,12 +331,12 @@ const CreationDashboardForSection = () => {
                 <select
                   class="form-select form-select-sm"
                   aria-label=".form-select-sm example"
-                  style={{ width: "100%", background: "white" }}
+                  style={{ width: "15rem", background: "white" }}
                   id="standard-select-currency"
                   name="plant"
                   className="textField"
                   select
-                  fullWidth // label="Select"
+                  // fullWidth // label="Select"
                   autoComplete="off"
                   value={subSection === undefined ? "" : subSection}
                   onChange={(e) => {
@@ -344,13 +344,6 @@ const CreationDashboardForSection = () => {
                   }}
                   variant="standard"
                 >
-                  {/* {plant.map((option) => {
-                return (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                );
-              })} */}
                   <option selected disabled value="">
                     Please select
                   </option>
@@ -365,7 +358,7 @@ const CreationDashboardForSection = () => {
                   {/* context.subSection_data */}
                 </select>
               </div>
-              <div style={{ display: "flex", flexDirection: "column" }}>
+              {/* <div style={{ display: "flex", flexDirection: "column" }}>
                 <span>Cell/Product</span>
                 <select
                   class="form-select form-select-sm"
@@ -383,13 +376,6 @@ const CreationDashboardForSection = () => {
                   }}
                   variant="standard"
                 >
-                  {/* {plant.map((option) => {
-                return (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                );
-              })} */}
                   <option selected disabled value="">
                     Please select
                   </option>
@@ -420,13 +406,6 @@ const CreationDashboardForSection = () => {
                   }}
                   variant="standard"
                 >
-                  {/* {plant.map((option) => {
-                return (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                );
-              })} */}
                   <option selected disabled value="">
                     Please select
                   </option>
@@ -436,327 +415,331 @@ const CreationDashboardForSection = () => {
                       })
                     : ""}
                 </select>
-              </div>
+              </div> */}
             </div>
             <div style={{ padding: "1rem" }}>
-              {subSection && cell && line ? (
-                machine !== "" ? (
-                  <MaterialTable
-                    localization={{
-                      header: {
-                        actions: "Actions",
-                      },
-                      // toolbar: {
-                      //   exportCSVName: "Export some Excel format",
-                      //   exportPDFName: "Export as pdf!!"
-                      // }
-                    }}
-                    actions={actionsForMachineTable}
-                    icons={tableIcons}
-                    columns={machineHeader}
-                    data={machine}
-                    // title="User Management"
-                    // tableRef={this.tableRef.current.onQueryChange()}
+              {
+                // subSection && cell && line ? (
+                //   machine !== "" ? (
+                //     <MaterialTable
+                //       localization={{
+                //         header: {
+                //           actions: "Actions",
+                //         },
+                //         // toolbar: {
+                //         //   exportCSVName: "Export some Excel format",
+                //         //   exportPDFName: "Export as pdf!!"
+                //         // }
+                //       }}
+                //       actions={actionsForMachineTable}
+                //       icons={tableIcons}
+                //       columns={machineHeader}
+                //       data={machine}
+                //       // title="User Management"
+                //       // tableRef={this.tableRef.current.onQueryChange()}
 
-                    editable={{
-                      // onRowAdd: (newRow) =>
-                      //   new Promise((resolve, reject) => {
-                      //     const updatedRows = [
-                      //       ...lineList.lineInfo,
-                      //       { user_id: "", ...newRow },
-                      //     ];
+                //       editable={{
+                //         // onRowAdd: (newRow) =>
+                //         //   new Promise((resolve, reject) => {
+                //         //     const updatedRows = [
+                //         //       ...lineList.lineInfo,
+                //         //       { user_id: "", ...newRow },
+                //         //     ];
 
-                      //     newLine(newRow, cell);
-                      //     setTimeout(() => {
-                      //       // setSectionList(updatedRows);
-                      //       setRefKey3((refKey3) => refKey3 + 1);
-                      //       resolve();
-                      //     }, 500);
-                      //     //refreshPage();
-                      //   }),
+                //         //     newLine(newRow, cell);
+                //         //     setTimeout(() => {
+                //         //       // setSectionList(updatedRows);
+                //         //       setRefKey3((refKey3) => refKey3 + 1);
+                //         //       resolve();
+                //         //     }, 500);
+                //         //     //refreshPage();
+                //         //   }),
 
-                      onRowDelete: (selectedRow) =>
-                        new Promise((resolve, reject) => {
-                          // const index = selectedRow.tableData.id;
-                          // console.log(index);
-                          // const updatedRows = [...machine];
-                          // updatedRows.splice(index, 1);
+                //         onRowDelete: (selectedRow) =>
+                //           new Promise((resolve, reject) => {
+                //             // const index = selectedRow.tableData.id;
+                //             // console.log(index);
+                //             // const updatedRows = [...machine];
+                //             // updatedRows.splice(index, 1);
 
-                          //call the delete user function and pass the user data
-                          // deleteUserInfo(selectedRow);
-                          deleteMachine(selectedRow);
-                          setTimeout(() => {
-                            // setSectionList(updatedRows);
-                            setRefKey2((refKey3) => refKey3 + 1);
-                            resolve();
-                          }, 500);
-                        }),
+                //             //call the delete user function and pass the user data
+                //             // deleteUserInfo(selectedRow);
+                //             deleteMachine(selectedRow);
+                //             setTimeout(() => {
+                //               // setSectionList(updatedRows);
+                //               setRefKey2((refKey3) => refKey3 + 1);
+                //               resolve();
+                //             }, 500);
+                //           }),
 
-                      onRowUpdate: (updatedRow, oldRow) =>
-                        new Promise((resolve, reject) => {
-                          const index = oldRow.tableData.id;
-                          const updatedRows = [...machine];
-                          updatedRows[index] = updatedRow;
-                          //call the update user function and pass the user data
-                          // updateUserInfo(updatedRow);
-                          updateMachine(updatedRow, oldRow);
-                          setTimeout(() => {
-                            // setSectionList(updatedRows);
-                            setRefKey3((refKey3) => refKey3 + 1);
-                            resolve();
-                          }, 500);
-                        }),
-                    }}
-                    options={{
-                      showTitle: false,
-                      paging: false,
-                      sorting: true,
-                      search: true,
-                      filtering: false,
-                      exportButton: true,
-                      exportAllData: true,
-                      draggable: false,
-                      actionsColumnIndex: -1,
-                      // pageSize: 10,
-                      // pageSizeOptions: false,
-                      // paginationType: "stepped",
-                      addRowPosition: "first",
-                      headerStyle: {
-                        position: "sticky",
-                        top: "0",
-                        fontWeight: "bold",
-                      },
+                //         onRowUpdate: (updatedRow, oldRow) =>
+                //           new Promise((resolve, reject) => {
+                //             const index = oldRow.tableData.id;
+                //             const updatedRows = [...machine];
+                //             updatedRows[index] = updatedRow;
+                //             //call the update user function and pass the user data
+                //             // updateUserInfo(updatedRow);
+                //             updateMachine(updatedRow, oldRow);
+                //             setTimeout(() => {
+                //               // setSectionList(updatedRows);
+                //               setRefKey3((refKey3) => refKey3 + 1);
+                //               resolve();
+                //             }, 500);
+                //           }),
+                //       }}
+                //       options={{
+                //         showTitle: false,
+                //         paging: false,
+                //         sorting: true,
+                //         search: true,
+                //         filtering: false,
+                //         exportButton: true,
+                //         exportAllData: true,
+                //         draggable: false,
+                //         actionsColumnIndex: -1,
+                //         // pageSize: 10,
+                //         // pageSizeOptions: false,
+                //         // paginationType: "stepped",
+                //         addRowPosition: "first",
+                //         headerStyle: {
+                //           position: "sticky",
+                //           top: "0",
+                //           fontWeight: "bold",
+                //         },
 
-                      maxBodyHeight: "70vh",
-                      // overflowY: "hidden",
-                      rowStyle: {
-                        // fontStyle:'bold'
+                //         maxBodyHeight: "70vh",
+                //         // overflowY: "hidden",
+                //         rowStyle: {
+                //           // fontStyle:'bold'
 
-                        boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                        // color:"rgba(255,255,255,0.8)",
-                        borderRadius: "5px",
-                        border: "1px solid rgba(255,255,255)",
-                        WebkitBackdropFilter: "blur( 2px )",
-                        background: "rgba(255,255,255,0.1)",
-                        backdropFilter: "blur(5px)",
-                      },
-                    }}
-                  />
+                //           boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                //           // color:"rgba(255,255,255,0.8)",
+                //           borderRadius: "5px",
+                //           border: "1px solid rgba(255,255,255)",
+                //           WebkitBackdropFilter: "blur( 2px )",
+                //           background: "rgba(255,255,255,0.1)",
+                //           backdropFilter: "blur(5px)",
+                //         },
+                //       }}
+                //     />
+                //   ) : (
+                //     ""
+                //   )
+                // ) : subSection && cell ? (
+                //   lineList !== "" ? (
+                //     <MaterialTable
+                //       localization={{
+                //         header: {
+                //           actions: "Actions",
+                //         },
+                //         // toolbar: {
+                //         //   exportCSVName: "Export some Excel format",
+                //         //   exportPDFName: "Export as pdf!!"
+                //         // }
+                //       }}
+                //       // actions={actions}
+                //       icons={tableIcons}
+                //       columns={lineHeader}
+                //       data={lineList.lineInfo}
+                //       // title="User Management"
+                //       // tableRef={this.tableRef.current.onQueryChange()}
+
+                //       editable={{
+                //         onRowAdd: (newRow) =>
+                //           new Promise((resolve, reject) => {
+                //             const updatedRows = [
+                //               ...lineList.lineInfo,
+                //               { user_id: "", ...newRow },
+                //             ];
+
+                //             newLine(newRow, cell);
+                //             setTimeout(() => {
+                //               // setSectionList(updatedRows);
+                //               setRefKey2((refKey2) => refKey2 + 1);
+                //               resolve();
+                //             }, 500);
+                //             //refreshPage();
+                //           }),
+
+                //         onRowDelete: (selectedRow) =>
+                //           new Promise((resolve, reject) => {
+                //             // const index = selectedRow.tableData.id;
+                //             // console.log(index);
+                //             // const updatedRows = [...lineList.lineInfo];
+                //             // updatedRows.splice(index, 1);
+
+                //             //call the delete user function and pass the user data
+                //             // deleteUserInfo(selectedRow);
+                //             deleteLine(selectedRow);
+                //             setTimeout(() => {
+                //               // setSectionList(updatedRows);
+                //               setRefKey2((refKey2) => refKey2 + 1);
+                //               resolve();
+                //             }, 500);
+                //           }),
+
+                //         onRowUpdate: (updatedRow, oldRow) =>
+                //           new Promise((resolve, reject) => {
+                //             const index = oldRow.tableData.id;
+                //             const updatedRows = [...lineList.lineInfo];
+                //             updatedRows[index] = updatedRow;
+                //             //call the update user function and pass the user data
+                //             // updateUserInfo(updatedRow);
+                //             updateLine(updatedRow, oldRow);
+                //             setTimeout(() => {
+                //               // setSectionList(updatedRows);
+                //               setRefKey2((refKey2) => refKey2 + 1);
+                //               resolve();
+                //             }, 500);
+                //           }),
+                //       }}
+                //       options={{
+                //         showTitle: false,
+                //         paging: false,
+                //         sorting: true,
+                //         search: true,
+                //         filtering: false,
+                //         exportButton: true,
+                //         exportAllData: true,
+                //         draggable: false,
+                //         actionsColumnIndex: -1,
+                //         pageSize: 10,
+                //         pageSizeOptions: false,
+                //         paginationType: "stepped",
+                //         addRowPosition: "first",
+                //         headerStyle: {
+                //           position: "sticky",
+                //           top: "0",
+                //           fontWeight: "bold",
+                //         },
+                //         // width: "70%",
+                //         maxBodyHeight: "70vh",
+                //         // overflowY: "hidden",
+                //         rowStyle: {
+                //           // fontStyle:'bold'
+
+                //           boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                //           // color:"rgba(255,255,255,0.8)",
+                //           borderRadius: "5px",
+                //           border: "1px solid rgba(255,255,255)",
+                //           WebkitBackdropFilter: "blur( 2px )",
+                //           background: "rgba(255,255,255,0.1)",
+                //           backdropFilter: "blur(5px)",
+                //         },
+                //       }}
+                //     />
+                //   ) : (
+                //     ""
+                //   )
+                // ) :
+
+                subSection ? (
+                  cellList !== "" ? (
+                    <MaterialTable
+                      localization={{
+                        header: {
+                          actions: "Actions",
+                        },
+                        // toolbar: {
+                        //   exportCSVName: "Export some Excel format",
+                        //   exportPDFName: "Export as pdf!!"
+                        // }
+                      }}
+                      // actions={actions}
+                      icons={tableIcons}
+                      columns={cellHeader}
+                      data={cellList.cellInfo}
+                      // title="User Management"
+                      // tableRef={this.tableRef.current.onQueryChange()}
+
+                      editable={{
+                        onRowAdd: (newRow) =>
+                          new Promise((resolve, reject) => {
+                            const updatedRows = [
+                              ...cellList.cellInfo,
+                              { user_id: "", ...newRow },
+                            ];
+
+                            newCell(newRow, subSection);
+
+                            setTimeout(() => {
+                              // setSectionList(updatedRows);
+                              setRefKey((refKey) => refKey + 1);
+                              resolve();
+                            }, 500);
+                            //refreshPage();
+                          }),
+
+                        onRowDelete: (selectedRow) =>
+                          new Promise((resolve, reject) => {
+                            // const index = selectedRow.tableData.id;
+                            // console.log(index);
+                            // const updatedRows = [...cellList.cellInfo];
+                            // updatedRows.splice(index, 1);
+
+                            //call the delete user function and pass the user data
+                            // deleteUserInfo(selectedRow);
+                            deleteCell(selectedRow);
+                            setTimeout(() => {
+                              setRefKey((refKey) => refKey + 1);
+                              resolve();
+                            }, 500);
+                          }),
+
+                        onRowUpdate: (updatedRow, oldRow) =>
+                          new Promise((resolve, reject) => {
+                            const index = oldRow.tableData.id;
+                            const updatedRows = [...cellList.cellInfo];
+                            updatedRows[index] = updatedRow;
+                            //call the update user function and pass the user data
+                            updateCell(updatedRow, oldRow);
+                            setTimeout(() => {
+                              setRefKey((refKey) => refKey + 1);
+                              resolve();
+                            }, 500);
+                          }),
+                      }}
+                      options={{
+                        showTitle: false,
+                        paging: false,
+                        sorting: true,
+                        search: true,
+                        filtering: false,
+                        exportButton: true,
+                        exportAllData: true,
+                        draggable: false,
+                        actionsColumnIndex: -1,
+                        pageSize: 10,
+                        pageSizeOptions: false,
+                        paginationType: "stepped",
+                        addRowPosition: "first",
+                        headerStyle: {
+                          position: "sticky",
+                          top: "0",
+                          fontWeight: "bold",
+                        },
+                        maxBodyHeight: "70vh",
+                        // overflowY: "hidden",
+                        rowStyle: {
+                          // fontStyle:'bold'
+
+                          boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                          // color:"rgba(255,255,255,0.8)",
+                          borderRadius: "5px",
+                          border: "1px solid rgba(255,255,255)",
+                          WebkitBackdropFilter: "blur( 2px )",
+                          background: "rgba(255,255,255,0.1)",
+                          backdropFilter: "blur(5px)",
+                        },
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )
                 ) : (
                   ""
                 )
-              ) : subSection && cell ? (
-                lineList !== "" ? (
-                  <MaterialTable
-                    localization={{
-                      header: {
-                        actions: "Actions",
-                      },
-                      // toolbar: {
-                      //   exportCSVName: "Export some Excel format",
-                      //   exportPDFName: "Export as pdf!!"
-                      // }
-                    }}
-                    // actions={actions}
-                    icons={tableIcons}
-                    columns={lineHeader}
-                    data={lineList.lineInfo}
-                    // title="User Management"
-                    // tableRef={this.tableRef.current.onQueryChange()}
-
-                    editable={{
-                      onRowAdd: (newRow) =>
-                        new Promise((resolve, reject) => {
-                          const updatedRows = [
-                            ...lineList.lineInfo,
-                            { user_id: "", ...newRow },
-                          ];
-
-                          newLine(newRow, cell);
-                          setTimeout(() => {
-                            // setSectionList(updatedRows);
-                            setRefKey2((refKey2) => refKey2 + 1);
-                            resolve();
-                          }, 500);
-                          //refreshPage();
-                        }),
-
-                      onRowDelete: (selectedRow) =>
-                        new Promise((resolve, reject) => {
-                          // const index = selectedRow.tableData.id;
-                          // console.log(index);
-                          // const updatedRows = [...lineList.lineInfo];
-                          // updatedRows.splice(index, 1);
-
-                          //call the delete user function and pass the user data
-                          // deleteUserInfo(selectedRow);
-                          deleteLine(selectedRow);
-                          setTimeout(() => {
-                            // setSectionList(updatedRows);
-                            setRefKey2((refKey2) => refKey2 + 1);
-                            resolve();
-                          }, 500);
-                        }),
-
-                      onRowUpdate: (updatedRow, oldRow) =>
-                        new Promise((resolve, reject) => {
-                          const index = oldRow.tableData.id;
-                          const updatedRows = [...lineList.lineInfo];
-                          updatedRows[index] = updatedRow;
-                          //call the update user function and pass the user data
-                          // updateUserInfo(updatedRow);
-                          updateLine(updatedRow, oldRow);
-                          setTimeout(() => {
-                            // setSectionList(updatedRows);
-                            setRefKey2((refKey2) => refKey2 + 1);
-                            resolve();
-                          }, 500);
-                        }),
-                    }}
-                    options={{
-                      showTitle: false,
-                      paging: false,
-                      sorting: true,
-                      search: true,
-                      filtering: false,
-                      exportButton: true,
-                      exportAllData: true,
-                      draggable: false,
-                      actionsColumnIndex: -1,
-                      pageSize: 10,
-                      pageSizeOptions: false,
-                      paginationType: "stepped",
-                      addRowPosition: "first",
-                      headerStyle: {
-                        position: "sticky",
-                        top: "0",
-                        fontWeight: "bold",
-                      },
-                      // width: "70%",
-                      maxBodyHeight: "70vh",
-                      // overflowY: "hidden",
-                      rowStyle: {
-                        // fontStyle:'bold'
-
-                        boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                        // color:"rgba(255,255,255,0.8)",
-                        borderRadius: "5px",
-                        border: "1px solid rgba(255,255,255)",
-                        WebkitBackdropFilter: "blur( 2px )",
-                        background: "rgba(255,255,255,0.1)",
-                        backdropFilter: "blur(5px)",
-                      },
-                    }}
-                  />
-                ) : (
-                  ""
-                )
-              ) : subSection ? (
-                cellList !== "" ? (
-                  <MaterialTable
-                    localization={{
-                      header: {
-                        actions: "Actions",
-                      },
-                      // toolbar: {
-                      //   exportCSVName: "Export some Excel format",
-                      //   exportPDFName: "Export as pdf!!"
-                      // }
-                    }}
-                    // actions={actions}
-                    icons={tableIcons}
-                    columns={cellHeader}
-                    data={cellList.cellInfo}
-                    // title="User Management"
-                    // tableRef={this.tableRef.current.onQueryChange()}
-
-                    editable={{
-                      onRowAdd: (newRow) =>
-                        new Promise((resolve, reject) => {
-                          const updatedRows = [
-                            ...cellList.cellInfo,
-                            { user_id: "", ...newRow },
-                          ];
-
-                          newCell(newRow, subSection);
-
-                          setTimeout(() => {
-                            // setSectionList(updatedRows);
-                            setRefKey((refKey) => refKey + 1);
-                            resolve();
-                          }, 500);
-                          //refreshPage();
-                        }),
-
-                      onRowDelete: (selectedRow) =>
-                        new Promise((resolve, reject) => {
-                          // const index = selectedRow.tableData.id;
-                          // console.log(index);
-                          // const updatedRows = [...cellList.cellInfo];
-                          // updatedRows.splice(index, 1);
-
-                          //call the delete user function and pass the user data
-                          // deleteUserInfo(selectedRow);
-                          deleteCell(selectedRow);
-                          setTimeout(() => {
-                            setRefKey((refKey) => refKey + 1);
-                            resolve();
-                          }, 500);
-                        }),
-
-                      onRowUpdate: (updatedRow, oldRow) =>
-                        new Promise((resolve, reject) => {
-                          const index = oldRow.tableData.id;
-                          const updatedRows = [...cellList.cellInfo];
-                          updatedRows[index] = updatedRow;
-                          //call the update user function and pass the user data
-                          updateCell(updatedRow, oldRow);
-                          setTimeout(() => {
-                            setRefKey((refKey) => refKey + 1);
-                            resolve();
-                          }, 500);
-                        }),
-                    }}
-                    options={{
-                      showTitle: false,
-                      paging: false,
-                      sorting: true,
-                      search: true,
-                      filtering: false,
-                      exportButton: true,
-                      exportAllData: true,
-                      draggable: false,
-                      actionsColumnIndex: -1,
-                      pageSize: 10,
-                      pageSizeOptions: false,
-                      paginationType: "stepped",
-                      addRowPosition: "first",
-                      headerStyle: {
-                        position: "sticky",
-                        top: "0",
-                        fontWeight: "bold",
-                      },
-                      maxBodyHeight: "70vh",
-                      // overflowY: "hidden",
-                      rowStyle: {
-                        // fontStyle:'bold'
-
-                        boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                        // color:"rgba(255,255,255,0.8)",
-                        borderRadius: "5px",
-                        border: "1px solid rgba(255,255,255)",
-                        WebkitBackdropFilter: "blur( 2px )",
-                        background: "rgba(255,255,255,0.1)",
-                        backdropFilter: "blur(5px)",
-                      },
-                    }}
-                  />
-                ) : (
-                  ""
-                )
-              ) : (
-                ""
-              )}
+              }
             </div>
           </div>
         </div>

@@ -46,6 +46,9 @@ import updateSelectedMachineCheckSheetTableRowData from "./PlanningPhase/updateS
 // Financial year list 
 import fetchFinancialYears from "./AllFetchApis/fetchFinancialYears.js"
 
+//user APIs
+import fetchLoggedUserDetails from "./UserAPIs/fetchLoggedUserDetails.js"
+
 
 export {
 
@@ -64,5 +67,8 @@ export {
 
     // planning 
 
-    updateSelectedMachineCheckSheetTableRowData
+    updateSelectedMachineCheckSheetTableRowData,
+
+    //user
+    fetchLoggedUserDetails
 }

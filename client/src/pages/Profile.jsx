@@ -16,7 +16,7 @@ const Profile = () => {
 
   const context = useContext(RoutingContext);
 
-  // console.log(userData.photo);
+  // console.log(context);
   // console.log(typeof tm_name);
   // console.log(userPhoto);
 
