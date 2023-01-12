@@ -17,7 +17,9 @@ import FileDownload from "js-file-download";
 
 function CheckSheetForm() {
   const context = useContext(RoutingContext);
+
   const selectedMachineCheckSheetData = useLocation();
+
   const [newTableData, setNewTableData] = useState([]);
   const [refKey, setRefKey] = useState("");
 
@@ -32,6 +34,8 @@ function CheckSheetForm() {
   const navigate = useNavigate();
 
   let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+  console.log(selectedMachineCheckSheetData.state);
 
   const validationSchema = yup.object({
     request: yup.string().required("Please select one"),
@@ -188,9 +192,10 @@ function CheckSheetForm() {
   ];
   let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
 
-  let previousMonth = monthKeyArray[new Date().getMonth() - 1] === undefined
-            ? monthKeyArray.splice(-1)[0]
-            : monthKeyArray[new Date().getMonth() - 1];
+  let previousMonth =
+    monthKeyArray[new Date().getMonth() - 1] === undefined
+      ? monthKeyArray.splice(-1)[0]
+      : monthKeyArray[new Date().getMonth() - 1];
 
   const PMCarryOnToNextMonth = async (tableRowId) => {
     // console.log(tableRowId);
@@ -257,8 +262,8 @@ function CheckSheetForm() {
           key === "planningTableAnimationArray2" ||
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
-          key === "start_month"||
-          key === "PMOkImage"||
+          key === "start_month" ||
+          key === "PMOkImage" ||
           key === "completionDateOfInspection" ||
           key === "reasonForDelayWhenSkip"
         ) {
@@ -456,6 +461,17 @@ function CheckSheetForm() {
 
     return `${day}/${month}/${year} - ${getTime}`;
   };
+
+  // console.log(
+  //   selectedMachineCheckSheetData.state.selectedRowForViewForm?.line_names
+  //     ?.line_name,
+  //   selectedMachineCheckSheetData.state.selectedRowForViewForm?.line_names
+  //     ?.cell_names?.cell_name
+  // );
+
+  // console.log(
+  //   `Checksheet Preparation Approval (${selectedMachineCheckSheetData.state.selectedRowForViewForm?.line_names?.cell_names?.cell_name}/${selectedMachineCheckSheetData.state.selectedRowForViewForm?.line_names?.line_name}/${selectedMachineCheckSheetData.state.selectedRowForViewForm?.machine_code})`
+  // );
 
   //for planning phase approval
   const formik1 = useFormik({
@@ -723,9 +739,9 @@ function CheckSheetForm() {
                     varForConditionChecking?.tl_approval_status[
                       varForConditionChecking?.tl_approval_status.length - 1
                     ] === "Pending" ||
-                    // varForConditionChecking.hos_approval_status[
-                    //   varForConditionChecking.hos_approval_status.length - 1
-                    // ] === "Pending" ||
+                    varForConditionChecking.hos_approval_status[
+                      varForConditionChecking.hos_approval_status.length - 1
+                    ] === "Pending" ||
                     varForConditionChecking?.hos_approval_status[
                       varForConditionChecking?.hos_approval_status.length - 1
                     ] === "Accepted" ? (

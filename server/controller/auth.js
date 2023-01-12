@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const multer = require('multer');
 require('../db/conn')
 const authenticate = require('../middleware/authenticate');
+var cron = require('node-cron');
 
 
 const User = require('../model/userSchema')
@@ -20,6 +21,7 @@ const HandlingOtherActions = require('../model/handlingActions')
 // const MachineDummy = require('../model/machineOldSchema')
 //send request for approval mail function
 const sendApproval = require('../sendMail/sendApproval')
+const autoSendMail = require("../sendMail/autoSendMail")
 
 const bcrypt = require('bcryptjs')
 const crypto = require('crypto');
@@ -2008,7 +2010,7 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
                     [keyOfCarriedSkipMonthPMForPreviousToPrevious]: "PM Skip",
                 }
             }, {
-                arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
+                arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
             })
         }
 
@@ -2691,6 +2693,15 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
         const checksheet_status = "Preparation"
+
+        let subject, title, greetings, bodyTable
+
+
+        // let tableStyle = "font-family: arial, sans-serif;border-collapse: collapse;width: 100%;"
+        // let tdStyle = "border: 1px solid black;text-align: left;padding: 8px;"
+
+
+
         if (request === "Yes" && tl_list != "") {
             //for grreting of the mail
             const findAssignTlName = await User.findOne({ email: tl_list })
@@ -2716,8 +2727,43 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                 arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
             })
 
+
+            subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+            title = `Kindly Approve Check-sheet`
+            greetings = `Sir\\Mam`
+            bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+          
+            <tr>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+            </tr>
+            
+            <tr style="background-color: #dddddd;">
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+            </tr>
+
+            <tr>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+            </tr>
+            
+            <tr style="background-color: #dddddd;">
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+            </tr>
+             
+            <tr>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">Submitted by</td>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+            </tr>   
+            
+          </table>`
+
+
+
             //send approval to TL/HOSS after his/her approval send request to HOS
-            sendApproval(findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, tl_list, hos_list, undefined, undefined, request)
+            sendApproval(subject, title, greetings, bodyTable, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, tl_list, hos_list, undefined, undefined, request)
         } else if (prd_tl_list && phaseStatus === "Planning") {
             //for grreting of the mail
             const findAssignTlName = await User.findOne({ email: prd_tl_list })
@@ -2728,8 +2774,43 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                 arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
             })
 
+
+            subject = `Checksheet Planning Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+            title = `Kindly approved Checksheet for Planning(FY${selected_machine_data?.checkSheet_data?.current_year})`
+            greetings = `${findAssignTlName.tm_name}`
+            bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+          
+            <tr>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+            </tr>
+            
+            <tr style="background-color: #dddddd;">
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+            </tr>
+
+            <tr>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+            </tr>
+            
+            <tr style="background-color: #dddddd;">
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+            </tr>
+             
+            <tr>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">Submitted by</td>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+            </tr>   
+            
+          </table>`
+
+
+
             //send approval to TL/HOSS after his/her approval send request to HOS
-            sendApproval(findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+            sendApproval(subject, title, greetings, bodyTable, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
         } else if (prd_tl_list && mtd_tl_list && mtd_hos_list && phaseStatus === "Implementation") {
 
             let machineLastDataForKeyexistsOrNot = await Machine.aggregate([{
@@ -2782,8 +2863,59 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
             // console.log(updateImplementationCompletionPhase)
             // for grreting of the mail
             const findAssignTlName = await User.findOne({ email: prd_tl_list })
+
+            subject = `Checksheet Approval Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+            title = `Kindly Approve after Quality Check`
+            greetings = `${findAssignTlName.tm_name} San`
+            bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+          
+            <tr>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+            </tr>
+            
+            <tr style="background-color: #dddddd;">
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+            </tr>
+
+            <tr>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+            </tr>
+            
+            <tr style="background-color: #dddddd;">
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+            </tr>
+             
+            <tr>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">Done by</td>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+            </tr>
+               
+            <tr style="background-color: #dddddd;">
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${implemetation_completed_date}</td>
+            </tr>
+            
+          </table>`
+
+
             //send approval to TL/HOSS after his/her approval send request to HOS
-            sendApprovalOfImplementation(findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined, undefined)
+            sendApproval(
+                subject,
+                title,
+                greetings,
+                bodyTable,
+                findAssignTlName.tm_name,
+                loggedUserData.tm_no,
+                loggedUserData.tm_name,
+                selected_machine_data.machine_code,
+                selected_machine_data.machine_name,
+                selected_machine_data.checksheet_status,
+                prd_tl_list,
+                undefined, undefined, undefined, undefined, undefined)
         } else {
             //for grreting of the mail
             const findAssignHosName = await User.findOne({ email: hos_list })
@@ -2808,8 +2940,43 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                 arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
             })
 
+
+            subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+            title = `Kindly Approve Check-sheet`
+            greetings = `Sir\\Mam`
+            bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+          
+            <tr>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+            </tr>
+            
+            <tr style="background-color: #dddddd;">
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+            </tr>
+
+            <tr>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+            </tr>
+            
+            <tr style="background-color: #dddddd;">
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+            </tr>
+             
+            <tr>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">Submitted by</td>
+              <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+            </tr>   
+            
+          </table>`
+
+
+
             //send approval direct MTD HOS
-            sendApproval(findAssignHosName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, hos_list, undefined, undefined, undefined, undefined, request)
+            sendApproval(subject, title, greetings, bodyTable, findAssignHosName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, hos_list, undefined, undefined, undefined, undefined, request)
         }
         return res.status(201).json("approval request send successfully!!!");
         //  console.log(req.body)
@@ -3005,9 +3172,10 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
 })
 
 //Request approval from TL and HOS 
-router.post('/approveRequestFromTLandHOS', async (req, res) => {
+router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
     try {
         const { request, rejected_remarks, selected_machine_data, approved_by_TL, approved_by_HOS, approved_by_PRD_TL, preparation_TL_HOSS_date, preparation_HOS_date, planning_PRD_TL_date, implementation_approved_PRD_TL_date, implementation_approved_by_PRD_TL, implementation_approved_by_MTD_TL, implementation_approved_MTD_TL_date, implementation_approved_by_MTD_HOS, implementation_approved_MTD_HOS_date, implemetation_quality_remarks } = req.body
+        let loggedUserData = req.rootUser;
 
         // console.log(selected_machine_data.checkSheetSendingUser[(selected_machine_data.checkSheetSendingUser).length - 1])
         const monthKeyArray = [
@@ -3093,6 +3261,8 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
         let keyOfImplementation_approved_MTD_HOS_date = `checkSheet_data.$[outer].implementation_approved_MTD_HOS_date.${monthForCompareSystemMonth}`
         let keyOfImplemetation_quality_remarks = `checkSheet_data.$[outer].implemetation_quality_remarks.${monthForCompareSystemMonth}`
 
+        let subject, title, greetings, bodyTable
+
 
         if (request === "Yes") {
             if (selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1] === "Pending") {
@@ -3112,7 +3282,53 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
                 // console.log(TLApprovalStatusUpdate)
                 const findAssignHosName = await User.findOne({ email: selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.assign_HOS).length - 1] })
 
-                sendApproval(findAssignHosName.tm_name,
+
+
+                subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+                title = `Checksheet is Approved`
+                greetings = `Sir\\Mam`
+                bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+      
+                        <tr>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        </tr>
+                        
+                        <tr style="background-color: #dddddd;">
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        </tr>
+
+                        <tr>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                        </tr>
+                        
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                        </tr>
+                        
+                        <tr>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved by</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+                        </tr>   
+                        
+                        <tr style="background-color: #dddddd;">
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${preparation_TL_HOSS_date}</td>
+                        </tr>
+                        
+                    </table>`
+
+
+
+                sendApproval(
+                    subject,
+                    title,
+                    greetings,
+                    bodyTable,
+                    findAssignHosName.tm_name,
                     selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
                     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
                     selected_machine_data.machine_code,
@@ -3178,6 +3394,61 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
                 }, {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
+
+                // console.log(selected_machine_data?.checkSheet_data?.plan_prepared_email, selected_machine_data?.checkSheet_data?.plan_prepared_tm_name)
+
+                subject = `Checksheet Planning Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+                title = `Checksheet Planning is Approved.`
+                greetings = `${selected_machine_data?.checkSheet_data?.plan_prepared_tm_name} San`
+                bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+      
+                        <tr>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        </tr>
+                        
+                        <tr style="background-color: #dddddd;">
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        </tr>
+
+                        <tr>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                        </tr>
+                        
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                        </tr>
+                        
+                        <tr>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved by</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+                        </tr>   
+                        
+                        <tr style="background-color: #dddddd;">
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${planning_PRD_TL_date}</td>
+                        </tr>
+                        
+                    </table>`
+
+                sendApproval(
+                    subject,
+                    title,
+                    greetings,
+                    bodyTable,
+                    undefined,// findAssignHosName.tm_name,
+                    undefined,// selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+                    undefined,// selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
+                    undefined,// selected_machine_data.machine_code,
+                    undefined,// selected_machine_data.machine_name,
+                    undefined,// selected_machine_data.checkSheet_data.checksheet_status,
+                    selected_machine_data?.checkSheet_data?.plan_prepared_email[(selected_machine_data?.checkSheet_data?.plan_prepared_email).length - 1],
+                    undefined,// selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                    undefined,// tlApproval, undefined, undefined
+                )
             } else if (selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1] === "Pending") {
                 let prd_tl_approval_status = "Accepted"
 
@@ -3234,7 +3505,49 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
                 })
                 const findAssignMTDTLNameOfImplementation = await User.findOne({ email: selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth]).length - 1] })
 
-                sendApprovalOfImplementation(findAssignMTDTLNameOfImplementation.tm_name,
+                subject = `Checksheet Approved by PRD TL Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+                title = `Checksheet Approved Plan vs Actual, Kindly proceed for further approval`
+                greetings = `${findAssignMTDTLNameOfImplementation.tm_name} San`
+                bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+      
+                        <tr>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        </tr>
+                        
+                        <tr style="background-color: #dddddd;">
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        </tr>
+
+                        <tr>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                        </tr>
+                        
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                        </tr>
+                        
+                        <tr>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Done by</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+                        </tr>   
+                        
+                        <tr style="background-color: #dddddd;">
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${implementation_approved_PRD_TL_date}</td>
+                        </tr>
+                        
+                    </table>`
+
+                sendApproval(
+                    subject,
+                    title,
+                    greetings,
+                    bodyTable,
+                    findAssignMTDTLNameOfImplementation.tm_name,
                     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
                     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
                     selected_machine_data.machine_code,
@@ -3242,7 +3555,18 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
                     selected_machine_data.checkSheet_data.checksheet_status,
                     selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth]).length - 1],
                     undefined,
-                    prd_tl_approval_status, undefined, undefined, undefined)
+                    prd_tl_approval_status, undefined, undefined, undefined
+                )
+
+                // sendApprovalOfImplementation(findAssignMTDTLNameOfImplementation.tm_name,
+                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
+                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
+                //     selected_machine_data.machine_code,
+                //     selected_machine_data.machine_name,
+                //     selected_machine_data.checkSheet_data.checksheet_status,
+                //     selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth]).length - 1],
+                //     undefined,
+                //     prd_tl_approval_status, undefined, undefined, undefined)
             } else if (selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1] === "Accepted" &&
                 selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[monthForCompareSystemMonth]).length - 1] === "Pending") {
                 let mtd_tl_approval_status = "Accepted"
@@ -3298,7 +3622,51 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
                 })
                 const findAssignMTDHOSNameOfImplementation = await User.findOne({ email: selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth]).length - 1] })
 
-                sendApprovalOfImplementation(findAssignMTDHOSNameOfImplementation.tm_name,
+
+                subject = `Checksheet Approved by MTD TL/HoSS Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+                title = `Checksheet Approved Plan vs Actual`
+                greetings = `${findAssignMTDHOSNameOfImplementation.tm_name} San-(MTD HOS)`
+                bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+      
+                        <tr>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        </tr>
+                        
+                        <tr style="background-color: #dddddd;">
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        </tr>
+
+                        <tr>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                        </tr>
+                        
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                        </tr>
+                        
+                        <tr>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Done by</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+                        </tr>   
+                        
+                        <tr style="background-color: #dddddd;">
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${implementation_approved_MTD_TL_date}</td>
+                        </tr>
+                        
+                    </table>`
+
+
+                sendApproval(
+                    subject,
+                    title,
+                    greetings,
+                    bodyTable,
+                    findAssignMTDHOSNameOfImplementation.tm_name,
                     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
                     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
                     selected_machine_data.machine_code,
@@ -3307,7 +3675,21 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
                     selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth]).length - 1],
                     undefined,
                     selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1],
-                    mtd_tl_approval_status, undefined, undefined)
+                    mtd_tl_approval_status, undefined, undefined
+                )
+
+
+
+                // sendApprovalOfImplementation(findAssignMTDHOSNameOfImplementation.tm_name,
+                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
+                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
+                //     selected_machine_data.machine_code,
+                //     selected_machine_data.machine_name,
+                //     selected_machine_data.checkSheet_data.checksheet_status,
+                //     selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth]).length - 1],
+                //     undefined,
+                //     selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1],
+                //     mtd_tl_approval_status, undefined, undefined)
             } else if (selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1] === "Accepted" &&
                 selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[monthForCompareSystemMonth]).length - 1] === "Accepted" &&
                 selected_machine_data.checkSheet_data.implemetation_mtd_hos_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_mtd_hos_approval_status[monthForCompareSystemMonth]).length - 1] === "Pending") {
@@ -3375,7 +3757,52 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
 
                 let greetingNames = `${findAssignHOSName.tm_name} and ${selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1]}`
 
-                sendApproval(greetingNames, selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+
+                subject = `Checksheet Preparation Rejected (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+                title = `Checksheet is rejected for Below reason`
+                greetings = `Sir\\Mam`
+                bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+
+                        <tr>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Reason Detail</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${rejected_remarks}</td>
+                        </tr>
+
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        </tr>
+                        
+                        <tr >
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        </tr>
+
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                        </tr>
+                    
+                        <tr >
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Rejected by</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+                        </tr>   
+                        
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${preparation_TL_HOSS_date}</td>
+                        </tr>
+                        
+                    </table>`
+
+
+                sendApproval(
+                    subject,
+                    title,
+                    greetings,
+                    bodyTable,
+                    greetingNames,
+                    selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
                     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
                     selected_machine_data.machine_code,
                     selected_machine_data.machine_name,
@@ -3393,7 +3820,51 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
                 }, {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
-                sendApproval(selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1], selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+
+                subject = `Checksheet Preparation Rejected (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+                title = `Checksheet is rejected for Below reason`
+                greetings = `TM`
+                bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+
+                        <tr>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Reason Detail</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${rejected_remarks}</td>
+                        </tr>
+
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        </tr>
+                        
+                        <tr >
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        </tr>
+
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                        </tr>
+                    
+                        <tr >
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Rejected by</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+                        </tr>   
+                        
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${preparation_HOS_date}</td>
+                        </tr>
+                        
+                    </table>`
+
+
+                sendApproval(
+                    subject,
+                    title,
+                    greetings,
+                    bodyTable,
+                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1], selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
                     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
                     selected_machine_data.machine_code,
                     selected_machine_data.machine_name,
@@ -3411,7 +3882,51 @@ router.post('/approveRequestFromTLandHOS', async (req, res) => {
                 }, {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
-                sendApproval(selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1], selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+
+                subject = `Checksheet Preparation Rejected (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+                title = `Checksheet is rejected for Below reason`
+                greetings = `TM`
+                bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+
+                        <tr>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Reason Detail</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${rejected_remarks}</td>
+                        </tr>
+
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        </tr>
+                        
+                        <tr >
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        </tr>
+
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                        </tr>
+                    
+                        <tr >
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Rejected by</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+                        </tr>   
+                        
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${preparation_HOS_date}</td>
+                        </tr>
+                        
+                    </table>`
+
+
+                sendApproval(
+                    subject,
+                    title,
+                    greetings,
+                    bodyTable,
+                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1], selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
                     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
                     selected_machine_data.machine_code,
                     selected_machine_data.machine_name,
@@ -4508,7 +5023,7 @@ router.post('/deleteCheckSheet', authenticate, async (req, res) => {
                             checkSheet: selectedRow.checkSheet_data.checkSheet
                         }
                     }
-                },)
+                })
             } else {
                 const backupPreparationMachineData = await new BackupMachineData({
                     machine_code: backupNewMachineCode,
@@ -5365,6 +5880,17 @@ router.post('/updateOpenPMToClose', authenticate, async (req, res) => {
 })
 
 router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (req, res) => {
+
+
+    // cron.schedule('1 59 * * * *', async () => {
+
+    //     console.log("Calling at  54")
+
+
+
+    // });
+
+
     try {
         let { section, currentMonth, selectedYear } = req.body
         let loggedUserData = req.rootUser;
@@ -8761,5 +9287,7 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
         console.log("Data not valid or received !!!");
     }
 })
+
+
 
 module.exports = router;

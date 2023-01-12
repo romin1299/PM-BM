@@ -1,6 +1,5 @@
 const nodemailer = require('nodemailer');
-const sendApproval = async (subject, title, greetings, bodyTable, assign_member_name, tm_no, tm_name, machine_code, machine_name,
-    checksheet_status, firstEmail, secondEmail, tlApproval, hosApproval, request, rejected_remarks) => {
+const autoSendMail = async (mailArray) => {
     // console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
     // console.log("==============>", tlApproval, hosApproval)
     // console.log("==============>", request)
@@ -24,7 +23,7 @@ const sendApproval = async (subject, title, greetings, bodyTable, assign_member_
     //sending an email for forgot password
     let mailOptions = {
         from: "sm_sample11@outlook.com",
-        to: [firstEmail, secondEmail],
+        to: mailArray,
         subject: subject,
         html: `
         <!doctype html>
@@ -60,16 +59,30 @@ const sendApproval = async (subject, title, greetings, bodyTable, assign_member_
                                 </tr>
                                 <tr>
                                     <td style="padding:0 35px;">
-                                    <h3>Dear ${greetings} ,</h3>
+                                    <h3>Dear Sir ,</h3>
                                     <div style="text-align:center">
                                       
                                     <h3 style="color:#1e1e2d; font-weight:500; margin:0;font-size:20px;font-family:'Rubik',sans-serif;">
-                                      ${title}</h3>
+                                     
+                                    
+                                    
+                                    ----- title -----
+                                    
+                                    
+                                    
+                                    
+                                    </h3>
                                       <span
                                           style="display:inline-block; vertical-align:middle; margin:10px 0 26px; border-bottom:1px solid #CECECE; width:100px; "></span>
                                   </div>
-                                  ${bodyTable}
+
+
+
+                                    ----- bodyTable -----
                                         
+
+
+                                    
                                     </td>
                                 </tr>
                                 <tr>
@@ -109,4 +122,4 @@ const sendApproval = async (subject, title, greetings, bodyTable, assign_member_
     });
 }
 
-module.exports = sendApproval;
+module.exports = autoSendMail;

@@ -262,7 +262,6 @@ const ChecksheetCreationDashboard = ({}) => {
         }),
       });
       const data = await res.json();
-
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
@@ -455,6 +454,8 @@ const ChecksheetCreationDashboard = ({}) => {
   //   }
   // }, [line]);
 
+  console.log(machineData);
+  
   const showChecksheet = () => {
     navigate("/checkSheetForm", {
       state: {
