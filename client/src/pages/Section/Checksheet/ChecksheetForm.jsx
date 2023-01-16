@@ -68,19 +68,23 @@ function CheckSheetForm() {
   };
 
   let machineAllData =
-    selectedMachineCheckSheetData.state.selectedRowForViewForm;
+    selectedMachineCheckSheetData?.state?.selectedRowForViewForm;
   console.log(machineAllData);
 
   let phaseStatus =
-    selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data
-      ?.checksheet_status;
+    selectedMachineCheckSheetData?.state?.selectedRowForViewForm
+      ?.checkSheet_data?.checksheet_status;
 
   let tableData =
-    selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data
-      ?.checkSheet;
+    selectedMachineCheckSheetData?.state?.selectedRowForViewForm
+      ?.checkSheet_data?.checkSheet;
 
   let varForConditionChecking =
-    selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data;
+    selectedMachineCheckSheetData?.state?.selectedRowForViewForm
+      ?.checkSheet_data;
+
+  let attempsOfMidYearChanges = selectedMachineCheckSheetData?.state?.totalCountOfRivisionContent;
+  console.log(attempsOfMidYearChanges);
   let columns = [
     {
       header: "SN",
@@ -188,9 +192,10 @@ function CheckSheetForm() {
   ];
   let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
 
-  let previousMonth = monthKeyArray[new Date().getMonth() - 1] === undefined
-            ? monthKeyArray.splice(-1)[0]
-            : monthKeyArray[new Date().getMonth() - 1];
+  let previousMonth =
+    monthKeyArray[new Date().getMonth() - 1] === undefined
+      ? monthKeyArray.splice(-1)[0]
+      : monthKeyArray[new Date().getMonth() - 1];
 
   const PMCarryOnToNextMonth = async (tableRowId) => {
     // console.log(tableRowId);
@@ -257,10 +262,13 @@ function CheckSheetForm() {
           key === "planningTableAnimationArray2" ||
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
-          key === "start_month"||
-          key === "PMOkImage"||
+          key === "start_month" ||
+          key === "PMOkImage" ||
           key === "completionDateOfInspection" ||
-          key === "reasonForDelayWhenSkip"
+          key === "reasonForDelayWhenSkip" ||
+          key === "isAdded"||
+          key === "isEdited"||
+          key === "flagForCount"
         ) {
           continue;
         }
@@ -281,6 +289,16 @@ function CheckSheetForm() {
                 rowspan: 1,
                 // colspan: 1,
                 print: true,
+              })
+            )
+          : key === "isDeleted"
+          ? newColData.push(
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: false,
               })
             )
           : newColData.push(
@@ -720,15 +738,185 @@ function CheckSheetForm() {
               <div>
                 <div>
                   {tableData?.length > 0 ? (
-                    varForConditionChecking?.tl_approval_status[
-                      varForConditionChecking?.tl_approval_status.length - 1
-                    ] === "Pending" ||
-                    // varForConditionChecking.hos_approval_status[
-                    //   varForConditionChecking.hos_approval_status.length - 1
-                    // ] === "Pending" ||
-                    varForConditionChecking?.hos_approval_status[
-                      varForConditionChecking?.hos_approval_status.length - 1
-                    ] === "Accepted" ? (
+                    phaseStatus === "Implementation" &&
+                    attempsOfMidYearChanges > 0 ? (
+                      <form onSubmit={formik.handleSubmit}>
+                        <div className="row">
+                          <div className="row mb-3 mt-3">
+                            {" "}
+                            <span>
+                              Do you want to send request to TL/HOSS ? &nbsp;
+                              <input
+                                type="radio"
+                                name="request"
+                                id="outlined-number"
+                                value="Yes"
+                                onChange={formik.handleChange}
+                              />
+                              <span
+                                style={{
+                                  paddingLeft: "0.5rem",
+                                  fontWeight: "550",
+                                  color: "black",
+                                }}
+                              >
+                                Yes &nbsp;
+                              </span>
+                              <input
+                                type="radio"
+                                name="request"
+                                id="outlined-number"
+                                value="No"
+                                onChange={formik.handleChange}
+                              />
+                              <span
+                                style={{
+                                  paddingLeft: "0.5rem",
+                                  fontWeight: "550",
+                                  color: "black",
+                                }}
+                              >
+                                No
+                              </span>
+                              <p
+                                style={{
+                                  color: "#F44336",
+                                  fontWeight: "normal",
+                                  fontSize: "0.80rem",
+                                  float: "right",
+                                  marginRight: "12rem",
+                                  // paddingTop: "0.5rem",
+                                }}
+                              >
+                                {formik.touched.request &&
+                                  formik.errors.request}
+                              </p>
+                            </span>
+                          </div>
+                          <div className="col-4">
+                            <span>MTD HOS List:</span>
+                            <div style={{ marginTop: "0.5rem" }}>
+                              <select
+                                // class="form-select form-select-sm"
+                                // aria-label=".form-select-sm example"
+                                // style={{ width: "100%" }}
+                                id="standard-select-currency"
+                                name="hos_list"
+                                // className="textField"
+                                // fullWidth
+                                select // label="Select"
+                                autoComplete="off"
+                                value={formik.values.hos_list}
+                                onChange={(e) => {
+                                  // setUsertype(e.target.value);
+                                  formik.handleChange(e);
+                                }}
+                                variant="standard"
+                              >
+                                <option selected disabled value="">
+                                  Please select
+                                </option>
+                                {HOSList.map((index) => {
+                                  return (
+                                    <option value={index.email}>
+                                      {index.tm_name}
+                                    </option>
+                                  );
+                                })}
+                              </select>
+                              <div>
+                                <p
+                                  style={{
+                                    color: "#F44336",
+                                    fontWeight: "normal",
+                                    fontSize: "0.80rem",
+                                    float: "left",
+                                    paddingTop: "0.5rem",
+                                  }}
+                                >
+                                  {formik.touched.hos_list &&
+                                    formik.errors.hos_list}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-4 ">
+                            {formik.values.request === "Yes" ? (
+                              <div>
+                                <span>TL/HOSS List:</span>
+                                <div style={{ marginTop: "0.5rem" }}>
+                                  <select
+                                    // class="form-select form-select-sm"
+                                    // aria-label=".form-select-sm example"
+                                    // style={{ width: "100%" }}
+                                    id="standard-select-currency"
+                                    name="tl_list"
+                                    // className="textField"
+                                    // fullWidth
+                                    select // label="Select"
+                                    autoComplete="off"
+                                    value={formik.values.tl_list}
+                                    onChange={(e) => {
+                                      // setUsertype(e.target.value);
+                                      formik.handleChange(e);
+                                    }}
+                                    variant="standard"
+                                  >
+                                    <option selected disabled value="">
+                                      Please select
+                                    </option>
+                                    {TLList.map((index) => {
+                                      return (
+                                        <option value={index.email}>
+                                          {index.tm_name}
+                                        </option>
+                                      );
+                                    })}
+                                  </select>
+                                  <div>
+                                    <p
+                                      style={{
+                                        color: "#F44336",
+                                        fontWeight: "normal",
+                                        fontSize: "0.80rem",
+                                        float: "left",
+                                        paddingTop: "0.5rem",
+                                      }}
+                                    >
+                                      {formik.touched.tl_list &&
+                                        formik.errors.tl_list}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              ""
+                            )}
+                          </div>
+
+                          <div className="col-4 d-flex align-items-center">
+                            {selectedMachineCheckSheetData.state
+                              ?.selectedRowForViewForm?.status === "Pending" ? (
+                              ""
+                            ) : (
+                              <div>
+                                <button type="submit" className="btn">
+                                  Send Request
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </form>
+                    ) : varForConditionChecking?.tl_approval_status[
+                        varForConditionChecking?.tl_approval_status.length - 1
+                      ] === "Pending" ||
+                      // varForConditionChecking.hos_approval_status[
+                      //   varForConditionChecking.hos_approval_status.length - 1
+                      // ] === "Pending" ||
+                      varForConditionChecking?.hos_approval_status[
+                        varForConditionChecking?.hos_approval_status.length - 1
+                      ] === "Accepted" ? (
                       ""
                     ) : varForConditionChecking?.tl_approval_status[
                         varForConditionChecking?.tl_approval_status.length - 1
@@ -1083,6 +1271,7 @@ function CheckSheetForm() {
                     ""
                   )}
                 </div>
+
                 {tableData?.length > 0 &&
                 selectedMachineCheckSheetData.state?.planningApprovalShow ===
                   1 ? (
@@ -1419,6 +1608,7 @@ function CheckSheetForm() {
                   {newTableData.map((rData) => (
                     <Rows
                       rData={rData}
+                      isDeletedExists = {rData[10]?.["key"] === "isDeleted" && rData[10]?.["value"] === true ? true : false}
                       checkSheet_status={
                         machineAllData?.checkSheet_data?.checksheet_status
                       }

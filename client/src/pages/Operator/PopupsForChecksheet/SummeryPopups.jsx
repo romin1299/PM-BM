@@ -24,13 +24,13 @@ const SummeryPopups = ({ close, tableData }) => {
     {
       title: "Month",
       // field: "start_month",
-      render: (rowData) => financialYearWiseMonthKeyArray[rowData.start_month],
+      render: (rowData) => financialYearWiseMonthKeyArray[rowData?.start_month],
       width: "5%",
 
     },
     {
       title: "Sr. No",
-      render: (rowData) => `${rowData.tableData.id + 1}`,
+      render: (rowData) => `${rowData?.tableData.id + 1}`,
       // align: "center",
       width: "5%",
 
@@ -42,7 +42,7 @@ const SummeryPopups = ({ close, tableData }) => {
     {
       title: "Abnormality{Yes/No}",
       render: (rowData) =>
-        rowData.abnormalityDetails ? rowData.abnormalityDetails[monthForCompareSystemMonth].abnormalityRemarks ? "Yes" : "" : "",
+        rowData?.abnormalityDetails ? rowData?.abnormalityDetails[monthForCompareSystemMonth]?.abnormalityRemarks ? "Yes" : "" : "",
       width: "5%",
       
     },
@@ -50,12 +50,12 @@ const SummeryPopups = ({ close, tableData }) => {
       title: "Ab. Remarks",
       // field: "planningTableAnimationArray2.abnormalityDetails.abnormalityRemarks",
       render: (rowData) =>
-        rowData.abnormalityDetails ? rowData.abnormalityDetails[monthForCompareSystemMonth].abnormalityRemarks : ""
+        rowData?.abnormalityDetails ? rowData?.abnormalityDetails[monthForCompareSystemMonth]?.abnormalityRemarks : ""
     },
     {
       title: "Status",
       render: (rowData) =>
-        rowData.abnormalityDetails?rowData.abnormalityDetails[monthForCompareSystemMonth].abnormalityStatus : "",
+        rowData?.abnormalityDetails?rowData?.abnormalityDetails[monthForCompareSystemMonth]?.abnormalityStatus : "",
       width: "5%",
 
       // field: "planningTableAnimationArray2.abnormalityDetails.abnormalityStatus",
@@ -63,13 +63,13 @@ const SummeryPopups = ({ close, tableData }) => {
     {
       title: "T.D",
       render: (rowData) =>
-        rowData.abnormalityDetails?rowData.abnormalityDetails[monthForCompareSystemMonth].targetDate: ""
+        rowData?.abnormalityDetails?rowData?.abnormalityDetails[monthForCompareSystemMonth]?.targetDate: ""
       //   field: "",
     },
     {
       title: "Spare{Yes/No}",
       render: (rowData) =>
-        rowData.spareDetails?rowData.spareDetails[monthForCompareSystemMonth].spareParts : "",
+        rowData?.spareDetails?rowData?.spareDetails[monthForCompareSystemMonth]?.spareParts : "",
       //   field: "",
       width: "5%",
 
@@ -77,17 +77,17 @@ const SummeryPopups = ({ close, tableData }) => {
     {
       title: "P. Name",
       render: (rowData) =>
-        rowData.spareDetails?rowData.spareDetails[monthForCompareSystemMonth].partName : ""
+        rowData?.spareDetails?rowData?.spareDetails[monthForCompareSystemMonth]?.partName : ""
     },
     {
       title: "P. No",
       render: (rowData) =>
-        rowData.spareDetails?rowData.spareDetails[monthForCompareSystemMonth].partNo : ""
+        rowData?.spareDetails?rowData?.spareDetails[monthForCompareSystemMonth]?.partNo : ""
     },
     {
       title: "Cost",
       render: (rowData) =>
-        rowData.spareDetails?rowData.spareDetails[monthForCompareSystemMonth].cost: ""
+        rowData?.spareDetails?rowData?.spareDetails[monthForCompareSystemMonth]?.cost: ""
     },
     {
       title: "TM",
