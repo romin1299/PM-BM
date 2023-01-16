@@ -375,6 +375,18 @@ const machineSchema = mongoose.Schema({
 
                         Mar: { type: String },
                     },
+                    isAdded: {
+                        type: Boolean
+                    },
+                    isEdited: {
+                        type: Boolean
+                    },
+                    isDeleted: {
+                        type: Boolean
+                    },
+                    flagForCount: {
+                        type: Boolean
+                    }
                 }
             ],
             flagOfDoneWithDelayForOneMonth: {
@@ -1158,6 +1170,19 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
+            revisionContentData:[
+                {
+                    revisionContent:{
+                        type: String
+                    },
+                    revisionContentDate: {
+                        type: String
+                    },
+                    revisedBy: {
+                        type: String
+                    }
+                }
+            ]
         }
     ]
 

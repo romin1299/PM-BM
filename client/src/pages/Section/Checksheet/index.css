@@ -291,6 +291,11 @@
     border: 2px solid rgb(80, 80, 80);
 
 }
+
+.table-col-mid-year-delete {
+    text-decoration: line-through solid red 15% ;
+
+}
 @media screen and (min-width: 200px) and (max-width: 1024px) {
 
     .checkSheetForImplementation {

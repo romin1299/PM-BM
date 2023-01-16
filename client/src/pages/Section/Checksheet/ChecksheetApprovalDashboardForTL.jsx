@@ -170,6 +170,8 @@ const CheckSheetApprovalDashboardForTL = () => {
     <>
       <div className="pageCard">
         <div className="creationDashboard">
+        <h4 style={{ padding: "1rem 0 0 1rem" }}>Approval Dashboard</h4>
+
           <div style={{ padding: "1rem" }}>
             <MaterialTable
               localization={{

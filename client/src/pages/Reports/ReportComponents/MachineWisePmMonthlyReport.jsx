@@ -24,7 +24,7 @@ import LoadingAnimation from "./LoadingAnimation";
 import NotFound from "./NotFound";
 import TextField from "@material-ui/core/TextField";
 import SkipApprovalComponent from "../SkipApprovalComponent";
-import SkipPMWorkData from '../SkipPMWorkData'
+import SkipPMWorkData from "../SkipPMWorkData";
 import WorkOnSkipPM from "../../../Popups/WorkOnSkipPM";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
@@ -62,6 +62,9 @@ const MachineWisePmMonthlyReport = () => {
   const [refKey, setRefKey] = useState(0);
   const [refKey2, setRefKey2] = useState(0);
 
+  const [loadingAnimationState, setLoadingAnimationState] = useState(
+    <LoadingAnimation />
+  );
   const functionToSetRefKey = () => {
     setRefKey2((refKey2) => refKey2 + 1);
   };
@@ -276,6 +279,7 @@ const MachineWisePmMonthlyReport = () => {
         hidden:
           rowData.PMStatus !== "PM Skip" ||
           context.user_type === "Section-Admin" ||
+          rowData?.completionTargetDate === undefined ||
           (context.user_type === "TL/HOSS" && context.tm_department === "PRD"),
 
         icon: () => <button className="btn">PM Edit</button>,
@@ -413,7 +417,7 @@ const MachineWisePmMonthlyReport = () => {
     doc.text(`${previousMonth}. PM Status(Machine)`, 15, 10);
     const columns = tableColumn2.map((index) => index.title);
     const rows = [];
-    tableData1?.machineDataForPreviousMonth.map((item, index) =>
+    tableData1?.skipMachineDataWithEveryMonth.map((item, index) =>
       rows.push([
         index + 1,
         item.line_names.line_name,
@@ -485,13 +489,13 @@ const MachineWisePmMonthlyReport = () => {
       ]);
     });
 
-    tableData1?.machineDataForPreviousMonth.map((item, index) => {
+    tableData1?.skipMachineDataWithEveryMonth.map((item, index) => {
       return previousMonthRows.push([
         index + 1,
-        item.line_names.line_name,
+        item.line_name,
         item.machine_name,
         item.machine_code,
-        item.checkSheet_data?.PMStatus?.[previousMonth] === "Completed"
+        item.checkSheet_data?.PMStatus?.[previousMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing"
           ? "^"
@@ -503,6 +507,8 @@ const MachineWisePmMonthlyReport = () => {
   };
 
   const postSectionAndMonthToGetAllDataForReport = async () => {
+    setLoadingAnimationState(<LoadingAnimation />);
+
     // console.log(previousMonthForCompareSystemMonth);
     try {
       const res = await fetch("/postSectionAndMonthToGetAllDataForReport", {
@@ -524,6 +530,7 @@ const MachineWisePmMonthlyReport = () => {
       } else {
         // console.log(data);
         setTableData1(data);
+        setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
       console.log(error);
@@ -548,8 +555,9 @@ const MachineWisePmMonthlyReport = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        console.log(data);
+        // console.log(data);
         setTableData1(data);
+        setRefKey((refKey) => refKey + 1);
       }
     } catch (error) {
       console.log(error);
@@ -596,7 +604,7 @@ const MachineWisePmMonthlyReport = () => {
       prd_hos_list: {},
       reasonForDelayOfTL: {},
     },
-    // validationSchema: validationSchema1,
+    validationSchema: validationSchema1,
     onSubmit: async (values) => {
       const res = await fetch("/sendRequestForApprovalOfSkipPMDataWork", {
         method: "Post",
@@ -658,8 +666,8 @@ const MachineWisePmMonthlyReport = () => {
   useEffect(() => {
     // setTimeout(() => {
     if (
-      tableData1?.machineDataForCurrentMonth.length > 0 ||
-      tableData1?.machineDataForPreviousMonth.length > 0
+      tableData1?.machineDataForCurrentMonth?.length > 0 ||
+      tableData1?.skipMachineDataWithEveryMonth?.length > 0
     ) {
       filterCSVDataToDownloadCSV();
     }
@@ -671,9 +679,6 @@ const MachineWisePmMonthlyReport = () => {
     setSelectedMonth(currentMonth);
   }, [selectedYear]);
 
-  const [loadingAnimationState, setLoadingAnimationState] = useState(
-    <LoadingAnimation />
-  );
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
 
@@ -867,14 +872,15 @@ const MachineWisePmMonthlyReport = () => {
                           isEditHidden: (rowData) =>
                             rowData.PMStatus !== "PM Skip" ||
                             context.user_type === "Section-Admin" ||
-                            context.user_type === "Plant-Admin" || 
-                            (context.user_type === "TL/HOSS" && context.tm_department === "PRD"),
+                            context.user_type === "Plant-Admin" ||
+                            context.user_type === "Operator" ||
+                            (context.user_type === "TL/HOSS" &&
+                              context.tm_department === "PRD"),
                           onRowUpdate: (updatedRow, oldRow) =>
                             new Promise((resolve, reject) => {
                               //call the update user function and pass the user data
                               updateCompletionTargetDateForSkipPM(updatedRow);
                               setTimeout(() => {
-                                setRefKey((refKey) => refKey + 1);
                                 resolve();
                               }, 500);
                               //refreshPage();
@@ -934,44 +940,208 @@ const MachineWisePmMonthlyReport = () => {
                       "Rejected" ||
                     skipApprovalStatusData.approvalStatusOfPRDHOD ===
                       "Accepted") &&
-                  (context.user_type === "Operator" ||
-                    (context.user_type === "TL/HOSS" &&
-                      context.tm_department === "MTD")) ? (
-                    <Row>
-                      <form
-                        className="d-flex mt-2 p-3 border bg-white rounded"
-                        onSubmit={formik1.handleSubmit}
-                      >
-                        <Col sm>
-                          <span>MTD HOS :</span>
-                          <div style={{ marginTop: "0.5rem" }}>
-                            <select
-                              // class="form-select form-select-sm"
-                              // aria-label=".form-select-sm example"
-                              // style={{ width: "100%" }}
-                              id="standard-select-currency"
-                              name="mtd_hos_list"
-                              // className="textField"
-                              // fullWidth
-                              select // label="Select"
-                              autoComplete="off"
-                              value={formik1.values.mtd_hos_list?.tm_name}
-                              onChange={(e) => {
-                                // setUsertype(e.target.value);
-                                console.log(e.target.value);
-                                formik1.handleChange(e);
-                              }}
-                              variant="standard"
-                            >
-                              <option selected disabled value="">
-                                Please select
-                              </option>
-                              {HOSList?.map((index, idx) => {
-                                return (
-                                  <option value={idx}>{index.tm_name}</option>
-                                );
-                              })}
-                            </select>
+                  context.user_type === "TL/HOSS" &&
+                  context.tm_department === "MTD" ? (
+                    <div>
+                      <Row>
+                        <form
+                          className="d-flex mt-2 p-3 border bg-white rounded"
+                          onSubmit={formik1.handleSubmit}
+                        >
+                          <Col sm>
+                            <span>MTD HOS :</span>
+                            <div style={{ marginTop: "0.5rem" }}>
+                              <select
+                                // class="form-select form-select-sm"
+                                // aria-label=".form-select-sm example"
+                                // style={{ width: "100%" }}
+                                id="standard-select-currency"
+                                name="mtd_hos_list"
+                                // className="textField"
+                                // fullWidth
+                                select // label="Select"
+                                autoComplete="off"
+                                value={formik1.values.mtd_hos_list?.tm_name}
+                                onChange={(e) => {
+                                  // setUsertype(e.target.value);
+                                  console.log(e.target.value);
+                                  formik1.handleChange(e);
+                                }}
+                                variant="standard"
+                              >
+                                <option selected disabled value="">
+                                  Please select
+                                </option>
+                                {HOSList?.map((index, idx) => {
+                                  return (
+                                    <option value={idx}>{index.tm_name}</option>
+                                  );
+                                })}
+                              </select>
+                              <div>
+                                <p
+                                  style={{
+                                    color: "#F44336",
+                                    fontWeight: "normal",
+                                    fontSize: "0.80rem",
+                                    // float: "left",
+                                    paddingTop: "0.5rem",
+                                  }}
+                                >
+                                  {formik1.touched.mtd_hos_list &&
+                                    formik1.errors.mtd_hos_list}
+                                </p>
+                              </div>
+                            </div>
+                          </Col>
+                          <Col sm>
+                            <span>MTD HOD :</span>
+                            <div style={{ marginTop: "0.5rem" }}>
+                              <select
+                                // class="form-select form-select-sm"
+                                // aria-label=".form-select-sm example"
+                                // style={{ width: "100%" }}
+                                id="standard-select-currency"
+                                name="mtd_hod_list"
+                                // className="textField"
+                                // fullWidth
+                                select // label="Select"
+                                autoComplete="off"
+                                value={formik1.values.mtd_hod_list?.tm_name}
+                                onChange={(e) => {
+                                  // setUsertype(e.target.value);
+                                  formik1.handleChange(e);
+                                }}
+                                variant="standard"
+                              >
+                                <option selected disabled value="">
+                                  Please select
+                                </option>
+                                {MTDHODlist?.map((index, idx) => {
+                                  return (
+                                    <option value={idx}>{index.tm_name}</option>
+                                  );
+                                })}
+                              </select>
+                              <div>
+                                <p
+                                  style={{
+                                    color: "#F44336",
+                                    fontWeight: "normal",
+                                    fontSize: "0.80rem",
+                                    // float: "left",
+                                    paddingTop: "0.5rem",
+                                  }}
+                                >
+                                  {formik1.touched.mtd_hod_list &&
+                                    formik1.errors.mtd_hod_list}
+                                </p>
+                              </div>
+                            </div>
+                          </Col>
+
+                          <Col sm>
+                            <span>PRD HOS :</span>
+                            <div style={{ marginTop: "0.5rem" }}>
+                              <select
+                                // class="form-select form-select-sm"
+                                // aria-label=".form-select-sm example"
+                                // style={{ width: "100%" }}
+                                id="standard-select-currency"
+                                name="prd_hos_list"
+                                // className="textField"
+                                // fullWidth
+                                select // label="Select"
+                                autoComplete="off"
+                                value={formik1.values.prd_hos_list?.tm_name}
+                                onChange={(e) => {
+                                  // setUsertype(e.target.value);
+                                  formik1.handleChange(e);
+                                }}
+                                variant="standard"
+                              >
+                                <option selected disabled value="">
+                                  Please select
+                                </option>
+                                {PRDHOSlist?.map((index, idx) => {
+                                  return (
+                                    <option value={idx}>{index.tm_name}</option>
+                                  );
+                                })}
+                              </select>
+                              <div>
+                                <p
+                                  style={{
+                                    color: "#F44336",
+                                    fontWeight: "normal",
+                                    fontSize: "0.80rem",
+                                    // float: "left",
+                                    paddingTop: "0.5rem",
+                                  }}
+                                >
+                                  {formik1.touched.prd_hos_list &&
+                                    formik1.errors.prd_hos_list}
+                                </p>
+                              </div>
+                            </div>
+                          </Col>
+                          <Col sm>
+                            <span>PRD HOD :</span>
+                            <div style={{ marginTop: "0.5rem" }}>
+                              <select
+                                // class="form-select form-select-sm"
+                                // aria-label=".form-select-sm example"
+                                // style={{ width: "100%" }}
+                                id="standard-select-currency"
+                                name="prd_hod_list"
+                                // className="textField"
+                                // fullWidth
+                                select // label="Select"
+                                autoComplete="off"
+                                value={formik1.values.prd_hod_list?.tm_name}
+                                onChange={(e) => {
+                                  // setUsertype(e.target.value);
+                                  formik1.handleChange(e);
+                                }}
+                                variant="standard"
+                              >
+                                <option selected disabled value="">
+                                  Please select
+                                </option>
+                                {PRDHODlist?.map((index, idx) => {
+                                  return (
+                                    <option value={idx}>{index.tm_name}</option>
+                                  );
+                                })}
+                              </select>
+                              <div>
+                                <p
+                                  style={{
+                                    color: "#F44336",
+                                    fontWeight: "normal",
+                                    fontSize: "0.80rem",
+                                    // float: "left",
+                                    paddingTop: "0.5rem",
+                                  }}
+                                >
+                                  {formik1.touched.prd_hod_list &&
+                                    formik1.errors.prd_hod_list}
+                                </p>
+                              </div>
+                            </div>
+                          </Col>
+                          <Col>
+                            <span>Reason for delay :</span>
+                            <div style={{ marginTop: "0.5rem" }}>
+                              <TextField
+                                fullWidth
+                                id="reasonForDelayOfTL"
+                                name="reasonForDelayOfTL"
+                                onChange={(e) => {
+                                  formik1.handleChange(e);
+                                }}
+                              />
+                            </div>
                             <div>
                               <p
                                 style={{
@@ -982,54 +1152,47 @@ const MachineWisePmMonthlyReport = () => {
                                   paddingTop: "0.5rem",
                                 }}
                               >
-                                {formik1.touched.mtd_hos_list &&
-                                  formik1.errors.mtd_hos_list}
+                                {formik1.touched.reasonForDelayOfTL &&
+                                  formik1.errors.reasonForDelayOfTL}
                               </p>
+                            </div>
+                          </Col>
+                          <Col className="d-flex justify-content-center align-items-center">
+                            <button className="btn-approval" type="submit">
+                              Send for Approval
+                            </button>
+                          </Col>
+                        </form>
+                      </Row>
+                      <Row className="d-flex mt-2 p-3 border bg-white rounded">
+                        <Col sm>
+                          <span>MTD HOS :</span>
+                          <div style={{ marginTop: "0.5rem" }}>
+                            <div>
+                              {
+                                skipApprovalStatusData?.assignAndApprovedHOSlist
+                                  ?.assignMTDHOSname
+                              }
+                            </div>
+                            <div>
+                              Status : &nbsp;
+                              {skipApprovalStatusData?.approvalStatusOfMTDHOS}
                             </div>
                           </div>
                         </Col>
                         <Col sm>
                           <span>MTD HOD :</span>
                           <div style={{ marginTop: "0.5rem" }}>
-                            <select
-                              // class="form-select form-select-sm"
-                              // aria-label=".form-select-sm example"
-                              // style={{ width: "100%" }}
-                              id="standard-select-currency"
-                              name="mtd_hod_list"
-                              // className="textField"
-                              // fullWidth
-                              select // label="Select"
-                              autoComplete="off"
-                              value={formik1.values.mtd_hod_list?.tm_name}
-                              onChange={(e) => {
-                                // setUsertype(e.target.value);
-                                formik1.handleChange(e);
-                              }}
-                              variant="standard"
-                            >
-                              <option selected disabled value="">
-                                Please select
-                              </option>
-                              {MTDHODlist?.map((index, idx) => {
-                                return (
-                                  <option value={idx}>{index.tm_name}</option>
-                                );
-                              })}
-                            </select>
                             <div>
-                              <p
-                                style={{
-                                  color: "#F44336",
-                                  fontWeight: "normal",
-                                  fontSize: "0.80rem",
-                                  // float: "left",
-                                  paddingTop: "0.5rem",
-                                }}
-                              >
-                                {formik1.touched.mtd_hod_list &&
-                                  formik1.errors.mtd_hod_list}
-                              </p>
+                              {
+                                skipApprovalStatusData
+                                  ?.assignAndApprovedMTDHODlist
+                                  ?.assignMTDHODname
+                              }
+                            </div>
+                            <div>
+                              Status : &nbsp;
+                              {skipApprovalStatusData?.approvalStatusOfMTDHOD}
                             </div>
                           </div>
                         </Col>
@@ -1037,129 +1200,147 @@ const MachineWisePmMonthlyReport = () => {
                         <Col sm>
                           <span>PRD HOS :</span>
                           <div style={{ marginTop: "0.5rem" }}>
-                            <select
-                              // class="form-select form-select-sm"
-                              // aria-label=".form-select-sm example"
-                              // style={{ width: "100%" }}
-                              id="standard-select-currency"
-                              name="prd_hos_list"
-                              // className="textField"
-                              // fullWidth
-                              select // label="Select"
-                              autoComplete="off"
-                              value={formik1.values.prd_hos_list?.tm_name}
-                              onChange={(e) => {
-                                // setUsertype(e.target.value);
-                                formik1.handleChange(e);
-                              }}
-                              variant="standard"
-                            >
-                              <option selected disabled value="">
-                                Please select
-                              </option>
-                              {PRDHOSlist?.map((index, idx) => {
-                                return (
-                                  <option value={idx}>{index.tm_name}</option>
-                                );
-                              })}
-                            </select>
                             <div>
-                              <p
-                                style={{
-                                  color: "#F44336",
-                                  fontWeight: "normal",
-                                  fontSize: "0.80rem",
-                                  // float: "left",
-                                  paddingTop: "0.5rem",
-                                }}
-                              >
-                                {formik1.touched.prd_hos_list &&
-                                  formik1.errors.prd_hos_list}
-                              </p>
+                              {
+                                skipApprovalStatusData
+                                  ?.assignAndApprovedPRDHOSlist
+                                  ?.assignPRDHOSname
+                              }
+                            </div>
+                            <div>
+                              Status :
+                              {skipApprovalStatusData?.approvalStatusOfPRDHOS}
                             </div>
                           </div>
                         </Col>
                         <Col sm>
                           <span>PRD HOD :</span>
                           <div style={{ marginTop: "0.5rem" }}>
-                            <select
-                              // class="form-select form-select-sm"
-                              // aria-label=".form-select-sm example"
-                              // style={{ width: "100%" }}
-                              id="standard-select-currency"
-                              name="prd_hod_list"
-                              // className="textField"
-                              // fullWidth
-                              select // label="Select"
-                              autoComplete="off"
-                              value={formik1.values.prd_hod_list?.tm_name}
-                              onChange={(e) => {
-                                // setUsertype(e.target.value);
-                                formik1.handleChange(e);
-                              }}
-                              variant="standard"
-                            >
-                              <option selected disabled value="">
-                                Please select
-                              </option>
-                              {PRDHODlist?.map((index, idx) => {
-                                return (
-                                  <option value={idx}>{index.tm_name}</option>
-                                );
-                              })}
-                            </select>
                             <div>
-                              <p
-                                style={{
-                                  color: "#F44336",
-                                  fontWeight: "normal",
-                                  fontSize: "0.80rem",
-                                  // float: "left",
-                                  paddingTop: "0.5rem",
-                                }}
-                              >
-                                {formik1.touched.prd_hod_list &&
-                                  formik1.errors.prd_hod_list}
-                              </p>
+                              {
+                                skipApprovalStatusData
+                                  ?.assignAndApprovedPRDHODlist
+                                  ?.assignPRDHODname
+                              }
+                            </div>
+                            <div>
+                              Status : &nbsp;
+                              {skipApprovalStatusData?.approvalStatusOfPRDHOD}
                             </div>
                           </div>
                         </Col>
                         <Col>
-                          <span>Reason for delay :</span>
                           <div style={{ marginTop: "0.5rem" }}>
+                            <span>Reason for delay :</span>
                             <TextField
                               fullWidth
                               id="reasonForDelayOfTL"
                               name="reasonForDelayOfTL"
-                              onChange={(e) => {
-                                formik1.handleChange(e);
-                              }}
+                              value={skipApprovalStatusData?.reasonForDelayOfTL}
                             />
                           </div>
-                          <div>
-                            <p
-                              style={{
-                                color: "#F44336",
-                                fontWeight: "normal",
-                                fontSize: "0.80rem",
-                                // float: "left",
-                                paddingTop: "0.5rem",
-                              }}
-                            >
-                              {formik1.touched.reasonForDelayOfTL &&
-                                formik1.errors.reasonForDelayOfTL}
-                            </p>
+
+                          <div style={{ marginTop: "0.5rem" }}>
+                            <span>Rejected remarks :</span>
+                            <TextField
+                              fullWidth
+                              id="rejectedRemarksOfSkipPM"
+                              name="rejectedRemarksOfSkipPM"
+                              value={
+                                skipApprovalStatusData?.rejectedRemarksOfSkipPMMachines
+                              }
+                            />
                           </div>
                         </Col>
-                        <Col className="d-flex justify-content-center align-items-center">
-                          <button className="btn-approval" type="submit">
-                            Send for Approval
-                          </button>
-                        </Col>
-                      </form>
-                    </Row>
+                      </Row>
+                    </div>
                   ) : (
-                    ""
+                    <Row className="d-flex mt-2 p-3 border bg-white rounded">
+                      <Col sm>
+                        <span>MTD HOS :</span>
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <div>
+                            {
+                              skipApprovalStatusData?.assignAndApprovedHOSlist
+                                ?.assignMTDHOSname
+                            }
+                          </div>
+                          <div>
+                            Status : &nbsp;
+                            {skipApprovalStatusData?.approvalStatusOfMTDHOS}
+                          </div>
+                        </div>
+                      </Col>
+                      <Col sm>
+                        <span>MTD HOD :</span>
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <div>
+                            {
+                              skipApprovalStatusData
+                                ?.assignAndApprovedMTDHODlist?.assignMTDHODname
+                            }
+                          </div>
+                          <div>
+                            Status : &nbsp;
+                            {skipApprovalStatusData?.approvalStatusOfMTDHOD}
+                          </div>
+                        </div>
+                      </Col>
+
+                      <Col sm>
+                        <span>PRD HOS :</span>
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <div>
+                            {
+                              skipApprovalStatusData
+                                ?.assignAndApprovedPRDHOSlist?.assignPRDHOSname
+                            }
+                          </div>
+                          <div>
+                            Status :
+                            {skipApprovalStatusData?.approvalStatusOfPRDHOS}
+                          </div>
+                        </div>
+                      </Col>
+                      <Col sm>
+                        <span>PRD HOD :</span>
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <div>
+                            {
+                              skipApprovalStatusData
+                                ?.assignAndApprovedPRDHODlist?.assignPRDHODname
+                            }
+                          </div>
+                          <div>
+                            Status : &nbsp;
+                            {skipApprovalStatusData?.approvalStatusOfPRDHOD}
+                          </div>
+                        </div>
+                      </Col>
+                      <Col>
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <span>Reason for delay :</span>
+                          <TextField
+                            fullWidth
+                            id="reasonForDelayOfTL"
+                            name="reasonForDelayOfTL"
+                            value={skipApprovalStatusData?.reasonForDelayOfTL}
+                          />
+                        </div>
+
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <span>Rejected remarks :</span>
+                          <TextField
+                            fullWidth
+                            id="rejectedRemarksOfSkipPM"
+                            name="rejectedRemarksOfSkipPM"
+                            value={
+                              skipApprovalStatusData?.rejectedRemarksOfSkipPMMachines
+                            }
+                          />
+                        </div>
+                      </Col>
+                    </Row>
                   )}
                   {context.email ===
                     skipApprovalStatusData?.assignAndApprovedHOSlist

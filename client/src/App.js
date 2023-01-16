@@ -175,6 +175,7 @@ function App() {
                 <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
                 <Route path="/logHistory" element={<LogHistory />} />
                 <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
+                <Route path="/skipedPMWorkData" element={<SkipPMWorkData />} />
 
                 {/* <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
