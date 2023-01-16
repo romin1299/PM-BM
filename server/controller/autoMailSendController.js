@@ -20,9 +20,17 @@ cron.schedule('1 38 * * * *', async () => {
     }
 
     let bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
-          
+                <tr>
+                    <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>Cell/Product</b></td>
+                    <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>Plan</b></td>
+                    <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>Last Month Pending</b></td>
+                    <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>Completed</b></td>
+                    <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>Ongoing</b></td>
+                    <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>Remaining</b></td>
+                    <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>Completion %</b></td>
+                </tr>
 
-          ${await userLogin?.map((item) => refFunc(item))}
+                ${await userLogin?.map((item) => refFunc(item))}
     </table>`
 
 

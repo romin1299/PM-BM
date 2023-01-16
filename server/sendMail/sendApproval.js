@@ -1,12 +1,11 @@
 const nodemailer = require('nodemailer');
-const sendApproval = async (subject, title, greetings, bodyTable, assign_member_name, tm_no, tm_name, machine_code, machine_name,
+const sendApproval = async (subject, title, greetings, bodyTable, ccEmail, assign_member_name, tm_no, tm_name, machine_code, machine_name,
     checksheet_status, firstEmail, secondEmail, tlApproval, hosApproval, request, rejected_remarks) => {
     // console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
     // console.log("==============>", tlApproval, hosApproval)
     // console.log("==============>", request)
 
-    // console.log(assign_member_name, tm_no, tm_name, machine_code, machine_name,
-    //     checksheet_status, firstEmail, secondEmail, tlApproval, hosApproval, request, rejected_remarks)
+    console.log(ccEmail, firstEmail, secondEmail)
 
 
     let transpoter = nodemailer.createTransport({
@@ -25,6 +24,7 @@ const sendApproval = async (subject, title, greetings, bodyTable, assign_member_
     let mailOptions = {
         from: "sm_sample11@outlook.com",
         to: [firstEmail, secondEmail],
+        cc: ccEmail,
         subject: subject,
         html: `
         <!doctype html>

@@ -44,6 +44,9 @@ import OpenAbnormalityTrack from "./pages/Reports/OpenAbnormalityTracking"
 import MTDTLandHOSChecksheetCreationDashboard from "./pages/Section/Checksheet/MTDTLandHOSChecksheetCreationDashboard";
 import CreationDashboardForTLHOSS from "./pages/MTD_TL_HOSS/CreationDashboardForTLHOSS";
 import UserAssignTLHOSS from "./pages/MTD_TL_HOSS/UserAssignTLHOSS";
+import SparePartUsageHistory from "./pages/MTD_TL_HOSS/SparePartUsageHistory";
+import OperatorDataEntry from "./Popups/OperatorDataEntry";
+
 //for Operator
 import CheckSheetForImplementation from "./pages/Operator/CheckSheetForImplementation"
 import SkipPMWorkData from "./pages/Reports/SkipPMWorkData";
@@ -201,7 +204,12 @@ function App() {
                 <Route path="/machineWiseCheckSheet" element={<CheckSheet />} />
                 <Route path="/profile" element={<Profile />} />
                 {context.tm_department === "MTD" ?
-                  <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
+                  <>
+                    <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
+                    <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} />
+                    <Route path="/operatorDataEntry" element={<OperatorDataEntry />} />
+
+                  </>
                   :
                   ""
                 }

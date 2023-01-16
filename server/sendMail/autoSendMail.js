@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const autoSendMail = async (mailArray) => {
+const autoSendMail = async (mailArray, subject, title) => {
     // console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
     // console.log("==============>", tlApproval, hosApproval)
     // console.log("==============>", request)
@@ -66,7 +66,7 @@ const autoSendMail = async (mailArray) => {
                                      
                                     
                                     
-                                    ----- title -----
+                                    ----- title -----${title}
                                     
                                     
                                     

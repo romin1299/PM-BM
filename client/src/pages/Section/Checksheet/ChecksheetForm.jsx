@@ -473,6 +473,8 @@ function CheckSheetForm() {
   //   `Checksheet Preparation Approval (${selectedMachineCheckSheetData.state.selectedRowForViewForm?.line_names?.cell_names?.cell_name}/${selectedMachineCheckSheetData.state.selectedRowForViewForm?.line_names?.line_name}/${selectedMachineCheckSheetData.state.selectedRowForViewForm?.machine_code})`
   // );
 
+  // console.log(context?.section_data);
+
   //for planning phase approval
   const formik1 = useFormik({
     initialValues: {

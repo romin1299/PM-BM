@@ -2691,7 +2691,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
             mtd_tl_list,
             mtd_hos_list,
         } = req.body
-        console.log(prd_tl_list, monthForCompareSystemMonth, selected_machine_data)
+        // console.log(prd_tl_list, monthForCompareSystemMonth, selected_machine_data)
         // console.log(tl_list, hos_list)
         let keyOfImplementation_assign_PRD_TL = `checkSheet_data.$[outer].implementation_assign_PRD_TL.${monthForCompareSystemMonth}`;
         let keyOfImplementation_assign_MTD_TL = `checkSheet_data.$[outer].implementation_assign_MTD_TL.${monthForCompareSystemMonth}`;
@@ -2708,12 +2708,13 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
         const checksheet_status = "Preparation"
 
-        let subject, title, greetings, bodyTable
+        let subject, title, greetings, bodyTable, sectionRelatedUser
 
 
         // let tableStyle = "font-family: arial, sans-serif;border-collapse: collapse;width: 100%;"
         // let tdStyle = "border: 1px solid black;text-align: left;padding: 8px;"
 
+        const sectionInfo = await Section.findOne({ section_id: loggedUserData?.section_data?.split("-")?.[0] })
 
 
         if (request === "Yes" && tl_list != "") {
@@ -2777,10 +2778,25 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval to TL/HOSS after his/her approval send request to HOS
-            sendApproval(subject, title, greetings, bodyTable, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, tl_list, hos_list, undefined, undefined, request)
+            sendApproval(subject, title, greetings, bodyTable, undefined, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, tl_list, hos_list, undefined, undefined, request)
         } else if (prd_tl_list && phaseStatus === "Planning") {
             //for grreting of the mail
             const findAssignTlName = await User.findOne({ email: prd_tl_list })
+
+
+            if (sectionInfo?.dashboardLevel === "Yes") {
+                sectionRelatedUser = await User.find({ section_data: loggedUserData?.section_data, tm_department: "MTD", tm_grade: "HOS" })
+            } else {
+                sectionRelatedUser = await User.find({ section_data: loggedUserData.section_data, tm_department: "MTD", tm_grade: "HOS", subSection_data: { $in: loggedUserData.subSection_data } })
+
+            }
+
+
+            let ccMail = sectionRelatedUser?.map((result) => result?.email ? result?.email : undefined)
+            // console.log(sectionRelatedUser, ccMail)
+            // console.log(sectionRelatedUser?.length)
+
+            // console.log(sectionRelatedUser?.map((result) => result?.email ? result?.email : undefined))
 
             const updateChecksheetStatus = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                 $push: { "checkSheet_data.$[outer].prd_tl_approval_status": "Pending", "checkSheet_data.$[outer].assign_PRD_TL": prd_tl_list, "checkSheet_data.$[outer].assign_PRD_TL_name": findAssignTlName.tm_name, "checkSheet_data.$[outer].plan_prepared_tm_no": loggedUserData.tm_no, "checkSheet_data.$[outer].plan_prepared_tm_name": loggedUserData.tm_name, "checkSheet_data.$[outer].plan_prepared_email": loggedUserData.email, "checkSheet_data.$[outer].planning_TL_date": planning_TL_date }
@@ -2824,7 +2840,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval to TL/HOSS after his/her approval send request to HOS
-            sendApproval(subject, title, greetings, bodyTable, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+            sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
         } else if (prd_tl_list && mtd_tl_list && mtd_hos_list && phaseStatus === "Implementation") {
 
             let machineLastDataForKeyexistsOrNot = await Machine.aggregate([{
@@ -2875,6 +2891,9 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                 arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
             })
             // console.log(updateImplementationCompletionPhase)
+            // console.log(prd_tl_list, mtd_tl_list, mtd_hos_list)
+
+            let ccMail = [mtd_tl_list, mtd_hos_list]
             // for grreting of the mail
             const findAssignTlName = await User.findOne({ email: prd_tl_list })
 
@@ -2922,6 +2941,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                 title,
                 greetings,
                 bodyTable,
+                ccMail,
                 findAssignTlName.tm_name,
                 loggedUserData.tm_no,
                 loggedUserData.tm_name,
@@ -2990,7 +3010,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval direct MTD HOS
-            sendApproval(subject, title, greetings, bodyTable, findAssignHosName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, hos_list, undefined, undefined, undefined, undefined, request)
+            sendApproval(subject, title, greetings, bodyTable, undefined, findAssignHosName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, hos_list, undefined, undefined, undefined, undefined, request)
         }
         return res.status(201).json("approval request send successfully!!!");
         //  console.log(req.body)
@@ -3275,8 +3295,9 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
         let keyOfImplementation_approved_MTD_HOS_date = `checkSheet_data.$[outer].implementation_approved_MTD_HOS_date.${monthForCompareSystemMonth}`
         let keyOfImplemetation_quality_remarks = `checkSheet_data.$[outer].implemetation_quality_remarks.${monthForCompareSystemMonth}`
 
-        let subject, title, greetings, bodyTable
+        let subject, title, greetings, bodyTable, sectionRelatedUser
 
+        const sectionInfo = await Section.findOne({ section_id: loggedUserData?.section_data?.split("-")?.[0] })
 
         if (request === "Yes") {
             if (selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1] === "Pending") {
@@ -3342,6 +3363,7 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     title,
                     greetings,
                     bodyTable,
+                    undefined,
                     findAssignHosName.tm_name,
                     selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
                     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
@@ -3409,6 +3431,17 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
 
+
+                if (sectionInfo?.dashboardLevel === "Yes") {
+                    sectionRelatedUser = await User.find({ section_data: loggedUserData?.section_data, tm_department: "MTD", tm_grade: "HOS" })
+                } else {
+                    sectionRelatedUser = await User.find({ section_data: loggedUserData.section_data, tm_department: "MTD", tm_grade: "HOS", subSection_data: { $in: loggedUserData.subSection_data } })
+
+                }
+
+
+                let ccMail = sectionRelatedUser?.map((result) => result?.email ? result?.email : undefined)
+
                 // console.log(selected_machine_data?.checkSheet_data?.plan_prepared_email, selected_machine_data?.checkSheet_data?.plan_prepared_tm_name)
 
                 subject = `Checksheet Planning Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
@@ -3453,6 +3486,7 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     title,
                     greetings,
                     bodyTable,
+                    ccMail,
                     undefined,// findAssignHosName.tm_name,
                     undefined,// selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
                     undefined,// selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
@@ -3517,6 +3551,9 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                 }, {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
+
+                // console.log(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth])
+                let ccMail = selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth]
                 const findAssignMTDTLNameOfImplementation = await User.findOne({ email: selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth]).length - 1] })
 
                 subject = `Checksheet Approved by PRD TL Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
@@ -3561,6 +3598,7 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     title,
                     greetings,
                     bodyTable,
+                    ccMail,
                     findAssignMTDTLNameOfImplementation.tm_name,
                     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
                     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
@@ -3680,6 +3718,7 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     title,
                     greetings,
                     bodyTable,
+                    undefined,
                     findAssignMTDHOSNameOfImplementation.tm_name,
                     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
                     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
@@ -3754,6 +3793,45 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                 }, {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
+
+                subject = `Checksheet Approved by MTD HOS Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+                title = `Checksheet Approved Plan vs Actual,`
+                // greetings = `${findAssignMTDHOSNameOfImplementation.tm_name} San-(MTD HOD)`
+                bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+      
+                        <tr>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        </tr>
+                        
+                        <tr style="background-color: #dddddd;">
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        </tr>
+
+                        <tr>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                        </tr>
+                        
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                        </tr>
+                        
+                        <tr>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Done by</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+                        </tr>   
+                        
+                        <tr style="background-color: #dddddd;">
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${implementation_approved_MTD_HOS_date}</td>
+                        </tr>
+                        
+                    </table>`
+
+
             }
         } else {
             if (selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1] === "Pending") {
@@ -3815,6 +3893,7 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     title,
                     greetings,
                     bodyTable,
+                    undefined,
                     greetingNames,
                     selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
                     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
@@ -3878,6 +3957,7 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     title,
                     greetings,
                     bodyTable,
+                    undefined,
                     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1], selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
                     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
                     selected_machine_data.machine_code,
@@ -3940,6 +4020,7 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     title,
                     greetings,
                     bodyTable,
+                    undefined,
                     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1], selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
                     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
                     selected_machine_data.machine_code,
@@ -3959,7 +4040,7 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                 }, {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
-                sendApproval(selected_machine_data.checkSheet_data.plan_prepared_tm_name[(selected_machine_data.checkSheet_data.plan_prepared_tm_name).length - 1], selected_machine_data.checkSheet_data.plan_prepared_tm_no[(selected_machine_data.checkSheet_data.plan_prepared_tm_no).length - 1],
+                sendApproval(undefined, undefined, undefined, undefined, undefined, selected_machine_data.checkSheet_data.plan_prepared_tm_name[(selected_machine_data.checkSheet_data.plan_prepared_tm_name).length - 1], selected_machine_data.checkSheet_data.plan_prepared_tm_no[(selected_machine_data.checkSheet_data.plan_prepared_tm_no).length - 1],
                     selected_machine_data.checkSheet_data.plan_prepared_tm_name[(selected_machine_data.checkSheet_data.plan_prepared_tm_name).length - 1],
                     selected_machine_data.machine_code,
                     selected_machine_data.machine_name,
@@ -8913,6 +8994,7 @@ router.post('/postDataSheetFileName', authenticate, async (req, res) => {
         console.log("Filename not received");
     }
 })
+
 router.get('/downloadDataSheetFile', authenticate, async (req, res) => {
     try {
         // console.log(downloadDataSheetFileName)
@@ -9324,7 +9406,7 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
                         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tm_no': selectedSupportedTM[i].tm_no }],
                     })
                 } else {
-                    console.log(typeof(selectedSupportedTM[i].tm_name))
+                    console.log(typeof (selectedSupportedTM[i].tm_name))
 
                     console.log(selectedSupportedTM[i].tm_name)
                     updateTotalTimeAndWorkedAndSupportingOperator = await Machine.updateOne({ machine_code: machineId }, {
@@ -10038,5 +10120,40 @@ router.post('/postSectionToGetAllPendingPMLogHistory', authenticate, async (req,
         console.log("Filename not received");
     }
 })
+
+router.post('/newUser', async (req, res) => {
+    try {
+
+        const {
+            selectedType,
+            date,
+            selectedLine,
+            selectedMachine,
+            usedBy,
+            part_name,
+            part_no,
+            cost,
+        } = req.body
+
+
+        console.log(
+            selectedType,
+            date,
+            selectedLine,
+            selectedMachine,
+            usedBy,
+            part_name,
+            part_no,
+            cost,
+        )
+
+
+    } catch (error) {
+        console.log(error)
+        console.log("Data not valid or received !!!");
+    }
+})
+
+
 
 module.exports = router;
