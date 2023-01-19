@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import "./Popup.css";
+import React, { useState, useEffect, useContext } from "react";
 import * as yup from "yup";
 
 import TextField from "@material-ui/core/TextField";
@@ -8,12 +7,73 @@ import TextareaAutosize from "@mui/base/TextareaAutosize";
 import { useFormik } from "formik";
 import { Container, Row, Col } from "react-bootstrap";
 
+import RoutingContext from "../../context/routing/RoutingContext";
+import currentYear from "../Dashboard/DashboardComponent/currentYear";
+
 function OperatorDataEntry() {
+  const context = useContext(RoutingContext);
+
+  const [lineData, setLineData] = useState([]);
+  const [allMachineDataBasedOnLine, setAllMachineDataBasedOnLine] = useState(
+    []
+  );
+
   const typeDropdownList = ["BM", "Corrective", "Predictive", "Kaizen"];
-  const close = function () {
-    formik.resetForm({
-      values: "",
-    });
+
+  const postSectionToGetAllDataForMainDashboard = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch("/postSectionToGetLineData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          section: context.section_data,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log(data);
+        setLineData(data?.lineData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    postSectionToGetAllDataForMainDashboard();
+  }, []);
+
+  const postLineToGetAllMachineData = async (selectedLine) => {
+    formik.setFieldValue("selectedMachine", "");
+
+    try {
+      const res = await fetch("/postLineToGetMachineListForReportDashboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          line: selectedLine,
+          selectedYear: currentYear,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log("Data post", data);
+        setAllMachineDataBasedOnLine(data?.machineInfo);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   //input field validation with Yup
@@ -22,10 +82,13 @@ function OperatorDataEntry() {
     date: yup.string().required("Please enter date"),
     selectedLine: yup.string().required("Please select Line"),
     selectedMachine: yup.string().required("Please select Machine"),
-    usedBy: yup.string().required("Please select TM"),
     part_name: yup.string().required("Please enter Part Name"),
     part_no: yup.string().required("Please enter Part No"),
     cost: yup.string().required("Please enter cost"),
+    abnormalityRemarks: yup
+      .string()
+      .required("Please enter Abnormality Remarks"),
+    sparePurpose: yup.string().required("Please enter Spare Purpose"),
   });
 
   //creating new user
@@ -35,10 +98,11 @@ function OperatorDataEntry() {
       date: "",
       selectedLine: "",
       selectedMachine: "",
-      usedBy: "",
       part_name: "",
       part_no: "",
       cost: "",
+      abnormalityRemarks: "",
+      sparePurpose: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -48,12 +112,13 @@ function OperatorDataEntry() {
         body: JSON.stringify({
           selectedType: values.selectedType,
           date: values.date,
-          selectedLine: values.selectedLine,
-          selectedMachine: values.selectedMachine,
-          usedBy: values.usedBy,
+          selectedMachine: allMachineDataBasedOnLine?.[values.selectedMachine],
+          usedBy: context?.tm_name,
           part_name: values.part_name,
           part_no: values.part_no,
           cost: values.cost,
+          abnormalityRemarks: values.abnormalityRemarks,
+          sparePurpose: values.sparePurpose,
         }),
       });
 
@@ -63,11 +128,17 @@ function OperatorDataEntry() {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Error");
       } else {
-        console.log("User added sucessfully...");
+        console.log("Machine extraSpareDetails updated successfully");
+        window.location.reload();
       }
     },
   });
 
+  // console.log(
+  //   allMachineDataBasedOnLine?.[formik?.values?.selectedMachine]?.machine_code
+  // );
+  // let finalDate = new Date(formik.values.date);
+  // console.log(finalDate, finalDate?.getMonth());
   return (
     <>
       <div className="p-3">
@@ -97,9 +168,7 @@ function OperatorDataEntry() {
                       select // label="Select"
                       autoComplete="off"
                       value={formik.values.selectedType}
-                      onChange={(e) => {
-                        formik.handleChange(e);
-                      }}
+                      onChange={formik.handleChange}
                       variant="standard"
                     >
                       <option selected disabled value="">
@@ -174,14 +243,19 @@ function OperatorDataEntry() {
                       value={formik.values.selectedLine}
                       onChange={(e) => {
                         formik.handleChange(e);
+                        postLineToGetAllMachineData(e.target.value);
                       }}
                       variant="standard"
                     >
                       <option selected disabled value="">
                         Please select
                       </option>
-                      {typeDropdownList.map((option) => {
-                        return <option value={option}>{option}</option>;
+                      {lineData?.map((option) => {
+                        return (
+                          <option value={option?._id}>
+                            {option?.line_name}
+                          </option>
+                        );
                       })}
                     </select>
                     <div>
@@ -199,45 +273,20 @@ function OperatorDataEntry() {
                       </p>
                     </div>
                   </Col>
+
                   <Col>
                     <div>Used By:</div>
-                    <select
-                      // class="form-select form-select-sm"
-                      // aria-label=".form-select-sm example"
-                      style={{ border: "2px solid gray", borderRadius: "5px" }}
-                      // id="standard-select-currency"
+                    <TextField
                       id="outlined-number"
-                      name="usedBy"
-                      className="textField mt-1"
-                      fullWidth
-                      select // label="Select"
+                      className="textField"
+                      value={context?.tm_name}
                       autoComplete="off"
-                      value={formik.values.usedBy}
-                      onChange={(e) => {
-                        formik.handleChange(e);
+                      // label="Number"
+                      type="text"
+                      InputLabelProps={{
+                        shrink: true,
                       }}
-                      variant="standard"
-                    >
-                      <option selected disabled value="">
-                        Please select
-                      </option>
-                      {typeDropdownList.map((option) => {
-                        return <option value={option}>{option}</option>;
-                      })}
-                    </select>
-                    <div>
-                      <p
-                        style={{
-                          color: "#F44336",
-                          fontWeight: "normal",
-                          fontSize: "0.80rem",
-                          float: "left",
-                          paddingTop: "0.5rem",
-                        }}
-                      >
-                        {formik.touched.usedBy && formik.errors.usedBy}
-                      </p>
-                    </div>
+                    />
                   </Col>
                 </Row>
 
@@ -264,8 +313,10 @@ function OperatorDataEntry() {
                       <option selected disabled value="">
                         Please select
                       </option>
-                      {typeDropdownList.map((option) => {
-                        return <option value={option}>{option}</option>;
+                      {allMachineDataBasedOnLine?.map((option, index) => {
+                        return (
+                          <option value={index}>{option?.machine_name}</option>
+                        );
                       })}
                     </select>
                     <div>
@@ -289,7 +340,11 @@ function OperatorDataEntry() {
                       id="outlined-number"
                       name="machine_no"
                       className="textField"
-                      value={formik.values.machine_no}
+                      value={
+                        allMachineDataBasedOnLine?.[
+                          formik?.values?.selectedMachine
+                        ]?.machine_code || ""
+                      }
                       onChange={formik.handleChange}
                       autoComplete="off"
                       // label="Number"
@@ -407,7 +462,7 @@ function OperatorDataEntry() {
                       onChange={formik.handleChange}
                       autoComplete="off"
                       // label="Number"
-                      type="text"
+                      type="Number"
                       InputLabelProps={{
                         shrink: true,
                       }}

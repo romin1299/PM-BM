@@ -3,8 +3,11 @@ import MaterialTable from "@material-table/core";
 // import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import { jsPDF } from "jspdf";
 import { CSVLink, CSVDownload } from "react-csv";
-import { Row, Col, Container } from "react-bootstrap";
+import { Row, Col, Container, Button } from "react-bootstrap";
 import CircleIcon from "@mui/icons-material/Circle";
+
+import * as yup from "yup";
+import { useFormik } from "formik";
 
 import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import RoutingContext from "../../../context/routing/RoutingContext";
@@ -18,9 +21,17 @@ const AnnualPMSchedule = () => {
 
   // console.log(context);
 
+  const [allUserDropdownList, setAllUserDropdownList] = useState([]);
+
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(currentYear);
+
+  const [selectedCell, setSelectedCell] = useState("");
+
+  const [lineDropdown, setLineDropdown] = useState([]);
+  const [selectedLine, setSelectedLine] = useState("");
+  const [indexOfSelectedLine, setIndexOfSelectedLine] = useState(0);
 
   const [refKeyForAnimation, setRefKeyForAnimation] = useState(
     <LoadingAnimation />
@@ -66,9 +77,6 @@ const AnnualPMSchedule = () => {
     postSectionToGetAllDataForMainDashboard();
   }, [selectedYear]);
 
-  const [selectedCell, setSelectedCell] = useState("");
-  const [lineDropdown, setLineDropdown] = useState([]);
-
   const postCellToGetLineList = async (selectedCell) => {
     setSelectedLine(undefined);
     try {
@@ -102,8 +110,6 @@ const AnnualPMSchedule = () => {
     }
   };
 
-  const [selectedLine, setSelectedLine] = useState("");
-
   const postLineToGetMachineList = async (selectedLine) => {
     // console.log(selectedLine);
     try {
@@ -130,6 +136,30 @@ const AnnualPMSchedule = () => {
       console.log(error);
     }
   };
+
+  //fetch supported operator list
+  const getListForApproval = async () => {
+    try {
+      const res = await fetch("/getListForApproval", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      console.log(data?.allUser);
+      setAllUserDropdownList(data?.allUser);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getListForApproval();
+  }, []);
 
   let columns = [
     "Line Name",
@@ -168,7 +198,7 @@ const AnnualPMSchedule = () => {
   let columnForHeading1 = ["Product", "Fiscal year"];
   let columnForHeading2 = [
     "Accepted By (PRD HOS)",
-    "Approved By (MTD HOS)",
+    "Approved By (MTD HOD)",
     "Checked By (MTD HOS)",
     "Prepared By (MTD TL)",
   ];
@@ -183,6 +213,64 @@ const AnnualPMSchedule = () => {
       setRefKeyForAnimation("");
     }, 3000);
   }, [selectedCell, selectedLine]);
+
+  const validationSchema = yup.object({
+    selectedPrdHos: yup.string().required("Please select PRD HOS"),
+    selectedMtdHod: yup.string().required("Please select MTD HOD"),
+    selectedMtdHos: yup.string().required("Please select MTD HOS"),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      selectedPrdHos: "",
+      selectedMtdHod: "",
+      selectedMtdHos: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      //e.preventDefault();
+      // console.log(values);
+      const res = await fetch("/annualPmScheduleApproval", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          selectedLine: selectedLine ? selectedLine : lineDropdown?.[0]?._id,
+          selectedPrdHos: values.selectedPrdHos,
+          selectedMtdHod: values.selectedMtdHod,
+          selectedMtdHos: values.selectedMtdHos,
+          selectedMtdTl: context?._id,
+        }),
+      });
+
+      const data = res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Error");
+      } else {
+        console.log("Updated SuccessFully");
+        // window.alert("New password generation successfully !!!");
+      }
+    },
+  });
+
+  // console.log(
+  //   // indexOfSelectedLine,
+  //   // lineDropdown,
+  //   lineDropdown?.[indexOfSelectedLine]
+  // );
+
+  // if (lineDropdown?.length > 0) {
+  //   if ("annualPmScheduleApproval" in lineDropdown?.[indexOfSelectedLine]) {
+  //     console.log("true");
+  //   } else {
+  //     console.log("false");
+  //   }
+  // }
+
+  // console.log(
+  //   "=================",
+  //   lineDropdown?.[parseInt(selectedLine)]?.line_name
+  // );
 
   return (
     <>
@@ -254,14 +342,19 @@ const AnnualPMSchedule = () => {
                         id="standard-select-currency"
                         name="selectedPlant"
                         value={
+                          // selectedLine || lineDropdown?.[0]?.line_name
                           selectedLine === undefined
                             ? lineDropdown?.[0]?.line_name
-                            : selectedLine
+                            : lineDropdown?.[parseInt(selectedLine)]?._id
                         }
                         className="textField"
                         onChange={(e) => {
-                          setSelectedLine(e.target.value);
-                          postLineToGetMachineList(e.target.value);
+                          // setSelectedLine(e.target.value);
+                          // setIndexOfSelectedLine(e.target.value);
+                          setSelectedLine(lineDropdown?.[e.target.value]?._id);
+                          postLineToGetMachineList(
+                            lineDropdown?.[e.target.value]?._id
+                          );
                         }}
                         // fullWidth
                         select // label="Select"
@@ -271,11 +364,9 @@ const AnnualPMSchedule = () => {
                         <option selected disabled value="">
                           Please select
                         </option>
-                        {lineDropdown?.map((option) => {
+                        {lineDropdown?.map((option, index) => {
                           return (
-                            <option value={option._id}>
-                              {option.line_name}
-                            </option>
+                            <option value={index}>{option.line_name}</option>
                           );
                         })}
                       </select>
@@ -283,46 +374,16 @@ const AnnualPMSchedule = () => {
                   </Col>
                 </Row>
               </Col>
-
-              {/* <Col sm={12} lg={3}>
-                <span>Line:</span>
-              </Col>
-              <Col sm={12} lg={3}>
-                <div>
-                  <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="selectedPlant"
-                    value={
-                      selectedLine === ""
-                        ? allDataSectionWise?.lineData?.[0].line_name
-                        : selectedLine
-                    }
-                    className="textField"
-                    onChange={(e) => {
-                      setSelectedLine(e.target.value);
-                      postLineToGetMachineList(e.target.value);
-                    }}
-                    fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {allDataSectionWise?.lineData?.map((option) => {
-                      return (
-                        <option value={option._id}>{option.line_name}</option>
-                      );
-                    })}
-                  </select>
-                </div>
-              </Col> */}
             </Row>
           </Container>
+
+          {/* <form>
+            <table>
+              <tr>
+                <td>abcd</td>
+              </tr>
+            </table>
+          </form> */}
           <div style={{ padding: "1rem" }}>
             <Container fluid>
               <Row className="ar-table   pmSheetApprovalTableCol1">
@@ -362,11 +423,155 @@ const AnnualPMSchedule = () => {
                           <th className={"td-padding"}>{item}</th>
                         ))}
                       </tr>
-                      <tr>
-                        {columnForHeading2.map((item) => (
-                          <td className={"td-padding"}></td>
-                        ))}
-                      </tr>
+                      {tableData.length > 0 ? (
+                        <tr>
+                          <td className={"td-padding"}>
+                            <div className="p-1 d-flex justify-content-center align-items-center">
+                              <select
+                                class="form-select form-select-sm"
+                                aria-label=".form-select-sm example"
+                                // style={{ width: "100%" }}
+                                id="standard-select-currency"
+                                name="selectedPrdHos"
+                                className="textField"
+                                value={formik.values.selectedPrdHos}
+                                onChange={formik.handleChange}
+                                // fullWidth
+                                select // label="Select"
+                                autoComplete="off"
+                                variant="standard"
+                              >
+                                <option selected disabled value="">
+                                  Please select
+                                </option>
+                                {allUserDropdownList?.map((option, index) =>
+                                  option?.tm_department === "PRD" &&
+                                  option?.tm_grade === "HOS" ? (
+                                    <option value={option?._id}>
+                                      {option.tm_name}
+                                    </option>
+                                  ) : (
+                                    ""
+                                  )
+                                )}
+                              </select>
+                            </div>
+                            <div className=" d-flex justify-content-center align-items-center">
+                              <p
+                                style={{
+                                  color: "#F44336",
+                                  fontWeight: "normal",
+                                  fontSize: "0.80rem",
+                                  float: "left",
+                                }}
+                              >
+                                {formik.touched.selectedPrdHos &&
+                                  formik.errors.selectedPrdHos}
+                              </p>
+                            </div>
+                          </td>
+
+                          <td className={"td-padding"}>
+                            <div className="p-1 d-flex justify-content-center align-items-center">
+                              <select
+                                class="form-select form-select-sm"
+                                aria-label=".form-select-sm example"
+                                // style={{ width: "100%" }}
+                                id="standard-select-currency"
+                                name="selectedMtdHod"
+                                className="textField"
+                                value={formik.values.selectedMtdHod}
+                                onChange={formik.handleChange}
+                                // fullWidth
+                                select // label="Select"
+                                autoComplete="off"
+                                variant="standard"
+                              >
+                                <option selected disabled value="">
+                                  Please select
+                                </option>
+                                {allUserDropdownList?.map((option, index) =>
+                                  option?.tm_department === "MTD" &&
+                                  option?.tm_grade === "HOD" ? (
+                                    <option value={option?._id}>
+                                      {option.tm_name}
+                                    </option>
+                                  ) : (
+                                    ""
+                                  )
+                                )}
+                              </select>
+                            </div>
+                            <div className=" d-flex justify-content-center align-items-center">
+                              <p
+                                style={{
+                                  color: "#F44336",
+                                  fontWeight: "normal",
+                                  fontSize: "0.80rem",
+                                  float: "left",
+                                }}
+                              >
+                                {formik.touched.selectedMtdHod &&
+                                  formik.errors.selectedMtdHod}
+                              </p>
+                            </div>
+                          </td>
+
+                          <td className={"td-padding"}>
+                            <div className="p-1 d-flex justify-content-center align-items-center">
+                              <select
+                                class="form-select form-select-sm"
+                                aria-label=".form-select-sm example"
+                                // style={{ width: "100%" }}
+                                id="standard-select-currency"
+                                name="selectedMtdHos"
+                                className="textField"
+                                value={formik.values.selectedMtdHos}
+                                onChange={formik.handleChange}
+                                // fullWidth
+                                select // label="Select"
+                                autoComplete="off"
+                                variant="standard"
+                              >
+                                <option selected disabled value="">
+                                  Please select
+                                </option>
+                                {allUserDropdownList?.map((option, index) =>
+                                  option?.tm_department === "MTD" &&
+                                  option?.tm_grade === "HOS" ? (
+                                    <option value={option?._id}>
+                                      {option.tm_name}
+                                    </option>
+                                  ) : (
+                                    ""
+                                  )
+                                )}
+                              </select>
+                            </div>
+                            <div className=" d-flex justify-content-center align-items-center">
+                              <p
+                                style={{
+                                  color: "#F44336",
+                                  fontWeight: "normal",
+                                  fontSize: "0.80rem",
+                                  float: "left",
+                                }}
+                              >
+                                {formik.touched.selectedMtdHos &&
+                                  formik.errors.selectedMtdHos}
+                              </p>
+                            </div>
+                          </td>
+
+                          <td className={"td-padding"}>
+                            <Button onClick={formik.handleSubmit}>
+                              Send For Approval
+                            </Button>
+                          </td>
+                        </tr>
+                      ) : (
+                        ""
+                      )}
                     </thead>
                   </table>
                 </Col>

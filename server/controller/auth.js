@@ -2254,11 +2254,11 @@ router.post('/addNewChecksheetData', async (req, res) => {
 
             ]).limit(1);
 
-            if(isAdded === true){
+            if (isAdded === true) {
                 if (findMachine[0] === undefined) {
                     tableRowId = 1;
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId }, {
-    
+
                         $set: {
                             checkSheet_data: {
                                 previous_year,
@@ -2274,16 +2274,16 @@ router.post('/addNewChecksheetData', async (req, res) => {
                                     personInCharge,
                                     PM_time,
                                     isAdded,
-                                    flagForCount : true
+                                    flagForCount: true
                                 }
                             }
-    
+
                         }
                     })
                 } else {
                     tableRowId = findMachine[0].checkSheet_data.checkSheet.tableRowId + 1
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": previous_year }, {
-    
+
                         $push: {
                             "checkSheet_data.$.checkSheet": {
                                 tableRowId,
@@ -2297,20 +2297,20 @@ router.post('/addNewChecksheetData', async (req, res) => {
                                 personInCharge,
                                 PM_time,
                                 isAdded,
-                                flagForCount : true
+                                flagForCount: true
                             }
-    
-    
+
+
                         }
                     })
                 }
 
-            }else{
+            } else {
 
                 if (findMachine[0] === undefined) {
                     tableRowId = 1;
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId }, {
-    
+
                         $set: {
                             checkSheet_data: {
                                 previous_year,
@@ -2327,13 +2327,13 @@ router.post('/addNewChecksheetData', async (req, res) => {
                                     PM_time,
                                 }
                             }
-    
+
                         }
                     })
                 } else {
                     tableRowId = findMachine[0].checkSheet_data.checkSheet.tableRowId + 1
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": previous_year }, {
-    
+
                         $push: {
                             "checkSheet_data.$.checkSheet": {
                                 tableRowId,
@@ -2347,8 +2347,8 @@ router.post('/addNewChecksheetData', async (req, res) => {
                                 personInCharge,
                                 PM_time,
                             }
-    
-    
+
+
                         }
                     })
                 }
@@ -2371,12 +2371,12 @@ router.post('/addNewChecksheetData', async (req, res) => {
 
 
             ]).limit(1);
-            
-            if(isAdded  === true){
+
+            if (isAdded === true) {
                 if (findMachine[0] === undefined) {
                     tableRowId = 1;
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId }, {
-    
+
                         $set: {
                             checkSheet_data: {
                                 current_year,
@@ -2392,17 +2392,17 @@ router.post('/addNewChecksheetData', async (req, res) => {
                                     personInCharge,
                                     PM_time,
                                     isAdded,
-                                    flagForCount : true
+                                    flagForCount: true
 
                                 }
                             }
-    
+
                         }
                     })
                 } else {
                     tableRowId = findMachine[0].checkSheet_data.checkSheet.tableRowId + 1
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": current_year }, {
-    
+
                         $push: {
                             "checkSheet_data.$.checkSheet": {
                                 tableRowId,
@@ -2416,20 +2416,20 @@ router.post('/addNewChecksheetData', async (req, res) => {
                                 personInCharge,
                                 PM_time,
                                 isAdded,
-                                flagForCount : true
+                                flagForCount: true
 
                             }
-    
-    
+
+
                         }
                     })
                 }
-            }else{
-                
+            } else {
+
                 if (findMachine[0] === undefined) {
                     tableRowId = 1;
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId }, {
-    
+
                         $set: {
                             checkSheet_data: {
                                 current_year,
@@ -2446,13 +2446,13 @@ router.post('/addNewChecksheetData', async (req, res) => {
                                     PM_time,
                                 }
                             }
-    
+
                         }
                     })
                 } else {
                     tableRowId = findMachine[0].checkSheet_data.checkSheet.tableRowId + 1
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": current_year }, {
-    
+
                         $push: {
                             "checkSheet_data.$.checkSheet": {
                                 tableRowId,
@@ -2466,8 +2466,8 @@ router.post('/addNewChecksheetData', async (req, res) => {
                                 personInCharge,
                                 PM_time,
                             }
-    
-    
+
+
                         }
                     })
                 }
@@ -2585,7 +2585,7 @@ router.post('/updateSelectedMachineChecksheetTableRowData', async (req, res) => 
     try {
         const { rowData, machineId, yearOfCheckSheet, isEdited } = req.body
         // console.log(rowData, machineId, yearOfCheckSheet)
-        if(isEdited === true){
+        if (isEdited === true) {
             const updateChecksheetRow = await Machine.updateOne({ machine_code: machineId }, {
                 $set: {
                     "checkSheet_data.$[outer].checkSheet.$[inner].category": rowData.category,
@@ -2600,12 +2600,12 @@ router.post('/updateSelectedMachineChecksheetTableRowData', async (req, res) => 
                     "checkSheet_data.$[outer].checkSheet.$[inner].isEdited": isEdited,
                     "checkSheet_data.$[outer].checkSheet.$[inner].flagForCount": true,
 
-                    
+
                 }
             }, {
                 arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': rowData.tableRowId }],
             })
-        }else{
+        } else {
             const updateChecksheetRow = await Machine.updateOne({ machine_code: machineId }, {
                 $set: {
                     "checkSheet_data.$[outer].checkSheet.$[inner].category": rowData.category,
@@ -2634,23 +2634,23 @@ router.post('/updateSelectedMachineChecksheetTableRowData', async (req, res) => 
 router.post('/deleteSelectedMachineChecksheetTableRowData', async (req, res) => {
     try {
         const { rowData, machineId, yearOfCheckSheet, isDeleted } = req.body
-        let deleteChecksheetRow , addFlagForDelete
+        let deleteChecksheetRow, addFlagForDelete
         // console.log(rowData, machineId, yearOfCheckSheet)
-        if(isDeleted  === true){
-            if(rowData.isAdded  === true){
+        if (isDeleted === true) {
+            if (rowData.isAdded === true) {
                 deleteChecksheetRow = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": yearOfCheckSheet, }, { $pull: { "checkSheet_data.$[outer].checkSheet": { tableRowId: rowData.tableRowId } } }, {
                     arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
                 })
-            }else{
+            } else {
 
                 addFlagForDelete = await Machine.updateOne(
                     {
                         machine_code: machineId
                     },
                     {
-                        $set:{
-                            "checkSheet_data.$[outer].checkSheet.$[inner].isDeleted" : isDeleted,
-                            "checkSheet_data.$[outer].checkSheet.$[inner].flagForCount" : true
+                        $set: {
+                            "checkSheet_data.$[outer].checkSheet.$[inner].isDeleted": isDeleted,
+                            "checkSheet_data.$[outer].checkSheet.$[inner].flagForCount": true
 
                         }
                     },
@@ -2659,12 +2659,12 @@ router.post('/deleteSelectedMachineChecksheetTableRowData', async (req, res) => 
                     }
                 )
             }
-        }else{
+        } else {
             deleteChecksheetRow = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": yearOfCheckSheet, }, { $pull: { "checkSheet_data.$[outer].checkSheet": { tableRowId: rowData.tableRowId } } }, {
                 arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
             })
         }
-        
+
         if (deleteChecksheetRow || addFlagForDelete) {
             return res.status(201).json("Checksheet row deleted!!!");
         } else {
@@ -2684,7 +2684,8 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
         let sectionSplit = loggedUserData.section_data.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
 
-        let TLlist, HOSlist, PRDHOSlist, MTDHODlist, PRDHODlist, PRDTLlist, supportingOperatorList, MTDTLlist, MTDTLandOperatorList, supportingOperatorListArray, supportingOperatorListForReportDashboard = []
+        let TLlist, HOSlist, PRDHOSlist, MTDHODlist, PRDHODlist, PRDTLlist, supportingOperatorList, allUser,
+            MTDTLlist, MTDTLandOperatorList, supportingOperatorListArray, supportingOperatorListForReportDashboard = []
 
         if (sectionInfo.dashboardLevel === "Yes") {
 
@@ -2712,6 +2713,8 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
                     { section_data: loggedUserData.section_data, user_type: "Operator", tm_department: "MTD", tm_no: { $ne: loggedUserData.tm_no } }
                 ]
             })
+
+            allUser = await User.find({ section_data: loggedUserData.section_data, tm_no: { $ne: loggedUserData.tm_no } })
 
             // supportingOperatorList.map((key) => {
             //     supportingOperatorListArray.push(key.tm_name)
@@ -2759,6 +2762,9 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
                 ]
             }, { tm_name: 1, _id: 0 })
 
+            allUser = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_no: { $ne: loggedUserData.tm_no } },)
+
+
             // supportingOperatorList.map((key) => {
             //     supportingOperatorListArray.push(key.tm_name)
             // })
@@ -2766,7 +2772,10 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
 
 
 
-        res.json({ TLlist, HOSlist, PRDHOSlist, MTDHODlist, PRDHODlist, PRDTLlist, supportingOperatorList, MTDTLlist, MTDTLandOperatorList, supportingOperatorListForReportDashboard });
+        res.json({
+            TLlist, HOSlist, PRDHOSlist, MTDHODlist, PRDHODlist, PRDTLlist, supportingOperatorList, MTDTLlist, allUser,
+            MTDTLandOperatorList, supportingOperatorListForReportDashboard
+        });
     } catch (error) {
         console.log("User data not send or get!!!");
         console.log(error)
@@ -2857,7 +2866,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                 $set: {
                     "checkSheet_data.$[outer].checksheet_status": checksheet_status,
                     "checkSheet_data.$[outer].checkSheet.$[].isAdded": false,
-                   
+
                 },
                 $push: {
                     "checkSheet_data.$[outer].tl_approval_status": "Pending",
@@ -6179,7 +6188,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
         // console.log(section);
         let sectionSplit = section.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
-        // console.log("____________", sectionInfo[0]._id)
+        // console.log("____________", sectionInfo)
         let subSectionsData, subSectionIdArray = [],
             cellData, cellIdArray = [],
             lineData, lineIdArray = [],
@@ -9622,7 +9631,7 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
                         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tm_no': selectedSupportedTM[i].tm_no }],
                     })
                 } else {
-                    console.log(typeof(selectedSupportedTM[i].tm_name))
+                    console.log(typeof (selectedSupportedTM[i].tm_name))
 
                     console.log(selectedSupportedTM[i].tm_name)
                     updateTotalTimeAndWorkedAndSupportingOperator = await Machine.updateOne({ machine_code: machineId }, {
@@ -10349,8 +10358,8 @@ router.post('/addRevisionContent', authenticate, async (req, res) => {
                 machine_code: machineAllData.machine_code
             },
             {
-                $push:{
-                    [keyOfRevisionContentData]:{
+                $push: {
+                    [keyOfRevisionContentData]: {
                         revisionContent: selectedRow.revisionContent,
                         revisionContentDate: selectedRow.revisionContentDate,
                         revisedBy: loggedUserData.tm_name
@@ -10371,31 +10380,229 @@ router.post('/addRevisionContent', authenticate, async (req, res) => {
     }
 })
 
-router.post('/newUser', async (req, res) => {
+
+router.post('/postSectionToGetLineData', authenticate, async (req, res) => {
+    try {
+        let { section, selectedYear } = req.body
+        let loggedUserData = req.rootUser;
+
+        let sectionSplit = section.split("-")
+        const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+
+        let subSectionsData, cellData, lineData
+
+
+
+        if (sectionInfo.dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+            // console.log(machineLastData)
+        } else {
+            loggedUserData.subSection_data.map((ids) => {
+                let subsectionsId = ids.split("-")
+                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            })
+            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+        }
+
+
+        cellData = await Cell.find({ subSection_names: { $in: subSectionsData?.map((item) => item?._id) } }).sort({ cell_sequence: 1 });
+
+        lineData = await Line.find({ cell_names: { $in: cellData?.map((item) => item?._id) } }).sort({ line_sequence: 1 });
+
+
+
+        res.json({ lineData })
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+
+
+router.post('/newOperatorDataEntry', async (req, res) => {
     try {
 
         const {
             selectedType,
             date,
-            selectedLine,
             selectedMachine,
             usedBy,
             part_name,
             part_no,
             cost,
+            abnormalityRemarks,
+            sparePurpose,
+        } = req.body
+
+        let currentYear =
+            new Date().getMonth() <= 3 ?
+                `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
+                `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+
+        console.log(currentYear)
+
+
+        const monthKeyArray = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "June",
+            "July",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
+        let currentMonth = monthKeyArray[new Date(date).getMonth()];
+
+
+        // console.log(
+        //     selectedType,
+        //     date,
+        //     selectedMachine?._id,
+        //     usedBy,
+        //     part_name,
+        //     part_no,
+        //     cost,
+        //     abnormalityRemarks,
+        //     sparePurpose,
+        // )
+
+
+        // console.log(selectedMachine)
+
+
+        let updatedMachine
+
+
+        let keyOfAddingExtraSpareDetails = `checkSheet_data.$[outer].extraSpareDetails.${currentMonth}`
+
+        if ("checkSheet_data" in selectedMachine) {
+
+
+            updatedMachine = await Machine.updateOne({ _id: selectedMachine?._id }, {
+
+                $push: {
+                    [keyOfAddingExtraSpareDetails]: {
+                        type: selectedType,
+                        date,
+                        usedBy,
+                        part_name,
+                        part_no,
+                        cost,
+                        abnormalityRemarks,
+                        sparePurpose,
+                    }
+                }
+            }, {
+                arrayFilters: [{ 'outer.current_year': currentYear }],
+            })
+
+        } else {
+
+            updatedMachine = await Machine.updateOne({ _id: selectedMachine?._id }, {
+
+                $set: {
+                    checkSheet_data: {
+                        current_year: currentYear,
+                        extraSpareDetails: {
+                            [currentMonth]: {
+                                type: selectedType,
+                                date,
+                                usedBy,
+                                part_name,
+                                part_no,
+                                cost,
+                                abnormalityRemarks,
+                                sparePurpose,
+                            }
+
+                        }
+                    }
+
+                }
+            })
+
+        }
+
+        if (updatedMachine) {
+
+            res.status(200).json({ msg: "Machine extraSpareDetails updated successfully" })
+
+        }
+
+
+
+        // console.log(updatedMachine)
+
+
+    } catch (error) {
+        console.log(error)
+        console.log("Data not valid or received !!!");
+    }
+})
+
+router.post('/annualPmScheduleApproval', async (req, res) => {
+    try {
+
+        const {
+            selectedLine,
+            selectedPrdHos,
+            selectedMtdHod,
+            selectedMtdHos,
+            selectedMtdTl,
         } = req.body
 
 
         console.log(
-            selectedType,
-            date,
             selectedLine,
-            selectedMachine,
-            usedBy,
-            part_name,
-            part_no,
-            cost,
+            selectedPrdHos,
+            selectedMtdHod,
+            selectedMtdHos,
+            selectedMtdTl,
         )
+
+        let currentYear =
+            new Date().getMonth() <= 3 ?
+                `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
+                `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+
+        let updatedLine = await Line.updateOne(
+            { _id: selectedLine },
+            {
+                $set: {
+
+                    //current year
+                    "annualPmScheduleApproval.current_year": currentYear,
+
+                    //prepared User
+                    "annualPmScheduleApproval.mtdTlId": selectedMtdTl,
+
+                    //MTD HOS
+                    "annualPmScheduleApproval.mtdHos.mtdHosId": selectedMtdHos,
+                    "annualPmScheduleApproval.mtdHos.mtdHosApprovalStatus": "Pending",
+
+                    //MTD HOD
+                    "annualPmScheduleApproval.mtdHod.mtdHodId": selectedMtdHod,
+                    "annualPmScheduleApproval.mtdHod.mtdHodApprovalStatus": "Pending",
+
+                    //PRD HOS
+                    "annualPmScheduleApproval.prdHos.prdHosId": selectedPrdHos,
+                    "annualPmScheduleApproval.prdHos.prdHosApprovalStatus": "Pending",
+                }
+            });
+
+        console.log(updatedLine)
+
+
+        res.status(200).json({ msg: "uploaded successfully" })
+
 
 
     } catch (error) {

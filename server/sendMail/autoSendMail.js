@@ -1,11 +1,14 @@
 const nodemailer = require('nodemailer');
-const autoSendMail = async (mailArray, subject, title) => {
+const autoSendMail = async (toMailArray, ccEmailArray, sectionName, subject, title, dataTable, title1, dataTable1, title2, dataTable2, text) => {
     // console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
     // console.log("==============>", tlApproval, hosApproval)
     // console.log("==============>", request)
 
     // console.log(assign_member_name, tm_no, tm_name, machine_code, machine_name,
     //     checksheet_status, firstEmail, secondEmail, tlApproval, hosApproval, request, rejected_remarks)
+
+
+    console.log(toMailArray, ccEmailArray, subject, title1)
 
 
     let transpoter = nodemailer.createTransport({
@@ -23,7 +26,8 @@ const autoSendMail = async (mailArray, subject, title) => {
     //sending an email for forgot password
     let mailOptions = {
         from: "sm_sample11@outlook.com",
-        to: mailArray,
+        to: toMailArray,
+        cc: ccEmailArray,
         subject: subject,
         html: `
         <!doctype html>
@@ -53,36 +57,69 @@ const autoSendMail = async (mailArray, subject, title) => {
                     <tr>
                         <td>
                             <table width="95%" border="0" align="center" cellpadding="0" cellspacing="0"
-                                style="max-width:670px;background:#fff; border-radius:3px;-webkit-box-shadow:0 6px 18px 0 rgba(0,0,0,.06);-moz-box-shadow:0 6px 18px 0 rgba(0,0,0,.06);box-shadow:0 6px 18px 0 rgba(0,0,0,.06);">
+                                style="background:#fff; border-radius:3px;-webkit-box-shadow:0 6px 18px 0 rgba(0,0,0,.06);-moz-box-shadow:0 6px 18px 0 rgba(0,0,0,.06);box-shadow:0 6px 18px 0 rgba(0,0,0,.06);">
                                 <tr>
                                     <td style="height:40px;">&nbsp;</td>
                                 </tr>
                                 <tr>
                                     <td style="padding:0 35px;">
-                                    <h3>Dear Sir ,</h3>
+                                    <h3>Dear Sir/Mam,</h3>
+                                    ${text}
                                     <div style="text-align:center">
-                                      
+                                      <h3>
+                                      Section/SubSection Name : ${sectionName}
+                                      </h3>
                                     <h3 style="color:#1e1e2d; font-weight:500; margin:0;font-size:20px;font-family:'Rubik',sans-serif;">
                                      
-                                    
-                                    
-                                    ----- title -----${title}
-                                    
-                                    
-                                    
+                                    ${title}
                                     
                                     </h3>
                                       <span
                                           style="display:inline-block; vertical-align:middle; margin:10px 0 26px; border-bottom:1px solid #CECECE; width:100px; "></span>
                                   </div>
 
-
-
-                                    ----- bodyTable -----
-                                        
-
-
+                                  ${dataTable}
+                                                                     
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="height:1rem;">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:0 35px;">
+                                    <div style="text-align:center">
+                                      
+                                    <h3 style="color:#1e1e2d; font-weight:500; margin:0;font-size:20px;font-family:'Rubik',sans-serif;">
+                                     
+                                    ${title1}
                                     
+                                    </h3>
+                                      <span
+                                          style="display:inline-block; vertical-align:middle; margin:10px 0 26px; border-bottom:1px solid #CECECE; width:100px; "></span>
+                                  </div>
+
+                                  ${dataTable1}
+                                                                     
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="height:1rem;">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:0 35px;">
+                                    <div style="text-align:center">
+                                    
+                                    <h3 style="color:#1e1e2d; font-weight:500; margin:0;font-size:20px;font-family:'Rubik',sans-serif;">
+                                    
+                                    ${title2}
+                                    
+                                    </h3>
+                                    <span
+                                        style="display:inline-block; vertical-align:middle; margin:10px 0 26px; border-bottom:1px solid #CECECE; width:100px; "></span>
+                                     </div>
+
+                                    ${dataTable2}
+                                                                    
                                     </td>
                                 </tr>
                                 <tr>

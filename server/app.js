@@ -22,8 +22,8 @@ app.use(require(path.join(__dirname, './controller/auth')));
 
 
 
-// require(path.join(__dirname, './controller/autoMailSendController'));
-
+require(path.join(__dirname, './controller/autoMailSendStartingOfEveryMonthController'));
+require(path.join(__dirname, './controller/autoMailSendMidAndEndOfEveryMonthController'));
 
 
 //for logos and other image

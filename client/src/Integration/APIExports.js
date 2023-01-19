@@ -3,6 +3,8 @@
 import fetchPlantInfo from "./AllFetchApis/fetchPlantInfo.js"
 import postPlantToGetSectionInfo from "./AllFetchApis/postPlantToGetSectionInfo.js"
 import postSectionToGetSubSectionInfo from "./AllFetchApis/postSectionToGetSubSectionInfo.js"
+import postSectionToGetAllDataForMainDashboard from "./AllFetchApis/postSectionToGetAllDataForMainDashboard.js"
+import postLineToGetAllMachineData from "./AllFetchApis/postLineToGetAllMachineData.js"
 
 // Plant ADD,Update,Delete APIS
 
@@ -57,6 +59,8 @@ export {
     fetchPlantInfo,
     postPlantToGetSectionInfo,
     postSectionToGetSubSectionInfo,
+    postSectionToGetAllDataForMainDashboard,
+    postLineToGetAllMachineData,
 
     postNewPlant, updatePlant, deletePlant,
     newSection, updateSection, deleteSection,

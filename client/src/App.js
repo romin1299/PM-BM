@@ -45,7 +45,7 @@ import MTDTLandHOSChecksheetCreationDashboard from "./pages/Section/Checksheet/M
 import CreationDashboardForTLHOSS from "./pages/MTD_TL_HOSS/CreationDashboardForTLHOSS";
 import UserAssignTLHOSS from "./pages/MTD_TL_HOSS/UserAssignTLHOSS";
 import SparePartUsageHistory from "./pages/MTD_TL_HOSS/SparePartUsageHistory";
-import OperatorDataEntry from "./Popups/OperatorDataEntry";
+import OperatorDataEntry from "./pages/MTD_TL_HOSS/OperatorDataEntry";
 
 //for Operator
 import CheckSheetForImplementation from "./pages/Operator/CheckSheetForImplementation"

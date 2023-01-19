@@ -1,5 +1,19 @@
 const mongoose = require('mongoose')
 
+
+let commonVariableForExtraSpareDetails = [
+    {
+        type: { type: String },
+        date: { type: String },
+        usedBy: { type: String },
+        partName: { type: String },
+        partNo: { type: String },
+        cost: { type: String },
+        abnormalityRemarks: { type: String },
+        sparePurpose: { type: String },
+    }
+]
+
 const machineSchema = mongoose.Schema({
     machine_code: {
         type: String
@@ -1170,9 +1184,9 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
-            revisionContentData:[
+            revisionContentData: [
                 {
-                    revisionContent:{
+                    revisionContent: {
                         type: String
                     },
                     revisionContentDate: {
@@ -1182,7 +1196,34 @@ const machineSchema = mongoose.Schema({
                         type: String
                     }
                 }
-            ]
+            ],
+
+
+            extraSpareDetails: {
+                Apr: commonVariableForExtraSpareDetails,
+
+                May: commonVariableForExtraSpareDetails,
+
+                June: commonVariableForExtraSpareDetails,
+
+                July: commonVariableForExtraSpareDetails,
+
+                Aug: commonVariableForExtraSpareDetails,
+
+                Sep: commonVariableForExtraSpareDetails,
+
+                Oct: commonVariableForExtraSpareDetails,
+
+                Nov: commonVariableForExtraSpareDetails,
+
+                Dec: commonVariableForExtraSpareDetails,
+
+                Jan: commonVariableForExtraSpareDetails,
+
+                Feb: commonVariableForExtraSpareDetails,
+
+                Mar: commonVariableForExtraSpareDetails,
+            },
         }
     ]
 
