@@ -204,8 +204,8 @@ const CheckSheetDashboard = () => {
                     ? rowData.checkSheet_data.checkSheet.length > 0
                       ? rowData.checkSheet_data.checkSheet.length < 1
                         ? "Preparation"
-                        : rowData.checkSheet_data.assign_TL.length > 0 ||
-                          rowData.checkSheet_data.assign_HOS.length > 0
+                        : rowData.checkSheet_data.assign_TL.length !== rowData.checkSheet_data.approved_by_TL.length ||
+                          rowData.checkSheet_data.assign_HOS.length !== rowData.checkSheet_data.approved_by_HOS.length
                         ? "Preparation Under Approval"
                         : "Under-Preparation"
                       : "Preparation"
@@ -240,7 +240,9 @@ const CheckSheetDashboard = () => {
                     ? rowData.checkSheet_data.checkSheet.map((key) => {
                         if ("start_month" in key) {
                           if (
-                            rowData.checkSheet_data.assign_PRD_TL.length > 0
+                            rowData?.checkSheet_data?.approved_by_PRD_TL
+                              .length !=
+                            rowData?.checkSheet_data?.assign_PRD_TL.length
                           ) {
                             return "Planning Under Approval";
                           } else {

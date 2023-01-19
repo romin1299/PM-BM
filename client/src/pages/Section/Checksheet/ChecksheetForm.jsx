@@ -4,7 +4,11 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import Rows from "./row";
 import "./index.css";
-import { useContext } from "../../../modules/PageModules";
+import {
+  useContext,
+  MaterialTable,
+  tableIcons,
+} from "../../../modules/PageModules";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import TextField from "@material-ui/core/TextField";
 import { useNavigate } from "react-router-dom";
@@ -83,8 +87,9 @@ function CheckSheetForm() {
     selectedMachineCheckSheetData?.state?.selectedRowForViewForm
       ?.checkSheet_data;
 
-  let attempsOfMidYearChanges = selectedMachineCheckSheetData?.state?.totalCountOfRivisionContent;
-  console.log(attempsOfMidYearChanges);
+  let attempsOfMidYearChanges =
+    selectedMachineCheckSheetData?.state?.displyingApprovalFormate;
+
   let columns = [
     {
       header: "SN",
@@ -173,6 +178,34 @@ function CheckSheetForm() {
     {
       header: "Mar",
       sort: "true",
+    },
+  ];
+
+  const revisedColumns = [
+    {
+      title: "SR. NO.",
+      render: (rowData) => `${rowData.tableData.id + 1}`,
+      width: "5%",
+      align: "center",
+    },
+    {
+      title: "Revision contents",
+      field: "revisionContent",
+      filtering: false,
+      align: "center",
+    },
+    {
+      title: "Date",
+      field: "revisionContentDate",
+      filtering: false,
+      align: "center",
+    },
+    {
+      title: "Revised by",
+      field: "revisedBy",
+      filtering: false,
+      align: "center",
+      editable: "false",
     },
   ];
 
@@ -266,9 +299,9 @@ function CheckSheetForm() {
           key === "PMOkImage" ||
           key === "completionDateOfInspection" ||
           key === "reasonForDelayWhenSkip" ||
-          key === "isAdded"||
-          key === "isEdited"||
-          key === "flagForCount"
+          key === "isAdded" ||
+          key === "isEdited" ||
+          key === "inspectionCompletionBy"
         ) {
           continue;
         }
@@ -739,7 +772,7 @@ function CheckSheetForm() {
                 <div>
                   {tableData?.length > 0 ? (
                     phaseStatus === "Implementation" &&
-                    attempsOfMidYearChanges > 0 ? (
+                    attempsOfMidYearChanges === true ? (
                       <form onSubmit={formik.handleSubmit}>
                         <div className="row">
                           <div className="row mb-3 mt-3">
@@ -911,9 +944,9 @@ function CheckSheetForm() {
                     ) : varForConditionChecking?.tl_approval_status[
                         varForConditionChecking?.tl_approval_status.length - 1
                       ] === "Pending" ||
-                      // varForConditionChecking.hos_approval_status[
-                      //   varForConditionChecking.hos_approval_status.length - 1
-                      // ] === "Pending" ||
+                      varForConditionChecking.hos_approval_status[
+                        varForConditionChecking.hos_approval_status.length - 1
+                      ] === "Pending" ||
                       varForConditionChecking?.hos_approval_status[
                         varForConditionChecking?.hos_approval_status.length - 1
                       ] === "Accepted" ? (
@@ -1608,7 +1641,12 @@ function CheckSheetForm() {
                   {newTableData.map((rData) => (
                     <Rows
                       rData={rData}
-                      isDeletedExists = {rData[10]?.["key"] === "isDeleted" && rData[10]?.["value"] === true ? true : false}
+                      isDeletedExists={
+                        rData[10]?.["key"] === "isDeleted" &&
+                        rData[10]?.["value"] === true
+                          ? true
+                          : false
+                      }
                       checkSheet_status={
                         machineAllData?.checkSheet_data?.checksheet_status
                       }
@@ -1775,28 +1813,64 @@ function CheckSheetForm() {
             </Col> */}
           </Row>
           <Row>
-            <Col></Col>
-            <Col className="ar-table tableCol">
-              <div className="mb-2 row">
-                <div className="col-6"> </div>
-                {/* <TextField
-                        type="text"
-                        className="col-6"
-                        name="pmTime"
-                        autoComplete="off"
-                        value={formik.values.pmTime}
-                        onChange={formik.handleChange}
-                        error={
-                          formik.touched.pmTime && Boolean(formik.errors.pmTime)
-                        }
-                        helperText={
-                          formik.touched.pmTime && formik.errors.pmTime
-                        }
-                      /> */}
-                <button
-                  className="btn col-3"
-                  onClick={funForOpeningSummeryPopups}
-                >
+            <Col>
+              <div className="m-2 p-3 border bg-white rounded">
+                <div>
+                  <MaterialTable
+                    localization={
+                      {
+                        // toolbar: {
+                        //   exportCSVName: "Export some Excel format",
+                        //   exportPDFName: "Export as pdf!!"
+                        // }
+                      }
+                    }
+                    icons={tableIcons}
+                    columns={revisedColumns}
+                    data={machineAllData?.checkSheet_data?.revisionContentData}
+                    // title="User Management"
+                    // tableRef={this.tableRef.current.onQueryChange()}
+
+                    editable={{}}
+                    options={{
+                      showTitle: false,
+                      paging: false,
+                      sorting: true,
+                      search: true,
+                      filtering: false,
+                      exportButton: true,
+                      exportAllData: true,
+                      draggable: false,
+                      actionsColumnIndex: -1,
+                      pageSize: 10,
+                      pageSizeOptions: false,
+                      paginationType: "stepped",
+                      addRowPosition: "first",
+                      headerStyle: {
+                        position: "sticky",
+                        top: "0",
+                        fontWeight: "bold",
+                      },
+                      maxBodyHeight: "70vh",
+                      rowStyle: {
+                        // fontStyle:'bold'
+
+                        boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                        // color:"rgba(255,255,255,0.8)",
+                        borderRadius: "5px",
+                        border: "1px solid rgba(255,255,255)",
+                        WebkitBackdropFilter: "blur( 2px )",
+                        background: "rgba(255,255,255,0.1)",
+                        backdropFilter: "blur(5px)",
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+            </Col>
+            <Col>
+              <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                <button className="btn" onClick={funForOpeningSummeryPopups}>
                   Summary
                 </button>
               </div>

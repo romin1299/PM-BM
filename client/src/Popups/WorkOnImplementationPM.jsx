@@ -76,20 +76,20 @@ function WorkOnImplementationPM({
     }),
   });
 
-    //get the date and time
-    const timeStamp = () => {
-      let date = new Date();
-      let getTime = date
-        .toLocaleTimeString("en-IN", {
-          hour12: true,
-        })
-        .replace(/(.*)\D\d+/, "$1");
-      const year = date.getFullYear(); // 2019
-      const month = date.getMonth() + 1;
-      const day = date.getDate(); // 23
-  
-      return `${day}/${month}/${year} - ${getTime}`;
-    };
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -115,6 +115,8 @@ function WorkOnImplementationPM({
     validationSchema: validationSchema,
 
     onSubmit: async (values) => {
+      let completionDateOfInspection = timeStamp();
+
       let formData = new FormData();
       formData.append("photoUpload", userPhoto);
       formData.append("workedOnPM", values.workedOnPM);
@@ -139,7 +141,7 @@ function WorkOnImplementationPM({
       formData.append("partName", values.partName);
       formData.append("partNo", values.partNo);
       formData.append("cost", values.cost);
-      formData.append("completionDateOfInspection", timeStamp)
+      formData.append("completionDateOfInspection", completionDateOfInspection);
       // console.log(formData);
 
       axios

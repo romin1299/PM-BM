@@ -129,6 +129,24 @@ const CheckSheetApprovalDashboardForHOS = () => {
         position: "row",
       };
     },
+    (rowData) => {
+      return {
+        hidden:
+          rowData.checkSheet_data != null
+            ? rowData.checkSheet_data.checksheet_status === "Preparation" ||
+              rowData.checkSheet_data.checksheet_status === "Planning"
+            : "",
+        icon: () => <button className="btn-reset">Implementation</button>,
+        // tooltip: <h1>I am a tooltip</h1>,
+        onClick: (event, selectedRow) => {
+          navigate("/checksheetFormApproval", {
+            state: { selectedRowForViewForm: selectedRow },
+          });
+        },
+        disabled: false, // Set disabled to false by default for all actions
+        position: "row",
+      };
+    },
     {
       icon: () => <button className="btn-primary">View</button>,
       // tooltip: <h1>I am a tooltip</h1>,

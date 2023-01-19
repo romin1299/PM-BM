@@ -4,7 +4,11 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import Rows from "./row";
 import "./index.css";
-import { useContext } from "../../../modules/PageModules";
+import {
+  useContext,
+  MaterialTable,
+  tableIcons,
+} from "../../../modules/PageModules";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import TextField from "@material-ui/core/TextField";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +24,7 @@ function ChecksheetFormApprovalForHOS() {
   const navigate = useNavigate();
   let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
   const [stateForOpeningSummeryPopups, setStateForOpeningSummeryPopups] =
-  useState("");
+    useState("");
   const validationSchema = yup.object({
     request: yup.string().required("Please select one"),
     rejected_remarks: yup.string().when(["request"], {
@@ -30,13 +34,12 @@ function ChecksheetFormApprovalForHOS() {
   });
 
   let tableData =
-  selectedMachineCheckSheetData.state?.selectedRowForViewForm?.checkSheet_data
-    ?.checkSheet;
-// console.log(tableData);
+    selectedMachineCheckSheetData.state?.selectedRowForViewForm?.checkSheet_data
+      ?.checkSheet;
+  // console.log(tableData);
 
-let machineAllData =
-  selectedMachineCheckSheetData.state?.selectedRowForViewForm;
-
+  let machineAllData =
+    selectedMachineCheckSheetData.state?.selectedRowForViewForm;
 
   let columns = [
     {
@@ -128,6 +131,35 @@ let machineAllData =
       sort: "true",
     },
   ];
+
+  const revisedColumns = [
+    {
+      title: "SR. NO.",
+      render: (rowData) => `${rowData.tableData.id + 1}`,
+      width: "5%",
+      align: "center",
+    },
+    {
+      title: "Revision contents",
+      field: "revisionContent",
+      filtering: false,
+      align: "center",
+    },
+    {
+      title: "Date",
+      field: "revisionContentDate",
+      filtering: false,
+      align: "center",
+    },
+    {
+      title: "Revised by",
+      field: "revisedBy",
+      filtering: false,
+      align: "center",
+      editable: "false",
+    },
+  ];
+
   const monthKeyArray = [
     "Jan",
     "Feb",
@@ -144,9 +176,10 @@ let machineAllData =
   ];
   let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
 
-  let previousMonth = monthKeyArray[new Date().getMonth() - 1] === undefined
-            ? monthKeyArray.splice(-1)[0]
-            : monthKeyArray[new Date().getMonth() - 1];
+  let previousMonth =
+    monthKeyArray[new Date().getMonth() - 1] === undefined
+      ? monthKeyArray.splice(-1)[0]
+      : monthKeyArray[new Date().getMonth() - 1];
 
   const PMCarryOnToNextMonth = async (tableRowId) => {
     // console.log(tableRowId);
@@ -181,7 +214,6 @@ let machineAllData =
     }
   };
 
-
   function compareCycle(a, b) {
     // converting to uppercase to have case-insensitive comparison
     const name1 = a.cycle.toUpperCase();
@@ -213,10 +245,13 @@ let machineAllData =
           key === "planningTableAnimationArray2" ||
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
-          key === "start_month"||
-          key === "PMOkImage"||
+          key === "start_month" ||
+          key === "PMOkImage" ||
           key === "completionDateOfInspection" ||
-          key === "reasonForDelayWhenSkip"
+          key === "reasonForDelayWhenSkip" ||
+          key === "isAdded" ||
+          key === "isEdited" ||
+          key === "inspectionCompletionBy"
         ) {
           continue;
         }
@@ -237,6 +272,16 @@ let machineAllData =
                 rowspan: 1,
                 // colspan: 1,
                 print: true,
+              })
+            )
+          : key === "isDeleted"
+          ? newColData.push(
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: false,
               })
             )
           : newColData.push(
@@ -455,16 +500,18 @@ let machineAllData =
 
   const close = () => {
     setStateForOpeningSummeryPopups("");
-    document.querySelector(".checkSheetForImplementation1").style.pointerEvents =
-      "auto";
+    document.querySelector(
+      ".checkSheetForImplementation1"
+    ).style.pointerEvents = "auto";
   };
 
   const funForOpeningSummeryPopups = () => {
     setStateForOpeningSummeryPopups(
       <SummeryPopups close={close} tableData={tableData} />
     );
-    document.querySelector(".checkSheetForImplementation1").style.pointerEvents =
-      "none";
+    document.querySelector(
+      ".checkSheetForImplementation1"
+    ).style.pointerEvents = "none";
   };
 
   // const approveRequestFromTL = async () => {
@@ -647,11 +694,13 @@ let machineAllData =
                       //  rowSpan={5}
                     >
                       {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
-                        machineAllData?.checkSheet_data?.approved_by_PRD_TL.length - 1
+                        machineAllData?.checkSheet_data?.approved_by_PRD_TL
+                          .length - 1
                       ]
                         ? `${
                             machineAllData?.checkSheet_data?.approved_by_PRD_TL[
-                              machineAllData?.checkSheet_data?.approved_by_PRD_TL.length - 1
+                              machineAllData?.checkSheet_data
+                                ?.approved_by_PRD_TL.length - 1
                             ]
                           }`
                         : ""}
@@ -662,11 +711,14 @@ let machineAllData =
                       //  rowSpan={5}
                     >
                       {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
-                        machineAllData?.checkSheet_data?.plan_prepared_tm_name.length - 1
+                        machineAllData?.checkSheet_data?.plan_prepared_tm_name
+                          .length - 1
                       ]
                         ? `${
-                            machineAllData?.checkSheet_data?.plan_prepared_tm_name[
-                              machineAllData?.checkSheet_data?.plan_prepared_tm_name.length - 1
+                            machineAllData?.checkSheet_data
+                              ?.plan_prepared_tm_name[
+                              machineAllData?.checkSheet_data
+                                ?.plan_prepared_tm_name.length - 1
                             ]
                           }`
                         : ""}
@@ -741,60 +793,72 @@ let machineAllData =
                     <br />
                     (MTD TL)
                   </th>
-                  {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_TL
-                      ? Object.values(
-                          machineAllData?.checkSheet_data?.implementation_approved_by_MTD_TL
-                        ).map((index) => (
-                          <td className="ar-table-col1">{index[(index.length) - 1]}</td>
-                        ))
-                      : refArrayForTDMapping.map((index) => (
-                          <td className="ar-table-col1"></td>
-                        ))}
+                  {machineAllData?.checkSheet_data
+                    ?.implementation_approved_by_MTD_TL
+                    ? Object.values(
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_MTD_TL
+                      ).map((index) => (
+                        <td className="ar-table-col1">
+                          {index[index.length - 1]}
+                        </td>
+                      ))
+                    : refArrayForTDMapping.map((index) => (
+                        <td className="ar-table-col1"></td>
+                      ))}
                 </tr>
                 <tr>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
-                  {machineAllData?.checkSheet_data?.approved_by_HOS[
-                        machineAllData?.checkSheet_data?.approved_by_HOS.length - 1
-                      ]
-                        ? machineAllData?.checkSheet_data?.approved_by_HOS[
-                            machineAllData?.checkSheet_data?.approved_by_HOS.length - 1
-                          ]
-                        : ""}
+                    {machineAllData?.checkSheet_data?.approved_by_HOS[
+                      machineAllData?.checkSheet_data?.approved_by_HOS.length -
+                        1
+                    ]
+                      ? machineAllData?.checkSheet_data?.approved_by_HOS[
+                          machineAllData?.checkSheet_data?.approved_by_HOS
+                            .length - 1
+                        ]
+                      : ""}
                     <br />
 
                     {machineAllData?.checkSheet_data?.approved_by_TL[
-                        machineAllData?.checkSheet_data?.approved_by_TL.length - 1
-                      ]
-                        ? `,${
-                            machineAllData?.checkSheet_data?.approved_by_TL[
-                              machineAllData?.checkSheet_data?.approved_by_TL.length - 1
-                            ]
-                          }`
-                        : ""}
+                      machineAllData?.checkSheet_data?.approved_by_TL.length - 1
+                    ]
+                      ? `,${
+                          machineAllData?.checkSheet_data?.approved_by_TL[
+                            machineAllData?.checkSheet_data?.approved_by_TL
+                              .length - 1
+                          ]
+                        }`
+                      : ""}
                   </th>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
-                  {machineAllData?.checkSheet_data?.sender_tm_name[
-                        machineAllData?.checkSheet_data?.sender_tm_name.length - 1
-                      ]
-                        ? machineAllData?.checkSheet_data?.sender_tm_name[
-                            machineAllData?.checkSheet_data?.sender_tm_name.length - 1
-                          ]
-                        : ""}
+                    {machineAllData?.checkSheet_data?.sender_tm_name[
+                      machineAllData?.checkSheet_data?.sender_tm_name.length - 1
+                    ]
+                      ? machineAllData?.checkSheet_data?.sender_tm_name[
+                          machineAllData?.checkSheet_data?.sender_tm_name
+                            .length - 1
+                        ]
+                      : ""}
                   </th>
                   <th className="ar-table-thead-header1">
                     Approved by
                     <br />
                     (MTD HOS)
                   </th>
-                  {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOS
-                      ? Object.values(
-                          machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOS
-                        ).map((index) => (
-                          <td className="ar-table-col1">{index[(index.length) - 1]}</td>
-                        ))
-                      : refArrayForTDMapping.map((index) => (
-                          <td className="ar-table-col1"></td>
-                        ))}
+                  {machineAllData?.checkSheet_data
+                    ?.implementation_approved_by_MTD_HOS
+                    ? Object.values(
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_MTD_HOS
+                      ).map((index) => (
+                        <td className="ar-table-col1">
+                          {index[index.length - 1]}
+                        </td>
+                      ))
+                    : refArrayForTDMapping.map((index) => (
+                        <td className="ar-table-col1"></td>
+                      ))}
                 </tr>
                 <tr>
                   <th className="ar-table-thead-header1">
@@ -848,7 +912,15 @@ let machineAllData =
                 {newTableData.map((rData) => (
                   <Rows
                     rData={rData}
-                    checkSheet_status={machineAllData?.checkSheet_data?.checksheet_status}
+                    isDeletedExists={
+                      rData[10]?.["key"] === "isDeleted" &&
+                      rData[10]?.["value"] === true
+                        ? true
+                        : false
+                    }
+                    checkSheet_status={
+                      machineAllData?.checkSheet_data?.checksheet_status
+                    }
                   />
                 ))}
                 <tr>
@@ -859,11 +931,11 @@ let machineAllData =
                     (MTD TM's)
                   </th>
                   {machineAllData?.checkSheet_data?.PMworkedTMName
-                    ? Object.values(machineAllData?.checkSheet_data?.PMworkedTMName).map(
-                        (index) => (
-                          <td className="ar-table-col1">{index.join(" ,")}</td>
-                        )
-                      )
+                    ? Object.values(
+                        machineAllData?.checkSheet_data?.PMworkedTMName
+                      ).map((index) => (
+                        <td className="ar-table-col1">{index.join(" ,")}</td>
+                      ))
                     : refArrayForTDMapping.map((index) => (
                         <td className="ar-table-col1"></td>
                       ))}
@@ -875,11 +947,15 @@ let machineAllData =
                     <br />
                     (By PRD TL)
                   </th>
-                  {machineAllData?.checkSheet_data?.implementation_approved_by_PRD_TL
+                  {machineAllData?.checkSheet_data
+                    ?.implementation_approved_by_PRD_TL
                     ? Object.values(
-                        machineAllData?.checkSheet_data?.implementation_approved_by_PRD_TL
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_PRD_TL
                       ).map((index) => (
-                        <td className="ar-table-col1">{index[(index.length) - 1]}</td>
+                        <td className="ar-table-col1">
+                          {index[index.length - 1]}
+                        </td>
                       ))
                     : refArrayForTDMapping.map((index) => (
                         <td className="ar-table-col1"></td>
@@ -1008,33 +1084,77 @@ let machineAllData =
             </Col> */}
         </Row>
         <Row>
-            <Col></Col>
-            <Col className="ar-table tableCol">
-              <div className="mb-2 row">
-                <div className="col-6"> </div>
-                {/* <TextField
-                        type="text"
-                        className="col-6"
-                        name="pmTime"
-                        autoComplete="off"
-                        value={formik.values.pmTime}
-                        onChange={formik.handleChange}
-                        error={
-                          formik.touched.pmTime && Boolean(formik.errors.pmTime)
-                        }
-                        helperText={
-                          formik.touched.pmTime && formik.errors.pmTime
-                        }
-                      /> */}
-                <button
-                  className="btn col-3"
-                  onClick={funForOpeningSummeryPopups}
-                >
-                  Summary
-                </button>
+          <Col>
+            <div className="m-2 p-3 border bg-white rounded">
+              <div>
+                <MaterialTable
+                  style={{ boxShadow: "none" }}
+                  localization={
+                    {
+                      // toolbar: {
+                      //   exportCSVName: "Export some Excel format",
+                      //   exportPDFName: "Export as pdf!!"
+                      // }
+                    }
+                  }
+                  icons={tableIcons}
+                  columns={revisedColumns}
+                  data={machineAllData?.checkSheet_data?.revisionContentData}
+                  // title="User Management"
+                  // tableRef={this.tableRef.current.onQueryChange()}
+
+                  editable={{}}
+                  options={{
+                    showTitle: false,
+                    paging: false,
+                    sorting: true,
+                    search: true,
+                    filtering: false,
+                    exportButton: true,
+                    exportAllData: true,
+                    draggable: false,
+                    actionsColumnIndex: -1,
+                    pageSize: 10,
+                    pageSizeOptions: false,
+                    paginationType: "stepped",
+                    addRowPosition: "first",
+                    headerStyle: {
+                      position: "sticky",
+                      top: "0",
+                      fontWeight: "bold",
+                    },
+                    maxBodyHeight: "70vh",
+                    rowStyle: {
+                      // fontStyle:'bold'
+
+                      // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                      // color:"rgba(255,255,255,0.8)",
+                      borderRadius: "5px",
+                      border: "1px solid black",
+                      // WebkitBackdropFilter: "blur( 2px )",
+                      background: "rgba(255,255,255,0.1)",
+                      // backdropFilter: "blur(5px)",
+                    },
+                    cellStyle: {
+                      border: "1px solid black",
+                    },
+                    headerStyle: {
+                      border: "1px solid black",
+                      fontWeight: "bold",
+                    },
+                  }}
+                />
               </div>
-            </Col>
-          </Row>
+            </div>
+          </Col>
+          <Col>
+            <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+              <button className="btn" onClick={funForOpeningSummeryPopups}>
+                Summary
+              </button>
+            </div>
+          </Col>
+        </Row>
       </Container>
     </>
   );

@@ -13,6 +13,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useFormik } from "formik";
 import { Navigate, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
+import { ToastContainer, toast } from "react-toastify";
 
 const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
   const [tableData, setTableData] = useState([]);
@@ -30,6 +31,10 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
   const [selectedRow, setSelectedRow] = useState([]);
   const [refKey, setRefKey] = useState(0);
   const navigate = useNavigate();
+
+  const [revisionContentTableData, setRevisionContentTableData] = useState([]);
+
+  const [yearOfCheckSheet, setYearOfCheckSheet] = useState();
 
   const selectedMachineData = useLocation();
   // console.log(selectedMachineData.state);
@@ -89,6 +94,44 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
     {
       label: "P:Pollution",
       value: "P",
+    },
+  ];
+
+  const revisedColumns = [
+    {
+      title: "SR. NO.",
+      render: (rowData) => `${rowData.tableData.id + 1}`,
+      width: "5%",
+      align: "center",
+    },
+    {
+      title: "Revision contents",
+      field: "revisionContent",
+      filtering: false,
+      align: "center",
+      validate: (row) => (row.revisionContent || "").length !== 0,
+    },
+    {
+      title: "Date",
+      field: "revisionContentDate",
+      filtering: false,
+      align: "center",
+      editComponent: ({ value, onChange }) => (
+        <input
+          type="date"
+          //   className="col-6"
+          name="revisionContentDate"
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+      validate: (row) => (row.revisionContentDate || "").length !== 0,
+    },
+    {
+      title: "Revised by",
+      field: "revisedBy",
+      filtering: false,
+      align: "center",
+      editable: "false",
     },
   ];
 
@@ -265,6 +308,10 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
         // console.log("Data post", data);
         setTableData(data.getSelectedMachineChecksheet);
         setMachineData(data.machineData);
+        setYearOfCheckSheet(data.yearOfCheckSheet);
+        setRevisionContentTableData(
+          data?.machineData[0]?.checkSheet_data?.revisionContentData
+        );
       }
     } catch (error) {
       console.log(error);
@@ -288,6 +335,10 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
           personInCharge: selectedRow.personInCharge,
           PM_time: selectedRow.PM_time,
           machineId: selectedMachineData.state.selectedRow.machine_code,
+          isAdded:
+            machineData[0]?.checkSheet_data?.revisionContentData?.length > 0
+              ? true
+              : false,
         }),
       });
       const data = await res.json();
@@ -306,15 +357,37 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
     }
   };
 
+  const notifyForUpdateCycle = () => {
+    toast.info("Please change start month of cycle in Planning Phase !", {
+      position: "top-center",
+      autoClose: false,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+
   //update the data of the user using user id
-  const updateSelectedMachineChecksheetTableRowData = async (updatedRow) => {
+  const updateSelectedMachineChecksheetTableRowData = async (
+    updatedRow,
+    oldRow
+  ) => {
     try {
       const res = await fetch("/updateSelectedMachineChecksheetTableRowData", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           rowData: updatedRow,
+          oldRow,
+          yearOfCheckSheet,
           machineId: selectedMachineData.state.selectedRow.machine_code,
+          isEdited:
+            machineData[0]?.checkSheet_data?.revisionContentData?.length > 0
+              ? true
+              : false,
         }),
       });
 
@@ -327,6 +400,9 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
         // refreshPage();
       } else {
         console.log("Data Updated Successful");
+        if (data?.flagForCycleChange === true) {
+          notifyForUpdateCycle();
+        }
         // refreshPage();
         // const dateAndTime = timeStamp();
         // const addMessage = `${updatedRow.user_name} user updated`;
@@ -347,6 +423,10 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
         body: JSON.stringify({
           rowData: selectedRow,
           machineId: selectedMachineData.state.selectedRow.machine_code,
+          isDeleted:
+            machineData[0]?.checkSheet_data?.revisionContentData?.length > 0
+              ? true
+              : false,
         }),
       });
       const data = await res.json();
@@ -354,6 +434,55 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
         window.alert("Invalid");
       } else {
         console.log("User Deleted Successful");
+        // console.log("hello");
+        // refreshPage();
+        // const dateAndTime = timeStamp();
+        // const addMessage = `${selectedRow.user_name} user deleted`;
+        // logData(dateAndTime, addMessage);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addRevisionContent = async (selectedRow) => {
+    try {
+      const res = await fetch("/addRevisionContent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          selectedRow,
+          machineAllData: selectedMachineData.state.selectedRow,
+        }),
+      });
+      const data = await res.json();
+      if (res.status === 400 || res.status === 422 || !data) {
+        window.alert("Invalid");
+      } else {
+        console.log("Revision data added Successful");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteRevisionContentData = async (selectedRow) => {
+    // console.log(tm_no);
+    try {
+      const res = await fetch("/deleteRevisionContentData", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rowData: selectedRow,
+          machineId: selectedMachineData.state.selectedRow.machine_code,
+          yearOfCheckSheet,
+        }),
+      });
+      const data = await res.json();
+      if (res.status === 400 || res.status === 422 || !data) {
+        window.alert("Invalid");
+      } else {
+        console.log("Revision Content Row Deleted Successful");
         // console.log("hello");
         // refreshPage();
         // const dateAndTime = timeStamp();
@@ -441,10 +570,62 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
     }
   }, [line]);
 
+  const notifyForRevisionContent = () => {
+    toast.error(
+      "Please fill all revision content which you (ADD/UPDATE/DELETE) !",
+      {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      }
+    );
+  };
+
   const showChecksheet = () => {
-    navigate("/checksheetFormApproval", {
-      state: { selectedRowForViewForm: machineData[0] },
-    });
+    if (machineData[0]?.checkSheet_data?.revisionContentData?.length > 0) {
+      if (machineData[0]?.checkSheet_data?.flagForRevisionContent === true) {
+        if (
+          machineData[0]?.checkSheet_data?.flagForRevisionContent === true &&
+          machineData[0]?.checkSheet_data
+            ?.flagForNewRevisionContentDataAdded === true
+        ) {
+          navigate("/checksheetFormApproval", {
+            state: {
+              selectedRowForViewForm: machineData[0],
+              displyingApprovalFormate:
+                machineData[0]?.checkSheet_data
+                  ?.flagForNewRevisionContentDataAdded,
+            },
+          });
+        } else if (
+          machineData[0]?.checkSheet_data?.flagForRevisionContent === true &&
+          (machineData[0]?.checkSheet_data
+            ?.flagForNewRevisionContentDataAdded === false ||
+            machineData[0]?.checkSheet_data
+              ?.flagForNewRevisionContentDataAdded === undefined)
+        ) {
+          notifyForRevisionContent();
+        }
+      } else {
+        navigate("/checksheetFormApproval", {
+          state: {
+            selectedRowForViewForm: machineData[0],
+            displyingApprovalFormate:
+              machineData[0]?.checkSheet_data
+                ?.flagForNewRevisionContentDataAdded,
+          },
+        });
+      }
+    } else {
+      navigate("/checksheetFormApproval", {
+        state: { selectedRowForViewForm: machineData[0] },
+      });
+    }
   };
 
   function compareCycle(a, b) {
@@ -464,6 +645,8 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
 
   return (
     <>
+      <ToastContainer style={{ width: "30rem" }} />
+
       <div style={{ margin: "0.5rem" }}>
         <div className="pageCard">
           <button
@@ -524,11 +707,12 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
 
               editable={{
                 // isDeleteHidden: (rowData) => rowData.user_type === 0,
+                isDeleteHidden: (rowData) => rowData?.isDeleted,
+                isEditHidden: (rowData) => rowData?.isDeleted,
                 onRowAdd: (newRow) =>
                   new Promise((resolve, reject) => {
                     // const updatedRows = [tableData, { user_id: "", ...newRow }];
-                    console.log(newRow);
-                    console.log("Checking ");
+
                     addNewChecksheetData(newRow);
 
                     setTimeout(() => {
@@ -553,7 +737,10 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
                 onRowUpdate: (updatedRow, oldRow) =>
                   new Promise((resolve, reject) => {
                     //call the update user function and pass the user data
-                    updateSelectedMachineChecksheetTableRowData(updatedRow);
+                    updateSelectedMachineChecksheetTableRowData(
+                      updatedRow,
+                      oldRow
+                    );
                     setTimeout(() => {
                       setRefKey((refKey) => refKey + 1);
                       resolve();
@@ -581,17 +768,18 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
                   fontWeight: "bold",
                 },
                 maxBodyHeight: "70vh",
-                rowStyle: {
-                  // fontStyle:'bold'
-
+                rowStyle: (rowData) => ({
                   boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
                   // color:"rgba(255,255,255,0.8)",
                   borderRadius: "5px",
                   border: "1px solid rgba(255,255,255)",
                   WebkitBackdropFilter: "blur( 2px )",
-                  background: "rgba(255,255,255,0.1)",
+                  background: rowData?.isDeleted
+                    ? "#f7b1bf"
+                    : "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
-                },
+                  // textDecoration: rowData?.isDeleted ? "line-through solid red 15%" : "none"
+                }),
               }}
             />
             <div className="col-4 mt-2" style={{ float: "right" }}>
@@ -605,6 +793,109 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
             </div>
           </div>
         </div>
+        {machineData[0]?.checkSheet_data?.revisionContentData === true ? (
+          <div className="row m-3 p-3 border bg-white rounded">
+            <div>
+              <MaterialTable
+                style={{ boxShadow: "none" }}
+                localization={
+                  {
+                    // toolbar: {
+                    //   exportCSVName: "Export some Excel format",
+                    //   exportPDFName: "Export as pdf!!"
+                    // }
+                  }
+                }
+                icons={tableIcons}
+                columns={revisedColumns}
+                data={revisionContentTableData}
+                // title="User Management"
+                // tableRef={this.tableRef.current.onQueryChange()}
+
+                editable={{
+                  // isDeleteHidden: (rowData) => rowData.user_type === 0,
+                  onRowAdd: (newRow) =>
+                    new Promise((resolve, reject) => {
+                      // const updatedRows = [tableData, { user_id: "", ...newRow }];
+
+                      addRevisionContent(newRow);
+
+                      setTimeout(() => {
+                        // setTableData(updatedRows);
+                        setRefKey((refKey) => refKey + 1);
+                        resolve();
+                      }, 500);
+                      //refreshPage();
+                    }),
+
+                  onRowDelete: (selectedRow) =>
+                    new Promise((resolve, reject) => {
+                      //call the delete user function and pass the user data
+                      deleteRevisionContentData(selectedRow);
+
+                      setTimeout(() => {
+                        setRefKey((refKey) => refKey + 1);
+                        // setTableData(updatedRows);
+                        resolve();
+                      }, 500);
+                    }),
+
+                  // onRowUpdate: (updatedRow, oldRow) =>
+                  //   new Promise((resolve, reject) => {
+                  //     //call the update user function and pass the user data
+                  //     updateSelectedMachineChecksheetTableRowData(updatedRow);
+                  //     setTimeout(() => {
+                  //       setRefKey((refKey) => refKey + 1);
+                  //       resolve();
+                  //     }, 500);
+                  //     //refreshPage();
+                  //   }),
+                }}
+                options={{
+                  showTitle: false,
+                  paging: false,
+                  sorting: true,
+                  search: true,
+                  filtering: false,
+                  exportButton: true,
+                  exportAllData: true,
+                  draggable: false,
+                  actionsColumnIndex: -1,
+                  pageSize: 10,
+                  pageSizeOptions: false,
+                  paginationType: "stepped",
+                  addRowPosition: "first",
+                  headerStyle: {
+                    position: "sticky",
+                    top: "0",
+                    fontWeight: "bold",
+                  },
+                  maxBodyHeight: "70vh",
+                  rowStyle: {
+                    // fontStyle:'bold'
+
+                    // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                    // color:"rgba(255,255,255,0.8)",
+                    borderRadius: "5px",
+                    border: "1px solid black",
+                    // WebkitBackdropFilter: "blur( 2px )",
+                    background: "rgba(255,255,255,0.1)",
+                    // backdropFilter: "blur(5px)",
+                  },
+                  cellStyle: {
+                    border: "1px solid black",
+                  },
+                  headerStyle: {
+                    border: "1px solid black",
+                    fontWeight: "bold",
+                  },
+                }}
+              />
+            </div>
+          </div>
+        ) : (
+          ""
+        )}
       </div>
     </>
   );

@@ -151,7 +151,7 @@ const CheckSheetApprovalDashboardForTL = () => {
       icon: () => <button className="btn-primary">View</button>,
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
-        if (context.tm_department === "MTD") {
+        if (context.tm_department === "MTD" && selectedRow?.checkSheet_data?.checksheet_status === "Preparation") {
           navigate("/viewCheckSheet", {
             state: { selectedRowForViewForm: selectedRow },
           });
