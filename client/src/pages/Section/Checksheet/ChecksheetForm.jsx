@@ -21,7 +21,9 @@ import FileDownload from "js-file-download";
 
 function CheckSheetForm() {
   const context = useContext(RoutingContext);
+
   const selectedMachineCheckSheetData = useLocation();
+
   const [newTableData, setNewTableData] = useState([]);
   const [refKey, setRefKey] = useState("");
 
@@ -36,6 +38,8 @@ function CheckSheetForm() {
   const navigate = useNavigate();
 
   let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+  console.log(selectedMachineCheckSheetData.state);
 
   const validationSchema = yup.object({
     request: yup.string().required("Please select one"),
@@ -507,6 +511,19 @@ function CheckSheetForm() {
 
     return `${day}/${month}/${year} - ${getTime}`;
   };
+
+  // console.log(
+  //   selectedMachineCheckSheetData.state.selectedRowForViewForm?.line_names
+  //     ?.line_name,
+  //   selectedMachineCheckSheetData.state.selectedRowForViewForm?.line_names
+  //     ?.cell_names?.cell_name
+  // );
+
+  // console.log(
+  //   `Checksheet Preparation Approval (${selectedMachineCheckSheetData.state.selectedRowForViewForm?.line_names?.cell_names?.cell_name}/${selectedMachineCheckSheetData.state.selectedRowForViewForm?.line_names?.line_name}/${selectedMachineCheckSheetData.state.selectedRowForViewForm?.machine_code})`
+  // );
+
+  // console.log(context?.section_data);
 
   //for planning phase approval
   const formik1 = useFormik({

@@ -3,7 +3,6 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
-
 dotenv.config({ path: './config.env' })
 
 
@@ -20,6 +19,12 @@ require(path.join(__dirname, './model/machineSchema'))
 app.use(express.json())
 
 app.use(require(path.join(__dirname, './controller/auth')));
+
+
+
+require(path.join(__dirname, './controller/autoMailSendStartingOfEveryMonthController'));
+require(path.join(__dirname, './controller/autoMailSendMidAndEndOfEveryMonthController'));
+
 
 //for logos and other image
 app.use(express.static(path.join(__dirname, 'images')));

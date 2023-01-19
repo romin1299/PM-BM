@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const sendApproval = async (assign_member_name, tm_no, tm_name, machine_code, machine_name, checksheet_status, firstEmail, secondEmail, prdtlApproval, mtdtlApproval, mtdhosApproval, rejected_remarks) => {
+const sendApproval = async (subject, title, greetings, bodyTable,assign_member_name, tm_no, tm_name, machine_code, machine_name, checksheet_status, firstEmail, secondEmail, prdtlApproval, mtdtlApproval, mtdhosApproval, rejected_remarks) => {
     // console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
     // console.log("==============>", prdtlApproval, mtdhosApproval)
     // console.log("==============>", request)
@@ -19,7 +19,7 @@ const sendApproval = async (assign_member_name, tm_no, tm_name, machine_code, ma
     let mailOptions = {
         from: "sm_sample11@outlook.com",
         to: [firstEmail, secondEmail],
-        subject: 'Approval Request',
+        subject: subject,
         html: `
         <!doctype html>
 <html lang="en-US">

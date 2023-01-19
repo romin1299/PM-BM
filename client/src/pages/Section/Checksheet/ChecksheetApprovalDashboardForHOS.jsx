@@ -28,7 +28,7 @@ const CheckSheetApprovalDashboardForHOS = () => {
       });
 
       const data = await res.json();
-      console.log(data)
+      console.log(data);
       setTableData(data);
     } catch (error) {
       console.log(error);
@@ -113,10 +113,10 @@ const CheckSheetApprovalDashboardForHOS = () => {
     (rowData) => {
       return {
         hidden:
-        rowData.checkSheet_data != null
-        ? rowData.checkSheet_data.checksheet_status === "Implementation" ||
-          rowData.checkSheet_data.checksheet_status === "Planning"
-        : "",
+          rowData.checkSheet_data != null
+            ? rowData.checkSheet_data.checksheet_status === "Implementation" ||
+              rowData.checkSheet_data.checksheet_status === "Planning"
+            : "",
 
         icon: () => <button className="btn-reset">Preparation</button>,
         // tooltip: <h1>I am a tooltip</h1>,
