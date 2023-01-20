@@ -185,9 +185,9 @@ function CheckSheet({
         method: "Post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prd_tl_list: values.prd_tl_list,
-          mtd_tl_list: values.mtd_tl_list,
-          mtd_hos_list: values.mtd_hos_list,
+          prd_tl_list: PRDTLlist[values.prd_tl_list],
+          mtd_tl_list: MTDTLlist[values.mtd_tl_list],
+          mtd_hos_list: HOSList[values.mtd_hos_list],
           implemetation_completed_date: timeStamp(),
           selected_machine_data: machineAllData,
           monthForCompareSystemMonth,
@@ -1888,9 +1888,9 @@ function CheckSheet({
                                             <option selected disabled value="">
                                               Please select
                                             </option>
-                                            {PRDTLlist.map((index) => {
+                                            {PRDTLlist?.map((index, idx) => {
                                               return (
-                                                <option value={index.email}>
+                                                <option value={idx}>
                                                   {index.tm_name}
                                                 </option>
                                               );
@@ -1938,9 +1938,9 @@ function CheckSheet({
                                             <option selected disabled value="">
                                               Please select
                                             </option>
-                                            {MTDTLlist.map((index) => {
+                                            {MTDTLlist?.map((index,idx) => {
                                               return (
-                                                <option value={index.email}>
+                                                <option value={idx}>
                                                   {index.tm_name}
                                                 </option>
                                               );
@@ -1987,9 +1987,9 @@ function CheckSheet({
                                             <option selected disabled value="">
                                               Please select
                                             </option>
-                                            {HOSList.map((index) => {
+                                            {HOSList?.map((index,idx) => {
                                               return (
-                                                <option value={index.email}>
+                                                <option value={idx}>
                                                   {index.tm_name}
                                                 </option>
                                               );
@@ -2294,9 +2294,9 @@ function CheckSheet({
                                           <option selected disabled value="">
                                             Please select
                                           </option>
-                                          {PRDTLlist.map((index) => {
+                                          {PRDTLlist?.map((index,idx) => {
                                             return (
-                                              <option value={index.email}>
+                                              <option value={idx}>
                                                 {index.tm_name}
                                               </option>
                                             );
@@ -2343,9 +2343,9 @@ function CheckSheet({
                                           <option selected disabled value="">
                                             Please select
                                           </option>
-                                          {MTDTLlist.map((index) => {
+                                          {MTDTLlist?.map((index,idx) => {
                                             return (
-                                              <option value={index.email}>
+                                              <option value={idx}>
                                                 {index.tm_name}
                                               </option>
                                             );
@@ -2392,9 +2392,9 @@ function CheckSheet({
                                           <option selected disabled value="">
                                             Please select
                                           </option>
-                                          {HOSList.map((index) => {
+                                          {HOSList?.map((index, idx) => {
                                             return (
-                                              <option value={index.email}>
+                                              <option value={idx}>
                                                 {index.tm_name}
                                               </option>
                                             );

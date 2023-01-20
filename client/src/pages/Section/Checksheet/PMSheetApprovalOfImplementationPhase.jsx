@@ -264,7 +264,7 @@ function PMSheetApprovalOfImplementationPhase() {
                             <b>{value}</b>-
                             {
                               index?.checkSheet_data
-                                ?.implementation_approved_by_PRD_TL[monthKey][idx]
+                                ?.implementation_assign_PRD_TL_name?.[monthKey][idx]
                             }
                             -
                             {
@@ -285,7 +285,7 @@ function PMSheetApprovalOfImplementationPhase() {
                             <b>{value}</b>-
                             {
                               index?.checkSheet_data
-                                ?.implementation_approved_by_MTD_TL[monthKey][idx]
+                                ?.implementation_assign_MTD_TL_name?.[monthKey][idx]
                             }
                             -
                             {
@@ -310,7 +310,7 @@ function PMSheetApprovalOfImplementationPhase() {
                             <b>{value}</b>-
                             {
                               index?.checkSheet_data
-                                ?.implementation_approved_by_MTD_HOS[monthKey][idx]
+                                ?.implementation_assign_MTD_HOS_name?.[monthKey][idx]
                             }
                             -
                             {

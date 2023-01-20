@@ -1,4 +1,4 @@
-const postSectionToGetAllDataForMainDashboard = async (section_data) => {
+const postSectionToGetAllDataForMainDashboard = async (section_data, selectedYear) => {
     // setSubSection(undefined);
     try {
         const res = await fetch("/postSectionToGetLineData", {
@@ -8,6 +8,7 @@ const postSectionToGetAllDataForMainDashboard = async (section_data) => {
             },
             body: JSON.stringify({
                 section: section_data,
+                selectedYear
             }),
         });
         const data = await res.json();

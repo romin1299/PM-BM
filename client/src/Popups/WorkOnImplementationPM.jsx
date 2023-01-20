@@ -55,6 +55,7 @@ function WorkOnImplementationPM({
   ];
   const validationSchema = yup.object({
     workedOnPM: yup.string().required("Please select one"),
+    spareParts: yup.string().required("Please select one"),
 
     abnormalityRemarks: yup.string().when({
       is: () =>
@@ -421,6 +422,19 @@ function WorkOnImplementationPM({
                           );
                         })}
                       </select>
+                    </div>
+                    <div>
+                      <p
+                        style={{
+                          color: "#F44336",
+                          fontWeight: "normal",
+                          fontSize: "0.80rem",
+                          float: "left",
+                          paddingTop: "0.5rem",
+                        }}
+                      >
+                        {formik.touched.spareParts && formik.errors.spareParts}
+                      </p>
                     </div>
                     {formik.values.spareParts === "Yes" ? (
                       <div>

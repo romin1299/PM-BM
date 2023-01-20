@@ -2850,7 +2850,9 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
         let keyOfImplemetation_completed_tm_name = `checkSheet_data.$[outer].implemetation_completed_tm_name.${monthForCompareSystemMonth}`
         let keyOfImplemetation_mtd_tl_approval_status = `checkSheet_data.$[outer].implemetation_mtd_tl_approval_status.${monthForCompareSystemMonth}`
 
-
+        let keyOfImplementation_assign_PRD_TL_name = `checkSheet_data.$[outer].implementation_assign_PRD_TL_name.${monthForCompareSystemMonth}`;
+        let keyOfImplementation_assign_MTD_TL_name = `checkSheet_data.$[outer].implementation_assign_MTD_TL_name.${monthForCompareSystemMonth}`;
+        let keyOfImplementation_assign_MTD_HOS_name = `checkSheet_data.$[outer].implementation_assign_MTD_HOS_name.${monthForCompareSystemMonth}`;
 
 
         const checksheet_status = "Preparation"
@@ -2895,7 +2897,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
             subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
             title = `Kindly Approve Check-sheet`
-            greetings = `Sir\\Mam`
+            greetings = `Sir\\Ma'am`
             bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
           
             <tr>
@@ -2931,7 +2933,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
             sendApproval(subject, title, greetings, bodyTable, undefined, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, tl_list, hos_list, undefined, undefined, request)
         } else if (prd_tl_list && phaseStatus === "Planning") {
             //for grreting of the mail
-            const findAssignTlName = await User.findOne({ email: prd_tl_list })
+            const findAssignTlName = await User.findOne({ email: prd_tl_list.email })
 
 
             if (sectionInfo?.dashboardLevel === "Yes") {
@@ -2953,7 +2955,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                     flagForRevisionContent: false,
                     "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false
                 },
-                $push: { "checkSheet_data.$[outer].prd_tl_approval_status": "Pending", "checkSheet_data.$[outer].assign_PRD_TL": prd_tl_list, "checkSheet_data.$[outer].assign_PRD_TL_name": findAssignTlName.tm_name, "checkSheet_data.$[outer].plan_prepared_tm_no": loggedUserData.tm_no, "checkSheet_data.$[outer].plan_prepared_tm_name": loggedUserData.tm_name, "checkSheet_data.$[outer].plan_prepared_email": loggedUserData.email, "checkSheet_data.$[outer].planning_TL_date": planning_TL_date }
+                $push: { "checkSheet_data.$[outer].prd_tl_approval_status": "Pending", "checkSheet_data.$[outer].assign_PRD_TL": prd_tl_list.email, "checkSheet_data.$[outer].assign_PRD_TL_name": findAssignTlName.tm_name, "checkSheet_data.$[outer].plan_prepared_tm_no": loggedUserData.tm_no, "checkSheet_data.$[outer].plan_prepared_tm_name": loggedUserData.tm_name, "checkSheet_data.$[outer].plan_prepared_email": loggedUserData.email, "checkSheet_data.$[outer].planning_TL_date": planning_TL_date }
             }, {
                 arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
             })
@@ -2994,8 +2996,8 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval to TL/HOSS after his/her approval send request to HOS
-            sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
-        } else if (prd_tl_list && mtd_tl_list && mtd_hos_list && phaseStatus === "Implementation") {
+            sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list.email, undefined, undefined, undefined, undefined)
+        } else if (prd_tl_list?.email && mtd_tl_list?.email && mtd_hos_list?.email && phaseStatus === "Implementation") {
 
             let machineLastDataForKeyexistsOrNot = await Machine.aggregate([{
                 $match: {
@@ -3044,9 +3046,12 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                     [keyOfImplemetation_prd_tl_approval_status]: "Pending",
                     [keyOfImplemetation_mtd_tl_approval_status]: "Pending",
                     [keyOfImplemetation_mtd_hos_approval_status]: "Pending",
-                    [keyOfImplementation_assign_PRD_TL]: prd_tl_list,
-                    [keyOfImplementation_assign_MTD_TL]: mtd_tl_list,
-                    [keyOfImplementation_assign_MTD_HOS]: mtd_hos_list,
+                    [keyOfImplementation_assign_PRD_TL]: prd_tl_list.email,
+                    [keyOfImplementation_assign_MTD_TL]: mtd_tl_list.email,
+                    [keyOfImplementation_assign_MTD_HOS]: mtd_hos_list.email,
+                    [keyOfImplementation_assign_PRD_TL_name]: prd_tl_list.tm_name,
+                    [keyOfImplementation_assign_MTD_TL_name]: mtd_tl_list.tm_name,
+                    [keyOfImplementation_assign_MTD_HOS_name]: mtd_hos_list.tm_name,
                     [keyOfImplemetation_completed_tm_no]: loggedUserData.tm_no,
                     [keyOfImplemetation_completed_tm_name]: loggedUserData.tm_name,
                     [keyOfImplemetation_completed_date]: implemetation_completed_date
@@ -3057,9 +3062,9 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
             // console.log(updateImplementationCompletionPhase)
             // console.log(prd_tl_list, mtd_tl_list, mtd_hos_list)
 
-            let ccMail = [mtd_tl_list, mtd_hos_list]
+            let ccMail = [mtd_tl_list.email, mtd_hos_list.email]
             // for grreting of the mail
-            const findAssignTlName = await User.findOne({ email: prd_tl_list })
+            const findAssignTlName = await User.findOne({ email: prd_tl_list.email })
 
             subject = `Checksheet Approval Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
             title = `Kindly Approve after Quality Check`
@@ -3112,7 +3117,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                 selected_machine_data.machine_code,
                 selected_machine_data.machine_name,
                 selected_machine_data.checksheet_status,
-                prd_tl_list,
+                prd_tl_list.email,
                 undefined, undefined, undefined, undefined, undefined)
         } else {
             //for grreting of the mail
@@ -3145,7 +3150,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
             subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
             title = `Kindly Approve Check-sheet`
-            greetings = `Sir\\Mam`
+            greetings = `Sir\\Ma'am`
             bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
           
             <tr>
@@ -3501,7 +3506,7 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
 
                 subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
                 title = `Checksheet is Approved`
-                greetings = `Sir\\Mam`
+                greetings = `Sir\\Ma'am`
                 bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
       
                         <tr>
@@ -4072,7 +4077,7 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
 
                 subject = `Checksheet Preparation Rejected (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
                 title = `Checksheet is rejected for Below reason`
-                greetings = `Sir\\Mam`
+                greetings = `Sir\\Ma'am`
                 bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
 
                         <tr>
@@ -10577,8 +10582,28 @@ router.post('/postSectionToGetLineData', authenticate, async (req, res) => {
         let sectionSplit = section.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
 
-        let subSectionsData, cellData, lineData
+        let subSectionsData, cellData, lineData, machineDataForSpareHistory
 
+        let currentYear =
+            new Date().getMonth() <= 3 ?
+                `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
+                `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ? [{
+                "checkSheet_data.current_year": selectedYear
+
+            },
+            {
+                "checkSheet_data": []
+
+            }
+            ] : [{
+                "checkSheet_data.current_year": selectedYear
+
+            },
+            ]
 
 
         if (sectionInfo.dashboardLevel === "Yes") {
@@ -10597,9 +10622,107 @@ router.post('/postSectionToGetLineData', authenticate, async (req, res) => {
 
         lineData = await Line.find({ cell_names: { $in: cellData?.map((item) => item?._id) } }).sort({ line_sequence: 1 });
 
+        let spareDetailsLog = await Machine.aggregate([{
+            $match: {
+                line_names: { $in: lineData?.map((item) => item?._id) },
+                $or: selectedYearOfCheckSheet,
+                "checkSheet_data": { $ne: undefined },
+                "checkSheet_data.checkSheet": { $ne: [] },
+            }
+        },
+        {
+            $project: {
+                machine_code: 1,
+                machine_name: 1,
+                machine_nickname: 1,
+                machine_sequence: 1,
+                installation_date: 1,
+                maker_name: 1,
+                maker_sr_no: 1,
+                manufacturingDate: 1,
+                isPM: 1,
+                line_names: 1,
+                checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+            }
+        },
+        {
+            $match: {
+                "checkSheet_data": { $ne: undefined },
+
+            }
+        },
+
+        ])
+        // console.log(spareDetailsLog)
+        spareDetailsLog = await Machine.populate(spareDetailsLog, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+
+        // const spareDetailsLog = await Machine.find({ line_names: { $in: lineIdArray }, "checkSheet.abnormalityDetails": { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+        let allSpareDetailsWithCategories = [], serialNoForLogHistory = 0
+        spareDetailsLog?.map((keyForCheckSheet) => {
+            if (keyForCheckSheet?.checkSheet_data?.checkSheet?.length > 0) {
+                // console.log(keyForCheckSheet)
+                keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForSpareDetails) => {
+                    if (keyForSpareDetails?.spareDetails !== undefined) {
+                        // console.log(keyForSpareDetails?.spareDetails)
+
+                        for (let i = 0; i < financialYearWiseMonthKeyArray?.length; i++) {
+                            let month = financialYearWiseMonthKeyArray[i]
+                            if (keyForSpareDetails?.spareDetails?.[month]?.spareParts === "Yes") {
+                                allSpareDetailsWithCategories.push(
+                                    new Object({
+                                        sr_no: ++serialNoForLogHistory,
+                                        line_names: keyForCheckSheet?.line_names,
+                                        machine_name: keyForCheckSheet?.machine_name,
+                                        machine_code: keyForCheckSheet?.machine_code,
+                                        yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
+                                        schedule_month: month,
+                                        table_id: keyForSpareDetails?.tableRowId,
+                                        spareParts: keyForSpareDetails?.spareDetails?.[month]?.spareParts,
+                                        partName: keyForSpareDetails?.spareDetails?.[month]?.partName,
+                                        partNo: keyForSpareDetails?.spareDetails?.[month]?.partNo,
+                                        cost: keyForSpareDetails?.spareDetails?.[month]?.cost,
+                                        completionDateOfInspection: keyForSpareDetails?.completionDateOfInspection?.[month],
+                                        inspectionCompletionBy: keyForSpareDetails?.inspectionCompletionBy?.[month],
+                                    })
+                                );
+                            }
 
 
-        res.json({ lineData })
+                        }
+
+                    }
+                })
+            }
+            for (let i = 0; i < financialYearWiseMonthKeyArray?.length; i++) {
+                let monthForOtherCategoryOfSpare = financialYearWiseMonthKeyArray[i]
+                
+                if (keyForCheckSheet?.checkSheet_data?.extraSpareDetails) {
+                    for (let j = 0; j < keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare]?.length; j++) {
+                        allSpareDetailsWithCategories.push(
+                            new Object({
+                                sr_no: ++serialNoForLogHistory,
+                                line_names: keyForCheckSheet?.line_names,
+                                machine_name: keyForCheckSheet?.machine_name,
+                                machine_code: keyForCheckSheet?.machine_code,
+                                yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
+                                schedule_month: monthForOtherCategoryOfSpare,
+                                type: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j].type,
+                                completionDateOfInspection: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j].date,
+                                inspectionCompletionBy: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j].usedBy,
+                                partName: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j].partName,
+                                partNo: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j].partNo,
+                                cost: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j].cost,
+                                abnormalityRemarks: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j].abnormalityRemarks,
+                                sparePurpose: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j].sparePurpose,
+                            })
+                        );
+                    }
+                }
+            }
+        })
+        // console.log(allSpareDetailsWithCategories)
+        res.json({ lineData, allSpareDetailsWithCategories })
     } catch (error) {
         console.log(error)
         console.log("User id not received!!!");
@@ -10647,23 +10770,6 @@ router.post('/newOperatorDataEntry', async (req, res) => {
             "Dec",
         ];
         let currentMonth = monthKeyArray[new Date(date).getMonth()];
-
-
-        // console.log(
-        //     selectedType,
-        //     date,
-        //     selectedMachine?._id,
-        //     usedBy,
-        //     part_name,
-        //     part_no,
-        //     cost,
-        //     abnormalityRemarks,
-        //     sparePurpose,
-        // )
-
-
-        // console.log(selectedMachine)
-
 
         let updatedMachine
 

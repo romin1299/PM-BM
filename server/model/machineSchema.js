@@ -932,6 +932,81 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
+            implementation_assign_PRD_TL_name: {
+                Apr: { type: [String] },
+
+                May: { type: [String] },
+
+                June: { type: [String] },
+
+                July: { type: [String] },
+
+                Aug: { type: [String] },
+
+                Sep: { type: [String] },
+
+                Oct: { type: [String] },
+
+                Nov: { type: [String] },
+
+                Dec: { type: [String] },
+
+                Jan: { type: [String] },
+
+                Feb: { type: [String] },
+
+                Mar: { type: [String] },
+            },
+            implementation_assign_MTD_TL_name: {
+                Apr: { type: [String] },
+
+                May: { type: [String] },
+
+                June: { type: [String] },
+
+                July: { type: [String] },
+
+                Aug: { type: [String] },
+
+                Sep: { type: [String] },
+
+                Oct: { type: [String] },
+
+                Nov: { type: [String] },
+
+                Dec: { type: [String] },
+
+                Jan: { type: [String] },
+
+                Feb: { type: [String] },
+
+                Mar: { type: [String] },
+            },
+            implementation_assign_MTD_HOS_name: {
+                Apr: { type: [String] },
+
+                May: { type: [String] },
+
+                June: { type: [String] },
+
+                July: { type: [String] },
+
+                Aug: { type: [String] },
+
+                Sep: { type: [String] },
+
+                Oct: { type: [String] },
+
+                Nov: { type: [String] },
+
+                Dec: { type: [String] },
+
+                Jan: { type: [String] },
+
+                Feb: { type: [String] },
+
+                Mar: { type: [String] },
+            },
             implemetation_quality_remarks: {
                 Apr: { type: [String] },
 

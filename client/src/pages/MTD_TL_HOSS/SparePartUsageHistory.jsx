@@ -2,8 +2,10 @@ import React, { useState, useEffect, useContext } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import TextField from "@material-ui/core/TextField";
 import MaterialTable from "@material-table/core";
-
+import YearDropDown from "../Dashboard/DashboardComponent/YearDropDown";
+import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 import RoutingContext from "../../context/routing/RoutingContext";
+import { fetchFinancialYears } from "../../Integration/APIExports";
 
 import {
   postSectionToGetAllDataForMainDashboard,
@@ -29,8 +31,10 @@ const SparePartUsageHistory = () => {
     "Feb",
     "Mar",
   ];
+  const [tableDataOfSpareDetails, setTableDataOfSpareDetails] = useState([]);
 
   const [selectedMonth, setSelectedMonth] = useState();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const [allLineData, setAllLineData] = useState([]);
   const [allMachineDataBasedOnLine, setAllMachineDataBasedOnLine] = useState(
@@ -86,6 +90,11 @@ const SparePartUsageHistory = () => {
       editable: "false",
       align: "center",
     },
+    {
+      title: "Part No.",
+      editable: "false",
+      align: "center",
+    },
 
     {
       title: "Used By",
@@ -127,18 +136,75 @@ const SparePartUsageHistory = () => {
     // },
   ];
 
-  useEffect(() => {
-    postSectionToGetAllDataForMainDashboard(context?.section_data).then(
-      (result) => setAllLineData(result?.lineData)
-    );
-  }, [context?.section_data]);
+  const [financialYear, setFinancialYear] = useState();
 
-  console.log(allMachineDataBasedOnLine?.[selectedMachine]);
+  let current_year =
+    new Date().getMonth() <= 3
+      ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+      : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+  useEffect(() => {
+    // fetchFinancialYears()
+    fetchFinancialYears().then((result) =>
+      setFinancialYear(result.financialYears)
+    );
+  }, []);
+
+  useEffect(() => {
+    postSectionToGetAllDataForMainDashboard(
+      context?.section_data,
+      selectedYear
+    ).then((result) => {
+      setAllLineData(result?.lineData);
+      setTableDataOfSpareDetails(result?.allSpareDetailsWithCategories);
+    });
+  }, [context?.section_data, selectedYear]);
+
+  // console.log(allMachineDataBasedOnLine?.[selectedMachine]);
+
+  const financialYearWiseMonthKeyArray = [
+    "Apr",
+    "May",
+    "June",
+    "July",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+  ];
 
   return (
     <>
       <Container fluid className="pt-3 sparePartUsageHistory">
         <Row className="m-3 cell p-3">
+          <Col>
+          <div>Year:</div>
+            <select
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              style={{ border: "2px solid gray", borderRadius: "5px" }}
+              id="standard-select-currency"
+              name="selectedPlant"
+              className="textField"
+              value={selectedMonth}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {financialYear?.map((option) => {
+                return <option value={option}>{option}</option>;
+              })}
+            </select>
+          </Col>
           <Col>
             <div>Category:</div>
             <select
@@ -293,82 +359,83 @@ const SparePartUsageHistory = () => {
           </Col>
         </Row>
         <Row className="m-3">
-          <MaterialTable
-            localization={
-              {
-                // toolbar: {
-                //   exportCSVName: "Export some Excel format",
-                //   exportPDFName: "Export as pdf!!"
-                // }
-              }
-            }
-            actions={actions}
-            //   icons={tableIcons}
-            columns={tableColumn}
-            data={tableData}
-            title="Spare Part Usage History"
-            // tableRef={this.tableRef.current.onQueryChange()}
+          {tableDataOfSpareDetails?.length > 0 ? (
+            <div className="container-fluid" style={{ overflow: "auto" }}>
+              <h4 style={{ padding: "1rem 0 0 0" }}>Spare Usage History</h4>
 
-            editable={
-              {
-                // isDeleteHidden: (rowData) => rowData.user_type === 0,
-                // onRowUpdate: (updatedRow, oldRow) =>
-                //   new Promise((resolve, reject) => {
-                //     const index = oldRow.tableData.id;
-                //     const updatedRows = [...tableData];
-                //     updatedRows[index] = updatedRow;
-                //     //call the update user function and pass the user data
-                //     updateUserInfo(updatedRow);
-                //     setTimeout(() => {
-                //       setTableData(updatedRows);
-                //       resolve();
-                //     }, 500);
-                //     //refreshPage();
-                //   }),
-              }
-            }
-            options={{
-              showTitle: true,
-              paging: false,
-              sorting: true,
-              search: true,
-              filtering: false,
-              exportButton: true,
-              exportAllData: true,
-              draggable: false,
-              actionsColumnIndex: -1,
-              pageSize: 10,
-              pageSizeOptions: false,
-              paginationType: "stepped",
-              addRowPosition: "first",
-              headerStyle: {
-                position: "sticky",
-                top: "0",
-                fontWeight: "bold",
-              },
-              tableLayout: {
-                border: "2px solid black",
-              },
-              maxBodyHeight: "40vh",
-              rowStyle: {
-                // fontStyle:'bold'
+              <table className="ar-table PMSheetApprovalOfImplementationPhaseTableCol">
+                <thead className="mt-5">
+                  <tr>
+                    {tableColumn.map((tColumn) => (
+                      <th
+                        className={"ar-table-thead-header5 td-padding"}
+                        // colSpan={
+                        //   tColumn.header === "Preparation"
+                        //     ? 3
+                        //     : tColumn.header === "Planning"
+                        //     ? 2
+                        //     : 0
+                        // }
+                      >
+                        {tColumn.title}
+                        {/* {tColumn.header === "Machine Code" ||
+                    tColumn.header === "Machine Name" ? (
+                      <span
+                        onClick={() => sortData(tColumn.sortKey)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        &nbsp;
+                        <SortIcon />
+                      </span>
+                    ) : (
+                      ""
+                    )} */}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {tableDataOfSpareDetails?.map((index) => (
+                    <tr className="ar-table-thead-header4 tableRowColor">
+                      <td className="td-padding">{index?.sr_no}</td>
+                      <td className="td-padding">
+                        {index?.completionDateOfInspection}
+                      </td>
 
-                // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                // color:"rgba(255,255,255,0.8)",
-                borderRadius: "5px",
-                border: "2px solid black",
-                WebkitBackdropFilter: "blur( 2px )",
-                background: "rgba(255,255,255,0.1)",
-                // backdropFilter: "blur(5px)",
-              },
-              cellStyle: {
-                border: "2px solid black",
-              },
-              headerStyle: {
-                border: "1px solid black",
-              },
-            }}
-          />
+                      <td className="td-padding">
+                        {index?.line_names?.line_name}
+                      </td>
+                      <td className="td-padding">{index?.machine_name}</td>
+                      <td className="td-padding">{index?.machine_code}</td>
+
+                      <td className="td-padding">
+                        {index?.type ? index?.type : "PM"}
+                      </td>
+
+                      <td className="td-padding">{index?.partName}</td>
+                      <td className="td-padding">{index?.partNo}</td>
+                      <td className="td-padding">
+                        {index?.inspectionCompletionBy}
+                      </td>
+
+                      <td className="td-padding">{index?.cost}</td>
+                      <td className="td-padding">
+                        {index?.spareParts ? "Yes" : "No"}
+                      </td>
+                      <td className="td-padding">{index?.spareParts}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div
+              className="container-fluid d-flex justify-content-center align-items-center"
+              style={{ height: "100vh" }}
+            >
+              <LoadingAnimation />
+            </div>
+          )}
         </Row>
       </Container>
     </>
