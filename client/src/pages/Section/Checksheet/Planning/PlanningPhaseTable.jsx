@@ -402,12 +402,17 @@ function PlanningPhaseTable() {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
+                  fontSize: "12px",
                 },
+                headerStyle: {
+                  fontSize: "13px",
+                  fontWeight: "bold"
+                }
               }}
             />
             <div className="col-4 mt-2" style={{ float: "right" }}>
               <button
-                className="btn-primary"
+                className="btn-primary1"
                 onClick={showChecksheet}
                 style={{ float: "right" }}
               >

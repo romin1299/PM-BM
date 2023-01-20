@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import Plot from "react-plotly.js";
+import Plot from "react-plotlyjs";
 import { Row, Col, Container } from "react-bootstrap";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -228,7 +228,7 @@ const AnnualPmStatus = () => {
                 <CSVLink
                   data={csvData}
                   filename={`${selectedYear}_PM_Status(Machine)${timeStamp()}`}
-                  className="downloadCSV"
+                  className="downloadCSV text-decoration-none"
                   target="_blank"
                 >
                   CSV

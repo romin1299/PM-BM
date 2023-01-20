@@ -1051,7 +1051,7 @@ function ViewChecksheet() {
                         }
                       /> */}
                 <button
-                  className="btn col-3"
+                  className="btn-danger col-3"
                   onClick={funForOpeningSummeryPopups}
                 >
                   Summary

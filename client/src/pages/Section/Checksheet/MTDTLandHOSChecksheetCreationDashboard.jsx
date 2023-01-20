@@ -14,7 +14,7 @@ import { useFormik } from "formik";
 import { Navigate, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 
-const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
+const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
   const [tableData, setTableData] = useState([]);
   const [lineArray, setLineArray] = useState([]);
   const context = useContext(RoutingContext);
@@ -39,8 +39,8 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
     let line_name_array = [];
     selectedMachineData.state.lineData
       ? selectedMachineData.state.lineData.map((name) => {
-          line_name_array.push(`${name.line_id}-${name.line_name}`);
-        })
+        line_name_array.push(`${name.line_id}-${name.line_name}`);
+      })
       : (line_name_array = "");
     setLineArray(line_name_array);
   };
@@ -97,7 +97,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
       // icon: () => <button className="addbutton">Add</button>,
       icon: () =>
         window.innerWidth > 1024 ? (
-          <button className="btn">Add</button>
+          <button className="btn-reset">Add</button>
         ) : (
           <AddBoxIcon />
         ),
@@ -591,12 +591,17 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
+                  fontSize: "12px",
                 },
+                headerStyle: {
+                  fontSize: "13px",
+                  fontWeight: "bold"
+                }
               }}
             />
             <div className="col-4 mt-2" style={{ float: "right" }}>
               <button
-                className="btn-primary"
+                className="btn-primary1"
                 onClick={showChecksheet}
                 style={{ float: "right" }}
               >

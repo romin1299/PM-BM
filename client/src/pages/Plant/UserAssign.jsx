@@ -105,7 +105,7 @@ function UserAssigns() {
       // icon: () => <button className="addbutton">Add</button>,
       icon: () =>
         window.innerWidth > 1024 ? (
-          <button className="btn">Add</button>
+          <button className="btn-primary">Add</button>
         ) : (
           <AddBoxIcon />
         ),
@@ -325,7 +325,12 @@ function UserAssigns() {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
+                  fontSize: "12px",
                 },
+                headerStyle: {
+                  fontSize: "13px",
+                  fontWeight: "bold"
+                }
               }}
             />
           </div>

@@ -667,7 +667,7 @@ function ChecksheetFormApprovalForTL() {
                       ""
                     )}
                     <div className="col-6 d-flex align-items-center">
-                      <button type="submit" className="btn">
+                      <button type="submit" className="btn-primary1">
                         Submit
                       </button>
                     </div>
@@ -1107,7 +1107,7 @@ function ChecksheetFormApprovalForTL() {
                         }
                       /> */}
               <button
-                className="btn col-3"
+                className="btn-danger col-3"
                 onClick={funForOpeningSummeryPopups}
               >
                 Summary

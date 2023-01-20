@@ -27,7 +27,7 @@ const PmAllReportDashboard = () => {
         <Container fluid>
           <Row className="pt-2 ">
             <Col sm={12} lg={3}>
-              <span>Month Wise PM Status:</span>
+              <span><b>Month Wise PM Status:</b></span>
             </Col>
             <Col sm={12} lg={3}>
               <div>
@@ -70,7 +70,7 @@ const PmAllReportDashboard = () => {
         ) : selectedReport === ReportType[4] ? (
           <PmTimeMonitoringReport />
         ) : (
-          <h1>Other Report</h1>
+          <h4>Other Report</h4>
         )}
       </div>
     </>

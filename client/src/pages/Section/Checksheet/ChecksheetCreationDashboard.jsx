@@ -19,7 +19,7 @@ import { ToastContainer, toast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
 
-const ChecksheetCreationDashboard = ({}) => {
+const ChecksheetCreationDashboard = ({ }) => {
   const [tableData, setTableData] = useState([]);
   const [lineArray, setLineArray] = useState([]);
   const [revisionContentTableData, setRevisionContentTableData] = useState([]);
@@ -51,8 +51,8 @@ const ChecksheetCreationDashboard = ({}) => {
     let line_name_array = [];
     selectedMachineData.state.lineData
       ? selectedMachineData.state.lineData.map((name) => {
-          line_name_array.push(`${name.line_id}-${name.line_name}`);
-        })
+        line_name_array.push(`${name.line_id}-${name.line_name}`);
+      })
       : (line_name_array = "");
     setLineArray(line_name_array);
   };
@@ -109,7 +109,7 @@ const ChecksheetCreationDashboard = ({}) => {
       // icon: () => <button className="addbutton">Add</button>,
       icon: () =>
         window.innerWidth > 1024 ? (
-          <button className="btn">Add</button>
+          <button className="btn-reset">Add</button>
         ) : (
           <AddBoxIcon />
         ),
@@ -344,7 +344,7 @@ const ChecksheetCreationDashboard = ({}) => {
           machineId: selectedMachineData.state.selectedRow.machine_code,
           isAdded:
             machineData[0]?.checkSheet_data?.checksheet_status ===
-            "Implementation"
+              "Implementation"
               ? true
               : false,
         }),
@@ -377,7 +377,7 @@ const ChecksheetCreationDashboard = ({}) => {
           yearOfCheckSheet,
           isEdited:
             machineData[0]?.checkSheet_data?.checksheet_status ===
-            "Implementation"
+              "Implementation"
               ? true
               : false,
         }),
@@ -415,7 +415,7 @@ const ChecksheetCreationDashboard = ({}) => {
           yearOfCheckSheet,
           isDeleted:
             machineData[0]?.checkSheet_data?.checksheet_status ===
-            "Implementation"
+              "Implementation"
               ? true
               : false,
         }),
@@ -563,7 +563,7 @@ const ChecksheetCreationDashboard = ({}) => {
     let countForRevisionContent = 0;
     tableData?.map((keyOfTableRowData) => {
       if (
-        keyOfTableRowData.flagForCount === true 
+        keyOfTableRowData.flagForCount === true
       ) {
         // setCountOfRevisionContent((countForRevisionContent)=> countForRevisionContent + 1);
         countForRevisionContent = countForRevisionContent + 1;
@@ -800,13 +800,13 @@ const ChecksheetCreationDashboard = ({}) => {
 
                                     {machineArray != undefined
                                       ? machineArray.map((option) => {
-                                          return (
-                                            <option value={option.machine_code}>
-                                              {option.machine_code}-
-                                              {option.machine_name}
-                                            </option>
-                                          );
-                                        })
+                                        return (
+                                          <option value={option.machine_code}>
+                                            {option.machine_code}-
+                                            {option.machine_name}
+                                          </option>
+                                        );
+                                      })
                                       : ""}
                                   </select>
                                 </div>
@@ -841,13 +841,13 @@ const ChecksheetCreationDashboard = ({}) => {
 
                                     {machineArray != undefined
                                       ? machineArray.map((option) => {
-                                          return (
-                                            <option value={option.machine_code}>
-                                              {option.machine_code}-
-                                              {option.machine_name}
-                                            </option>
-                                          );
-                                        })
+                                        return (
+                                          <option value={option.machine_code}>
+                                            {option.machine_code}-
+                                            {option.machine_name}
+                                          </option>
+                                        );
+                                      })
                                       : ""}
                                   </select>
                                 </div>
@@ -986,12 +986,17 @@ const ChecksheetCreationDashboard = ({}) => {
                     : "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
                   // textDecoration: rowData?.isDeleted ? "line-through solid red 15%" : "none"
+                fontSize: "12px",
                 }),
+                headerStyle: {
+                  fontSize: "14px",
+                  fontWeight: "bold"
+                }
               }}
             />
             <div className="col-4 mt-2" style={{ float: "right" }}>
               <button
-                className="btn-primary"
+                className="btn-primary1"
                 onClick={showChecksheet}
                 style={{ float: "right" }}
               >
@@ -1001,7 +1006,7 @@ const ChecksheetCreationDashboard = ({}) => {
           </div>
         </div>
         {machineData[0]?.checkSheet_data?.checksheet_status ===
-        "Implementation" ? (
+          "Implementation" ? (
           <div className="row m-3 p-3 border bg-white rounded">
             <div>
               <MaterialTable
@@ -1089,6 +1094,10 @@ const ChecksheetCreationDashboard = ({}) => {
                     background: "rgba(255,255,255,0.1)",
                     backdropFilter: "blur(5px)",
                   },
+                  headerStyle: {
+                    fontSize: "14px",
+                    fontWeight: "bold"
+                  }
                 }}
               />
             </div>

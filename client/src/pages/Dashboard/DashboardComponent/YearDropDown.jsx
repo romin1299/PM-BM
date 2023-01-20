@@ -20,7 +20,7 @@ const YearDropDown = ({ selectedYear, setSelectedYear }) => {
   return (
     <Row className="p-2 ">
       <Col sm={12} lg={3}>
-        <span>Year:</span>
+        <span><b>Year:</b></span>
       </Col>
       <Col>
         <div>

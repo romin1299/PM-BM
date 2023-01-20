@@ -509,8 +509,9 @@ const MainDashboard = () => {
 
       <Container fluid className="operatorDashboard">
         <Row>
+          <Col sm={12} md={9} lg={9}>
           {Object.keys(allDataSectionWise).length > 0 ? (
-            <Col className="col-9">
+            <Col>
               {/* <div className="row mb-4 d-flex align-items-center  m-2">
               <div className="col-3">
                 <span style={{ fontWeight: "500", fontSize: "12px" }}>
@@ -841,7 +842,7 @@ const MainDashboard = () => {
                 <Col>
                   {context.user_type === "Section-Admin" ? (
                     <button
-                      className="btn"
+                      className="btn-primary"
                       onClick={addNewCheckSheetAfterChangeFinancialyear}
                     >
                       <AutorenewIcon /> &nbsp; Update{" "}
@@ -875,7 +876,7 @@ const MainDashboard = () => {
                   <div className="d-flex justify-content-end">
                     <button
                       onClick={navigateToSummeryDashboard}
-                      className="btn"
+                      className="btn-danger"
                     >
                       Summary
                     </button>
@@ -2019,7 +2020,9 @@ const MainDashboard = () => {
               <LoadingAnimation />
             </div>
           )}
-          <Col className="col-3">
+          </Col>
+          <Col sm={12} md={3} lg={3}>
+          <Col style={{margin:"10px"}}>
             <GraphsInMainDashboard
               sections={sections}
               subSection={subSection}
@@ -2030,6 +2033,10 @@ const MainDashboard = () => {
               annualGraph={annualGraph}
             />
           </Col>
+          </Col>
+
+          
+          
         </Row>
       </Container>
     </>

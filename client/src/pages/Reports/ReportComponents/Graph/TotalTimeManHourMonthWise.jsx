@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import Plot from "react-plotly.js";
+import Plot from "react-plotlyjs";
 import { Row, Col, Container, Card } from "react-bootstrap";
 
 import ManHourMonthWiseGraph from "./PmTimeMonitoringCharts/ManHourMonthWiseGraph";
@@ -235,7 +235,7 @@ const TotalTimeManHourMonthWise = ({ context }) => {
               // className="cell"
               // style={{ backgroundColor: "white" }}
               >
-                <h3>Total time Man-Hour (Month Wise)</h3>
+                <h4>Total time Man-Hour (Month Wise)</h4>
               </Col>
             </Row>
             <Row>
@@ -277,7 +277,7 @@ const TotalTimeManHourMonthWise = ({ context }) => {
                 </div>
               </Col>
               <Col>
-                <button className="btn1" onClick={functionForTotalData}>
+                <button className="btn-reset" onClick={functionForTotalData}>
                   Total
                 </button>
               </Col>
@@ -286,7 +286,7 @@ const TotalTimeManHourMonthWise = ({ context }) => {
                   <CSVLink
                     data={csvData}
                     filename={`${selectedYear}_Total_time_month_wise${timeStamp()}`}
-                    className="downloadCSV"
+                    className="downloadCSV text-decoration-none"
                     target="_blank"
                   >
                     CSV

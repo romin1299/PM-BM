@@ -113,10 +113,10 @@ const CheckSheetApprovalDashboardForHOS = () => {
     (rowData) => {
       return {
         hidden:
-        rowData.checkSheet_data != null
-        ? rowData.checkSheet_data.checksheet_status === "Implementation" ||
-          rowData.checkSheet_data.checksheet_status === "Planning"
-        : "",
+          rowData.checkSheet_data != null
+            ? rowData.checkSheet_data.checksheet_status === "Implementation" ||
+            rowData.checkSheet_data.checksheet_status === "Planning"
+            : "",
 
         icon: () => <button className="btn-reset">Preparation</button>,
         // tooltip: <h1>I am a tooltip</h1>,
@@ -130,7 +130,7 @@ const CheckSheetApprovalDashboardForHOS = () => {
       };
     },
     {
-      icon: () => <button className="btn-primary">View</button>,
+      icon: () => <button className="btn-primary1">View</button>,
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
         navigate("/viewCheckSheet", {
@@ -241,7 +241,12 @@ const CheckSheetApprovalDashboardForHOS = () => {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
+                  fontSize: "12px",
                 },
+                headerStyle: {
+                  fontSize: "13px",
+                  fontWeight: "bold"
+                }
               }}
             />
           </div>

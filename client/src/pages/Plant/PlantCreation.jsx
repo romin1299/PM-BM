@@ -158,7 +158,7 @@ function PlantCreation() {
       return {
         name: "remove", // Added custom name property so we know which action to check for
         icon: () => (
-          <Link className="btn" to="/section" state={{ selectedRows: rowData }}>
+          <Link className="btn-reset" to="/section" state={{ selectedRows: rowData }}>
             Section
           </Link>
         ),

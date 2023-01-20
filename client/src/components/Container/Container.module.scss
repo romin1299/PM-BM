@@ -4,7 +4,8 @@
     overflow-y: scroll;
     position: relative;
     overflow-x: hidden;
-    background: linear-gradient(213.32deg, #FEB9B9 7.27%, #FFF1D0 87.59%);
+    // background: linear-gradient(213.32deg, #FEB9B9 7.27%, #FFF1D0 87.59%);
+    background-color: rgb(247, 247, 247) !important;
 
     main {
         padding: var(--padding-sm) var(--padding-md);

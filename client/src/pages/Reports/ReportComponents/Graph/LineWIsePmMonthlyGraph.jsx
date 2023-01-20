@@ -1,5 +1,5 @@
 import React from "react";
-import Plot from "react-plotly.js";
+import Plot from "react-plotlyjs";
 
 const LineWIsePmMonthlyGraph = ({ statusSum }) => {
   // console.log(statusSum);

@@ -609,7 +609,7 @@ let machineAllData =
                       ""
                     )}
                     <div className="col-6 d-flex align-items-center">
-                      <button type="submit" className="btn">
+                      <button type="submit" className="btn-primary1">
                         Submit
                       </button>
                     </div>
@@ -624,7 +624,8 @@ let machineAllData =
                     <th
                       className="ar-table-thead-header1"
                       // colSpan={2}
-                      //  rowSpan={5}
+                      //  rowSpan={5} 
+                      
                     >
                       PLAN ACCEPTANCE
                       <br />
@@ -1027,7 +1028,7 @@ let machineAllData =
                         }
                       /> */}
                 <button
-                  className="btn col-3"
+                  className="btn-danger col-3"
                   onClick={funForOpeningSummeryPopups}
                 >
                   Summary

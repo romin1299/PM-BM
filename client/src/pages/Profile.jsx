@@ -139,21 +139,24 @@ const Profile = () => {
                       Update password
                     </Button>
                   </a> */}
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    className="me-2 btn-reset"
-                  >
-                    Update
-                  </Button>
-                  <Button variant="primary">
-                    <Link
-                      to="/updatePassword"
-                      style={{ color: "white", textDecoration: "none" }}
+                  <Form.Group className="mt-5">
+                    <Button
+
+                      type="submit"
+                      className="me-2 btn-primary1"
                     >
-                      Update Password
-                    </Link>
-                  </Button>
+                      Save
+                    </Button>
+                    <Button style={{ background: "#004B5B" }} >
+                      <Link
+                        to="/updatePassword"
+                        style={{ color: "white", textDecoration: "none" }}
+                      >
+                        Update Password
+                      </Link>
+                    </Button>
+                  </Form.Group>
+
                 </Form>
               </div>
             </Col>

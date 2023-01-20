@@ -175,7 +175,7 @@ function UpdatePassword() {
 
                 <button
                   type="submit"
-                  className="btn"
+                  className="btn bg-button"
                   style={{ marginTop: "1rem" }}
                 >
                   Update Password

@@ -8,8 +8,10 @@
     background-size: cover;
     /* background-image: linear-gradient(to right, #ffffff, #f6f9ff, #e7f4ff, #d4f1ff, #bdeeff, #bdeeff, #bdeeff, #bdeeff, #d4f1ff, #e7f4ff, #f6f9ff, #ffffff); */
     /* background-image: linear-gradient(to right, #ffffff, #f1f3fe, #dce8fd, #c2e0fa, #a2d8f5, #a2d8f5, #a2d8f5, #a2d8f5, #c2e0fa, #dce8fd, #f1f3fe, #ffffff); */
-    background: linear-gradient(213.32deg, #FEB9B9 7.27%, #FFF1D0 87.59%);
+    /* background: linear-gradient(213.32deg, #FEB9B9 7.27%, #FFF1D0 87.59%); */
     /* background: linear-gradient(213.32deg, #b9e5fe 7.27%, #ffd0d0 87.59%); */
+    background-color: rgb(247, 247, 247) !important;
+
 }
 
 .dropDown {
@@ -30,7 +32,8 @@
 select {
     /* border: 2px solid white; */
     border-radius: 5px;
-    color: #E71E25;
+    /* color: #E71E25; */
+    color: black;
     font-weight: 550;
     font-size: 14px;
     padding: 0.1rem 0.5rem !important;

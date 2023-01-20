@@ -82,7 +82,8 @@
 
 /* .ar-table-thead-row, */
 .ar-table-thead-header {
-    background-color: rgba(216, 3, 3, 0.904);
+    /* background-color: rgba(216, 3, 3, 0.904); */
+    background-color: #D51427;
     color: white;
     border: 2px solid rgb(80, 80, 80);
 
@@ -184,7 +185,7 @@
 
 
 .headerPD {
-    padding-bottom: 1.85rem;
+    /* padding-bottom: 1.85rem; */
 }
 
 .approvalName {
@@ -216,7 +217,7 @@
 
 .ar-table-thead-header5 {
     /* box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); */
-    border-radius: 5px;
+    /* border-radius: 5px; */
     border: 1px solid black;
     /* border: 1px solid rgba(255, 255, 255); */
     /* -webkit-backdrop-filter: blur(2px); */
@@ -270,9 +271,10 @@
 
 .tableRowColor:nth-child(odd) {
     /* background: linear-gradient(213.32deg, #b9d5fe 7.27%, #ffd0d0 87.59%); */
-    background: linear-gradient(213.32deg, #FEB9B9 7.27%, #FFF1D0 87.59%);
-
+    /* background: linear-gradient(213.32deg, #FEB9B9 7.27%, #FFF1D0 87.59%); */
+background-color: white;
 }
+
 
 .table-col-bg-ongoing {
     background-color:rgb(241, 127, 127);

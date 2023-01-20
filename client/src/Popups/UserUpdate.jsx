@@ -1249,7 +1249,7 @@ const UserUpdate = ({ selectedRow }) => {
                 // helperText={formik.touched.address && formik.errors.address}
               />
             </div>
-            <button type="submit" className="btn">
+            <button type="submit" className="btn-reset">
               Update
             </button>
           </form>

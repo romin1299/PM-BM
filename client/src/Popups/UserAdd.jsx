@@ -1087,7 +1087,7 @@ const UserAdd = () => {
                 // helperText={formik.touched.address && formik.errors.address}
               />
             </div>
-            <button type="submit" className="btn">
+            <button type="submit" className="btn-reset">
               Submit
             </button>
           </form>
