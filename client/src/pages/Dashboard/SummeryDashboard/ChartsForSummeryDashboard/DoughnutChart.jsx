@@ -38,6 +38,8 @@ const DoughnutChart = ({ TableData }) => {
   };
 
   const options = {
+    maintainAspectRatio: false,
+
     responsive: true,
     plugins: {
       legend: {

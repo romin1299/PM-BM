@@ -33,6 +33,14 @@ const AnnualPMSchedule = () => {
   const [selectedLine, setSelectedLine] = useState("");
   const [indexOfSelectedLine, setIndexOfSelectedLine] = useState(0);
 
+  const [
+    refKeyForPostLineToGetMachineDataApi,
+    setRefKeyForPostLineToGetMachineDataApi,
+  ] = useState(0);
+
+  const [objOfAnnualPmScheduleApproval, setObjOfAnnualPmScheduleApproval] =
+    useState({});
+
   const [refKeyForAnimation, setRefKeyForAnimation] = useState(
     <LoadingAnimation />
   );
@@ -77,8 +85,11 @@ const AnnualPMSchedule = () => {
     postSectionToGetAllDataForMainDashboard();
   }, [selectedYear]);
 
-  const postCellToGetLineList = async (selectedCell) => {
-    setSelectedLine(undefined);
+  const postCellToGetLineList = async (selectedCell, refKey) => {
+    if (!refKey) {
+      setSelectedLine(undefined);
+    }
+
     try {
       const res = await fetch("/postCellToGetLineListForReport", {
         method: "POST",
@@ -86,7 +97,7 @@ const AnnualPMSchedule = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          cell: selectedCell,
+          cell: selectedCell || allDataSectionWise?.cellData?.[0]._id,
         }),
       });
       const data = await res.json();
@@ -96,12 +107,14 @@ const AnnualPMSchedule = () => {
       } else {
         // window.alert(data.abcd);
         setLineDropdown(data.lineInfo);
-        console.log("Data post", data);
+        // console.log("Data post", data);
         if (data?.lineInfo.length > 0) {
-          postLineToGetMachineList(data?.lineInfo?.[0]._id);
+          postLineToGetMachineList(selectedLine || data?.lineInfo?.[0]._id);
         } else {
           setTableData([]);
         }
+
+        // console.log(selectedLine, data?.lineInfo?.[0]._id);
 
         // setLineList(data);
       }
@@ -137,6 +150,13 @@ const AnnualPMSchedule = () => {
     }
   };
 
+  // console.log(
+  //   // selectedCell,
+  //   selectedLine,
+  //   // tableData,
+  //   lineDropdown?.[indexOfSelectedLine]
+  // );
+
   //fetch supported operator list
   const getListForApproval = async () => {
     try {
@@ -150,7 +170,7 @@ const AnnualPMSchedule = () => {
       });
 
       const data = await res.json();
-      console.log(data?.allUser);
+      // console.log(data?.allUser);
       setAllUserDropdownList(data?.allUser);
     } catch (error) {
       console.log(error);
@@ -234,7 +254,8 @@ const AnnualPMSchedule = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          selectedLine: selectedLine ? selectedLine : lineDropdown?.[0]?._id,
+          selectedLine: lineDropdown?.[indexOfSelectedLine],
+          // selectedLine: selectedLine ? selectedLine : lineDropdown?.[0]?._id,
           selectedPrdHos: values.selectedPrdHos,
           selectedMtdHod: values.selectedMtdHod,
           selectedMtdHos: values.selectedMtdHos,
@@ -248,30 +269,80 @@ const AnnualPMSchedule = () => {
         console.log("Error");
       } else {
         console.log("Updated SuccessFully");
+        postCellToGetLineList(selectedCell, "AfterApproval");
+        // postLineToGetMachineList(selectedLine || lineDropdown?.[0]?._id);
+        setRefKeyForPostLineToGetMachineDataApi(
+          (refKeyForPostLineToGetMachineDataApi) =>
+            refKeyForPostLineToGetMachineDataApi + 1
+        );
         // window.alert("New password generation successfully !!!");
       }
     },
   });
 
-  // console.log(
-  //   // indexOfSelectedLine,
-  //   // lineDropdown,
-  //   lineDropdown?.[indexOfSelectedLine]
-  // );
+  // console.log(lineDropdown?.[indexOfSelectedLine]);
 
-  // if (lineDropdown?.length > 0) {
-  //   if ("annualPmScheduleApproval" in lineDropdown?.[indexOfSelectedLine]) {
-  //     console.log("true");
-  //   } else {
-  //     console.log("false");
-  //   }
-  // }
+  const approveRequest = async (
+    lineData,
+    ID,
+    supportingKey,
+    objOfAnnualPmScheduleApproval
+  ) => {
+    const res = await fetch("/approveRequestForAnnualPmSchedule", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lineData,
+        ID,
+        supportingKey,
+        objOfAnnualPmScheduleApproval,
+      }),
+    });
 
-  // console.log(
-  //   "=================",
-  //   lineDropdown?.[parseInt(selectedLine)]?.line_name
-  // );
+    const data = res.json();
 
+    if (res.status === 400 || res.status === 422 || !data) {
+      console.log("Error");
+    } else {
+      console.log("Updated SuccessFully");
+      postCellToGetLineList(selectedCell, "AfterApproval");
+      // postLineToGetMachineList(selectedLine || lineDropdown?.[0]?._id);
+      setRefKeyForPostLineToGetMachineDataApi(
+        (refKeyForPostLineToGetMachineDataApi) =>
+          refKeyForPostLineToGetMachineDataApi + 1
+      );
+    }
+  };
+
+  // context?.tm_department === "MTD" && context?.tm_grade === "TL" ?
+  // console.log(lineDropdown?.[indexOfSelectedLine]?.annualPmScheduleApproval);
+
+  useEffect(() => {
+    // console.log("================ 295");
+    if (lineDropdown?.length > 0) {
+      if (
+        lineDropdown?.[indexOfSelectedLine]?.annualPmScheduleApproval?.length >
+        0
+      ) {
+        lineDropdown?.[indexOfSelectedLine]?.annualPmScheduleApproval?.map(
+          (item) => {
+            if (item?.current_year === selectedYear) {
+              setObjOfAnnualPmScheduleApproval(item);
+            }
+          }
+        );
+      }
+    }
+  }, [
+    lineDropdown,
+    indexOfSelectedLine,
+    refKeyForPostLineToGetMachineDataApi,
+    selectedYear,
+  ]);
+
+  // console.log(objOfAnnualPmScheduleApproval);
+
+  // console.log(allUserDropdownList);
   return (
     <>
       <div>
@@ -350,7 +421,7 @@ const AnnualPMSchedule = () => {
                         className="textField"
                         onChange={(e) => {
                           // setSelectedLine(e.target.value);
-                          // setIndexOfSelectedLine(e.target.value);
+                          setIndexOfSelectedLine(e.target.value);
                           setSelectedLine(lineDropdown?.[e.target.value]?._id);
                           postLineToGetMachineList(
                             lineDropdown?.[e.target.value]?._id
@@ -376,14 +447,6 @@ const AnnualPMSchedule = () => {
               </Col>
             </Row>
           </Container>
-
-          {/* <form>
-            <table>
-              <tr>
-                <td>abcd</td>
-              </tr>
-            </table>
-          </form> */}
           <div style={{ padding: "1rem" }}>
             <Container fluid>
               <Row className="ar-table   pmSheetApprovalTableCol1">
@@ -423,152 +486,449 @@ const AnnualPMSchedule = () => {
                           <th className={"td-padding"}>{item}</th>
                         ))}
                       </tr>
-                      {tableData.length > 0 ? (
-                        <tr>
-                          <td className={"td-padding"}>
-                            <div className="p-1 d-flex justify-content-center align-items-center">
-                              <select
-                                class="form-select form-select-sm"
-                                aria-label=".form-select-sm example"
-                                // style={{ width: "100%" }}
-                                id="standard-select-currency"
-                                name="selectedPrdHos"
-                                className="textField"
-                                value={formik.values.selectedPrdHos}
-                                onChange={formik.handleChange}
-                                // fullWidth
-                                select // label="Select"
-                                autoComplete="off"
-                                variant="standard"
-                              >
-                                <option selected disabled value="">
-                                  Please select
-                                </option>
-                                {allUserDropdownList?.map((option, index) =>
-                                  option?.tm_department === "PRD" &&
-                                  option?.tm_grade === "HOS" ? (
-                                    <option value={option?._id}>
-                                      {option.tm_name}
-                                    </option>
-                                  ) : (
-                                    ""
-                                  )
-                                )}
-                              </select>
-                            </div>
-                            <div className=" d-flex justify-content-center align-items-center">
-                              <p
-                                style={{
-                                  color: "#F44336",
-                                  fontWeight: "normal",
-                                  fontSize: "0.80rem",
-                                  float: "left",
-                                }}
-                              >
-                                {formik.touched.selectedPrdHos &&
-                                  formik.errors.selectedPrdHos}
-                              </p>
-                            </div>
-                          </td>
+                      {tableData?.length > 0 ? (
+                        lineDropdown?.length > 0 ? (
+                          lineDropdown?.[indexOfSelectedLine]
+                            ?.annualPmScheduleApproval?.length > 0 ? (
+                            selectedYear === currentYear ? (
+                              <tr>
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    {objOfAnnualPmScheduleApproval?.prdHos
+                                      ?.prdHosApprovalStatus === "Accepted" ? (
+                                      <>
+                                        {
+                                          objOfAnnualPmScheduleApproval?.prdHos
+                                            ?.prdHosId?.tm_name
+                                        }
+                                        <br />
+                                        Status:{" "}
+                                        {
+                                          objOfAnnualPmScheduleApproval?.prdHos
+                                            ?.prdHosApprovalStatus
+                                        }
+                                      </>
+                                    ) : objOfAnnualPmScheduleApproval?.prdHos
+                                        ?.prdHosId?._id === context?._id &&
+                                      objOfAnnualPmScheduleApproval?.mtdHod
+                                        ?.mtdHodApprovalStatus ===
+                                        "Accepted" ? (
+                                      <Button
+                                        onClick={() =>
+                                          approveRequest(
+                                            lineDropdown?.[indexOfSelectedLine],
+                                            "prdHos", //Current Key
+                                            "mtdTlId", //Supporting Key for sending mail to next approval user
+                                            objOfAnnualPmScheduleApproval
+                                          )
+                                        }
+                                      >
+                                        Accept
+                                      </Button>
+                                    ) : (
+                                      <>
+                                        {
+                                          objOfAnnualPmScheduleApproval?.prdHos
+                                            ?.prdHosId?.tm_name
+                                        }
+                                        <br />
+                                        Status:{" "}
+                                        {
+                                          objOfAnnualPmScheduleApproval?.prdHos
+                                            ?.prdHosApprovalStatus
+                                        }
+                                      </>
+                                    )}
+                                  </div>
+                                </td>
 
-                          <td className={"td-padding"}>
-                            <div className="p-1 d-flex justify-content-center align-items-center">
-                              <select
-                                class="form-select form-select-sm"
-                                aria-label=".form-select-sm example"
-                                // style={{ width: "100%" }}
-                                id="standard-select-currency"
-                                name="selectedMtdHod"
-                                className="textField"
-                                value={formik.values.selectedMtdHod}
-                                onChange={formik.handleChange}
-                                // fullWidth
-                                select // label="Select"
-                                autoComplete="off"
-                                variant="standard"
-                              >
-                                <option selected disabled value="">
-                                  Please select
-                                </option>
-                                {allUserDropdownList?.map((option, index) =>
-                                  option?.tm_department === "MTD" &&
-                                  option?.tm_grade === "HOD" ? (
-                                    <option value={option?._id}>
-                                      {option.tm_name}
-                                    </option>
-                                  ) : (
-                                    ""
-                                  )
-                                )}
-                              </select>
-                            </div>
-                            <div className=" d-flex justify-content-center align-items-center">
-                              <p
-                                style={{
-                                  color: "#F44336",
-                                  fontWeight: "normal",
-                                  fontSize: "0.80rem",
-                                  float: "left",
-                                }}
-                              >
-                                {formik.touched.selectedMtdHod &&
-                                  formik.errors.selectedMtdHod}
-                              </p>
-                            </div>
-                          </td>
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    {objOfAnnualPmScheduleApproval?.mtdHod
+                                      ?.mtdHodApprovalStatus === "Accepted" ? (
+                                      <>
+                                        {
+                                          objOfAnnualPmScheduleApproval?.mtdHod
+                                            ?.mtdHodId?.tm_name
+                                        }
+                                        <br />
+                                        Status:{" "}
+                                        {
+                                          objOfAnnualPmScheduleApproval?.mtdHod
+                                            ?.mtdHodApprovalStatus
+                                        }
+                                      </>
+                                    ) : objOfAnnualPmScheduleApproval?.mtdHod
+                                        ?.mtdHodId?._id === context?._id &&
+                                      objOfAnnualPmScheduleApproval?.mtdHos
+                                        ?.mtdHosApprovalStatus ===
+                                        "Accepted" ? (
+                                      <Button
+                                        onClick={() =>
+                                          approveRequest(
+                                            lineDropdown?.[indexOfSelectedLine],
+                                            "mtdHod", //Current Key
+                                            "prdHos", //Supporting Key for sending mail to next approval user
+                                            objOfAnnualPmScheduleApproval
+                                          )
+                                        }
+                                      >
+                                        Accept
+                                      </Button>
+                                    ) : (
+                                      <>
+                                        {
+                                          objOfAnnualPmScheduleApproval?.mtdHod
+                                            ?.mtdHodId?.tm_name
+                                        }
+                                        <br />
+                                        Status:{" "}
+                                        {
+                                          objOfAnnualPmScheduleApproval?.mtdHod
+                                            ?.mtdHodApprovalStatus
+                                        }
+                                      </>
+                                    )}
+                                  </div>
+                                </td>
 
-                          <td className={"td-padding"}>
-                            <div className="p-1 d-flex justify-content-center align-items-center">
-                              <select
-                                class="form-select form-select-sm"
-                                aria-label=".form-select-sm example"
-                                // style={{ width: "100%" }}
-                                id="standard-select-currency"
-                                name="selectedMtdHos"
-                                className="textField"
-                                value={formik.values.selectedMtdHos}
-                                onChange={formik.handleChange}
-                                // fullWidth
-                                select // label="Select"
-                                autoComplete="off"
-                                variant="standard"
-                              >
-                                <option selected disabled value="">
-                                  Please select
-                                </option>
-                                {allUserDropdownList?.map((option, index) =>
-                                  option?.tm_department === "MTD" &&
-                                  option?.tm_grade === "HOS" ? (
-                                    <option value={option?._id}>
-                                      {option.tm_name}
-                                    </option>
-                                  ) : (
-                                    ""
-                                  )
-                                )}
-                              </select>
-                            </div>
-                            <div className=" d-flex justify-content-center align-items-center">
-                              <p
-                                style={{
-                                  color: "#F44336",
-                                  fontWeight: "normal",
-                                  fontSize: "0.80rem",
-                                  float: "left",
-                                }}
-                              >
-                                {formik.touched.selectedMtdHos &&
-                                  formik.errors.selectedMtdHos}
-                              </p>
-                            </div>
-                          </td>
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    {objOfAnnualPmScheduleApproval?.mtdHos
+                                      ?.mtdHosApprovalStatus === "Accepted" ? (
+                                      <>
+                                        {
+                                          objOfAnnualPmScheduleApproval?.mtdHos
+                                            ?.mtdHosId?.tm_name
+                                        }
+                                        <br />
+                                        Status:{" "}
+                                        {
+                                          objOfAnnualPmScheduleApproval?.mtdHos
+                                            ?.mtdHosApprovalStatus
+                                        }
+                                      </>
+                                    ) : objOfAnnualPmScheduleApproval?.mtdHos
+                                        ?.mtdHosId._id === context?._id &&
+                                      objOfAnnualPmScheduleApproval?.mtdTlId
+                                        ?.tm_name ? (
+                                      <Button
+                                        onClick={() =>
+                                          approveRequest(
+                                            lineDropdown?.[indexOfSelectedLine],
+                                            "mtdHos", //Current Key
+                                            "mtdHod", //Supporting Key for sending mail to next approval user
+                                            objOfAnnualPmScheduleApproval
+                                          )
+                                        }
+                                      >
+                                        Accept
+                                      </Button>
+                                    ) : (
+                                      <>
+                                        {
+                                          objOfAnnualPmScheduleApproval?.mtdHos
+                                            ?.mtdHosId?.tm_name
+                                        }
+                                        <br />
+                                        Status:{" "}
+                                        {
+                                          objOfAnnualPmScheduleApproval?.mtdHos
+                                            ?.mtdHosApprovalStatus
+                                        }
+                                      </>
+                                    )}
+                                  </div>
+                                </td>
 
-                          <td className={"td-padding"}>
-                            <Button onClick={formik.handleSubmit}>
-                              Send For Approval
-                            </Button>
-                          </td>
-                        </tr>
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    {
+                                      objOfAnnualPmScheduleApproval?.mtdTlId
+                                        ?.tm_name
+                                    }
+                                  </div>
+                                </td>
+                              </tr>
+                            ) : (
+                              <tr>
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    {
+                                      objOfAnnualPmScheduleApproval?.prdHos
+                                        ?.prdHosId?.tm_name
+                                    }
+                                    <br />
+                                    Status:{" "}
+                                    {
+                                      objOfAnnualPmScheduleApproval?.prdHos
+                                        ?.prdHosApprovalStatus
+                                    }
+                                  </div>
+                                </td>
+
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    {
+                                      objOfAnnualPmScheduleApproval?.mtdHod
+                                        ?.mtdHodId?.tm_name
+                                    }
+                                    <br />
+                                    Status:{" "}
+                                    {
+                                      objOfAnnualPmScheduleApproval?.mtdHod
+                                        ?.mtdHodApprovalStatus
+                                    }
+                                  </div>
+                                </td>
+
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    {
+                                      objOfAnnualPmScheduleApproval?.mtdHos
+                                        ?.mtdHosId?.tm_name
+                                    }
+                                    <br />
+                                    Status:{" "}
+                                    {
+                                      objOfAnnualPmScheduleApproval?.mtdHos
+                                        ?.mtdHosApprovalStatus
+                                    }
+                                  </div>
+                                </td>
+
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    {
+                                      objOfAnnualPmScheduleApproval?.mtdTlId
+                                        ?.tm_name
+                                    }
+                                  </div>
+                                </td>
+                              </tr>
+                            )
+                          ) : context?.tm_department === "MTD" &&
+                            context?.user_type === "TL/HOSS" ? (
+                            selectedYear === currentYear ? (
+                              <tr>
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    <select
+                                      class="form-select form-select-sm"
+                                      aria-label=".form-select-sm example"
+                                      // style={{ width: "100%" }}
+                                      id="standard-select-currency"
+                                      name="selectedPrdHos"
+                                      className="textField"
+                                      value={formik.values.selectedPrdHos}
+                                      onChange={formik.handleChange}
+                                      // fullWidth
+                                      select // label="Select"
+                                      autoComplete="off"
+                                      variant="standard"
+                                    >
+                                      <option selected disabled value="">
+                                        Please select
+                                      </option>
+                                      {allUserDropdownList?.map(
+                                        (option, index) =>
+                                          option?.tm_department === "PRD" &&
+                                          option?.tm_grade === "HOS" &&
+                                          option?.user_type ===
+                                            "Section-Admin" ? (
+                                            <option value={option?._id}>
+                                              {option.tm_name}
+                                            </option>
+                                          ) : (
+                                            ""
+                                          )
+                                      )}
+                                    </select>
+                                  </div>
+                                  <div className=" d-flex justify-content-center align-items-center">
+                                    <p
+                                      style={{
+                                        color: "#F44336",
+                                        fontWeight: "normal",
+                                        fontSize: "0.80rem",
+                                        float: "left",
+                                      }}
+                                    >
+                                      {formik.touched.selectedPrdHos &&
+                                        formik.errors.selectedPrdHos}
+                                    </p>
+                                  </div>
+                                </td>
+
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    <select
+                                      class="form-select form-select-sm"
+                                      aria-label=".form-select-sm example"
+                                      // style={{ width: "100%" }}
+                                      id="standard-select-currency"
+                                      name="selectedMtdHod"
+                                      className="textField"
+                                      value={formik.values.selectedMtdHod}
+                                      onChange={formik.handleChange}
+                                      // fullWidth
+                                      select // label="Select"
+                                      autoComplete="off"
+                                      variant="standard"
+                                    >
+                                      <option selected disabled value="">
+                                        Please select
+                                      </option>
+                                      {allUserDropdownList?.map(
+                                        (option, index) =>
+                                          option?.tm_department === "MTD" &&
+                                          option?.tm_grade === "HOD" &&
+                                          option?.user_type ===
+                                            "Section-Admin" ? (
+                                            <option value={option?._id}>
+                                              {option.tm_name}
+                                            </option>
+                                          ) : (
+                                            ""
+                                          )
+                                      )}
+                                    </select>
+                                  </div>
+                                  <div className=" d-flex justify-content-center align-items-center">
+                                    <p
+                                      style={{
+                                        color: "#F44336",
+                                        fontWeight: "normal",
+                                        fontSize: "0.80rem",
+                                        float: "left",
+                                      }}
+                                    >
+                                      {formik.touched.selectedMtdHod &&
+                                        formik.errors.selectedMtdHod}
+                                    </p>
+                                  </div>
+                                </td>
+
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    <select
+                                      class="form-select form-select-sm"
+                                      aria-label=".form-select-sm example"
+                                      // style={{ width: "100%" }}
+                                      id="standard-select-currency"
+                                      name="selectedMtdHos"
+                                      className="textField"
+                                      value={formik.values.selectedMtdHos}
+                                      onChange={formik.handleChange}
+                                      // fullWidth
+                                      select // label="Select"
+                                      autoComplete="off"
+                                      variant="standard"
+                                    >
+                                      <option selected disabled value="">
+                                        Please select
+                                      </option>
+                                      {allUserDropdownList?.map(
+                                        (option, index) =>
+                                          option?.tm_department === "MTD" &&
+                                          option?.tm_grade === "HOS" &&
+                                          option?.user_type ===
+                                            "Section-Admin" ? (
+                                            <option value={option?._id}>
+                                              {option.tm_name}
+                                            </option>
+                                          ) : (
+                                            ""
+                                          )
+                                      )}
+                                    </select>
+                                  </div>
+                                  <div className=" d-flex justify-content-center align-items-center">
+                                    <p
+                                      style={{
+                                        color: "#F44336",
+                                        fontWeight: "normal",
+                                        fontSize: "0.80rem",
+                                        float: "left",
+                                      }}
+                                    >
+                                      {formik.touched.selectedMtdHos &&
+                                        formik.errors.selectedMtdHos}
+                                    </p>
+                                  </div>
+                                </td>
+
+                                <td className={"td-padding"}>
+                                  <Button onClick={formik.handleSubmit}>
+                                    Send For Approval
+                                  </Button>
+                                </td>
+                              </tr>
+                            ) : (
+                              <tr>
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    {
+                                      objOfAnnualPmScheduleApproval?.prdHos
+                                        ?.prdHosId?.tm_name
+                                    }
+                                    <br />
+                                    Status:{" "}
+                                    {
+                                      objOfAnnualPmScheduleApproval?.prdHos
+                                        ?.prdHosApprovalStatus
+                                    }
+                                  </div>
+                                </td>
+
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    {
+                                      objOfAnnualPmScheduleApproval?.mtdHod
+                                        ?.mtdHodId?.tm_name
+                                    }
+                                    <br />
+                                    Status:{" "}
+                                    {
+                                      objOfAnnualPmScheduleApproval?.mtdHod
+                                        ?.mtdHodApprovalStatus
+                                    }
+                                  </div>
+                                </td>
+
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    {
+                                      objOfAnnualPmScheduleApproval?.mtdHos
+                                        ?.mtdHosId?.tm_name
+                                    }
+                                    <br />
+                                    Status:{" "}
+                                    {
+                                      objOfAnnualPmScheduleApproval?.mtdHos
+                                        ?.mtdHosApprovalStatus
+                                    }
+                                  </div>
+                                </td>
+
+                                <td className={"td-padding"}>
+                                  <div className="p-1 d-flex justify-content-center align-items-center">
+                                    {
+                                      objOfAnnualPmScheduleApproval?.mtdTlId
+                                        ?.tm_name
+                                    }
+                                  </div>
+                                </td>
+                              </tr>
+                            )
+                          ) : (
+                            columnForHeading2.map((item) => (
+                              <th className={"td-padding"}></th>
+                            ))
+                          )
+                        ) : (
+                          ""
+                        )
                       ) : (
                         ""
                       )}

@@ -24,6 +24,7 @@ const ApprovalOfSkipPM = require('../model/approvalSchemaOfSkipData')
 const sendApproval = require('../sendMail/sendApproval')
 const autoSendMail = require("../sendMail/autoSendMail")
 const sendApprovalOfSkippedPM = require('../sendMail/sendApprovalOfSkippedPM')
+const sendMailForAnnualPmScheduleReport = require("../sendMail/sendMailForAnnualPmScheduleReport")
 
 const bcrypt = require('bcryptjs')
 const crypto = require('crypto');
@@ -5675,14 +5676,24 @@ router.post('/postMachineToGetChacksheetPreparationData', authenticate, async (r
 router.post('/postCellToGetLineListForReport', authenticate, async (req, res) => {
     try {
         let { cell } = req.body
-        const lineInfo = await Line.find({ cell_names: cell }).populate({ path: "cell_names" })
+
+        // console.log("============>",cell)
+
+        const lineInfo = await Line.find({ cell_names: cell })
+            .populate({ path: "cell_names" })
+            .populate({ path: "annualPmScheduleApproval.mtdTlId", model: "Users" })
+            .populate({ path: "annualPmScheduleApproval.mtdHos.mtdHosId", model: "Users" })
+            .populate({ path: "annualPmScheduleApproval.mtdHod.mtdHodId", model: "Users" })
+            .populate({ path: "annualPmScheduleApproval.prdHos.prdHosId", model: "Users" })
+
+
 
         // console.log(lineInfo)
 
         res.json({ lineInfo })
 
     } catch (error) {
-        console.log(error)
+        console.log("============= 5690", error)
         console.log("User id not received!!!");
     }
 })
@@ -5743,7 +5754,7 @@ router.post('/postLineToGetMachineListForReportDashboard', authenticate, async (
 
         res.json({ machineInfo })
     } catch (error) {
-        console.log(error)
+        console.log("========== 5751", error)
         console.log("User id not received!!!");
     }
 })
@@ -8548,7 +8559,7 @@ router.get('/fetchRemarksForMainDashboardSectionWise', authenticate, async (req,
 router.post('/fetchRemarksForMainDashboardSubSectionWise', authenticate, async (req, res) => {
     try {
         let { subSection, } = req.body
-        let subSectionSplit = subSection.split("-")
+        let subSectionSplit = subSection?.split("-")
 
         // console.log(subSection, subSectionSplit[0])
 
@@ -10842,13 +10853,13 @@ router.post('/annualPmScheduleApproval', async (req, res) => {
         } = req.body
 
 
-        console.log(
-            selectedLine,
-            selectedPrdHos,
-            selectedMtdHod,
-            selectedMtdHos,
-            selectedMtdTl,
-        )
+        // console.log(
+        // selectedLine,
+        // selectedPrdHos,
+        // selectedMtdHod,
+        // selectedMtdHos,
+        // selectedMtdTl,
+        // )
 
         let currentYear =
             new Date().getMonth() <= 3 ?
@@ -10857,32 +10868,104 @@ router.post('/annualPmScheduleApproval', async (req, res) => {
 
 
         let updatedLine = await Line.updateOne(
-            { _id: selectedLine },
+            { _id: selectedLine?._id },
             {
-                $set: {
+                $push: {
+                    annualPmScheduleApproval: {
 
-                    //current year
-                    "annualPmScheduleApproval.current_year": currentYear,
+                        //current year
+                        "current_year": currentYear,
 
-                    //prepared User
-                    "annualPmScheduleApproval.mtdTlId": selectedMtdTl,
+                        //prepared User
+                        "mtdTlId": selectedMtdTl,
 
-                    //MTD HOS
-                    "annualPmScheduleApproval.mtdHos.mtdHosId": selectedMtdHos,
-                    "annualPmScheduleApproval.mtdHos.mtdHosApprovalStatus": "Pending",
+                        //MTD HOS
+                        "mtdHos.mtdHosId": selectedMtdHos,
+                        "mtdHos.mtdHosApprovalStatus": "Pending",
 
-                    //MTD HOD
-                    "annualPmScheduleApproval.mtdHod.mtdHodId": selectedMtdHod,
-                    "annualPmScheduleApproval.mtdHod.mtdHodApprovalStatus": "Pending",
+                        //MTD HOD
+                        "mtdHod.mtdHodId": selectedMtdHod,
+                        "mtdHod.mtdHodApprovalStatus": "Pending",
 
-                    //PRD HOS
-                    "annualPmScheduleApproval.prdHos.prdHosId": selectedPrdHos,
-                    "annualPmScheduleApproval.prdHos.prdHosApprovalStatus": "Pending",
+                        //PRD HOS
+                        "prdHos.prdHosId": selectedPrdHos,
+                        "prdHos.prdHosApprovalStatus": "Pending",
+                    }
+
                 }
             });
 
-        console.log(updatedLine)
 
+        const userInfoForMail = await User.findOne({ _id: selectedMtdHos })
+
+
+        // console.log(userInfoForMail?.email)
+
+        sendMailForAnnualPmScheduleReport(userInfoForMail?.email, selectedLine)
+
+
+        // console.log(updatedLine)
+
+
+        res.status(200).json({ msg: "uploaded successfully" })
+
+
+
+    } catch (error) {
+        console.log(error)
+        console.log("Data not valid or received !!!");
+    }
+})
+
+
+router.post('/approveRequestForAnnualPmSchedule', async (req, res) => {
+    try {
+
+        const {
+            lineData,
+            ID,
+            supportingKey,
+            objOfAnnualPmScheduleApproval,
+        } = req.body
+
+
+        let currentYear =
+            new Date().getMonth() <= 3 ?
+                `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
+                `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+        let keyForApprovalOfUser = `annualPmScheduleApproval.$[outer].${ID}.${ID}ApprovalStatus`
+
+        await Line.updateOne(
+            { _id: lineData?._id },
+            {
+                $set: {
+                    [keyForApprovalOfUser]: "Accepted"
+                }
+            },
+            {
+                arrayFilters: [{ 'outer.current_year': currentYear }],
+            }
+
+        );
+
+
+        let toEmail
+
+        if (supportingKey === "mtdTlId") {
+
+            // console.log(objOfAnnualPmScheduleApproval?.[supportingKey]?.email)
+            toEmail = objOfAnnualPmScheduleApproval?.[supportingKey]?.email
+
+        } else {
+            // console.log(objOfAnnualPmScheduleApproval?.[supportingKey]?.[`${supportingKey}Id`]?.email)
+            toEmail = objOfAnnualPmScheduleApproval?.[supportingKey]?.[`${supportingKey}Id`]?.email
+
+        }
+
+        // console.log(toEmail)
+
+        sendMailForAnnualPmScheduleReport(toEmail, lineData)
 
         res.status(200).json({ msg: "uploaded successfully" })
 

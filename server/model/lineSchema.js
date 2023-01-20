@@ -15,10 +15,10 @@ const lineSchema = new mongoose.Schema({
         type: Number
     },
 
-    annualPmScheduleApproval: {
+    annualPmScheduleApproval: [{
 
         current_year: { type: String },
-        
+
         mtdTlId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Users'
@@ -53,7 +53,7 @@ const lineSchema = new mongoose.Schema({
                 type: String
             }
         },
-    }
+    }]
 })
 
 const Line = new mongoose.model('Lines', lineSchema);

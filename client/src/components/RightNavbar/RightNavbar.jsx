@@ -38,6 +38,7 @@ const RightNavbar = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
+        navigate("/", { replace: true });
         console.log("Data post");
       }
     } catch (error) {
@@ -61,7 +62,6 @@ const RightNavbar = () => {
       }
       // console.log("cheking end point !!!");
       clearTokens();
-      navigate("/", { replace: true });
       refreshPage();
     } catch (error) {
       console.log("No data found ( Unauthorized ) !!!");

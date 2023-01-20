@@ -23,9 +23,8 @@ const GraphsInMainDashboard = ({
   subSection,
   allDataSectionWise,
   currentMonthGraphAndTableData,
-  annualGraph
+  annualGraph,
 }) => {
-
   // console.log(annualGraph)
   const context = useContext(RoutingContext);
 
@@ -226,7 +225,6 @@ const GraphsInMainDashboard = ({
         currentMonthGraphAndTableData?.sumVariableForTotalCompleted -
         currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
     },
-
   ];
 
   let Data = {
