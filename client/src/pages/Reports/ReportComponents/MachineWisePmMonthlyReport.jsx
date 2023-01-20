@@ -30,6 +30,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
+import MachineWisePmMonthlyGraph from "./Graph/MachineWIsePmMonthlyGraph";
+
 require("jspdf-autotable");
 
 const MachineWisePmMonthlyReport = () => {
@@ -712,7 +714,9 @@ const MachineWisePmMonthlyReport = () => {
             <Container fluid>
               <Row>
                 {tableData1?.machineDataForCurrentMonth?.length > 0 ? (
-                  <Col lg={10}>
+                  <Col
+                  // lg={10}
+                  >
                     <MaterialTable
                       localization={
                         {
@@ -814,25 +818,34 @@ const MachineWisePmMonthlyReport = () => {
 
                     // className="profileImg"
                   >
-                    <Row className="pt-2 ">
-                      <Col style={{ backgroundColor: "white" }}>
-                        <div style={{ textAlign: "center" }}>Month Status</div>
+                    <Row className="p-2 mt-2 cell">
+                      <MachineWisePmMonthlyGraph
+                        statusCounter={statusCounter}
+                      />
+                    </Row>
+                    <Row className="p-2 mt-2 cell">
+                      <Col>
+                        <div style={{ textAlign: "center" }}>
+                          <b>Month Status</b>
+                        </div>
                         <br />
-                        Schedule PM :{statusCounter.schedulePm}
+                        &nbsp; &nbsp; &nbsp; Schedule PM :
+                        {statusCounter.schedulePm}
                         <br />
-                        Completed : {statusCounter.completed}
+                        <PanoramaFishEyeIcon fontSize="small" /> Completed :{" "}
+                        {statusCounter.completed}
                         <br />
-                        Pending :{" "}
+                        <CloseIcon /> Pending :{" "}
                         {statusCounter.schedulePm -
                           statusCounter.completed -
                           statusCounter.onGoing}
                         {/* Pending : {statusCounter.pending} */}
                         <br />
-                        Ongoing :{statusCounter.onGoing}
+                        <ArrowDropUpIcon /> Ongoing :{statusCounter.onGoing}
                         <br />
                       </Col>
                     </Row>
-                    <Row className="pt-5 ">
+                    {/* <Row className="pt-5 ">
                       <Col style={{ backgroundColor: "white" }}>
                         <PanoramaFishEyeIcon fontSize="small" /> Completed
                         <br />
@@ -840,7 +853,7 @@ const MachineWisePmMonthlyReport = () => {
                         <br />
                         <ArrowDropUpIcon /> Ongoing
                       </Col>
-                    </Row>
+                    </Row> */}
                     {/* <Container>
                     <Row>
                       <Col style={{ backgroundColor: "white" }}>ABCD</Col>
