@@ -95,7 +95,7 @@ const CurrentMonthStatusGraph = ({ TableData }) => {
       data={data}
       height={1050}
       width={50}
-      options={{ maintainAspectRatio: false }}
+      // options={{ maintainAspectRatio: false }}
     />
   );
 };

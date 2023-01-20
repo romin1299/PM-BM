@@ -38,7 +38,7 @@ const DoughnutChart = ({ TableData }) => {
   };
 
   const options = {
-    maintainAspectRatio: false,
+    // maintainAspectRatio: false,
 
     responsive: true,
     plugins: {
