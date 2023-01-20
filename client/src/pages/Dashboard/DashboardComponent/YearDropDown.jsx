@@ -3,8 +3,7 @@ import { Container, Row, Col } from "reactstrap";
 import { fetchFinancialYears } from "../../../Integration/APIExports";
 
 const YearDropDown = ({ selectedYear, setSelectedYear }) => {
-
-  const [financialYear, setFinancialYear] = useState()
+  const [financialYear, setFinancialYear] = useState();
 
   let current_year =
     new Date().getMonth() <= 3
@@ -13,7 +12,9 @@ const YearDropDown = ({ selectedYear, setSelectedYear }) => {
 
   useEffect(() => {
     // fetchFinancialYears()
-    fetchFinancialYears().then((result) => setFinancialYear(result.financialYears));
+    fetchFinancialYears().then((result) =>
+      setFinancialYear(result.financialYears)
+    );
   }, []);
 
   const keyArrayForYear = ["2021-2022", "2022-2023", "2023-2024", "2024-2025"];

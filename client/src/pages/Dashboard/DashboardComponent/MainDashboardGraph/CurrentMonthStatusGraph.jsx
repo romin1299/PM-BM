@@ -90,7 +90,14 @@ const CurrentMonthStatusGraph = ({ TableData }) => {
       },
     ],
   };
-  return <Pie data={data} height={1050} width={50} />;
+  return (
+    <Pie
+      data={data}
+      height={1050}
+      width={50}
+      options={{ maintainAspectRatio: false }}
+    />
+  );
 };
 
 export default CurrentMonthStatusGraph;

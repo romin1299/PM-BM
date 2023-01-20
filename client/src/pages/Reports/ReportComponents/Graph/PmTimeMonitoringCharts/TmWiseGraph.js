@@ -30,6 +30,7 @@ const TmWiseGraph = ({ xValue, yValue }) => {
     .getColors();
 
   const options = {
+    maintainAspectRatio: false,
     responsive: true,
     plugins: {
       legend: {
