@@ -964,7 +964,7 @@ const MachineWisePmMonthlyReport = () => {
                                 value={formik1.values.mtd_hos_list?.tm_name}
                                 onChange={(e) => {
                                   // setUsertype(e.target.value);
-                                  console.log(e.target.value);
+                                  // console.log(e.target.value);
                                   formik1.handleChange(e);
                                 }}
                                 variant="standard"
