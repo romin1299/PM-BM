@@ -2262,7 +2262,7 @@ router.post('/addNewChecksheetData', async (req, res) => {
 
                         $set: {
                             checkSheet_data: {
-                                previous_year,
+                                current_year: previous_year,
                                 checkSheet: {
                                     tableRowId,
                                     category,
@@ -2318,7 +2318,7 @@ router.post('/addNewChecksheetData', async (req, res) => {
 
                         $set: {
                             checkSheet_data: {
-                                previous_year,
+                                current_year: previous_year,
                                 checkSheet: {
                                     tableRowId,
                                     category,
@@ -3478,7 +3478,7 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
         let keyOfImplementation_approved_by_MTD_TL_for_doneWithDelay = `checkSheet_data.$[outer].implementation_approved_by_MTD_TL.${previousMonth}`
         let keyOfImplementation_approved_by_MTD_HOS_for_doneWithDelay = `checkSheet_data.$[outer].implementation_approved_by_MTD_HOS.${previousMonth}`
 
-
+        const sectionInfo = await Section.findOne({ section_id: loggedUserData?.section_data?.split("-")?.[0] })
 
         if (request === "Yes") {
             if (selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1] === "Pending") {
