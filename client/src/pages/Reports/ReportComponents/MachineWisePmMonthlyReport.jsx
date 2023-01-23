@@ -30,6 +30,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
+import MachineWisePmMonthlyGraph from "./Graph/MachineWIsePmMonthlyGraph";
+
 require("jspdf-autotable");
 
 const MachineWisePmMonthlyReport = () => {
@@ -822,17 +824,19 @@ const MachineWisePmMonthlyReport = () => {
                       <Col style={{ backgroundColor: "white" }}>
                         <div style={{ textAlign: "center" }}><b>Month Status</b></div>
                         <br />
-                        Schedule PM :{statusCounter.schedulePm}
+                        &nbsp; &nbsp; &nbsp; Schedule PM :
+                        {statusCounter.schedulePm}
                         <br />
-                        Completed : {statusCounter.completed}
+                        <PanoramaFishEyeIcon fontSize="small" /> Completed :{" "}
+                        {statusCounter.completed}
                         <br />
-                        Pending :{" "}
+                        <CloseIcon /> Pending :{" "}
                         {statusCounter.schedulePm -
                           statusCounter.completed -
                           statusCounter.onGoing}
                         {/* Pending : {statusCounter.pending} */}
                         <br />
-                        Ongoing :{statusCounter.onGoing}
+                        <ArrowDropUpIcon /> Ongoing :{statusCounter.onGoing}
                         <br />
                       </Col>
                     </Row>
@@ -845,7 +849,7 @@ const MachineWisePmMonthlyReport = () => {
                         <br />
                         <ArrowDropUpIcon /> Ongoing
                       </Col>
-                    </Row>
+                    </Row> */}
                     {/* <Container>
                     <Row>
                       <Col style={{ backgroundColor: "white" }}>ABCD</Col>
@@ -974,7 +978,7 @@ const MachineWisePmMonthlyReport = () => {
                                 value={formik1.values.mtd_hos_list?.tm_name}
                                 onChange={(e) => {
                                   // setUsertype(e.target.value);
-                                  console.log(e.target.value);
+                                  // console.log(e.target.value);
                                   formik1.handleChange(e);
                                 }}
                                 variant="standard"

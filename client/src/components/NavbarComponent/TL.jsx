@@ -22,12 +22,13 @@ import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import SummarizeIcon from "@mui/icons-material/Summarize";
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
-import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import BackupTableIcon from "@mui/icons-material/BackupTable";
 
 const NavUrl = ({ url, icon, description }) => {
   const { nav, setNav } = useContext(NavContext);
@@ -149,6 +150,22 @@ const TL = ({ userData, userDepartment }) => {
             icon={<PendingActionsIcon style={{ color: "#ffffff" }} />}
             description="Pending PM Log History"
           />
+          {userDepartment === "MTD" ? (
+            <>
+              <NavUrl
+                url="/operatorDataEntry"
+                icon={<NoteAddIcon style={{ color: "#E71E25" }} />}
+                description="Operator Data Entry"
+              />
+              <NavUrl
+                url="/sparePartUsageHistory"
+                icon={<BackupTableIcon style={{ color: "#E71E25" }} />}
+                description="Spare Part Usage History"
+              />
+            </>
+          ) : (
+            ""
+          )}
           <List
             sx={{ width: "100%", maxWidth: 360 }}
             component="nav"
@@ -176,6 +193,15 @@ const TL = ({ userData, userDepartment }) => {
                     url="/openAbnormalityTrack"
                     icon={<CreditScoreIcon style={{ color: "#ffffff" }} />}
                     description="Open Abnormality Tracking"
+                  />
+                </ListItemButton>
+              </List>
+              <List component="div" disablePadding>
+                <ListItemButton sx={{ pl: 3 }}>
+                  <NavUrl
+                    url="/spareReportDashboard"
+                    icon={<AssignmentIcon style={{ color: "#E71E25" }} />}
+                    description="Spare Report"
                   />
                 </ListItemButton>
               </List>

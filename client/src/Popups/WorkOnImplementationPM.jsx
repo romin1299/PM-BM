@@ -74,22 +74,28 @@ function WorkOnImplementationPM({
       is: () => formik.values.spareParts === "Yes",
       then: yup.string().required("Please enter cost"),
     }),
+    spareParts: yup.string().when({
+      is: () =>
+        formik.values.workedOnPM === "Rectify" ||
+        formik.values.workedOnPM === "No",
+      then: yup.string().required("Please select spare part option"),
+    }),
   });
 
-    //get the date and time
-    const timeStamp = () => {
-      let date = new Date();
-      let getTime = date
-        .toLocaleTimeString("en-IN", {
-          hour12: true,
-        })
-        .replace(/(.*)\D\d+/, "$1");
-      const year = date.getFullYear(); // 2019
-      const month = date.getMonth() + 1;
-      const day = date.getDate(); // 23
-  
-      return `${day}/${month}/${year} - ${getTime}`;
-    };
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -115,6 +121,8 @@ function WorkOnImplementationPM({
     validationSchema: validationSchema,
 
     onSubmit: async (values) => {
+      let completionDateOfInspection = timeStamp();
+
       let formData = new FormData();
       formData.append("photoUpload", userPhoto);
       formData.append("workedOnPM", values.workedOnPM);
@@ -139,7 +147,7 @@ function WorkOnImplementationPM({
       formData.append("partName", values.partName);
       formData.append("partNo", values.partNo);
       formData.append("cost", values.cost);
-      formData.append("completionDateOfInspection", timeStamp)
+      formData.append("completionDateOfInspection", completionDateOfInspection);
       // console.log(formData);
 
       axios
@@ -419,7 +427,21 @@ function WorkOnImplementationPM({
                           );
                         })}
                       </select>
+                      <div>
+                      <p
+                        style={{
+                          color: "#F44336",
+                          fontWeight: "normal",
+                          fontSize: "0.80rem",
+                          float: "left",
+                          paddingTop: "0.5rem",
+                        }}
+                      >
+                        {formik.touched.spareParts && formik.errors.spareParts}
+                      </p>
                     </div>
+                    </div>
+                    
                     {formik.values.spareParts === "Yes" ? (
                       <div>
                         <div className="mb-2 row">

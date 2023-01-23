@@ -1,0 +1,436 @@
+import React, { useState, useEffect, useContext } from "react";
+import { Container, Row, Col } from "react-bootstrap";
+import TextField from "@material-ui/core/TextField";
+import MaterialTable from "@material-table/core";
+import YearDropDown from "../Dashboard/DashboardComponent/YearDropDown";
+
+import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
+import NotFound from "../Reports/ReportComponents/NotFound";
+
+import RoutingContext from "../../context/routing/RoutingContext";
+import { fetchFinancialYears } from "../../Integration/APIExports";
+
+import {
+  postSectionToGetAllDataForMainDashboard,
+  postLineToGetAllMachineData,
+} from "../../Integration/APIExports";
+
+import currentYear from "../Dashboard/DashboardComponent/currentYear";
+
+const SparePartUsageHistory = () => {
+  const context = useContext(RoutingContext);
+  const typeDropdownList = ["BM", "Corrective", "Predictive", "Kaizen"];
+  const monthKeyArray = [
+    "Apr",
+    "May",
+    "June",
+    "July",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+  ];
+  const [tableDataOfSpareDetails, setTableDataOfSpareDetails] = useState([]);
+
+  const [selectedMonth, setSelectedMonth] = useState();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+
+  const [allLineData, setAllLineData] = useState([]);
+  const [allMachineDataBasedOnLine, setAllMachineDataBasedOnLine] = useState(
+    []
+  );
+
+  const [stateForAnimationAndNotFound, setStateForAnimationAndNotFound] =
+    useState(<LoadingAnimation />);
+
+  // selectedMachine = index of machine from allMachineDataBasedOnLine dropdown
+  // actual machine data = allMachineDataBasedOnLine?.[selectedMachine]
+  const [selectedMachine, setSelectedMachine] = useState();
+
+  // console.log(allMachineDataBasedOnLine);
+
+  const tableColumn = [
+    {
+      title: "Sr. no",
+      render: (rowData) => `${rowData.tableData.id + 1}`,
+      align: "center",
+      width: "5%",
+    },
+    {
+      title: "Date",
+      editable: "false",
+      align: "center",
+    },
+    {
+      title: "Line",
+      // field: "line_names.line_name",
+      //   render: (rowData) => rowData?.line_names.line_name,
+      editable: "false",
+      align: "center",
+    },
+    {
+      title: "Machine",
+      field: "machine_name",
+      align: "center",
+    },
+    {
+      title: "Machine No.",
+      field: "machine_code",
+      align: "center",
+    },
+
+    {
+      title: "Category",
+      editable: "false",
+      align: "center",
+    },
+
+    {
+      title: "Part Name",
+      editable: "false",
+      align: "center",
+    },
+    {
+      title: "Part No.",
+      editable: "false",
+      align: "center",
+    },
+
+    {
+      title: "Used By",
+      editable: "false",
+      align: "center",
+    },
+
+    {
+      title: "Cost",
+      editable: "false",
+      align: "center",
+    },
+
+    {
+      title: "Abnormality",
+      editable: "false",
+      align: "center",
+    },
+
+    {
+      title: "SparePart",
+      editable: "false",
+      align: "center",
+    },
+  ];
+
+  const [financialYear, setFinancialYear] = useState();
+
+  let current_year =
+    new Date().getMonth() <= 3
+      ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+      : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+  useEffect(() => {
+    // fetchFinancialYears()
+    fetchFinancialYears().then((result) =>
+      setFinancialYear(result.financialYears)
+    );
+  }, []);
+
+  useEffect(() => {
+    postSectionToGetAllDataForMainDashboard(
+      context?.section_data,
+      selectedYear
+    ).then((result) => {
+      setAllLineData(result?.lineData);
+      setTableDataOfSpareDetails(result?.allSpareDetailsWithCategories);
+      setStateForAnimationAndNotFound(<NotFound />);
+    });
+  }, [context?.section_data, selectedYear]);
+
+  // console.log(allMachineDataBasedOnLine?.[selectedMachine]);
+
+  const financialYearWiseMonthKeyArray = [
+    "Apr",
+    "May",
+    "June",
+    "July",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+  ];
+
+  return (
+    <>
+      <Container fluid className="pt-3 sparePartUsageHistory">
+        <Row className="m-3 cell p-3">
+          <Col>
+            <div>Year:</div>
+            <select
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              style={{ border: "2px solid gray", borderRadius: "5px" }}
+              id="standard-select-currency"
+              name="selectedPlant"
+              className="textField"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {financialYear?.map((option) => {
+                return <option value={option}>{option}</option>;
+              })}
+            </select>
+          </Col>
+          <Col>
+            <div>Category:</div>
+            <select
+              // class="form-select form-select-sm"
+              // aria-label=".form-select-sm example"
+              style={{ border: "2px solid gray", borderRadius: "5px" }}
+              // id="standard-select-currency"
+              id="outlined-number"
+              name="selectedType"
+              className="textField mt-1"
+              fullWidth
+              select // label="Select"
+              autoComplete="off"
+              // value={formik.values.selectedType}
+              // onChange={formik.handleChange}
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {typeDropdownList.map((option) => {
+                return <option value={option}>{option}</option>;
+              })}
+            </select>
+            {/* <div>
+              <p
+                style={{
+                  color: "#F44336",
+                  fontWeight: "normal",
+                  fontSize: "0.80rem",
+                  float: "left",
+                  paddingTop: "0.5rem",
+                }}
+              >
+                {formik.touched.selectedType && formik.errors.selectedType}
+              </p>
+            </div> */}
+          </Col>
+
+          <Col>
+            <div>Month:</div>
+            <select
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              style={{ border: "2px solid gray", borderRadius: "5px" }}
+              id="standard-select-currency"
+              name="selectedPlant"
+              className="textField"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {monthKeyArray?.map((option) => {
+                return <option value={option}>{option}</option>;
+              })}
+            </select>
+          </Col>
+
+          <Col>
+            <div>Line:</div>
+            <select
+              // class="form-select form-select-sm"
+              // aria-label=".form-select-sm example"
+              style={{ border: "2px solid gray", borderRadius: "5px" }}
+              // id="standard-select-currency"
+              id="outlined-number"
+              name="selectedLine"
+              className="textField mt-1"
+              fullWidth
+              select // label="Select"
+              autoComplete="off"
+              // value={formik.values.selectedLine}
+              onChange={(e) => {
+                // formik.handleChange(e);
+                setSelectedMachine();
+                postLineToGetAllMachineData(e.target.value, currentYear).then(
+                  (result) => setAllMachineDataBasedOnLine(result?.machineInfo)
+                );
+              }}
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {allLineData?.map((option) => {
+                return <option value={option?._id}>{option?.line_name}</option>;
+              })}
+            </select>
+            {/* <div>
+              <p
+                style={{
+                  color: "#F44336",
+                  fontWeight: "normal",
+                  fontSize: "0.80rem",
+                  float: "left",
+                  paddingTop: "0.5rem",
+                }}
+              >
+                {formik.touched.selectedLine && formik.errors.selectedLine}
+              </p>
+            </div> */}
+          </Col>
+
+          <Col>
+            <div>Machine:</div>
+            <select
+              // class="form-select form-select-sm"
+              // aria-label=".form-select-sm example"
+              style={{ border: "2px solid gray", borderRadius: "5px" }}
+              // id="standard-select-currency"
+              id="outlined-number"
+              name="selectedMachine"
+              className="textField mt-1"
+              fullWidth
+              select // label="Select"
+              autoComplete="off"
+              value={
+                allMachineDataBasedOnLine?.[selectedMachine]?.machine_name || ""
+              }
+              onChange={(e) => {
+                setSelectedMachine(e.target.value);
+              }}
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {allMachineDataBasedOnLine?.map((option, index) => {
+                return <option value={index}>{option?.machine_name}</option>;
+              })}
+            </select>
+            {/* <div>
+              <p
+                style={{
+                  color: "#F44336",
+                  fontWeight: "normal",
+                  fontSize: "0.80rem",
+                  float: "left",
+                  paddingTop: "0.5rem",
+                }}
+              >
+                {formik.touched.selectedMachine &&
+                  formik.errors.selectedMachine}
+              </p>
+            </div> */}
+          </Col>
+        </Row>
+        <Row className="m-3">
+          {tableDataOfSpareDetails?.length > 0 ? (
+            <div className="container-fluid" style={{ overflow: "auto" }}>
+              <h4 style={{ padding: "1rem 0 0 0" }}>Spare Usage History</h4>
+
+              <table className="ar-table PMSheetApprovalOfImplementationPhaseTableCol container-fluid">
+                <thead className="mt-5">
+                  <tr>
+                    {tableColumn.map((tColumn) => (
+                      <th
+                        className={"ar-table-thead-header5 td-padding"}
+                        // colSpan={
+                        //   tColumn.header === "Preparation"
+                        //     ? 3
+                        //     : tColumn.header === "Planning"
+                        //     ? 2
+                        //     : 0
+                        // }
+                      >
+                        {tColumn.title}
+                        {/* {tColumn.header === "Machine Code" ||
+                    tColumn.header === "Machine Name" ? (
+                      <span
+                        onClick={() => sortData(tColumn.sortKey)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        &nbsp;
+                        <SortIcon />
+                      </span>
+                    ) : (
+                      ""
+                    )} */}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {tableDataOfSpareDetails?.map((index) => (
+                    <tr className="ar-table-thead-header4 tableRowColor">
+                      <td className="td-padding">{index?.sr_no}</td>
+                      <td className="td-padding">
+                        {index?.completionDateOfInspection}
+                      </td>
+
+                      <td className="td-padding">
+                        {index?.line_names?.line_name}
+                      </td>
+                      <td className="td-padding">{index?.machine_name}</td>
+                      <td className="td-padding">{index?.machine_code}</td>
+
+                      <td className="td-padding">
+                        {index?.type ? index?.type : "PM"}
+                      </td>
+
+                      <td className="td-padding">{index?.partName}</td>
+                      <td className="td-padding">{index?.partNo}</td>
+                      <td className="td-padding">
+                        {index?.inspectionCompletionBy}
+                      </td>
+
+                      <td className="td-padding">{index?.cost}</td>
+                      <td className="td-padding">
+                        {index?.spareParts ? "Yes" : "No"}
+                      </td>
+                      <td className="td-padding">{index?.spareParts}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div
+              className="container-fluid d-flex justify-content-center align-items-center"
+              style={{ height: "100vh" }}
+            >
+              {stateForAnimationAndNotFound}
+              {/* <LoadingAnimation /> */}
+            </div>
+          )}
+        </Row>
+      </Container>
+    </>
+  );
+};
+
+export default SparePartUsageHistory;

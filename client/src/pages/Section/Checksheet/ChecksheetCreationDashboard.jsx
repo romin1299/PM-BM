@@ -307,7 +307,6 @@ const ChecksheetCreationDashboard = ({ }) => {
         }),
       });
       const data = await res.json();
-
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
@@ -365,14 +364,31 @@ const ChecksheetCreationDashboard = ({ }) => {
     }
   };
 
+  const notifyForUpdateCycle = () => {
+    toast.info("Please change start month of cycle in Planning Phase !", {
+      position: "top-center",
+      autoClose: false,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+
   //update the data of the user using user id
-  const updateSelectedMachineChecksheetTableRowData = async (updatedRow) => {
+  const updateSelectedMachineChecksheetTableRowData = async (
+    updatedRow,
+    oldRow
+  ) => {
     try {
       const res = await fetch("/updateSelectedMachineChecksheetTableRowData", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           rowData: updatedRow,
+          oldRow,
           machineId: selectedMachineData.state.selectedRow.machine_code,
           yearOfCheckSheet,
           isEdited:
@@ -384,7 +400,7 @@ const ChecksheetCreationDashboard = ({ }) => {
       });
 
       const data = await res.json();
-
+      // console.log(data);
       if (res.status === 400 || res.status === 422 || !data) {
         window.alert("Invalid");
       } else if (res.status === 409) {
@@ -392,6 +408,9 @@ const ChecksheetCreationDashboard = ({ }) => {
         // refreshPage();
       } else {
         console.log("Data Updated Successful");
+        if (data?.flagForCycleChange === true) {
+          notifyForUpdateCycle();
+        }
         // refreshPage();
         // const dateAndTime = timeStamp();
         // const addMessage = `${updatedRow.user_name} user updated`;
@@ -479,6 +498,29 @@ const ChecksheetCreationDashboard = ({ }) => {
         window.alert("Invalid");
       } else {
         console.log("Revision data added Successful");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteRevisionContentData = async (selectedRow) => {
+    // console.log(tm_no);
+    try {
+      const res = await fetch("/deleteRevisionContentData", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rowData: selectedRow,
+          machineId: selectedMachineData.state.selectedRow.machine_code,
+          yearOfCheckSheet,
+        }),
+      });
+      const data = await res.json();
+      if (res.status === 400 || res.status === 422 || !data) {
+        window.alert("Invalid");
+      } else {
+        console.log("Revision Content Row Deleted Successful");
         // console.log("hello");
         // refreshPage();
         // const dateAndTime = timeStamp();
@@ -498,7 +540,7 @@ const ChecksheetCreationDashboard = ({ }) => {
     },
     // validationSchema: validationSchema1,
     onSubmit: async (values) => {
-      console.log(values.request);
+      // console.log(values.request);
       const res = await fetch("/postMachineToGetChacksheetPreparationData", {
         method: "POST",
         headers: {
@@ -559,35 +601,30 @@ const ChecksheetCreationDashboard = ({ }) => {
     );
   };
 
-  const countForRevisionContent = () => {
-    let countForRevisionContent = 0;
-    tableData?.map((keyOfTableRowData) => {
-      if (
-        keyOfTableRowData.flagForCount === true
-      ) {
-        // setCountOfRevisionContent((countForRevisionContent)=> countForRevisionContent + 1);
-        countForRevisionContent = countForRevisionContent + 1;
-      }
-    });
-    return countForRevisionContent;
-  };
-
   const showChecksheet = () => {
-    let totalCountOfRivisionContent = countForRevisionContent();
-    console.log(totalCountOfRivisionContent);
     if (
       machineData[0]?.checkSheet_data?.checksheet_status === "Implementation"
     ) {
-      if (totalCountOfRivisionContent) {
-        if (totalCountOfRivisionContent <= revisionContentTableData?.length) {
+      if (machineData[0]?.checkSheet_data?.flagForRevisionContent === true) {
+        if (
+          machineData[0]?.checkSheet_data?.flagForRevisionContent === true &&
+          machineData[0]?.checkSheet_data
+            ?.flagForNewRevisionContentDataAdded === true
+        ) {
           navigate("/checkSheetForm", {
             state: {
               selectedRowForViewForm: machineData[0],
-              totalCountOfRivisionContent,
+              displyingApprovalFormate:
+                machineData[0]?.checkSheet_data
+                  ?.flagForNewRevisionContentDataAdded,
             },
           });
         } else if (
-          totalCountOfRivisionContent !== revisionContentTableData?.length
+          machineData[0]?.checkSheet_data?.flagForRevisionContent === true &&
+          (machineData[0]?.checkSheet_data
+            ?.flagForNewRevisionContentDataAdded === false ||
+            machineData[0]?.checkSheet_data
+              ?.flagForNewRevisionContentDataAdded === undefined)
         ) {
           notifyForRevisionContent();
         }
@@ -595,7 +632,9 @@ const ChecksheetCreationDashboard = ({ }) => {
         navigate("/checkSheetForm", {
           state: {
             selectedRowForViewForm: machineData[0],
-            totalCountOfRivisionContent,
+            displyingApprovalFormate:
+              machineData[0]?.checkSheet_data
+                ?.flagForNewRevisionContentDataAdded,
           },
         });
       }
@@ -603,7 +642,6 @@ const ChecksheetCreationDashboard = ({ }) => {
       navigate("/checkSheetForm", {
         state: {
           selectedRowForViewForm: machineData[0],
-          totalCountOfRivisionContent,
         },
       });
     }
@@ -947,7 +985,10 @@ const ChecksheetCreationDashboard = ({ }) => {
                 onRowUpdate: (updatedRow, oldRow) =>
                   new Promise((resolve, reject) => {
                     //call the update user function and pass the user data
-                    updateSelectedMachineChecksheetTableRowData(updatedRow);
+                    updateSelectedMachineChecksheetTableRowData(
+                      updatedRow,
+                      oldRow
+                    );
                     setTimeout(() => {
                       setRefKey((refKey) => refKey + 1);
                       resolve();
@@ -1010,6 +1051,7 @@ const ChecksheetCreationDashboard = ({ }) => {
           <div className="row m-3 p-3 border bg-white rounded">
             <div>
               <MaterialTable
+                style={{ boxShadow: "none"}}
                 localization={
                   {
                     // toolbar: {
@@ -1040,17 +1082,17 @@ const ChecksheetCreationDashboard = ({ }) => {
                       //refreshPage();
                     }),
 
-                  // onRowDelete: (selectedRow) =>
-                  //   new Promise((resolve, reject) => {
-                  //     //call the delete user function and pass the user data
-                  //     deleteSelectedMachineChecksheetTableRowData(selectedRow);
+                  onRowDelete: (selectedRow) =>
+                    new Promise((resolve, reject) => {
+                      //call the delete user function and pass the user data
+                      deleteRevisionContentData(selectedRow);
 
-                  //     setTimeout(() => {
-                  //       setRefKey((refKey) => refKey + 1);
-                  //       // setTableData(updatedRows);
-                  //       resolve();
-                  //     }, 500);
-                  //   }),
+                      setTimeout(() => {
+                        setRefKey((refKey) => refKey + 1);
+                        // setTableData(updatedRows);
+                        resolve();
+                      }, 500);
+                    }),
 
                   // onRowUpdate: (updatedRow, oldRow) =>
                   //   new Promise((resolve, reject) => {
@@ -1086,13 +1128,20 @@ const ChecksheetCreationDashboard = ({ }) => {
                   rowStyle: {
                     // fontStyle:'bold'
 
-                    boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                    // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
                     // color:"rgba(255,255,255,0.8)",
                     borderRadius: "5px",
-                    border: "1px solid rgba(255,255,255)",
-                    WebkitBackdropFilter: "blur( 2px )",
+                    border: "1px solid black",
+                    // WebkitBackdropFilter: "blur( 2px )",
                     background: "rgba(255,255,255,0.1)",
-                    backdropFilter: "blur(5px)",
+                    // backdropFilter: "blur(5px)",
+                  },
+                  cellStyle: {
+                    border: "1px solid black",
+                  },
+                  headerStyle: {
+                    border: "1px solid black",
+                    fontWeight: "bold",
                   },
                   headerStyle: {
                     fontSize: "14px",

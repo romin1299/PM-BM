@@ -1,1 +1,1 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"02d235cabc7e46fb9f5cc5c53f3b58d1","collectionName":"plants","type":"collection"}
+{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"DENSO-PM.plants"}],"uuid":"9371d4a12e0342bdb0569ed78557de16"}

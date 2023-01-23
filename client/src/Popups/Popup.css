@@ -102,6 +102,31 @@
     width: 50vw;
 }
 
+#main_div_reg7 {
+    font-weight: bold;
+    color: #395aa8;
+    margin: 0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    /* width: 40%; */
+    height: auto;
+    z-index: 100;
+    border-radius: 5px;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+        rgba(0, 0, 0, 0.3) 0px 30px 60px -30px !important;
+    animation: fadeIn 0.5s ease;
+    padding: 2rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 95vh;
+    width: 70vw;
+}
+
+
 
 
 .close {
@@ -277,6 +302,11 @@
 
 .textField {
     width: 90%;
+}
+
+
+.textField1 {
+    width: 80%;
 }
 
 input {

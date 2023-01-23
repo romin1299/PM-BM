@@ -23,6 +23,7 @@ export function SummeryBarChart({ annualChartData }) {
   );
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     ticks: {
       stepSize: 25,
       max: 100,
@@ -32,7 +33,6 @@ export function SummeryBarChart({ annualChartData }) {
         position: "top",
       },
     },
-    maintainAspectRatio: false,
     borderRadius: 5,
     scales: {
       // y: [{}],
@@ -45,10 +45,10 @@ export function SummeryBarChart({ annualChartData }) {
 
         //     // color: ["blue", "red"],
         //     // align: ["center", "start"],
-            title: {
-              display: true,
-              text: 'Months'
-            }
+        title: {
+          display: true,
+          text: "Months",
+        },
 
         // display: true,
         // title: {
@@ -67,10 +67,9 @@ export function SummeryBarChart({ annualChartData }) {
       y: {
         title: {
           display: true,
-          text: 'Completed (%)'
+          text: "Completed (%)",
         },
-        max:100,
-
+        max: 100,
       },
     },
   };

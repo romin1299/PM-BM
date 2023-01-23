@@ -198,20 +198,75 @@ const CheckSheetDashboard = () => {
                 rowData.checkSheet_data.checksheet_status === "Planning"
                 : "",
 
-            icon: () => (
-              <button className="btn-reset">
-                {rowData.checkSheet_data != null
-                  ? rowData.checkSheet_data.checkSheet.length > 0
-                    ? rowData.checkSheet_data.checkSheet.length < 1
-                      ? "Preparation"
-                      : rowData.checkSheet_data.assign_TL.length > 0 ||
-                        rowData.checkSheet_data.assign_HOS.length > 0
+              icon: () => (
+                <button className="btn-reset">
+                  {rowData.checkSheet_data != null
+                    ? rowData.checkSheet_data.checkSheet.length > 0
+                      ? rowData.checkSheet_data.checkSheet.length < 1
+                        ? "Preparation"
+                        : rowData.checkSheet_data.assign_TL.length !== rowData.checkSheet_data.approved_by_TL.length ||
+                          rowData.checkSheet_data.assign_HOS.length !== rowData.checkSheet_data.approved_by_HOS.length
                         ? "Preparation Under Approval"
                         : "Under-Preparation"
-                    : "Preparation"
-                  : "Preparation"}
-              </button>
-            ),
+                      : "Preparation"
+                    : "Preparation"}
+                </button>
+              ),
+              // tooltip: <h1>I am a tooltip</h1>,
+              onClick: (event, selectedRow) => {
+                navigate("/checksheetCreationDashboard", {
+                  state: { selectedRow: selectedRow, lineData: lineData },
+                });
+              },
+              disabled: false, // Set disabled to false by default for all actions
+              position: "row",
+            };
+          },
+
+          (rowData) => {
+            return {
+              hidden:
+                rowData.checkSheet_data != null
+                  ? rowData.checkSheet_data.checksheet_status ===
+                      "Preparation" ||
+                    rowData.checkSheet_data.checksheet_status ===
+                      "Implementation" ||
+                    rowData.checkSheet_data.checksheet_status === undefined
+                  : rowData.checkSheet_data === undefined ||
+                    rowData.checkSheet_data === null,
+              icon: () => (
+                <button className="btn-warning">
+                  {rowData.checkSheet_data != null
+                    ? rowData.checkSheet_data.checkSheet.map((key) => {
+                        if ("start_month" in key) {
+                          if (
+                            rowData?.checkSheet_data?.approved_by_PRD_TL
+                              .length !=
+                            rowData?.checkSheet_data?.assign_PRD_TL.length
+                          ) {
+                            return "Planning Under Approval";
+                          } else {
+                            return "Under-Planning";
+                          }
+                        } else {
+                          return "Planning";
+                        }
+                      })[0]
+                    : ""}
+                </button>
+              ),
+              // tooltip: <h1>I am a tooltip</h1>,
+              onClick: (event, selectedRow) => {
+                navigate("/planningPhaseTable", {
+                  state: { selectedRow: selectedRow },
+                });
+              },
+              disabled: false, // Set disabled to false by default for all actions
+              position: "row",
+            };
+          },
+          {
+            icon: () => <button className="btn-primary">View</button>,
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
               navigate("/checksheetCreationDashboard", {

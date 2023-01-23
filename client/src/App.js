@@ -44,6 +44,9 @@ import OpenAbnormalityTrack from "./pages/Reports/OpenAbnormalityTracking"
 import MTDTLandHOSChecksheetCreationDashboard from "./pages/Section/Checksheet/MTDTLandHOSChecksheetCreationDashboard";
 import CreationDashboardForTLHOSS from "./pages/MTD_TL_HOSS/CreationDashboardForTLHOSS";
 import UserAssignTLHOSS from "./pages/MTD_TL_HOSS/UserAssignTLHOSS";
+import SparePartUsageHistory from "./pages/MTD_TL_HOSS/SparePartUsageHistory";
+import OperatorDataEntry from "./pages/MTD_TL_HOSS/OperatorDataEntry";
+
 //for Operator
 import CheckSheetForImplementation from "./pages/Operator/CheckSheetForImplementation"
 import SkipPMWorkData from "./pages/Reports/SkipPMWorkData";
@@ -62,6 +65,8 @@ import ViewChecksheet from "./pages/Section/Checksheet/ViewChecksheet";
 import LogHistory from "./pages/Reports/LogHistory";
 
 import PendingPMLogHistory from "./pages/Reports/PendingPMLogHistory";
+
+import SpareReportMainDashboard from "./pages/Reports/SpareReport/SpareReportMainDashboard";
 
 function App() {
 
@@ -202,7 +207,12 @@ function App() {
                 <Route path="/machineWiseCheckSheet" element={<CheckSheet />} />
                 <Route path="/profile" element={<Profile />} />
                 {context.tm_department === "MTD" ?
-                  <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
+                  <>
+                    <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
+                    <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} />
+                    <Route path="/operatorDataEntry" element={<OperatorDataEntry />} />
+
+                  </>
                   :
                   ""
                 }
@@ -224,6 +234,8 @@ function App() {
                 <Route path="/skipedPMWorkData" element={<SkipPMWorkData />} />
                 <Route path="/logHistory" element={<LogHistory />} />
                 <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
+
+                <Route path="/spareReportDashboard" element={<SpareReportMainDashboard />} />
 
 
 

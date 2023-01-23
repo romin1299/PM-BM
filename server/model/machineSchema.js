@@ -1,5 +1,19 @@
 const mongoose = require('mongoose')
 
+
+let commonVariableForExtraSpareDetails = [
+    {
+        type: { type: String },
+        date: { type: String },
+        usedBy: { type: String },
+        partName: { type: String },
+        partNo: { type: String },
+        cost: { type: String },
+        abnormalityRemarks: { type: String },
+        sparePurpose: { type: String },
+    }
+]
+
 const machineSchema = mongoose.Schema({
     machine_code: {
         type: String
@@ -32,6 +46,7 @@ const machineSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Lines"
     },
+    
     checkSheet_data: [
         {
             current_year: { type: String },
@@ -384,9 +399,31 @@ const machineSchema = mongoose.Schema({
                     isDeleted: {
                         type: Boolean
                     },
-                    flagForCount: {
-                        type: Boolean
-                    }
+                    inspectionCompletionBy: {
+                        Apr: { type: String },
+
+                        May: { type: String },
+
+                        June: { type: String },
+
+                        July: { type: String },
+
+                        Aug: { type: String },
+
+                        Sep: { type: String },
+
+                        Oct: { type: String },
+
+                        Nov: { type: String },
+
+                        Dec: { type: String },
+
+                        Jan: { type: String },
+
+                        Feb: { type: String },
+
+                        Mar: { type: String },
+                    },
                 }
             ],
             flagOfDoneWithDelayForOneMonth: {
@@ -895,6 +932,81 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
+            implementation_assign_PRD_TL_name: {
+                Apr: { type: [String] },
+
+                May: { type: [String] },
+
+                June: { type: [String] },
+
+                July: { type: [String] },
+
+                Aug: { type: [String] },
+
+                Sep: { type: [String] },
+
+                Oct: { type: [String] },
+
+                Nov: { type: [String] },
+
+                Dec: { type: [String] },
+
+                Jan: { type: [String] },
+
+                Feb: { type: [String] },
+
+                Mar: { type: [String] },
+            },
+            implementation_assign_MTD_TL_name: {
+                Apr: { type: [String] },
+
+                May: { type: [String] },
+
+                June: { type: [String] },
+
+                July: { type: [String] },
+
+                Aug: { type: [String] },
+
+                Sep: { type: [String] },
+
+                Oct: { type: [String] },
+
+                Nov: { type: [String] },
+
+                Dec: { type: [String] },
+
+                Jan: { type: [String] },
+
+                Feb: { type: [String] },
+
+                Mar: { type: [String] },
+            },
+            implementation_assign_MTD_HOS_name: {
+                Apr: { type: [String] },
+
+                May: { type: [String] },
+
+                June: { type: [String] },
+
+                July: { type: [String] },
+
+                Aug: { type: [String] },
+
+                Sep: { type: [String] },
+
+                Oct: { type: [String] },
+
+                Nov: { type: [String] },
+
+                Dec: { type: [String] },
+
+                Jan: { type: [String] },
+
+                Feb: { type: [String] },
+
+                Mar: { type: [String] },
+            },
             implemetation_quality_remarks: {
                 Apr: { type: [String] },
 
@@ -1170,9 +1282,9 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
-            revisionContentData:[
+            revisionContentData: [
                 {
-                    revisionContent:{
+                    revisionContent: {
                         type: String
                     },
                     revisionContentDate: {
@@ -1180,9 +1292,41 @@ const machineSchema = mongoose.Schema({
                     },
                     revisedBy: {
                         type: String
-                    }
+                    },
+                    
                 }
-            ]
+            ],
+            flagForRevisionContent: {
+                type: Boolean
+            },
+            flagForNewRevisionContentDataAdded: {
+                type: Boolean
+            },
+            extraSpareDetails: {
+                Apr: commonVariableForExtraSpareDetails,
+
+                May: commonVariableForExtraSpareDetails,
+
+                June: commonVariableForExtraSpareDetails,
+
+                July: commonVariableForExtraSpareDetails,
+
+                Aug: commonVariableForExtraSpareDetails,
+
+                Sep: commonVariableForExtraSpareDetails,
+
+                Oct: commonVariableForExtraSpareDetails,
+
+                Nov: commonVariableForExtraSpareDetails,
+
+                Dec: commonVariableForExtraSpareDetails,
+
+                Jan: commonVariableForExtraSpareDetails,
+
+                Feb: commonVariableForExtraSpareDetails,
+
+                Mar: commonVariableForExtraSpareDetails,
+            },
         }
     ]
 

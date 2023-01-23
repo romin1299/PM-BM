@@ -3,7 +3,11 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import Rows from "../Section/Checksheet/row";
 import "../Section/Checksheet/index.css";
-import { useContext } from "../../modules/PageModules";
+import {
+  useContext,
+  MaterialTable,
+  tableIcons,
+} from "../../modules/PageModules";
 import RoutingContext from "../../context/routing/RoutingContext";
 import TextField from "@material-ui/core/TextField";
 import { useLocation } from "react-router-dom";
@@ -19,7 +23,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
 
   const location = useLocation();
   let machineAllData = machineData;
-  // console.log(machineAllData)
+  console.log(machineAllData)
   // console.log(location.state);
   let tableData = machineData?.checkSheet_data?.checkSheet;
   let columns = [
@@ -112,6 +116,35 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
       sort: "true",
     },
   ];
+
+  const revisedColumns = [
+    {
+      title: "SR. NO.",
+      render: (rowData) => `${rowData.tableData.id + 1}`,
+      width: "5%",
+      align: "center",
+    },
+    {
+      title: "Revision contents",
+      field: "revisionContent",
+      filtering: false,
+      align: "center",
+    },
+    {
+      title: "Date",
+      field: "revisionContentDate",
+      filtering: false,
+      align: "center",
+    },
+    {
+      title: "Revised by",
+      field: "revisedBy",
+      filtering: false,
+      align: "center",
+      editable: "false",
+    },
+  ];
+
   const monthKeyArray = [
     "Jan",
     "Feb",
@@ -128,9 +161,10 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
   ];
   let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
 
-  let previousMonth = monthKeyArray[new Date().getMonth() - 1] === undefined
-            ? monthKeyArray.splice(-1)[0]
-            : monthKeyArray[new Date().getMonth() - 1];
+  let previousMonth =
+    monthKeyArray[new Date().getMonth() - 1] === undefined
+      ? monthKeyArray.splice(-1)[0]
+      : monthKeyArray[new Date().getMonth() - 1];
 
   const PMCarryOnToNextMonth = async (tableRowId) => {
     // console.log(tableRowId);
@@ -195,9 +229,12 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
           key === "spareDetails" ||
           key === "abnormalityDetails" ||
           key === "start_month" ||
-          key === "PMOkImage"||
+          key === "PMOkImage" ||
           key === "completionDateOfInspection" ||
-          key === "reasonForDelayWhenSkip"
+          key === "reasonForDelayWhenSkip" ||
+          key === "isAdded" ||
+          key === "isEdited" ||
+          key === "inspectionCompletionBy"
         ) {
           continue;
         }
@@ -218,6 +255,16 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                 rowspan: 1,
                 // colspan: 1,
                 print: true,
+              })
+            )
+          : key === "isDeleted"
+          ? newColData.push(
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: false,
               })
             )
           : newColData.push(
@@ -489,7 +536,8 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
           </Container>
         </div>
         {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
-        machineAllData?.checkSheet_data?.checksheet_status === "Implementation" ? (
+        machineAllData?.checkSheet_data?.checksheet_status ===
+          "Implementation" ? (
           <div className="row mt-3">
             <div className="col-6"></div>
             <span className="col-6">
@@ -671,7 +719,14 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                   </thead>
                   <tbody>
                     {newTableData.map((rData, rIndex) => (
-                      <tr className="ar-table-row">
+                      <tr
+                        className={
+                          rData[10]?.["key"] === "isDeleted" &&
+                          rData[10]?.["value"] === true
+                            ? "ar-table-row table-col-mid-year-delete"
+                            : "ar-table-row"
+                        }
+                      >
                         {" "}
                         {rData.map((colData) =>
                           colData.print == true ? (
@@ -994,34 +1049,78 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
             </Col> */}
             </Row>
             <Row>
-              <Col></Col>
-              <Col className="ar-table tableCol">
-                <div className="mb-2 row">
-                  <div className="col-6"> </div>
-                  {/* <TextField
-                        type="text"
-                        className="col-6"
-                        name="pmTime"
-                        autoComplete="off"
-                        value={formik.values.pmTime}
-                        onChange={formik.handleChange}
-                        error={
-                          formik.touched.pmTime && Boolean(formik.errors.pmTime)
+              <Col>
+                <div className="m-2 p-3 border bg-white rounded">
+                  <div>
+                    <MaterialTable
+                      style={{ boxShadow: "none" }}
+                      localization={
+                        {
+                          // toolbar: {
+                          //   exportCSVName: "Export some Excel format",
+                          //   exportPDFName: "Export as pdf!!"
+                          // }
                         }
-                        helperText={
-                          formik.touched.pmTime && formik.errors.pmTime
-                        }
-                      /> */}
-                  <button
-                    className="btn-danger col-3"
-                    onClick={funForOpeningSummeryPopups}
-                  >
+                      }
+                      icons={tableIcons}
+                      columns={revisedColumns}
+                      data={
+                        machineAllData?.checkSheet_data?.revisionContentData
+                      }
+                      // title="User Management"
+                      // tableRef={this.tableRef.current.onQueryChange()}
+
+                      editable={{}}
+                      options={{
+                        showTitle: false,
+                        paging: false,
+                        sorting: true,
+                        search: true,
+                        filtering: false,
+                        exportButton: true,
+                        exportAllData: true,
+                        draggable: false,
+                        actionsColumnIndex: -1,
+                        pageSize: 10,
+                        pageSizeOptions: false,
+                        paginationType: "stepped",
+                        addRowPosition: "first",
+                        headerStyle: {
+                          position: "sticky",
+                          top: "0",
+                          fontWeight: "bold",
+                        },
+                        maxBodyHeight: "70vh",
+                        rowStyle: {
+                          // fontStyle:'bold'
+
+                          // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                          // color:"rgba(255,255,255,0.8)",
+                          borderRadius: "5px",
+                          border: "1px solid black",
+                          // WebkitBackdropFilter: "blur( 2px )",
+                          background: "rgba(255,255,255,0.1)",
+                          // backdropFilter: "blur(5px)",
+                        },
+                        cellStyle: {
+                          border: "1px solid black",
+                        },
+                        headerStyle: {
+                          border: "1px solid black",
+                          fontWeight: "bold",
+                        },
+                      }}
+                    />
+                  </div>
+                </div>
+              </Col>
+              <Col>
+                <div className="btn-danger col-3">
+                  <button className="btn" onClick={funForOpeningSummeryPopups}>
                     Summary
                   </button>
                 </div>
-              </Col>
-            </Row>
-            {machineAllData?.checkSheet_data
+                {machineAllData?.checkSheet_data
               ?.implemetation_prd_tl_approval_status ||
             machineAllData?.checkSheet_data
               ?.implemetation_mtd_tl_approval_status ||
@@ -1040,9 +1139,9 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                 monthForCompareSystemMonth
               ] !== "Rejected" ? (
                 <>
-                  <Row>
-                    <Col></Col>
-                    <Col className="ar-table tableCol">
+                  <Row className=" m-2 p-3 border bg-white rounded">
+                    
+                    <Col >
                       {machineAllData?.checkSheet_data?.PMDelayRemark ? (
                         machineAllData?.checkSheet_data?.PMDelayRemark[
                           monthForCompareSystemMonth
@@ -1104,12 +1203,14 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           name="pmStatus"
                           autoComplete="off"
                           value={
-                            machineAllData?.checkSheet_data?.PMStatus ===
-                            undefined
-                              ? "Pending"
-                              : machineAllData?.checkSheet_data?.PMStatus[
+                            machineAllData?.checkSheet_data?.PMStatus
+                              ? machineAllData?.checkSheet_data?.PMStatus[
                                   monthForCompareSystemMonth
-                                ]
+                                ] === ""
+                                ? "Not schedule"
+                                : machineAllData?.checkSheet_data
+                                    ?.PMStatus[monthForCompareSystemMonth]
+                              : ""
                           }
                           // onChange={formik.handleChange}
                           // error={
@@ -1129,7 +1230,19 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           className="col-8"
                           name="pmTime"
                           autoComplete="off"
-                          value={machineAllData?.checkSheet_data?.totalPMTime}
+                          value={
+                            machineAllData?.checkSheet_data?.totalPMTime
+                              ? machineAllData?.checkSheet_data
+                                  ?.totalPMTime[
+                                  monthForCompareSystemMonth
+                                ].totalWorkedPMTime === ""
+                                ? "0"
+                                : machineAllData?.checkSheet_data
+                                    ?.totalPMTime[
+                                    monthForCompareSystemMonth
+                                  ].totalWorkedPMTime
+                              : ""
+                          }
                         />
                       </div>
                       <div className="mb-2 row">
@@ -1143,8 +1256,14 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           multiline
                           autoComplete="off"
                           value={
-                            machineAllData?.checkSheet_data
-                              .supportingOperatorList
+                            machineAllData?.checkSheet_data?.totalPMTime
+                              ? machineAllData?.checkSheet_data
+                                  ?.totalPMTime[
+                                  monthForCompareSystemMonth
+                                ].supportingTMData.map((index) => (
+                                  (index.tm_name)
+                                ))
+                              : ""
                           }
                         />
                       </div>
@@ -1153,9 +1272,8 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                 </>
               ) : (
                 <>
-                  <Row>
-                    <Col></Col>
-                    <Col className="ar-table tableCol">
+                  <Row className=" m-2 p-3 border bg-white rounded">
+                    <Col >
                       {machineAllData?.checkSheet_data?.PMDelayRemark ? (
                         machineAllData?.checkSheet_data?.PMDelayRemark[
                           monthForCompareSystemMonth
@@ -1217,12 +1335,14 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           name="pmStatus"
                           autoComplete="off"
                           value={
-                            machineAllData?.checkSheet_data?.PMStatus ===
-                            undefined
-                              ? "Pending"
-                              : machineAllData?.checkSheet_data?.PMStatus[
+                            machineAllData?.checkSheet_data?.PMStatus
+                              ? machineAllData?.checkSheet_data?.PMStatus[
                                   monthForCompareSystemMonth
-                                ]
+                                ] === ""
+                                ? "Not schedule"
+                                : machineAllData?.checkSheet_data
+                                    ?.PMStatus[monthForCompareSystemMonth]
+                              : ""
                           }
                           // onChange={formik.handleChange}
                           // error={
@@ -1242,7 +1362,19 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           className="col-8"
                           name="pmTime"
                           autoComplete="off"
-                          value={machineAllData?.checkSheet_data?.totalPMTime}
+                          value={
+                            machineAllData?.checkSheet_data?.totalPMTime
+                              ? machineAllData?.checkSheet_data
+                                  ?.totalPMTime[
+                                  monthForCompareSystemMonth
+                                ].totalWorkedPMTime === ""
+                                ? "0"
+                                : machineAllData?.checkSheet_data
+                                    ?.totalPMTime[
+                                    monthForCompareSystemMonth
+                                  ].totalWorkedPMTime
+                              : ""
+                          }
                         />
                       </div>
                       <div className="mb-2 row">
@@ -1256,10 +1388,13 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           multiline
                           autoComplete="off"
                           value={
-                            machineAllData?.checkSheet_data
-                              .supportingOperatorList
+                            machineAllData?.checkSheet_data?.totalPMTime
                               ? machineAllData?.checkSheet_data
-                                  .supportingOperatorList
+                                  ?.totalPMTime[
+                                  monthForCompareSystemMonth
+                                ].supportingTMData.map((index) => (
+                                  (index.tm_name)
+                                ))
                               : ""
                           }
                         />
@@ -1291,6 +1426,10 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
             ) : (
               ""
             )}
+
+              </Col>
+            </Row>
+            
           </Container>
         </div>
       </div>

@@ -20,6 +20,7 @@ ChartJS.register(
 );
 
 export const options = {
+  maintainAspectRatio: false,
   responsive: true,
   plugins: {
     legend: {
@@ -39,20 +40,20 @@ export const options = {
       stacked: true,
       title: {
         display: true,
-        text: 'Months'
+        text: "Months",
       },
       ticks: {
-          autoSkip: false,
-          maxRotation: 90,
-          minRotation: 90,
-        },
+        autoSkip: false,
+        maxRotation: 90,
+        minRotation: 90,
+      },
     },
     y: {
       stacked: true,
       title: {
         display: true,
-        text: 'No. of Machine'
-      }
+        text: "No. of Machine",
+      },
     },
   },
 };
@@ -143,8 +144,7 @@ const monthKeyArray = [
 
 const labels = monthKeyArray;
 
-export function MonthlyTrendGraph({annualGraph}) {
-
+export function MonthlyTrendGraph({ annualGraph }) {
   const data = {
     labels,
     datasets: [
@@ -166,7 +166,7 @@ export function MonthlyTrendGraph({annualGraph}) {
         data: annualGraph?.annual_completed,
         backgroundColor: "#bde28f",
         borderColor: "#adec71",
-        stack: "Stack 1", 
+        stack: "Stack 1",
       },
     ],
   };
