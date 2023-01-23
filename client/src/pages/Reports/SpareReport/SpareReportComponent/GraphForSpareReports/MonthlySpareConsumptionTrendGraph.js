@@ -14,7 +14,7 @@ import {
 import { Chart } from 'react-chartjs-2';
 
 
-const GraphForMonthlySpareConsumptionTrend = () => {
+const MonthlySpareConsumptionTrendGraph = () => {
 
     ChartJS.register(
         LinearScale,
@@ -70,7 +70,8 @@ const GraphForMonthlySpareConsumptionTrend = () => {
                 label: 'Total',
                 borderColor: 'red',
                 borderWidth: 2,
-                fill: false,
+                // fill: false,
+                // backgroundColor: "red",
                 data: [1, 2, 3, 4, 1, 4, 2, 3, 2, 1, 3, 2],
             },
             {
@@ -109,4 +110,4 @@ const GraphForMonthlySpareConsumptionTrend = () => {
     )
 }
 
-export default GraphForMonthlySpareConsumptionTrend
+export default MonthlySpareConsumptionTrendGraph

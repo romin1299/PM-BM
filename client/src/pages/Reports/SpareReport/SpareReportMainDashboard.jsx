@@ -56,11 +56,14 @@ const SpareReportMainDashboard = () => {
           </Col>
         </Row>
 
-        <Row>
+        <Row className="d-flex justify-content-center align-items-center">
           <Col>
-            <LineWiseSpareConsumptionTrend />
+            <LineWiseSpareConsumptionTrend lineData={lineData} />
           </Col>
-          <Col>
+          <Col
+            // className="d-flex justify-content-center align-items-center"
+            sm={4}
+          >
             <SpareConsumptionTrendType />
           </Col>
         </Row>
