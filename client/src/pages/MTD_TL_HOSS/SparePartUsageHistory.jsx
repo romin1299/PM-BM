@@ -3,7 +3,10 @@ import { Container, Row, Col } from "react-bootstrap";
 import TextField from "@material-ui/core/TextField";
 import MaterialTable from "@material-table/core";
 import YearDropDown from "../Dashboard/DashboardComponent/YearDropDown";
+
 import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
+import NotFound from "../Reports/ReportComponents/NotFound";
+
 import RoutingContext from "../../context/routing/RoutingContext";
 import { fetchFinancialYears } from "../../Integration/APIExports";
 
@@ -41,13 +44,14 @@ const SparePartUsageHistory = () => {
     []
   );
 
+  const [stateForAnimationAndNotFound, setStateForAnimationAndNotFound] =
+    useState(<LoadingAnimation />);
+
   // selectedMachine = index of machine from allMachineDataBasedOnLine dropdown
   // actual machine data = allMachineDataBasedOnLine?.[selectedMachine]
   const [selectedMachine, setSelectedMachine] = useState();
 
   // console.log(allMachineDataBasedOnLine);
-
-  const [tableData, setTableData] = useState([]);
 
   const tableColumn = [
     {
@@ -121,21 +125,6 @@ const SparePartUsageHistory = () => {
     },
   ];
 
-  const actions = [
-    // {
-    //   // icon: () => <button className="addbutton">Add</button>,
-    //   icon: () => <button className="btn">Add</button>,
-    //   tooltip: "Add User",
-    //   isFreeAction: true,
-    //   onClick: (event, rowData) => {
-    //     setOperatorDataEntryPopup(
-    //       <OperatorDataEntry closePopup={closePopup} />
-    //     );
-    //     document.querySelector(".sparePartUsageHistory").style.pointerEvents = "none";
-    //   },
-    // },
-  ];
-
   const [financialYear, setFinancialYear] = useState();
 
   let current_year =
@@ -157,6 +146,7 @@ const SparePartUsageHistory = () => {
     ).then((result) => {
       setAllLineData(result?.lineData);
       setTableDataOfSpareDetails(result?.allSpareDetailsWithCategories);
+      setStateForAnimationAndNotFound(<NotFound />);
     });
   }, [context?.section_data, selectedYear]);
 
@@ -182,7 +172,7 @@ const SparePartUsageHistory = () => {
       <Container fluid className="pt-3 sparePartUsageHistory">
         <Row className="m-3 cell p-3">
           <Col>
-          <div>Year:</div>
+            <div>Year:</div>
             <select
               class="form-select form-select-sm"
               aria-label=".form-select-sm example"
@@ -433,7 +423,8 @@ const SparePartUsageHistory = () => {
               className="container-fluid d-flex justify-content-center align-items-center"
               style={{ height: "100vh" }}
             >
-              <LoadingAnimation />
+              {stateForAnimationAndNotFound}
+              {/* <LoadingAnimation /> */}
             </div>
           )}
         </Row>

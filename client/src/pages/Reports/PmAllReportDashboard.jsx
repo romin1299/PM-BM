@@ -15,7 +15,7 @@ const PmAllReportDashboard = () => {
     "Annual PM Schedule",
     // "Machine Monthly PM Indicator",
     "PM Time Monitoring",
-    "Open Pm Point",
+    // "Open Pm Point",
     // "PM Status of Line",
     // "Audit Trail",
   ];

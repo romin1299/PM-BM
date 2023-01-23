@@ -193,6 +193,15 @@ const TL = ({ userData, userDepartment }) => {
                   />
                 </ListItemButton>
               </List>
+              <List component="div" disablePadding>
+                <ListItemButton sx={{ pl: 3 }}>
+                  <NavUrl
+                    url="/spareReportDashboard"
+                    icon={<AssignmentIcon style={{ color: "#E71E25" }} />}
+                    description="Spare Report"
+                  />
+                </ListItemButton>
+              </List>
             </Collapse>
           </List>
         </ul>

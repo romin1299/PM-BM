@@ -66,6 +66,8 @@ import LogHistory from "./pages/Reports/LogHistory";
 
 import PendingPMLogHistory from "./pages/Reports/PendingPMLogHistory";
 
+import SpareReportMainDashboard from "./pages/Reports/SpareReport/SpareReportMainDashboard";
+
 function App() {
 
   const [nav, setNav] = useState(false);
@@ -232,6 +234,8 @@ function App() {
                 <Route path="/skipedPMWorkData" element={<SkipPMWorkData />} />
                 <Route path="/logHistory" element={<LogHistory />} />
                 <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
+
+                <Route path="/spareReportDashboard" element={<SpareReportMainDashboard />} />
 
 
 
