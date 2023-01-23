@@ -5385,23 +5385,63 @@ router.post('/deleteCheckSheet', authenticate, async (req, res) => {
                     "checkSheet_data.$[outer].checkSheet.$[].planningTableAnimationArray2": "",
                     "checkSheet_data.$[outer].checkSheet.$[].abnormalityDetails": "",
                     "checkSheet_data.$[outer].checkSheet.$[].spareDetails": "",
+                    "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
+                    "checkSheet_data.$[outer].checkSheet.$[].reasonForDelayWhenSkip": "",
+                    "checkSheet_data.$[outer].checkSheet.$[].inspectionCompletionBy": "",
+
                 }
             }, {
                 arrayFilters: [{ 'outer.current_year': selectedRow.checkSheet_data.current_year }],
             })
 
 
+            let machineLastData
+            machineLastData = await Machine.aggregate([{
+                $match: {
+                    machine_code: selectedRow.machine_code,
+                    "checkSheet_data.current_year": selectedRow.checkSheet_data.current_year
+
+                }
+            },
+            {
+                $project: {
+                    machine_code: 1,
+                    machine_name: 1,
+                    machine_nickname: 1,
+                    machine_sequence: 1,
+                    installation_date: 1,
+                    maker_name: 1,
+                    maker_sr_no: 1,
+                    manufacturingDate: 1,
+                    isPM: 1,
+                    line_names: 1,
+                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                }
+            }
+            ])
+
             let backupNewMachineCode = `R${selectedRow.machine_code}`
 
             const findMachine = await BackupMachineData.findOne({ machine_code: backupNewMachineCode })
 
             if (findMachine) {
+                let removeFieldsFromBackupData = await BackupMachineData.updateOne({ machine_code: backupNewMachineCode }, {
+                    $unset: {
+                        "checkSheet_data.$[]checkSheet.$[].start_month": "",
+                        "checkSheet_data.$[]checkSheet.$[].planningTableAnimationArray2": "",
+                        "checkSheet_data.$[]checkSheet.$[].abnormalityDetails": "",
+                        "checkSheet_data.$[]checkSheet.$[].spareDetails": "",
+                        "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
+                        "checkSheet_data.$[outer].checkSheet.$[].reasonForDelayWhenSkip": "",
+                        "checkSheet_data.$[outer].checkSheet.$[].inspectionCompletionBy": "",
+                    }
+                })
                 const updateBackupPreparationMachineData = await BackupMachineData.updateOne({
                     machine_code: backupNewMachineCode
                 }, {
                     $set: {
                         checkSheet_data: {
-                            checkSheet: selectedRow.checkSheet_data.checkSheet
+                            checkSheet: machineLastData[0].checkSheet_data.checkSheet
                         }
                     }
                 })
@@ -5410,7 +5450,7 @@ router.post('/deleteCheckSheet', authenticate, async (req, res) => {
                     machine_code: backupNewMachineCode,
                     machine_name: selectedRow.machine_name,
                     line_names: selectedRow.line_names,
-                    checkSheet_data: { checkSheet: selectedRow.checkSheet_data.checkSheet }
+                    checkSheet_data: { checkSheet: machineLastData[0].checkSheet_data.checkSheet }
                 })
 
                 const result = await backupPreparationMachineData.save();
@@ -10696,7 +10736,7 @@ router.post('/postSectionToGetLineData', authenticate, async (req, res) => {
             }
             for (let i = 0; i < financialYearWiseMonthKeyArray?.length; i++) {
                 let monthForOtherCategoryOfSpare = financialYearWiseMonthKeyArray[i]
-                
+
                 if (keyForCheckSheet?.checkSheet_data?.extraSpareDetails) {
                     for (let j = 0; j < keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare]?.length; j++) {
                         allSpareDetailsWithCategories.push(

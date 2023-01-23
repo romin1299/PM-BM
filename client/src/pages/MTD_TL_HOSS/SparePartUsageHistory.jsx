@@ -180,7 +180,7 @@ const SparePartUsageHistory = () => {
               id="standard-select-currency"
               name="selectedPlant"
               className="textField"
-              value={selectedMonth}
+              value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
               // fullWidth
               select // label="Select"
@@ -353,7 +353,7 @@ const SparePartUsageHistory = () => {
             <div className="container-fluid" style={{ overflow: "auto" }}>
               <h4 style={{ padding: "1rem 0 0 0" }}>Spare Usage History</h4>
 
-              <table className="ar-table PMSheetApprovalOfImplementationPhaseTableCol">
+              <table className="ar-table PMSheetApprovalOfImplementationPhaseTableCol container-fluid">
                 <thead className="mt-5">
                   <tr>
                     {tableColumn.map((tColumn) => (
