@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import RoutingContext from "../../context/routing/RoutingContext";
 import "./logTable.css";
+
 import LoadingAnimation from "./ReportComponents/LoadingAnimation";
+
 import { Row, Col, Container } from "react-bootstrap";
 import YearDropDown from "../Dashboard/DashboardComponent/YearDropDown";
 import currentYear from "../Dashboard/DashboardComponent/currentYear";
@@ -100,7 +102,7 @@ const LogHistory = () => {
     <LoadingAnimation />
   );
 
-  console.log(selectedMonth);
+  // console.log(selectedMonth);
 
   const postSectionToGetAllDataForLogHistory = async (selectedSection) => {
     // setSubSection(undefined);
@@ -156,10 +158,11 @@ const LogHistory = () => {
     }
   };
 
-
   useEffect(() => {
     postSectionToGetAllDataForLogHistory();
   }, []);
+
+  // console.log(lineDropdown);
 
   return (
     <>
@@ -261,10 +264,10 @@ const LogHistory = () => {
                   <button
                     class="btn-primary"
                     onClick={() => {
-                      setSelectedCell("")
-                      setSelectedLine(undefined)
-                      setLineDropdown([])
-                      setSelectedMonth()
+                      setSelectedCell("");
+                      setSelectedLine("");
+                      setLineDropdown([]);
+                      setSelectedMonth();
                     }}
                   >
                     Reset
@@ -343,7 +346,6 @@ const LogHistory = () => {
                         <td className="td-padding">{index?.partNo}</td>
                         <td className="td-padding">{index?.cost}</td>
                         <td className="td-padding">{index?.doneBy}</td>
-
                       </tr>
                     ) : (
                       // <NotFound/>
@@ -381,8 +383,9 @@ const LogHistory = () => {
                       <td className="td-padding">{index?.partName}</td>
                       <td className="td-padding">{index?.partNo}</td>
                       <td className="td-padding">{index?.cost}</td>
-                      <td className="td-padding">{(index?.doneBy).join(", ")}</td>
-
+                      <td className="td-padding">
+                        {(index?.doneBy).join(", ")}
+                      </td>
                     </tr>
                   ))}
             </tbody>
@@ -390,8 +393,8 @@ const LogHistory = () => {
         </div>
       ) : (
         <div
-          className="container-fluid d-flex justify-content-center align-items-center"
-          style={{ height: "100vh" }}
+          className="container-fluid d-flex justify-content-center align-items-center p-5"
+          // style={{ height: "100vh" }}
         >
           {loadingAnimationState}
         </div>

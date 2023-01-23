@@ -424,8 +424,8 @@ const PendingPMLogHistory = () => {
         </div>
       ) : (
         <div
-          className="container-fluid d-flex justify-content-center align-items-center"
-          style={{ height: "100vh" }}
+          className="container-fluid d-flex justify-content-center align-items-center p-5"
+          // style={{ height: "100vh" }}
         >
           {loadingAnimationState}
         </div>

@@ -3,7 +3,9 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import "./index.css";
 import SortIcon from "@mui/icons-material/Sort";
 // import "./tableColor.scss"
+
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
+import NotFound from "../../Reports/ReportComponents/NotFound";
 
 function PMSheetApprovalOfImplementationPhase() {
   const context = useContext(RoutingContext);
@@ -12,6 +14,9 @@ function PMSheetApprovalOfImplementationPhase() {
 
   const [sortingType, setSortingType] = useState("ascending");
   const [refKey, setRefKey] = useState(0);
+
+  const [stateForAnimationAndNotFound, setStateForAnimationAndNotFound] =
+    useState(<LoadingAnimation />);
 
   const monthKeyArray = [
     "Jan",
@@ -126,6 +131,7 @@ function PMSheetApprovalOfImplementationPhase() {
       } else {
         // console.log(data);
         setTableData(data.machineDataOfImplementationApproval);
+        setStateForAnimationAndNotFound(<NotFound />);
       }
     } catch (error) {
       console.log(error);
@@ -264,7 +270,9 @@ function PMSheetApprovalOfImplementationPhase() {
                             <b>{value}</b>-
                             {
                               index?.checkSheet_data
-                                ?.implementation_assign_PRD_TL_name?.[monthKey][idx]
+                                ?.implementation_assign_PRD_TL_name?.[monthKey][
+                                idx
+                              ]
                             }
                             -
                             {
@@ -285,7 +293,9 @@ function PMSheetApprovalOfImplementationPhase() {
                             <b>{value}</b>-
                             {
                               index?.checkSheet_data
-                                ?.implementation_assign_MTD_TL_name?.[monthKey][idx]
+                                ?.implementation_assign_MTD_TL_name?.[monthKey][
+                                idx
+                              ]
                             }
                             -
                             {
@@ -310,7 +320,9 @@ function PMSheetApprovalOfImplementationPhase() {
                             <b>{value}</b>-
                             {
                               index?.checkSheet_data
-                                ?.implementation_assign_MTD_HOS_name?.[monthKey][idx]
+                                ?.implementation_assign_MTD_HOS_name?.[
+                                monthKey
+                              ][idx]
                             }
                             -
                             {
@@ -338,10 +350,11 @@ function PMSheetApprovalOfImplementationPhase() {
         </div>
       ) : (
         <div
-          className="container-fluid d-flex justify-content-center align-items-center"
-          style={{ height: "100vh" }}
+          className="container-fluid d-flex justify-content-center align-items-center p-5"
+          // style={{ height: "100vh" }}
         >
-          <LoadingAnimation />
+          {stateForAnimationAndNotFound}
+          {/* <LoadingAnimation /> */}
         </div>
       )}
     </>
