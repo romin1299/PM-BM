@@ -190,7 +190,7 @@ const CreationDashboardForTLHOSS = () => {
       // icon: () => <button className="addbutton">Add</button>,
       icon: () =>
         window.innerWidth > 1024 ? (
-          <button className="btn">Add Machine</button>
+          <button className="btn-reset">Add Machine</button>
         ) : (
           <AddBoxIcon />
         ),
@@ -380,6 +380,10 @@ const CreationDashboardForTLHOSS = () => {
                         background: "rgba(255,255,255,0.1)",
                         backdropFilter: "blur(5px)",
                       },
+                      headerStyle: {
+                        fontSize: "14px",
+                        fontWeight: "bold"
+                      }
                     }}
                   />
                 ) : (
@@ -486,6 +490,10 @@ const CreationDashboardForTLHOSS = () => {
                         background: "rgba(255,255,255,0.1)",
                         backdropFilter: "blur(5px)",
                       },
+                      headerStyle: {
+                        fontSize: "14px",
+                        fontWeight: "bold"
+                      }
                     }}
                   />
                 ) : (

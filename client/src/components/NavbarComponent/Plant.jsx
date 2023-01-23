@@ -59,6 +59,7 @@ const Plant = ({ userData }) => {
         }
       >
         {/* LOGO */}
+        <div className="bg-white">
         <div className={styles.logo}>
           {/* <VscDashboard  /> */}
           <img className={styles.logo_icon} src={denso_logo} alt="" />
@@ -69,7 +70,7 @@ const Plant = ({ userData }) => {
             }}
           />
         </div>
-
+        </div>
         {/* MENU */}
         <ul className={styles.menu_container}>
           {/* FIRST CATEGORY */}
@@ -77,17 +78,17 @@ const Plant = ({ userData }) => {
           {/* <NavUrl url="/" icon={<AddBoxIcon />} description="Plant Creation" /> */}
           <NavUrl
             url="/"
-            icon={<DashboardIcon style={{ color: "#E71E25" }} />}
+            icon={<DashboardIcon style={{ color: "#ffffff" }} />}
             description="Dashboard"
           />
           <NavUrl
             url="/creationDashboard"
-            icon={<NoteAddIcon style={{ color: "#E71E25" }}/>}
+            icon={<NoteAddIcon style={{ color: "#ffffff" }}/>}
             description="Creation Dashboard"
           />
           <NavUrl
             url="/userAssign"
-            icon={<PersonAddAltIcon style={{ color: "#E71E25" }}/>}
+            icon={<PersonAddAltIcon style={{ color: "#ffffff" }}/>}
             description="User Assign"
           />
         </ul>
@@ -97,7 +98,7 @@ const Plant = ({ userData }) => {
             <a class="button">
               <NavUrl
                 url="/profile"
-                icon={<AccountCircleIcon className="profileImages"  style={{ color: "#E71E25" }}/>}
+                icon={<AccountCircleIcon className="profileImages"  style={{ color: "#ffffff" }}/>}
                 description={userData}
               />
             </a>

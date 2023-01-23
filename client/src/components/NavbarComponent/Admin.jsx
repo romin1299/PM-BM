@@ -58,6 +58,7 @@ const Admin = ({ userData }) => {
         }
       >
         {/* LOGO */}
+        <div className="bg-white">
         <div className={styles.logo}>
           {/* <VscDashboard  /> */}
           <img className={styles.logo_icon} src={denso_logo} alt="" />
@@ -68,17 +69,17 @@ const Admin = ({ userData }) => {
             }}
           />
         </div>
-
+        </div>
         {/* MENU */}
         <ul className={styles.menu_container}>
           <NavUrl
             url="/"
-            icon={<NoteAddIcon style={{ color: "#E71E25" }}/>}
+            icon={<NoteAddIcon style={{ color: "#ffffff" }}/>}
             description="Creation Dashboard"
           />
           <NavUrl
             url="/adminDashboard"
-            icon={<DashboardIcon style={{ color: "#E71E25" }}/>}
+            icon={<DashboardIcon style={{ color: "#ffffff" }}/>}
             description="Admin Dashboard"
           />
         </ul>
@@ -92,7 +93,7 @@ const Admin = ({ userData }) => {
 
               <NavUrl
                 url="/profile"
-                icon={<AccountCircleIcon className="profileImages"  style={{ color: "#E71E25" }}/>}
+                icon={<AccountCircleIcon className="profileImages"  style={{ color: "#ffffff" }}/>}
                 description={userData}
               />
               {/* <div class="logout">{context.user_type}</div> */}

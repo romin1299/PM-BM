@@ -656,7 +656,7 @@ function ChecksheetFormApprovalForHOS() {
                       ""
                     )}
                     <div className="col-6 d-flex align-items-center">
-                      <button type="submit" className="btn">
+                      <button type="submit" className="btn-primary1">
                         Submit
                       </button>
                     </div>
@@ -671,7 +671,8 @@ function ChecksheetFormApprovalForHOS() {
                     <th
                       className="ar-table-thead-header1"
                       // colSpan={2}
-                      //  rowSpan={5}
+                      //  rowSpan={5} 
+                      
                     >
                       PLAN ACCEPTANCE
                       <br />

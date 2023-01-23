@@ -111,7 +111,7 @@ function ResetPasswordPage() {
                   style={{ textAlign: "center", color: "green" }}
                 ></p>
 
-                <button type="submit" className="btn">
+                <button type="submit" className="btn bg-button">
                   Send
                 </button>
               </form>

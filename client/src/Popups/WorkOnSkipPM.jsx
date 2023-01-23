@@ -673,8 +673,8 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
               ""
             )}
             <div className="row pt-2">
-              <button type="submit" className="btn">
-                SAVE
+              <button type="submit" className="btn-primary">
+                Save
               </button>
             </div>
           </form>

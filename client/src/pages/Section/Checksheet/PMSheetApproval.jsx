@@ -97,43 +97,43 @@ function PMSheetApproval() {
         <div className="container-fluid" style={{ overflow: "auto" }}>
           <h4 style={{ padding: "1rem 0 0 0" }}>PM Sheet Approval</h4>
 
-          <table className="ar-table pmSheetApprovalTableCol">
-            <thead className="mt-5">
-              <tr>
-                {columns.map((tColumn) => (
-                  <th
-                    className={"ar-table-thead-header5 td-padding"}
-                    colSpan={
-                      tColumn.header === "Preparation"
-                        ? 3
-                        : tColumn.header === "Planning"
-                        ? 2
-                        : 0
-                    }
-                  >
-                    {tColumn.header}
-                  </th>
-                ))}
-              </tr>
-              <tr className="ar-table-thead-header4">
-                <th></th>
-                <th></th>
-                <th></th>
-                {columns1.map((tColumn) => (
-                  <th className={"ar-table-thead-header4 td-padding"}>
-                    {tColumn.header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {tableData?.map((index) => (
-                <tr className="ar-table-thead-header4 tableRowColor">
-                  <td className="td-padding">{index.line_names.line_name}</td>
-                  <td className="td-padding">{index.machine_code}</td>
-                  <td className="td-padding">{index.machine_name}</td>
-                  <td className="td-padding">
-                    {/* {index.sender_tm_name[idx]}
+        <table className="ar-table pmSheetApprovalTableCol">
+          <thead className="mt-5">
+            <tr className="bg-button" >
+              {columns.map((tColumn) => (
+                <th
+                  className={"ar-table-thead-header5 td-padding text-white"}
+                  colSpan={
+                    tColumn.header === "Preparation"
+                      ? 3
+                      : tColumn.header === "Planning"
+                      ? 2
+                      : 0
+                  }
+                >
+                  {tColumn.header}
+                </th>
+              ))}
+            </tr>
+            <tr className="ar-table-thead-header4">
+              <th></th>
+              <th></th>
+              <th></th>
+              {columns1.map((tColumn) => (
+                <th className={"ar-table-thead-header4 td-padding"}>
+                  {tColumn.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {tableData?.map((index) => (
+              <tr className="ar-table-thead-header4 tableRowColor">
+                <td className="td-padding">{index.line_names.line_name}</td>
+                <td className="td-padding">{index.machine_code}</td>
+                <td className="td-padding">{index.machine_name}</td>
+                <td className="td-padding">
+                  {/* {index.sender_tm_name[idx]}
                   <br />
                   {index.preparation_TL_date[idx]
                     } */}

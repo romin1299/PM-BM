@@ -151,30 +151,30 @@ const CheckSheetDashboard = () => {
 
   const machineHeader = [
     {
-      title: "Serial no",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
       width: "5%",
       sorting: false,
     },
     {
-      title: "Cell Name",
+      title: "Cell/Product",
       field: "line_names.cell_names.cell_name",
       align: "center",
       width: "15%",
     },
     {
-      title: "Line Name",
+      title: "Line",
       field: "line_names.line_name",
       align: "center",
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Machine Code",
       field: "machine_code",
       editable: "false",
       align: "center",
-      width: "20%",
+      width: "15%",
       sorting: false,
     },
     {
@@ -189,14 +189,14 @@ const CheckSheetDashboard = () => {
   const actions =
     currentYear === selectedYear
       ? [
-          (rowData) => {
-            return {
-              hidden:
-                rowData.checkSheet_data != null
-                  ? rowData.checkSheet_data.checksheet_status ===
-                      "Implementation" ||
-                    rowData.checkSheet_data.checksheet_status === "Planning"
-                  : "",
+        (rowData) => {
+          return {
+            hidden:
+              rowData.checkSheet_data != null
+                ? rowData.checkSheet_data.checksheet_status ===
+                "Implementation" ||
+                rowData.checkSheet_data.checksheet_status === "Planning"
+                : "",
 
               icon: () => (
                 <button className="btn-reset">
@@ -269,71 +269,124 @@ const CheckSheetDashboard = () => {
             icon: () => <button className="btn-primary">View</button>,
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
-              navigate("/viewCheckSheet", {
-                state: { selectedRowForViewForm: selectedRow },
+              navigate("/checksheetCreationDashboard", {
+                state: { selectedRow: selectedRow, lineData: lineData },
               });
             },
             disabled: false, // Set disabled to false by default for all actions
             position: "row",
-          },
-          (rowData) => {
-            return {
-              hidden:
-                rowData.checkSheet_data === undefined ||
-                rowData.checkSheet_data === null,
+          };
+        },
 
-              icon: () => (
-                <button className="btn-delete">
-                  <DeleteForeverIcon />
-                </button>
-              ),
-              // tooltip: <h1>I am a tooltip</h1>,
-              onClick: (event, selectedRow) => {
-                deleteCheckSheet(selectedRow);
-              },
-              disabled: false, // Set disabled to false by default for all actions
-              position: "row",
-            };
-          },
-          (rowData) => {
-            return {
-              hidden:
-                rowData.checkSheet_data != null
-                  ? rowData.checkSheet_data.checksheet_status ===
-                      "Preparation" ||
-                    rowData.checkSheet_data.checksheet_status === "Planning" ||
-                    rowData.checkSheet_data.checksheet_status === undefined
-                  : rowData.checkSheet_data === undefined ||
-                    rowData.checkSheet_data === null,
-              icon: () => (
-                <button className="btn-warning">
-                  <EditIcon />
-                </button>
-              ),
-              // tooltip: <h1>I am a tooltip</h1>,
-              onClick: (event, selectedRow) => {
-                navigate("/checksheetCreationDashboard", {
-                  state: { selectedRow: selectedRow, lineData: lineData },
-                });
-              },
-              disabled: false, // Set disabled to false by default for all actions
-              position: "row",
-            };
-          },
-        ]
-      : [
-          {
-            icon: () => <button className="btn-primary">View</button>,
+        (rowData) => {
+          return {
+            hidden:
+              rowData.checkSheet_data != null
+                ? rowData.checkSheet_data.checksheet_status ===
+                "Preparation" ||
+                rowData.checkSheet_data.checksheet_status ===
+                "Implementation" ||
+                rowData.checkSheet_data.checksheet_status === undefined
+                : rowData.checkSheet_data === undefined ||
+                rowData.checkSheet_data === null,
+            icon: () => (
+              <button className="btn-warning">
+                {rowData.checkSheet_data != null
+                  ? rowData.checkSheet_data.checkSheet.map((key) => {
+                    if ("start_month" in key) {
+                      if (
+                        rowData.checkSheet_data.assign_PRD_TL.length > 0
+                      ) {
+                        return "Planning Under Approval";
+                      } else {
+                        return "Under-Planning";
+                      }
+                    } else {
+                      return "Planning";
+                    }
+                  })[0]
+                  : ""}
+              </button>
+            ),
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
-              navigate("/viewCheckSheet", {
-                state: { selectedRowForViewForm: selectedRow },
+              navigate("/planningPhaseTable", {
+                state: { selectedRow: selectedRow },
               });
             },
             disabled: false, // Set disabled to false by default for all actions
             position: "row",
+          };
+        },
+        {
+          icon: () => <button className="btn-primary1">View</button>,
+          // tooltip: <h1>I am a tooltip</h1>,
+          onClick: (event, selectedRow) => {
+            navigate("/viewCheckSheet", {
+              state: { selectedRowForViewForm: selectedRow },
+            });
           },
-        ];
+          disabled: false, // Set disabled to false by default for all actions
+          position: "row",
+        },
+        (rowData) => {
+          return {
+            hidden:
+              rowData.checkSheet_data === undefined ||
+              rowData.checkSheet_data === null,
+
+            icon: () => (
+              <button className="btn-delete">
+                <DeleteForeverIcon className="svg-font" />
+              </button>
+            ),
+            // tooltip: <h1>I am a tooltip</h1>,
+            onClick: (event, selectedRow) => {
+              deleteCheckSheet(selectedRow);
+            },
+            disabled: false, // Set disabled to false by default for all actions
+            position: "row",
+          };
+        },
+        (rowData) => {
+          return {
+            hidden:
+              rowData.checkSheet_data != null
+                ? rowData.checkSheet_data.checksheet_status ===
+                "Preparation" ||
+                rowData.checkSheet_data.checksheet_status === "Planning" ||
+                rowData.checkSheet_data.checksheet_status === undefined
+                : rowData.checkSheet_data === undefined ||
+                rowData.checkSheet_data === null,
+            icon: () => (
+              <button className="btn-warning">
+                <EditIcon className="svg-font" />
+              </button>
+            ),
+            // tooltip: <h1>I am a tooltip</h1>,
+            onClick: (event, selectedRow) => {
+              navigate("/checksheetCreationDashboard", {
+                state: { selectedRow: selectedRow, lineData: lineData },
+              });
+            },
+            disabled: false, // Set disabled to false by default for all actions
+            position: "row",
+          };
+        },
+      ]
+      : [
+        {
+          icon: () => <button className="btn-primary1">View</button>,
+          // tooltip: <h1>I am a tooltip</h1>,
+          onClick: (event, selectedRow) => {
+            navigate("/viewCheckSheet", {
+              state: { selectedRowForViewForm: selectedRow },
+            });
+          },
+          disabled: false, // Set disabled to false by default for all actions
+          position: "row",
+        },
+      ];
 
   // console.log(tableData);
   useEffect(() => {
@@ -357,7 +410,7 @@ const CheckSheetDashboard = () => {
               <Col>
                 <Row className="p-2 ">
                   <Col sm={12} lg={3}>
-                    <span>Cell:</span>
+                    <span><b>Cell:</b></span>
                   </Col>
                   <Col>
                     <div>
@@ -398,7 +451,7 @@ const CheckSheetDashboard = () => {
               <Col>
                 <Row className="p-2 ">
                   <Col sm={12} lg={3}>
-                    <span>Line:</span>
+                    <span><b>Line:</b></span>
                   </Col>
                   <Col>
                     <div>
@@ -521,6 +574,7 @@ const CheckSheetDashboard = () => {
                     position: "sticky",
                     top: "0",
                     fontWeight: "bold",
+
                   },
                   // maxBodyHeight: "60vh",
                   overflowY: "hidden",
@@ -534,14 +588,20 @@ const CheckSheetDashboard = () => {
                     WebkitBackdropFilter: "blur( 2px )",
                     background: "rgba(255,255,255,0.1)",
                     backdropFilter: "blur(5px)",
+                    fontSize: "12px",
                   },
+                  headerStyle: {
+                    fontSize: "14px",
+                    fontWeight: "bold"
+                  }
+
                 }}
               />
             </div>
           ) : (
             <div
               className="container-fluid d-flex justify-content-center align-items-center p-5"
-              // style={{ height: "100vh" }}
+            // style={{ height: "100vh" }}
             >
               {loadingAnimationState}
             </div>

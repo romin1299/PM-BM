@@ -55,7 +55,6 @@ function WorkOnImplementationPM({
   ];
   const validationSchema = yup.object({
     workedOnPM: yup.string().required("Please select one"),
-    spareParts: yup.string().required("Please select one"),
 
     abnormalityRemarks: yup.string().when({
       is: () =>
@@ -74,6 +73,12 @@ function WorkOnImplementationPM({
     cost: yup.string().when({
       is: () => formik.values.spareParts === "Yes",
       then: yup.string().required("Please enter cost"),
+    }),
+    spareParts: yup.string().when({
+      is: () =>
+        formik.values.workedOnPM === "Rectify" ||
+        formik.values.workedOnPM === "No",
+      then: yup.string().required("Please select spare part option"),
     }),
   });
 
@@ -422,8 +427,7 @@ function WorkOnImplementationPM({
                           );
                         })}
                       </select>
-                    </div>
-                    <div>
+                      <div>
                       <p
                         style={{
                           color: "#F44336",
@@ -436,6 +440,8 @@ function WorkOnImplementationPM({
                         {formik.touched.spareParts && formik.errors.spareParts}
                       </p>
                     </div>
+                    </div>
+                    
                     {formik.values.spareParts === "Yes" ? (
                       <div>
                         <div className="mb-2 row">
@@ -510,8 +516,8 @@ function WorkOnImplementationPM({
               ""
             )}
             <div className="row pt-2">
-              <button type="submit" className="btn">
-                SAVE
+              <button type="submit" className="btn-primary">
+                Save
               </button>
             </div>
           </form>

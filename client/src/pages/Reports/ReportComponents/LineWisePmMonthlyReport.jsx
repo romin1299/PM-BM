@@ -281,7 +281,7 @@ const LineWisePmMonthlyReport = () => {
         <CSVLink
           data={csvData}
           filename={`${selectedMonth}_PM_Status(Machine)${timeStamp()}`}
-          className="downloadCSV"
+          className="downloadCSV text-decoration-none"
           target="_blank"
         >
           CSV
@@ -409,7 +409,7 @@ const LineWisePmMonthlyReport = () => {
               <Col>
                 <Row className="p-2 ">
                   <Col sm={12} lg={1}>
-                    <span>Line:</span>
+                    <span><b>Line:</b></span>
                   </Col>
                   <Col sm={12} lg={3}>
                     <div>
@@ -493,6 +493,11 @@ const LineWisePmMonthlyReport = () => {
                           background: "rgba(255,255,255,0.1)",
                           backdropFilter: "blur(5px)",
                         },
+                        
+                        headerStyle: {
+                          fontSize: "14px",
+                          fontWeight: "bold"
+                        }
                       }}
                     />
                   </Col>

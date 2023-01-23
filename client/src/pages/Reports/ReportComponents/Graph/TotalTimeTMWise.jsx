@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import Plot from "react-plotly.js";
+import Plot from "react-plotlyjs";
 import { Row, Col, Container, Card } from "react-bootstrap";
 
 import TmWiseGraph from "./PmTimeMonitoringCharts/TmWiseGraph";
@@ -259,7 +259,7 @@ const TotalTimeTMWise = ({ context }) => {
               // className="cell"
               // style={{ backgroundColor: "white" }}
               >
-                <h3>Actual time taken TM wise</h3>
+                <h4>Actual time taken TM wise</h4>
               </Col>
             </Row>
             <Row>
@@ -302,7 +302,7 @@ const TotalTimeTMWise = ({ context }) => {
                 </div>
               </Col>
               <Col>
-                <button className="btn1" onClick={functionForTotalData}>
+                <button className="btn-reset" onClick={functionForTotalData}>
                   Total
                 </button>
               </Col>
@@ -311,7 +311,7 @@ const TotalTimeTMWise = ({ context }) => {
                   <CSVLink
                     data={csvData}
                     filename={`${selectedYear}_Actual_time_taken_TM_wise${timeStamp()}`}
-                    className="downloadCSV"
+                    className="downloadCSV text-decoration-none"
                     target="_blank"
                   >
                     CSV

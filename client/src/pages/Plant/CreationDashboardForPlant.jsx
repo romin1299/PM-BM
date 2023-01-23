@@ -336,6 +336,10 @@ const CreationDashboardForPlant = () => {
                       background: "rgba(255,255,255,0.1)",
                       backdropFilter: "blur(5px)",
                     },
+                    headerStyle: {
+                      fontSize: "14px",
+                      fontWeight: "bold"
+                    }
                   }}
                 />
               ) : (
@@ -440,6 +444,10 @@ const CreationDashboardForPlant = () => {
                     background: "rgba(255,255,255,0.1)",
                     backdropFilter: "blur(5px)",
                   },
+                  headerStyle: {
+                    fontSize: "14px",
+                    fontWeight: "bold"
+                  }
                 }}
               />
             ) : (

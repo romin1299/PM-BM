@@ -191,10 +191,10 @@ function PMSheetApprovalOfImplementationPhase() {
 
           <table className="ar-table PMSheetApprovalOfImplementationPhaseTableCol">
             <thead className="mt-5">
-              <tr>
+              <tr className="bg-button">
                 {columns.map((tColumn) => (
                   <th
-                    className={"ar-table-thead-header5 td-padding"}
+                    className={"ar-table-thead-header5 td-padding text-white"}
                     // colSpan={
                     //   tColumn.header === "Preparation"
                     //     ? 3

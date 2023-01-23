@@ -23,7 +23,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
 
   const location = useLocation();
   let machineAllData = machineData;
-  // console.log(machineAllData)
+  console.log(machineAllData)
   // console.log(location.state);
   let tableData = machineData?.checkSheet_data?.checkSheet;
   let columns = [
@@ -474,6 +474,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         className="ar-table-thead-header1"
                         // colSpan={2}
                         //  rowSpan={5}
+                        
                       >
                         PLAN ACCEPTANCE
                         <br />
@@ -559,16 +560,16 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                   <thead>
                     <tr style={{ height: "2rem" }}>
                       <th
-                        className="ar-table-thead-header2 headerPD"
+                        className="ar-table-thead-header2 headerPD1"
                         colSpan={3}
                         rowSpan={5}
                       >
-                        Line:- {lineName}
+                        <b>Line:</b> {lineName}
                         <br />
                         M/c No : {machineAllData?.machine_code}
                       </th>
                       <th
-                        className="ar-table-thead-header2 headerPD"
+                        className="ar-table-thead-header2 headerPD1"
                         colSpan={2}
                         rowSpan={5}
                       >
@@ -1114,7 +1115,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                 </div>
               </Col>
               <Col>
-                <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                <div className="btn-danger col-3">
                   <button className="btn" onClick={funForOpeningSummeryPopups}>
                     Summary
                   </button>
@@ -1148,7 +1149,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           <div className="mb-2 row">
                             <span
                               className="col-3"
-                              style={{ textAlign: "left" }}
+                              style={{ textAlign: "left",fontWeight: "bold" }}
                             >
                               Delay reason:{" "}
                             </span>
@@ -1168,7 +1169,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           <div className="mb-2 row">
                             <span
                               className="col-3"
-                              style={{ textAlign: "left" }}
+                              style={{ textAlign: "left" ,fontWeight: "bold" }}
                             >
                               Delay reason:{" "}
                             </span>
@@ -1193,7 +1194,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         ""
                       )}
                       <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left" }}>
+                        <span className="col-3" style={{ textAlign: "left" ,fontWeight: "bold"  }}>
                           PM Status:{" "}
                         </span>
                         <TextField
@@ -1221,7 +1222,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         />
                       </div>
                       <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left" }}>
+                        <span className="col-3" style={{ textAlign: "left",fontWeight: "bold"  }}>
                           PM Time:{" "}
                         </span>
                         <TextField
@@ -1245,7 +1246,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         />
                       </div>
                       <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left" }}>
+                        <span className="col-3" style={{ textAlign: "left",fontWeight: "bold"  }}>
                           Supporting TM:{" "}
                         </span>
                         <TextField
@@ -1280,7 +1281,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           <div className="mb-2 row">
                             <span
                               className="col-3"
-                              style={{ textAlign: "left" }}
+                              style={{ textAlign: "left" ,fontWeight: "bold" }}
                             >
                               Delay reason:{" "}
                             </span>
@@ -1300,7 +1301,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                           <div className="mb-2 row">
                             <span
                               className="col-3"
-                              style={{ textAlign: "left" }}
+                              style={{ textAlign: "left" ,fontWeight: "bold" }}
                             >
                               Delay reason:{" "}
                             </span>
@@ -1325,7 +1326,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         ""
                       )}
                       <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left" }}>
+                        <span className="col-3" style={{ textAlign: "left",fontWeight: "bold"  }}>
                           PM Status:{" "}
                         </span>
                         <TextField
@@ -1353,7 +1354,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         />
                       </div>
                       <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left" }}>
+                        <span className="col-3" style={{ textAlign: "left",fontWeight: "bold"  }}>
                           PM Time:{" "}
                         </span>
                         <TextField
@@ -1377,7 +1378,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         />
                       </div>
                       <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left" }}>
+                        <span className="col-3" style={{ textAlign: "left" ,fontWeight: "bold" }}>
                           Supporting TM:{" "}
                         </span>
                         <TextField

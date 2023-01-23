@@ -12,6 +12,7 @@ import {
 import "./Login.scss";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "react-router-dom";
+import { Row } from 'react-bootstrap'
 
 export const LoginPage = () => {
   const [isRevealPwd, setIsRevealPwd] = useState(false);
@@ -82,20 +83,19 @@ export const LoginPage = () => {
               />
             </center>
             <div className="headings">
-              <h3
-                style={{ color: "#E71E25", fontWeight: "600" }}
-                className="text text-medium"
+              <h2
+                style={{ fontWeight: "600" }}
+                className="text text-medium color-text"
               >
                 Log In
-              </h3>
+              </h2>
               <div id="warnings">
                 <p style={{ textAlign: "center", color: "red" }}>{invalid}</p>
                 <a className="closeIcon" onClick={hideWarning}>
                   <CloseIcon />
                 </a>
               </div>
-            </div>
-            <form onSubmit={formik.handleSubmit}>
+              <form onSubmit={formik.handleSubmit}>
               <div className="pwd-container">
                 <label for="input" class="Input-label">
                   TM no:
@@ -158,16 +158,22 @@ export const LoginPage = () => {
                   Forgot password ?
                 </Link>
               </div>
+              <br></br>
+              <br></br>
+              <Row className="d-flex align-items-center justify-content-center">
+                <Button
+                  variant="contained"
 
-              <Button
-                variant="contained"
-                fullWidth
-                type="submit"
-                className="btn"
-              >
-                Login
-              </Button>
+                  type="submit"
+                  className="btn bg-button w-50 align-items-center"
+                >
+                  Login
+                </Button>
+              </Row>
+
             </form>
+            </div>
+           
           </div>
         </div>
       </main>

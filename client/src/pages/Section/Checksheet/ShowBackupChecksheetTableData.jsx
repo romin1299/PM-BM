@@ -134,33 +134,33 @@ const ShowBackupChecksheetTableData = ({}) => {
 
           <div class="row g-3">
             <div class="col-4">
-              <div class="p-3 border bg-white rounded">
-                <span style={{ fontWeight: "bold" }}>
-                  Line Name:{" "}
+              <div class="p-2 border bg-white rounded">
+                <span >
+                  <b>Line Name:{" "}</b>
                   {selectedMachineData.state.selectedRowForViewForm.line_names.line_name}
                 </span>
               </div>
             </div>
             <div class="col-4">
-              <div class="p-3 border bg-white rounded">
-                <span style={{ fontWeight: "bold" }}>
-                  Machine Name:{" "}
+              <div class="p-2 border bg-white rounded">
+                <span >
+                  <b>Machine Name:{" "}</b>
                   {selectedMachineData.state.selectedRowForViewForm.machine_name}
                 </span>
               </div>
             </div>
             <div class="col-4">
-              <div class="p-3 border bg-white rounded">
-                <span style={{ fontWeight: "bold" }}>
-                  Machine No:{" "}
+              <div class="p-2 border bg-white rounded">
+                <span >
+                  <b>Machine No:{" "}</b>
                   {selectedMachineData.state.selectedRowForViewForm.machine_code}
                 </span>
               </div>
             </div>
           </div>
 
-          <h4 style={{ padding: "1rem 0 0 1rem" }}>Checksheet Data</h4>
-          <div style={{ padding: "1rem" }}>
+          <h4 style={{ padding: "1rem 0 0 0" }}>Checksheet Data</h4>
+          <div>
             <MaterialTable
               localization={
                 {
@@ -244,7 +244,12 @@ const ShowBackupChecksheetTableData = ({}) => {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
+                  fontSize: "12px",
                 },
+                headerStyle: {
+                  fontSize: "14px",
+                  fontWeight: "bold"
+                }
               }}
             />
             
