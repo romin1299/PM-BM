@@ -23,7 +23,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
 
   const location = useLocation();
   let machineAllData = machineData;
-  // console.log(machineAllData)
+  console.log(machineAllData)
   // console.log(location.state);
   let tableData = machineData?.checkSheet_data?.checkSheet;
   let columns = [

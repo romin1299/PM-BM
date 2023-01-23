@@ -2930,7 +2930,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval to TL/HOSS after his/her approval send request to HOS
-            sendApproval(subject, title, greetings, bodyTable, undefined, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, tl_list, hos_list, undefined, undefined, request)
+            // sendApproval(subject, title, greetings, bodyTable, undefined, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, tl_list, hos_list, undefined, undefined, request)
         } else if (prd_tl_list && phaseStatus === "Planning") {
             //for grreting of the mail
             const findAssignTlName = await User.findOne({ email: prd_tl_list })
@@ -2996,7 +2996,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval to TL/HOSS after his/her approval send request to HOS
-            sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+            // sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
         } else if (prd_tl_list?.email && mtd_tl_list?.email && mtd_hos_list?.email && phaseStatus === "Implementation") {
 
             let machineLastDataForKeyexistsOrNot = await Machine.aggregate([{
@@ -3105,20 +3105,20 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval to TL/HOSS after his/her approval send request to HOS
-            sendApproval(
-                subject,
-                title,
-                greetings,
-                bodyTable,
-                ccMail,
-                findAssignTlName.tm_name,
-                loggedUserData.tm_no,
-                loggedUserData.tm_name,
-                selected_machine_data.machine_code,
-                selected_machine_data.machine_name,
-                selected_machine_data.checksheet_status,
-                prd_tl_list.email,
-                undefined, undefined, undefined, undefined, undefined)
+            // sendApproval(
+            //     subject,
+            //     title,
+            //     greetings,
+            //     bodyTable,
+            //     ccMail,
+            //     findAssignTlName.tm_name,
+            //     loggedUserData.tm_no,
+            //     loggedUserData.tm_name,
+            //     selected_machine_data.machine_code,
+            //     selected_machine_data.machine_name,
+            //     selected_machine_data.checksheet_status,
+            //     prd_tl_list.email,
+            //     undefined, undefined, undefined, undefined, undefined)
         } else {
             //for grreting of the mail
             const findAssignHosName = await User.findOne({ email: hos_list })
@@ -3183,7 +3183,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval direct MTD HOS
-            sendApproval(subject, title, greetings, bodyTable, undefined, findAssignHosName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, hos_list, undefined, undefined, undefined, undefined, request)
+            // sendApproval(subject, title, greetings, bodyTable, undefined, findAssignHosName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, hos_list, undefined, undefined, undefined, undefined, request)
         }
         return res.status(201).json("approval request send successfully!!!");
         //  console.log(req.body)
@@ -3543,21 +3543,21 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
 
 
 
-                sendApproval(
-                    subject,
-                    title,
-                    greetings,
-                    bodyTable,
-                    undefined,
-                    findAssignHosName.tm_name,
-                    selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-                    selected_machine_data.machine_code,
-                    selected_machine_data.machine_name,
-                    selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                    selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                    tlApproval, undefined, undefined)
+                // sendApproval(
+                //     subject,
+                //     title,
+                //     greetings,
+                //     bodyTable,
+                //     undefined,
+                //     findAssignHosName.tm_name,
+                //     selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+                //     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
+                //     selected_machine_data.machine_code,
+                //     selected_machine_data.machine_name,
+                //     selected_machine_data.checkSheet_data.checksheet_status,
+                //     selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                //     selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                //     tlApproval, undefined, undefined)
             } else if (selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1] === "Accepted" && selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] === "Pending") {
                 let hosApproval = "Accepted"
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] = "Accepted"
@@ -3678,22 +3678,22 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                         
                     </table>`
 
-                sendApproval(
-                    subject,
-                    title,
-                    greetings,
-                    bodyTable,
-                    ccMail,
-                    undefined,// findAssignHosName.tm_name,
-                    undefined,// selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-                    undefined,// selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-                    undefined,// selected_machine_data.machine_code,
-                    undefined,// selected_machine_data.machine_name,
-                    undefined,// selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data?.checkSheet_data?.plan_prepared_email[(selected_machine_data?.checkSheet_data?.plan_prepared_email).length - 1],
-                    undefined,// selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                    undefined,// tlApproval, undefined, undefined
-                )
+                // sendApproval(
+                //     subject,
+                //     title,
+                //     greetings,
+                //     bodyTable,
+                //     ccMail,
+                //     undefined,// findAssignHosName.tm_name,
+                //     undefined,// selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+                //     undefined,// selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
+                //     undefined,// selected_machine_data.machine_code,
+                //     undefined,// selected_machine_data.machine_name,
+                //     undefined,// selected_machine_data.checkSheet_data.checksheet_status,
+                //     selected_machine_data?.checkSheet_data?.plan_prepared_email[(selected_machine_data?.checkSheet_data?.plan_prepared_email).length - 1],
+                //     undefined,// selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                //     undefined,// tlApproval, undefined, undefined
+                // )
             } else if (selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1] === "Pending") {
                 let prd_tl_approval_status = "Accepted"
 
@@ -3799,22 +3799,22 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                         
                     </table>`
 
-                sendApproval(
-                    subject,
-                    title,
-                    greetings,
-                    bodyTable,
-                    ccMail,
-                    findAssignMTDTLNameOfImplementation.tm_name,
-                    selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
-                    selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
-                    selected_machine_data.machine_code,
-                    selected_machine_data.machine_name,
-                    selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth]).length - 1],
-                    undefined,
-                    prd_tl_approval_status, undefined, undefined, undefined
-                )
+                // sendApproval(
+                //     subject,
+                //     title,
+                //     greetings,
+                //     bodyTable,
+                //     ccMail,
+                //     findAssignMTDTLNameOfImplementation.tm_name,
+                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
+                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
+                //     selected_machine_data.machine_code,
+                //     selected_machine_data.machine_name,
+                //     selected_machine_data.checkSheet_data.checksheet_status,
+                //     selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth]).length - 1],
+                //     undefined,
+                //     prd_tl_approval_status, undefined, undefined, undefined
+                // )
 
                 // sendApprovalOfImplementation(findAssignMTDTLNameOfImplementation.tm_name,
                 //     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
@@ -3928,23 +3928,23 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     </table>`
 
 
-                sendApproval(
-                    subject,
-                    title,
-                    greetings,
-                    bodyTable,
-                    undefined,
-                    findAssignMTDHOSNameOfImplementation.tm_name,
-                    selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
-                    selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
-                    selected_machine_data.machine_code,
-                    selected_machine_data.machine_name,
-                    selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth]).length - 1],
-                    undefined,
-                    selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1],
-                    mtd_tl_approval_status, undefined, undefined
-                )
+                // sendApproval(
+                //     subject,
+                //     title,
+                //     greetings,
+                //     bodyTable,
+                //     undefined,
+                //     findAssignMTDHOSNameOfImplementation.tm_name,
+                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
+                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
+                //     selected_machine_data.machine_code,
+                //     selected_machine_data.machine_name,
+                //     selected_machine_data.checkSheet_data.checksheet_status,
+                //     selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth]).length - 1],
+                //     undefined,
+                //     selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1],
+                //     mtd_tl_approval_status, undefined, undefined
+                // )
 
 
 
@@ -4113,22 +4113,22 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     </table>`
 
 
-                sendApproval(
-                    subject,
-                    title,
-                    greetings,
-                    bodyTable,
-                    undefined,
-                    greetingNames,
-                    selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-                    selected_machine_data.machine_code,
-                    selected_machine_data.machine_name,
-                    selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                    selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                    tlApproval, undefined, undefined,
-                    rejected_remarks)
+                // sendApproval(
+                //     subject,
+                //     title,
+                //     greetings,
+                //     bodyTable,
+                //     undefined,
+                //     greetingNames,
+                //     selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+                //     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
+                //     selected_machine_data.machine_code,
+                //     selected_machine_data.machine_name,
+                //     selected_machine_data.checkSheet_data.checksheet_status,
+                //     selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                //     selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                //     tlApproval, undefined, undefined,
+                //     rejected_remarks)
             } else if (selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1] === "Accepted" && selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] === "Pending") {
                 let hosApproval = "Rejected"
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] = "Rejected"
@@ -4177,21 +4177,21 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     </table>`
 
 
-                sendApproval(
-                    subject,
-                    title,
-                    greetings,
-                    bodyTable,
-                    undefined,
-                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1], selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-                    selected_machine_data.machine_code,
-                    selected_machine_data.machine_name,
-                    selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                    undefined,
-                    selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1],
-                    hosApproval, undefined, rejected_remarks)
+                // sendApproval(
+                //     subject,
+                //     title,
+                //     greetings,
+                //     bodyTable,
+                //     undefined,
+                //     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1], selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+                //     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
+                //     selected_machine_data.machine_code,
+                //     selected_machine_data.machine_name,
+                //     selected_machine_data.checkSheet_data.checksheet_status,
+                //     selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                //     undefined,
+                //     selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1],
+                //     hosApproval, undefined, rejected_remarks)
             } else if (selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] === "Pending") {
                 let hosApproval = "Rejected"
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] = "Rejected"
@@ -4240,22 +4240,22 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     </table>`
 
 
-                sendApproval(
-                    subject,
-                    title,
-                    greetings,
-                    bodyTable,
-                    undefined,
-                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1], selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-                    selected_machine_data.machine_code,
-                    selected_machine_data.machine_name,
-                    selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                    undefined,
-                    undefined,
-                    hosApproval,
-                    "No", rejected_remarks)
+                // sendApproval(
+                //     subject,
+                //     title,
+                //     greetings,
+                //     bodyTable,
+                //     undefined,
+                //     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1], selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+                //     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
+                //     selected_machine_data.machine_code,
+                //     selected_machine_data.machine_name,
+                //     selected_machine_data.checkSheet_data.checksheet_status,
+                //     selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                //     undefined,
+                //     undefined,
+                //     hosApproval,
+                //     "No", rejected_remarks)
             } else if (selected_machine_data.checkSheet_data.prd_tl_approval_status[(selected_machine_data.checkSheet_data.prd_tl_approval_status).length - 1] === "Pending") {
                 let prdTlApproval = "Rejected"
                 selected_machine_data.checkSheet_data.prd_tl_approval_status[(selected_machine_data.checkSheet_data.prd_tl_approval_status).length - 1] = "Rejected"
@@ -4265,16 +4265,16 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                 }, {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
-                sendApproval(undefined, undefined, undefined, undefined, undefined, selected_machine_data.checkSheet_data.plan_prepared_tm_name[(selected_machine_data.checkSheet_data.plan_prepared_tm_name).length - 1], selected_machine_data.checkSheet_data.plan_prepared_tm_no[(selected_machine_data.checkSheet_data.plan_prepared_tm_no).length - 1],
-                    selected_machine_data.checkSheet_data.plan_prepared_tm_name[(selected_machine_data.checkSheet_data.plan_prepared_tm_name).length - 1],
-                    selected_machine_data.machine_code,
-                    selected_machine_data.machine_name,
-                    selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data.checkSheet_data.plan_prepared_email[(selected_machine_data.checkSheet_data.plan_prepared_email).length - 1],
-                    undefined,
-                    undefined,
-                    prdTlApproval,
-                    "No", rejected_remarks)
+                // sendApproval(undefined, undefined, undefined, undefined, undefined, selected_machine_data.checkSheet_data.plan_prepared_tm_name[(selected_machine_data.checkSheet_data.plan_prepared_tm_name).length - 1], selected_machine_data.checkSheet_data.plan_prepared_tm_no[(selected_machine_data.checkSheet_data.plan_prepared_tm_no).length - 1],
+                //     selected_machine_data.checkSheet_data.plan_prepared_tm_name[(selected_machine_data.checkSheet_data.plan_prepared_tm_name).length - 1],
+                //     selected_machine_data.machine_code,
+                //     selected_machine_data.machine_name,
+                //     selected_machine_data.checkSheet_data.checksheet_status,
+                //     selected_machine_data.checkSheet_data.plan_prepared_email[(selected_machine_data.checkSheet_data.plan_prepared_email).length - 1],
+                //     undefined,
+                //     undefined,
+                //     prdTlApproval,
+                //     "No", rejected_remarks)
             }
             //Implemetation rejected by PRD TL
 
@@ -4401,17 +4401,17 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                 })
                 const findAssignMTDHOSNameOfImplementation = await User.findOne({ email: selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth]).length - 1] })
                 let greetingNamesForAll = "All"
-                sendApprovalOfImplementation(findAssignMTDHOSNameOfImplementation,
-                    selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
-                    selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
-                    selected_machine_data.machine_code,
-                    selected_machine_data.machine_name,
-                    selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth]).length - 1],
-                    undefined,
-                    selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1],
-                    mtd_tl_approval_status,
-                    undefined, rejected_remarks)
+                // sendApprovalOfImplementation(findAssignMTDHOSNameOfImplementation,
+                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
+                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
+                //     selected_machine_data.machine_code,
+                //     selected_machine_data.machine_name,
+                //     selected_machine_data.checkSheet_data.checksheet_status,
+                //     selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth]).length - 1],
+                //     undefined,
+                //     selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1],
+                //     mtd_tl_approval_status,
+                //     undefined, rejected_remarks)
             } else if (selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1] === "Accepted" &&
                 selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[monthForCompareSystemMonth]).length - 1] === "Accepted" &&
                 selected_machine_data.checkSheet_data.implemetation_mtd_hos_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_mtd_hos_approval_status[monthForCompareSystemMonth]).length - 1] === "Pending") {
@@ -5552,7 +5552,7 @@ router.post('/postMachineIdToGetAllDetailsOfMachine', authenticate, async (req, 
         let machineLastData
         machineLastData = await Machine.aggregate([{
             $match: {
-                machine_code: machineID,
+                machine_code: machineID.machine_code,
                 $or: selectedYearOfCheckSheet
 
             }

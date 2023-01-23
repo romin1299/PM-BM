@@ -1788,7 +1788,7 @@ function CheckSheet({
                                             ?.totalPMTime[
                                             monthForCompareSystemMonth
                                           ].totalWorkedPMTime
-                                      : ""
+                                      : "0"
                                   }
                                 />
                               </div>
@@ -2200,7 +2200,7 @@ function CheckSheet({
                                           ?.totalPMTime[
                                           monthForCompareSystemMonth
                                         ].totalWorkedPMTime
-                                    : ""
+                                    : "0"
                                 }
                               />
                             </div>

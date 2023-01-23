@@ -489,7 +489,7 @@ const MainDashboard = () => {
         console.log("Invalid");
       } else {
         // console.log(data.machineData2[0][0].line_names.line_name);
-        console.log(data);
+        // console.log(data);
         setAnnualGraph(data);
         // setTableData(data.lineDataWithCounter);
       }
@@ -982,12 +982,12 @@ const MainDashboard = () => {
                                                                               "No Completion"
                                                                           ? "#ff8888"
                                                                           : "#ababab"
-                                                                        : "",
+                                                                        : "#ababab",
                                                                   }}
                                                                   className="machine"
                                                                   onClick={() =>
                                                                     pathToCheckSheet(
-                                                                      machine.machine_code,
+                                                                      machine,
                                                                       line.line_name
                                                                     )
                                                                   }
@@ -1113,13 +1113,13 @@ const MainDashboard = () => {
                                                                             "No Completion"
                                                                         ? "#ff8888"
                                                                         : "#ababab"
-                                                                      : "",
+                                                                      : "#ababab",
                                                                 }}
                                                                 className="machine"
                                                                 disabled
                                                                 onClick={() =>
                                                                   pathToCheckSheet(
-                                                                    machine.machine_code,
+                                                                    machine,
                                                                     line.line_name
                                                                   )
                                                                 }
@@ -1270,12 +1270,12 @@ const MainDashboard = () => {
                                                                                               "No Completion"
                                                                                           ? "#ff8888"
                                                                                           : "#ababab"
-                                                                                        : "",
+                                                                                        : "#ababab",
                                                                                   }}
                                                                                   className="machine"
                                                                                   onClick={() =>
                                                                                     pathToCheckSheet(
-                                                                                      machine.machine_code,
+                                                                                      machine,
                                                                                       line.line_name
                                                                                     )
                                                                                   }
@@ -1429,7 +1429,7 @@ const MainDashboard = () => {
                                                                                 disabled
                                                                                 onClick={() =>
                                                                                   pathToCheckSheet(
-                                                                                    machine.machine_code,
+                                                                                    machine,
                                                                                     line.line_name
                                                                                   )
                                                                                 }
@@ -1576,7 +1576,7 @@ const MainDashboard = () => {
                                                                     className="machine"
                                                                     onClick={() =>
                                                                       pathToCheckSheet(
-                                                                        machine.machine_code,
+                                                                        machine,
                                                                         line.line_name
                                                                       )
                                                                     }
@@ -1622,7 +1622,7 @@ const MainDashboard = () => {
                         <Container fluid>
                           <Row>
                             {allDataSectionWise.cellData.map((cell) => {
-                              return selectedSubSectionIdForDefaultDashboard ===
+                              return selectedSubSectionId ===
                                 cell.subSection_names ? (
                                 <>
                                   <div className="cell">
@@ -1705,12 +1705,12 @@ const MainDashboard = () => {
                                                                             "No Completion"
                                                                         ? "#ff8888"
                                                                         : "#ababab"
-                                                                      : "",
+                                                                      : "#ababab",
                                                                 }}
                                                                 className="machine"
                                                                 onClick={() =>
                                                                   pathToCheckSheet(
-                                                                    machine.machine_code,
+                                                                    machine,
                                                                     line.line_name
                                                                   )
                                                                 }
@@ -1833,13 +1833,13 @@ const MainDashboard = () => {
                                                                             "No Completion"
                                                                         ? "#ff8888"
                                                                         : "#ababab"
-                                                                      : "",
+                                                                      : "#ababab",
                                                                 }}
                                                                 className="machine"
                                                                 disabled
                                                                 onClick={() =>
                                                                   pathToCheckSheet(
-                                                                    machine.machine_code,
+                                                                    machine,
                                                                     line.line_name
                                                                   )
                                                                 }
@@ -1963,7 +1963,7 @@ const MainDashboard = () => {
                                                                           "No Completion"
                                                                       ? "#ff8888"
                                                                       : "#ababab"
-                                                                    : "",
+                                                                    : "#ababab",
                                                               }}
                                                               className="machine"
                                                               onClick={() =>

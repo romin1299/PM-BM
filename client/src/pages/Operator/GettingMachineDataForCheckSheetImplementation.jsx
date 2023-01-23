@@ -31,7 +31,6 @@ const GettingMachineDataForCheckSheetImplementation = ({
         }),
       });
       const data = await res.json();
-
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
@@ -41,7 +40,7 @@ const GettingMachineDataForCheckSheetImplementation = ({
         loggedUserType === "Operator"
           ? setImplementationPhaseCheckSheet(
               <CheckSheetForImplementation
-                machineData={data.machineLastData}
+                machineData={data?.machineLastData}
                 lineName={lineName}
                 closeCheckSheet={closeCheckSheet}
                 functionToSetRefKey={functionToSetRefKey}
@@ -49,7 +48,7 @@ const GettingMachineDataForCheckSheetImplementation = ({
             )
           : setImplementationPhaseCheckSheet(
               <CheckSheet
-                machineData={data.machineLastData}
+                machineData={data?.machineLastData}
                 lineName={lineName}
                 closeCheckSheet={closeCheckSheet}
               />
