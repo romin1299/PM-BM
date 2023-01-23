@@ -219,7 +219,7 @@ const UserAssignTLHOSS = () => {
 
   useEffect(() => {
     fetchSectionAssignUserInfo();
-  }, []);
+  }, [refKey2]);
 
   return (
     <>

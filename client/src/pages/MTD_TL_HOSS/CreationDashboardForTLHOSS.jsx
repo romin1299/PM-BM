@@ -93,14 +93,30 @@ const CreationDashboardForTLHOSS = () => {
     {
       title: "Installation Date",
       field: "installation_date",
-      editable: "false",
+      // editable: "false",
       align: "center",
+      editComponent: ({ value, onChange }) => (
+        <input
+          type="date"
+          //   className="col-6"
+          name="installation_date"
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
     },
     {
       title: "Manufacturing Date",
       field: "manufacturingDate",
-      editable: "false",
+      // editable: "false",
       align: "center",
+      editComponent: ({ value, onChange }) => (
+        <input
+          type="date"
+          //   className="col-6"
+          name="manufacturingDate"
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
     },
     {
       title: "Maker Name",

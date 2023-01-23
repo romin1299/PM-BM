@@ -105,7 +105,7 @@ function UserAssigns() {
       // icon: () => <button className="addbutton">Add</button>,
       icon: () =>
         window.innerWidth > 1024 ? (
-          <button className="btn-primary">Add</button>
+          <button className="btn-reset">Add</button>
         ) : (
           <AddBoxIcon />
         ),
@@ -232,7 +232,7 @@ function UserAssigns() {
 
   useEffect(() => {
     fetchAssignUserInfo();
-  }, []);
+  }, [refKey2]);
 
   // let CSVAndPDFFileName = `User_Management_${currentDate()}`;
 

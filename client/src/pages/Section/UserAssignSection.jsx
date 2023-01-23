@@ -221,7 +221,7 @@ const UserAssignSection = () => {
 
   useEffect(() => {
     fetchSectionAssignUserInfo();
-  }, []);
+  }, [refKey2]);
 
   return (
     <>

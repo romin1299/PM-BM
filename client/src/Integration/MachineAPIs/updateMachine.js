@@ -4,6 +4,7 @@ const updateMachine = async (updateRow,oldRow) => {
     const machine_name= updateRow.machine_name;
     const machine_nickname= updateRow.machine_nickname;
     const machine_sequence= updateRow.machine_sequence;
+    const manufacturingDate= updateRow.manufacturingDate;
     const installation_date= updateRow.installation_date;
     const maker_name= updateRow.maker_name;
     const maker_sr_no= updateRow.maker_sr_no;
@@ -20,6 +21,7 @@ const updateMachine = async (updateRow,oldRow) => {
                 machine_nickname,
                 machine_sequence,
                 installation_date,
+                manufacturingDate,
                 maker_name,
                 maker_sr_no,
                 oldRow

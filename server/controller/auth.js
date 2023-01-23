@@ -310,14 +310,13 @@ router.post('/updateUser', async (req, res) => {
 //delete the user in User management table
 router.post('/deleteUser', async (req, res) => {
     try {
-        const tm_no = req.body;
-        const emp_no = Object.values(tm_no);
+        const {tm_no} = req.body;
         // console.log(emp_no);
 
-        if (!emp_no) {
+        if (!tm_no) {
             return res.status(422).send("Employee number is not valid!!!");
         }
-        const deleteUserData = await User.deleteOne({ tm_no: emp_no });
+        const deleteUserData = await User.deleteOne({ tm_no: tm_no });
 
         if (deleteUserData) {
             return res.status(201).json("Employee deleted!!!");
@@ -1286,15 +1285,13 @@ router.post('/updateAssignUser', async (req, res) => {
 //delete the user in User management table in plant & section user
 router.post('/deleteAssignUser', async (req, res) => {
     try {
-        const tm_no = req.body;
-        const emp_no = Object.values(tm_no);
-        // console.log(emp_no);
+        const {tm_no} = req.body;
 
-        if (!emp_no) {
+        if (!tm_no) {
             return res.status(422).send("Employee number is not valid!!!");
         }
-        const deleteUserData = await User.deleteOne({ tm_no: emp_no });
-
+        const deleteUserData = await User.deleteOne({ tm_no: tm_no });
+        console.log(deleteUserData)
         if (deleteUserData) {
             return res.status(201).json("Employee deleted!!!");
         } else {
@@ -1439,6 +1436,7 @@ router.post('/updateMachine', authenticate, async (req, res) => {
             machine_name,
             machine_nickname,
             machine_sequence,
+            manufacturingDate,
             installation_date,
             maker_name,
             maker_sr_no,
@@ -1462,6 +1460,7 @@ router.post('/updateMachine', authenticate, async (req, res) => {
                 machine_nickname,
                 machine_sequence,
                 installation_date,
+                manufacturingDate,
                 maker_name,
                 maker_sr_no,
             }

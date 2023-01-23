@@ -247,7 +247,7 @@ function AdminDashboard() {
 
   useEffect(() => {
     fetchUserInfo();
-  }, []);
+  }, [refKey2]);
   return (
     <>
       {/* <UpdatePasswordPopup

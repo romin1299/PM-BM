@@ -189,7 +189,7 @@ function PMSheetApprovalOfImplementationPhase() {
         <div className="container-fluid" style={{ overflow: "auto" }}>
           <h4 style={{ padding: "1rem 0 0 0" }}>PM Plan vs Actual Approval</h4>
 
-          <table className="ar-table PMSheetApprovalOfImplementationPhaseTableCol">
+          <table className="ar-table PMSheetApprovalOfImplementationPhaseTableCol container-fluid">
             <thead className="mt-5">
               <tr className="bg-button">
                 {columns.map((tColumn) => (
