@@ -849,7 +849,7 @@ const MachineWisePmMonthlyReport = () => {
                         <br />
                         <ArrowDropUpIcon /> Ongoing
                       </Col>
-                    </Row> */}
+                    </Row> 
                     {/* <Container>
                     <Row>
                       <Col style={{ backgroundColor: "white" }}>ABCD</Col>
@@ -942,17 +942,17 @@ const MachineWisePmMonthlyReport = () => {
                       />
                     </Col>
                   </Row>
-                  {(skipApprovalStatusData.approvalStatusOfMTDHOS ===
+                  {(skipApprovalStatusData?.approvalStatusOfMTDHOS ===
                     undefined ||
-                    skipApprovalStatusData.approvalStatusOfMTDHOS ===
+                    skipApprovalStatusData?.approvalStatusOfMTDHOS ===
                     "Rejected" ||
-                    skipApprovalStatusData.approvalStatusOfMTDHOD ===
+                    skipApprovalStatusData?.approvalStatusOfMTDHOD ===
                     "Rejected" ||
-                    skipApprovalStatusData.approvalStatusOfPRDHOS ===
+                    skipApprovalStatusData?.approvalStatusOfPRDHOS ===
                     "Rejected" ||
-                    skipApprovalStatusData.approvalStatusOfPRDHOD ===
+                    skipApprovalStatusData?.approvalStatusOfPRDHOD ===
                     "Rejected" ||
-                    skipApprovalStatusData.approvalStatusOfPRDHOD ===
+                    skipApprovalStatusData?.approvalStatusOfPRDHOD ===
                     "Accepted") &&
                     context.user_type === "TL/HOSS" &&
                     context.tm_department === "MTD" ? (

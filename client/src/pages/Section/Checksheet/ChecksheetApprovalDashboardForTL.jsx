@@ -46,6 +46,11 @@ const CheckSheetApprovalDashboardForTL = () => {
       align: "center",
     },
     {
+      title: "Status",
+      field: "checkSheet_data.checksheet_status",
+      align: "center",
+    },
+    {
       title: "Cell Name",
       field: "line_names.cell_names.cell_name",
       align: "center",

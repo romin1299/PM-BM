@@ -932,6 +932,31 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
+            implementation_assign_MTD_HOD: {
+                Apr: { type: [String] },
+
+                May: { type: [String] },
+
+                June: { type: [String] },
+
+                July: { type: [String] },
+
+                Aug: { type: [String] },
+
+                Sep: { type: [String] },
+
+                Oct: { type: [String] },
+
+                Nov: { type: [String] },
+
+                Dec: { type: [String] },
+
+                Jan: { type: [String] },
+
+                Feb: { type: [String] },
+
+                Mar: { type: [String] },
+            },
             implementation_assign_PRD_TL_name: {
                 Apr: { type: [String] },
 
@@ -983,6 +1008,31 @@ const machineSchema = mongoose.Schema({
                 Mar: { type: [String] },
             },
             implementation_assign_MTD_HOS_name: {
+                Apr: { type: [String] },
+
+                May: { type: [String] },
+
+                June: { type: [String] },
+
+                July: { type: [String] },
+
+                Aug: { type: [String] },
+
+                Sep: { type: [String] },
+
+                Oct: { type: [String] },
+
+                Nov: { type: [String] },
+
+                Dec: { type: [String] },
+
+                Jan: { type: [String] },
+
+                Feb: { type: [String] },
+
+                Mar: { type: [String] },
+            },
+            implementation_assign_MTD_HOD_name: {
                 Apr: { type: [String] },
 
                 May: { type: [String] },
@@ -1132,6 +1182,31 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
+            implementation_approved_by_MTD_HOD: {
+                Apr: { type: [String] },
+
+                May: { type: [String] },
+
+                June: { type: [String] },
+
+                July: { type: [String] },
+
+                Aug: { type: [String] },
+
+                Sep: { type: [String] },
+
+                Oct: { type: [String] },
+
+                Nov: { type: [String] },
+
+                Dec: { type: [String] },
+
+                Jan: { type: [String] },
+
+                Feb: { type: [String] },
+
+                Mar: { type: [String] },
+            },
             implementation_approved_PRD_TL_date: {
                 Apr: { type: [String] },
 
@@ -1207,6 +1282,31 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
+            implementation_approved_MTD_HOD_date: {
+                Apr: { type: [String] },
+
+                May: { type: [String] },
+
+                June: { type: [String] },
+
+                July: { type: [String] },
+
+                Aug: { type: [String] },
+
+                Sep: { type: [String] },
+
+                Oct: { type: [String] },
+
+                Nov: { type: [String] },
+
+                Dec: { type: [String] },
+
+                Jan: { type: [String] },
+
+                Feb: { type: [String] },
+
+                Mar: { type: [String] },
+            },
             implemetation_prd_tl_approval_status: {
                 Apr: { type: [String] },
 
@@ -1258,6 +1358,31 @@ const machineSchema = mongoose.Schema({
                 Mar: { type: [String] },
             },
             implemetation_mtd_hos_approval_status: {
+                Apr: { type: [String] },
+
+                May: { type: [String] },
+
+                June: { type: [String] },
+
+                July: { type: [String] },
+
+                Aug: { type: [String] },
+
+                Sep: { type: [String] },
+
+                Oct: { type: [String] },
+
+                Nov: { type: [String] },
+
+                Dec: { type: [String] },
+
+                Jan: { type: [String] },
+
+                Feb: { type: [String] },
+
+                Mar: { type: [String] },
+            },
+            implemetation_mtd_hod_approval_status: {
                 Apr: { type: [String] },
 
                 May: { type: [String] },
