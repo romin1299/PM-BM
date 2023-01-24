@@ -152,7 +152,7 @@ const CreationDashboardForSection = () => {
 
   const postSectionToGetSubSectionList = async () => {
     setSubSection(undefined);
-    // setCell(undefined);
+    setCell(undefined);
     // setLine(undefined);
     // setMachine(undefined);
     try {
@@ -181,7 +181,7 @@ const CreationDashboardForSection = () => {
   };
 
   const postSubSectionToGetCellList = async (selectedSubSection) => {
-    // setCell(undefined);
+    setCell(undefined);
     // setLine(undefined);
     // setMachine(undefined);
     try {
@@ -209,33 +209,33 @@ const CreationDashboardForSection = () => {
     }
   };
 
-  // const postCellToGetLineList = async (selectedCell) => {
-  //   setLine(undefined);
-  //   setMachine(undefined);
-  //   try {
-  //     const res = await fetch("/postCellToGetLineList", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         cell: selectedCell,
-  //       }),
-  //     });
-  //     const data = await res.json();
+  const postCellToGetLineList = async (selectedCell) => {
+    // setLine(undefined);
+    // setMachine(undefined);
+    try {
+      const res = await fetch("/postCellToGetLineList", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cell: selectedCell,
+        }),
+      });
+      const data = await res.json();
 
-  //     if (res.status === 400 || res.status === 422 || !data) {
-  //       console.log("Invalid");
-  //     } else {
-  //       // window.alert(data.abcd);
-  //       console.log("Data post", data);
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // window.alert(data.abcd);
+        console.log("Data post", data);
 
-  //       setLineList(data);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+        setLineList(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   // const postLineToGetMachineList = async (selectedLine) => {
   //   setMachine(undefined);
@@ -279,11 +279,11 @@ const CreationDashboardForSection = () => {
     }
   }, [subSection, refKey]);
 
-  // useEffect(() => {
-  //   if (cell) {
-  //     postCellToGetLineList(cell);
-  //   }
-  // }, [cell, refKey2]);
+  useEffect(() => {
+    if (cell) {
+      postCellToGetLineList(cell);
+    }
+  }, [cell, refKey2]);
 
   // useEffect(() => {
   //   if (line) {
@@ -358,17 +358,17 @@ const CreationDashboardForSection = () => {
                   {/* context.subSection_data */}
                 </select>
               </div>
-              {/* <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <span>Cell/Product</span>
                 <select
                   class="form-select form-select-sm"
                   aria-label=".form-select-sm example"
-                  style={{ width: "100%", background: "white" }}
+                  style={{ width: "15rem", background: "white" }}
                   id="standard-select-currency"
                   name="plant"
                   className="textField"
                   select
-                  fullWidth // label="Select"
+                  // fullWidth // label="Select"
                   autoComplete="off"
                   value={cell === undefined ? "" : cell}
                   onChange={(e) => {
@@ -386,7 +386,7 @@ const CreationDashboardForSection = () => {
                     : ""}
                 </select>
               </div>
-              <div style={{ display: "flex", flexDirection: "column" }}>
+              {/* <div style={{ display: "flex", flexDirection: "column" }}>
                 <span>Line</span>
                 <select
                   class="form-select form-select-sm"
@@ -525,115 +525,114 @@ const CreationDashboardForSection = () => {
                 //   ) : (
                 //     ""
                 //   )
-                // ) : subSection && cell ? (
-                //   lineList !== "" ? (
-                //     <MaterialTable
-                //       localization={{
-                //         header: {
-                //           actions: "Actions",
-                //         },
-                //         // toolbar: {
-                //         //   exportCSVName: "Export some Excel format",
-                //         //   exportPDFName: "Export as pdf!!"
-                //         // }
-                //       }}
-                //       // actions={actions}
-                //       icons={tableIcons}
-                //       columns={lineHeader}
-                //       data={lineList.lineInfo}
-                //       // title="User Management"
-                //       // tableRef={this.tableRef.current.onQueryChange()}
-
-                //       editable={{
-                //         onRowAdd: (newRow) =>
-                //           new Promise((resolve, reject) => {
-                //             const updatedRows = [
-                //               ...lineList.lineInfo,
-                //               { user_id: "", ...newRow },
-                //             ];
-
-                //             newLine(newRow, cell);
-                //             setTimeout(() => {
-                //               // setSectionList(updatedRows);
-                //               setRefKey2((refKey2) => refKey2 + 1);
-                //               resolve();
-                //             }, 500);
-                //             //refreshPage();
-                //           }),
-
-                //         onRowDelete: (selectedRow) =>
-                //           new Promise((resolve, reject) => {
-                //             // const index = selectedRow.tableData.id;
-                //             // console.log(index);
-                //             // const updatedRows = [...lineList.lineInfo];
-                //             // updatedRows.splice(index, 1);
-
-                //             //call the delete user function and pass the user data
-                //             // deleteUserInfo(selectedRow);
-                //             deleteLine(selectedRow);
-                //             setTimeout(() => {
-                //               // setSectionList(updatedRows);
-                //               setRefKey2((refKey2) => refKey2 + 1);
-                //               resolve();
-                //             }, 500);
-                //           }),
-
-                //         onRowUpdate: (updatedRow, oldRow) =>
-                //           new Promise((resolve, reject) => {
-                //             const index = oldRow.tableData.id;
-                //             const updatedRows = [...lineList.lineInfo];
-                //             updatedRows[index] = updatedRow;
-                //             //call the update user function and pass the user data
-                //             // updateUserInfo(updatedRow);
-                //             updateLine(updatedRow, oldRow);
-                //             setTimeout(() => {
-                //               // setSectionList(updatedRows);
-                //               setRefKey2((refKey2) => refKey2 + 1);
-                //               resolve();
-                //             }, 500);
-                //           }),
-                //       }}
-                //       options={{
-                //         showTitle: false,
-                //         paging: false,
-                //         sorting: true,
-                //         search: true,
-                //         filtering: false,
-                //         exportButton: true,
-                //         exportAllData: true,
-                //         draggable: false,
-                //         actionsColumnIndex: -1,
-                //         pageSize: 10,
-                //         pageSizeOptions: false,
-                //         paginationType: "stepped",
-                //         addRowPosition: "first",
-                //         headerStyle: {
-                //           position: "sticky",
-                //           top: "0",
-                //           fontWeight: "bold",
-                //         },
-                //         // width: "70%",
-                //         maxBodyHeight: "70vh",
-                //         // overflowY: "hidden",
-                //         rowStyle: {
-                //           // fontStyle:'bold'
-
-                //           boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                //           // color:"rgba(255,255,255,0.8)",
-                //           borderRadius: "5px",
-                //           border: "1px solid rgba(255,255,255)",
-                //           WebkitBackdropFilter: "blur( 2px )",
-                //           background: "rgba(255,255,255,0.1)",
-                //           backdropFilter: "blur(5px)",
-                //         },
-                //       }}
-                //     />
-                //   ) : (
-                //     ""
-                //   )
                 // ) :
+                subSection && cell ? (
+                  lineList !== "" ? (
+                    <MaterialTable
+                      localization={{
+                        header: {
+                          actions: "Actions",
+                        },
+                        // toolbar: {
+                        //   exportCSVName: "Export some Excel format",
+                        //   exportPDFName: "Export as pdf!!"
+                        // }
+                      }}
+                      // actions={actions}
+                      icons={tableIcons}
+                      columns={lineHeader}
+                      data={lineList.lineInfo}
+                      // title="User Management"
+                      // tableRef={this.tableRef.current.onQueryChange()}
 
-                subSection ? (
+                      editable={{
+                        onRowAdd: (newRow) =>
+                          new Promise((resolve, reject) => {
+                            const updatedRows = [
+                              ...lineList.lineInfo,
+                              { user_id: "", ...newRow },
+                            ];
+
+                            newLine(newRow, cell);
+                            setTimeout(() => {
+                              // setSectionList(updatedRows);
+                              setRefKey2((refKey2) => refKey2 + 1);
+                              resolve();
+                            }, 500);
+                            //refreshPage();
+                          }),
+
+                        onRowDelete: (selectedRow) =>
+                          new Promise((resolve, reject) => {
+                            // const index = selectedRow.tableData.id;
+                            // console.log(index);
+                            // const updatedRows = [...lineList.lineInfo];
+                            // updatedRows.splice(index, 1);
+
+                            //call the delete user function and pass the user data
+                            // deleteUserInfo(selectedRow);
+                            deleteLine(selectedRow);
+                            setTimeout(() => {
+                              // setSectionList(updatedRows);
+                              setRefKey2((refKey2) => refKey2 + 1);
+                              resolve();
+                            }, 500);
+                          }),
+
+                        onRowUpdate: (updatedRow, oldRow) =>
+                          new Promise((resolve, reject) => {
+                            const index = oldRow.tableData.id;
+                            const updatedRows = [...lineList.lineInfo];
+                            updatedRows[index] = updatedRow;
+                            //call the update user function and pass the user data
+                            // updateUserInfo(updatedRow);
+                            updateLine(updatedRow, oldRow);
+                            setTimeout(() => {
+                              // setSectionList(updatedRows);
+                              setRefKey2((refKey2) => refKey2 + 1);
+                              resolve();
+                            }, 500);
+                          }),
+                      }}
+                      options={{
+                        showTitle: false,
+                        paging: false,
+                        sorting: true,
+                        search: true,
+                        filtering: false,
+                        exportButton: true,
+                        exportAllData: true,
+                        draggable: false,
+                        actionsColumnIndex: -1,
+                        pageSize: 10,
+                        pageSizeOptions: false,
+                        paginationType: "stepped",
+                        addRowPosition: "first",
+                        headerStyle: {
+                          position: "sticky",
+                          top: "0",
+                          fontWeight: "bold",
+                        },
+                        // width: "70%",
+                        maxBodyHeight: "70vh",
+                        // overflowY: "hidden",
+                        rowStyle: {
+                          // fontStyle:'bold'
+
+                          boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                          // color:"rgba(255,255,255,0.8)",
+                          borderRadius: "5px",
+                          border: "1px solid rgba(255,255,255)",
+                          WebkitBackdropFilter: "blur( 2px )",
+                          background: "rgba(255,255,255,0.1)",
+                          backdropFilter: "blur(5px)",
+                        },
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )
+                ) : subSection ? (
                   cellList !== "" ? (
                     <MaterialTable
                       localization={{
@@ -733,8 +732,8 @@ const CreationDashboardForSection = () => {
                         },
                         headerStyle: {
                           fontSize: "14px",
-                          fontWeight: "bold"
-                        }
+                          fontWeight: "bold",
+                        },
                       }}
                     />
                   ) : (

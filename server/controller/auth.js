@@ -310,7 +310,7 @@ router.post('/updateUser', async (req, res) => {
 //delete the user in User management table
 router.post('/deleteUser', async (req, res) => {
     try {
-        const {tm_no} = req.body;
+        const { tm_no } = req.body;
         // console.log(emp_no);
 
         if (!tm_no) {
@@ -1208,6 +1208,21 @@ router.post('/postUserAssign', async (req, res) => {
             address,
         } = req.body
 
+        // console.log(tm_name,
+        //     tm_no,
+        //     user_type,
+        //     tm_grade,
+        //     email,
+        //     // operator_password,
+        //     joining_date,
+        //     plant_data,
+        //     section_data,
+        //     tm_department,
+        //     subSection_data,
+        //     cell_data,
+        //     contact_no,
+        //     address)
+
         const userExist = await User.findOne({ tm_no: req.body.tm_no })
         if (userExist) {
             return res.status(409).json({ error: 'Employee number already exists' })
@@ -1253,28 +1268,157 @@ router.get('/displayAssignUser', authenticate, async (req, res) => {
 })
 
 //update the user in User management table in plant & section user
-router.post('/updateAssignUser', async (req, res) => {
+router.post('/updateAssignUser', authenticate, async (req, res) => {
     try {
-        let { tm_no, tm_name, user_type, tm_grade, tm_department, email, operator_password, address, plant_data, section_data, subSection_data, cell_data, contact_no, joining_date } = req.body
+        let { tm_no,
+            tm_name,
+            user_type,
+            tm_grade,
+            tm_department,
+            email,
+            operator_password,
+            address,
+            plant_data,
+            section_data,
+            subSection_data,
+            cell_data,
+            contact_no,
+            joining_date
+        } = req.body
+
+        // console.log(tm_no,
+        //     tm_name,
+        //     user_type,
+        //     tm_grade,
+        //     tm_department,
+        //     email,
+        //     operator_password,
+        //     address,
+        //     plant_data,
+        //     section_data,
+        //     subSection_data,
+        //     cell_data,
+        //     contact_no,
+        //     joining_date)
+
+        // console.log(req?.rootUser?.user_type)
+
+        // if (req?.rootUser?.user_type === "Section-Admin") {
+        //     await User.updateOne({ tm_no: tm_no }, {
+        //         $set: {
+        //             tm_name,
+        //             tm_grade,
+        //             user_type,
+        //             tm_department,
+        //             email,
+        //             address,
+        //             plant_data,
+        //             section_data,
+        //             subSection_data,
+        //             cell_data,
+        //             contact_no,
+        //             joining_date
+        //         }
+        //     });
+        // }
+
         if (tm_grade === "HOD") {
             subSection_data = "";
             // cell_data= "";
 
-            await User.updateOne({ tm_no: tm_no }, { $set: { tm_name, tm_grade, tm_department, email, address, plant_data, section_data, subSection_data, contact_no, joining_date } });
+            await User.updateOne({ tm_no: tm_no }, {
+                $set: {
+                    tm_name,
+                    tm_grade,
+                    tm_department,
+                    email,
+                    address,
+                    plant_data,
+                    section_data,
+                    subSection_data,
+                    contact_no,
+                    joining_date
+                }
+            });
+
 
         } else if (tm_grade === "HOS") {
-            cell_data = "";
 
-            await User.updateOne({ tm_no: tm_no }, { $set: { tm_name, tm_grade, tm_department, email, address, plant_data, section_data, subSection_data, cell_data, contact_no, joining_date } });
+            await User.updateOne({ tm_no: tm_no }, {
+                $set: {
+                    tm_name,
+                    tm_grade,
+                    // tm_grade: user_type === "Section-Admin" ? "HOS" : "",
+                    user_type,
+                    tm_department,
+                    email,
+                    address,
+                    plant_data,
+                    section_data,
+                    subSection_data,
+                    cell_data,
+                    contact_no,
+                    joining_date
+                }
+            });
+            // cell_data = "";
+            // await User.updateOne({ tm_no: tm_no }, {
+            //     $set: {
+            //         tm_name,
+            //         tm_grade,
+            //         tm_department,
+            //         email,
+            //         address,
+            //         plant_data,
+            //         section_data,
+            //         subSection_data,
+            //         cell_data,
+            //         contact_no,
+            //         joining_date
+            //     }
+            // });
+
 
         }
         else if (user_type) {
 
-            await User.updateOne({ tm_no: tm_no }, { $set: { tm_name, tm_grade, user_type, tm_department, email, address, plant_data, section_data, subSection_data, cell_data, contact_no, joining_date } });
+
+            await User.updateOne({ tm_no: tm_no }, {
+                $set: {
+                    tm_name,
+                    tm_grade,
+                    user_type,
+                    tm_department,
+                    email,
+                    address,
+                    plant_data,
+                    section_data,
+                    subSection_data,
+                    cell_data,
+                    contact_no,
+                    joining_date
+                }
+            });
+
 
         }
         else {
-            await User.updateOne({ tm_no: tm_no }, { $set: { tm_name, tm_grade, tm_department, email, operator_password, address, plant_data, section_data, subSection_data, cell_data, contact_no, joining_date } });
+            await User.updateOne({ tm_no: tm_no }, {
+                $set: {
+                    tm_name,
+                    tm_grade,
+                    tm_department,
+                    email,
+                    operator_password,
+                    address,
+                    plant_data,
+                    section_data,
+                    subSection_data,
+                    cell_data,
+                    contact_no,
+                    joining_date
+                }
+            });
         }
         res.status(201).json({ message: 'Employee updated successfully' })
     } catch (error) {
@@ -1285,7 +1429,7 @@ router.post('/updateAssignUser', async (req, res) => {
 //delete the user in User management table in plant & section user
 router.post('/deleteAssignUser', async (req, res) => {
     try {
-        const {tm_no} = req.body;
+        const { tm_no } = req.body;
 
         if (!tm_no) {
             return res.status(422).send("Employee number is not valid!!!");
@@ -1319,7 +1463,23 @@ router.get('/displaySectionAssignUser', authenticate, async (req, res) => {
 
         //     usersInfo = await User.find({ section_data: sectionId, tm_department: "MTD", user_type: { $in: ["TL/HOSS"] } }).sort({ _id: -1 });
         // } else {
-        usersInfo = await User.find({ section_data: sectionId, tm_department: "MTD", user_type: { $in: ["TL/HOSS"] } }).sort({ _id: -1 });
+        usersInfo = await User.find({
+            section_data: sectionId,
+            $or: [
+                {
+                    tm_department: "PRD",
+                    tm_grade: "HOS",
+                    user_type: "Section-Admin"
+                },
+                {
+                    user_type: "TL/HOSS"
+                },
+                {
+                    user_type: "Operator"
+                }
+            ]
+
+        }).sort({ _id: -1 });
 
         // }
 

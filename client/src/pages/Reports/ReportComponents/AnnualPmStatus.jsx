@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import Plot from "react-plotlyjs";
+import Plot from "react-plotly.js";
 import { Row, Col, Container } from "react-bootstrap";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import ClipLoader from "react-spinners/ClipLoader";
