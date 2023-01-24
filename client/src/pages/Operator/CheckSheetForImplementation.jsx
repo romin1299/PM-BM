@@ -746,7 +746,7 @@ function CheckSheet({
         <div className="row">
           <div className="col-1">
             <button
-              className="btn-closeForChecksheet"
+              className="btn-danger"
               onClick={closeCheckSheet}
             >
               Close

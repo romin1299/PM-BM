@@ -139,6 +139,9 @@ body {
 .bg-button{
     background-color: #002D37;
 }
+.bg-light-button{
+    background-color: #014858 !important;
+}
 
 .bg-container{
     background-color: rgb(247, 247, 247) !important;

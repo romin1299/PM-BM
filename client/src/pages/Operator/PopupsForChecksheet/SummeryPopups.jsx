@@ -103,7 +103,7 @@ const SummeryPopups = ({ close, tableData }) => {
           <div className="col-11"></div>
           <div className="col-1">
             <button
-              className="btn-closeForChecksheet"
+              className="btn-danger"
               onClick={close}
             >
               Close

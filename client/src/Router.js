@@ -8,6 +8,7 @@ import PropagateLoader from "react-spinners/PropagateLoader";
 import denso_log from './static/images/denso_logo.png'
 import ResetPasswordPage from "./Login/ResetPasswordPage"
 import UpdatePassword from './Login/UpdatePassword';
+import Navbar from './components/NavbarNew/navbarNew'
 
 function Router() {
     const [auth, setauth] = useState();
@@ -63,6 +64,7 @@ function Router() {
                     <Route path="/ResetPassword/:token" element={<CreateNewPassword />} />
                     <Route path="/resetPasswordPage" element={<ResetPasswordPage />} />
                     <Route path="/updatePassword" element={<UpdatePassword />} />
+                    <Route path="/newnav" element={<Navbar />} />
 
                 </Routes>
 

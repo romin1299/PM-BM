@@ -839,13 +839,13 @@ const MainDashboard = () => {
                     ""
                   )}
                 </Col>
-                <Col>
+                <Col className="d-flex align-items-center justify-content-end">
                   {context.user_type === "Section-Admin" ? (
                     <button
-                      className="btn-primary"
+                      className="btn-warning" 
                       onClick={addNewCheckSheetAfterChangeFinancialyear}
                     >
-                      <AutorenewIcon /> &nbsp; Update{" "}
+                      <AutorenewIcon/> &nbsp; Update{" "}
                       {`${new Date().getFullYear()}-${
                         new Date().getFullYear() + 1
                       }`}
