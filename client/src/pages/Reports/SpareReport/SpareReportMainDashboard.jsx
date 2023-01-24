@@ -49,7 +49,7 @@ const SpareReportMainDashboard = () => {
       <Container fluid>
         <Row>
           <Col>
-            <MonthlySpareConsumptionTrend lineData={lineData} />
+            <MonthlySpareConsumptionTrend lineData={lineData} context={context} />
           </Col>
           <Col>
             <Top20MachineSparePartConsumption />
@@ -58,7 +58,7 @@ const SpareReportMainDashboard = () => {
 
         <Row className="d-flex justify-content-center align-items-center">
           <Col>
-            <LineWiseSpareConsumptionTrend lineData={lineData} />
+            <LineWiseSpareConsumptionTrend lineData={lineData} context={context} />
           </Col>
           <Col
             // className="d-flex justify-content-center align-items-center"

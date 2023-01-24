@@ -55,6 +55,7 @@ function CheckSheet({
   const [HOSList, setHOSList] = useState([]);
   const [PRDTLlist, setPRDTLlist] = useState([]);
   const [MTDTLlist, setMTDTLlist] = useState([]);
+  const [MTDHODlist, setMTDHODlist] = useState([]);
 
   const [dataSheetName, setDataSheetName] = useState([]);
 
@@ -87,6 +88,9 @@ function CheckSheet({
       : monthKeyArray[new Date().getMonth() - 1];
   let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
 
+  let monthInNumber = new Date().getMonth();  
+
+
   // console.log(selectedSupportedTM);
 
   let count = 0;
@@ -96,13 +100,12 @@ function CheckSheet({
     pmTime: yup.string().required("Please enter PM time"),
     delayRemarks: yup.string().when([], {
       is: () =>
-         machineAllData?.checkSheet_data?.PMStatus?.[
-              monthForCompareSystemMonth
-            ] === "",
+        machineAllData?.checkSheet_data?.PMStatus?.[
+          monthForCompareSystemMonth
+        ] === "",
       then: yup.string().required("Please enter delay reason"),
     }),
   });
-
 
   const validationSchema1 = yup.object({
     prd_tl_list: yup.string().required("Please select PRD TL"),
@@ -110,6 +113,9 @@ function CheckSheet({
     mtd_hos_list: yup.string().required("Please select MTD HOS"),
   });
 
+  const validationSchema2 = yup.object({
+    mtd_hod_list: yup.string().required("Please select MTD HOD"),
+  });
   // get the date and time
   const timeStamp = () => {
     let date = new Date();
@@ -142,11 +148,11 @@ function CheckSheet({
           yearOfCheckSheet: machineAllData?.checkSheet_data?.current_year,
           delayRemarks: machineAllData?.checkSheet_data?.PMDelayRemark
             ? machineAllData?.checkSheet_data?.PMDelayRemark[
-              monthForCompareSystemMonth
-            ]
-              ? machineAllData?.checkSheet_data?.PMDelayRemark[
-              monthForCompareSystemMonth
+                monthForCompareSystemMonth
               ]
+              ? machineAllData?.checkSheet_data?.PMDelayRemark[
+                  monthForCompareSystemMonth
+                ]
               : values.delayRemarks
             : values.delayRemarks,
           PMworkedTMName: context.tm_name.split(" ")[0],
@@ -209,6 +215,39 @@ function CheckSheet({
     },
   });
 
+  const formik2 = useFormik({
+    initialValues: {
+      mtd_hod_list: "",
+    },
+    validationSchema: validationSchema2,
+
+    onSubmit: async (values) => {
+      const res = await fetch("/sendRequestForApproval", {
+        method: "Post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mtd_hod_list: MTDHODlist[values.mtd_hod_list],
+          implemetation_completed_date: timeStamp(),
+          selected_machine_data: machineAllData,
+          monthForCompareSystemMonth,
+          phaseStatus: machineAllData?.checkSheet_data?.checksheet_status,
+        }),
+      });
+      const data = res.json();
+      // console.log(data);
+      if (res.status === 400 || res.status === 422 || !data) {
+        window.alert("Invalid credentials !");
+      } else if (res.status === 409) {
+        console.log("Machine code already exists!");
+      } else {
+        console.log("PM worked data save sucessfully...");
+        closeCheckSheet();
+        // navigate("/");
+        // clearState();
+      }
+    },
+  });
+
   const clearState = () => {
     formik.values.pmTime = "";
     formik.values.supportingOperator = "";
@@ -233,16 +272,14 @@ function CheckSheet({
       setHOSList(data.HOSlist);
       setMTDTLlist(data.MTDTLlist);
       setSupportingTMList(data.supportingOperatorList);
+      setMTDHODlist(data.MTDHODlist);
       // setTableData(finalData);
     } catch (error) {
       console.log(error);
     }
   };
 
-
-
   let Data = {};
-  
 
   const showInputValue = (Values) => {
     // console.log(Values.target.name);
@@ -417,13 +454,13 @@ function CheckSheet({
 
         key === "tableRowId"
           ? newColData.push(
-            new Object({
-              key: key,
-              value: obj[key],
-              rowspan: 1,
-              // colspan: 1,
-              print: false,
-            }),
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: false,
+              }),
 
               new Object({
                 key: "rowId",
@@ -444,14 +481,14 @@ function CheckSheet({
               })
             )
           : newColData.push(
-            new Object({
-              key: key,
-              value: obj[key],
-              rowspan: 1,
-              // colspan: 1,
-              print: true,
-            })
-          );
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: true,
+              })
+            );
       }
       for (let key in obj) {
         // console.log(obj[key]);
@@ -803,8 +840,8 @@ function CheckSheet({
                     <tr>
                       <th
                         className="ar-table-thead-header1"
-                      // colSpan={2}
-                      //  rowSpan={5}
+                        // colSpan={2}
+                        //  rowSpan={5}
                       >
                         PLAN ACCEPTANCE
                         <br />
@@ -812,8 +849,8 @@ function CheckSheet({
                       </th>
                       <th
                         className="ar-table-thead-header1"
-                      // colSpan={2}
-                      //  rowSpan={5}
+                        // colSpan={2}
+                        //  rowSpan={5}
                       >
                         PLAN PREPARED
                         <br />
@@ -823,36 +860,38 @@ function CheckSheet({
                     <tr>
                       <th
                         className="approvalName"
-                      // colSpan={2}
-                      //  rowSpan={5}
+                        // colSpan={2}
+                        //  rowSpan={5}
                       >
                         {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
                           machineAllData?.checkSheet_data?.approved_by_PRD_TL
                             .length - 1
                         ]
-                          ? `${machineAllData?.checkSheet_data
-                            ?.approved_by_PRD_TL[
-                          machineAllData?.checkSheet_data
-                            ?.approved_by_PRD_TL.length - 1
-                          ]
-                          }`
+                          ? `${
+                              machineAllData?.checkSheet_data
+                                ?.approved_by_PRD_TL[
+                                machineAllData?.checkSheet_data
+                                  ?.approved_by_PRD_TL.length - 1
+                              ]
+                            }`
                           : ""}
                       </th>
                       <th
                         className="approvalName"
-                      // colSpan={2}
-                      //  rowSpan={5}
+                        // colSpan={2}
+                        //  rowSpan={5}
                       >
                         {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
                           machineAllData?.checkSheet_data?.plan_prepared_tm_name
                             .length - 1
                         ]
-                          ? `${machineAllData?.checkSheet_data
-                            ?.plan_prepared_tm_name[
-                          machineAllData?.checkSheet_data
-                            ?.plan_prepared_tm_name.length - 1
-                          ]
-                          }`
+                          ? `${
+                              machineAllData?.checkSheet_data
+                                ?.plan_prepared_tm_name[
+                                machineAllData?.checkSheet_data
+                                  ?.plan_prepared_tm_name.length - 1
+                              ]
+                            }`
                           : ""}
                       </th>
                     </tr>
@@ -863,7 +902,7 @@ function CheckSheet({
           </Container>
         </div>
         {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
-          machineAllData?.checkSheet_data?.checksheet_status ===
+        machineAllData?.checkSheet_data?.checksheet_status ===
           "Implementation" ? (
           <div className="row mt-3">
             <div className="col-6"></div>
@@ -906,7 +945,7 @@ function CheckSheet({
                         className="ar-table-thead-header1 headerPD  align-items-center"
                         colSpan={2}
                         style={{ textAlign: "center" }}
-                      // rowSpan={2}
+                        // rowSpan={2}
                       >
                         Approved by
                         <br />
@@ -916,7 +955,7 @@ function CheckSheet({
                         className="ar-table-thead-header1 headerPD"
                         colSpan={2}
                         style={{ textAlign: "center" }}
-                      // rowSpan={2}
+                        // rowSpan={2}
                       >
                         Prepared by
                         <br />
@@ -930,16 +969,16 @@ function CheckSheet({
                       {machineAllData?.checkSheet_data
                         ?.implementation_approved_by_MTD_TL
                         ? Object.values(
-                          machineAllData?.checkSheet_data
-                            ?.implementation_approved_by_MTD_TL
-                        ).map((index) => (
-                          <td className="ar-table-col1">
-                            {index[index.length - 1]}
-                          </td>
-                        ))
+                            machineAllData?.checkSheet_data
+                              ?.implementation_approved_by_MTD_TL
+                          ).map((index) => (
+                            <td className="ar-table-col1">
+                              {index[index.length - 1]}
+                            </td>
+                          ))
                         : refArrayForTDMapping.map((index) => (
-                          <td className="ar-table-col1"></td>
-                        ))}
+                            <td className="ar-table-col1"></td>
+                          ))}
                     </tr>
                     <tr>
                       <th className="approvalName" colSpan={2} rowSpan={5}>
@@ -948,9 +987,9 @@ function CheckSheet({
                             .length - 1
                         ]
                           ? machineAllData?.checkSheet_data?.approved_by_HOS[
-                          machineAllData?.checkSheet_data?.approved_by_HOS
-                            .length - 1
-                          ]
+                              machineAllData?.checkSheet_data?.approved_by_HOS
+                                .length - 1
+                            ]
                           : ""}
                         <br />
 
@@ -958,11 +997,12 @@ function CheckSheet({
                           machineAllData?.checkSheet_data?.approved_by_TL
                             .length - 1
                         ]
-                          ? `,${machineAllData?.checkSheet_data?.approved_by_TL[
-                          machineAllData?.checkSheet_data?.approved_by_TL
-                            .length - 1
-                          ]
-                          }`
+                          ? `,${
+                              machineAllData?.checkSheet_data?.approved_by_TL[
+                                machineAllData?.checkSheet_data?.approved_by_TL
+                                  .length - 1
+                              ]
+                            }`
                           : ""}
                       </th>
                       <th className="approvalName" colSpan={2} rowSpan={5}>
@@ -971,9 +1011,9 @@ function CheckSheet({
                             .length - 1
                         ]
                           ? machineAllData?.checkSheet_data?.sender_tm_name[
-                          machineAllData?.checkSheet_data?.sender_tm_name
-                            .length - 1
-                          ]
+                              machineAllData?.checkSheet_data?.sender_tm_name
+                                .length - 1
+                            ]
                           : ""}
                       </th>
                       <th className="ar-table-thead-header1">
@@ -984,16 +1024,16 @@ function CheckSheet({
                       {machineAllData?.checkSheet_data
                         ?.implementation_approved_by_MTD_HOS
                         ? Object.values(
-                          machineAllData?.checkSheet_data
-                            ?.implementation_approved_by_MTD_HOS
-                        ).map((index) => (
-                          <td className="ar-table-col1">
-                            {index[index.length - 1]}
-                          </td>
-                        ))
+                            machineAllData?.checkSheet_data
+                              ?.implementation_approved_by_MTD_HOS
+                          ).map((index) => (
+                            <td className="ar-table-col1">
+                              {index[index.length - 1]}
+                            </td>
+                          ))
                         : refArrayForTDMapping.map((index) => (
-                          <td className="ar-table-col1"></td>
-                        ))}
+                            <td className="ar-table-col1"></td>
+                          ))}
                     </tr>
                     <tr>
                       <th className="ar-table-thead-header1">
@@ -1030,13 +1070,13 @@ function CheckSheet({
                               ? "ar-table-thead-header3"
                               : "ar-table-thead-header"
                           }
-                        // colSpan={
-                        //   tColumn.header === "Inspection item"
-                        //     ? refKey === true
-                        //       ? 2
-                        //       : 0
-                        //     : 0
-                        // }
+                          // colSpan={
+                          //   tColumn.header === "Inspection item"
+                          //     ? refKey === true
+                          //       ? 2
+                          //       : 0
+                          //     : 0
+                          // }
                         >
                           {tColumn.header}
                         </th>
@@ -1057,32 +1097,32 @@ function CheckSheet({
                         {rData.map((colData) =>
                           machineAllData?.checkSheet_data?.checksheet_status ===
                             "Implementation" &&
-                            context.user_type === "Operator" ? (
+                          context.user_type === "Operator" ? (
                             colData.print == true ? (
                               <td
                                 className={
                                   colData.value === ""
                                     ? "ar-table-col2"
                                     : colData.key ===
-                                      "inspection_parent_name" ||
+                                        "inspection_parent_name" ||
                                       colData.key === "inspection_child_name" ||
                                       colData.key === "inspection_point" ||
                                       colData.key === "judgement_criteria" ||
                                       colData.key === "action"
-                                      ? "table_text_alignment"
-                                      : colData.value.length === 2 &&
-                                        colData.value[0] === "1" &&
-                                        colData.value[1] === "dummy"
-                                        ? "table-col-bg-ongoing"
-                                        : colData.value.length === 2 &&
-                                          colData.value[0] === "1" &&
-                                          colData.value[1] === "delay"
-                                          ? "table-col-bg-delay"
-                                          : colData.value.length === 2 &&
-                                            colData.value[0] === "1" &&
-                                            colData.value[1] === "skip"
-                                            ? "table-col-bg-skip"
-                                            : "ar-table-col"
+                                    ? "table_text_alignment"
+                                    : colData.value.length === 2 &&
+                                      colData.value[0] === "1" &&
+                                      colData.value[1] === "dummy"
+                                    ? "table-col-bg-ongoing"
+                                    : colData.value.length === 2 &&
+                                      colData.value[0] === "1" &&
+                                      colData.value[1] === "delay"
+                                    ? "table-col-bg-delay"
+                                    : colData.value.length === 2 &&
+                                      colData.value[0] === "1" &&
+                                      colData.value[1] === "skip"
+                                    ? "table-col-bg-skip"
+                                    : "ar-table-col"
                                   //ar-table-col
                                 }
                                 rowSpan={colData.rowspan}
@@ -1090,17 +1130,17 @@ function CheckSheet({
                               >
                                 {" "}
                                 {colData.value[0] === "0" &&
-                                  colData.key !== "tableRowId" &&
-                                  colData.key !== "cycle" &&
-                                  colData.key !== "PM_time" ? (
+                                colData.key !== "tableRowId" &&
+                                colData.key !== "cycle" &&
+                                colData.key !== "PM_time" ? (
                                   ""
                                 ) : (colData.value[0] === "1" ||
-                                  colData.value[0] === "2") &&
+                                    colData.value[0] === "2") &&
                                   colData.key !== "tableRowId" &&
                                   colData.key !== "cycle" &&
                                   colData.key !== "PM_time" ? (
                                   colData.value.length === 1 &&
-                                    colData.key === monthForCompareSystemMonth ? (
+                                  colData.key === monthForCompareSystemMonth ? (
                                     <>
                                       {" "}
                                       <button
@@ -1256,22 +1296,22 @@ function CheckSheet({
                                     colData.key === "inspection_point" ||
                                     colData.key === "judgement_criteria" ||
                                     colData.key === "action"
-                                    ? "table_text_alignment"
-                                    : "ar-table-col"
+                                  ? "table_text_alignment"
+                                  : "ar-table-col"
                               }
                               rowSpan={colData.rowspan}
                               colSpan={colData.colspan}
                             >
                               {" "}
                               {colData.value[0] === "0" &&
-                                colData.key !== "cycle" &&
-                                colData.key !== "PM_time"
+                              colData.key !== "cycle" &&
+                              colData.key !== "PM_time"
                                 ? ""
                                 : colData.value[0] === "1" &&
                                   colData.key !== "cycle" &&
                                   colData.key !== "PM_time"
-                                  ? "-->"
-                                  : colData.value}{" "}
+                                ? "-->"
+                                : colData.value}{" "}
                             </td>
                           ) : (
                             ""
@@ -1288,15 +1328,15 @@ function CheckSheet({
                       </th>
                       {machineAllData?.checkSheet_data?.PMworkedTMName
                         ? Object.values(
-                          machineAllData?.checkSheet_data?.PMworkedTMName
-                        ).map((index) => (
-                          <td className="ar-table-col1">
-                            {index.join(" ,")}
-                          </td>
-                        ))
+                            machineAllData?.checkSheet_data?.PMworkedTMName
+                          ).map((index) => (
+                            <td className="ar-table-col1">
+                              {index.join(" ,")}
+                            </td>
+                          ))
                         : refArrayForTDMapping.map((index) => (
-                          <td className="ar-table-col1"></td>
-                        ))}
+                            <td className="ar-table-col1"></td>
+                          ))}
                     </tr>
                     <tr>
                       <th colSpan={9}></th>
@@ -1308,16 +1348,16 @@ function CheckSheet({
                       {machineAllData?.checkSheet_data
                         ?.implementation_approved_by_PRD_TL
                         ? Object.values(
-                          machineAllData?.checkSheet_data
-                            ?.implementation_approved_by_PRD_TL
-                        ).map((index) => (
-                          <td className="ar-table-col1">
-                            {index[index.length - 1]}
-                          </td>
-                        ))
+                            machineAllData?.checkSheet_data
+                              ?.implementation_approved_by_PRD_TL
+                          ).map((index) => (
+                            <td className="ar-table-col1">
+                              {index[index.length - 1]}
+                            </td>
+                          ))
                         : refArrayForTDMapping.map((index) => (
-                          <td className="ar-table-col1"></td>
-                        ))}
+                            <td className="ar-table-col1"></td>
+                          ))}
                     </tr>
                     <tr>
                       <th colSpan={9}></th>
@@ -1509,7 +1549,10 @@ function CheckSheet({
               </Col>
               <Col>
                 <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-                  <button className="btn" onClick={funForOpeningSummeryPopups}>
+                  <button
+                    className="btn-danger"
+                    onClick={funForOpeningSummeryPopups}
+                  >
                     Summary
                   </button>
                 </div>
@@ -1594,7 +1637,10 @@ function CheckSheet({
                                 <div className="mb-2 row">
                                   <span
                                     className="col-3"
-                                    style={{ textAlign: "left", fontWeight: "bold" }}
+                                    style={{
+                                      textAlign: "left",
+                                      fontWeight: "bold",
+                                    }}
                                   >
                                     Rejected Remarks:{" "}
                                   </span>
@@ -1766,34 +1812,6 @@ function CheckSheet({
                                   className="col-3"
                                   style={{ textAlign: "left" }}
                                 >
-                                  Previous PM Time(min):{" "}
-                                </span>
-                                <TextField
-                                  style={{ pointerEvent: "none" }}
-                                  type="text"
-                                  className="col-8"
-                                  name="pmTime"
-                                  autoComplete="off"
-                                  value={
-                                    machineAllData?.checkSheet_data?.totalPMTime
-                                      ? machineAllData?.checkSheet_data
-                                          ?.totalPMTime[
-                                          monthForCompareSystemMonth
-                                        ].totalWorkedPMTime === ""
-                                        ? "0"
-                                        : machineAllData?.checkSheet_data
-                                            ?.totalPMTime[
-                                            monthForCompareSystemMonth
-                                          ].totalWorkedPMTime
-                                      : "0"
-                                  }
-                                />
-                              </div>
-                              <div className="mb-2 row">
-                                <span
-                                  className="col-3"
-                                  style={{ textAlign: "left" }}
-                                >
                                   PM Time(min):{" "}
                                 </span>
                                 <TextField
@@ -1812,6 +1830,27 @@ function CheckSheet({
                                     formik.errors.pmTime
                                   }
                                 />
+                              </div>
+                              <div className="mb-2 row">
+                                <span
+                                  className="col-3"
+                                  style={{ textAlign: "left" }}
+                                >
+                                  Previous PM Time(min):{" "}
+                                </span>
+                                <span
+                                  className="col-8"
+                                  style={{ textAlign: "left" }}
+                                >
+                                  {machineAllData?.checkSheet_data
+                                    ?.totalPMTime?.[monthForCompareSystemMonth]
+                                    .totalWorkedPMTime
+                                    ? machineAllData?.checkSheet_data
+                                        ?.totalPMTime[
+                                        monthForCompareSystemMonth
+                                      ].totalWorkedPMTime
+                                    : "0"}
+                                </span>
                               </div>
                               <div className="mb-2 row">
                                 <span
@@ -1839,7 +1878,7 @@ function CheckSheet({
                                 />
                               </div>
 
-                              <button className="btn" type="submit">
+                              <button className="btn-primary1" type="submit">
                                 Save
                               </button>
                             </form>
@@ -1935,7 +1974,7 @@ function CheckSheet({
                                             <option selected disabled value="">
                                               Please select
                                             </option>
-                                            {MTDTLlist?.map((index,idx) => {
+                                            {MTDTLlist?.map((index, idx) => {
                                               return (
                                                 <option value={idx}>
                                                   {index.tm_name}
@@ -1984,7 +2023,7 @@ function CheckSheet({
                                             <option selected disabled value="">
                                               Please select
                                             </option>
-                                            {HOSList?.map((index,idx) => {
+                                            {HOSList?.map((index, idx) => {
                                               return (
                                                 <option value={idx}>
                                                   {index.tm_name}
@@ -2106,7 +2145,10 @@ function CheckSheet({
                                 <div className="mb-2 row">
                                   <span
                                     className="col-3"
-                                    style={{ textAlign: "left", fontWeight: "bold" }}
+                                    style={{
+                                      textAlign: "left",
+                                      fontWeight: "bold",
+                                    }}
                                   >
                                     Delay reason:{" "}
                                   </span>
@@ -2145,7 +2187,10 @@ function CheckSheet({
                             <div className="mb-2 row">
                               <span
                                 className="col-3"
-                                style={{ textAlign: "left", fontWeight: "bold" }}
+                                style={{
+                                  textAlign: "left",
+                                  fontWeight: "bold",
+                                }}
                               >
                                 PM Status:{" "}
                               </span>
@@ -2178,34 +2223,6 @@ function CheckSheet({
                                 className="col-3"
                                 style={{ textAlign: "left" }}
                               >
-                                Previous PM Time(min):{" "}
-                              </span>
-                              <TextField
-                                style={{ pointerEvent: "none" }}
-                                type="text"
-                                className="col-8"
-                                name="pmTime"
-                                autoComplete="off"
-                                value={
-                                  machineAllData?.checkSheet_data?.totalPMTime
-                                    ? machineAllData?.checkSheet_data
-                                        ?.totalPMTime[
-                                        monthForCompareSystemMonth
-                                      ].totalWorkedPMTime === ""
-                                      ? "0"
-                                      : machineAllData?.checkSheet_data
-                                          ?.totalPMTime[
-                                          monthForCompareSystemMonth
-                                        ].totalWorkedPMTime
-                                    : "0"
-                                }
-                              />
-                            </div>
-                            <div className="mb-2 row">
-                              <span
-                                className="col-3"
-                                style={{ textAlign: "left" }}
-                              >
                                 PM Time(min):{" "}
                               </span>
                               <TextField
@@ -2229,6 +2246,26 @@ function CheckSheet({
                                 className="col-3"
                                 style={{ textAlign: "left" }}
                               >
+                                Previous PM Time(min):{" "}
+                              </span>
+                              <span
+                                className="col-8"
+                                style={{ textAlign: "left" }}
+                              >
+                                {machineAllData?.checkSheet_data?.totalPMTime?.[
+                                  monthForCompareSystemMonth
+                                ].totalWorkedPMTime
+                                  ? machineAllData?.checkSheet_data
+                                      ?.totalPMTime[monthForCompareSystemMonth]
+                                      .totalWorkedPMTime
+                                  : "0"}
+                              </span>
+                            </div>
+                            <div className="mb-2 row">
+                              <span
+                                className="col-3"
+                                style={{ textAlign: "left" }}
+                              >
                                 Supporting TM:{" "}
                               </span>
 
@@ -2245,7 +2282,7 @@ function CheckSheet({
                               />
                             </div>
 
-                            <button className="btn" type="submit">
+                            <button className="btn-primary1" type="submit">
                               Save
                             </button>
                           </form>
@@ -2291,7 +2328,7 @@ function CheckSheet({
                                           <option selected disabled value="">
                                             Please select
                                           </option>
-                                          {PRDTLlist?.map((index,idx) => {
+                                          {PRDTLlist?.map((index, idx) => {
                                             return (
                                               <option value={idx}>
                                                 {index.tm_name}
@@ -2340,7 +2377,7 @@ function CheckSheet({
                                           <option selected disabled value="">
                                             Please select
                                           </option>
-                                          {MTDTLlist?.map((index,idx) => {
+                                          {MTDTLlist?.map((index, idx) => {
                                             return (
                                               <option value={idx}>
                                                 {index.tm_name}
@@ -2434,6 +2471,83 @@ function CheckSheet({
                       </Row>
                     </>
                   )
+                ) : (
+                  ""
+                )}
+                {monthForCompareSystemMonth === "Jan" ||
+                monthForCompareSystemMonth === "Mar" ||
+                machineAllData?.checkSheet_data
+                  ?.implemetation_mtd_hod_approval_status[
+                  monthForCompareSystemMonth
+                ][
+                  machineAllData?.checkSheet_data
+                    ?.implemetation_mtd_hod_approval_status[
+                    monthForCompareSystemMonth
+                  ].length - 1
+                ] === "Rejected" ? (
+                  <Row>
+                    <Col>
+                      <form onSubmit={formik2.handleSubmit}>
+                        <div className="m-2 p-3 border bg-white rounded">
+                          <div className="d-flex justify-content-between">
+                            <div>
+                              <span>
+                                MTD HOD List <br /> (Approved by)
+                              </span>
+                            </div>
+
+                            <div style={{ marginTop: "0.5rem" }}>
+                              <select
+                                // class="form-select form-select-sm"
+                                // aria-label=".form-select-sm example"
+                                // style={{ width: "100%" }}
+                                id="standard-select-currency"
+                                name="mtd_hod_list"
+                                // className="textField"
+                                // fullWidth
+                                select // label="Select"
+                                autoComplete="off"
+                                value={formik2.values.mtd_hod_list}
+                                onChange={(e) => {
+                                  // setUsertype(e.target.value);
+                                  formik2.handleChange(e);
+                                }}
+                                variant="standard"
+                              >
+                                <option selected disabled value="">
+                                  Please select
+                                </option>
+                                {MTDHODlist?.map((index, idx) => {
+                                  return (
+                                    <option value={idx}>{index.tm_name}</option>
+                                  );
+                                })}
+                              </select>
+                              <div>
+                                <p
+                                  style={{
+                                    color: "#F44336",
+                                    fontWeight: "normal",
+                                    fontSize: "0.80rem",
+                                    // float: "left",
+                                    paddingTop: "0.5rem",
+                                  }}
+                                >
+                                  {formik2.touched.mtd_hod_list &&
+                                    formik2.errors.mtd_hod_list}
+                                </p>
+                              </div>
+                            </div>
+                            <div>
+                              <button className="btn-approval" type="submit">
+                                Send for Approval
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    </Col>
+                  </Row>
                 ) : (
                   ""
                 )}

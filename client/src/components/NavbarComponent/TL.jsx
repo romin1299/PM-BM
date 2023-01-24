@@ -154,12 +154,12 @@ const TL = ({ userData, userDepartment }) => {
             <>
               <NavUrl
                 url="/operatorDataEntry"
-                icon={<NoteAddIcon style={{ color: "#E71E25" }} />}
+                icon={<NoteAddIcon style={{ color: "#ffffff" }} />}
                 description="Operator Data Entry"
               />
               <NavUrl
                 url="/sparePartUsageHistory"
-                icon={<BackupTableIcon style={{ color: "#E71E25" }} />}
+                icon={<BackupTableIcon style={{ color: "#ffffff" }} />}
                 description="Spare Part Usage History"
               />
             </>
@@ -200,7 +200,7 @@ const TL = ({ userData, userDepartment }) => {
                 <ListItemButton sx={{ pl: 3 }}>
                   <NavUrl
                     url="/spareReportDashboard"
-                    icon={<AssignmentIcon style={{ color: "#E71E25" }} />}
+                    icon={<AssignmentIcon style={{ color: "#ffffff" }} />}
                     description="Spare Report"
                   />
                 </ListItemButton>

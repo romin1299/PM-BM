@@ -46,6 +46,11 @@ const CheckSheetApprovalDashboardForHOS = () => {
       align: "center",
     },
     {
+      title: "Status",
+      field: "checkSheet_data.checksheet_status",
+      align: "center",
+    },
+    {
       title: "Cell Name",
       field: "line_names.cell_names.cell_name",
       align: "center",
@@ -263,8 +268,8 @@ const CheckSheetApprovalDashboardForHOS = () => {
                 },
                 headerStyle: {
                   fontSize: "13px",
-                  fontWeight: "bold"
-                }
+                  fontWeight: "bold",
+                },
               }}
             />
           </div>
