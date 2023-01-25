@@ -11123,7 +11123,7 @@ router.post('/postSectionToGetLineData', authenticate, async (req, res) => {
                 line_names: { $in: lineData?.map((item) => item?._id) },
                 $or: selectedYearOfCheckSheet,
                 "checkSheet_data": { $ne: undefined },
-                "checkSheet_data.checkSheet": { $ne: [] },
+                // "checkSheet_data.checkSheet": { $ne: [] },
             }
         },
         {
