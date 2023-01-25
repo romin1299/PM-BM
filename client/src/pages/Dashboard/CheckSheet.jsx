@@ -23,7 +23,11 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
 
   const location = useLocation();
   let machineAllData = machineData;
-  console.log(machineAllData)
+
+  // console.log(
+  //   machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD
+  // );
+
   // console.log(location.state);
   let tableData = machineData?.checkSheet_data?.checkSheet;
   let columns = [
@@ -474,7 +478,6 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         className="ar-table-thead-header1"
                         // colSpan={2}
                         //  rowSpan={5}
-                        
                       >
                         PLAN ACCEPTANCE
                         <br />
@@ -675,8 +678,16 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
                         <br />
                         (MTD HOD)
                       </th>
-                      <th className="ar-table-col1" colSpan={6}></th>
-                      <th className="ar-table-col1" colSpan={6}></th>
+                      <td className="ar-table-col1" colSpan={6}>
+                        {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
+                          -1
+                        )}
+                      </td>
+                      <td className="ar-table-col1" colSpan={6}>
+                        {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
+                          -1
+                        )}
+                      </td>
                     </tr>
                   </thead>
                   {/* <thead className="ar-table-thead1">
@@ -1116,320 +1127,359 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
               </Col>
               <Col>
                 <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-                  <button className="btn-danger" onClick={funForOpeningSummeryPopups}>
+                  <button
+                    className="btn-danger"
+                    onClick={funForOpeningSummeryPopups}
+                  >
                     Summary
                   </button>
                 </div>
                 {machineAllData?.checkSheet_data
-              ?.implemetation_prd_tl_approval_status ||
-            machineAllData?.checkSheet_data
-              ?.implemetation_mtd_tl_approval_status ||
-            machineAllData?.checkSheet_data
-              ?.implemetation_mtd_hos_approval_status ? (
-              machineAllData?.checkSheet_data
-                ?.implemetation_prd_tl_approval_status[
-                monthForCompareSystemMonth
-              ] !== "Rejected" ||
-              machineAllData?.checkSheet_data
-                ?.implemetation_mtd_tl_approval_status[
-                monthForCompareSystemMonth
-              ] !== "Rejected" ||
-              machineAllData?.checkSheet_data
-                ?.implemetation_mtd_hos_approval_status[
-                monthForCompareSystemMonth
-              ] !== "Rejected" ? (
-                <>
-                  <Row className=" m-2 p-3 border bg-white rounded">
-                    
-                    <Col >
-                      {machineAllData?.checkSheet_data?.PMDelayRemark ? (
-                        machineAllData?.checkSheet_data?.PMDelayRemark[
-                          monthForCompareSystemMonth
-                        ] ? (
+                  ?.implemetation_prd_tl_approval_status ||
+                machineAllData?.checkSheet_data
+                  ?.implemetation_mtd_tl_approval_status ||
+                machineAllData?.checkSheet_data
+                  ?.implemetation_mtd_hos_approval_status ? (
+                  machineAllData?.checkSheet_data
+                    ?.implemetation_prd_tl_approval_status[
+                    monthForCompareSystemMonth
+                  ] !== "Rejected" ||
+                  machineAllData?.checkSheet_data
+                    ?.implemetation_mtd_tl_approval_status[
+                    monthForCompareSystemMonth
+                  ] !== "Rejected" ||
+                  machineAllData?.checkSheet_data
+                    ?.implemetation_mtd_hos_approval_status[
+                    monthForCompareSystemMonth
+                  ] !== "Rejected" ? (
+                    <>
+                      <Row className=" m-2 p-3 border bg-white rounded">
+                        <Col>
+                          {machineAllData?.checkSheet_data?.PMDelayRemark ? (
+                            machineAllData?.checkSheet_data?.PMDelayRemark[
+                              monthForCompareSystemMonth
+                            ] ? (
+                              <div className="mb-2 row">
+                                <span
+                                  className="col-3"
+                                  style={{
+                                    textAlign: "left",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Delay reason:{" "}
+                                </span>
+                                <TextField
+                                  type="text"
+                                  className="col-8"
+                                  name="delayRemarks"
+                                  autoComplete="off"
+                                  value={
+                                    machineAllData?.checkSheet_data
+                                      ?.PMDelayRemark[
+                                      monthForCompareSystemMonth
+                                    ]
+                                  }
+                                />
+                              </div>
+                            ) : (
+                              <div className="mb-2 row">
+                                <span
+                                  className="col-3"
+                                  style={{
+                                    textAlign: "left",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Delay reason:{" "}
+                                </span>
+                                <TextField
+                                  type="text"
+                                  className="col-8"
+                                  name="delayRemarks"
+                                  autoComplete="off"
+                                  // value={formik.values.delayRemarks}
+                                  placeholder={
+                                    machineAllData?.checkSheet_data
+                                      ?.PMDelayRemark[
+                                      monthForCompareSystemMonth
+                                    ]
+                                      ? machineAllData?.checkSheet_data
+                                          .PMDelayRemark[
+                                          monthForCompareSystemMonth
+                                        ]
+                                      : ""
+                                  }
+                                />
+                              </div>
+                            )
+                          ) : (
+                            ""
+                          )}
                           <div className="mb-2 row">
                             <span
                               className="col-3"
-                              style={{ textAlign: "left",fontWeight: "bold" }}
+                              style={{ textAlign: "left", fontWeight: "bold" }}
                             >
-                              Delay reason:{" "}
+                              PM Status:{" "}
                             </span>
                             <TextField
                               type="text"
                               className="col-8"
-                              name="delayRemarks"
+                              name="pmStatus"
                               autoComplete="off"
                               value={
-                                machineAllData?.checkSheet_data?.PMDelayRemark[
-                                  monthForCompareSystemMonth
-                                ]
+                                machineAllData?.checkSheet_data?.PMStatus
+                                  ? machineAllData?.checkSheet_data?.PMStatus[
+                                      monthForCompareSystemMonth
+                                    ] === ""
+                                    ? "Not schedule"
+                                    : machineAllData?.checkSheet_data?.PMStatus[
+                                        monthForCompareSystemMonth
+                                      ]
+                                  : ""
                               }
+                              // onChange={formik.handleChange}
+                              // error={
+                              //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
+                              // }
+                              // helperText={
+                              //   formik.touched.pmTime && formik.errors.pmTime
+                              // }
                             />
                           </div>
-                        ) : (
                           <div className="mb-2 row">
                             <span
                               className="col-3"
-                              style={{ textAlign: "left" ,fontWeight: "bold" }}
+                              style={{ textAlign: "left", fontWeight: "bold" }}
                             >
-                              Delay reason:{" "}
+                              PM Time:{" "}
                             </span>
                             <TextField
                               type="text"
                               className="col-8"
-                              name="delayRemarks"
+                              name="pmTime"
                               autoComplete="off"
-                              // value={formik.values.delayRemarks}
-                              placeholder={
-                                machineAllData?.checkSheet_data?.PMDelayRemark[
-                                  monthForCompareSystemMonth
-                                ]
+                              value={
+                                machineAllData?.checkSheet_data?.totalPMTime
                                   ? machineAllData?.checkSheet_data
-                                      .PMDelayRemark[monthForCompareSystemMonth]
+                                      ?.totalPMTime[monthForCompareSystemMonth]
+                                      .totalWorkedPMTime === ""
+                                    ? "0"
+                                    : machineAllData?.checkSheet_data
+                                        ?.totalPMTime[
+                                        monthForCompareSystemMonth
+                                      ].totalWorkedPMTime
                                   : ""
                               }
                             />
                           </div>
-                        )
-                      ) : (
-                        ""
-                      )}
-                      <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left" ,fontWeight: "bold"  }}>
-                          PM Status:{" "}
-                        </span>
-                        <TextField
-                          type="text"
-                          className="col-8"
-                          name="pmStatus"
-                          autoComplete="off"
-                          value={
-                            machineAllData?.checkSheet_data?.PMStatus
-                              ? machineAllData?.checkSheet_data?.PMStatus[
-                                  monthForCompareSystemMonth
-                                ] === ""
-                                ? "Not schedule"
-                                : machineAllData?.checkSheet_data
-                                    ?.PMStatus[monthForCompareSystemMonth]
-                              : ""
-                          }
-                          // onChange={formik.handleChange}
-                          // error={
-                          //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
-                          // }
-                          // helperText={
-                          //   formik.touched.pmTime && formik.errors.pmTime
-                          // }
-                        />
-                      </div>
-                      <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left",fontWeight: "bold"  }}>
-                          PM Time:{" "}
-                        </span>
-                        <TextField
-                          type="text"
-                          className="col-8"
-                          name="pmTime"
-                          autoComplete="off"
-                          value={
-                            machineAllData?.checkSheet_data?.totalPMTime
-                              ? machineAllData?.checkSheet_data
-                                  ?.totalPMTime[
-                                  monthForCompareSystemMonth
-                                ].totalWorkedPMTime === ""
-                                ? "0"
-                                : machineAllData?.checkSheet_data
-                                    ?.totalPMTime[
-                                    monthForCompareSystemMonth
-                                  ].totalWorkedPMTime
-                              : ""
-                          }
-                        />
-                      </div>
-                      <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left",fontWeight: "bold"  }}>
-                          Supporting TM:{" "}
-                        </span>
-                        <TextField
-                          type="text"
-                          className="col-8"
-                          name="supportingOperator"
-                          multiline
-                          autoComplete="off"
-                          value={
-                            machineAllData?.checkSheet_data?.totalPMTime
-                              ? machineAllData?.checkSheet_data
-                                  ?.totalPMTime[
-                                  monthForCompareSystemMonth
-                                ].supportingTMData.map((index) => (
-                                  (index.tm_name)
-                                ))
-                              : ""
-                          }
-                        />
-                      </div>
-                    </Col>
-                  </Row>
-                </>
-              ) : (
-                <>
-                  <Row className=" m-2 p-3 border bg-white rounded">
-                    <Col >
-                      {machineAllData?.checkSheet_data?.PMDelayRemark ? (
-                        machineAllData?.checkSheet_data?.PMDelayRemark[
-                          monthForCompareSystemMonth
-                        ] ? (
                           <div className="mb-2 row">
                             <span
                               className="col-3"
-                              style={{ textAlign: "left" ,fontWeight: "bold" }}
+                              style={{ textAlign: "left", fontWeight: "bold" }}
                             >
-                              Delay reason:{" "}
+                              Supporting TM:{" "}
                             </span>
                             <TextField
                               type="text"
                               className="col-8"
-                              name="delayRemarks"
+                              name="supportingOperator"
+                              multiline
                               autoComplete="off"
                               value={
-                                machineAllData?.checkSheet_data?.PMDelayRemark[
-                                  monthForCompareSystemMonth
-                                ]
-                              }
-                            />
-                          </div>
-                        ) : (
-                          <div className="mb-2 row">
-                            <span
-                              className="col-3"
-                              style={{ textAlign: "left" ,fontWeight: "bold" }}
-                            >
-                              Delay reason:{" "}
-                            </span>
-                            <TextField
-                              type="text"
-                              className="col-8"
-                              name="delayRemarks"
-                              autoComplete="off"
-                              // value={formik.values.delayRemarks}
-                              placeholder={
-                                machineAllData?.checkSheet_data?.PMDelayRemark[
-                                  monthForCompareSystemMonth
-                                ]
-                                  ? machineAllData?.checkSheet_data
-                                      .PMDelayRemark[monthForCompareSystemMonth]
+                                machineAllData?.checkSheet_data?.totalPMTime
+                                  ? machineAllData?.checkSheet_data?.totalPMTime[
+                                      monthForCompareSystemMonth
+                                    ].supportingTMData.map(
+                                      (index) => index.tm_name
+                                    )
                                   : ""
                               }
                             />
                           </div>
-                        )
-                      ) : (
-                        ""
-                      )}
-                      <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left",fontWeight: "bold"  }}>
-                          PM Status:{" "}
-                        </span>
-                        <TextField
-                          type="text"
-                          className="col-8"
-                          name="pmStatus"
-                          autoComplete="off"
-                          value={
-                            machineAllData?.checkSheet_data?.PMStatus
-                              ? machineAllData?.checkSheet_data?.PMStatus[
-                                  monthForCompareSystemMonth
-                                ] === ""
-                                ? "Not schedule"
-                                : machineAllData?.checkSheet_data
-                                    ?.PMStatus[monthForCompareSystemMonth]
-                              : ""
-                          }
-                          // onChange={formik.handleChange}
-                          // error={
-                          //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
-                          // }
-                          // helperText={
-                          //   formik.touched.pmTime && formik.errors.pmTime
-                          // }
-                        />
-                      </div>
-                      <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left",fontWeight: "bold"  }}>
-                          PM Time:{" "}
-                        </span>
-                        <TextField
-                          type="text"
-                          className="col-8"
-                          name="pmTime"
-                          autoComplete="off"
-                          value={
-                            machineAllData?.checkSheet_data?.totalPMTime
-                              ? machineAllData?.checkSheet_data
-                                  ?.totalPMTime[
-                                  monthForCompareSystemMonth
-                                ].totalWorkedPMTime === ""
-                                ? "0"
-                                : machineAllData?.checkSheet_data
-                                    ?.totalPMTime[
-                                    monthForCompareSystemMonth
-                                  ].totalWorkedPMTime
-                              : ""
-                          }
-                        />
-                      </div>
-                      <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left" ,fontWeight: "bold" }}>
-                          Supporting TM:{" "}
-                        </span>
-                        <TextField
-                          type="text"
-                          className="col-8"
-                          name="supportingOperator"
-                          multiline
-                          autoComplete="off"
-                          value={
-                            machineAllData?.checkSheet_data?.totalPMTime
-                              ? machineAllData?.checkSheet_data
-                                  ?.totalPMTime[
-                                  monthForCompareSystemMonth
-                                ].supportingTMData.map((index) => (
-                                  (index.tm_name)
-                                ))
-                              : ""
-                          }
-                        />
-                      </div>
-                      <div className="mb-2 row">
-                        <span className="col-3" style={{ textAlign: "left" }}>
-                          Rejected remarks:{" "}
-                        </span>
-                        <TextField
-                          type="text"
-                          className="col-8"
-                          name="implementation_rejected_remarks"
-                          autoComplete="off"
-                          value={
-                            machineAllData?.checkSheet_data
-                              .implementation_rejected_remarks
-                              ? machineAllData?.checkSheet_data
-                                  .implementation_rejected_remarks[
-                                  monthForCompareSystemMonth
-                                ]
-                              : ""
-                          }
-                        />
-                      </div>
-                    </Col>
-                  </Row>
-                </>
-              )
-            ) : (
-              ""
-            )}
-
+                        </Col>
+                      </Row>
+                    </>
+                  ) : (
+                    <>
+                      <Row className=" m-2 p-3 border bg-white rounded">
+                        <Col>
+                          {machineAllData?.checkSheet_data?.PMDelayRemark ? (
+                            machineAllData?.checkSheet_data?.PMDelayRemark[
+                              monthForCompareSystemMonth
+                            ] ? (
+                              <div className="mb-2 row">
+                                <span
+                                  className="col-3"
+                                  style={{
+                                    textAlign: "left",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Delay reason:{" "}
+                                </span>
+                                <TextField
+                                  type="text"
+                                  className="col-8"
+                                  name="delayRemarks"
+                                  autoComplete="off"
+                                  value={
+                                    machineAllData?.checkSheet_data
+                                      ?.PMDelayRemark[
+                                      monthForCompareSystemMonth
+                                    ]
+                                  }
+                                />
+                              </div>
+                            ) : (
+                              <div className="mb-2 row">
+                                <span
+                                  className="col-3"
+                                  style={{
+                                    textAlign: "left",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Delay reason:{" "}
+                                </span>
+                                <TextField
+                                  type="text"
+                                  className="col-8"
+                                  name="delayRemarks"
+                                  autoComplete="off"
+                                  // value={formik.values.delayRemarks}
+                                  placeholder={
+                                    machineAllData?.checkSheet_data
+                                      ?.PMDelayRemark[
+                                      monthForCompareSystemMonth
+                                    ]
+                                      ? machineAllData?.checkSheet_data
+                                          .PMDelayRemark[
+                                          monthForCompareSystemMonth
+                                        ]
+                                      : ""
+                                  }
+                                />
+                              </div>
+                            )
+                          ) : (
+                            ""
+                          )}
+                          <div className="mb-2 row">
+                            <span
+                              className="col-3"
+                              style={{ textAlign: "left", fontWeight: "bold" }}
+                            >
+                              PM Status:{" "}
+                            </span>
+                            <TextField
+                              type="text"
+                              className="col-8"
+                              name="pmStatus"
+                              autoComplete="off"
+                              value={
+                                machineAllData?.checkSheet_data?.PMStatus
+                                  ? machineAllData?.checkSheet_data?.PMStatus[
+                                      monthForCompareSystemMonth
+                                    ] === ""
+                                    ? "Not schedule"
+                                    : machineAllData?.checkSheet_data?.PMStatus[
+                                        monthForCompareSystemMonth
+                                      ]
+                                  : ""
+                              }
+                              // onChange={formik.handleChange}
+                              // error={
+                              //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
+                              // }
+                              // helperText={
+                              //   formik.touched.pmTime && formik.errors.pmTime
+                              // }
+                            />
+                          </div>
+                          <div className="mb-2 row">
+                            <span
+                              className="col-3"
+                              style={{ textAlign: "left", fontWeight: "bold" }}
+                            >
+                              PM Time:{" "}
+                            </span>
+                            <TextField
+                              type="text"
+                              className="col-8"
+                              name="pmTime"
+                              autoComplete="off"
+                              value={
+                                machineAllData?.checkSheet_data?.totalPMTime
+                                  ? machineAllData?.checkSheet_data
+                                      ?.totalPMTime[monthForCompareSystemMonth]
+                                      .totalWorkedPMTime === ""
+                                    ? "0"
+                                    : machineAllData?.checkSheet_data
+                                        ?.totalPMTime[
+                                        monthForCompareSystemMonth
+                                      ].totalWorkedPMTime
+                                  : ""
+                              }
+                            />
+                          </div>
+                          <div className="mb-2 row">
+                            <span
+                              className="col-3"
+                              style={{ textAlign: "left", fontWeight: "bold" }}
+                            >
+                              Supporting TM:{" "}
+                            </span>
+                            <TextField
+                              type="text"
+                              className="col-8"
+                              name="supportingOperator"
+                              multiline
+                              autoComplete="off"
+                              value={
+                                machineAllData?.checkSheet_data?.totalPMTime
+                                  ? machineAllData?.checkSheet_data?.totalPMTime[
+                                      monthForCompareSystemMonth
+                                    ].supportingTMData.map(
+                                      (index) => index.tm_name
+                                    )
+                                  : ""
+                              }
+                            />
+                          </div>
+                          <div className="mb-2 row">
+                            <span
+                              className="col-3"
+                              style={{ textAlign: "left" }}
+                            >
+                              Rejected remarks:{" "}
+                            </span>
+                            <TextField
+                              type="text"
+                              className="col-8"
+                              name="implementation_rejected_remarks"
+                              autoComplete="off"
+                              value={
+                                machineAllData?.checkSheet_data
+                                  .implementation_rejected_remarks
+                                  ? machineAllData?.checkSheet_data
+                                      .implementation_rejected_remarks[
+                                      monthForCompareSystemMonth
+                                    ]
+                                  : ""
+                              }
+                            />
+                          </div>
+                        </Col>
+                      </Row>
+                    </>
+                  )
+                ) : (
+                  ""
+                )}
               </Col>
             </Row>
-            
           </Container>
         </div>
       </div>

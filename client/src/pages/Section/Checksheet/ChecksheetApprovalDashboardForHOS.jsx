@@ -28,7 +28,10 @@ const CheckSheetApprovalDashboardForHOS = () => {
       });
 
       const data = await res.json();
-      console.log(data);
+      
+      // console.log("============>",data);
+
+
       setTableData(data);
     } catch (error) {
       console.log(error);
@@ -48,6 +51,11 @@ const CheckSheetApprovalDashboardForHOS = () => {
     {
       title: "Status",
       field: "checkSheet_data.checksheet_status",
+      align: "center",
+    },
+    {
+      title: "Month",
+      field: "senderApprovalMonth",
       align: "center",
     },
     {

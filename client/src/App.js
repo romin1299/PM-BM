@@ -31,7 +31,7 @@ import ChecksheetCreationDashboard from "./pages/Section/Checksheet/ChecksheetCr
 import CheckSheetForm from "./pages/Section/Checksheet/ChecksheetForm";
 import CheckSheetApprovalDashboardForTL from "./pages/Section/Checksheet/ChecksheetApprovalDashboardForTL";
 import CheckSheetApprovalDashboardForHOS from "./pages/Section/Checksheet/ChecksheetApprovalDashboardForHOS";
-import ChecksheetFormApprovalForHOS from "./pages/Section/Checksheet/ChecksheetFormApprovalForHOS";
+import ChecksheetFormApprovalForHOSAndHOD from "./pages/Section/Checksheet/ChecksheetFormApprovalForHOSAndHOD";
 import ChecksheetFormApprovalForTL from "./pages/Section/Checksheet/ChecksheetFormApprovalForTL";
 import BackupDataOfCheckSheet from "./pages/Section/Checksheet/BackupDataOfCheckSheet";
 import ShowBackupChecksheetTableData from "./pages/Section/Checksheet/ShowBackupChecksheetTableData";
@@ -137,7 +137,7 @@ function App() {
                 <Route path="/userAssign" element={<UserAssignSection />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/approvalDashboard" element={<CheckSheetApprovalDashboardForHOS />} />
-                <Route path="/checksheetFormApproval" element={<ChecksheetFormApprovalForHOS />} />
+                <Route path="/checksheetFormApproval" element={<ChecksheetFormApprovalForHOSAndHOD />} />
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
                 <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
                 <Route path="/machineWiseCheckSheet" element={<CheckSheet />} />
