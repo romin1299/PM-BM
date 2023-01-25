@@ -16,6 +16,7 @@
 .burger_container {
     cursor: pointer;
     padding: 0.2rem;
+    color: #002D37;
 
     @media screen and (max-width: 1024px) {
         display: flex;

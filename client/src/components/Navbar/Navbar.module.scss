@@ -2,13 +2,13 @@
     --color_nav_bg: rgb(245, 247, 250);
     --color_nav_txt: rgb(100, 116, 139);
     --color_nav_ctg: rgb(226, 232, 240);
-    --color_nav_active: rgb(35, 34, 59);
+    --color_nav_active: rgb(255, 255, 255);
     --color_nav_not_active: rgb(61, 74, 94);
-    --color_nav_active_bg: rgb(229, 229, 229);
+    --color_nav_active_bg: #002D37;
     --nav_width: 12rem;
 
-    background: linear-gradient(135.34deg, rgba(255, 255, 255, 0.28) 1.44%, rgba(255, 255, 255, 0.2744) 99.13%) !important;
-
+    // background: linear-gradient(135.34deg, rgba(255, 255, 255, 0.28) 1.44%, rgba(255, 255, 255, 0.2744) 99.13%) !important;
+background-color: #004B5B;
     box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.03), 2px 2px 4px rgba(0, 0, 0, 0.03), inset -2px -2px 4px rgba(0, 0, 0, 0.03);
 
     backdrop-filter: blur(12.5px);
@@ -74,7 +74,7 @@ nav {
 
     .logo_icon {
         color: var(--color_nav_active);
-        margin-left: -0.3rem;
+        // margin-left: -0.3rem;
     }
 
     .mobile_cancel_icon {
@@ -137,8 +137,9 @@ nav {
     .description {
         margin-left: 0.5rem;
         font-weight: 500;
-        color: black;
+        color: rgb(255, 255, 255);
         transition: opacity 200ms ease;
+        font-size: "12px",
     }
 
     svg {
@@ -157,11 +158,11 @@ nav {
 }
 
 .li_navlink .active {
-    background: rgba(255, 255, 255, 0.4);
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 4px 4px;
+    background: #002D37;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 2px 2px;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    border-radius: 10px;
+    border-radius: 5px;
     // border: 2px solid white;
 
     svg {
@@ -197,7 +198,7 @@ nav {
         top: 0;
         left: calc(var(--nav_width) + var(--padding-md));
         width: calc(100vw - var(--nav_width) - var(--padding-md));
-        background: rgba(0, 0, 0, 0.185);
+        // background: rgba(0, 0, 0, 0.185);
         z-index: -1;
     }
 }

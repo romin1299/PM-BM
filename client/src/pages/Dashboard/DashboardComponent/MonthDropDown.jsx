@@ -20,7 +20,7 @@ const MonthDropDown = ({ selectedMonth, setSelectedMonth }) => {
   return (
     <Row className="p-2 ">
       <Col sm={12} lg={3}>
-        <span>Month:</span>
+        <span><b>Month:</b></span>
       </Col>
       <Col>
         <div>

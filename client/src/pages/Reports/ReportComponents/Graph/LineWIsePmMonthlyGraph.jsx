@@ -2,7 +2,7 @@ import React from "react";
 import Plot from "react-plotly.js";
 
 const LineWIsePmMonthlyGraph = ({ statusSum }) => {
-  // console.log(statusSum);
+  console.log(statusSum);
   return (
     <>
       <div>

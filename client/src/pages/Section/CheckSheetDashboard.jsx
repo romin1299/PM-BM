@@ -151,30 +151,30 @@ const CheckSheetDashboard = () => {
 
   const machineHeader = [
     {
-      title: "Serial no",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
       width: "5%",
       sorting: false,
     },
     {
-      title: "Cell Name",
+      title: "Cell/Product",
       field: "line_names.cell_names.cell_name",
       align: "center",
       width: "15%",
     },
     {
-      title: "Line Name",
+      title: "Line",
       field: "line_names.line_name",
       align: "center",
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Machine Code",
       field: "machine_code",
       editable: "false",
       align: "center",
-      width: "20%",
+      width: "15%",
       sorting: false,
     },
     {
@@ -197,15 +197,16 @@ const CheckSheetDashboard = () => {
                       "Implementation" ||
                     rowData.checkSheet_data.checksheet_status === "Planning"
                   : "",
-
               icon: () => (
                 <button className="btn-reset">
                   {rowData.checkSheet_data != null
                     ? rowData.checkSheet_data.checkSheet.length > 0
                       ? rowData.checkSheet_data.checkSheet.length < 1
                         ? "Preparation"
-                        : rowData.checkSheet_data.assign_TL.length !== rowData.checkSheet_data.approved_by_TL.length ||
-                          rowData.checkSheet_data.assign_HOS.length !== rowData.checkSheet_data.approved_by_HOS.length
+                        : rowData.checkSheet_data.assign_TL.length !==
+                            rowData.checkSheet_data.approved_by_TL.length ||
+                          rowData.checkSheet_data.assign_HOS.length !==
+                            rowData.checkSheet_data.approved_by_HOS.length
                         ? "Preparation Under Approval"
                         : "Under-Preparation"
                       : "Preparation"
@@ -222,7 +223,6 @@ const CheckSheetDashboard = () => {
               position: "row",
             };
           },
-
           (rowData) => {
             return {
               hidden:
@@ -266,7 +266,7 @@ const CheckSheetDashboard = () => {
             };
           },
           {
-            icon: () => <button className="btn-primary">View</button>,
+            icon: () => <button className="btn-primary1">View</button>,
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
               navigate("/viewCheckSheet", {
@@ -281,10 +281,9 @@ const CheckSheetDashboard = () => {
               hidden:
                 rowData.checkSheet_data === undefined ||
                 rowData.checkSheet_data === null,
-
               icon: () => (
                 <button className="btn-delete">
-                  <DeleteForeverIcon />
+                  <DeleteForeverIcon className="svg-font" />
                 </button>
               ),
               // tooltip: <h1>I am a tooltip</h1>,
@@ -300,14 +299,14 @@ const CheckSheetDashboard = () => {
               hidden:
                 rowData.checkSheet_data != null
                   ? rowData.checkSheet_data.checksheet_status ===
-                      "Preparation" ||
-                    rowData.checkSheet_data.checksheet_status === "Planning" ||
-                    rowData.checkSheet_data.checksheet_status === undefined
+                  "Preparation" ||
+                  rowData.checkSheet_data.checksheet_status === "Planning" ||
+                  rowData.checkSheet_data.checksheet_status === undefined
                   : rowData.checkSheet_data === undefined ||
-                    rowData.checkSheet_data === null,
+                  rowData.checkSheet_data === null,
               icon: () => (
                 <button className="btn-warning">
-                  <EditIcon />
+                  <EditIcon className="svg-font" />
                 </button>
               ),
               // tooltip: <h1>I am a tooltip</h1>,
@@ -323,7 +322,7 @@ const CheckSheetDashboard = () => {
         ]
       : [
           {
-            icon: () => <button className="btn-primary">View</button>,
+            icon: () => <button className="btn-primary1">View</button>,
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
               navigate("/viewCheckSheet", {
@@ -357,7 +356,9 @@ const CheckSheetDashboard = () => {
               <Col>
                 <Row className="p-2 ">
                   <Col sm={12} lg={3}>
-                    <span>Cell:</span>
+                    <span>
+                      <b>Cell:</b>
+                    </span>
                   </Col>
                   <Col>
                     <div>
@@ -398,7 +399,9 @@ const CheckSheetDashboard = () => {
               <Col>
                 <Row className="p-2 ">
                   <Col sm={12} lg={3}>
-                    <span>Line:</span>
+                    <span>
+                      <b>Line:</b>
+                    </span>
                   </Col>
                   <Col>
                     <div>
@@ -534,6 +537,11 @@ const CheckSheetDashboard = () => {
                     WebkitBackdropFilter: "blur( 2px )",
                     background: "rgba(255,255,255,0.1)",
                     backdropFilter: "blur(5px)",
+                    fontSize: "12px",
+                  },
+                  headerStyle: {
+                    fontSize: "14px",
+                    fontWeight: "bold",
                   },
                 }}
               />

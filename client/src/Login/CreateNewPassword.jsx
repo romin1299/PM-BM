@@ -150,7 +150,7 @@ function CreateNewPassword() {
                   <p id="warning" style={{ textAlign: "center", color: "red" }}>
                     {message}
                   </p>
-                  <button type="submit" className="btn" style={{marginTop : "1rem"}}>
+                  <button type="submit" className="btn bg-button" style={{marginTop : "1rem"}}>
                     Create New Password
                   </button>
                 </form>

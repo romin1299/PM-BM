@@ -228,7 +228,7 @@ const AnnualPmStatus = () => {
                 <CSVLink
                   data={csvData}
                   filename={`${selectedYear}_PM_Status(Machine)${timeStamp()}`}
-                  className="downloadCSV"
+                  className="downloadCSV text-decoration-none"
                   target="_blank"
                 >
                   CSV

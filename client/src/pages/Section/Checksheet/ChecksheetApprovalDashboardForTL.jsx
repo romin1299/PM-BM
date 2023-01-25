@@ -46,6 +46,11 @@ const CheckSheetApprovalDashboardForTL = () => {
       align: "center",
     },
     {
+      title: "Status",
+      field: "checkSheet_data.checksheet_status",
+      align: "center",
+    },
+    {
       title: "Cell Name",
       field: "line_names.cell_names.cell_name",
       align: "center",
@@ -115,7 +120,7 @@ const CheckSheetApprovalDashboardForTL = () => {
         hidden:
           rowData.checkSheet_data != null
             ? rowData.checkSheet_data.checksheet_status === "Implementation" ||
-              rowData.checkSheet_data.checksheet_status === "Planning"
+            rowData.checkSheet_data.checksheet_status === "Planning"
             : "",
 
         icon: () => <button className="btn-reset">Preparation</button>,
@@ -148,7 +153,7 @@ const CheckSheetApprovalDashboardForTL = () => {
     //   };
     // },
     {
-      icon: () => <button className="btn-primary">View</button>,
+      icon: () => <button className="btn-primary1">View</button>,
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
         if (context.tm_department === "MTD" && selectedRow?.checkSheet_data?.checksheet_status === "Preparation") {
@@ -170,7 +175,7 @@ const CheckSheetApprovalDashboardForTL = () => {
     <>
       <div className="pageCard">
         <div className="creationDashboard">
-        <h4 style={{ padding: "1rem 0 0 1rem" }}>Approval Dashboard</h4>
+          <h4 style={{ padding: "1rem 0 0 1rem" }}>Approval Dashboard</h4>
 
           <div style={{ padding: "1rem" }}>
             <MaterialTable
@@ -267,7 +272,12 @@ const CheckSheetApprovalDashboardForTL = () => {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
+                  fontSize: "12px",
                 },
+                headerStyle: {
+                  fontSize: "14px",
+                  fontWeight: "bold"
+                }
               }}
             />
           </div>

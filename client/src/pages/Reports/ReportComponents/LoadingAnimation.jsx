@@ -4,7 +4,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 const LoadingAnimation = () => {
   return (
     <ClipLoader
-      color="blue"
+      color="#002D37"
       loading={true}
       // style={{ color: "while" }}
       // cssOverride={override}

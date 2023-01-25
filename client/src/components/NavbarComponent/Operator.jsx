@@ -65,6 +65,7 @@ const Operator = ({ userData }) => {
         }
       >
         {/* LOGO */}
+        <div className="bg-white">
         <div className={styles.logo}>
           {/* <VscDashboard  /> */}
           <img className={styles.logo_icon} src={denso_logo} alt="" />
@@ -75,38 +76,38 @@ const Operator = ({ userData }) => {
             }}
           />
         </div>
-
+        </div>
         {/* MENU */}
         <ul className={styles.menu_container}>
           {/* FIRST CATEGORY */}
 
           <NavUrl
             url="/"
-            icon={<DashboardIcon style={{ color: "#E71E25" }} />}
+            icon={<DashboardIcon style={{ color: "#ffffff" }} />}
             description="Dashboard"
           />
           <NavUrl
             url="/pmSheetApprovalOfImplementationPhase"
-            icon={<AssignmentTurnedInIcon style={{ color: "#E71E25" }} />}
+            icon={<AssignmentTurnedInIcon style={{ color: "#ffffff" }} />}
             description="PM Plan vs Actual Approval"
           />
           <List
-            sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+            sx={{ width: "100%", maxWidth: 360,  }}
             component="nav"
           >
             <ListItemButton onClick={handleClick}>
               <ListItemIcon>
-                <SummarizeIcon style={{ color: "#E71E25" }} />
+                <SummarizeIcon style={{ color: "#ffffff" }} />
               </ListItemIcon>
-              <ListItemText primary="Reports" style={{ fontWeight: "550" }} />
-              {open ? <ExpandLess /> : <ExpandMore />}
+              <ListItemText primary="Reports" style={{ fontWeight: "550",color: "#ffffff" }} />
+              {open ? <ExpandLess style={{color: "#ffffff" }} /> : <ExpandMore style={{color: "#ffffff" }}/>}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItemButton sx={{ pl: 3 }}>
                   <NavUrl
                     url="/pmMonthlyReport"
-                    icon={<AssignmentIcon style={{ color: "#E71E25" }} />}
+                    icon={<AssignmentIcon style={{ color: "#ffffff" }} />}
                     description="PM Report"
                   />
                 </ListItemButton>
@@ -115,7 +116,7 @@ const Operator = ({ userData }) => {
           </List>
           {/* <NavUrl
             url="/checkSheetDashboard"
-            icon={<NoteAddIcon style={{ color: "#E71E25" }} />}
+            icon={<NoteAddIcon style={{ color: "#ffffff" }} />}
             description="CheckSheet Dashboard"
           /> */}
         </ul>
@@ -126,7 +127,7 @@ const Operator = ({ userData }) => {
               icon={
                 <AccountCircleIcon
                   className="profileImages"
-                  style={{ color: "#E71E25" }}
+                  style={{ color: "#ffffff" }}
                 />
               }
               description={userData}

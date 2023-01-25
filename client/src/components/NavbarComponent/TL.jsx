@@ -60,12 +60,12 @@ const TL = ({ userData, userDepartment }) => {
   };
 
   return (
-    <div
+    <div 
       className={`${styles.navbar_container} ${
         nav ? styles.navbar_mobile_active : undefined
       }`}
     >
-      <nav
+      <nav 
         className={
           // nav ? undefined : styles.nav_small
 
@@ -74,7 +74,8 @@ const TL = ({ userData, userDepartment }) => {
         }
       >
         {/* LOGO */}
-        <div className={styles.logo}>
+        <div className="bg-white">
+        <div className={styles.logo} >
           {/* <VscDashboard  /> */}
           <img className={styles.logo_icon} src={denso_logo} alt="" />
           <FaTimes
@@ -84,6 +85,8 @@ const TL = ({ userData, userDepartment }) => {
             }}
           />
         </div>
+        </div>
+        
 
         {/* MENU */}
         <ul className={styles.menu_container}>
@@ -91,7 +94,7 @@ const TL = ({ userData, userDepartment }) => {
 
           <NavUrl
             url="/"
-            icon={<DashboardIcon style={{ color: "#E71E25" }} />}
+            icon={<DashboardIcon style={{ color: "#ffffff" }} />}
             description="Dashboard"
           />
 
@@ -99,17 +102,17 @@ const TL = ({ userData, userDepartment }) => {
             <>
               <NavUrl
                 url="/creationDashboard"
-                icon={<NoteAddIcon style={{ color: "#E71E25" }} />}
+                icon={<NoteAddIcon style={{ color: "#ffffff" }} />}
                 description="Creation Dashboard"
               />
               <NavUrl
                 url="/userAssign"
-                icon={<PersonAddAltIcon style={{ color: "#E71E25" }} />}
+                icon={<PersonAddAltIcon style={{ color: "#ffffff" }} />}
                 description="User Assign"
               />
               <NavUrl
                 url="/checkSheetDashboard"
-                icon={<NoteAddIcon style={{ color: "#E71E25" }} />}
+                icon={<NoteAddIcon style={{ color: "#ffffff" }} />}
                 description="CheckSheet Dashboard"
               />
             </>
@@ -119,44 +122,44 @@ const TL = ({ userData, userDepartment }) => {
 
           <NavUrl
             url="/approvalDashboard"
-            icon={<AddTaskIcon style={{ color: "#E71E25" }} />}
+            icon={<AddTaskIcon style={{ color: "#ffffff" }} />}
             description="Approval Dashboard"
           />
           <NavUrl
             url="/pmSheetApproval"
-            icon={<FactCheckIcon style={{ color: "#E71E25" }} />}
+            icon={<FactCheckIcon style={{ color: "#ffffff" }} />}
             description="PM Sheet Approval"
           />
           <NavUrl
             url="/pmSheetApprovalOfImplementationPhase"
-            icon={<AssignmentTurnedInIcon style={{ color: "#E71E25" }} />}
+            icon={<AssignmentTurnedInIcon style={{ color: "#ffffff" }} />}
             description="PM Plan vs Actual Approval"
           />
           <NavUrl
             url="/backupDataOfCheckSheet"
-            icon={<CloudDownloadIcon style={{ color: "#E71E25" }} />}
+            icon={<CloudDownloadIcon style={{ color: "#ffffff" }} />}
             description="Back-end Data"
           />
           <NavUrl
             url="/logHistory"
-            icon={<LibraryBooksIcon style={{ color: "#E71E25" }} />}
+            icon={<LibraryBooksIcon style={{ color: "#ffffff" }} />}
             description="Log History"
           />
           <NavUrl
             url="/pendingPMLogHistory"
-            icon={<PendingActionsIcon style={{ color: "#E71E25" }} />}
+            icon={<PendingActionsIcon style={{ color: "#ffffff" }} />}
             description="Pending PM Log History"
           />
           {userDepartment === "MTD" ? (
             <>
               <NavUrl
                 url="/operatorDataEntry"
-                icon={<NoteAddIcon style={{ color: "#E71E25" }} />}
+                icon={<NoteAddIcon style={{ color: "#ffffff" }} />}
                 description="Operator Data Entry"
               />
               <NavUrl
                 url="/sparePartUsageHistory"
-                icon={<BackupTableIcon style={{ color: "#E71E25" }} />}
+                icon={<BackupTableIcon style={{ color: "#ffffff" }} />}
                 description="Spare Part Usage History"
               />
             </>
@@ -164,22 +167,22 @@ const TL = ({ userData, userDepartment }) => {
             ""
           )}
           <List
-            sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+            sx={{ width: "100%", maxWidth: 360 }}
             component="nav"
           >
             <ListItemButton onClick={handleClick}>
               <ListItemIcon>
-                <SummarizeIcon style={{ color: "#E71E25" }} />
+                <SummarizeIcon style={{ color: "#ffffff" }} />
               </ListItemIcon>
-              <ListItemText primary="Reports" style={{ fontWeight: "550" }} />
-              {open ? <ExpandLess /> : <ExpandMore />}
+              <ListItemText primary="Reports" style={{ fontWeight: "550",color: "#ffffff" }} />
+              {open ? <ExpandLess style={{color: "#ffffff" }} /> : <ExpandMore style={{color: "#ffffff" }}/>}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItemButton sx={{ pl: 3 }}>
                   <NavUrl
                     url="/pmMonthlyReport"
-                    icon={<AssignmentIcon style={{ color: "#E71E25" }} />}
+                    icon={<AssignmentIcon style={{color: "#ffffff" }} />}
                     description="PM Report"
                   />
                 </ListItemButton>
@@ -188,7 +191,7 @@ const TL = ({ userData, userDepartment }) => {
                 <ListItemButton sx={{ pl: 3 }}>
                   <NavUrl
                     url="/openAbnormalityTrack"
-                    icon={<CreditScoreIcon style={{ color: "#E71E25" }} />}
+                    icon={<CreditScoreIcon style={{ color: "#ffffff" }} />}
                     description="Open Abnormality Tracking"
                   />
                 </ListItemButton>
@@ -197,7 +200,7 @@ const TL = ({ userData, userDepartment }) => {
                 <ListItemButton sx={{ pl: 3 }}>
                   <NavUrl
                     url="/spareReportDashboard"
-                    icon={<AssignmentIcon style={{ color: "#E71E25" }} />}
+                    icon={<AssignmentIcon style={{ color: "#ffffff" }} />}
                     description="Spare Report"
                   />
                 </ListItemButton>
@@ -212,7 +215,7 @@ const TL = ({ userData, userDepartment }) => {
               icon={
                 <AccountCircleIcon
                   className="profileImages"
-                  style={{ color: "#E71E25" }}
+                  style={{ color: "#ffffff" }}
                 />
               }
               description={userData}

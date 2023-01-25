@@ -55,6 +55,7 @@ function CheckSheet({
   const [HOSList, setHOSList] = useState([]);
   const [PRDTLlist, setPRDTLlist] = useState([]);
   const [MTDTLlist, setMTDTLlist] = useState([]);
+  const [MTDHODlist, setMTDHODlist] = useState([]);
 
   const [dataSheetName, setDataSheetName] = useState([]);
 
@@ -87,6 +88,8 @@ function CheckSheet({
       : monthKeyArray[new Date().getMonth() - 1];
   let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
 
+  let monthInNumber = new Date().getMonth();
+
   // console.log(selectedSupportedTM);
 
   let count = 0;
@@ -96,13 +99,12 @@ function CheckSheet({
     pmTime: yup.string().required("Please enter PM time"),
     delayRemarks: yup.string().when([], {
       is: () =>
-         machineAllData?.checkSheet_data?.PMStatus?.[
-              monthForCompareSystemMonth
-            ] === "",
+        machineAllData?.checkSheet_data?.PMStatus?.[
+          monthForCompareSystemMonth
+        ] === "",
       then: yup.string().required("Please enter delay reason"),
     }),
   });
-
 
   const validationSchema1 = yup.object({
     prd_tl_list: yup.string().required("Please select PRD TL"),
@@ -110,6 +112,9 @@ function CheckSheet({
     mtd_hos_list: yup.string().required("Please select MTD HOS"),
   });
 
+  const validationSchema2 = yup.object({
+    mtd_hod_list: yup.string().required("Please select MTD HOD"),
+  });
   // get the date and time
   const timeStamp = () => {
     let date = new Date();
@@ -209,6 +214,39 @@ function CheckSheet({
     },
   });
 
+  const formik2 = useFormik({
+    initialValues: {
+      mtd_hod_list: "",
+    },
+    validationSchema: validationSchema2,
+
+    onSubmit: async (values) => {
+      const res = await fetch("/sendRequestForApproval", {
+        method: "Post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mtd_hod_list: MTDHODlist[values.mtd_hod_list],
+          implemetation_completed_date: timeStamp(),
+          selected_machine_data: machineAllData,
+          monthForCompareSystemMonth,
+          phaseStatus: machineAllData?.checkSheet_data?.checksheet_status,
+        }),
+      });
+      const data = res.json();
+      // console.log(data);
+      if (res.status === 400 || res.status === 422 || !data) {
+        window.alert("Invalid credentials !");
+      } else if (res.status === 409) {
+        console.log("Machine code already exists!");
+      } else {
+        console.log("PM worked data save sucessfully...");
+        closeCheckSheet();
+        // navigate("/");
+        // clearState();
+      }
+    },
+  });
+
   const clearState = () => {
     formik.values.pmTime = "";
     formik.values.supportingOperator = "";
@@ -233,16 +271,14 @@ function CheckSheet({
       setHOSList(data.HOSlist);
       setMTDTLlist(data.MTDTLlist);
       setSupportingTMList(data.supportingOperatorList);
+      setMTDHODlist(data.MTDHODlist);
       // setTableData(finalData);
     } catch (error) {
       console.log(error);
     }
   };
 
-
-
   let Data = {};
-  
 
   const showInputValue = (Values) => {
     // console.log(Values.target.name);
@@ -737,7 +773,6 @@ function CheckSheet({
     }
   };
 
-  // console.log(selectedMachineCheckSheetData.state.selectedRowForViewForm);
   return (
     <>
       {workOnImplementationPM}
@@ -779,7 +814,7 @@ function CheckSheet({
                           onChange={(e) => setDataSheetName(e.target.files[0])}
                         />
                         &nbsp;
-                        <button type="submit" className="btn btn-primary">
+                        <button type="submit" className="btn btn-primary1">
                           Upload
                         </button>
                       </form>
@@ -893,7 +928,7 @@ function CheckSheet({
                         colSpan={3}
                         rowSpan={5}
                       >
-                        Line:- {lineName}
+                        <b>Line:</b>- {lineName}
                         <br />
                         M/c No : {machineAllData?.machine_code}
                       </th>
@@ -1004,8 +1039,16 @@ function CheckSheet({
                         <br />
                         (MTD HOD)
                       </th>
-                      <th className="ar-table-col1" colSpan={6}></th>
-                      <th className="ar-table-col1" colSpan={6}></th>
+                      <td className="ar-table-col1" colSpan={6}>
+                        {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
+                          -1
+                        )}
+                      </td>
+                      <td className="ar-table-col1" colSpan={6}>
+                        {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
+                          -1
+                        )}
+                      </td>
                     </tr>
                   </thead>
                   {/* <thead className="ar-table-thead1">
@@ -1512,7 +1555,10 @@ function CheckSheet({
               </Col>
               <Col>
                 <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-                  <button className="btn" onClick={funForOpeningSummeryPopups}>
+                  <button
+                    className="btn-danger"
+                    onClick={funForOpeningSummeryPopups}
+                  >
                     Summary
                   </button>
                 </div>
@@ -1597,7 +1643,10 @@ function CheckSheet({
                                 <div className="mb-2 row">
                                   <span
                                     className="col-3"
-                                    style={{ textAlign: "left" }}
+                                    style={{
+                                      textAlign: "left",
+                                      fontWeight: "bold",
+                                    }}
                                   >
                                     Rejected Remarks:{" "}
                                   </span>
@@ -1769,34 +1818,6 @@ function CheckSheet({
                                   className="col-3"
                                   style={{ textAlign: "left" }}
                                 >
-                                  Previous PM Time(min):{" "}
-                                </span>
-                                <TextField
-                                  style={{ pointerEvent: "none" }}
-                                  type="text"
-                                  className="col-8"
-                                  name="pmTime"
-                                  autoComplete="off"
-                                  value={
-                                    machineAllData?.checkSheet_data?.totalPMTime
-                                      ? machineAllData?.checkSheet_data
-                                          ?.totalPMTime[
-                                          monthForCompareSystemMonth
-                                        ].totalWorkedPMTime === ""
-                                        ? "0"
-                                        : machineAllData?.checkSheet_data
-                                            ?.totalPMTime[
-                                            monthForCompareSystemMonth
-                                          ].totalWorkedPMTime
-                                      : "0"
-                                  }
-                                />
-                              </div>
-                              <div className="mb-2 row">
-                                <span
-                                  className="col-3"
-                                  style={{ textAlign: "left" }}
-                                >
                                   PM Time(min):{" "}
                                 </span>
                                 <TextField
@@ -1815,6 +1836,27 @@ function CheckSheet({
                                     formik.errors.pmTime
                                   }
                                 />
+                              </div>
+                              <div className="mb-2 row">
+                                <span
+                                  className="col-3"
+                                  style={{ textAlign: "left" }}
+                                >
+                                  Previous PM Time(min):{" "}
+                                </span>
+                                <span
+                                  className="col-8"
+                                  style={{ textAlign: "left" }}
+                                >
+                                  {machineAllData?.checkSheet_data
+                                    ?.totalPMTime?.[monthForCompareSystemMonth]
+                                    .totalWorkedPMTime
+                                    ? machineAllData?.checkSheet_data
+                                        ?.totalPMTime[
+                                        monthForCompareSystemMonth
+                                      ].totalWorkedPMTime
+                                    : "0"}
+                                </span>
                               </div>
                               <div className="mb-2 row">
                                 <span
@@ -1842,7 +1884,7 @@ function CheckSheet({
                                 />
                               </div>
 
-                              <button className="btn" type="submit">
+                              <button className="btn-primary1" type="submit">
                                 Save
                               </button>
                             </form>
@@ -1938,7 +1980,7 @@ function CheckSheet({
                                             <option selected disabled value="">
                                               Please select
                                             </option>
-                                            {MTDTLlist?.map((index,idx) => {
+                                            {MTDTLlist?.map((index, idx) => {
                                               return (
                                                 <option value={idx}>
                                                   {index.tm_name}
@@ -1987,7 +2029,7 @@ function CheckSheet({
                                             <option selected disabled value="">
                                               Please select
                                             </option>
-                                            {HOSList?.map((index,idx) => {
+                                            {HOSList?.map((index, idx) => {
                                               return (
                                                 <option value={idx}>
                                                   {index.tm_name}
@@ -2109,7 +2151,10 @@ function CheckSheet({
                                 <div className="mb-2 row">
                                   <span
                                     className="col-3"
-                                    style={{ textAlign: "left" }}
+                                    style={{
+                                      textAlign: "left",
+                                      fontWeight: "bold",
+                                    }}
                                   >
                                     Delay reason:{" "}
                                   </span>
@@ -2148,7 +2193,10 @@ function CheckSheet({
                             <div className="mb-2 row">
                               <span
                                 className="col-3"
-                                style={{ textAlign: "left" }}
+                                style={{
+                                  textAlign: "left",
+                                  fontWeight: "bold",
+                                }}
                               >
                                 PM Status:{" "}
                               </span>
@@ -2181,34 +2229,6 @@ function CheckSheet({
                                 className="col-3"
                                 style={{ textAlign: "left" }}
                               >
-                                Previous PM Time(min):{" "}
-                              </span>
-                              <TextField
-                                style={{ pointerEvent: "none" }}
-                                type="text"
-                                className="col-8"
-                                name="pmTime"
-                                autoComplete="off"
-                                value={
-                                  machineAllData?.checkSheet_data?.totalPMTime
-                                    ? machineAllData?.checkSheet_data
-                                        ?.totalPMTime[
-                                        monthForCompareSystemMonth
-                                      ].totalWorkedPMTime === ""
-                                      ? "0"
-                                      : machineAllData?.checkSheet_data
-                                          ?.totalPMTime[
-                                          monthForCompareSystemMonth
-                                        ].totalWorkedPMTime
-                                    : "0"
-                                }
-                              />
-                            </div>
-                            <div className="mb-2 row">
-                              <span
-                                className="col-3"
-                                style={{ textAlign: "left" }}
-                              >
                                 PM Time(min):{" "}
                               </span>
                               <TextField
@@ -2232,6 +2252,26 @@ function CheckSheet({
                                 className="col-3"
                                 style={{ textAlign: "left" }}
                               >
+                                Previous PM Time(min):{" "}
+                              </span>
+                              <span
+                                className="col-8"
+                                style={{ textAlign: "left" }}
+                              >
+                                {machineAllData?.checkSheet_data?.totalPMTime?.[
+                                  monthForCompareSystemMonth
+                                ].totalWorkedPMTime
+                                  ? machineAllData?.checkSheet_data
+                                      ?.totalPMTime[monthForCompareSystemMonth]
+                                      .totalWorkedPMTime
+                                  : "0"}
+                              </span>
+                            </div>
+                            <div className="mb-2 row">
+                              <span
+                                className="col-3"
+                                style={{ textAlign: "left" }}
+                              >
                                 Supporting TM:{" "}
                               </span>
 
@@ -2248,7 +2288,7 @@ function CheckSheet({
                               />
                             </div>
 
-                            <button className="btn" type="submit">
+                            <button className="btn-primary1" type="submit">
                               Save
                             </button>
                           </form>
@@ -2294,7 +2334,7 @@ function CheckSheet({
                                           <option selected disabled value="">
                                             Please select
                                           </option>
-                                          {PRDTLlist?.map((index,idx) => {
+                                          {PRDTLlist?.map((index, idx) => {
                                             return (
                                               <option value={idx}>
                                                 {index.tm_name}
@@ -2343,7 +2383,7 @@ function CheckSheet({
                                           <option selected disabled value="">
                                             Please select
                                           </option>
-                                          {MTDTLlist?.map((index,idx) => {
+                                          {MTDTLlist?.map((index, idx) => {
                                             return (
                                               <option value={idx}>
                                                 {index.tm_name}
@@ -2440,6 +2480,83 @@ function CheckSheet({
                 ) : (
                   ""
                 )}
+                {/* {monthForCompareSystemMonth === "Jan" ||
+                monthForCompareSystemMonth === "Mar" ||
+                machineAllData?.checkSheet_data
+                  ?.implemetation_mtd_hod_approval_status[
+                  monthForCompareSystemMonth
+                ][
+                  machineAllData?.checkSheet_data
+                    ?.implemetation_mtd_hod_approval_status[
+                    monthForCompareSystemMonth
+                  ].length - 1
+                ] === "Rejected" ? (
+                  <Row>
+                    <Col>
+                      <form onSubmit={formik2.handleSubmit}>
+                        <div className="m-2 p-3 border bg-white rounded">
+                          <div className="d-flex justify-content-between">
+                            <div>
+                              <span>
+                                MTD HOD List <br /> (Approved by)
+                              </span>
+                            </div>
+
+                            <div style={{ marginTop: "0.5rem" }}>
+                              <select
+                                // class="form-select form-select-sm"
+                                // aria-label=".form-select-sm example"
+                                // style={{ width: "100%" }}
+                                id="standard-select-currency"
+                                name="mtd_hod_list"
+                                // className="textField"
+                                // fullWidth
+                                select // label="Select"
+                                autoComplete="off"
+                                value={formik2.values.mtd_hod_list}
+                                onChange={(e) => {
+                                  // setUsertype(e.target.value);
+                                  formik2.handleChange(e);
+                                }}
+                                variant="standard"
+                              >
+                                <option selected disabled value="">
+                                  Please select
+                                </option>
+                                {MTDHODlist?.map((index, idx) => {
+                                  return (
+                                    <option value={idx}>{index.tm_name}</option>
+                                  );
+                                })}
+                              </select>
+                              <div>
+                                <p
+                                  style={{
+                                    color: "#F44336",
+                                    fontWeight: "normal",
+                                    fontSize: "0.80rem",
+                                    // float: "left",
+                                    paddingTop: "0.5rem",
+                                  }}
+                                >
+                                  {formik2.touched.mtd_hod_list &&
+                                    formik2.errors.mtd_hod_list}
+                                </p>
+                              </div>
+                            </div>
+                            <div>
+                              <button className="btn-approval" type="submit">
+                                Send for Approval
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    </Col>
+                  </Row>
+                ) : (
+                  ""
+                )} */}
               </Col>
             </Row>
           </Container>

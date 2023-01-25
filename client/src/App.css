@@ -39,7 +39,8 @@ body {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: rgb(17, 13, 240) !important;
+    /* background: rgb(3, 1, 109) !important; */
+    background: #037088 !important;
     border-radius: 2px;
 }
 
@@ -104,9 +105,11 @@ body {
     left: -3px;
     width: 100%;
     height: 100%;
-    border: 5px solid transparent;
-    border-top: 4px solid #fca40af1;
-    border-bottom: 4px solid #6bfa12;
+    /* border: 5px solid transparent; */
+    border: 5px solid #002D37;
+    /* border-top: 4px solid #fca40af1; */
+    /* border-bottom: 4px solid #6bfa12; */
+
     /* border-right: 4px solid #E71E25;
     border-left: 4px solid #e921dff1; */
     border-radius: 50%;
@@ -131,4 +134,20 @@ body {
     100% {
         transform: rotate(405deg);
     }
+}
+
+.bg-button{
+    background-color: #002D37;
+}
+
+.bg-container{
+    background-color: rgb(247, 247, 247) !important;
+}
+
+/* td{
+    border-bottom: black !important;
+} */
+
+.svg-font{
+    font-size: 1rem !important;
 }

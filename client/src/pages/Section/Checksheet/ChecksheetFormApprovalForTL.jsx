@@ -469,7 +469,7 @@ function ChecksheetFormApprovalForTL() {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       // console.log("________");
-      const res = await fetch("/approveRequestFromTLandHOS", {
+      const res = await fetch("/approveRequestFromTL_HOS_HOD", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -714,7 +714,7 @@ function ChecksheetFormApprovalForTL() {
                       ""
                     )}
                     <div className="col-6 d-flex align-items-center">
-                      <button type="submit" className="btn">
+                      <button type="submit" className="btn-primary1">
                         Submit
                       </button>
                     </div>
@@ -925,8 +925,16 @@ function ChecksheetFormApprovalForTL() {
                     <br />
                     (MTD HOD)
                   </th>
-                  <th className="ar-table-col1" colSpan={6}></th>
-                  <th className="ar-table-col1" colSpan={6}></th>
+                  <td className="ar-table-col1" colSpan={6}>
+                    {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
+                      -1
+                    )}
+                  </td>
+                  <td className="ar-table-col1" colSpan={6}>
+                    {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
+                      -1
+                    )}
+                  </td>
                 </tr>
               </thead>
               {/* <thead className="ar-table-thead1">

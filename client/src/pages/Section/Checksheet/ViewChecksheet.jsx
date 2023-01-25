@@ -866,8 +866,16 @@ function ViewChecksheet() {
                       <br />
                       (MTD HOD)
                     </th>
-                    <th className="ar-table-col1" colSpan={6}></th>
-                    <th className="ar-table-col1" colSpan={6}></th>
+                    <td className="ar-table-col1" colSpan={6}>
+                      {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
+                        -1
+                      )}
+                    </td>
+                    <td className="ar-table-col1" colSpan={6}>
+                      {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
+                        -1
+                      )}
+                    </td>
                   </tr>
                 </thead>
                 {/* <thead className="ar-table-thead1">

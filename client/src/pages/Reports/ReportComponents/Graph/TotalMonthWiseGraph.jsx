@@ -155,7 +155,6 @@ const TotalMonthWiseGraph = ({ context }) => {
 
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
-
   }, [selectedYear]);
 
   const y1 = graphData;
@@ -337,7 +336,7 @@ const TotalMonthWiseGraph = ({ context }) => {
               // className="cell"
               // style={{ backgroundColor: "white" }}
               >
-                <h3>Total time month wise</h3>
+                <h4>Total time month wise</h4>
               </Col>
             </Row>
             <Row>
@@ -380,7 +379,7 @@ const TotalMonthWiseGraph = ({ context }) => {
                 </div>
               </Col>
               <Col>
-                <button className="btn1" onClick={functionForTotalData}>
+                <button className="btn-reset" onClick={functionForTotalData}>
                   Total
                 </button>
               </Col>
@@ -389,7 +388,7 @@ const TotalMonthWiseGraph = ({ context }) => {
                   <CSVLink
                     data={csvData}
                     filename={`${selectedYear}_Total_time_month_wise${timeStamp()}`}
-                    className="downloadCSV"
+                    className="downloadCSV text-decoration-none"
                     target="_blank"
                   >
                     CSV

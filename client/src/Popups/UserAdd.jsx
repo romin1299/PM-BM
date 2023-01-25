@@ -73,57 +73,6 @@ const UserAdd = () => {
       value: "Operator",
     },
   ];
-  const empGroupSection = [
-    {
-      label: "Operator",
-      value: "Operator",
-    },
-    {
-      label: "TL",
-      value: "TL",
-    },
-    {
-      label: "HOS",
-      value: "HOS",
-    },
-    {
-      label: "HOD",
-      value: "HOD",
-    },
-  ];
-
-  const section = [
-    {
-      label: "section A",
-      value: "section A",
-    },
-    {
-      label: "section B",
-      value: "section B",
-    },
-  ];
-
-  const sub_section = [
-    {
-      label: "sub_section A",
-      value: "sub_section A",
-    },
-    {
-      label: "sub_section B",
-      value: "sub_section B",
-    },
-  ];
-
-  const cells1 = [
-    {
-      label: "cell A",
-      value: "cell A",
-    },
-    {
-      label: "cell B",
-      value: "cell B",
-    },
-  ];
 
   const refreshPage = () => {
     window.location.reload();
@@ -166,11 +115,12 @@ const UserAdd = () => {
         .email("Enter a valid email")
         .required("Email is required"),
     }),
-    // operator_password: yup.string().when(["user_type"], {
-    //   is: () => formik.values.user_type === "Operator",
-    //   then: yup.string("Enter password").required("Password is required"),
-    // }),
-
+    tm_department: yup.string().when([], {
+      is: () => context.user_type === "Section-Admin",
+      then: yup
+        .string("Enter password")
+        .required("Please select TM department"),
+    }),
     tm_no: yup
       .number()
       .required("Please enter TM number")
@@ -179,7 +129,9 @@ const UserAdd = () => {
       .integer(),
 
     user_type: yup.string().when({
-      is: () => context?.user_type === "TL/HOSS",
+      is: () =>
+        context?.user_type === "TL/HOSS" ||
+        context.user_type === "Section-Admin",
       then: yup.string().required("Please select TM group"),
     }),
 
@@ -217,8 +169,6 @@ const UserAdd = () => {
             ? values.user_type
             : context.user_type === "Admin"
             ? "Plant-Admin"
-            : context.user_type === "Section-Admin"
-            ? "TL/HOSS"
             : "Section-Admin",
           plant_data: values.plant_data
             ? values.plant_data
@@ -226,14 +176,20 @@ const UserAdd = () => {
           section_data: values.section_data
             ? values.section_data
             : context.section_data,
-          tm_grade: values.tm_grade,
-          tm_department:
-            values.user_type === "Operator" ||
-            context.user_type === "Section-Admin"
-              ? "MTD"
-              : context.user_type === "TL/HOSS" && usertype === "TL/HOSS"
-              ? "PRD"
-              : values.tm_department,
+          tm_grade:
+            context.user_type === "Section-Admin" &&
+            formik.values.tm_department === "PRD" &&
+            formik.values.user_type === "Section-Admin"
+              ? "HOS"
+              : values.tm_grade,
+          tm_department: values.tm_department
+            ? values.tm_department
+            : values.user_type === "Operator"
+            ? "MTD"
+            : context.user_type === "TL/HOSS" && usertype === "TL/HOSS"
+            ? "PRD"
+            : values.tm_department,
+
           subSection_data: subsections,
           cell_data: cells,
           joining_date: values.joining_date,
@@ -247,10 +203,9 @@ const UserAdd = () => {
       // console.log(data);
       if (res.status === 400 || res.status === 422 || !data) {
         window.alert("Invalid credentials !");
-      }else if (res.status === 409) {
+      } else if (res.status === 409) {
         window.alert("Employee number already exists !");
-      }
-      else {
+      } else {
         console.log("User added sucessfully...");
         refreshPage();
         // if (values.email) {
@@ -395,7 +350,27 @@ const UserAdd = () => {
     },
   };
 
-  console.log(context?.user_type);
+  // for Section-Admin Only
+
+  const userTypeWhenTmDepartmentIsPrd = {
+    lable: "Section-Admin",
+    value: "Section-Admin",
+  };
+
+  const userTypeWhenTmDepartmentIsMtd = {
+    lable: "Operator",
+    value: "Operator",
+  };
+
+  const userTypeForSectionAdmin = [
+    {
+      lable: "TL/HOSS",
+      value: "TL/HOSS",
+    },
+    formik.values.tm_department === "PRD"
+      ? userTypeWhenTmDepartmentIsPrd
+      : userTypeWhenTmDepartmentIsMtd,
+  ];
   return (
     <>
       <div id="main_div_reg1">
@@ -450,6 +425,144 @@ const UserAdd = () => {
             {context.user_type === "Section-Admin" ? (
               <div>
                 <div className="pwd-container">
+                  <span>TM Department:</span>
+                  <div>
+                    <div>
+                      <input
+                        type="radio"
+                        name="tm_department"
+                        id="outlined-number"
+                        value="PRD"
+                        onChange={(e) => {
+                          formik.setFieldValue("user_type", "");
+                          setUsertype();
+                          formik.handleChange(e);
+                        }}
+                      />
+                      <span
+                        style={{
+                          paddingLeft: "0.5rem",
+                          fontWeight: "550",
+                          color: "black",
+                        }}
+                      >
+                        PRD
+                      </span>
+
+                      <input
+                        type="radio"
+                        name="tm_department"
+                        id="outlined-number"
+                        value="MTD"
+                        onChange={(e) => {
+                          formik.setFieldValue("user_type", "");
+                          setUsertype();
+                          formik.handleChange(e);
+                        }}
+                      />
+                      <span
+                        style={{
+                          paddingLeft: "0.5rem",
+                          fontWeight: "550",
+                          color: "black",
+                        }}
+                      >
+                        MTD
+                      </span>
+
+                      <div>
+                        <p
+                          style={{
+                            color: "#F44336",
+                            fontWeight: "normal",
+                            fontSize: "0.80rem",
+                            float: "left",
+                            paddingTop: "0.5rem",
+                          }}
+                        >
+                          {formik.touched.tm_department &&
+                            formik.errors.tm_department}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {formik.values.tm_department ? (
+                  <div className="pwd-container">
+                    <span>User Type:</span>
+                    <div style={{ width: "100%", marginTop: "0.5rem" }}>
+                      <select
+                        class="form-select form-select-sm"
+                        aria-label=".form-select-sm example"
+                        style={{ width: "100%" }}
+                        id="standard-select-currency"
+                        name="user_type"
+                        className="textField"
+                        fullWidth
+                        select // label="Select"
+                        autoComplete="off"
+                        value={formik.values.user_type}
+                        onChange={(e) => {
+                          setUsertype(e.target.value);
+                          formik.handleChange(e);
+                        }}
+                        variant="standard"
+                      >
+                        <option selected disabled value="">
+                          Please select
+                        </option>
+                        {userTypeForSectionAdmin.map((option) => {
+                          return (
+                            <option value={option?.label}>
+                              {option?.value}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      <div>
+                        <p
+                          style={{
+                            color: "#F44336",
+                            fontWeight: "normal",
+                            fontSize: "0.80rem",
+                            float: "left",
+                            paddingTop: "0.5rem",
+                          }}
+                        >
+                          {formik.touched.user_type && formik.errors.user_type}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  ""
+                )}
+
+                {formik.values.tm_department === "PRD" &&
+                formik.values.user_type === "Section-Admin" ? (
+                  <div className="pwd-container">
+                    <span>TM Grade:</span>
+                    <div style={{ width: "100%", marginTop: "0.5rem" }}>
+                      <TextField
+                        id="outlined-number"
+                        name="tm_grade"
+                        className="textField"
+                        autoComplete="off"
+                        value="HOS"
+                        fullWidth
+                        // onChange={formik.handleChange}
+                        // label="Number"
+                        type="text"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  ""
+                )}
+
+                {/* 
+                <div className="pwd-container">
                   <span>User Type:</span>
                   <div style={{ width: "100%", marginTop: "0.5rem" }}>
                     <TextField
@@ -465,6 +578,7 @@ const UserAdd = () => {
                     />
                   </div>
                 </div>
+
                 <div className="pwd-container">
                   <span>TM Department:</span>
                   <div style={{ width: "100%", marginTop: "0.5rem" }}>
@@ -480,7 +594,7 @@ const UserAdd = () => {
                       value="MTD"
                     />
                   </div>
-                </div>
+                </div> */}
               </div>
             ) : context.user_type === "TL/HOSS" &&
               context.tm_department === "MTD" ? (
@@ -1087,7 +1201,7 @@ const UserAdd = () => {
                 // helperText={formik.touched.address && formik.errors.address}
               />
             </div>
-            <button type="submit" className="btn">
+            <button type="submit" className="btn-reset">
               Submit
             </button>
           </form>

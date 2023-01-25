@@ -606,19 +606,19 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
 
 
 
-            // autoSendMail(
+            autoSendMail(
 
-            // toEmailArray?.length > 0 ? toEmailArray : [undefined],
-            // ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
-            //     sectionInfo[i]?.section_name,
-            //     `Status of Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
-            //     "Status of PM Plan vs Actual",
-            //     planVsActualTable,
-            //     "Current Month Scheduled",
-            //     currentMonthTable,
-            //     "Last Month Pending PM",
-            //     previousMonthTable
-            // )
+            toEmailArray?.length > 0 ? toEmailArray : [undefined],
+            ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
+                sectionInfo[i]?.section_name,
+                `Status of Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
+                "Status of PM Plan vs Actual",
+                planVsActualTable,
+                "Current Month Scheduled",
+                currentMonthTable,
+                "Last Month Pending PM",
+                previousMonthTable
+            )
 
         } else if (sectionInfo[i].dashboardLevel === "No") {
 
@@ -1139,19 +1139,19 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
 
 
 
-                // autoSendMail(
+                autoSendMail(
 
-                // toEmailArray?.length > 0 ? toEmailArray : [undefined],
-                // ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
-                //     subSectionsData[subIterator]?.subSection_name,
-                //     `Status of Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
-                //     "Status of PM Plan vs Actual",
-                //     planVsActualTable,
-                //     "Current Month Scheduled",
-                //     currentMonthTable,
-                //     "Last Month Pending PM",
-                //     previousMonthTable
-                // )
+                toEmailArray?.length > 0 ? toEmailArray : [undefined],
+                ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
+                    subSectionsData[subIterator]?.subSection_name,
+                    `Status of Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
+                    "Status of PM Plan vs Actual",
+                    planVsActualTable,
+                    "Current Month Scheduled",
+                    currentMonthTable,
+                    "Last Month Pending PM",
+                    previousMonthTable
+                )
 
             }
 

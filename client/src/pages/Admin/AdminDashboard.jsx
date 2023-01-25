@@ -8,6 +8,7 @@ import {
   UserAdd,
   AddBoxIcon,
 } from "../../modules/PageModules";
+import "../../Login/Login.scss"
 import "../../SCSS/MaterialTable.scss";
 import UserUpdate from "../../Popups/UserUpdate";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
@@ -98,7 +99,7 @@ function AdminDashboard() {
       // icon: () => <button className="addbutton">Add</button>,
       icon: () =>
         window.innerWidth > 1024 ? (
-          <button className="btn">Add</button>
+          <button className="btn-reset">Add</button>
         ) : (
           <AddBoxIcon />
         ),
@@ -115,7 +116,7 @@ function AdminDashboard() {
       // icon: () => <button className="addbutton">Add</button>,
       icon: () =>
         window.innerWidth > 1024 ? (
-          <button className="btn">Email Configuration</button>
+          <button className="btn-warning" >Email Configuration</button>
         ) : (
           "Email"
         ),
@@ -246,7 +247,7 @@ function AdminDashboard() {
 
   useEffect(() => {
     fetchUserInfo();
-  }, []);
+  }, [refKey2]);
   return (
     <>
       {/* <UpdatePasswordPopup
@@ -342,6 +343,10 @@ function AdminDashboard() {
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
                 },
+                headerStyle: {
+                  fontSize: "13px",
+                  fontWeight: "bold"
+                }
               }}
             />
           </div>

@@ -122,6 +122,7 @@ const GraphsInMainDashboard = ({
     }
   };
 
+  // console.log("-------------------------->", context);
   const fetchRemarksSubSectionWise = async () => {
     // console.log("fetchRemarksSubSectionWise : <===========================");
 
@@ -313,7 +314,7 @@ const GraphsInMainDashboard = ({
                   variant="contained"
                   fullWidth
                   type="submit"
-                  className="btn btn-primary container mt-2"
+                  className="btn-primary1 container mt-2 w-25"
                   onClick={() => {
                     postRemarksSectionWise(context.section_data);
                   }}
@@ -343,7 +344,7 @@ const GraphsInMainDashboard = ({
                   variant="contained"
                   fullWidth
                   type="submit"
-                  className="btn btn-primary container mt-2"
+                  className="btn-primary1 container mt-2"
                   onClick={() => {
                     postRemarksSubSectionWise(subSection);
                   }}
@@ -373,7 +374,7 @@ const GraphsInMainDashboard = ({
                   variant="contained"
                   fullWidth
                   type="submit"
-                  className="btn btn-primary container mt-2"
+                  className="btn-primary1 container mt-2"
                   onClick={() => {
                     postRemarksSubSectionWise(subSection);
                   }}

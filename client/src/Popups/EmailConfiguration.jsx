@@ -61,7 +61,7 @@ function EmailConfiguration({ close }) {
               />
             </div>
 
-            <button type="submit" className="btn">
+            <button type="submit" className="btn-reset">
               Submit
             </button>
           </form>

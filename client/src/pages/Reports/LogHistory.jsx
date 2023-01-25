@@ -183,7 +183,7 @@ const LogHistory = () => {
           <Col>
             <Row className="p-2 ">
               <Col sm={12} lg={3}>
-                <span>Cell:</span>
+                <span><b>Cell:</b></span>
               </Col>
               <Col>
                 <div>
@@ -222,7 +222,7 @@ const LogHistory = () => {
           <Col>
             <Row className="p-2 ">
               <Col sm={12} lg={3}>
-                <span>Line:</span>
+                <span><b>Line:</b></span>
               </Col>
               <Col>
                 <div>
@@ -262,7 +262,7 @@ const LogHistory = () => {
               <Col>
                 <div>
                   <button
-                    class="btn-primary"
+                    class="btn-primary1 w-75"
                     onClick={() => {
                       setSelectedCell("");
                       setSelectedLine("");
@@ -284,16 +284,16 @@ const LogHistory = () => {
 
           <table className="ar-table pmSheetApprovalTableCol">
             <thead className="mt-5">
-              <tr>
+              <tr className="bg-button">
                 {columns.map((tColumn) => (
                   <th
-                    className={"ar-table-thead-header5 td-padding"}
+                    className={"ar-table-thead-header5 td-padding text-white"}
                     colSpan={
                       tColumn.header === "Preparation"
                         ? 3
                         : tColumn.header === "Planning"
-                        ? 2
-                        : 0
+                          ? 2
+                          : 0
                     }
                   >
                     {tColumn.header}
@@ -304,55 +304,15 @@ const LogHistory = () => {
             <tbody>
               {selectedCell || selectedLine || selectedMonth
                 ? tableData?.map((index) =>
-                    (selectedCell !== ""
-                      ? index?.cell_names?._id === selectedCell
-                      : true) &&
+                  (selectedCell !== ""
+                    ? index?.cell_names?._id === selectedCell
+                    : true) &&
                     (selectedMonth !== undefined
                       ? index?.schedule_month === selectedMonth
                       : true) &&
                     (selectedLine !== ""
                       ? index?.line_names._id === selectedLine
                       : true) ? (
-                      <tr className="ar-table-thead-header4 tableRowColor">
-                        <td className="td-padding">{index?.sr_no}</td>
-                        <td className="td-padding">{index?.schedule_month}</td>
-                        <td className="td-padding">
-                          {index?.cell_names?.cell_name}
-                        </td>
-                        <td className="td-padding">
-                          {index?.line_names?.line_name}
-                        </td>
-                        <td className="td-padding">{index?.machine_code}</td>
-                        <td className="td-padding">{index?.machine_name}</td>
-                        <td className="td-padding">
-                          {index?.inspection_parent_name}
-                        </td>
-                        <td className="td-padding">
-                          {index?.completionDateOfInspection}
-                        </td>
-                        <td className="td-padding">
-                          {index?.remarksOfWorkedImplementaion}
-                        </td>
-                        <td className="td-padding">{index?.abnormality}</td>
-                        <td className="td-padding">
-                          {index?.abnormalityRemarks}
-                        </td>
-                        <td className="td-padding">
-                          {index?.abnormalityStatus}
-                        </td>
-                        <td className="td-padding">{index?.targetDate}</td>
-                        <td className="td-padding">{index?.spareParts}</td>
-                        <td className="td-padding">{index?.partName}</td>
-                        <td className="td-padding">{index?.partNo}</td>
-                        <td className="td-padding">{index?.cost}</td>
-                        <td className="td-padding">{index?.doneBy}</td>
-                      </tr>
-                    ) : (
-                      // <NotFound/>
-                      console.log("")
-                    )
-                  )
-                : tableData?.map((index) => (
                     <tr className="ar-table-thead-header4 tableRowColor">
                       <td className="td-padding">{index?.sr_no}</td>
                       <td className="td-padding">{index?.schedule_month}</td>
@@ -377,7 +337,9 @@ const LogHistory = () => {
                       <td className="td-padding">
                         {index?.abnormalityRemarks}
                       </td>
-                      <td className="td-padding">{index?.abnormalityStatus}</td>
+                      <td className="td-padding">
+                        {index?.abnormalityStatus}
+                      </td>
                       <td className="td-padding">{index?.targetDate}</td>
                       <td className="td-padding">{index?.spareParts}</td>
                       <td className="td-padding">{index?.partName}</td>
@@ -387,7 +349,46 @@ const LogHistory = () => {
                         {(index?.doneBy).join(", ")}
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    // <NotFound/>
+                    console.log("")
+                  )
+                )
+                : tableData?.map((index) => (
+                  <tr className="ar-table-thead-header4 tableRowColor">
+                    <td className="td-padding">{index?.sr_no}</td>
+                    <td className="td-padding">{index?.schedule_month}</td>
+                    <td className="td-padding">
+                      {index?.cell_names?.cell_name}
+                    </td>
+                    <td className="td-padding">
+                      {index?.line_names?.line_name}
+                    </td>
+                    <td className="td-padding">{index?.machine_code}</td>
+                    <td className="td-padding">{index?.machine_name}</td>
+                    <td className="td-padding">
+                      {index?.inspection_parent_name}
+                    </td>
+                    <td className="td-padding">
+                      {index?.completionDateOfInspection}
+                    </td>
+                    <td className="td-padding">
+                      {index?.remarksOfWorkedImplementaion}
+                    </td>
+                    <td className="td-padding">{index?.abnormality}</td>
+                    <td className="td-padding">
+                      {index?.abnormalityRemarks}
+                    </td>
+                    <td className="td-padding">{index?.abnormalityStatus}</td>
+                    <td className="td-padding">{index?.targetDate}</td>
+                    <td className="td-padding">{index?.spareParts}</td>
+                    <td className="td-padding">{index?.partName}</td>
+                    <td className="td-padding">{index?.partNo}</td>
+                    <td className="td-padding">{index?.cost}</td>
+                    <td className="td-padding">{(index?.doneBy).join(", ")}</td>
+
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
