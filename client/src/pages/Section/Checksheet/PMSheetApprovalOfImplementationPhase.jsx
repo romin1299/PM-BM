@@ -235,7 +235,10 @@ function PMSheetApprovalOfImplementationPhase() {
                 tableData?.map((index) =>
                   index?.checkSheet_data?.implementation_assign_PRD_TL?.[
                     monthKey
-                  ].length > 0 ? (
+                  ].length > 0 ||
+                  index?.checkSheet_data
+                    ?.implemetation_mtd_hod_approval_status?.[monthKey]
+                    ?.length > 0 ? (
                     <tr className="ar-table-thead-header4 tableRowColor">
                       <td className="td-padding">
                         {index.line_names.line_name}
@@ -338,7 +341,32 @@ function PMSheetApprovalOfImplementationPhase() {
                           </p>
                         ))}
                       </td>
-                      <td className="td-padding"></td>
+                      {/* {console.log(index?.checkSheet_data)}
+                      
+                      */}
+
+                      {index?.checkSheet_data
+                        ?.implemetation_mtd_hod_approval_status?.[monthKey]
+                        ?.length > 0 ? (
+                        <td className="td-padding">
+                          {" "}
+                          <b>
+                            {index?.checkSheet_data?.implemetation_mtd_hod_approval_status?.[
+                              monthKey
+                            ]?.at(-1)}
+                          </b>
+                          -
+                          {index?.checkSheet_data?.implementation_approved_MTD_HOD_date?.[
+                            monthKey
+                          ]?.at(-1)}
+                          -
+                          {index?.checkSheet_data?.implementation_approved_by_MTD_HOD?.[
+                            monthKey
+                          ]?.at(-1)}
+                        </td>
+                      ) : (
+                        <td className="td-padding"></td>
+                      )}
                     </tr>
                   ) : (
                     ""

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import Plot from "react-plotlyjs";
+import Plot from "react-plotly.js";
 import { Row, Col, Container, Card } from "react-bootstrap";
 
 import MonthWiseGraph from "./PmTimeMonitoringCharts/MonthWiseGraph";
@@ -155,7 +155,6 @@ const TotalMonthWiseGraph = ({ context }) => {
 
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
-
   }, [selectedYear]);
 
   const y1 = graphData;

@@ -135,13 +135,13 @@ const MachineWisePmMonthlyReport = () => {
         rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ? (
           <PanoramaFishEyeIcon fontSize="small" />
         ) : // : rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Current Plan" ? (
-          //   <PanoramaFishEyeIcon fontSize="small" />
-          // )
-          rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing" ? (
-            <ArrowDropUpIcon />
-          ) : (
-            <CloseIcon />
-          ),
+        //   <PanoramaFishEyeIcon fontSize="small" />
+        // )
+        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing" ? (
+          <ArrowDropUpIcon />
+        ) : (
+          <CloseIcon />
+        ),
       // console.log(rowData?.checkSheet_data?.PMStatus),
     },
   ];
@@ -271,7 +271,7 @@ const MachineWisePmMonthlyReport = () => {
 
       tooltip: "CSV",
       isFreeAction: true,
-      onClick: (event, rowData) => { },
+      onClick: (event, rowData) => {},
     },
   ];
 
@@ -337,7 +337,7 @@ const MachineWisePmMonthlyReport = () => {
 
       tooltip: "CSV",
       isFreeAction: true,
-      onClick: (event, rowData) => { },
+      onClick: (event, rowData) => {},
     },
   ];
 
@@ -383,7 +383,7 @@ const MachineWisePmMonthlyReport = () => {
 
       tooltip: "CSV",
       isFreeAction: true,
-      onClick: (event, rowData) => { },
+      onClick: (event, rowData) => {},
     },
   ];
 
@@ -401,8 +401,8 @@ const MachineWisePmMonthlyReport = () => {
         item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
-            ? "^"
-            : "X",
+          ? "^"
+          : "X",
       ])
     );
 
@@ -428,8 +428,8 @@ const MachineWisePmMonthlyReport = () => {
         item.checkSheet_data?.PMStatus?.[previousMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing"
-            ? "^"
-            : // : item.checkSheet_data?.PMStatus?.[previousMonth],
+          ? "^"
+          : // : item.checkSheet_data?.PMStatus?.[previousMonth],
             "X",
       ])
     );
@@ -486,8 +486,8 @@ const MachineWisePmMonthlyReport = () => {
         item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
-            ? "^"
-            : "X",
+          ? "^"
+          : "X",
       ]);
     });
 
@@ -500,8 +500,8 @@ const MachineWisePmMonthlyReport = () => {
         item.checkSheet_data?.PMStatus?.[previousMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing"
-            ? "^"
-            : "X",
+          ? "^"
+          : "X",
       ]);
     });
     setCsvDataForCurrentMonth(currentMonthRows);
@@ -712,10 +712,11 @@ const MachineWisePmMonthlyReport = () => {
 
           <div style={{ padding: "1rem" }}>
             <Container fluid>
-              <Row >
+              <Row>
                 {tableData1?.machineDataForCurrentMonth?.length > 0 ? (
-                  <Col lg={10} >
-                    <MaterialTable style={{ padding: "10px", marginTop: "10px" }}
+                  <Col lg={10}>
+                    <MaterialTable
+                      style={{ padding: "10px", marginTop: "10px" }}
                       localization={
                         {
                           // toolbar: {
@@ -803,8 +804,7 @@ const MachineWisePmMonthlyReport = () => {
                           fontSize: "13px",
                           fontWeight: "bold",
                           border: "1px solid black",
-                        }
-
+                        },
                       }}
                     />
                   </Col>
@@ -818,11 +818,18 @@ const MachineWisePmMonthlyReport = () => {
                   <Col
                     lg={2}
 
-                  // className="profileImg"
+                    // className="profileImg"
                   >
-                    <Row style={{ padding: "10px" }} >
-                      <Col style={{ backgroundColor: "white" }}>
-                        <div style={{ textAlign: "center" }}><b>Month Status</b></div>
+                    <Row className="p-2 mt-2 cell">
+                      <MachineWisePmMonthlyGraph
+                        statusCounter={statusCounter}
+                      />
+                    </Row>
+                    <Row className="p-2 mt-2 cell">
+                      <Col>
+                        <div style={{ textAlign: "center" }}>
+                          <b>Month Status</b>
+                        </div>
                         <br />
                         &nbsp; &nbsp; &nbsp; Schedule PM :
                         {statusCounter.schedulePm}
@@ -840,8 +847,7 @@ const MachineWisePmMonthlyReport = () => {
                         <br />
                       </Col>
                     </Row>
-
-                    <Row style={{ padding: "10px" }} >
+                    {/* <Row style={{ padding: "10px" }}>
                       <Col style={{ backgroundColor: "white" }}>
                         <PanoramaFishEyeIcon fontSize="small" /> Completed
                         <br />
@@ -849,7 +855,7 @@ const MachineWisePmMonthlyReport = () => {
                         <br />
                         <ArrowDropUpIcon /> Ongoing
                       </Col>
-                    </Row> 
+                    </Row>{" "} */}
                     {/* <Container>
                     <Row>
                       <Col style={{ backgroundColor: "white" }}>ABCD</Col>
@@ -871,7 +877,8 @@ const MachineWisePmMonthlyReport = () => {
                 <div>
                   <Row>
                     <Col lg={10}>
-                      <MaterialTable style={{ padding: "10px", marginTop: "10px" }}
+                      <MaterialTable
+                        style={{ padding: "10px", marginTop: "10px" }}
                         localization={{}}
                         actions={actionsForPreviousMonthForOpratorAndTL}
                         columns={tableColumn2}
@@ -927,7 +934,7 @@ const MachineWisePmMonthlyReport = () => {
                             borderBottom: "black !important",
                             background: "rgba(255,255,255,0.1)",
                             // backdropFilter: "blur(5px)",
-                            fontSize: "12px"
+                            fontSize: "12px",
                           },
                           cellStyle: {
                             border: "1px solid black",
@@ -935,9 +942,8 @@ const MachineWisePmMonthlyReport = () => {
                           headerStyle: {
                             border: "1px solid black",
                             fontSize: "13px",
-                            fontWeight: "bold"
+                            fontWeight: "bold",
                           },
-
                         }}
                       />
                     </Col>
@@ -960,10 +966,13 @@ const MachineWisePmMonthlyReport = () => {
                       <Row>
                         <form
                           className="d-flex mt-2 p-3 border bg-white rounded"
-                          onSubmit={formik1.handleSubmit} style={{margin:"0px"}}
+                          onSubmit={formik1.handleSubmit}
+                          style={{ margin: "0px" }}
                         >
                           <Col sm className="mb-3">
-                            <span><b>MTD HOS :</b></span>
+                            <span>
+                              <b>MTD HOS :</b>
+                            </span>
                             <div style={{ marginTop: "0.5rem" }}>
                               <select
                                 // class="form-select form-select-sm"
@@ -1009,7 +1018,9 @@ const MachineWisePmMonthlyReport = () => {
                             </div>
                           </Col>
                           <Col sm className="mb-3">
-                            <span><b>MTD HOD :</b></span>
+                            <span>
+                              <b>MTD HOD :</b>
+                            </span>
                             <div style={{ marginTop: "0.5rem" }}>
                               <select
                                 // class="form-select form-select-sm"
@@ -1055,7 +1066,9 @@ const MachineWisePmMonthlyReport = () => {
                           </Col>
 
                           <Col sm className="mb-3">
-                            <span><b>PRD HOS :</b></span>
+                            <span>
+                              <b>PRD HOS :</b>
+                            </span>
                             <div style={{ marginTop: "0.5rem" }}>
                               <select
                                 // class="form-select form-select-sm"
@@ -1100,7 +1113,9 @@ const MachineWisePmMonthlyReport = () => {
                             </div>
                           </Col>
                           <Col sm className="mb-3">
-                            <span><b>PRD HOD :</b></span>
+                            <span>
+                              <b>PRD HOD :</b>
+                            </span>
                             <div style={{ marginTop: "0.5rem" }}>
                               <select
                                 // class="form-select form-select-sm"
@@ -1145,7 +1160,9 @@ const MachineWisePmMonthlyReport = () => {
                             </div>
                           </Col>
                           <Col>
-                            <span><b>Reason for delay :</b></span>
+                            <span>
+                              <b>Reason for delay :</b>
+                            </span>
                             <div style={{ marginTop: "0.5rem" }}>
                               <TextField
                                 fullWidth
@@ -1178,9 +1195,14 @@ const MachineWisePmMonthlyReport = () => {
                           </Col>
                         </form>
                       </Row>
-                      <Row className="d-flex mt-2 p-3 border bg-white rounded" style={{margin:"0px"}}  >
+                      <Row
+                        className="d-flex mt-2 p-3 border bg-white rounded"
+                        style={{ margin: "0px" }}
+                      >
                         <Col sm className="mb-3">
-                          <span><b>MTD HOS :</b></span>
+                          <span>
+                            <b>MTD HOS :</b>
+                          </span>
                           <div style={{ marginTop: "0.5rem" }}>
                             <div className="tablefont">
                               {
@@ -1195,7 +1217,9 @@ const MachineWisePmMonthlyReport = () => {
                           </div>
                         </Col>
                         <Col sm className="mb-3">
-                          <span><b>MTD HOD :</b></span>
+                          <span>
+                            <b>MTD HOD :</b>
+                          </span>
                           <div style={{ marginTop: "0.5rem" }}>
                             <div className="tablefont">
                               {
@@ -1212,7 +1236,9 @@ const MachineWisePmMonthlyReport = () => {
                         </Col>
 
                         <Col sm className="mb-3">
-                          <span><b>PRD HOS :</b></span>
+                          <span>
+                            <b>PRD HOS :</b>
+                          </span>
                           <div>
                             <div className="tablefont">
                               {
@@ -1228,7 +1254,9 @@ const MachineWisePmMonthlyReport = () => {
                           </div>
                         </Col>
                         <Col sm className="mb-3">
-                          <span><b>PRD HOD :</b></span>
+                          <span>
+                            <b>PRD HOD :</b>
+                          </span>
                           <div style={{ marginTop: "0.5rem" }}>
                             <div className="tablefont">
                               {
@@ -1255,7 +1283,9 @@ const MachineWisePmMonthlyReport = () => {
                           </div>
 
                           <div style={{ marginTop: "0.5rem" }}>
-                            <span><b>Rejected remarks :</b></span>
+                            <span>
+                              <b>Rejected remarks :</b>
+                            </span>
                             <TextField
                               fullWidth
                               id="rejectedRemarksOfSkipPM"
@@ -1270,9 +1300,14 @@ const MachineWisePmMonthlyReport = () => {
                     </div>
                   ) : (
                     <div>
-                      <Row className="d-flex mt-2 p-3 border bg-white rounded" style={{ padding: "10px", margin: "0px" }} >
+                      <Row
+                        className="d-flex mt-2 p-3 border bg-white rounded"
+                        style={{ padding: "10px", margin: "0px" }}
+                      >
                         <Col sm className="mb-3">
-                          <span><b>MTD HOS :</b></span>
+                          <span>
+                            <b>MTD HOS :</b>
+                          </span>
                           <div style={{ marginTop: "0.5rem" }}>
                             <div className="tablefont">
                               {
@@ -1282,61 +1317,79 @@ const MachineWisePmMonthlyReport = () => {
                             </div>
                             <div>
                               Status :&nbsp;
-
-                              <b>{skipApprovalStatusData?.approvalStatusOfMTDHOS}</b>
+                              <b>
+                                {skipApprovalStatusData?.approvalStatusOfMTDHOS}
+                              </b>
                             </div>
                           </div>
                         </Col>
-                        <Col sm className="mb-3" >
-                          <span ><b>MTD HOD :</b></span>
+                        <Col sm className="mb-3">
+                          <span>
+                            <b>MTD HOD :</b>
+                          </span>
                           <div style={{ marginTop: "0.5rem" }}>
                             <div className="tablefont">
                               {
                                 skipApprovalStatusData
-                                  ?.assignAndApprovedMTDHODlist?.assignMTDHODname
+                                  ?.assignAndApprovedMTDHODlist
+                                  ?.assignMTDHODname
                               }
                             </div>
                             <div>
                               Status :&nbsp;
-                              <b> {skipApprovalStatusData?.approvalStatusOfMTDHOD}</b>
-
-
+                              <b>
+                                {" "}
+                                {skipApprovalStatusData?.approvalStatusOfMTDHOD}
+                              </b>
                             </div>
                           </div>
                         </Col>
 
                         <Col sm className="mb-3">
-                          <span><b>PRD HOS :</b></span>
+                          <span>
+                            <b>PRD HOS :</b>
+                          </span>
                           <div style={{ marginTop: "0.5rem" }}>
                             <div className="tablefont">
                               {
                                 skipApprovalStatusData
-                                  ?.assignAndApprovedPRDHOSlist?.assignPRDHOSname
+                                  ?.assignAndApprovedPRDHOSlist
+                                  ?.assignPRDHOSname
                               }
                             </div>
                             <div>
-                              Status :&nbsp;<b>{skipApprovalStatusData?.approvalStatusOfPRDHOS}</b>
+                              Status :&nbsp;
+                              <b>
+                                {skipApprovalStatusData?.approvalStatusOfPRDHOS}
+                              </b>
                             </div>
                           </div>
                         </Col>
                         <Col sm className="mb-3">
-                          <span><b>PRD HOD :</b></span>
+                          <span>
+                            <b>PRD HOD :</b>
+                          </span>
                           <div style={{ marginTop: "0.5rem" }}>
                             <div className="tablefont">
                               {
                                 skipApprovalStatusData
-                                  ?.assignAndApprovedPRDHODlist?.assignPRDHODname
+                                  ?.assignAndApprovedPRDHODlist
+                                  ?.assignPRDHODname
                               }
                             </div>
-                            <div >
-                              Status : &nbsp;<b>{skipApprovalStatusData?.approvalStatusOfPRDHOD}</b>
-
+                            <div>
+                              Status : &nbsp;
+                              <b>
+                                {skipApprovalStatusData?.approvalStatusOfPRDHOD}
+                              </b>
                             </div>
                           </div>
                         </Col>
                         <Col>
                           <div>
-                            <span><b>Reason for delay :</b></span>
+                            <span>
+                              <b>Reason for delay :</b>
+                            </span>
                             <TextField
                               fullWidth
                               id="reasonForDelayOfTL"
@@ -1346,7 +1399,9 @@ const MachineWisePmMonthlyReport = () => {
                           </div>
 
                           <div>
-                            <span><b>Rejected remarks :</b></span>
+                            <span>
+                              <b>Rejected remarks :</b>
+                            </span>
                             <TextField
                               fullWidth
                               id="rejectedRemarksOfSkipPM"
@@ -1359,52 +1414,51 @@ const MachineWisePmMonthlyReport = () => {
                         </Col>
                       </Row>
                     </div>
-
                   )}
                   {context.email ===
                     skipApprovalStatusData?.assignAndApprovedHOSlist
                       ?.assignMTDHOSemail &&
-                    skipApprovalStatusData?.approvalStatusOfMTDHOS ===
+                  skipApprovalStatusData?.approvalStatusOfMTDHOS ===
                     "Pending" ? (
                     <SkipApprovalComponent
                       skipApprovalStatusData={skipApprovalStatusData}
                       functionToSetRefKey={functionToSetRefKey}
                     />
                   ) : context.email ===
-                    skipApprovalStatusData?.assignAndApprovedMTDHODlist
-                      ?.assignMTDHODemail &&
+                      skipApprovalStatusData?.assignAndApprovedMTDHODlist
+                        ?.assignMTDHODemail &&
                     skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                    "Accepted" &&
+                      "Accepted" &&
                     skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                    "Pending" ? (
+                      "Pending" ? (
                     <SkipApprovalComponent
                       skipApprovalStatusData={skipApprovalStatusData}
                       functionToSetRefKey={functionToSetRefKey}
                     />
                   ) : context.email ===
-                    skipApprovalStatusData?.assignAndApprovedPRDHOSlist
-                      ?.assignPRDHOSemail &&
+                      skipApprovalStatusData?.assignAndApprovedPRDHOSlist
+                        ?.assignPRDHOSemail &&
                     skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                    "Accepted" &&
+                      "Accepted" &&
                     skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                    "Accepted" &&
+                      "Accepted" &&
                     skipApprovalStatusData?.approvalStatusOfPRDHOS ===
-                    "Pending" ? (
+                      "Pending" ? (
                     <SkipApprovalComponent
                       skipApprovalStatusData={skipApprovalStatusData}
                       functionToSetRefKey={functionToSetRefKey}
                     />
                   ) : context.email ===
-                    skipApprovalStatusData?.assignAndApprovedPRDHODlist
-                      ?.assignPRDHODemail &&
+                      skipApprovalStatusData?.assignAndApprovedPRDHODlist
+                        ?.assignPRDHODemail &&
                     skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                    "Accepted" &&
+                      "Accepted" &&
                     skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                    "Accepted" &&
+                      "Accepted" &&
                     skipApprovalStatusData?.approvalStatusOfPRDHOS ===
-                    "Accepted" &&
+                      "Accepted" &&
                     skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                    "Pending" ? (
+                      "Pending" ? (
                     <SkipApprovalComponent
                       skipApprovalStatusData={skipApprovalStatusData}
                       functionToSetRefKey={functionToSetRefKey}

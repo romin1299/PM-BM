@@ -16,7 +16,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
 
-function ChecksheetFormApprovalForHOS() {
+function ChecksheetFormApprovalForHOSAndHOD() {
   const context = useContext(RoutingContext);
   const selectedMachineCheckSheetData = useLocation();
   const [newTableData, setNewTableData] = useState([]);
@@ -25,13 +25,6 @@ function ChecksheetFormApprovalForHOS() {
   let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
   const [stateForOpeningSummeryPopups, setStateForOpeningSummeryPopups] =
     useState("");
-  const validationSchema = yup.object({
-    request: yup.string().required("Please select one"),
-    rejected_remarks: yup.string().when(["request"], {
-      is: () => formik.values.request === "No",
-      then: yup.string().required("Please enter remarks"),
-    }),
-  });
 
   let tableData =
     selectedMachineCheckSheetData.state?.selectedRowForViewForm?.checkSheet_data
@@ -458,29 +451,60 @@ function ChecksheetFormApprovalForHOS() {
     return `${day}/${month}/${year} - ${getTime}`;
   };
 
+  let validationString =
+    context?.user_type === "Section-Admin" &&
+    context?.tm_department === "MTD" &&
+    context?.tm_grade === "HOD"
+      ? "Please Approve"
+      : "Please select one";
+
+  const validationSchema = yup.object({
+    request: yup.string().required(validationString),
+    rejected_remarks: yup.string().when(["request"], {
+      is: () => formik.values.request === "No",
+      then: yup.string().required("Please enter remarks"),
+    }),
+  });
+
   const formik = useFormik({
     initialValues: {
       request: "",
       rejected_remarks: "",
+      approval_remarks: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
+      let jsonBody =
+        context?.user_type === "Section-Admin" &&
+        context?.tm_department === "MTD" &&
+        context?.tm_grade === "HOD"
+          ? {
+              request: formik.values.request,
+              approval_remarks: formik.values.approval_remarks,
+              selected_machine_data:
+                selectedMachineCheckSheetData.state?.selectedRowForViewForm,
+
+              implementation_approved_by_MTD_HOD: context.tm_name,
+              implementation_approved_MTD_HOD_date: timeStamp(),
+            }
+          : {
+              request: formik.values.request,
+              rejected_remarks: formik.values.rejected_remarks,
+              selected_machine_data:
+                selectedMachineCheckSheetData.state?.selectedRowForViewForm,
+              // approved_by_TL: context.tm_name,
+              approved_by_HOS: context.tm_name,
+              // approved_by_PRD_TL: context.tm_name,
+              preparation_HOS_date: timeStamp(),
+              implementation_approved_by_MTD_HOS: context.tm_name,
+              implementation_approved_MTD_HOS_date: timeStamp(),
+            };
+
       // console.log("________");
-      const res = await fetch("/approveRequestFromTLandHOS", {
+      const res = await fetch("/approveRequestFromTL_HOS_HOD", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          request: formik.values.request,
-          rejected_remarks: formik.values.rejected_remarks,
-          selected_machine_data:
-            selectedMachineCheckSheetData.state?.selectedRowForViewForm,
-          // approved_by_TL: context.tm_name,
-          approved_by_HOS: context.tm_name,
-          // approved_by_PRD_TL: context.tm_name,
-          preparation_HOS_date: timeStamp(),
-          implementation_approved_by_MTD_HOS: context.tm_name,
-          implementation_approved_MTD_HOS_date: timeStamp(),
-        }),
+        body: JSON.stringify(jsonBody),
       });
       const data = res.json();
       // console.log(data);
@@ -544,7 +568,12 @@ function ChecksheetFormApprovalForHOS() {
   //   }
   // };
 
-  // console.log(selectedMachineCheckSheetData.state?.selectedRowForViewForm);
+  console.log(
+    selectedMachineCheckSheetData.state?.selectedRowForViewForm
+      ?.senderApprovalMonth
+  );
+
+  console.log(context?.user_type, context?.tm_department, context?.tm_grade);
   return (
     <>
       {stateForOpeningSummeryPopups}
@@ -572,66 +601,60 @@ function ChecksheetFormApprovalForHOS() {
                 </a>
               </div>
               <div>
-                <form onSubmit={formik.handleSubmit}>
-                  <div className="row">
-                    <div className="row mb-3 mt-3">
-                      <span>
-                        Kindly approve checkSheet. &nbsp;
-                        <input
-                          type="radio"
-                          name="request"
-                          id="outlined-number"
-                          value="Yes"
-                          onChange={formik.handleChange}
-                        />
-                        <span
-                          style={{
-                            paddingLeft: "0.5rem",
-                            fontWeight: "550",
-                            color: "black",
-                          }}
-                        >
-                          Yes &nbsp;
+                {context?.user_type === "Section-Admin" &&
+                context?.tm_department === "MTD" &&
+                context?.tm_grade === "HOD" ? (
+                  <form onSubmit={formik.handleSubmit}>
+                    <div className="row">
+                      <div className="row mb-3 mt-3">
+                        <span>
+                          Kindly approve checkSheet of{" "}
+                          <b>
+                            {
+                              selectedMachineCheckSheetData.state
+                                ?.selectedRowForViewForm?.senderApprovalMonth
+                            }
+                          </b>
+                          &nbsp;month.&nbsp;
+                          {/* month.(6 Month Approval) &nbsp; */}
+                          <input
+                            type="radio"
+                            name="request"
+                            id="outlined-number"
+                            value="Yes"
+                            onChange={formik.handleChange}
+                          />
+                          <span
+                            style={{
+                              paddingLeft: "0.5rem",
+                              fontWeight: "550",
+                              color: "black",
+                            }}
+                          >
+                            Yes &nbsp;
+                          </span>
+                          <p
+                            style={{
+                              color: "#F44336",
+                              fontWeight: "normal",
+                              fontSize: "0.80rem",
+                              float: "right",
+                              marginRight: "12rem",
+                              // paddingTop: "0.5rem",
+                            }}
+                          >
+                            {formik.touched.request && formik.errors.request}
+                          </p>
                         </span>
-                        <input
-                          type="radio"
-                          name="request"
-                          id="outlined-number"
-                          value="No"
-                          onChange={formik.handleChange}
-                        />
-                        <span
-                          style={{
-                            paddingLeft: "0.5rem",
-                            fontWeight: "550",
-                            color: "black",
-                          }}
-                        >
-                          No
-                        </span>
-                        <p
-                          style={{
-                            color: "#F44336",
-                            fontWeight: "normal",
-                            fontSize: "0.80rem",
-                            float: "right",
-                            marginRight: "12rem",
-                            // paddingTop: "0.5rem",
-                          }}
-                        >
-                          {formik.touched.request && formik.errors.request}
-                        </p>
-                      </span>
-                    </div>
+                      </div>
 
-                    {formik.values.request === "No" ? (
                       <div className="col-6">
                         <span>Remarks: </span>
                         <TextField
                           // id="outlined-number"
-                          name="rejected_remarks"
+                          name="approval_remarks"
                           className="ApproveOrdRejectTextField"
-                          value={formik.values.rejected_remarks}
+                          value={formik.values.approval_remarks}
                           onChange={formik.handleChange}
                           autoComplete="off"
                           // label="Number"
@@ -639,29 +662,106 @@ function ChecksheetFormApprovalForHOS() {
                           type="text"
                         />
                         <br />
-                        <p
-                          style={{
-                            color: "#F44336",
-                            fontWeight: "normal",
-                            fontSize: "0.80rem",
-                            float: "left",
-                            paddingTop: "0.5rem",
-                          }}
-                        >
-                          {formik.touched.rejected_remarks &&
-                            formik.errors.rejected_remarks}
-                        </p>
                       </div>
-                    ) : (
-                      ""
-                    )}
-                    <div className="col-6 d-flex align-items-center">
-                      <button type="submit" className="btn-primary1">
-                        Submit
-                      </button>
+                      <div className="col-6 d-flex align-items-center">
+                        <button type="submit" className="btn-primary1">
+                          Submit
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </form>
+                  </form>
+                ) : (
+                  <form onSubmit={formik.handleSubmit}>
+                    <div className="row">
+                      <div className="row mb-3 mt-3">
+                        <span>
+                          Kindly approve checkSheet. &nbsp;
+                          <input
+                            type="radio"
+                            name="request"
+                            id="outlined-number"
+                            value="Yes"
+                            onChange={formik.handleChange}
+                          />
+                          <span
+                            style={{
+                              paddingLeft: "0.5rem",
+                              fontWeight: "550",
+                              color: "black",
+                            }}
+                          >
+                            Yes &nbsp;
+                          </span>
+                          <input
+                            type="radio"
+                            name="request"
+                            id="outlined-number"
+                            value="No"
+                            onChange={formik.handleChange}
+                          />
+                          <span
+                            style={{
+                              paddingLeft: "0.5rem",
+                              fontWeight: "550",
+                              color: "black",
+                            }}
+                          >
+                            No
+                          </span>
+                          <p
+                            style={{
+                              color: "#F44336",
+                              fontWeight: "normal",
+                              fontSize: "0.80rem",
+                              float: "right",
+                              marginRight: "12rem",
+                              // paddingTop: "0.5rem",
+                            }}
+                          >
+                            {formik.touched.request && formik.errors.request}
+                          </p>
+                        </span>
+                      </div>
+
+                      {formik.values.request === "No" ? (
+                        <div className="col-6">
+                          <span>Remarks: </span>
+                          <TextField
+                            // id="outlined-number"
+                            name="rejected_remarks"
+                            className="ApproveOrdRejectTextField"
+                            value={formik.values.rejected_remarks}
+                            onChange={formik.handleChange}
+                            autoComplete="off"
+                            // label="Number"
+                            fullWidth
+                            type="text"
+                          />
+                          <br />
+                          <p
+                            style={{
+                              color: "#F44336",
+                              fontWeight: "normal",
+                              fontSize: "0.80rem",
+                              float: "left",
+                              paddingTop: "0.5rem",
+                            }}
+                          >
+                            {formik.touched.rejected_remarks &&
+                              formik.errors.rejected_remarks}
+                          </p>
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                      <div className="col-6 d-flex align-items-center">
+                        <button type="submit" className="btn-primary1">
+                          Submit
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                )}
               </div>
             </Col>
             <Col lg={6} md={6} sm={6}>
@@ -671,8 +771,7 @@ function ChecksheetFormApprovalForHOS() {
                     <th
                       className="ar-table-thead-header1"
                       // colSpan={2}
-                      //  rowSpan={5} 
-                      
+                      //  rowSpan={5}
                     >
                       PLAN ACCEPTANCE
                       <br />
@@ -867,8 +966,16 @@ function ChecksheetFormApprovalForHOS() {
                     <br />
                     (MTD HOD)
                   </th>
-                  <th className="ar-table-col1" colSpan={6}></th>
-                  <th className="ar-table-col1" colSpan={6}></th>
+                  <td className="ar-table-col1" colSpan={6}>
+                    {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
+                      -1
+                    )}
+                  </td>
+                  <td className="ar-table-col1" colSpan={6}>
+                    {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
+                      -1
+                    )}
+                  </td>
                 </tr>
               </thead>
               {/* <thead className="ar-table-thead1">
@@ -1161,4 +1268,4 @@ function ChecksheetFormApprovalForHOS() {
   );
 }
 
-export default ChecksheetFormApprovalForHOS;
+export default ChecksheetFormApprovalForHOSAndHOD;

@@ -14,6 +14,14 @@ let commonVariableForExtraSpareDetails = [
     }
 ]
 
+let KeyFor6MonthApproval = {
+
+    Sep: { type: [String] },
+
+    Mar: { type: [String] },
+
+}
+
 const machineSchema = mongoose.Schema({
     machine_code: {
         type: String
@@ -46,7 +54,7 @@ const machineSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Lines"
     },
-    
+
     checkSheet_data: [
         {
             current_year: { type: String },
@@ -932,31 +940,21 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
-            implementation_assign_MTD_HOD: {
-                Apr: { type: [String] },
 
-                May: { type: [String] },
 
-                June: { type: [String] },
-
-                July: { type: [String] },
-
-                Aug: { type: [String] },
-
-                Sep: { type: [String] },
-
-                Oct: { type: [String] },
-
-                Nov: { type: [String] },
-
-                Dec: { type: [String] },
-
-                Jan: { type: [String] },
-
-                Feb: { type: [String] },
-
-                Mar: { type: [String] },
+            implementation_approval_month_of_hod: {
+                type: String
             },
+
+            implementation_approval_hod_remarks: {
+
+                Sep: { type: String },
+
+                Mar: { type: String }
+
+            },
+            implementation_assign_MTD_HOD: KeyFor6MonthApproval,
+
             implementation_assign_PRD_TL_name: {
                 Apr: { type: [String] },
 
@@ -1032,31 +1030,9 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
-            implementation_assign_MTD_HOD_name: {
-                Apr: { type: [String] },
 
-                May: { type: [String] },
+            implementation_assign_MTD_HOD_name: KeyFor6MonthApproval,
 
-                June: { type: [String] },
-
-                July: { type: [String] },
-
-                Aug: { type: [String] },
-
-                Sep: { type: [String] },
-
-                Oct: { type: [String] },
-
-                Nov: { type: [String] },
-
-                Dec: { type: [String] },
-
-                Jan: { type: [String] },
-
-                Feb: { type: [String] },
-
-                Mar: { type: [String] },
-            },
             implemetation_quality_remarks: {
                 Apr: { type: [String] },
 
@@ -1182,31 +1158,9 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
-            implementation_approved_by_MTD_HOD: {
-                Apr: { type: [String] },
 
-                May: { type: [String] },
+            implementation_approved_by_MTD_HOD: KeyFor6MonthApproval,
 
-                June: { type: [String] },
-
-                July: { type: [String] },
-
-                Aug: { type: [String] },
-
-                Sep: { type: [String] },
-
-                Oct: { type: [String] },
-
-                Nov: { type: [String] },
-
-                Dec: { type: [String] },
-
-                Jan: { type: [String] },
-
-                Feb: { type: [String] },
-
-                Mar: { type: [String] },
-            },
             implementation_approved_PRD_TL_date: {
                 Apr: { type: [String] },
 
@@ -1282,31 +1236,9 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
-            implementation_approved_MTD_HOD_date: {
-                Apr: { type: [String] },
 
-                May: { type: [String] },
+            implementation_approved_MTD_HOD_date: KeyFor6MonthApproval,
 
-                June: { type: [String] },
-
-                July: { type: [String] },
-
-                Aug: { type: [String] },
-
-                Sep: { type: [String] },
-
-                Oct: { type: [String] },
-
-                Nov: { type: [String] },
-
-                Dec: { type: [String] },
-
-                Jan: { type: [String] },
-
-                Feb: { type: [String] },
-
-                Mar: { type: [String] },
-            },
             implemetation_prd_tl_approval_status: {
                 Apr: { type: [String] },
 
@@ -1382,31 +1314,9 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
-            implemetation_mtd_hod_approval_status: {
-                Apr: { type: [String] },
 
-                May: { type: [String] },
+            implemetation_mtd_hod_approval_status: KeyFor6MonthApproval,
 
-                June: { type: [String] },
-
-                July: { type: [String] },
-
-                Aug: { type: [String] },
-
-                Sep: { type: [String] },
-
-                Oct: { type: [String] },
-
-                Nov: { type: [String] },
-
-                Dec: { type: [String] },
-
-                Jan: { type: [String] },
-
-                Feb: { type: [String] },
-
-                Mar: { type: [String] },
-            },
             revisionContentData: [
                 {
                     revisionContent: {
@@ -1418,7 +1328,7 @@ const machineSchema = mongoose.Schema({
                     revisedBy: {
                         type: String
                     },
-                    
+
                 }
             ],
             flagForRevisionContent: {

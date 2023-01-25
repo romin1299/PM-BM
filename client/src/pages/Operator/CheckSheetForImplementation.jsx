@@ -88,8 +88,7 @@ function CheckSheet({
       : monthKeyArray[new Date().getMonth() - 1];
   let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
 
-  let monthInNumber = new Date().getMonth();  
-
+  let monthInNumber = new Date().getMonth();
 
   // console.log(selectedSupportedTM);
 
@@ -774,7 +773,6 @@ function CheckSheet({
     }
   };
 
-  // console.log(selectedMachineCheckSheetData.state.selectedRowForViewForm);
   return (
     <>
       {workOnImplementationPM}
@@ -1041,8 +1039,16 @@ function CheckSheet({
                         <br />
                         (MTD HOD)
                       </th>
-                      <th className="ar-table-col1" colSpan={6}></th>
-                      <th className="ar-table-col1" colSpan={6}></th>
+                      <td className="ar-table-col1" colSpan={6}>
+                        {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
+                          -1
+                        )}
+                      </td>
+                      <td className="ar-table-col1" colSpan={6}>
+                        {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
+                          -1
+                        )}
+                      </td>
                     </tr>
                   </thead>
                   {/* <thead className="ar-table-thead1">
@@ -2474,7 +2480,7 @@ function CheckSheet({
                 ) : (
                   ""
                 )}
-                {monthForCompareSystemMonth === "Jan" ||
+                {/* {monthForCompareSystemMonth === "Jan" ||
                 monthForCompareSystemMonth === "Mar" ||
                 machineAllData?.checkSheet_data
                   ?.implemetation_mtd_hod_approval_status[
@@ -2550,7 +2556,7 @@ function CheckSheet({
                   </Row>
                 ) : (
                   ""
-                )}
+                )} */}
               </Col>
             </Row>
           </Container>
