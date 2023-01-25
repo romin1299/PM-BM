@@ -503,30 +503,13 @@ const MainDashboard = () => {
     postSectionToGetAllDataForAnnualStatusReport();
   }, [selectedYear]);
 
-  const dummyApisForTesting = async () => {
-    try {
-      const res = await fetch("/dummyApisForTesting", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+  
 
-      if (res.status === 400 || res.status === 422) {
-        return res.status(422).send("Data not recieved !!!");
-      }
-      
-    } catch (error) {
-      console.log("No data found ( Unauthorized ) !!!");
-    }
-  };
+
   return (
     <>
       {machineWiseCheckSheetForImplementation}
 
-      <button onClick={dummyApisForTesting}>ABCD</button>
 
       
       <ToastContainer />
