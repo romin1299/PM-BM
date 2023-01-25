@@ -8,7 +8,7 @@ let commonVariableForExtraSpareDetails = [
         usedBy: { type: String },
         partName: { type: String },
         partNo: { type: String },
-        cost: { type: String },
+        cost: { type: Number },
         abnormalityRemarks: { type: String },
         sparePurpose: { type: String },
     }
@@ -235,84 +235,84 @@ const machineSchema = mongoose.Schema({
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
-                            cost: { type: String, },
+                            cost: { type: Number },
                         },
 
                         May: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
-                            cost: { type: String, },
+                            cost: { type: Number },
                         },
 
                         June: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
-                            cost: { type: String, },
+                            cost: { type: Number },
                         },
 
                         July: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
-                            cost: { type: String, },
+                            cost: { type: Number },
                         },
 
                         Aug: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
-                            cost: { type: String, },
+                            cost: { type: Number },
                         },
 
                         Sep: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
-                            cost: { type: String, },
+                            cost: { type: Number },
                         },
 
                         Oct: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
-                            cost: { type: String, },
+                            cost: { type: Number },
                         },
 
                         Nov: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
-                            cost: { type: String, },
+                            cost: { type: Number },
                         },
 
                         Dec: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
-                            cost: { type: String, },
+                            cost: { type: Number },
                         },
 
                         Jan: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
-                            cost: { type: String, },
+                            cost: { type: Number },
                         },
 
                         Feb: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
-                            cost: { type: String, },
+                            cost: { type: Number },
                         },
 
                         Mar: {
                             spareParts: { type: String, },
                             partName: { type: String, },
                             partNo: { type: String, },
-                            cost: { type: String, },
+                            cost: { type: Number },
                         },
                     },
                     PMOkImage: {

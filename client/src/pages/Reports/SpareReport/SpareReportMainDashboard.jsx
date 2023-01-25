@@ -32,7 +32,7 @@ const SpareReportMainDashboard = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        console.log(data);
+        // console.log(data);
         setLineData(data?.lineData);
       }
     } catch (error) {
@@ -52,7 +52,7 @@ const SpareReportMainDashboard = () => {
             <MonthlySpareConsumptionTrend lineData={lineData} context={context} />
           </Col>
           <Col>
-            <Top20MachineSparePartConsumption />
+            <Top20MachineSparePartConsumption context={context}/>
           </Col>
         </Row>
 

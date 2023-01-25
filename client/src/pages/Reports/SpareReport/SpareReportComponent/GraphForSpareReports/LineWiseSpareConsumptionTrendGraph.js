@@ -14,7 +14,8 @@ import {
 import { Chart } from 'react-chartjs-2';
 
 
-const LineWiseSpareConsumptionTrendGraph = ({ lineData }) => {
+const LineWiseSpareConsumptionTrendGraph = ({ lineData, graphData }) => {
+
     ChartJS.register(
         LinearScale,
         CategoryScale,
@@ -28,12 +29,12 @@ const LineWiseSpareConsumptionTrendGraph = ({ lineData }) => {
     );
 
     const options = {
-        plugins: {
-            title: {
-                display: true,
-                text: 'Chart.js Bar Chart - Stacked',
-            },
-        },
+        // plugins: {
+        //     title: {
+        //         display: true,
+        //         text: 'Chart.js Bar Chart - Stacked',
+        //     },
+        // },
         responsive: true,
         scales: {
             x: {
@@ -45,50 +46,7 @@ const LineWiseSpareConsumptionTrendGraph = ({ lineData }) => {
         },
     };
 
-    // console.log(lineData)
-    // let subData = [
-    //     "Jan",
-    //     "Feb",
-    //     "Mar",
-    //     "Apr",
-    //     "May",
-    //     "June",
-    //     "July",
-    //     "Aug",
-    //     "Sep",
-    //     "Oct",
-    //     "Nov",
-    //     "Dec",
-    //     "Jan",
-    //     "Feb",
-    //     "Mar",
-    //     "Apr",
-    //     "May",
-    //     "June",
-    //     "July",
-    //     "Aug",
-    //     "Sep",
-    //     "Oct",
-    //     "Nov",
-    //     "Dec",
-    //     "Jan",
-    //     "Feb",
-    //     "Mar",
-    //     "Apr",
-    //     "May",
-    //     "June",
-    //     "July",
-    //     "Aug",
-    //     "Sep",
-    //     "Oct",
-    //     "Nov",
-    //     "Dec",
-    // ]
-
-    const labels = lineData?.map(item => item?.line_name)
-    // const labels = subData
-
-
+    const labels = graphData?.lineWiseSpareCost?.map(item => item?.line_name)
 
     const data = {
         labels,
@@ -97,36 +55,47 @@ const LineWiseSpareConsumptionTrendGraph = ({ lineData }) => {
                 type: 'line',
                 label: 'Total',
                 borderColor: 'red',
-                borderWidth: 2,
+                // borderWidth: 2,
                 // fill: false,
                 // backgroundColor: "red",
-                data: [1, 2, 3, 4, 1, 4, 2, 3, 2, 1, 3, 2],
+                data: graphData?.lineWiseSpareCost?.map((key) => {
+                    return key?.sumOfTotalPMSpareCost + key.sumOfTotalBMSpareCost +
+                        key.sumOfTotalCorrectiveSpareCost +
+                        key.sumOfTotalPridictiveSpareCost +
+                        key.sumOfTotalKaizenSpareCost
+                }),
             },
             {
                 type: 'bar',
-                label: 'Dataset 2',
+                label: 'PM',
                 backgroundColor: 'rgb(75, 192, 192)',
-                data: labels.map(() => 1),
+                data: graphData?.lineWiseSpareCost?.map((item) => item?.sumOfTotalPMSpareCost),
                 // borderColor: 'white',
-                borderWidth: 2,
+                // borderWidth: 2,
             },
             {
                 type: 'bar',
-                label: 'Dataset 2',
+                label: 'BM',
                 backgroundColor: 'rgb(53, 162, 235)',
-                data: labels.map(() => 1),
+                data: graphData?.lineWiseSpareCost?.map((item) => item?.sumOfTotalBMSpareCost),
             },
             {
                 type: 'bar',
-                label: 'Dataset 2',
+                label: 'Corrective',
                 backgroundColor: 'rgb(255, 99, 132)',
-                data: labels.map(() => 1),
+                data: graphData?.lineWiseSpareCost?.map((item) => item?.sumOfTotalCorrectiveSpareCost),
             },
             {
                 type: 'bar',
-                label: 'Dataset 2',
+                label: 'Predictive',
                 backgroundColor: 'rgb(132, 63, 128)',
-                data: labels.map(() => 1),
+                data: graphData?.lineWiseSpareCost?.map((item) => item?.sumOfTotalPridictiveSpareCost),
+            },
+            {
+                type: 'bar',
+                label: 'Kaizen',
+                backgroundColor: '#b3b745',
+                data: graphData?.lineWiseSpareCost?.map((item) => item?.sumOfTotalKaizenSpareCost),
             },
 
 

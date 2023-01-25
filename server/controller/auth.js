@@ -2973,7 +2973,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval to TL/HOSS after his/her approval send request to HOS
-            // sendApproval(subject, title, greetings, bodyTable, undefined, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, tl_list, hos_list, undefined, undefined, request)
+            sendApproval(subject, title, greetings, bodyTable, undefined, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, tl_list, hos_list, undefined, undefined, request)
         } else if (prd_tl_list && phaseStatus === "Planning") {
             //for grreting of the mail
             const findAssignTlName = await User.findOne({ email: prd_tl_list })
@@ -3039,7 +3039,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval to TL/HOSS after his/her approval send request to HOS
-            // sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+            sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
         } else if (prd_tl_list?.email && mtd_tl_list?.email && mtd_hos_list?.email && phaseStatus === "Implementation") {
 
 
@@ -3128,20 +3128,20 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval to TL/HOSS after his/her approval send request to HOS
-            // sendApproval(
-            //     subject,
-            //     title,
-            //     greetings,
-            //     bodyTable,
-            //     ccMail,
-            //     findAssignTlName.tm_name,
-            //     loggedUserData.tm_no,
-            //     loggedUserData.tm_name,
-            //     selected_machine_data.machine_code,
-            //     selected_machine_data.machine_name,
-            //     selected_machine_data.checksheet_status,
-            //     prd_tl_list.email,
-            //     undefined, undefined, undefined, undefined, undefined)
+            sendApproval(
+                subject,
+                title,
+                greetings,
+                bodyTable,
+                ccMail,
+                findAssignTlName.tm_name,
+                loggedUserData.tm_no,
+                loggedUserData.tm_name,
+                selected_machine_data.machine_code,
+                selected_machine_data.machine_name,
+                selected_machine_data.checksheet_status,
+                prd_tl_list.email,
+                undefined, undefined, undefined, undefined, undefined)
         } else if ((monthForCompareSystemMonthForHODApproval === "Sep" || monthForCompareSystemMonthForHODApproval === "Mar") &&
             selected_machine_data?.checkSheet_data?.implemetation_prd_tl_approval_status[(selected_machine_data?.checkSheet_data?.implemetation_prd_tl_approval_status)?.length - 1] === "Accepted" &&
             selected_machine_data?.checkSheet_data?.implemetation_mtd_tl_approval_status[(selected_machine_data?.checkSheet_data?.implemetation_mtd_tl_approval_status)?.length - 1] === "Accepted" &&
@@ -3239,7 +3239,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval direct MTD HOS
-            // sendApproval(subject, title, greetings, bodyTable, undefined, findAssignHosName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, hos_list, undefined, undefined, undefined, undefined, request)
+            sendApproval(subject, title, greetings, bodyTable, undefined, findAssignHosName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, hos_list, undefined, undefined, undefined, undefined, request)
         }
         return res.status(201).json("approval request send successfully!!!");
         //  console.log(req.body)
@@ -3638,21 +3638,21 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
 
 
 
-                // sendApproval(
-                //     subject,
-                //     title,
-                //     greetings,
-                //     bodyTable,
-                //     undefined,
-                //     findAssignHosName.tm_name,
-                //     selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-                //     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-                //     selected_machine_data.machine_code,
-                //     selected_machine_data.machine_name,
-                //     selected_machine_data.checkSheet_data.checksheet_status,
-                //     selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                //     selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                //     tlApproval, undefined, undefined)
+                sendApproval(
+                    subject,
+                    title,
+                    greetings,
+                    bodyTable,
+                    undefined,
+                    findAssignHosName.tm_name,
+                    selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
+                    selected_machine_data.machine_code,
+                    selected_machine_data.machine_name,
+                    selected_machine_data.checkSheet_data.checksheet_status,
+                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                    selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                    tlApproval, undefined, undefined)
             } else if (selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1] === "Accepted" && selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] === "Pending") {
                 let hosApproval = "Accepted"
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] = "Accepted"
@@ -3667,15 +3667,15 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
                 //  console.log(TLApprovalStatusUpdate)
-                // sendApproval(selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-                //     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-                //     selected_machine_data.machine_code,
-                //     selected_machine_data.machine_name,
-                //     selected_machine_data.checkSheet_data.checksheet_status,
-                //     selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                //     selected_machine_data.checkSheet_data.assign_TL,
-                //     selected_machine_data.checkSheet_data.tl_approval_status,
-                //     hosApproval, undefined)
+                sendApproval(selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
+                    selected_machine_data.machine_code,
+                    selected_machine_data.machine_name,
+                    selected_machine_data.checkSheet_data.checksheet_status,
+                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                    selected_machine_data.checkSheet_data.assign_TL,
+                    selected_machine_data.checkSheet_data.tl_approval_status,
+                    hosApproval, undefined)
 
             } else if (selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] === "Pending") {
                 let hosApproval = "Accepted"
@@ -3690,16 +3690,16 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                 }, {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
-                // sendApproval(selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-                //     selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-                //     selected_machine_data.machine_code,
-                //     selected_machine_data.machine_name,
-                //     selected_machine_data.checkSheet_data.checksheet_status,
-                //     selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                //     undefined,
-                //     undefined,
-                //     hosApproval,
-                //     "No")
+                sendApproval(selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
+                    selected_machine_data.machine_code,
+                    selected_machine_data.machine_name,
+                    selected_machine_data.checkSheet_data.checksheet_status,
+                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                    undefined,
+                    undefined,
+                    hosApproval,
+                    "No")
             } else if (selected_machine_data.checkSheet_data.prd_tl_approval_status[(selected_machine_data.checkSheet_data.prd_tl_approval_status).length - 1] === "Pending") {
                 for (let i = 0; i < selected_machine_data.checkSheet_data.checkSheet.length; i++) {
                     for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
@@ -3773,22 +3773,22 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                         
                     </table>`
 
-                // sendApproval(
-                //     subject,
-                //     title,
-                //     greetings,
-                //     bodyTable,
-                //     ccMail,
-                //     undefined,// findAssignHosName.tm_name,
-                //     undefined,// selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-                //     undefined,// selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-                //     undefined,// selected_machine_data.machine_code,
-                //     undefined,// selected_machine_data.machine_name,
-                //     undefined,// selected_machine_data.checkSheet_data.checksheet_status,
-                //     selected_machine_data?.checkSheet_data?.plan_prepared_email[(selected_machine_data?.checkSheet_data?.plan_prepared_email).length - 1],
-                //     undefined,// selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                //     undefined,// tlApproval, undefined, undefined
-                // )
+                sendApproval(
+                    subject,
+                    title,
+                    greetings,
+                    bodyTable,
+                    ccMail,
+                    undefined,// findAssignHosName.tm_name,
+                    undefined,// selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+                    undefined,// selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
+                    undefined,// selected_machine_data.machine_code,
+                    undefined,// selected_machine_data.machine_name,
+                    undefined,// selected_machine_data.checkSheet_data.checksheet_status,
+                    selected_machine_data?.checkSheet_data?.plan_prepared_email[(selected_machine_data?.checkSheet_data?.plan_prepared_email).length - 1],
+                    undefined,// selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                    undefined,// tlApproval, undefined, undefined
+                )
             } else if (selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1] === "Pending") {
                 let prd_tl_approval_status = "Accepted"
 
@@ -3894,22 +3894,22 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                         
                     </table>`
 
-                // sendApproval(
-                //     subject,
-                //     title,
-                //     greetings,
-                //     bodyTable,
-                //     ccMail,
-                //     findAssignMTDTLNameOfImplementation.tm_name,
-                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
-                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
-                //     selected_machine_data.machine_code,
-                //     selected_machine_data.machine_name,
-                //     selected_machine_data.checkSheet_data.checksheet_status,
-                //     selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth]).length - 1],
-                //     undefined,
-                //     prd_tl_approval_status, undefined, undefined, undefined
-                // )
+                sendApproval(
+                    subject,
+                    title,
+                    greetings,
+                    bodyTable,
+                    ccMail,
+                    findAssignMTDTLNameOfImplementation.tm_name,
+                    selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
+                    selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
+                    selected_machine_data.machine_code,
+                    selected_machine_data.machine_name,
+                    selected_machine_data.checkSheet_data.checksheet_status,
+                    selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth]).length - 1],
+                    undefined,
+                    prd_tl_approval_status, undefined, undefined, undefined
+                )
 
                 // sendApprovalOfImplementation(findAssignMTDTLNameOfImplementation.tm_name,
                 //     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
@@ -4023,23 +4023,23 @@ router.post('/approveRequestFromTLandHOS', authenticate, async (req, res) => {
                     </table>`
 
 
-                // sendApproval(
-                //     subject,
-                //     title,
-                //     greetings,
-                //     bodyTable,
-                //     undefined,
-                //     findAssignMTDHOSNameOfImplementation.tm_name,
-                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
-                //     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
-                //     selected_machine_data.machine_code,
-                //     selected_machine_data.machine_name,
-                //     selected_machine_data.checkSheet_data.checksheet_status,
-                //     selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth]).length - 1],
-                //     undefined,
-                //     selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1],
-                //     mtd_tl_approval_status, undefined, undefined
-                // )
+                sendApproval(
+                    subject,
+                    title,
+                    greetings,
+                    bodyTable,
+                    undefined,
+                    findAssignMTDHOSNameOfImplementation.tm_name,
+                    selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
+                    selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
+                    selected_machine_data.machine_code,
+                    selected_machine_data.machine_name,
+                    selected_machine_data.checkSheet_data.checksheet_status,
+                    selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth]).length - 1],
+                    undefined,
+                    selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1],
+                    mtd_tl_approval_status, undefined, undefined
+                )
 
 
 
@@ -11219,15 +11219,23 @@ router.post('/postSectionToGetAllDataForSparePartsReport', authenticate, async (
 
         const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
 
-        let totalMonthlySpareConsumption = [];
-        // console.log(i, "------->")
+        let totalMonthlyPMSpareConsumption = [];
+        let totalMonthlyBMSpareConsumption = [];
+        let totalMonthlyCorrectiveSpareConsumption = [];
+        let totalMonthlyPridictiveSpareConsumption = [];
+        let totalMonthlyKaizenSpareConsumption = [];
+
+        //For Spare PM count
         for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
-            let sumOfTotalSpareCost
+            let sumOfTotalPMSpareCost = 0
+
+
 
             let keyOfSpareDetailsExistsOrNot = `checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}`
             // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
             let keyForSparePartsUsedOrNot = `checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.spareParts`
-            let keyForTotalCostOfSpareParts = `$checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.cost`
+            let keyForTotalCostOfPMSpareParts = `$checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.cost`
+
 
             groupData = await Machine.aggregate([{
                 $match: {
@@ -11242,45 +11250,641 @@ router.post('/postSectionToGetAllDataForSparePartsReport', authenticate, async (
                 $match: {
                     [keyOfSpareDetailsExistsOrNot]: { $ne: undefined },
                     [keyForSparePartsUsedOrNot]: { $ne: undefined },
-                    // "checkSheet_data.carriedPMStatus": { $ne: undefined },
                 }
             },
             {
                 $group: {
                     _id: "$line_names",
-                    machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
-                    totalSpareCost: {
-                        $sum: keyForTotalCostOfSpareParts
+                    machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", checkSheet_data: "$checkSheet_data" } },
+                    totalPMSpareCost: {
+                        $sum: keyForTotalCostOfPMSpareParts
                     },
-
                 },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    line_names: "$_id",
+                    machine: 1,
+                    "totalPMSpareCost": 1,
+                }
+            },
+
+
+            ])
+            // console.log(groupData)
+            if (groupData?.length > 0) {
+                sumOfTotalPMSpareCost = groupData[0]?.totalPMSpareCost
+            }
+
+            if (sumOfTotalPMSpareCost) {
+                totalMonthlyPMSpareConsumption.push(sumOfTotalPMSpareCost)
+            } else {
+                totalMonthlyPMSpareConsumption.push(0)
+            }
+        }
+
+
+        //For other spare categories  count
+        for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
+            let sumOfTotalBMSpareCost = 0
+            let sumOfTotalCorrectiveSpareCost = 0
+            let sumOfTotalPridictiveSpareCost = 0
+            let sumOfTotalKaizenSpareCost = 0
+
+
+            let keyOfSpareDetailsExistsOrNot = `checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}`
+            // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
+            let keyForSparePartsUsedOrNot = `checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.spareParts`
+            let keyForTotalCostOfPMSpareParts = `$checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.cost`
+            let keyForSparePartTypes = `$checkSheet_data.extraSpareDetails.${financialYearWiseMonthKeyArray[j]}.type`
+            let keyForTotalCostOfExtraSpareDetails = `$checkSheet_data.extraSpareDetails.${financialYearWiseMonthKeyArray[j]}.cost`
+            let keyForTotalCostOfExtraSpareDetailsUnwind = `$checkSheet_data.extraSpareDetails.${financialYearWiseMonthKeyArray[j]}`
+
+            groupData = await Machine.aggregate([{
+                $match: {
+                    line_names: { $in: lineData?.map((item) => item?._id) },
+                    "checkSheet_data": { $ne: undefined },
+                    $or: selectedYearOfCheckSheet,
+                }
+            },
+            { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            { $unwind: keyForTotalCostOfExtraSpareDetailsUnwind },
+            {
+                $group: {
+                    _id: "$line_names",
+                    machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", checkSheet_data: "$checkSheet_data" } },
+                    totalBMSpareCost: {
+                        $sum: {
+                            $cond: [{
+                                $eq: [keyForSparePartTypes, "BM"]
+                            },
+                                keyForTotalCostOfExtraSpareDetails, 0
+                            ]
+                        }
+                    },
+                    totalCorrectiveSpareCost: {
+                        $sum: {
+                            $cond: [{
+                                $eq: [keyForSparePartTypes, "Corrective"]
+                            },
+                                keyForTotalCostOfExtraSpareDetails, 0
+                            ]
+                        }
+                    },
+                    totalPridictiveSpareCost: {
+                        $sum: {
+                            $cond: [{
+                                $eq: [keyForSparePartTypes, "Predictive"]
+                            },
+                                keyForTotalCostOfExtraSpareDetails, 0
+                            ]
+                        }
+                    },
+                    totalKaizenSpareCost: {
+                        $sum: {
+                            $cond: [{
+                                $eq: [keyForSparePartTypes, "Kaizen"]
+                            },
+                                keyForTotalCostOfExtraSpareDetails, 0
+                            ]
+                        }
+                    }
+                }
             },
             {
                 $project: {
                     _id: 0,
                     line_names: "$_id",
                     machine: 1,
-                    "totalSpareCost": 1,
+                    "totalBMSpareCost": 1,
+                    "totalCorrectiveSpareCost": 1,
+                    "totalPridictiveSpareCost": 1,
+                    "totalKaizenSpareCost": 1
+
+                    // machine_code: 1,
+                    // checkSheet_data: 1
                 }
             },
+
             ])
 
-            // if (groupData.length > 0) {
-            //     sumOfTotalSpareCost = groupData[0].totalSpareCost
-            // }
+            // console.log(financialYearWiseMonthKeyArray[j], "---------------", groupData)
+
+            if (groupData?.length > 0) {
+                for (let i = 0; i < groupData?.length; i++) {
+                    sumOfTotalBMSpareCost = sumOfTotalBMSpareCost + groupData[i]?.totalBMSpareCost
+                    sumOfTotalCorrectiveSpareCost = sumOfTotalCorrectiveSpareCost + groupData[i]?.totalCorrectiveSpareCost
+                    sumOfTotalPridictiveSpareCost = sumOfTotalPridictiveSpareCost + groupData[i]?.totalPridictiveSpareCost
+                    sumOfTotalKaizenSpareCost = sumOfTotalKaizenSpareCost + groupData[i]?.totalKaizenSpareCost
+                }
+
+            }
 
 
-            console.log("---------------", groupData)
+            // //push the value of sum of BM category spare details in array
+            if (sumOfTotalBMSpareCost > 0) {
+                totalMonthlyBMSpareConsumption.push(sumOfTotalBMSpareCost)
+            } else {
+                totalMonthlyBMSpareConsumption.push(0)
+            }
+            //push the value of sum of Corrective category spare details in array
+            if (sumOfTotalCorrectiveSpareCost > 0) {
+                totalMonthlyCorrectiveSpareConsumption.push(sumOfTotalCorrectiveSpareCost)
+            } else {
+                totalMonthlyCorrectiveSpareConsumption.push(0)
+            }
 
-            // if (sumOfTotalSpareCost) {
-            //     totalMonthlySpareConsumption.push(sumOfTotalSpareCost)
-            // } else {
-            //     totalMonthlySpareConsumption.push(0)
-            // }
+            //push the value of sum of Pridictive category spare details in array
+            if (sumOfTotalPridictiveSpareCost > 0) {
+                totalMonthlyPridictiveSpareConsumption.push(sumOfTotalPridictiveSpareCost)
+            } else {
+                totalMonthlyPridictiveSpareConsumption.push(0)
+            }
+
+            //push the value of sum of Kaizen category spare details in array
+            if (sumOfTotalKaizenSpareCost > 0) {
+                totalMonthlyKaizenSpareConsumption.push(sumOfTotalKaizenSpareCost)
+            } else {
+                totalMonthlyKaizenSpareConsumption.push(0)
+
+            }
+
         }
-        // console.log(totalMonthlySpareConsumption)
 
-        res.json({ subSectionsData, cellData, lineData, totalMonthlySpareConsumption })
+        // console.log(totalMonthlyBMSpareConsumption, "------BM")
+        // console.log(totalMonthlyCorrectiveSpareConsumption, "-----Corre")  
+        // console.log(totalMonthlyPridictiveSpareConsumption, "----Pridic"),
+        // console.log(totalMonthlyKaizenSpareConsumption, "-----kaizen")
+
+        res.json({
+            subSectionsData, cellData, lineData, totalMonthlyPMSpareConsumption, totalMonthlyBMSpareConsumption,
+            totalMonthlyCorrectiveSpareConsumption, totalMonthlyPridictiveSpareConsumption, totalMonthlyKaizenSpareConsumption
+        })
+
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+//Get data for spare parts perticular line( monthly spare consumption )
+
+router.post('/postPerticularLineToGetDataForMonthlySpareConsumption', authenticate, async (req, res) => {
+    try {
+        let { line, selectedYear } = req.body
+        // console.log(line)
+        // let selectedYear = "2022-2023"
+        let current_year =
+            new Date().getMonth() <= 3 ?
+                `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
+                `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+        let selectedYearOfCheckSheet =
+            selectedYear === current_year ? [{
+                "checkSheet_data.current_year": selectedYear
+            },
+            {
+                "checkSheet_data": []
+            }
+            ] : [{
+                "checkSheet_data.current_year": selectedYear
+            },]
+        const ObjectId = mongoose.Types.ObjectId;
+
+        let groupData
+        let allData = []
+        // y = "Nov"
+        const monthKeyArray = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "June",
+            "July",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
+
+        let totalMonthlyPMSpareConsumption = [];
+        let totalMonthlyBMSpareConsumption = [];
+        let totalMonthlyCorrectiveSpareConsumption = [];
+        let totalMonthlyPridictiveSpareConsumption = [];
+        let totalMonthlyKaizenSpareConsumption = [];
+
+        //For Spare PM count
+        for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
+            let sumOfTotalPMSpareCost = 0
+
+
+
+            let keyOfSpareDetailsExistsOrNot = `checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}`
+            // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
+            let keyForSparePartsUsedOrNot = `checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.spareParts`
+            let keyForTotalCostOfPMSpareParts = `$checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.cost`
+
+
+            groupData = await Machine.aggregate([{
+                $match: {
+                    line_names: ObjectId(line),
+                    "checkSheet_data": { $ne: undefined },
+                    $or: selectedYearOfCheckSheet,
+                }
+            },
+            { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            { $unwind: '$checkSheet_data.checkSheet' },
+            {
+                $match: {
+                    [keyOfSpareDetailsExistsOrNot]: { $ne: undefined },
+                    [keyForSparePartsUsedOrNot]: { $ne: undefined },
+                }
+            },
+            {
+                $group: {
+                    _id: "$line_names",
+                    machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", checkSheet_data: "$checkSheet_data" } },
+                    totalPMSpareCost: {
+                        $sum: keyForTotalCostOfPMSpareParts
+                    },
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    line_names: "$_id",
+                    machine: 1,
+                    "totalPMSpareCost": 1,
+                }
+            },
+
+
+            ])
+            // console.log(groupData)
+            if (groupData?.length > 0) {
+                sumOfTotalPMSpareCost = groupData[0]?.totalPMSpareCost
+            }
+
+            if (sumOfTotalPMSpareCost) {
+                totalMonthlyPMSpareConsumption.push(sumOfTotalPMSpareCost)
+            } else {
+                totalMonthlyPMSpareConsumption.push(0)
+            }
+        }
+
+
+        //For other spare categories  count
+        for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
+            let sumOfTotalBMSpareCost = 0
+            let sumOfTotalCorrectiveSpareCost = 0
+            let sumOfTotalPridictiveSpareCost = 0
+            let sumOfTotalKaizenSpareCost = 0
+
+
+            let keyOfSpareDetailsExistsOrNot = `checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}`
+            // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
+            let keyForSparePartsUsedOrNot = `checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.spareParts`
+            let keyForTotalCostOfPMSpareParts = `$checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.cost`
+            let keyForSparePartTypes = `$checkSheet_data.extraSpareDetails.${financialYearWiseMonthKeyArray[j]}.type`
+            let keyForTotalCostOfExtraSpareDetails = `$checkSheet_data.extraSpareDetails.${financialYearWiseMonthKeyArray[j]}.cost`
+            let keyForTotalCostOfExtraSpareDetailsUnwind = `$checkSheet_data.extraSpareDetails.${financialYearWiseMonthKeyArray[j]}`
+
+            groupData = await Machine.aggregate([{
+                $match: {
+                    line_names: ObjectId(line),
+                    "checkSheet_data": { $ne: undefined },
+                    $or: selectedYearOfCheckSheet,
+                }
+            },
+            { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            { $unwind: keyForTotalCostOfExtraSpareDetailsUnwind },
+            {
+                $group: {
+                    _id: "$line_names",
+                    machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", checkSheet_data: "$checkSheet_data" } },
+                    totalBMSpareCost: {
+                        $sum: {
+                            $cond: [{
+                                $eq: [keyForSparePartTypes, "BM"]
+                            },
+                                keyForTotalCostOfExtraSpareDetails, 0
+                            ]
+                        }
+                    },
+                    totalCorrectiveSpareCost: {
+                        $sum: {
+                            $cond: [{
+                                $eq: [keyForSparePartTypes, "Corrective"]
+                            },
+                                keyForTotalCostOfExtraSpareDetails, 0
+                            ]
+                        }
+                    },
+                    totalPridictiveSpareCost: {
+                        $sum: {
+                            $cond: [{
+                                $eq: [keyForSparePartTypes, "Predictive"]
+                            },
+                                keyForTotalCostOfExtraSpareDetails, 0
+                            ]
+                        }
+                    },
+                    totalKaizenSpareCost: {
+                        $sum: {
+                            $cond: [{
+                                $eq: [keyForSparePartTypes, "Kaizen"]
+                            },
+                                keyForTotalCostOfExtraSpareDetails, 0
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    line_names: "$_id",
+                    machine: 1,
+                    "totalBMSpareCost": 1,
+                    "totalCorrectiveSpareCost": 1,
+                    "totalPridictiveSpareCost": 1,
+                    "totalKaizenSpareCost": 1
+
+                    // machine_code: 1,
+                    // checkSheet_data: 1
+                }
+            },
+
+            ])
+
+            // console.log(financialYearWiseMonthKeyArray[j], "---------------", groupData)
+
+            if (groupData?.length > 0) {
+                for (let i = 0; i < groupData?.length; i++) {
+                    sumOfTotalBMSpareCost = sumOfTotalBMSpareCost + groupData[i]?.totalBMSpareCost
+                    sumOfTotalCorrectiveSpareCost = sumOfTotalCorrectiveSpareCost + groupData[i]?.totalCorrectiveSpareCost
+                    sumOfTotalPridictiveSpareCost = sumOfTotalPridictiveSpareCost + groupData[i]?.totalPridictiveSpareCost
+                    sumOfTotalKaizenSpareCost = sumOfTotalKaizenSpareCost + groupData[i]?.totalKaizenSpareCost
+                }
+
+            }
+
+
+            // //push the value of sum of BM category spare details in array
+            if (sumOfTotalBMSpareCost > 0) {
+                totalMonthlyBMSpareConsumption.push(sumOfTotalBMSpareCost)
+            } else {
+                totalMonthlyBMSpareConsumption.push(0)
+            }
+            //push the value of sum of Corrective category spare details in array
+            if (sumOfTotalCorrectiveSpareCost > 0) {
+                totalMonthlyCorrectiveSpareConsumption.push(sumOfTotalCorrectiveSpareCost)
+            } else {
+                totalMonthlyCorrectiveSpareConsumption.push(0)
+            }
+
+            //push the value of sum of Pridictive category spare details in array
+            if (sumOfTotalPridictiveSpareCost > 0) {
+                totalMonthlyPridictiveSpareConsumption.push(sumOfTotalPridictiveSpareCost)
+            } else {
+                totalMonthlyPridictiveSpareConsumption.push(0)
+            }
+
+            //push the value of sum of Kaizen category spare details in array
+            if (sumOfTotalKaizenSpareCost > 0) {
+                totalMonthlyKaizenSpareConsumption.push(sumOfTotalKaizenSpareCost)
+            } else {
+                totalMonthlyKaizenSpareConsumption.push(0)
+
+            }
+
+        }
+
+        // console.log(totalTimeMonthWiseForPerticularLine)
+
+        res.json({
+            totalMonthlyPMSpareConsumption, totalMonthlyBMSpareConsumption,
+            totalMonthlyCorrectiveSpareConsumption, totalMonthlyPridictiveSpareConsumption, totalMonthlyKaizenSpareConsumption
+        })
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+
+//get data for line wise spare consumption
+router.post('/postSectionToGetAllDataForLineWiseSpareConsumption', authenticate, async (req, res) => {
+    try {
+        let { section, selectedYear } = req.body
+        // let selectedYear = "2022-2023"
+        let loggedUserData = req.rootUser;
+        let sectionSplit = section.split("-")
+        const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+        // console.log("____________", sectionInfo[0]._id)
+        let subSectionsData, subSectionIdArray = [],
+            cellData, cellIdArray = [],
+            lineData, lineIdArray = [],
+            machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
+
+        if (sectionInfo.dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        } else {
+            loggedUserData.subSection_data.map((ids) => {
+                let subsectionsId = ids.split("-")
+                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            })
+            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+        }
+
+        subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        cellData = await Cell.find({ subSection_names: { $in: subSectionsData?.map((item) => item?._id) } }).sort({ cell_sequence: 1 });
+
+        lineData = await Line.find({ cell_names: { $in: cellData?.map((item) => item?._id) } }).sort({ line_sequence: 1 });
+
+        // console.log(lineData)
+        let currentYear =
+            new Date().getMonth() <= 3 ?
+                `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
+                `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ? [{
+                "checkSheet_data.current_year": selectedYear
+            },
+            {
+                "checkSheet_data": []
+            }
+            ] : [{
+                "checkSheet_data.current_year": selectedYear
+            },]
+        // console.log(selectedYear)
+        let groupData, groupData1
+
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
+        let lineWiseSpareCost = []
+
+
+        for (let i = 0; i < lineData?.length; i++) {
+            let sumOfTotalPMSpareCost = 0
+            let sumOfTotalBMSpareCost = 0
+            let sumOfTotalCorrectiveSpareCost = 0
+            let sumOfTotalPridictiveSpareCost = 0
+            let sumOfTotalKaizenSpareCost = 0
+
+            //For Spare PM count
+            for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
+
+                let keyOfSpareDetailsExistsOrNot = `checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}`
+                // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
+                let keyForSparePartsUsedOrNot = `checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.spareParts`
+                let keyForTotalCostOfPMSpareParts = `$checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.cost`
+                let keyForSparePartTypes = `$checkSheet_data.extraSpareDetails.${financialYearWiseMonthKeyArray[j]}.type`
+                let keyForTotalCostOfExtraSpareDetails = `$checkSheet_data.extraSpareDetails.${financialYearWiseMonthKeyArray[j]}.cost`
+                let keyForTotalCostOfExtraSpareDetailsUnwind = `$checkSheet_data.extraSpareDetails.${financialYearWiseMonthKeyArray[j]}`
+
+                groupData = await Machine.aggregate([{
+                    $match: {
+                        line_names: lineData[i]._id,
+                        "checkSheet_data": { $ne: undefined },
+                        $or: selectedYearOfCheckSheet,
+                    }
+                },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+                { $unwind: '$checkSheet_data.checkSheet' },
+                {
+                    $match: {
+                        [keyOfSpareDetailsExistsOrNot]: { $ne: undefined },
+                        [keyForSparePartsUsedOrNot]: { $ne: undefined },
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$line_names",
+                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", checkSheet_data: "$checkSheet_data" } },
+                        totalPMSpareCost: {
+                            $sum: keyForTotalCostOfPMSpareParts
+                        },
+                    },
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        line_names: "$_id",
+                        machine: 1,
+                        "totalPMSpareCost": 1,
+                    }
+                },
+                ])
+
+                groupData1 = await Machine.aggregate([{
+                    $match: {
+                        line_names: lineData[i]._id,
+                        "checkSheet_data": { $ne: undefined },
+                        $or: selectedYearOfCheckSheet,
+                    }
+                },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+                { $unwind: keyForTotalCostOfExtraSpareDetailsUnwind },
+                {
+                    $group: {
+                        _id: "$line_names",
+                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", checkSheet_data: "$checkSheet_data" } },
+                        totalBMSpareCost: {
+                            $sum: {
+                                $cond: [{
+                                    $eq: [keyForSparePartTypes, "BM"]
+                                },
+                                    keyForTotalCostOfExtraSpareDetails, 0
+                                ]
+                            }
+                        },
+                        totalCorrectiveSpareCost: {
+                            $sum: {
+                                $cond: [{
+                                    $eq: [keyForSparePartTypes, "Corrective"]
+                                },
+                                    keyForTotalCostOfExtraSpareDetails, 0
+                                ]
+                            }
+                        },
+                        totalPridictiveSpareCost: {
+                            $sum: {
+                                $cond: [{
+                                    $eq: [keyForSparePartTypes, "Predictive"]
+                                },
+                                    keyForTotalCostOfExtraSpareDetails, 0
+                                ]
+                            }
+                        },
+                        totalKaizenSpareCost: {
+                            $sum: {
+                                $cond: [{
+                                    $eq: [keyForSparePartTypes, "Kaizen"]
+                                },
+                                    keyForTotalCostOfExtraSpareDetails, 0
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        line_names: "$_id",
+                        machine: 1,
+                        "totalBMSpareCost": 1,
+                        "totalCorrectiveSpareCost": 1,
+                        "totalPridictiveSpareCost": 1,
+                        "totalKaizenSpareCost": 1
+
+                        // machine_code: 1,
+                        // checkSheet_data: 1
+                    }
+                },
+
+                ])
+
+                // console.log(financialYearWiseMonthKeyArray[j], "---------------", groupData)
+                if (groupData?.length > 0) {
+
+                    sumOfTotalPMSpareCost = sumOfTotalPMSpareCost + groupData[0]?.totalPMSpareCost
+                }
+                if (groupData1?.length > 0) {
+                    for (let i = 0; i < groupData1?.length; i++) {
+                        sumOfTotalBMSpareCost = sumOfTotalBMSpareCost + groupData1[i]?.totalBMSpareCost
+                        sumOfTotalCorrectiveSpareCost = sumOfTotalCorrectiveSpareCost + groupData1[i]?.totalCorrectiveSpareCost
+                        sumOfTotalPridictiveSpareCost = sumOfTotalPridictiveSpareCost + groupData1[i]?.totalPridictiveSpareCost
+                        sumOfTotalKaizenSpareCost = sumOfTotalKaizenSpareCost + groupData1[i]?.totalKaizenSpareCost
+                    }
+
+                }
+
+            }
+            lineWiseSpareCost.push(
+                new Object({
+                    line_name: lineData[i]?.line_name,
+                    sumOfTotalPMSpareCost: sumOfTotalPMSpareCost,
+                    sumOfTotalBMSpareCost: sumOfTotalBMSpareCost,
+                    sumOfTotalCorrectiveSpareCost: sumOfTotalCorrectiveSpareCost,
+                    sumOfTotalPridictiveSpareCost: sumOfTotalPridictiveSpareCost,
+                    sumOfTotalKaizenSpareCost: sumOfTotalKaizenSpareCost
+                })
+            )
+
+        }
+
+        res.json({
+            subSectionsData, cellData, lineData, lineWiseSpareCost
+        })
 
     } catch (error) {
         console.log(error)
