@@ -849,7 +849,7 @@ const MainDashboard = () => {
                   <Col>
                     {context.user_type === "Section-Admin" ? (
                       <button
-                        className="btn-primary"
+                        className="btn-primary1"
                         onClick={addNewCheckSheetAfterChangeFinancialyear}
                       >
                         <AutorenewIcon /> &nbsp; Update{" "}
