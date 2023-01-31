@@ -14,19 +14,25 @@ import GettingMachineDataForCheckSheetImplementation from "../Operator/GettingMa
 
 import currentYear from "./DashboardComponent/currentYear";
 import YearDropDown from "./DashboardComponent/YearDropDown";
+import YearDropDownForMainDashboard from "./DashboardComponent/YearDropDownForMainDashboard";
 import MonthDropDown from "./DashboardComponent/MonthDropDown";
+import MonthDropDownForMainDashboard from "./DashboardComponent/MonthDropDownForMainDashboard";
 import currentMonth from "./DashboardComponent/currentMonth";
 
 import GraphsInMainDashboard from "./DashboardComponent/GraphsInMainDashboard";
 import { light } from "@mui/material/styles/createPalette";
 import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
+import { FormControlUnstyled } from "@mui/base";
 
 const MainDashboard = () => {
   const [sections, setsections] = useState();
   const [subSection, setSubSection] = useState("");
+  // console.log("$$$$$$$$$$$$$$$$$$$", subSection);
 
   //for showing sub-section data based on it's selection
   const [selectedSubSectionId, setSelectedSubSectionId] = useState();
+
+  const [refKey, setRefKey] = useState(0);
 
   const [
     selectedSubSectionIdForDefaultDashboard,
@@ -45,9 +51,6 @@ const MainDashboard = () => {
     machineWiseCheckSheetForImplementation,
     setMachineWiseCheckSheetForImplementation,
   ] = useState("");
-
-  const [refKey, setRefKey] = useState(0);
-  const [refKey2, setRefKey2] = useState(0);
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
@@ -83,6 +86,9 @@ const MainDashboard = () => {
   };
   const postSectionToGetSubSectionList = async (selectedSection) => {
     setSubSection(undefined);
+    // setallDataSectionWise("");
+    setSelectedSubSectionId();
+
     try {
       const res = await fetch("/postSectionToGetSubSectionList", {
         method: "POST",
@@ -163,7 +169,7 @@ const MainDashboard = () => {
       } else {
         // window.alert(data.abcd);
         // console.log("Data post");
-        console.log(data);
+        // console.log("======================>168", data);
         setallDataSectionWise(data);
         setDefaultSubSection(data.defaultSubSectionArray);
         setDeafaultDataForNoDashboard(data);
@@ -296,7 +302,7 @@ const MainDashboard = () => {
     // }
 
     postPlantToGetSectionList();
-  }, [refKey]);
+  }, []);
 
   useEffect(() => {
     if (sections) {
@@ -312,7 +318,7 @@ const MainDashboard = () => {
     if (sections) {
       postSectionToGetSubSectionList(sections);
     }
-  }, [sections, refKey2]);
+  }, [sections]);
 
   useEffect(() => {
     if (context.user_type === "Operator") {
@@ -323,18 +329,18 @@ const MainDashboard = () => {
   }, [context.section_data, selectedYear]);
 
   const setDeafaultDataForNoDashboard = (data) => {
-    // console.log(allDataSectionWise)
+    // console.log("!!!!!!!!!!!!!!!!!!!!!!!!! 328", data);
     if (data.sectionInfo) {
       // console.log( context.subSection_data.length)
 
       if (data.sectionInfo[0].dashboardLevel === "No") {
-        if (context.subSection_data.length === 1) {
+        if (context.subSection_data.length >= 1) {
           data.subSectionsData.map((id) => {
             // console.log(context.subSection_data[0]);
             let subSectionSplit = context.subSection_data[0].split("-");
             // console.log(subSectionSplit[0]);
             if (id.subSection_id === subSectionSplit[0]) {
-              // console.log(id._id)
+              // console.log("***************** 339", id._id);
               setSelectedSubSectionIdForDefaultDashboard(id._id);
             }
           });
@@ -432,7 +438,15 @@ const MainDashboard = () => {
   const [currentMonthGraphAndTableData, setCurrentMonthGraphAndTableData] =
     useState();
 
-  const postSectionToGetAllDataForMainDashboardGraph = async () => {
+  const postSectionToGetAllDataForMainDashboardGraph = async (
+    sectionOrSubSection,
+    dashboardLevel
+  ) => {
+    // console.log(
+    //   "######################################",
+    //   sectionOrSubSection,
+    //   dashboardLevel
+    // );
     // setSubSection(undefined);
     try {
       const res = await fetch("/postSectionToGetAllDataForMainDashboardGraph", {
@@ -441,8 +455,9 @@ const MainDashboard = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          section: context.section_data,
+          sectionOrSubSection,
           selectedYear,
+          dashboardLevel,
           selectedMonth,
         }),
       });
@@ -452,7 +467,7 @@ const MainDashboard = () => {
         console.log("Invalid");
       } else {
         // console.log(data.machineData2[0][0].line_names.line_name);
-        // console.log(data);
+        // console.log("457 ++++++++++++++++", data);
         setCurrentMonthGraphAndTableData(data);
         // setGraphData(data);
         // setTableData(data.lineDataWithCounter);
@@ -462,10 +477,72 @@ const MainDashboard = () => {
     }
   };
 
+  const postSectionToGetSectionInfo = async (sectionName) => {
+    try {
+      const res = await fetch("/postSectionToGetSectionInfo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          section: sectionName,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        if (data?.sectionInfo?.dashboardLevel === "Yes") {
+          // console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+          postSectionToGetAllDataForMainDashboardGraph(
+            data?.sectionInfo?._id,
+            data?.sectionInfo?.dashboardLevel
+          );
+        } else {
+          if (refKey === 0) {
+            // console.log(
+            //   "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+            //   selectedSubSectionIdForDefaultDashboard
+            // );
+            // console.log(
+            //   "========>",
+            //   selectedSubSectionId,
+            //   selectedSubSectionIdForDefaultDashboard
+            // );
+            // console.log("----->", context);
+            await postSectionToGetAllDataForMainDashboardGraph(
+              selectedSubSectionIdForDefaultDashboard,
+              data?.sectionInfo?.dashboardLevel
+            );
+            setRefKey((refKey) => refKey + 1);
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    postSectionToGetAllDataForMainDashboardGraph(selectedSubSectionId, "No");
+  }, [selectedSubSectionId]);
+
+  // console.log("========>", selectedSubSectionIdForDefaultDashboard);
+
+  useEffect(() => {
+    postSectionToGetSectionInfo(sections || context.section_data);
+  }, [
+    selectedYear,
+    selectedMonth,
+    sections,
+    selectedSubSectionIdForDefaultDashboard,
+  ]);
+
   useEffect(() => {
     // setCurrentMonthGraphAndTableData("");
+    // console.log("@@@@@@@@@@@@@@@@@", sections, context.section_data);
     postSectionToGetAllDataForMainDashboardGraph();
-  }, [selectedYear, selectedMonth]);
+  }, [selectedYear, selectedMonth, sections]);
 
   const [annualGraph, setAnnualGraph] = useState();
 
@@ -503,391 +580,258 @@ const MainDashboard = () => {
     postSectionToGetAllDataForAnnualStatusReport();
   }, [selectedYear]);
 
-  
-
-
   return (
     <>
       {machineWiseCheckSheetForImplementation}
 
-
-      
       <ToastContainer />
 
       <Container fluid className="operatorDashboard">
         <Row>
-          <Col sm={12} md={9} lg={9}>
+          <Col sm={12} md={9} lg={9} className="left-component-main-dashboard">
             {Object.keys(allDataSectionWise).length > 0 ? (
               <Col>
-                {/* <div className="row mb-4 d-flex align-items-center  m-2">
-              <div className="col-3">
-                <span style={{ fontWeight: "500", fontSize: "12px" }}>
-                  Section: &nbsp;
-                </span>{" "}
-                <select
-                  class="form-select form-select-sm"
-                  aria-label=".form-select-sm example"
-                  style={{ width: "50%" }}
-                  id="standard-select-currency"
-                  name="plant"
-                  className="textField"
-                  select
-                  fullWidth // label="Select"
-                  autoComplete="off"
-                  value={sections === undefined ? "" : sections}
-                  onChange={(e) => {
-                    setsections(e.target.value);
-                  }}
-                  variant="standard"
-                >
-                  <option
-                    selected
-                    disabled
-                    value=""
-                    style={{ backgroundColor: "skyblue" }}
-                  >
-                    {context.section_data}
-                  </option>
-
-                  {sectionList !== ""
-                    ? sectionList.sectionArray.map((option) => {
-                        return <option value={option}>{option}</option>;
-                      })
-                    : ""}
-                </select>
-              </div>
-              <div className="col-3">
-                {allDataSectionWise ? (
-                  allDataSectionWise.sectionInfo[0].dashboardLevel === "Yes" ? (
-                    ""
-                  ) : (
-                    <div>
-                      <span style={{ fontWeight: "500", fontSize: "12px" }}>
-                        Sub Section: &nbsp;
-                      </span>
-                      <select
-                        class="form-select form-select-sm"
-                        aria-label=".form-select-sm example"
-                        style={{ width: "50%" }}
-                        name="plant"
-                        className="textField"
-                        select
-                        fullWidth // label="Select"
-                        autoComplete="off"
-                        value={
-                          subSection === undefined
-                            ? ""
-                            : subSection === ""
-                            ? context.subSection_data[0]
-                            : subSection
-                        }
-                        onChange={(e) => {
-                          getSelectedSubsection(e.target.value);
-                          setSubSection(e.target.value);
-                        }}
-                        variant="standard"
-                      >
-                        <option selected disabled value="">
-                          Please select
-                        </option>
-                        {allDataSectionWise
-                          ? defaultSubSection?.map((option) => {
-                              return (
-                                <option className="optionStyle" value={option}>
-                                  {option}
-                                </option>
-                              );
-                            })
-                          : subSectionList !== ""
-                          ? subSectionList.subSectionArray.map((option) => {
-                              return (
-                                <option className="optionStyle" value={option}>
-                                  {option}
-                                </option>
-                              );
-                            })
-                          : ""}
-                      </select>
-                    </div>
-                  )
-                ) : subSectionList.sectionInfo ? (
-                  subSectionList.sectionInfo.dashboardLevel === "Yes" ? (
-                    ""
-                  ) : (
-                    <div>
-                      <span style={{ fontWeight: "500", fontSize: "12px" }}>
-                        Sub Section: &nbsp;
-                      </span>
-                      <br />
-                      <select
-                        class="form-select form-select-sm"
-                        aria-label=".form-select-sm example"
-                        style={{ width: "150%" }}
-                        name="plant"
-                        className="textField"
-                        select
-                        fullWidth // label="Select"
-                        autoComplete="off"
-                        value={subSection === undefined ? "" : subSection}
-                        onChange={(e) => {
-                          getSelectedSubsection(e.target.value);
-                          setSubSection(e.target.value);
-                        }}
-                        variant="standard"
-                      >
-                        
-                        <option selected disabled value="">
-                          Please select
-                        </option>
-                        {subSectionList !== ""
-                          ? subSectionList.subSectionArray.map((option) => {
-                              return (
-                                <option className="optionStyle" value={option}>
-                                  {option}
-                                </option>
-                              );
-                            })
-                          : ""}
-                      </select>
-                    </div>
-                  )
-                ) : (
-                  ""
-                )}
-              </div>
-              <div className="col-3"></div>
-              <div className="col-3">
-                {context.user_type === "Section-Admin" ? (
-                  <button
-                    className="btn"
-                    onClick={addNewCheckSheetAfterChangeFinancialyear}
-                  >
-                    <AutorenewIcon /> &nbsp; Update{" "}
-                    {`${new Date().getFullYear()}-${
-                      new Date().getFullYear() + 1
-                    }`}
-                  </button>
-                ) : (
-                  ""
-                )}
-              </div>
-            </div> */}
-                <Row
-                  className="mx-2 mt-5 p-2 cell"
-                  // style={{ background: "#ffffff" }}
-                  // style={{ background: "#cee4ee", border: "1px solid" }}
-                >
-                  <Col>
-                    <span style={{ fontWeight: "500", fontSize: "12px" }}>
-                      Section: &nbsp;
-                    </span>{" "}
-                    {/* <br /> */}
-                    <select
-                      class="form-select form-select-sm"
-                      aria-label=".form-select-sm example"
-                      // style={{ width: "50%" }}
-                      id="standard-select-currency"
-                      name="plant"
-                      className="textField"
-                      select
-                      // fullWidth // label="Select"
-                      autoComplete="off"
-                      value={sections === undefined ? "" : sections}
-                      onChange={(e) => {
-                        setsections(e.target.value);
-                      }}
-                      variant="standard"
+                <Row className="mx-2 mt-4 ">
+                  <Col sm={6}>
+                    <Row
+                      className="mx-1 cell p-2"
+                      // className="mx-2 mt-5 p-2 cell"
+                      // style={{ background: "#ffffff" }}
+                      // style={{ background: "#cee4ee", border: "1px solid" }}
                     >
-                      {/* {plant.map((option) => {
+                      <Col>
+                        <span style={{ fontWeight: "500", fontSize: "12px" }}>
+                          Section: &nbsp;
+                        </span>{" "}
+                        {/* <br /> */}
+                        <select
+                          class="form-select form-select-sm"
+                          aria-label=".form-select-sm example"
+                          // style={{ width: "50%" }}
+                          id="standard-select-currency"
+                          name="plant"
+                          className="textField"
+                          select
+                          // fullWidth // label="Select"
+                          autoComplete="off"
+                          value={sections === undefined ? "" : sections}
+                          onChange={(e) => {
+                            setsections(e.target.value);
+                          }}
+                          variant="standard"
+                        >
+                          {/* {plant.map((option) => {
                   return (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}
                     </MenuItem>
                   );
                 })} */}
-                      <option
-                        selected
-                        disabled
-                        value=""
-                        style={{ backgroundColor: "skyblue" }}
-                      >
-                        {context.section_data}
-                      </option>
-
-                      {sectionList !== ""
-                        ? sectionList.sectionArray.map((option) => {
-                            return <option value={option}>{option}</option>;
-                          })
-                        : ""}
-                    </select>
-                  </Col>
-                  <Col>
-                    {allDataSectionWise ? (
-                      allDataSectionWise.sectionInfo[0].dashboardLevel ===
-                      "Yes" ? (
-                        ""
-                      ) : (
-                        <div>
-                          <span style={{ fontWeight: "500", fontSize: "12px" }}>
-                            Sub Section: &nbsp;
-                          </span>
-                          {/* <br /> */}
-                          <select
-                            class="form-select form-select-sm"
-                            aria-label=".form-select-sm example"
-                            // style={{ width: "50%" }}
-                            // id="standard-select-currency"
-                            name="plant"
-                            className="textField"
-                            select
-                            // fullWidth // label="Select"
-                            autoComplete="off"
-                            value={
-                              subSection === undefined
-                                ? ""
-                                : subSection === ""
-                                ? context.subSection_data[0]
-                                : subSection
-                            }
-                            onChange={(e) => {
-                              getSelectedSubsection(e.target.value);
-                              setSubSection(e.target.value);
-                            }}
-                            variant="standard"
+                          <option
+                            selected
+                            disabled
+                            value=""
+                            style={{ backgroundColor: "skyblue" }}
                           >
-                            {/* {plant.map((option) => {
+                            {context.section_data}
+                          </option>
+
+                          {sectionList !== ""
+                            ? sectionList.sectionArray.map((option) => {
+                                return <option value={option}>{option}</option>;
+                              })
+                            : ""}
+                        </select>
+                      </Col>
+                      {allDataSectionWise ? (
+                        allDataSectionWise.sectionInfo[0].dashboardLevel ===
+                        "Yes" ? (
+                          ""
+                        ) : (
+                          <Col sm={4}>
+                            {/* <div>
+                            </div> */}
+                            <span
+                              style={{ fontWeight: "500", fontSize: "12px" }}
+                            >
+                              Sub Section: &nbsp;
+                            </span>
+                            {/* <br /> */}
+                            <select
+                              class="form-select form-select-sm"
+                              aria-label=".form-select-sm example"
+                              // style={{ width: "50%" }}
+                              // id="standard-select-currency"
+                              name="plant"
+                              className="textField"
+                              select
+                              // fullWidth // label="Select"
+                              autoComplete="off"
+                              value={
+                                subSection === undefined
+                                  ? ""
+                                  : subSection === ""
+                                  ? context.subSection_data[0]
+                                  : subSection
+                              }
+                              onChange={(e) => {
+                                getSelectedSubsection(e.target.value);
+                                setSubSection(e.target.value);
+
+                                // console.log(
+                                //   "=============>759",
+                                //   e.target.value
+                                // );
+                              }}
+                              variant="standard"
+                            >
+                              {/* {plant.map((option) => {
                 return (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
                 );
               })} */}
-                            <option selected disabled value="">
-                              Please select
-                            </option>
-                            {allDataSectionWise
-                              ? defaultSubSection?.map((option) => {
-                                  return (
-                                    <option
-                                      className="optionStyle"
-                                      value={option}
-                                    >
-                                      {option}
-                                    </option>
-                                  );
-                                })
-                              : subSectionList !== ""
-                              ? subSectionList.subSectionArray.map((option) => {
-                                  return (
-                                    <option
-                                      className="optionStyle"
-                                      value={option}
-                                    >
-                                      {option}
-                                    </option>
-                                  );
-                                })
-                              : ""}
-                          </select>
-                        </div>
-                      )
-                    ) : subSectionList.sectionInfo ? (
-                      subSectionList.sectionInfo.dashboardLevel === "Yes" ? (
-                        ""
-                      ) : (
-                        <div>
-                          <span style={{ fontWeight: "500", fontSize: "12px" }}>
-                            Sub Section: &nbsp;
-                          </span>
-                          <br />
-                          <select
-                            class="form-select form-select-sm"
-                            aria-label=".form-select-sm example"
-                            // style={{ width: "150%" }}
-                            // id="standard-select-currency"
-                            name="plant"
-                            className="textField"
-                            select
-                            // fullWidth // label="Select"
-                            autoComplete="off"
-                            value={subSection === undefined ? "" : subSection}
-                            onChange={(e) => {
-                              getSelectedSubsection(e.target.value);
-                              setSubSection(e.target.value);
-                            }}
-                            variant="standard"
-                          >
-                            {/* {plant.map((option) => {
+                              <option selected disabled value="">
+                                Please select
+                              </option>
+                              {allDataSectionWise
+                                ? defaultSubSection?.map((option) => {
+                                    return (
+                                      <option
+                                        className="optionStyle"
+                                        value={option}
+                                      >
+                                        {option}
+                                      </option>
+                                    );
+                                  })
+                                : subSectionList !== ""
+                                ? subSectionList.subSectionArray.map(
+                                    (option) => {
+                                      return (
+                                        <option
+                                          className="optionStyle"
+                                          value={option}
+                                        >
+                                          {option}
+                                        </option>
+                                      );
+                                    }
+                                  )
+                                : ""}
+                            </select>
+                          </Col>
+                        )
+                      ) : subSectionList.sectionInfo ? (
+                        subSectionList.sectionInfo.dashboardLevel === "Yes" ? (
+                          ""
+                        ) : (
+                          <Col>
+                            {/* <div>
+                            </div> */}
+                            <span
+                              style={{ fontWeight: "500", fontSize: "12px" }}
+                            >
+                              Sub Section: &nbsp;
+                            </span>
+                            <br />
+                            <select
+                              class="form-select form-select-sm"
+                              aria-label=".form-select-sm example"
+                              // style={{ width: "150%" }}
+                              // id="standard-select-currency"
+                              name="plant"
+                              className="textField"
+                              select
+                              // fullWidth // label="Select"
+                              autoComplete="off"
+                              value={subSection === undefined ? "" : subSection}
+                              onChange={(e) => {
+                                getSelectedSubsection(e.target.value);
+                                setSubSection(e.target.value);
+                              }}
+                              variant="standard"
+                            >
+                              {/* {plant.map((option) => {
                   return (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}
                     </MenuItem>
                   );
                 })} */}
-                            <option selected disabled value="">
-                              Please select
-                            </option>
-                            {subSectionList !== ""
-                              ? subSectionList.subSectionArray.map((option) => {
-                                  return (
-                                    <option
-                                      className="optionStyle"
-                                      value={option}
-                                    >
-                                      {option}
-                                    </option>
-                                  );
-                                })
-                              : ""}
-                          </select>
-                        </div>
-                      )
-                    ) : (
-                      ""
-                    )}
+                              <option selected disabled value="">
+                                Please select
+                              </option>
+                              {subSectionList !== ""
+                                ? subSectionList.subSectionArray.map(
+                                    (option) => {
+                                      return (
+                                        <option
+                                          className="optionStyle"
+                                          value={option}
+                                        >
+                                          {option}
+                                        </option>
+                                      );
+                                    }
+                                  )
+                                : ""}
+                            </select>
+                          </Col>
+                        )
+                      ) : (
+                        ""
+                      )}
+                      {context.user_type === "Section-Admin" ? (
+                        <Col sm={3}>
+                          <button
+                            className="btn-primary1"
+                            onClick={addNewCheckSheetAfterChangeFinancialyear}
+                          >
+                            <AutorenewIcon style={{ fontSize: "small" }} />{" "}
+                            &nbsp; Update{" "}
+                            {`${new Date().getFullYear()}-${
+                              new Date().getFullYear() + 1
+                            }`}
+                          </button>
+                        </Col>
+                      ) : (
+                        ""
+                      )}
+                    </Row>
                   </Col>
-                  <Col>
-                    {context.user_type === "Section-Admin" ? (
-                      <button
-                        className="btn-primary1"
-                        onClick={addNewCheckSheetAfterChangeFinancialyear}
-                      >
-                        <AutorenewIcon /> &nbsp; Update{" "}
-                        {`${new Date().getFullYear()}-${
-                          new Date().getFullYear() + 1
-                        }`}
-                      </button>
-                    ) : (
-                      ""
-                    )}
-                  </Col>
-                </Row>
 
-                <Row
-                  className="mx-2 mt-4 p-2 cell"
-                  // style={{ background: "#cee4ee", border: "1px solid" }}
-                >
-                  <Col sm>
-                    <YearDropDown
-                      selectedYear={selectedYear}
-                      setSelectedYear={setSelectedYear}
-                    />
-                  </Col>
-                  <Col sm>
-                    <MonthDropDown
-                      selectedMonth={selectedMonth}
-                      setSelectedMonth={setSelectedMonth}
-                    />
-                  </Col>
-                  <Col sm>
-                    <div className="d-flex justify-content-end">
-                      <button
-                        onClick={navigateToSummeryDashboard}
-                        className="btn-danger"
-                      >
-                        Summary
-                      </button>
-                    </div>
+                  <Col sm={6}>
+                    <Row
+                      className="mx-1 cell p-2"
+                      // className="mx-2 mt-4 p-2 cell"
+                      // style={{ background: "#cee4ee", border: "1px solid" }}
+                    >
+                      <Col>
+                        <YearDropDownForMainDashboard
+                          selectedYear={selectedYear}
+                          setSelectedYear={setSelectedYear}
+                        />
+                      </Col>
+
+                      <Col>
+                        <MonthDropDownForMainDashboard
+                          selectedMonth={selectedMonth}
+                          setSelectedMonth={setSelectedMonth}
+                        />
+                      </Col>
+                      <Col sm={2}>
+                        <div className="d-flex justify-content-center align-items-center m-2">
+                          <button
+                            onClick={navigateToSummeryDashboard}
+                            className="btn-danger"
+                          >
+                            Summary
+                          </button>
+                        </div>
+                      </Col>
+                    </Row>
                   </Col>
                 </Row>
 
@@ -2031,7 +1975,12 @@ const MainDashboard = () => {
               </div>
             )}
           </Col>
-          <Col sm={12} md={3} lg={3}>
+          <Col
+            sm={12}
+            md={3}
+            lg={3}
+            className="right-component-main-dashboard mt-5"
+          >
             <Col style={{ margin: "10px" }}>
               <GraphsInMainDashboard
                 sections={sections}

@@ -350,19 +350,21 @@ function PMSheetApprovalOfImplementationPhase() {
                         ?.length > 0 ? (
                         <td className="td-padding">
                           {" "}
-                          <b>
-                            {index?.checkSheet_data?.implemetation_mtd_hod_approval_status?.[
+                          <p>
+                            <b>
+                              {index?.checkSheet_data?.implemetation_mtd_hod_approval_status?.[
+                                monthKey
+                              ]?.at(-1)}
+                            </b>
+                            -
+                            {index?.checkSheet_data?.implementation_approved_MTD_HOD_date?.[
                               monthKey
                             ]?.at(-1)}
-                          </b>
-                          -
-                          {index?.checkSheet_data?.implementation_approved_MTD_HOD_date?.[
-                            monthKey
-                          ]?.at(-1)}
-                          -
-                          {index?.checkSheet_data?.implementation_approved_by_MTD_HOD?.[
-                            monthKey
-                          ]?.at(-1)}
+                            -
+                            {index?.checkSheet_data?.implementation_approved_by_MTD_HOD?.[
+                              monthKey
+                            ]?.at(-1)}
+                          </p>
                         </td>
                       ) : (
                         <td className="td-padding"></td>

@@ -235,15 +235,15 @@ const GraphsInMainDashboard = ({
     value: currentMonthGraphAndTableData?.sumVariableForTotalSchedule,
   };
   return (
-    <div>
+    <div className="m-2">
       {/* <Container className="d-flex justify-content-center align-items-center"></Container> */}
       <Row className="d-flex justify-content-center align-items-center">
-        <Card>
+        <div className="cell">
           <MonthlyTrendGraph annualGraph={annualGraph} />
-        </Card>
+        </div>
       </Row>
       <Row className="d-flex justify-content-center align-items-center">
-        <Card>
+        <div className="cell">
           <Row>
             <Col className="d-flex justify-content-center align-items-center">
               <div style={{ width: "20rem" }}>
@@ -261,7 +261,7 @@ const GraphsInMainDashboard = ({
           </Row>
           <Row>
             <Col className="d-flex justify-content-center align-items-center pt-2">
-              <Table bordered hover size="sm">
+              <Table bordered hover size="sm" style={{ fontSize: "12px" }}>
                 <tbody>
                   <tr
                     // style={{ background: Data.bgColor }}
@@ -283,107 +283,121 @@ const GraphsInMainDashboard = ({
               </Table>
             </Col>
           </Row>
-        </Card>
+        </div>
       </Row>
-      <Row className="d-flex justify-content-center align-items-center">
-        <Card>
-          <Col>Remarks :</Col>
-          <Row>
-            <Col className="col-9">
-              <span>{fetchedRemarks}</span>
+      <Row
+        className="d-flex justify-content-center align-items-center"
+        style={{ fontSize: "12px" }}
+      >
+        {fetchedRemarks ? (
+          <div className="cell">
+            <Col>
+              Remarks: <span>{fetchedRemarks}</span>
             </Col>
-          </Row>
-        </Card>
+            {/* <Row>
+              <Col className="col-9">
+                <span>{fetchedRemarks}</span>
+              </Col>
+            </Row> */}
+          </div>
+        ) : (
+          ""
+        )}
         {allDataSectionWise?.sectionInfo?.[0].dashboardLevel === "Yes" ? (
-          <Card>
-            <Col>Remarks :</Col>
-            <Row>
-              <Col className="col-9 mt-2">
-                <TextField
-                  //   InputProps={{ disableUnderline: true }}
-                  fullWidth
-                  id="remarks"
-                  name="remarks"
-                  //   label="remarks"
-                  value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
-                />
-              </Col>
-              <Col>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  type="submit"
-                  className="btn-primary1 container mt-2 w-25"
-                  onClick={() => {
-                    postRemarksSectionWise(context.section_data);
-                  }}
-                >
-                  Submit
-                </Button>
-              </Col>
-            </Row>
-          </Card>
+          <div className="cell">
+            <Col className="pwd-container2">
+              <div className=" d-flex justify-content-center align-items-center ">
+                Remarks:{" "}
+              </div>
+              <TextField
+                style={{ paddingLeft: "0.6rem" }}
+                //   InputProps={{ disableUnderline: true }}
+                fullWidth
+                id="remarks"
+                name="remarks"
+                //   label="remarks"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+              />
+            </Col>
+
+            <Col>
+              <Button
+                variant="contained"
+                fullWidth
+                type="submit"
+                className="btn-primary mt-2"
+                style={{ fontSize: "12px" }}
+                onClick={() => {
+                  postRemarksSectionWise(context.section_data);
+                }}
+              >
+                Submit
+              </Button>
+            </Col>
+          </div>
         ) : context?.subSection_data?.includes(subSection) ? (
-          <Card>
-            <Col>Remarks :</Col>
-            <Row>
-              <Col className="col-9 mt-2">
-                <TextField
-                  //   InputProps={{ disableUnderline: true }}
-                  fullWidth
-                  id="remarks"
-                  name="remarks"
-                  //   label="remarks"
-                  value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
-                />
-              </Col>
-              <Col>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  type="submit"
-                  className="btn-primary1 container mt-2"
-                  onClick={() => {
-                    postRemarksSubSectionWise(subSection);
-                  }}
-                >
-                  Submit
-                </Button>
-              </Col>
-            </Row>
-          </Card>
+          <div className="cell">
+            <Col className="pwd-container2">
+              <div className=" d-flex justify-content-center align-items-center mt-2">
+                Remarks:{" "}
+              </div>
+              <TextField
+                style={{ paddingLeft: "0.6rem" }}
+                //   InputProps={{ disableUnderline: true }}
+                fullWidth
+                id="remarks"
+                name="remarks"
+                //   label="remarks"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+              />
+            </Col>
+            <Col>
+              <Button
+                variant="contained"
+                fullWidth
+                type="submit"
+                className="btn-primary mt-2"
+                onClick={() => {
+                  postRemarksSubSectionWise(subSection);
+                }}
+              >
+                Submit
+              </Button>
+            </Col>
+          </div>
         ) : sections === undefined && subSection === "" ? (
-          <Card>
-            <Col>Remarks :</Col>
-            <Row>
-              <Col className="col-9 mt-2">
-                <TextField
-                  //   InputProps={{ disableUnderline: true }}
-                  fullWidth
-                  id="remarks"
-                  name="remarks"
-                  //   label="remarks"
-                  value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
-                />
-              </Col>
-              <Col>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  type="submit"
-                  className="btn-primary1 container mt-2"
-                  onClick={() => {
-                    postRemarksSubSectionWise(subSection);
-                  }}
-                >
-                  Submit
-                </Button>
-              </Col>
-            </Row>
-          </Card>
+          <div className="cell">
+            <Col className="pwd-container2">
+              <div className=" d-flex justify-content-center align-items-center mt-2">
+                Remarks:{" "}
+              </div>
+              <TextField
+                style={{ paddingLeft: "0.6rem" }}
+                //   InputProps={{ disableUnderline: true }}
+                fullWidth
+                id="remarks"
+                name="remarks"
+                //   label="remarks"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+              />
+            </Col>
+            <Col>
+              <Button
+                variant="contained"
+                fullWidth
+                type="submit"
+                className="btn-primary mt-2"
+                onClick={() => {
+                  postRemarksSubSectionWise(subSection);
+                }}
+              >
+                Submit
+              </Button>
+            </Col>
+          </div>
         ) : (
           ""
         )}

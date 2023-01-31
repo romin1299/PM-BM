@@ -77,7 +77,7 @@ function CheckSheetForm() {
 
   let machineAllData =
     selectedMachineCheckSheetData?.state?.selectedRowForViewForm;
-  console.log(machineAllData);
+  // console.log(machineAllData);
 
   let phaseStatus =
     selectedMachineCheckSheetData?.state?.selectedRowForViewForm
@@ -701,7 +701,11 @@ function CheckSheetForm() {
 
   const funForOpeningSummeryPopups = () => {
     setStateForOpeningSummeryPopups(
-      <SummeryPopups close={close} tableData={tableData} />
+      <SummeryPopups
+        close={close}
+        tableData={tableData}
+        machineData={machineAllData}
+      />
     );
     document.querySelector(
       ".checkSheetForImplementation1"
@@ -782,6 +786,18 @@ function CheckSheetForm() {
             <div className=" mt-2 col-md-6 col-sm-6 col-lg-6"></div>
             <div className=" mt-2 col-md-6 col-sm-6 col-lg-6"></div>
           </div> */}
+
+          {/* {console.log(
+            varForConditionChecking?.tl_approval_status[
+              varForConditionChecking?.tl_approval_status.length - 1
+            ],
+            varForConditionChecking.hos_approval_status[
+              varForConditionChecking.hos_approval_status.length - 1
+            ],
+            varForConditionChecking?.hos_approval_status[
+              varForConditionChecking?.hos_approval_status.length - 1
+            ]
+          )} */}
           <Row>
             <Col lg={6} md={6} sm={6}>
               {" "}
@@ -790,6 +806,177 @@ function CheckSheetForm() {
                   {tableData?.length > 0 ? (
                     phaseStatus === "Implementation" &&
                     attempsOfMidYearChanges === true ? (
+                      <form onSubmit={formik.handleSubmit}>
+                        <div className="row">
+                          <div className="row mb-3 mt-3">
+                            {" "}
+                            <span>
+                              Do you want to send request to TL/HOSS ? &nbsp;
+                              <input
+                                type="radio"
+                                name="request"
+                                id="outlined-number"
+                                value="Yes"
+                                onChange={formik.handleChange}
+                              />
+                              <span
+                                style={{
+                                  paddingLeft: "0.5rem",
+                                  fontWeight: "550",
+                                  color: "black",
+                                }}
+                              >
+                                Yes &nbsp;
+                              </span>
+                              <input
+                                type="radio"
+                                name="request"
+                                id="outlined-number"
+                                value="No"
+                                onChange={formik.handleChange}
+                              />
+                              <span
+                                style={{
+                                  paddingLeft: "0.5rem",
+                                  fontWeight: "550",
+                                  color: "black",
+                                }}
+                              >
+                                No
+                              </span>
+                              <p
+                                style={{
+                                  color: "#F44336",
+                                  fontWeight: "normal",
+                                  fontSize: "0.80rem",
+                                  float: "right",
+                                  marginRight: "12rem",
+                                  // paddingTop: "0.5rem",
+                                }}
+                              >
+                                {formik.touched.request &&
+                                  formik.errors.request}
+                              </p>
+                            </span>
+                          </div>
+                          <div className="col-4">
+                            <span>MTD HOS List:</span>
+                            <div style={{ marginTop: "0.5rem" }}>
+                              <select
+                                // class="form-select form-select-sm"
+                                // aria-label=".form-select-sm example"
+                                // style={{ width: "100%" }}
+                                id="standard-select-currency"
+                                name="hos_list"
+                                // className="textField"
+                                // fullWidth
+                                select // label="Select"
+                                autoComplete="off"
+                                value={formik.values.hos_list}
+                                onChange={(e) => {
+                                  // setUsertype(e.target.value);
+                                  formik.handleChange(e);
+                                }}
+                                variant="standard"
+                              >
+                                <option selected disabled value="">
+                                  Please select
+                                </option>
+                                {HOSList.map((index) => {
+                                  return (
+                                    <option value={index.email}>
+                                      {index.tm_name}
+                                    </option>
+                                  );
+                                })}
+                              </select>
+                              <div>
+                                <p
+                                  style={{
+                                    color: "#F44336",
+                                    fontWeight: "normal",
+                                    fontSize: "0.80rem",
+                                    float: "left",
+                                    paddingTop: "0.5rem",
+                                  }}
+                                >
+                                  {formik.touched.hos_list &&
+                                    formik.errors.hos_list}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-4 ">
+                            {formik.values.request === "Yes" ? (
+                              <div>
+                                <span>TL/HOSS List:</span>
+                                <div style={{ marginTop: "0.5rem" }}>
+                                  <select
+                                    // class="form-select form-select-sm"
+                                    // aria-label=".form-select-sm example"
+                                    // style={{ width: "100%" }}
+                                    id="standard-select-currency"
+                                    name="tl_list"
+                                    // className="textField"
+                                    // fullWidth
+                                    select // label="Select"
+                                    autoComplete="off"
+                                    value={formik.values.tl_list}
+                                    onChange={(e) => {
+                                      // setUsertype(e.target.value);
+                                      formik.handleChange(e);
+                                    }}
+                                    variant="standard"
+                                  >
+                                    <option selected disabled value="">
+                                      Please select
+                                    </option>
+                                    {TLList.map((index) => {
+                                      return (
+                                        <option value={index.email}>
+                                          {index.tm_name}
+                                        </option>
+                                      );
+                                    })}
+                                  </select>
+                                  <div>
+                                    <p
+                                      style={{
+                                        color: "#F44336",
+                                        fontWeight: "normal",
+                                        fontSize: "0.80rem",
+                                        float: "left",
+                                        paddingTop: "0.5rem",
+                                      }}
+                                    >
+                                      {formik.touched.tl_list &&
+                                        formik.errors.tl_list}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              ""
+                            )}
+                          </div>
+
+                          <div className="col-4 d-flex align-items-center">
+                            {selectedMachineCheckSheetData.state
+                              ?.selectedRowForViewForm?.status === "Pending" ? (
+                              ""
+                            ) : (
+                              <div>
+                                <button type="submit" className="btn-primary1">
+                                  Send Request
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </form>
+                    ) : varForConditionChecking?.tl_approval_status[
+                        varForConditionChecking?.tl_approval_status.length - 1
+                      ] === "Rejected" ? (
                       <form onSubmit={formik.handleSubmit}>
                         <div className="row">
                           <div className="row mb-3 mt-3">

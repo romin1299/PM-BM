@@ -29,14 +29,18 @@ const CheckSheetDashboard = () => {
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
-  const [selectedCell, setSelectedCell] = useState("");
+  const [selectedCell, setSelectedCell] = useState(
+    localStorage.getItem("selectedCell")
+  );
   const [lineDropdown, setLineDropdown] = useState([]);
-  const [selectedLine, setSelectedLine] = useState("");
+  const [selectedLine, setSelectedLine] = useState(
+    localStorage.getItem("selectedLine")
+  );
   const [loadingAnimationState, setLoadingAnimationState] = useState(
     <LoadingAnimation />
   );
 
-  const postSectionToGetAllData = async (selectedSection) => {
+  const postSectionToGetAllData = async (keyRef) => {
     // setSubSection(undefined);
     try {
       const res = await fetch("/postSectionToGetAllData", {
@@ -58,13 +62,19 @@ const CheckSheetDashboard = () => {
         setLineData(data.lineData);
         setTableData(data.machineLastData);
         setLoadingAnimationState(<NotFound />);
+        if (!keyRef) {
+          postCellToGetLineList(selectedCell);
+        }
       }
     } catch (error) {
       console.log(error);
     }
   };
 
+  // console.log(selectedCell);
+
   const postCellToGetLineList = async (selectedCell) => {
+    console.log("============================>");
     setSelectedLine("");
     try {
       const res = await fetch("/postCellToGetLineListForReport", {
@@ -84,6 +94,9 @@ const CheckSheetDashboard = () => {
         // window.alert(data.abcd);
         setLineDropdown(data.lineInfo);
         setLoadingAnimationState(<NotFound />);
+        if (selectedLine !== null) {
+          postLineToGetMachineList(localStorage.getItem("selectedLine"));
+        }
       }
     } catch (error) {
       console.log(error);
@@ -92,6 +105,7 @@ const CheckSheetDashboard = () => {
 
   const postLineToGetMachineList = async (selectedLine) => {
     // console.log(selectedLine);
+    console.log("============================>106");
     try {
       const res = await fetch("/postLineToGetMachineListForReportDashboard", {
         method: "POST",
@@ -147,7 +161,7 @@ const CheckSheetDashboard = () => {
     if (context.section_data) {
       postSectionToGetAllData();
     }
-  }, [refKey, context.section_data, selectedYear]);
+  }, [selectedYear]);
 
   const machineHeader = [
     {
@@ -299,11 +313,11 @@ const CheckSheetDashboard = () => {
               hidden:
                 rowData.checkSheet_data != null
                   ? rowData.checkSheet_data.checksheet_status ===
-                  "Preparation" ||
-                  rowData.checkSheet_data.checksheet_status === "Planning" ||
-                  rowData.checkSheet_data.checksheet_status === undefined
+                      "Preparation" ||
+                    rowData.checkSheet_data.checksheet_status === "Planning" ||
+                    rowData.checkSheet_data.checksheet_status === undefined
                   : rowData.checkSheet_data === undefined ||
-                  rowData.checkSheet_data === null,
+                    rowData.checkSheet_data === null,
               icon: () => (
                 <button className="btn-warning">
                   <EditIcon className="svg-font" />
@@ -334,7 +348,6 @@ const CheckSheetDashboard = () => {
           },
         ];
 
-  // console.log(tableData);
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
   }, [selectedYear]);
@@ -371,6 +384,7 @@ const CheckSheetDashboard = () => {
                         value={selectedCell}
                         className="textField"
                         onChange={(e) => {
+                          localStorage.setItem("selectedCell", e.target.value);
                           // console.log(e.target.value);
                           setSelectedCell(e.target.value);
                           postCellToGetLineList(e.target.value);
@@ -411,9 +425,12 @@ const CheckSheetDashboard = () => {
                         // style={{ width: "100%" }}
                         id="standard-select-currency"
                         name="selectedPlant"
-                        value={selectedLine}
+                        value={
+                          selectedLine || localStorage.getItem("selectedLine")
+                        }
                         className="textField"
                         onChange={(e) => {
+                          localStorage.setItem("selectedLine", e.target.value);
                           setSelectedLine(e.target.value);
                           postLineToGetMachineList(e.target.value);
                           setLoadingAnimationState(<LoadingAnimation />);
@@ -437,6 +454,20 @@ const CheckSheetDashboard = () => {
                     </div>
                   </Col>
                 </Row>
+              </Col>
+              <Col className="d-flex justify-content-center align-items-center">
+                <button
+                  class="btn-primary1 w-75 "
+                  onClick={() => {
+                    localStorage.removeItem("selectedCell");
+                    localStorage.removeItem("selectedLine");
+                    setSelectedCell();
+                    setSelectedLine();
+                    postSectionToGetAllData("Reset");
+                  }}
+                >
+                  Reset
+                </button>
               </Col>
             </Row>
           </Container>

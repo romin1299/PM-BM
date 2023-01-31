@@ -149,6 +149,8 @@ function App() {
                 <Route path="/logHistory" element={<LogHistory />} />
                 <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
 
+                <Route path="/backupDataOfCheckSheet" element={<BackupDataOfCheckSheet />} />
+
                 {/* <Route path="/checkSheet" element={<CheckSheet />} /> */}
 
 

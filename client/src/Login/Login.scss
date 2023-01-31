@@ -265,11 +265,11 @@
 }
 
 
-.bg-button{
+.bg-button {
     background-color: #004B5B !important;
 }
 
-.color-text{
+.color-text {
     color: #004B5B !important;
 }
 
@@ -287,7 +287,7 @@
 
 .downloadCSV {
     // background-image: radial-gradient( circle farthest-corner at 10% 20%,  rgba(14,174,87,1) 0%, rgba(12,116,117,1) 90% ) !important;
-    background-color:rgb(21, 117, 12) ;
+    background-color: rgb(21, 117, 12);
     color: white !important;
     border: none;
     padding: 0.4rem 0.8rem;
@@ -306,7 +306,7 @@
 
 .btn-reset {
     // background-image: linear-gradient(135deg, #3C8CE7 10%, #00EAFF 100%);
-background-color:#0D6EFD ;
+    background-color: #0D6EFD;
     // background-color: #0074D9 !important;
     color: white !important;
     border: none;
@@ -314,9 +314,10 @@ background-color:#0D6EFD ;
     border-radius: 4px;
     font-size: 0.7rem;
 }
+
 .btn-danger {
     // background-image: linear-gradient(135deg, #3C8CE7 10%, #00EAFF 100%);
-background-color:#b02a37 ;
+    background-color: #b02a37;
     // background-color: #0074D9 !important;
     color: white !important;
     border: none;
@@ -385,6 +386,7 @@ background-color:#b02a37 ;
     float: right;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.12), -2px -2px 4px rgba(0, 0, 0, 0.12);
 }
+
 .eyeImg {
     cursor: pointer;
     width: 17px;

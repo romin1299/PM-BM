@@ -957,7 +957,7 @@ router.post('/postSectionToGetSubSectionList', authenticate, async (req, res) =>
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
         // console.log("____________", sectionInfo?.dashboardLevel)
 
-        // console.log(req.rootUser?.subSection_data)
+        // console.log(req.rootUser, "==========>", req.rootUser?.subSection_data)
 
 
 
@@ -967,7 +967,16 @@ router.post('/postSectionToGetSubSectionList', authenticate, async (req, res) =>
 
         let subSectionArray = []
         if (sectionInfo?.dashboardLevel === "No") {
-            subSectionArray = req.rootUser?.subSection_data
+            // console.log(req?.rootUser?.user_type)
+
+            if (req?.rootUser?.user_type === "Plant-Admin") {
+                for (let i = 0; i < subSectionsInfo.length; i++) {
+                    subSectionArray.push(`${subSectionsInfo[i].subSection_id}-${subSectionsInfo[i].subSection_name}`);
+                }
+            } else {
+
+                subSectionArray = req.rootUser?.subSection_data
+            }
         } else {
             for (let i = 0; i < subSectionsInfo.length; i++) {
                 subSectionArray.push(`${subSectionsInfo[i].subSection_id}-${subSectionsInfo[i].subSection_name}`);
@@ -1667,7 +1676,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
         let subSectionsData, subSectionIdArray = [],
             cellData, cellIdArray = [],
             lineData, lineIdArray = [],
-            machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = [],
+            machineData, machineDataForChecksheet, machineDataOfPrepAndPlanApproval, subsectionSplitIdArrayForChecksheet = [],
             machineLastData
 
 
@@ -7445,47 +7454,46 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
 
 })
 
-router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async (req, res) => {
+router.post('/postSectionToGetSectionInfo', authenticate, async (req, res) => {
     try {
-        let { section, selectedMonth, selectedYear } = req.body
-        let loggedUserData = req.rootUser;
+        let { section } = req.body
 
         let sectionSplit = section.split("-")
 
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
 
-        let subSectionsData, subSectionIdArray = [],
-            cellData, cellIdArray = [],
-            lineData, lineIdArray = [],
-            machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
 
-        if (sectionInfo.dashboardLevel === "Yes") {
-            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+        res.json({
+            sectionInfo
+        })
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+
+})
+
+router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async (req, res) => {
+    try {
+        let { sectionOrSubSection, dashboardLevel, selectedMonth, selectedYear } = req.body
+
+
+        // console.log(sectionOrSubSection, dashboardLevel,)
+
+        let subSectionsData, cellData, lineData
+
+        if (dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: sectionOrSubSection }).sort({ subSection_sequence: 1 })
+
+            cellData = await Cell.find({ subSection_names: { $in: subSectionsData?.map((item) => item?._id) } }).sort({ cell_sequence: 1 });
 
         } else {
-            loggedUserData.subSection_data.map((ids) => {
-                let subsectionsId = ids.split("-")
-                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
-            })
-            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+            cellData = await Cell.find({ subSection_names: { $in: sectionOrSubSection } }).sort({ cell_sequence: 1 });
 
         }
 
-        for (let i = 0; i < subSectionsData.length; i++) {
-            subSectionIdArray.push(subSectionsData[i]._id);
-        }
+        lineData = await Line.find({ cell_names: { $in: cellData?.map((item) => item?._id) } }).sort({ line_sequence: 1 });
 
-        cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
-
-        for (let i = 0; i < cellData.length; i++) {
-            cellIdArray.push(cellData[i]._id);
-        }
-
-        lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
-
-        for (let i = 0; i < lineData.length; i++) {
-            lineIdArray.push(lineData[i]._id);
-        }
         let currentYear =
             new Date().getMonth() <= 3 ?
                 `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
@@ -11177,9 +11185,11 @@ router.post('/postSectionToGetLineData', authenticate, async (req, res) => {
                                         sr_no: ++serialNoForLogHistory,
                                         line_names: keyForCheckSheet?.line_names,
                                         machine_name: keyForCheckSheet?.machine_name,
+                                        machineId: keyForCheckSheet?._id,
                                         machine_code: keyForCheckSheet?.machine_code,
                                         yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
                                         schedule_month: month,
+                                        type: "PM",
                                         table_id: keyForSpareDetails?.tableRowId,
                                         spareParts: keyForSpareDetails?.spareDetails?.[month]?.spareParts,
                                         partName: keyForSpareDetails?.spareDetails?.[month]?.partName,
@@ -11207,6 +11217,7 @@ router.post('/postSectionToGetLineData', authenticate, async (req, res) => {
                                 sr_no: ++serialNoForLogHistory,
                                 line_names: keyForCheckSheet?.line_names,
                                 machine_name: keyForCheckSheet?.machine_name,
+                                machineId: keyForCheckSheet?._id,
                                 machine_code: keyForCheckSheet?.machine_code,
                                 yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
                                 schedule_month: monthForOtherCategoryOfSpare,
@@ -12206,6 +12217,40 @@ router.post('/postSectionToGetAllDataForLineWiseSpareConsumption', authenticate,
     }
 })
 
+router.post('/submitRemarksAfterTLOrHosRejection', async (req, res) => {
+    try {
+        const {
+            machineData,
+            updatedRow,
+            monthForCompareSystemMonth
+        } = req.body
+
+        console.log(
+            updatedRow?.remarks,
+            monthForCompareSystemMonth,
+            machineData?.checkSheet_data?.current_year
+        )
+        // let keyOfRemarksAfterRejection = `checkSheet_data.$[outer].checkSheet.$[inner].abnormalityDetails.${monthForCompareSystemMonth}.abnormalityRemarks`
+
+
+        // const updateChecksheetRow = await Machine.updateOne({ machine_code: machineData?._id }, {
+        //     $set: {
+        //         [keyOfRemarksAfterRejection]: updatedRow?.remarks
+        //     }
+        // }, {
+        //     arrayFilters: [{ 'outer.current_year': machineData?.checkSheet_data?.current_year }, { 'inner.tableRowId': updatedRow.tableRowId }],
+        // })
+
+
+
+        // res.status(201).json({ message: 'CheckSheet data updated successfully' })
+
+
+    } catch (error) {
+        console.log(error)
+        console.log("Data not valid or received !!!");
+    }
+})
 
 router.post('/postSectionToGetAllDataForTop20MachineSparePartsReport', authenticate, async (req, res) => {
     try {
@@ -12462,8 +12507,6 @@ router.post('/postSectionToGetAllDataForTop20MachineSparePartsReport', authentic
         console.log("User id not received!!!");
     }
 })
-
-
 
 
 module.exports = router;
