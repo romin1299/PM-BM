@@ -19,7 +19,7 @@ import currentYear from "../Dashboard/DashboardComponent/currentYear";
 
 const SparePartUsageHistory = () => {
   const context = useContext(RoutingContext);
-  const typeDropdownList = ["BM", "Corrective", "Predictive", "Kaizen"];
+  const typeDropdownList = ["PM", "BM", "Corrective", "Predictive", "Kaizen"];
   const monthKeyArray = [
     "Apr",
     "May",
@@ -36,7 +36,6 @@ const SparePartUsageHistory = () => {
   ];
   const [tableDataOfSpareDetails, setTableDataOfSpareDetails] = useState([]);
 
-  const [selectedMonth, setSelectedMonth] = useState();
   const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const [allLineData, setAllLineData] = useState([]);
@@ -44,12 +43,16 @@ const SparePartUsageHistory = () => {
     []
   );
 
+  const [selectedMonth, setSelectedMonth] = useState();
+  const [selectedCategory, setSelectedCategory] = useState();
+  const [selectedLine, setSelectedLine] = useState();
+  const [selectedMachine, setSelectedMachine] = useState();
+
   const [stateForAnimationAndNotFound, setStateForAnimationAndNotFound] =
     useState(<LoadingAnimation />);
 
   // selectedMachine = index of machine from allMachineDataBasedOnLine dropdown
   // actual machine data = allMachineDataBasedOnLine?.[selectedMachine]
-  const [selectedMachine, setSelectedMachine] = useState();
 
   // console.log(allMachineDataBasedOnLine);
 
@@ -167,6 +170,48 @@ const SparePartUsageHistory = () => {
     "Mar",
   ];
 
+  // console.log(tableDataOfSpareDetails);
+
+  // console.log(selectedCategory);
+
+  // const funForFilterData = (
+  //   selectedMonth,
+  //   selectedCategory,
+  //   selectedLine,
+  //   selectedMachine
+  // ) => {
+  //   let filterData = tableDataOfSpareDetails?.map((item) => {
+  //     if (
+  //       selectedCategory
+  //         ? item?.type === selectedCategory
+  //         : true && selectedMonth
+  //         ? item?.schedule_month === selectedMonth
+  //         : true
+  //     ) {
+  //       console.log(
+  //         selectedCategory ? item?.type === selectedCategory : true,
+  //         selectedMonth ? item?.schedule_month === selectedMonth || true : true
+  //       );
+  //       // console.log(item?.type, item);
+  //       return item;
+  //     }
+  //     //  selectedCategory, selectedLine, selectedMachine
+  //   });
+
+  //   console.log(filterData);
+  //   // setTableDataOfSpareDetails(filterData);
+  // };
+
+  // useEffect(() => {
+  //   funForFilterData(
+  //     selectedMonth,
+  //     selectedCategory,
+  //     selectedLine,
+  //     selectedMachine
+  //   );
+  // }, [selectedMonth, selectedCategory, selectedLine, selectedMachine]);
+
+  // console.log("=================>", selectedMachine);
   return (
     <>
       <Container fluid className="pt-3 sparePartUsageHistory">
@@ -195,6 +240,7 @@ const SparePartUsageHistory = () => {
               })}
             </select>
           </Col>
+
           <Col>
             <div>Category:</div>
             <select
@@ -208,8 +254,8 @@ const SparePartUsageHistory = () => {
               fullWidth
               select // label="Select"
               autoComplete="off"
-              // value={formik.values.selectedType}
-              // onChange={formik.handleChange}
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
               variant="standard"
             >
               <option selected disabled value="">
@@ -272,10 +318,11 @@ const SparePartUsageHistory = () => {
               fullWidth
               select // label="Select"
               autoComplete="off"
-              // value={formik.values.selectedLine}
+              value={selectedLine}
               onChange={(e) => {
                 // formik.handleChange(e);
                 setSelectedMachine();
+                setSelectedLine(e.target.value);
                 postLineToGetAllMachineData(e.target.value, currentYear).then(
                   (result) => setAllMachineDataBasedOnLine(result?.machineInfo)
                 );
@@ -318,7 +365,8 @@ const SparePartUsageHistory = () => {
               select // label="Select"
               autoComplete="off"
               value={
-                allMachineDataBasedOnLine?.[selectedMachine]?.machine_name || ""
+                // allMachineDataBasedOnLine?.[selectedMachine]?.machine_name || ""
+                selectedMachine
               }
               onChange={(e) => {
                 setSelectedMachine(e.target.value);
@@ -329,7 +377,9 @@ const SparePartUsageHistory = () => {
                 Please select
               </option>
               {allMachineDataBasedOnLine?.map((option, index) => {
-                return <option value={index}>{option?.machine_name}</option>;
+                return (
+                  <option value={option?._id}>{option?.machine_name}</option>
+                );
               })}
             </select>
             {/* <div>
@@ -347,7 +397,22 @@ const SparePartUsageHistory = () => {
               </p>
             </div> */}
           </Col>
+
+          <Col className="d-flex justify-content-center align-items-center">
+            <button
+              class="btn-primary1 w-75 "
+              onClick={() => {
+                setSelectedMonth();
+                setSelectedCategory();
+                setSelectedLine();
+                setSelectedMachine();
+              }}
+            >
+              Reset
+            </button>
+          </Col>
         </Row>
+
         <Row className="m-3">
           {tableDataOfSpareDetails?.length > 0 ? (
             <div className="container-fluid" style={{ overflow: "auto" }}>
@@ -385,36 +450,123 @@ const SparePartUsageHistory = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {tableDataOfSpareDetails?.map((index) => (
-                    <tr className="ar-table-thead-header4 tableRowColor">
-                      <td className="td-padding">{index?.sr_no}</td>
-                      <td className="td-padding">
-                        {index?.completionDateOfInspection}
-                      </td>
+                  {tableDataOfSpareDetails?.map(
+                    (index, i) =>
+                      // selectedMonth ||
+                      // selectedCategory ||
+                      // selectedLine ||
+                      // selectedMachine
 
-                      <td className="td-padding">
-                        {index?.line_names?.line_name}
-                      </td>
-                      <td className="td-padding">{index?.machine_name}</td>
-                      <td className="td-padding">{index?.machine_code}</td>
+                      // (selectedCell !== ""
+                      // ? index?.cell_names?._id === selectedCell
+                      // : true) &&
+                      // (selectedMonth !== undefined
+                      //   ? index?.schedule_month === selectedMonth
+                      //   : true) &&
+                      // (selectedLine !== ""
+                      //   ? index?.line_names._id === selectedLine
+                      //   : true)
 
-                      <td className="td-padding">
-                        {index?.type ? index?.type : "PM"}
-                      </td>
+                      // (index?.type === selectedCategory || selectedCategory
+                      //   ? false
+                      //   : true) &&
+                      // // index?.schedule_month === selectedMonth ||
+                      // (index?.line_names._id === selectedLine || selectedLine
+                      //   ? false
+                      //   : true) ?
+                      // (selectedMonth !== undefined
+                      //   ? index?.schedule_month === selectedMonth
+                      //   : true) &&
+                      // (selectedLine !== ""
+                      //   ? index?.line_names._id === selectedLine
+                      //   : true)
 
-                      <td className="td-padding">{index?.partName}</td>
-                      <td className="td-padding">{index?.partNo}</td>
-                      <td className="td-padding">
-                        {index?.inspectionCompletionBy}
-                      </td>
+                      (selectedCategory
+                        ? index?.type === selectedCategory
+                        : true) &&
+                      (selectedMonth
+                        ? index?.schedule_month === selectedMonth
+                        : true) &&
+                      (selectedLine
+                        ? index?.line_names._id === selectedLine
+                        : true) &&
+                      (selectedMachine
+                        ? index?.machineId === selectedMachine
+                        : true) ? (
+                        <tr className="ar-table-thead-header4 tableRowColor">
+                          {/* {console.log(index)} */}
+                          <td className="td-padding">{index?.sr_no}</td>
+                          <td className="td-padding">
+                            {index?.completionDateOfInspection}
+                          </td>
 
-                      <td className="td-padding">{index?.cost}</td>
-                      <td className="td-padding">
-                        {index?.spareParts ? "Yes" : "No"}
-                      </td>
-                      <td className="td-padding">{index?.spareParts}</td>
-                    </tr>
-                  ))}
+                          <td className="td-padding">
+                            {index?.line_names?.line_name}
+                          </td>
+                          <td className="td-padding">{index?.machine_name}</td>
+                          <td className="td-padding">{index?.machine_code}</td>
+
+                          <td className="td-padding">{index?.type}</td>
+
+                          <td className="td-padding">{index?.partName}</td>
+                          <td className="td-padding">{index?.partNo}</td>
+                          <td className="td-padding">
+                            {index?.inspectionCompletionBy}
+                          </td>
+
+                          <td className="td-padding">{index?.cost}</td>
+                          <td className="td-padding">
+                            {index?.spareParts ? "Yes" : "No"}
+                          </td>
+                          <td className="td-padding">{index?.spareParts}</td>
+                          {/* <td className="td-padding">
+                            {index?.schedule_month}
+                          </td> */}
+                        </tr>
+                      ) : (
+                        ""
+                      )
+                    // :
+                    // (
+                    //   ""
+                    // )
+                    // selectedMonth ||
+                    //   selectedCategory ||
+                    //   selectedLine ||
+                    //   selectedMachine ? (
+                    //   ""
+                    // ) : (
+                    //   <tr className="ar-table-thead-header4 tableRowColor">
+                    //     <td className="td-padding">{index?.sr_no}</td>
+                    //     <td className="td-padding">
+                    //       {index?.completionDateOfInspection}
+                    //     </td>
+
+                    //     <td className="td-padding">
+                    //       {index?.line_names?.line_name}
+                    //     </td>
+                    //     <td className="td-padding">{index?.machine_name}</td>
+                    //     <td className="td-padding">{index?.machine_code}</td>
+
+                    //     <td className="td-padding">
+                    //       {index?.type ? index?.type : "PM"}
+                    //     </td>
+
+                    //     <td className="td-padding">{index?.partName}</td>
+                    //     <td className="td-padding">{index?.partNo}</td>
+                    //     <td className="td-padding">
+                    //       {index?.inspectionCompletionBy}
+                    //     </td>
+
+                    //     <td className="td-padding">{index?.cost}</td>
+                    //     <td className="td-padding">
+                    //       {index?.spareParts ? "Yes" : "No"}
+                    //     </td>
+                    //     <td className="td-padding">{index?.spareParts}</td>
+                    //     <td className="td-padding">{index?.schedule_month}</td>
+                    //   </tr>
+                    // )
+                  )}
                 </tbody>
               </table>
             </div>

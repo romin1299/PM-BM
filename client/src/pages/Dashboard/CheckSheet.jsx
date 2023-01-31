@@ -440,7 +440,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
 
   const funForOpeningSummeryPopups = () => {
     setStateForOpeningSummeryPopups(
-      <SummeryPopups close={close} tableData={tableData} />
+      <SummeryPopups close={close} tableData={tableData} machineData={machineData}/>
     );
     document.querySelector(".checkSheetForImplementation").style.pointerEvents =
       "none";

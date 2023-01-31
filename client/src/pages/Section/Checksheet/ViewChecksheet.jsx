@@ -68,7 +68,7 @@ function ViewChecksheet() {
 
   let machineAllData =
     selectedMachineCheckSheetData.state.selectedRowForViewForm;
-  console.log(machineAllData);
+  // console.log(machineAllData);
 
   let phaseStatus =
     selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data
@@ -612,7 +612,11 @@ function ViewChecksheet() {
 
   const funForOpeningSummeryPopups = () => {
     setStateForOpeningSummeryPopups(
-      <SummeryPopups close={close} tableData={tableData} />
+      <SummeryPopups
+        close={close}
+        tableData={tableData}
+        machineData={machineAllData}
+      />
     );
     document.querySelector(
       ".checkSheetForImplementation1"
@@ -624,7 +628,7 @@ function ViewChecksheet() {
   //   selectedMachineCheckSheetData.state.selectedRowForViewForm
   //     .tl_approval_status
   // );
-  // console.log(context.user_type);
+  // console.log(selectedMachineCheckSheetData?.state?.dashboardID);
   return (
     <>
       {stateForOpeningSummeryPopups}
@@ -639,7 +643,10 @@ function ViewChecksheet() {
                     onClick={() =>
                       context.tm_department === "MTD" &&
                       context.user_type === "TL/HOSS"
-                        ? navigate("/checkSheetDashboard")
+                        ? selectedMachineCheckSheetData?.state?.dashboardID ===
+                          "FromApprovalDashboard"
+                          ? navigate("/approvalDashboard")
+                          : navigate("/checkSheetDashboard")
                         : (context.tm_department === "PRD" &&
                             context.user_type === "TL/HOSS") ||
                           context.user_type === "Section-Admin"

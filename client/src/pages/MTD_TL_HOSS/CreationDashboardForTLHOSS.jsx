@@ -343,7 +343,7 @@ const CreationDashboardForTLHOSS = () => {
                           deleteMachine(selectedRow);
                           setTimeout(() => {
                             // setSectionList(updatedRows);
-                            setRefKey2((refKey3) => refKey3 + 1);
+                            setRefKey3((refKey3) => refKey3 + 1);
                             resolve();
                           }, 500);
                         }),

@@ -531,7 +531,11 @@ function ChecksheetFormApprovalForHOSAndHOD() {
 
   const funForOpeningSummeryPopups = () => {
     setStateForOpeningSummeryPopups(
-      <SummeryPopups close={close} tableData={tableData} />
+      <SummeryPopups
+        close={close}
+        tableData={tableData}
+        machineData={machineAllData}
+      />
     );
     document.querySelector(
       ".checkSheetForImplementation1"

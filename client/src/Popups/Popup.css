@@ -212,6 +212,12 @@
     margin: 1rem 0;
 }
 
+.pwd-container2 {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+
 .workshopPopupsText {
     display: flex;
     position: relative;
