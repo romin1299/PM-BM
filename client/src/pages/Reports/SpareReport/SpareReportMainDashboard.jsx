@@ -64,7 +64,7 @@ const SpareReportMainDashboard = () => {
             // className="d-flex justify-content-center align-items-center"
             sm={4}
           >
-            <SpareConsumptionTrendType />
+            <SpareConsumptionTrendType context={context}/>
           </Col>
         </Row>
       </Container>

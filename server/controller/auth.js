@@ -2443,11 +2443,11 @@ router.post('/addNewChecksheetData', async (req, res) => {
                         }
                     })
                 } else {
+                    console.log("hello")
                     tableRowId = findMachine[0].checkSheet_data.checkSheet.tableRowId + 1
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": previous_year }, {
                         $set: {
-                            "checkSheet_data.flagForRevisionContent": true,
-
+                            "checkSheet_data.$.flagForRevisionContent": true,
                         },
                         $push: {
                             "checkSheet_data.$.checkSheet": {
@@ -2466,7 +2466,8 @@ router.post('/addNewChecksheetData', async (req, res) => {
                             },
 
                         }
-                    })
+                    }
+                    )
                 }
 
             } else {
@@ -2566,7 +2567,7 @@ router.post('/addNewChecksheetData', async (req, res) => {
                     tableRowId = findMachine[0].checkSheet_data.checkSheet.tableRowId + 1
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": current_year }, {
                         $set: {
-                            "checkSheet_data.flagForRevisionContent": true,
+                            "checkSheet_data.$.flagForRevisionContent": true,
                         },
                         $push: {
                             "checkSheet_data.$.checkSheet": {
@@ -2763,7 +2764,7 @@ router.post('/updateSelectedMachineChecksheetTableRowData', async (req, res) => 
                     "checkSheet_data.$[outer].checkSheet.$[inner].personInCharge": rowData.personInCharge,
                     "checkSheet_data.$[outer].checkSheet.$[inner].PM_time": rowData.PM_time,
                     "checkSheet_data.$[outer].checkSheet.$[inner].isEdited": isEdited,
-                    "checkSheet_data.$[outer]flagForRevisionContent": true,
+                    "checkSheet_data.$[outer].flagForRevisionContent": true,
                 }
             }, {
                 arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': rowData.tableRowId }],
@@ -2817,7 +2818,7 @@ router.post('/deleteSelectedMachineChecksheetTableRowData', async (req, res) => 
                     {
                         $set: {
                             "checkSheet_data.$[outer].checkSheet.$[inner].isDeleted": isDeleted,
-                            "checkSheet_data.$[outer]flagForRevisionContent": true,
+                            "checkSheet_data.$[outer].flagForRevisionContent": true,
                         }
                     },
                     {
@@ -3085,7 +3086,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
             const updateChecksheetStatus = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                 $set: {
                     "checkSheet_data.$[outer].checksheet_status": checksheet_status,
-                    flagForRevisionContent: false,
+                    "checkSheet_data.$[outer].flagForRevisionContent": false,
                     "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false
 
                 },
@@ -3163,7 +3164,8 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
             const updateChecksheetStatus = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                 $set: {
-                    flagForRevisionContent: false,
+                    "checkSheet_data.$[outer].flagForRevisionContent": false,
+
                     "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false
                 },
                 $push: { "checkSheet_data.$[outer].prd_tl_approval_status": "Pending", "checkSheet_data.$[outer].assign_PRD_TL": prd_tl_list, "checkSheet_data.$[outer].assign_PRD_TL_name": findAssignTlName.tm_name, "checkSheet_data.$[outer].plan_prepared_tm_no": loggedUserData.tm_no, "checkSheet_data.$[outer].plan_prepared_tm_name": loggedUserData.tm_name, "checkSheet_data.$[outer].plan_prepared_email": loggedUserData.email, "checkSheet_data.$[outer].planning_TL_date": planning_TL_date }
@@ -3350,7 +3352,8 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
             const updateChecksheetStatus = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                 $set: {
                     "checkSheet_data.$[outer].checksheet_status": checksheet_status,
-                    flagForRevisionContent: false,
+                    "checkSheet_data.$[outer].flagForRevisionContent": false,
+
                     "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false
                 },
                 $push: {
@@ -3863,7 +3866,8 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                     $set: {
                         "checkSheet_data.$[outer].tl_approval_status": selected_machine_data.checkSheet_data.tl_approval_status,
-                        flagForRevisionContent: false,
+                        "checkSheet_data.$[outer].flagForRevisionContent": false,
+
                         "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false
                     },
                     $push: {
@@ -3938,7 +3942,8 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                     $set: {
                         "checkSheet_data.$[outer].hos_approval_status": selected_machine_data.checkSheet_data.hos_approval_status, "checkSheet_data.$[outer].checksheet_status": "Planning",
-                        flagForRevisionContent: false,
+                        "checkSheet_data.$[outer].flagForRevisionContent": false,
+
                         "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false
                     },
                     $push: { "checkSheet_data.$[outer].approved_by_HOS": approved_by_HOS, "checkSheet_data.$[outer].preparation_HOS_date": preparation_HOS_date }
@@ -3962,7 +3967,8 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                     $set: {
                         "checkSheet_data.$[outer].checksheet_status": "Planning", "checkSheet_data.$[outer].hos_approval_status": selected_machine_data.checkSheet_data.hos_approval_status,
-                        flagForRevisionContent: false,
+                        "checkSheet_data.$[outer].flagForRevisionContent": false,
+
                         "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false
                     },
                     $push: { "checkSheet_data.$[outer].approved_by_HOS": approved_by_HOS, "checkSheet_data.$[outer].preparation_HOS_date": preparation_HOS_date }
@@ -3994,7 +4000,8 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 const PRDTLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                     $set: {
                         "checkSheet_data.$[outer].prd_tl_approval_status": selected_machine_data.checkSheet_data.prd_tl_approval_status, "checkSheet_data.$[outer].checksheet_status": "Implementation", "checkSheet_data.$[outer].PMStatus": PMStatusArray,
-                        flagForRevisionContent: false,
+                        "checkSheet_data.$[outer].flagForRevisionContent": false,
+
                         "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false
                     },
                     $push: { "checkSheet_data.$[outer].approved_by_PRD_TL": approved_by_PRD_TL, "checkSheet_data.$[outer].planning_PRD_TL_date": planning_PRD_TL_date }
@@ -5016,7 +5023,7 @@ router.post('/updateSelectedMachineCheckSheetTableRowDataForStartingMonth', asyn
                     $set: {
                         "checkSheet_data.$[outer].checkSheet.$[inner].start_month": startMonth,
                         "checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2": planningTableAnimationArray2,
-                        "checkSheet_data.$[outer]flagForRevisionContent": true,
+                        "checkSheet_data.$[outer].flagForRevisionContent": true,
                     },
 
                 }, {
@@ -5031,7 +5038,7 @@ router.post('/updateSelectedMachineCheckSheetTableRowDataForStartingMonth', asyn
                     $set: {
                         "checkSheet_data.$[outer].checkSheet.$[inner].start_month": startMonth,
                         "checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2": rowData.planningTableAnimationArray2,
-                        "checkSheet_data.$[outer]flagForRevisionContent": true,
+                        "checkSheet_data.$[outer].flagForRevisionContent": true,
 
                     },
 
@@ -12191,6 +12198,263 @@ router.post('/postSectionToGetAllDataForLineWiseSpareConsumption', authenticate,
 
         res.json({
             subSectionsData, cellData, lineData, lineWiseSpareCost
+        })
+
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+
+router.post('/postSectionToGetAllDataForTop20MachineSparePartsReport', authenticate, async (req, res) => {
+    try {
+        let { section, selectedYear } = req.body
+        // console.log(section, selectedYear)
+        // let selectedYear = "2022-2023"
+        let loggedUserData = req.rootUser;
+        let sectionSplit = section.split("-")
+        const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+        // console.log("____________", sectionInfo[0]._id)
+        let subSectionsData, subSectionIdArray = [],
+            cellData, cellIdArray = [],
+            lineData, lineIdArray = [],
+            machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
+
+        if (sectionInfo.dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        } else {
+            loggedUserData.subSection_data.map((ids) => {
+                let subsectionsId = ids.split("-")
+                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            })
+            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+        }
+
+        subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        cellData = await Cell.find({ subSection_names: { $in: subSectionsData?.map((item) => item?._id) } }).sort({ cell_sequence: 1 });
+
+        lineData = await Line.find({ cell_names: { $in: cellData?.map((item) => item?._id) } }).sort({ line_sequence: 1 });
+
+        // machineData = await Machine.find({ line_names: { $in: lineData?.map((item) => item?._id) } }).sort({ machine_sequence: 1 });
+
+
+        let currentYear =
+            new Date().getMonth() <= 3 ?
+                `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
+                `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+        let selectedYearOfCheckSheet =
+            selectedYear === currentYear ? [{
+                "checkSheet_data.current_year": selectedYear
+            },
+            {
+                "checkSheet_data": []
+            }
+            ] : [{
+                "checkSheet_data.current_year": selectedYear
+            },]
+        // console.log(selectedYear)
+
+
+        machineData = await Machine.aggregate([{
+            $match: {
+                line_names: { $in: lineData?.map((item) => item?._id) },
+                $or: selectedYearOfCheckSheet,
+                "checkSheet_data": { $ne: undefined },
+                // "checkSheet_data.checkSheet": { $ne: [] },
+            }
+        },
+        {
+            $project: {
+                machine_code: 1,
+                machine_name: 1,
+                machine_nickname: 1,
+                machine_sequence: 1,
+                installation_date: 1,
+                maker_name: 1,
+                maker_sr_no: 1,
+                manufacturingDate: 1,
+                isPM: 1,
+                line_names: 1,
+                checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+            }
+        },
+        {
+            $match: {
+                "checkSheet_data": { $ne: undefined },
+
+            }
+        },
+
+        ])
+
+        // console.log(machineData)
+
+
+        let groupData, groupData1
+
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
+        let top20MachineSparePartConsumption = []
+
+        for (let i = 0; i < machineData?.length; i++) {
+            let sumOfTotalPMSpareCost = 0
+            let sumOfTotalBMSpareCost = 0
+            let sumOfTotalCorrectiveSpareCost = 0
+            let sumOfTotalPridictiveSpareCost = 0
+            let sumOfTotalKaizenSpareCost = 0
+            //For Spare PM count
+            for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
+
+                let keyOfSpareDetailsExistsOrNot = `checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}`
+                // let previousMonth = monthKeyArray[j - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[j - 1]
+                let keyForSparePartsUsedOrNot = `checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.spareParts`
+                let keyForTotalCostOfPMSpareParts = `$checkSheet_data.checkSheet.spareDetails.${financialYearWiseMonthKeyArray[j]}.cost`
+                let keyForSparePartTypes = `$checkSheet_data.extraSpareDetails.${financialYearWiseMonthKeyArray[j]}.type`
+                let keyForTotalCostOfExtraSpareDetails = `$checkSheet_data.extraSpareDetails.${financialYearWiseMonthKeyArray[j]}.cost`
+                let keyForTotalCostOfExtraSpareDetailsUnwind = `$checkSheet_data.extraSpareDetails.${financialYearWiseMonthKeyArray[j]}`
+
+                groupData = await Machine.aggregate([{
+                    $match: {
+                        _id: machineData[i]._id,
+                        "checkSheet_data": { $ne: undefined },
+                        $or: selectedYearOfCheckSheet,
+                    }
+                },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+                { $unwind: '$checkSheet_data.checkSheet' },
+                {
+                    $match: {
+                        [keyOfSpareDetailsExistsOrNot]: { $ne: undefined },
+                        [keyForSparePartsUsedOrNot]: { $ne: undefined },
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$_id",
+                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", checkSheet_data: "$checkSheet_data", line_names: "$line_names" } },
+                        totalPMSpareCost: {
+                            $sum: keyForTotalCostOfPMSpareParts
+                        },
+                    },
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        machine: 1,
+                        "totalPMSpareCost": 1,
+                    }
+                },
+                ])
+
+
+
+                groupData1 = await Machine.aggregate([{
+                    $match: {
+                        _id: machineData[i]._id,
+                        "checkSheet_data": { $ne: undefined },
+                        $or: selectedYearOfCheckSheet,
+                    }
+                },
+                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+                { $unwind: keyForTotalCostOfExtraSpareDetailsUnwind },
+                {
+                    $group: {
+                        _id: "$_id",
+                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", checkSheet_data: "$checkSheet_data", line_names: "$line_names" } },
+                        totalBMSpareCost: {
+                            $sum: {
+                                $cond: [{
+                                    $eq: [keyForSparePartTypes, "BM"]
+                                },
+                                    keyForTotalCostOfExtraSpareDetails, 0
+                                ]
+                            }
+                        },
+                        totalCorrectiveSpareCost: {
+                            $sum: {
+                                $cond: [{
+                                    $eq: [keyForSparePartTypes, "Corrective"]
+                                },
+                                    keyForTotalCostOfExtraSpareDetails, 0
+                                ]
+                            }
+                        },
+                        totalPridictiveSpareCost: {
+                            $sum: {
+                                $cond: [{
+                                    $eq: [keyForSparePartTypes, "Predictive"]
+                                },
+                                    keyForTotalCostOfExtraSpareDetails, 0
+                                ]
+                            }
+                        },
+                        totalKaizenSpareCost: {
+                            $sum: {
+                                $cond: [{
+                                    $eq: [keyForSparePartTypes, "Kaizen"]
+                                },
+                                    keyForTotalCostOfExtraSpareDetails, 0
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        machine: 1,
+                        "totalBMSpareCost": 1,
+                        "totalCorrectiveSpareCost": 1,
+                        "totalPridictiveSpareCost": 1,
+                        "totalKaizenSpareCost": 1
+
+                        // machine_code: 1,
+                        // checkSheet_data: 1
+                    }
+                },
+
+                ])
+
+                if (groupData?.length > 0) {
+                    // console.log(financialYearWiseMonthKeyArray[j], "---------------",groupData[0].machine[0].machine_code,"=====>", groupData)
+
+                    sumOfTotalPMSpareCost = sumOfTotalPMSpareCost + groupData[0]?.totalPMSpareCost
+                }
+                if (groupData1?.length > 0) {
+                    for (let i = 0; i < groupData1?.length; i++) {
+                        sumOfTotalBMSpareCost = sumOfTotalBMSpareCost + groupData1[i]?.totalBMSpareCost
+                        sumOfTotalCorrectiveSpareCost = sumOfTotalCorrectiveSpareCost + groupData1[i]?.totalCorrectiveSpareCost
+                        sumOfTotalPridictiveSpareCost = sumOfTotalPridictiveSpareCost + groupData1[i]?.totalPridictiveSpareCost
+                        sumOfTotalKaizenSpareCost = sumOfTotalKaizenSpareCost + groupData1[i]?.totalKaizenSpareCost
+                    }
+
+                }
+
+            }
+
+            if (sumOfTotalPMSpareCost || sumOfTotalBMSpareCost || sumOfTotalCorrectiveSpareCost ||
+                sumOfTotalPridictiveSpareCost || sumOfTotalKaizenSpareCost) {
+                let totalCost = sumOfTotalPMSpareCost + sumOfTotalBMSpareCost + sumOfTotalCorrectiveSpareCost + sumOfTotalPridictiveSpareCost + sumOfTotalKaizenSpareCost
+                top20MachineSparePartConsumption.push(
+                    new Object({
+                        line_names: machineData[i]?.line_names,
+                        machine_name: machineData[i]?.machine_name,
+                        machine_code: machineData[i]?.machine_code,
+                        cost: totalCost
+                    })
+
+                )
+            }
+        }
+
+        top20MachineSparePartConsumption = await Machine.populate(top20MachineSparePartConsumption, { path: "line_names" })
+        top20MachineSparePartConsumption = top20MachineSparePartConsumption.sort((a, b) => parseFloat(b.cost) - parseFloat(a.cost)).slice(0, 21);
+        res.json({
+            subSectionsData, cellData, lineData, top20MachineSparePartConsumption
         })
 
     } catch (error) {
