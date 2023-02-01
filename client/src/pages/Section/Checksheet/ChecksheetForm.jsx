@@ -758,7 +758,7 @@ function CheckSheetForm() {
                       onChange={(e) => setDataSheetName(e.target.files[0])}
                     />
                     &nbsp;
-                    <button type="submit" className="btn btn-primary1">
+                    <button type="submit" className="btn-primary1">
                       Upload
                     </button>
                   </form>
@@ -1576,7 +1576,7 @@ function CheckSheetForm() {
                           <div className="col-sm">
                             <button
                               type="submit"
-                              className="btn"
+                              className="btn-primary1"
                               // onClick={sendRequestForApprovalToPRDTL}
                             >
                               Send Request
