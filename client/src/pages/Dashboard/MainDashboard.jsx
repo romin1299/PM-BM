@@ -563,18 +563,21 @@ const MainDashboard = () => {
   ) => {
     // setSubSection(undefined);
     try {
-      const res = await fetch("/postSectionToGetAllDataForAnnualStatusReport/MainDashboardReport", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sectionOrSubSection,
-          dashboardLevel,
-          selectedYear,
-          // month: selectedMonth,setsections
-        }),
-      });
+      const res = await fetch(
+        "/postSectionToGetAllDataForAnnualStatusReport/MainDashboardReport",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sectionOrSubSection,
+            dashboardLevel,
+            selectedYear,
+            // month: selectedMonth,setsections
+          }),
+        }
+      );
       const data = await res.json();
 
       if (res.status === 400 || res.status === 422 || !data) {
@@ -603,7 +606,7 @@ const MainDashboard = () => {
 
       <Container fluid className="operatorDashboard">
         <Row>
-          <Col sm={12} md={9} lg={9} className="left-component-main-dashboard">
+          <Col sm={12} md={12} lg={9} className="left-component-main-dashboard">
             {Object.keys(allDataSectionWise).length > 0 ? (
               <Col>
                 <Row className="mx-2 mt-4 ">
@@ -851,14 +854,44 @@ const MainDashboard = () => {
                     </Row>
                   </Col>
                 </Row>
-                <Row className="cell p-2 m-2">
-                  <Col style={{ background: "#ababab" }} className="d-flex justify-content-center align-items-center">Not Schedule</Col>
-                  <Col style={{ background: "#ffffff" }} className="d-flex justify-content-center align-items-center">Schedule</Col>
-                  <Col style={{ background: "#ffff59" }} className="d-flex justify-content-center align-items-center">Ongoing</Col>
-                  <Col style={{ background: "#5fe15f" }} className="d-flex justify-content-center align-items-center">Completed</Col>
-                  <Col style={{ background: "#ffc356" }} className="d-flex justify-content-center align-items-center">Done with delay</Col>
-                  <Col style={{ background: "#ff8888" }} className="d-flex justify-content-center align-items-center">No completion / PM Skip</Col>
+                <Row className="cell m-2 g-3">
+                  <Col
+                    style={{ background: "#ffffff" }}
+                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                  >
+                    Schedule
+                  </Col>
+                  <Col
+                    style={{ background: "#ffff59" }}
+                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                  >
+                    Ongoing
+                  </Col>
+                  <Col
+                    style={{ background: "#5fe15f" }}
+                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                  >
+                    Completed
+                  </Col>
+                  <Col
+                    style={{ background: "#ababab", color: "white" }}
+                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                  >
+                    Not Schedule
+                  </Col>
 
+                  <Col
+                    style={{ background: "#ffc356", color: "white" }}
+                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                  >
+                    Done with delay
+                  </Col>
+                  <Col
+                    style={{ background: "#ff8888", color: "white" }}
+                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                  >
+                    No completion / PM Skip
+                  </Col>
                 </Row>
 
                 {/* <div>{checkSheetState}</div> */}
@@ -2005,7 +2038,7 @@ const MainDashboard = () => {
           </Col>
           <Col
             sm={12}
-            md={3}
+            md={12}
             lg={3}
             className="right-component-main-dashboard mt-5"
           >
