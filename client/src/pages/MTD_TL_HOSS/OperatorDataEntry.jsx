@@ -91,6 +91,8 @@ function OperatorDataEntry() {
     sparePurpose: yup.string().required("Please enter Spare Purpose"),
   });
 
+  
+
   //creating new user
   const formik = useFormik({
     initialValues: {
@@ -121,6 +123,7 @@ function OperatorDataEntry() {
           sparePurpose: values.sparePurpose,
         }),
       });
+
 
       const data = res.json();
       // console.log(data);

@@ -358,7 +358,9 @@ const AnnualPMSchedule = () => {
               <Col>
                 <Row className="p-2 ">
                   <Col sm={12} lg={2}>
-                    <span><b>Cell:</b></span>
+                    <span>
+                      <b>Cell:</b>
+                    </span>
                   </Col>
                   <Col>
                     <div>
@@ -402,7 +404,9 @@ const AnnualPMSchedule = () => {
               <Col>
                 <Row className="p-2 ">
                   <Col sm={12} lg={2}>
-                    <span><b>Line:</b></span>
+                    <span>
+                      <b>Line:</b>
+                    </span>
                   </Col>
                   <Col>
                     <div>
@@ -467,10 +471,10 @@ const AnnualPMSchedule = () => {
                         <td className={"td-padding"}>
                           {selectedCell
                             ? allDataSectionWise?.cellData?.map((option) =>
-                              option._id === selectedCell
-                                ? option.cell_name
-                                : ""
-                            )
+                                option._id === selectedCell
+                                  ? option.cell_name
+                                  : ""
+                              )
                             : allDataSectionWise?.cellData?.[0].cell_name}
                         </td>
                         <td className={"td-padding"}>{selectedYear}</td>
@@ -969,21 +973,21 @@ const AnnualPMSchedule = () => {
                                 </td>
                                 {item?.checkSheet_data?.PMStatus
                                   ? Object.values(
-                                    item?.checkSheet_data?.PMStatus
-                                  ).map((item1) => (
-                                    <td className="td-padding">
-                                      {item1 === "Completed" ? (
-                                        <CircleIcon />
-                                      ) : item1 === "Current Plan" ? (
-                                        <PanoramaFishEyeIcon />
-                                      ) : (
-                                        ""
-                                      )}
-                                    </td>
-                                  ))
+                                      item?.checkSheet_data?.PMStatus
+                                    ).map((item1) => (
+                                      <td className="td-padding">
+                                        {item1 === "Completed" ? (
+                                          <CircleIcon />
+                                        ) : item1 === "Current Plan" ? (
+                                          <PanoramaFishEyeIcon />
+                                        ) : (
+                                          ""
+                                        )}
+                                      </td>
+                                    ))
                                   : refArrayForTDMapping.map((index) => (
-                                    <td className="td-padding"></td>
-                                  ))}
+                                      <td className="td-padding"></td>
+                                    ))}
                               </tr>
                             ) : (
                               <tr className="td-padding">
@@ -996,21 +1000,21 @@ const AnnualPMSchedule = () => {
                                 </td>
                                 {item?.checkSheet_data?.PMStatus
                                   ? Object.values(
-                                    item?.checkSheet_data?.PMStatus
-                                  ).map((item1) => (
-                                    <td className="td-padding">
-                                      {item1 === "Completed" ? (
-                                        <CircleIcon />
-                                      ) : item1 === "Current Plan" ? (
-                                        <PanoramaFishEyeIcon />
-                                      ) : (
-                                        ""
-                                      )}
-                                    </td>
-                                  ))
+                                      item?.checkSheet_data?.PMStatus
+                                    ).map((item1) => (
+                                      <td className="td-padding">
+                                        {item1 === "Completed" ? (
+                                          <CircleIcon />
+                                        ) : item1 === "Current Plan" ? (
+                                          <PanoramaFishEyeIcon />
+                                        ) : (
+                                          ""
+                                        )}
+                                      </td>
+                                    ))
                                   : refArrayForTDMapping.map((index) => (
-                                    <td className="td-padding"></td>
-                                  ))}
+                                      <td className="td-padding"></td>
+                                    ))}
                                 {/* <td className="td-padding"></td> */}
                               </tr>
                             )

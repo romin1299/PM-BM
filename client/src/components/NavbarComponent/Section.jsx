@@ -26,6 +26,7 @@ import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import BackupTableIcon from "@mui/icons-material/BackupTable";
 
 const NavUrl = ({ url, icon, description }) => {
   const { nav, setNav } = useContext(NavContext);
@@ -124,6 +125,11 @@ const Section = ({ userData }) => {
             url="/pmSheetApprovalOfImplementationPhase"
             icon={<AssignmentTurnedInIcon style={{ color: "#ffffff" }} />}
             description="PM Plan vs Actual Approval"
+          />
+          <NavUrl
+            url="/sparePartUsageHistory"
+            icon={<BackupTableIcon style={{ color: "#ffffff" }} />}
+            description="Spare Part Usage History"
           />
           <List sx={{ width: "100%", maxWidth: 360 }} component="nav">
             <ListItemButton onClick={handleClick}>

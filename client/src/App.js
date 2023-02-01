@@ -148,6 +148,7 @@ function App() {
                 <Route path="/summeryDashboard" element={<SummeryDashboard />} />
                 <Route path="/logHistory" element={<LogHistory />} />
                 <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
+                <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} />
 
                 <Route path="/backupDataOfCheckSheet" element={<BackupDataOfCheckSheet />} />
 
@@ -171,6 +172,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<OperatorDashboard />} />
                 <Route path="/machineWiseCheckSheetForImplemetation" element={<CheckSheetForImplementation />} />
+                <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} />
                 <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
@@ -211,13 +213,15 @@ function App() {
                 {context.tm_department === "MTD" ?
                   <>
                     <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
-                    <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} />
+                    {/* <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} /> */}
                     <Route path="/operatorDataEntry" element={<OperatorDataEntry />} />
 
                   </>
                   :
                   ""
                 }
+                <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} />
+
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
                 <Route path="/checkSheetForm" element={<CheckSheetForm />} />
                 <Route path="/approvalDashboard" element={<CheckSheetApprovalDashboardForTL />} />

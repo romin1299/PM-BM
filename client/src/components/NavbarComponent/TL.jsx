@@ -60,12 +60,12 @@ const TL = ({ userData, userDepartment }) => {
   };
 
   return (
-    <div 
+    <div
       className={`${styles.navbar_container} ${
         nav ? styles.navbar_mobile_active : undefined
       }`}
     >
-      <nav 
+      <nav
         className={
           // nav ? undefined : styles.nav_small
 
@@ -75,18 +75,17 @@ const TL = ({ userData, userDepartment }) => {
       >
         {/* LOGO */}
         <div className="bg-white">
-        <div className={styles.logo} >
-          {/* <VscDashboard  /> */}
-          <img className={styles.logo_icon} src={denso_logo} alt="" />
-          <FaTimes
-            className={styles.mobile_cancel_icon}
-            onClick={() => {
-              setNav(!nav);
-            }}
-          />
+          <div className={styles.logo}>
+            {/* <VscDashboard  /> */}
+            <img className={styles.logo_icon} src={denso_logo} alt="" />
+            <FaTimes
+              className={styles.mobile_cancel_icon}
+              onClick={() => {
+                setNav(!nav);
+              }}
+            />
+          </div>
         </div>
-        </div>
-        
 
         {/* MENU */}
         <ul className={styles.menu_container}>
@@ -150,6 +149,7 @@ const TL = ({ userData, userDepartment }) => {
             icon={<PendingActionsIcon style={{ color: "#ffffff" }} />}
             description="Pending PM Log History"
           />
+
           {userDepartment === "MTD" ? (
             <>
               <NavUrl
@@ -157,32 +157,36 @@ const TL = ({ userData, userDepartment }) => {
                 icon={<NoteAddIcon style={{ color: "#ffffff" }} />}
                 description="Operator Data Entry"
               />
-              <NavUrl
-                url="/sparePartUsageHistory"
-                icon={<BackupTableIcon style={{ color: "#ffffff" }} />}
-                description="Spare Part Usage History"
-              />
             </>
           ) : (
             ""
           )}
-          <List
-            sx={{ width: "100%", maxWidth: 360 }}
-            component="nav"
-          >
+          <NavUrl
+            url="/sparePartUsageHistory"
+            icon={<BackupTableIcon style={{ color: "#ffffff" }} />}
+            description="Spare Part Usage History"
+          />
+          <List sx={{ width: "100%", maxWidth: 360 }} component="nav">
             <ListItemButton onClick={handleClick}>
               <ListItemIcon>
                 <SummarizeIcon style={{ color: "#ffffff" }} />
               </ListItemIcon>
-              <ListItemText primary="Reports" style={{ fontWeight: "550",color: "#ffffff" }} />
-              {open ? <ExpandLess style={{color: "#ffffff" }} /> : <ExpandMore style={{color: "#ffffff" }}/>}
+              <ListItemText
+                primary="Reports"
+                style={{ fontWeight: "550", color: "#ffffff" }}
+              />
+              {open ? (
+                <ExpandLess style={{ color: "#ffffff" }} />
+              ) : (
+                <ExpandMore style={{ color: "#ffffff" }} />
+              )}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItemButton sx={{ pl: 3 }}>
                   <NavUrl
                     url="/pmMonthlyReport"
-                    icon={<AssignmentIcon style={{color: "#ffffff" }} />}
+                    icon={<AssignmentIcon style={{ color: "#ffffff" }} />}
                     description="PM Report"
                   />
                 </ListItemButton>

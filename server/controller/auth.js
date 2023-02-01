@@ -7180,53 +7180,52 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
 })
 
 
-router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async (req, res) => {
+
+router.post('/postSectionToGetAllDataForAnnualStatusReport/:id', authenticate, async (req, res) => {
+
+    let {
+        sectionOrSubSection,
+        dashboardLevel,
+        selectedYear,
+    } = req.body
+
     try {
-        let { section, selectedYear } = req.body
-        let loggedUserData = req.rootUser;
 
-        let sectionSplit = section.split("-")
+        let subSectionsData,
+            cellData,
+            lineData
 
-        const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+        if (req.params.id === "AnnualReport") {
+            const sectionInfo = await Section.findOne({ section_id: sectionOrSubSection.split("-")[0] })
 
+            if (sectionInfo.dashboardLevel === "Yes") {
+                subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
 
-        // console.log("____________", sectionInfo[0]._id)
-        let subSectionsData, subSectionIdArray = [],
-            cellData, cellIdArray = [],
-            lineData, lineIdArray = [],
-            machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
+            } else {
+                loggedUserData.subSection_data.map((ids) => {
+                    let subsectionsId = ids.split("-")
+                    subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+                })
+                subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
 
+            }
 
-        if (sectionInfo.dashboardLevel === "Yes") {
-            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
-
+            cellData = await Cell.find({ subSection_names: { $in: subSectionsData?.map((item) => item?._id) } }).sort({ cell_sequence: 1 });
         } else {
-            loggedUserData.subSection_data.map((ids) => {
-                let subsectionsId = ids.split("-")
-                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
-            })
-            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+            if (dashboardLevel === "Yes") {
+                subSectionsData = await SubSection.find({ section_names: sectionOrSubSection }).sort({ subSection_sequence: 1 })
 
+                cellData = await Cell.find({ subSection_names: { $in: subSectionsData?.map((item) => item?._id) } }).sort({ cell_sequence: 1 });
+
+            } else {
+                cellData = await Cell.find({ subSection_names: { $in: sectionOrSubSection } }).sort({ cell_sequence: 1 });
+
+            }
         }
 
+        lineData = await Line.find({ cell_names: { $in: cellData?.map((item) => item?._id) } }).sort({ line_sequence: 1 });
 
 
-        for (let i = 0; i < subSectionsData.length; i++) {
-            subSectionIdArray.push(subSectionsData[i]._id);
-        }
-
-        cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
-
-        for (let i = 0; i < cellData.length; i++) {
-            cellIdArray.push(cellData[i]._id);
-        }
-
-        lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
-
-        for (let i = 0; i < lineData.length; i++) {
-            lineIdArray.push(lineData[i]._id);
-        }
-        // console.log(lineData)
 
         let currentYear =
             new Date().getMonth() <= 3 ?
@@ -7417,7 +7416,7 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport', authenticate, async
 
 
 
-            if (groupData.length > 0) {
+            if (groupData?.length > 0) {
                 for (let i = 0; i < groupData.length; i++) {
                     allData.push(groupData[i])
                 }
@@ -11170,6 +11169,7 @@ router.post('/postSectionToGetLineData', authenticate, async (req, res) => {
                     if (keyForSpareDetails?.spareDetails !== undefined) {
                         // console.log(keyForSpareDetails?.spareDetails)
 
+
                         for (let i = 0; i < financialYearWiseMonthKeyArray?.length; i++) {
                             let month = financialYearWiseMonthKeyArray[i]
                             if (keyForSpareDetails?.spareDetails?.[month]?.spareParts === "Yes") {
@@ -11205,6 +11205,11 @@ router.post('/postSectionToGetLineData', authenticate, async (req, res) => {
 
                 if (keyForCheckSheet?.checkSheet_data?.extraSpareDetails) {
                     for (let j = 0; j < keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare]?.length; j++) {
+
+                        // console.log(keyForCheckSheet?.machine_name, monthForOtherCategoryOfSpare)
+                        // console.log(keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j]?._id)
+
+
                         allSpareDetailsWithCategories.push(
                             new Object({
                                 sr_no: ++serialNoForLogHistory,
@@ -11222,6 +11227,7 @@ router.post('/postSectionToGetLineData', authenticate, async (req, res) => {
                                 cost: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j].cost,
                                 abnormalityRemarks: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j].abnormalityRemarks,
                                 sparePurpose: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j].sparePurpose,
+                                _id: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[monthForOtherCategoryOfSpare][j]?._id
                             })
                         );
                     }
@@ -12237,6 +12243,39 @@ router.post('/submitRemarksAfterTLOrHosRejection', async (req, res) => {
 
 
         // res.status(201).json({ message: 'CheckSheet data updated successfully' })
+
+
+    } catch (error) {
+        console.log(error)
+        console.log("Data not valid or received !!!");
+    }
+})
+
+router.post('/deleteCategoryPoint', async (req, res) => {
+    try {
+        const {
+            rowValue
+        } = req.body
+
+        console.log(
+            rowValue
+        )
+        let keyOfDeletingExtraSpareDetails = `checkSheet_data.$[outer].extraSpareDetails.${rowValue?.schedule_month}`
+
+
+        const updateChecksheetRow = await Machine.updateOne({ _id: rowValue?.machineId }, {
+
+            $pull: { [keyOfDeletingExtraSpareDetails]: { _id: rowValue?._id } }
+
+        }, {
+            arrayFilters: [{ 'outer.current_year': rowValue?.yearOfCheckSheet },],
+        })
+
+
+        console.log(updateChecksheetRow)
+
+
+        res.status(201).json({ message: 'CheckSheet data updated successfully' })
 
 
     } catch (error) {

@@ -43,7 +43,7 @@ const MachineWisePmMonthlyReport = () => {
   // console.log(currentYear);
 
   const [csvDataForCurrentMonth, setCsvDataForCurrentMonth] = useState([]);
-  const [csvDataForPreviousMonth, setCsvDataForPreviousMonth] = useState([]);
+  // const [csvDataForPreviousMonth, setCsvDataForPreviousMonth] = useState([]);
 
   const [skipApprovalStatusData, setSkipApprovalStatusData] = useState([]);
 
@@ -132,7 +132,9 @@ const MachineWisePmMonthlyReport = () => {
       field: "rowData.PMStatus?.[monthForCompareSystemMonth]",
       // width: "10%",
       render: (rowData) =>
-        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ? (
+        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
+        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
+          "Done with delay" ? (
           <PanoramaFishEyeIcon fontSize="small" />
         ) : // : rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Current Plan" ? (
         //   <PanoramaFishEyeIcon fontSize="small" />
@@ -312,79 +314,33 @@ const MachineWisePmMonthlyReport = () => {
         position: "row",
       };
     },
-    {
-      // icon: () => <button className="addbutton">Add</button>,
-      icon: () => <button className="downloadPDF">PDF</button>,
+    // {
+    //   // icon: () => <button className="addbutton">Add</button>,
+    //   icon: () => <button className="downloadPDF">PDF</button>,
 
-      tooltip: "PDF",
-      isFreeAction: true,
-      onClick: (event, rowData) => {
-        pdfDownloadForPreviousMonth();
-      },
-    },
-    {
-      // icon: () => <button className="addbutton">Add</button>,
-      icon: () => (
-        <CSVLink
-          data={csvDataForPreviousMonth}
-          filename={`${previousMonth}_PM_Status(Machine)${timeStamp()}`}
-          className="downloadCSV text-decoration-none"
-          target="_blank"
-        >
-          CSV
-        </CSVLink>
-      ),
+    //   tooltip: "PDF",
+    //   isFreeAction: true,
+    //   onClick: (event, rowData) => {
+    //     pdfDownloadForPreviousMonth();
+    //   },
+    // },
+    // {
+    //   // icon: () => <button className="addbutton">Add</button>,
+    //   icon: () => (
+    //     <CSVLink
+    //       data={csvDataForPreviousMonth}
+    //       filename={`${previousMonth}_PM_Status(Machine)${timeStamp()}`}
+    //       className="downloadCSV text-decoration-none"
+    //       target="_blank"
+    //     >
+    //       CSV
+    //     </CSVLink>
+    //   ),
 
-      tooltip: "CSV",
-      isFreeAction: true,
-      onClick: (event, rowData) => {},
-    },
-  ];
-
-  const actionsForPreviousMonthForOtherUser = [
-    (rowData) => {
-      return {
-        hidden: rowData.PMStatus === "PM Skip",
-
-        icon: () => <button className="btn-reset">Details</button>,
-        // tooltip: <h1>I am a tooltip</h1>,
-        onClick: (event, selectedRow) => {
-          navigate("/viewCheckSheet", {
-            state: { selectedRowForViewForm: selectedRow },
-          });
-          // console.log(employeePassword)
-        },
-        disabled: false, // Set disabled to false by default for all actions
-        position: "row",
-      };
-    },
-    {
-      // icon: () => <button className="addbutton">Add</button>,
-      icon: () => <button className="downloadPDF">PDF</button>,
-
-      tooltip: "PDF",
-      isFreeAction: true,
-      onClick: (event, rowData) => {
-        pdfDownloadForPreviousMonth();
-      },
-    },
-    {
-      // icon: () => <button className="addbutton">Add</button>,
-      icon: () => (
-        <CSVLink
-          data={csvDataForPreviousMonth}
-          filename={`${previousMonth}_PM_Status(Machine)${timeStamp()}`}
-          className="downloadCSV text-decoration-none"
-          target="_blank"
-        >
-          CSV
-        </CSVLink>
-      ),
-
-      tooltip: "CSV",
-      isFreeAction: true,
-      onClick: (event, rowData) => {},
-    },
+    //   tooltip: "CSV",
+    //   isFreeAction: true,
+    //   onClick: (event, rowData) => {},
+    // },
   ];
 
   const pdfDownloadForCurrentMonth = () => {
@@ -398,7 +354,8 @@ const MachineWisePmMonthlyReport = () => {
         item.line_names.line_name,
         item.machine_name,
         item.machine_code,
-        item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed"
+        item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
+        item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
           ? "^"
@@ -414,29 +371,29 @@ const MachineWisePmMonthlyReport = () => {
     doc.autoTable(columns, rows);
     doc.save(`${selectedMonth}_PM_Status(Machine)${timeStamp()}`);
   };
-  const pdfDownloadForPreviousMonth = () => {
-    const doc = new jsPDF();
-    doc.text(`${previousMonth}. PM Status(Machine)`, 15, 10);
-    const columns = tableColumn2.map((index) => index.title);
-    const rows = [];
-    tableData1?.skipMachineDataWithEveryMonth.map((item, index) =>
-      rows.push([
-        index + 1,
-        item.line_names.line_name,
-        item.machine_name,
-        item.machine_code,
-        item.checkSheet_data?.PMStatus?.[previousMonth] === "Done with delay"
-          ? "O"
-          : item.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing"
-          ? "^"
-          : // : item.checkSheet_data?.PMStatus?.[previousMonth],
-            "X",
-      ])
-    );
+  // const pdfDownloadForPreviousMonth = () => {
+  //   const doc = new jsPDF();
+  //   doc.text(`${previousMonth}. PM Status(Machine)`, 15, 10);
+  //   const columns = tableColumn2.map((index) => index.title);
+  //   const rows = [];
+  //   tableData1?.skipMachineDataWithEveryMonth.map((item, index) =>
+  //     rows.push([
+  //       index + 1,
+  //       item.line_names.line_name,
+  //       item.machine_name,
+  //       item.machine_code,
+  //       item.checkSheet_data?.PMStatus?.[previousMonth] === "Done with delay"
+  //         ? "O"
+  //         : item.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing"
+  //         ? "^"
+  //         : // : item.checkSheet_data?.PMStatus?.[previousMonth],
+  //           "X",
+  //     ])
+  //   );
 
-    doc.autoTable(columns, rows);
-    doc.save(`${previousMonth}_PM_Status(Machine)${timeStamp()}`);
-  };
+  //   doc.autoTable(columns, rows);
+  //   doc.save(`${previousMonth}_PM_Status(Machine)${timeStamp()}`);
+  // };
 
   const filterCSVDataToDownloadCSV = () => {
     const columns = tableColumn1.map((index) => index.title);
@@ -444,14 +401,17 @@ const MachineWisePmMonthlyReport = () => {
     let schedulePM = 0;
     let onGoingPM = 0;
     const currentMonthRows = [];
-    const previousMonthRows = [];
+    // const previousMonthRows = [];
     currentMonthRows.push(columns);
 
     tableData1?.machineDataForCurrentMonth.map((item, index) => {
       // console.log(item.PMStatus);
       // console.log(item.checkSheet_data?.PMStatus?.[selectedMonth]);
 
-      if (item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed") {
+      if (
+        item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
+        item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
+      ) {
         completedStatusCounter++;
       } else if (
         item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
@@ -483,7 +443,8 @@ const MachineWisePmMonthlyReport = () => {
         item.line_names.line_name,
         item.machine_name,
         item.machine_code,
-        item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed"
+        item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
+        item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
           ? "^"
@@ -491,21 +452,21 @@ const MachineWisePmMonthlyReport = () => {
       ]);
     });
 
-    tableData1?.skipMachineDataWithEveryMonth.map((item, index) => {
-      return previousMonthRows.push([
-        index + 1,
-        item.line_name,
-        item.machine_name,
-        item.machine_code,
-        item.checkSheet_data?.PMStatus?.[previousMonth] === "Done with delay"
-          ? "O"
-          : item.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing"
-          ? "^"
-          : "X",
-      ]);
-    });
+    // tableData1?.skipMachineDataWithEveryMonth.map((item, index) => {
+    //   return previousMonthRows.push([
+    //     index + 1,
+    //     item.line_name,
+    //     item.machine_name,
+    //     item.machine_code,
+    //     item.checkSheet_data?.PMStatus?.[previousMonth] === "Done with delay"
+    //       ? "O"
+    //       : item.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing"
+    //       ? "^"
+    //       : "X",
+    //   ]);
+    // });
     setCsvDataForCurrentMonth(currentMonthRows);
-    setCsvDataForPreviousMonth(previousMonthRows);
+    // setCsvDataForPreviousMonth(previousMonthRows);
   };
 
   const postSectionAndMonthToGetAllDataForReport = async () => {
@@ -823,6 +784,7 @@ const MachineWisePmMonthlyReport = () => {
                     <Row className="p-2 mt-2 cell">
                       <MachineWisePmMonthlyGraph
                         statusCounter={statusCounter}
+                        selectedMonth={selectedMonth}
                       />
                     </Row>
                     <Row className="p-2 mt-2 cell">
@@ -951,17 +913,17 @@ const MachineWisePmMonthlyReport = () => {
                   {(skipApprovalStatusData?.approvalStatusOfMTDHOS ===
                     undefined ||
                     skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                    "Rejected" ||
+                      "Rejected" ||
                     skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                    "Rejected" ||
+                      "Rejected" ||
                     skipApprovalStatusData?.approvalStatusOfPRDHOS ===
-                    "Rejected" ||
+                      "Rejected" ||
                     skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                    "Rejected" ||
+                      "Rejected" ||
                     skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                    "Accepted") &&
-                    context.user_type === "TL/HOSS" &&
-                    context.tm_department === "MTD" ? (
+                      "Accepted") &&
+                  context.user_type === "TL/HOSS" &&
+                  context.tm_department === "MTD" ? (
                     <div>
                       <Row>
                         <form

@@ -468,6 +468,7 @@ const MainDashboard = () => {
       } else {
         // console.log(data.machineData2[0][0].line_names.line_name);
         // console.log("457 ++++++++++++++++", data);
+
         setCurrentMonthGraphAndTableData(data);
         // setGraphData(data);
         // setTableData(data.lineDataWithCounter);
@@ -499,6 +500,11 @@ const MainDashboard = () => {
             data?.sectionInfo?._id,
             data?.sectionInfo?.dashboardLevel
           );
+
+          postSectionToGetAllDataForAnnualStatusReport(
+            data?.sectionInfo?._id,
+            data?.sectionInfo?.dashboardLevel
+          );
         } else {
           if (refKey === 0) {
             // console.log(
@@ -515,6 +521,10 @@ const MainDashboard = () => {
               selectedSubSectionIdForDefaultDashboard,
               data?.sectionInfo?.dashboardLevel
             );
+            await postSectionToGetAllDataForAnnualStatusReport(
+              selectedSubSectionIdForDefaultDashboard,
+              data?.sectionInfo?.dashboardLevel
+            );
             setRefKey((refKey) => refKey + 1);
           }
         }
@@ -525,6 +535,7 @@ const MainDashboard = () => {
   };
   useEffect(() => {
     postSectionToGetAllDataForMainDashboardGraph(selectedSubSectionId, "No");
+    postSectionToGetAllDataForAnnualStatusReport(selectedSubSectionId, "No");
   }, [selectedSubSectionId]);
 
   // console.log("========>", selectedSubSectionIdForDefaultDashboard);
@@ -538,24 +549,28 @@ const MainDashboard = () => {
     selectedSubSectionIdForDefaultDashboard,
   ]);
 
-  useEffect(() => {
-    // setCurrentMonthGraphAndTableData("");
-    // console.log("@@@@@@@@@@@@@@@@@", sections, context.section_data);
-    postSectionToGetAllDataForMainDashboardGraph();
-  }, [selectedYear, selectedMonth, sections]);
+  // useEffect(() => {
+  //   // setCurrentMonthGraphAndTableData("");
+  //   // console.log("@@@@@@@@@@@@@@@@@", sections, context.section_data);
+  //   postSectionToGetAllDataForMainDashboardGraph();
+  // }, [selectedYear, selectedMonth, sections]);
 
   const [annualGraph, setAnnualGraph] = useState();
 
-  const postSectionToGetAllDataForAnnualStatusReport = async () => {
+  const postSectionToGetAllDataForAnnualStatusReport = async (
+    sectionOrSubSection,
+    dashboardLevel
+  ) => {
     // setSubSection(undefined);
     try {
-      const res = await fetch("/postSectionToGetAllDataForAnnualStatusReport", {
+      const res = await fetch("/postSectionToGetAllDataForAnnualStatusReport/MainDashboardReport", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          section: context.section_data,
+          sectionOrSubSection,
+          dashboardLevel,
           selectedYear,
           // month: selectedMonth,setsections
         }),
@@ -575,10 +590,10 @@ const MainDashboard = () => {
     }
   };
 
-  useEffect(() => {
-    // setCurrentMonthGraphAndTableData("");
-    postSectionToGetAllDataForAnnualStatusReport();
-  }, [selectedYear]);
+  // useEffect(() => {
+  //   // setCurrentMonthGraphAndTableData("");
+  //   postSectionToGetAllDataForAnnualStatusReport();
+  // }, [selectedYear, sections]);
 
   return (
     <>
@@ -617,6 +632,8 @@ const MainDashboard = () => {
                           value={sections === undefined ? "" : sections}
                           onChange={(e) => {
                             setsections(e.target.value);
+                            setAnnualGraph();
+                            setCurrentMonthGraphAndTableData();
                           }}
                           variant="standard"
                         >
@@ -1480,6 +1497,8 @@ const MainDashboard = () => {
                                                                   <>
                                                                     <button
                                                                       style={{
+                                                                        // border:
+                                                                        //   "1px solid black",
                                                                         background:
                                                                           machine
                                                                             .checkSheet_data
