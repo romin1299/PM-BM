@@ -107,6 +107,7 @@ const MachineWisePmMonthlyReport = () => {
       // field: "line_names.line_name",
       editable: "false",
       align: "center",
+      width: "20%",
     },
     {
       title: "Line",
@@ -114,23 +115,26 @@ const MachineWisePmMonthlyReport = () => {
       render: (rowData) => rowData?.line_names.line_name,
       editable: "false",
       align: "center",
+      width: "20%",
     },
     {
       title: "Machine",
       field: "machine_name",
       align: "center",
+      width: "20%",
     },
     {
       title: "Machine No.",
       field: "machine_code",
       align: "center",
+      width: "20%",
     },
 
     {
       title: "PM Status",
       align: "center",
       field: "rowData.PMStatus?.[monthForCompareSystemMonth]",
-      // width: "10%",
+      width: "5%",
       render: (rowData) =>
         rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ? (
           <PanoramaFishEyeIcon fontSize="small" />
@@ -210,6 +214,7 @@ const MachineWisePmMonthlyReport = () => {
       align: "center",
       field: "PMStatus",
       editable: "false",
+      width: "5%",
     },
   ];
 
@@ -795,7 +800,7 @@ const MachineWisePmMonthlyReport = () => {
                           WebkitBackdropFilter: "blur( 2px )",
                           background: "rgba(255,255,255,0.1)",
                           // backdropFilter: "blur(5px)",
-                          fontSize: "13px",
+                          // fontSize: "13px",
                         },
                         cellStyle: {
                           border: "1px solid black",
@@ -934,7 +939,7 @@ const MachineWisePmMonthlyReport = () => {
                             borderBottom: "black !important",
                             background: "rgba(255,255,255,0.1)",
                             // backdropFilter: "blur(5px)",
-                            fontSize: "12px",
+                            // fontSize: "12px",
                           },
                           cellStyle: {
                             border: "1px solid black",
@@ -951,21 +956,24 @@ const MachineWisePmMonthlyReport = () => {
                   {(skipApprovalStatusData?.approvalStatusOfMTDHOS ===
                     undefined ||
                     skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                    "Rejected" ||
+                      "Rejected" ||
                     skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                    "Rejected" ||
+                      "Rejected" ||
                     skipApprovalStatusData?.approvalStatusOfPRDHOS ===
-                    "Rejected" ||
+                      "Rejected" ||
                     skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                    "Rejected" ||
+                      "Rejected" ||
                     skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                    "Accepted") &&
-                    context.user_type === "TL/HOSS" &&
-                    context.tm_department === "MTD" ? (
+                      "Accepted") &&
+                  context.user_type === "TL/HOSS" &&
+                  context.tm_department === "MTD" ? (
                     <div>
-                      <Row>
+                      <Row
+                        className="d-flex mt-2 p-3 border bg-white rounded"
+                        style={{ margin: "0px" }}
+                      >
                         <form
-                          className="d-flex mt-2 p-3 border bg-white rounded"
+                          className="d-flex"
                           onSubmit={formik1.handleSubmit}
                           style={{ margin: "0px" }}
                         >
@@ -1204,7 +1212,7 @@ const MachineWisePmMonthlyReport = () => {
                             <b>MTD HOS :</b>
                           </span>
                           <div style={{ marginTop: "0.5rem" }}>
-                            <div className="tablefont">
+                            <div>
                               {
                                 skipApprovalStatusData?.assignAndApprovedHOSlist
                                   ?.assignMTDHOSname
@@ -1221,7 +1229,7 @@ const MachineWisePmMonthlyReport = () => {
                             <b>MTD HOD :</b>
                           </span>
                           <div style={{ marginTop: "0.5rem" }}>
-                            <div className="tablefont">
+                            <div>
                               {
                                 skipApprovalStatusData
                                   ?.assignAndApprovedMTDHODlist
@@ -1240,7 +1248,7 @@ const MachineWisePmMonthlyReport = () => {
                             <b>PRD HOS :</b>
                           </span>
                           <div>
-                            <div className="tablefont">
+                            <div>
                               {
                                 skipApprovalStatusData
                                   ?.assignAndApprovedPRDHOSlist
@@ -1258,7 +1266,7 @@ const MachineWisePmMonthlyReport = () => {
                             <b>PRD HOD :</b>
                           </span>
                           <div style={{ marginTop: "0.5rem" }}>
-                            <div className="tablefont">
+                            <div>
                               {
                                 skipApprovalStatusData
                                   ?.assignAndApprovedPRDHODlist
@@ -1273,7 +1281,10 @@ const MachineWisePmMonthlyReport = () => {
                         </Col>
                         <Col>
                           <div style={{ marginTop: "0.5rem" }}>
-                            <span>Reason for delay :</span>
+                            <span>
+                              {" "}
+                              <b>Reason for delay :</b>{" "}
+                            </span>
                             <TextField
                               fullWidth
                               id="reasonForDelayOfTL"
@@ -1309,7 +1320,7 @@ const MachineWisePmMonthlyReport = () => {
                             <b>MTD HOS :</b>
                           </span>
                           <div style={{ marginTop: "0.5rem" }}>
-                            <div className="tablefont">
+                            <div>
                               {
                                 skipApprovalStatusData?.assignAndApprovedHOSlist
                                   ?.assignMTDHOSname
@@ -1328,7 +1339,7 @@ const MachineWisePmMonthlyReport = () => {
                             <b>MTD HOD :</b>
                           </span>
                           <div style={{ marginTop: "0.5rem" }}>
-                            <div className="tablefont">
+                            <div>
                               {
                                 skipApprovalStatusData
                                   ?.assignAndApprovedMTDHODlist
@@ -1350,7 +1361,7 @@ const MachineWisePmMonthlyReport = () => {
                             <b>PRD HOS :</b>
                           </span>
                           <div style={{ marginTop: "0.5rem" }}>
-                            <div className="tablefont">
+                            <div>
                               {
                                 skipApprovalStatusData
                                   ?.assignAndApprovedPRDHOSlist
@@ -1370,7 +1381,7 @@ const MachineWisePmMonthlyReport = () => {
                             <b>PRD HOD :</b>
                           </span>
                           <div style={{ marginTop: "0.5rem" }}>
-                            <div className="tablefont">
+                            <div>
                               {
                                 skipApprovalStatusData
                                   ?.assignAndApprovedPRDHODlist

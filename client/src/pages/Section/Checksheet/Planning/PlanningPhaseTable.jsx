@@ -246,7 +246,7 @@ function PlanningPhaseTable() {
     {
       title: "SR. NO.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "10%",
+      width: "5%",
       align: "center",
     },
     {
@@ -301,21 +301,21 @@ function PlanningPhaseTable() {
       field: "cycle",
       align: "center",
       editable: false,
-      width: "10%",
+      width: "5%",
     },
     {
       title: "Person In Charge",
       field: "personInCharge",
       align: "center",
       editable: false,
-      width: "10%",
+      width: "5%",
     },
     {
       title: "PM Time",
       field: "PM_time",
       align: "center",
       editable: false,
-      width: "10%",
+      width: "5%",
     },
     {
       title: "Start Month",
@@ -349,8 +349,8 @@ function PlanningPhaseTable() {
           })}
         </select>
       ),
-      width: "10%",
-    },
+      width: "5%",
+     },
   ];
 
   const revisedColumns = [
@@ -550,13 +550,13 @@ function PlanningPhaseTable() {
                     ? "#f7b1bf"
                     : "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
-                  fontSize: "12px",
+                  // fontSize: "12px",
                   // textDecoration: rowData?.isDeleted ? "line-through solid red 15%" : "none"
                 }),
                 headerStyle: {
                   fontSize: "13px",
-                  fontWeight: "bold"
-                }
+                  fontWeight: "bold",
+                },
               }}
             />
             <div className="col-4 mt-2" style={{ float: "right" }}>
@@ -570,7 +570,7 @@ function PlanningPhaseTable() {
             </div>
           </div>
         </div>
-        {machineData[0]?.checkSheet_data?.revisionContentData === true ? (
+        {machineData[0]?.checkSheet_data?.revisionContentData?.length > 0 ? (
           <div className="row m-3 p-3 border bg-white rounded">
             <div>
               <MaterialTable

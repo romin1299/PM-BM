@@ -65,7 +65,7 @@ function OpenAbnormalityTracking() {
     "Dec",
   ];
   let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
-  const tableHeade = [
+  const tableHeader = [
     {
       title: "Sr. no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
@@ -410,7 +410,7 @@ function OpenAbnormalityTracking() {
                   // }
                 }}
                 actions={actions}
-                columns={tableHeade}
+                columns={tableHeader}
                 data={tableData}
                 // title="User Management"
                 // tableRef={this.tableRef.current.onQueryChange()}

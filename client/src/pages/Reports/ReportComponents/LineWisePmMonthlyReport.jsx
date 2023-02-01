@@ -485,19 +485,25 @@ const LineWisePmMonthlyReport = () => {
                         rowStyle: {
                           // fontStyle:'bold'
 
-                          boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                          // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
                           // color:"rgba(255,255,255,0.8)",
                           borderRadius: "5px",
-                          border: "1px solid rgba(255,255,255)",
+                          border: "1px solid black",
                           WebkitBackdropFilter: "blur( 2px )",
+                          borderBottom: "black !important",
                           background: "rgba(255,255,255,0.1)",
-                          backdropFilter: "blur(5px)",
+                          // backdropFilter: "blur(5px)",
+                          // fontSize: "12px",
                         },
                         
+                        cellStyle: {
+                          border: "1px solid black",
+                        },
                         headerStyle: {
-                          fontSize: "14px",
-                          fontWeight: "bold"
-                        }
+                          border: "1px solid black",
+                          fontSize: "13px",
+                          fontWeight: "bold",
+                        },
                       }}
                     />
                   </Col>

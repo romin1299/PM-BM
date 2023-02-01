@@ -834,6 +834,15 @@ const MainDashboard = () => {
                     </Row>
                   </Col>
                 </Row>
+                <Row className="cell p-2 m-2">
+                  <Col style={{ background: "#ababab" }} className="d-flex justify-content-center align-items-center">Not Schedule</Col>
+                  <Col style={{ background: "#ffffff" }} className="d-flex justify-content-center align-items-center">Schedule</Col>
+                  <Col style={{ background: "#ffff59" }} className="d-flex justify-content-center align-items-center">Ongoing</Col>
+                  <Col style={{ background: "#5fe15f" }} className="d-flex justify-content-center align-items-center">Completed</Col>
+                  <Col style={{ background: "#ffc356" }} className="d-flex justify-content-center align-items-center">Done with delay</Col>
+                  <Col style={{ background: "#ff8888" }} className="d-flex justify-content-center align-items-center">No completion / PM Skip</Col>
+
+                </Row>
 
                 {/* <div>{checkSheetState}</div> */}
                 {/* dashboardCard section */}

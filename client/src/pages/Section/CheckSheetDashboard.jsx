@@ -212,7 +212,7 @@ const CheckSheetDashboard = () => {
                     rowData.checkSheet_data.checksheet_status === "Planning"
                   : "",
               icon: () => (
-                <button className="btn-reset">
+                <button className="btn-reset1">
                   {rowData.checkSheet_data != null
                     ? rowData.checkSheet_data.checkSheet.length > 0
                       ? rowData.checkSheet_data.checkSheet.length < 1
@@ -360,13 +360,13 @@ const CheckSheetDashboard = () => {
 
           <Container fluid>
             <Row>
-              <Col>
+              <Col className="col-lg-3 col-md-6 col-sm-12">
                 <YearDropDown
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
                 />
               </Col>
-              <Col>
+              <Col className="col-lg-3 col-md-6 col-sm-12">
                 <Row className="p-2 ">
                   <Col sm={12} lg={3}>
                     <span>
@@ -410,7 +410,7 @@ const CheckSheetDashboard = () => {
                   </Col>
                 </Row>
               </Col>
-              <Col>
+              <Col className="col-lg-3 col-md-6 col-sm-12">
                 <Row className="p-2 ">
                   <Col sm={12} lg={3}>
                     <span>
@@ -455,9 +455,9 @@ const CheckSheetDashboard = () => {
                   </Col>
                 </Row>
               </Col>
-              <Col className="d-flex justify-content-center align-items-center">
+              <Col className="col-lg-3 col-md-6 col-sm-12">
                 <button
-                  class="btn-primary1 w-75 "
+                  class="btn-primary1 w-25 "
                   onClick={() => {
                     localStorage.removeItem("selectedCell");
                     localStorage.removeItem("selectedLine");
@@ -568,7 +568,7 @@ const CheckSheetDashboard = () => {
                     WebkitBackdropFilter: "blur( 2px )",
                     background: "rgba(255,255,255,0.1)",
                     backdropFilter: "blur(5px)",
-                    fontSize: "12px",
+                    // fontSize: "12px",
                   },
                   headerStyle: {
                     fontSize: "14px",

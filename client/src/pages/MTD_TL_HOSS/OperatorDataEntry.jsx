@@ -557,7 +557,7 @@ function OperatorDataEntry() {
 
                 <Row className="pt-3">
                   <Col>
-                    <button type="submit" className="btn">
+                    <button type="submit" className="btn-primary1 mt-2">
                       Submit
                     </button>
                   </Col>

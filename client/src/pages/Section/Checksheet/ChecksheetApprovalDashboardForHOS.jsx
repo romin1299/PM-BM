@@ -47,6 +47,8 @@ const CheckSheetApprovalDashboardForHOS = () => {
       title: "Serial no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
+      width: "5%",
+
     },
     {
       title: "Status",
@@ -272,7 +274,7 @@ const CheckSheetApprovalDashboardForHOS = () => {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
-                  fontSize: "12px",
+                  // fontSize: "12px",
                 },
                 headerStyle: {
                   fontSize: "13px",

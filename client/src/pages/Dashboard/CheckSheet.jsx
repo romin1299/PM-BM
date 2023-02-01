@@ -445,7 +445,7 @@ function CheckSheet({ machineData, lineName, closeCheckSheet }) {
     document.querySelector(".checkSheetForImplementation").style.pointerEvents =
       "none";
   };
-
+console.log(newTableData)
   // console.log(selectedMachineCheckSheetData.state.selectedRowForViewForm);
   return (
     <>

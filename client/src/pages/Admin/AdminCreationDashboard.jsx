@@ -64,7 +64,7 @@ const AdminCreationDashboard = () => {
       title: "Serial no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
-      width: "10%"
+      width: "10%",
     },
     {
       title: "Plant Id",
@@ -84,6 +84,7 @@ const AdminCreationDashboard = () => {
       title: "Serial no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
+      width: "10%",
     },
     {
       title: "Section Id",
@@ -100,6 +101,7 @@ const AdminCreationDashboard = () => {
       title: "Dashboard Level",
       field: "dashboardLevel",
       align: "center",
+      width: "10%",
       editComponent: ({ value, onChange }) => (
         <RadioGroup
           row
@@ -143,7 +145,7 @@ const AdminCreationDashboard = () => {
       title: "Serial no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
-      width: "10%"
+      width: "10%",
     },
     {
       title: "SubSection Id",
@@ -273,7 +275,7 @@ const AdminCreationDashboard = () => {
               <select
                 class="form-select form-select-sm"
                 aria-label=".form-select-sm example"
-                style={{ width: "100%",background: "white"  }}
+                style={{ width: "100%", background: "white" }}
                 id="sections"
                 name="plant"
                 className="textField"
@@ -306,7 +308,7 @@ const AdminCreationDashboard = () => {
               </select>
             </div>
           </div>
-          <div style={{ padding: "1rem"}}>
+          <div style={{ padding: "1rem" }}>
             {plants && sections ? (
               subSectionList !== "" ? (
                 <MaterialTable
@@ -410,8 +412,8 @@ const AdminCreationDashboard = () => {
                     },
                     headerStyle: {
                       fontSize: "14px",
-                      fontWeight: "bold"
-                    }
+                      fontWeight: "bold",
+                    },
                   }}
                 />
               ) : (
@@ -478,7 +480,7 @@ const AdminCreationDashboard = () => {
                         updatedRows[index] = updatedRow;
                         //call the update user function and pass the user data
                         // updateUserInfo(updatedRow);
-                        updateSection(updatedRow,oldRow);
+                        updateSection(updatedRow, oldRow);
                         setTimeout(() => {
                           setRefKey((refKey) => refKey + 1);
                           resolve();
@@ -519,8 +521,8 @@ const AdminCreationDashboard = () => {
                     },
                     headerStyle: {
                       fontSize: "14px",
-                      fontWeight: "bold"
-                    }
+                      fontWeight: "bold",
+                    },
                   }}
                 />
               ) : (
@@ -588,7 +590,7 @@ const AdminCreationDashboard = () => {
                       const updatedRows = [...plantList.plantLists];
                       updatedRows[index] = updatedRow;
                       //call the update user function and pass the user data
-                      updatePlant(updatedRow,oldRow);
+                      updatePlant(updatedRow, oldRow);
                       setTimeout(() => {
                         setRefKey((refKey) => refKey + 1);
                         resolve();
@@ -629,8 +631,8 @@ const AdminCreationDashboard = () => {
                   },
                   headerStyle: {
                     fontSize: "14px",
-                    fontWeight: "bold"
-                  }
+                    fontWeight: "bold",
+                  },
                 }}
               />
             ) : (

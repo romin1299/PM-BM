@@ -260,7 +260,7 @@
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 1rem;
     // background-color: #e77911;
 }
 
@@ -282,7 +282,7 @@
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 1rem;
 }
 
 .downloadCSV {
@@ -292,7 +292,7 @@
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 1rem;
 }
 
 .downloadPDF {
@@ -301,7 +301,7 @@
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 1rem;
 }
 
 .btn-reset {
@@ -312,7 +312,18 @@
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 1rem;
+}
+
+.btn-reset1 {
+    // background-image: linear-gradient(135deg, #3C8CE7 10%, #00EAFF 100%);
+    background-color: #7ca9ec;
+    // background-color: #0074D9 !important;
+    color: white !important;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    font-size: 1rem;
 }
 
 .btn-danger {
@@ -323,7 +334,7 @@
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 1rem;
 }
 
 .btn-primary1 {
@@ -340,7 +351,7 @@
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 1rem;
     // box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.12), -2px -2px 4px rgba(0, 0, 0, 0.12);
 }
 
@@ -359,7 +370,7 @@
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 1rem;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.12), -2px -2px 4px rgba(0, 0, 0, 0.12);
 }
 
@@ -369,7 +380,7 @@
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 1rem;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.12), -2px -2px 4px rgba(0, 0, 0, 0.12);
 }
 
@@ -382,7 +393,7 @@
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 1rem;
     float: right;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.12), -2px -2px 4px rgba(0, 0, 0, 0.12);
 }
@@ -442,6 +453,6 @@
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 1rem;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.12), -2px -2px 4px rgba(0, 0, 0, 0.12);
 }

@@ -778,7 +778,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
                     ? "#f7b1bf"
                     : "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
-                  fontSize: "12px",
+                  // fontSize: "12px",
                   // textDecoration: rowData?.isDeleted ? "line-through solid red 15%" : "none"
                 }),
                 headerStyle: {

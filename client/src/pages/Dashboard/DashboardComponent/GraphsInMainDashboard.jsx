@@ -246,12 +246,12 @@ const GraphsInMainDashboard = ({
         <div className="cell">
           <Row>
             <Col className="d-flex justify-content-center align-items-center">
-              <div style={{ width: "20rem" }}>
+              <div style={{ width: "14rem" }}>
                 {currentMonthGraphAndTableData?.sumVariableForTotalSchedule ? (
                   <CurrentMonthStatusGraph TableData={TableDataOfCharts} />
                 ) : (
                   // <div className="p-3">{loadingAnimation}</div>
-                  <div className="m-3">
+                  <div className="m-3 d-flex justify-content-center align-items-center">
                     <NotFound />
                     {/* <h2>No PM schedule</h2> */}
                   </div>
@@ -326,7 +326,7 @@ const GraphsInMainDashboard = ({
                 variant="contained"
                 fullWidth
                 type="submit"
-                className="btn-primary mt-2"
+                className="btn-primary1 mt-2"
                 style={{ fontSize: "12px" }}
                 onClick={() => {
                   postRemarksSectionWise(context.section_data);
@@ -358,7 +358,7 @@ const GraphsInMainDashboard = ({
                 variant="contained"
                 fullWidth
                 type="submit"
-                className="btn-primary mt-2"
+                className="btn-primary1 mt-2"
                 onClick={() => {
                   postRemarksSubSectionWise(subSection);
                 }}
@@ -389,7 +389,7 @@ const GraphsInMainDashboard = ({
                 variant="contained"
                 fullWidth
                 type="submit"
-                className="btn-primary mt-2"
+                className="btn-primary1 mt-2"
                 onClick={() => {
                   postRemarksSubSectionWise(subSection);
                 }}

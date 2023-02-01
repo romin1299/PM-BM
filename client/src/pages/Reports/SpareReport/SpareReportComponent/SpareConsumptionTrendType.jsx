@@ -1,13 +1,15 @@
 import React, {useState, useEffect} from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import currentYear from "../../../Dashboard/DashboardComponent/currentYear";
-
+import LoadingAnimation from "../../ReportComponents/LoadingAnimation";
 import SpareConsumptionTrendTypeGraph from "./GraphForSpareReports/SpareConsumptionTrendTypeGraph";
 
 const SpareConsumptionTrendType = ({context}) => {
   const [graphData, setGraphData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(currentYear);
-
+  const [loadingAnimationState, setLoadingAnimationState] = useState(
+    <LoadingAnimation />
+  );
   const postSectionToGetAllDataForLineWiseSpareConsumption = async () => {
     try {
       const res = await fetch(
@@ -54,7 +56,11 @@ console.log(graphData)
             className="d-flex justify-content-center align-items-center m-4"
             style={{ height: "20rem" }}
           >
+            {graphData?.length > 0 ? (
             <SpareConsumptionTrendTypeGraph graphData={graphData} />
+            ) : (
+              loadingAnimationState
+            )}
           </Col>
         </Row>
       </Container>
