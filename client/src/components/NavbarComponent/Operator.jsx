@@ -19,10 +19,10 @@ import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import SummarizeIcon from "@mui/icons-material/Summarize";
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import BackupTableIcon from "@mui/icons-material/BackupTable";
 
 const NavUrl = ({ url, icon, description }) => {
   const { nav, setNav } = useContext(NavContext);
@@ -66,16 +66,16 @@ const Operator = ({ userData }) => {
       >
         {/* LOGO */}
         <div className="bg-white">
-        <div className={styles.logo}>
-          {/* <VscDashboard  /> */}
-          <img className={styles.logo_icon} src={denso_logo} alt="" />
-          <FaTimes
-            className={styles.mobile_cancel_icon}
-            onClick={() => {
-              setNav(!nav);
-            }}
-          />
-        </div>
+          <div className={styles.logo}>
+            {/* <VscDashboard  /> */}
+            <img className={styles.logo_icon} src={denso_logo} alt="" />
+            <FaTimes
+              className={styles.mobile_cancel_icon}
+              onClick={() => {
+                setNav(!nav);
+              }}
+            />
+          </div>
         </div>
         {/* MENU */}
         <ul className={styles.menu_container}>
@@ -91,16 +91,25 @@ const Operator = ({ userData }) => {
             icon={<AssignmentTurnedInIcon style={{ color: "#ffffff" }} />}
             description="PM Plan vs Actual Approval"
           />
-          <List
-            sx={{ width: "100%", maxWidth: 360,  }}
-            component="nav"
-          >
+          <NavUrl
+            url="/sparePartUsageHistory"
+            icon={<BackupTableIcon style={{ color: "#ffffff" }} />}
+            description="Spare Part Usage History"
+          />
+          <List sx={{ width: "100%", maxWidth: 360 }} component="nav">
             <ListItemButton onClick={handleClick}>
               <ListItemIcon>
                 <SummarizeIcon style={{ color: "#ffffff" }} />
               </ListItemIcon>
-              <ListItemText primary="Reports" style={{ fontWeight: "550",color: "#ffffff" }} />
-              {open ? <ExpandLess style={{color: "#ffffff" }} /> : <ExpandMore style={{color: "#ffffff" }}/>}
+              <ListItemText
+                primary="Reports"
+                style={{ fontWeight: "550", color: "#ffffff" }}
+              />
+              {open ? (
+                <ExpandLess style={{ color: "#ffffff" }} />
+              ) : (
+                <ExpandMore style={{ color: "#ffffff" }} />
+              )}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>

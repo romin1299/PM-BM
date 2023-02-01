@@ -409,7 +409,9 @@ const LineWisePmMonthlyReport = () => {
               <Col>
                 <Row className="p-2 ">
                   <Col sm={12} lg={1}>
-                    <span><b>Line:</b></span>
+                    <span>
+                      <b>Line:</b>
+                    </span>
                   </Col>
                   <Col sm={12} lg={3}>
                     <div>
@@ -452,7 +454,7 @@ const LineWisePmMonthlyReport = () => {
             <Container fluid>
               <Row>
                 {tableData?.length > 0 ? (
-                  <Col lg={8}>
+                  <Col>
                     <MaterialTable
                       localization={{}}
                       actions={actions}
@@ -515,11 +517,16 @@ const LineWisePmMonthlyReport = () => {
 
                 {statusSum?.totalPmSchedule ? (
                   <Col
-                    lg={4}
-
-                    // className="profileImg"
+                    lg={3}
+                    className="cell m-2"
+                    style={{
+                      minHeight: "15rem",
+                    }}
                   >
-                    <LineWIsePmMonthlyGraph statusSum={statusSum} />
+                    <LineWIsePmMonthlyGraph
+                      selectedMonth={selectedMonth}
+                      statusSum={statusSum}
+                    />
                     {/* <Row className="pt-2 ">
                     <Col></Col>
                   </Row> */}

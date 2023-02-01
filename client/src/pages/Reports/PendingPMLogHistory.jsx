@@ -41,11 +41,11 @@ const PendingPMLogHistory = () => {
       sort: "true",
     },
     {
-      header: "Inception Point",
+      header: "Inspection Point",
       sort: "true",
     },
     {
-      header: "Date",
+      header: "Date-Time",
       sort: "true",
     },
     {
