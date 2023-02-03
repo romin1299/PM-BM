@@ -640,20 +640,40 @@ function ViewChecksheet() {
               <div>
                 <div className="col-2 mt-2">
                   <button
-                    onClick={() =>
-                      context.tm_department === "MTD" &&
-                      context.user_type === "TL/HOSS"
-                        ? selectedMachineCheckSheetData?.state?.dashboardID ===
-                          "FromApprovalDashboard"
-                          ? navigate("/approvalDashboard")
+                    onClick={
+                      () =>
+                        selectedMachineCheckSheetData?.state?.dashboardID ===
+                        "FromImplementationApprovalDashboard"
+                          ? navigate("/implementationApproval")
+                          : selectedMachineCheckSheetData?.state
+                              ?.dashboardID === "FromPlanningApprovalDashboard"
+                          ? navigate("/planningApproval")
+                          : selectedMachineCheckSheetData?.state
+                              ?.dashboardID ===
+                            "FromPreparationApprovalDashboard"
+                          ? navigate("/preparationApproval")
+                          : selectedMachineCheckSheetData?.state
+                              ?.dashboardID ===
+                            "FromMachineWisePMReportDashboard"
+                          ? navigate("/pmMonthlyReport")
+                          : selectedMachineCheckSheetData?.state
+                              ?.dashboardID === "FromChecksheetDashboard"
+                          ? navigate("/checkSheetDashboard")
                           : navigate("/checkSheetDashboard")
-                        : (context.tm_department === "PRD" &&
-                            context.user_type === "TL/HOSS") ||
-                          context.user_type === "Section-Admin"
-                        ? navigate("/approvalDashboard")
-                        : context.user_type === "Operator"
-                        ? navigate("/pmMonthlyReport")
-                        : navigate("/checkSheetDashboard")
+
+                      // context.tm_department === "MTD" &&
+                      // context.user_type === "TL/HOSS"
+                      //   ? selectedMachineCheckSheetData?.state?.dashboardID ===
+                      //     "FromApprovalDashboard"
+                      //     ? navigate("/approvalDashboard")
+                      //     : navigate("/checkSheetDashboard")
+                      //   : (context.tm_department === "PRD" &&
+                      //       context.user_type === "TL/HOSS") ||
+                      //     context.user_type === "Section-Admin"
+                      //   ? navigate("/approvalDashboard")
+                      //   : context.user_type === "Operator"
+                      //   ? navigate("/pmMonthlyReport")
+                      //   : navigate("/checkSheetDashboard")
                     }
                     style={{
                       border: "none",
@@ -1164,7 +1184,10 @@ function ViewChecksheet() {
             </Col>
             <Col>
               <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-                <button className="btn-danger" onClick={funForOpeningSummeryPopups}>
+                <button
+                  className="btn-danger"
+                  onClick={funForOpeningSummeryPopups}
+                >
                   Summary
                 </button>
               </div>

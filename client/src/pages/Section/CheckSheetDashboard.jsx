@@ -18,6 +18,8 @@ import YearDropDown from "../Dashboard/DashboardComponent/YearDropDown";
 import currentYear from "../Dashboard/DashboardComponent/currentYear";
 import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../Reports/ReportComponents/NotFound";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CheckSheetDashboard = () => {
   const context = useContext(RoutingContext);
@@ -130,6 +132,19 @@ const CheckSheetDashboard = () => {
     }
   };
 
+  const notifyForDeleteChecksheet = () => {
+    toast.success("CheckSheet deleted successfully", {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+
   // console.log(tableData);
   const deleteCheckSheet = async (selectedRow) => {
     try {
@@ -149,6 +164,7 @@ const CheckSheetDashboard = () => {
         window.alert("Invalid");
       } else {
         setRefKey((refKey) => refKey + 1);
+        notifyForDeleteChecksheet();
         console.log("Data Deleted Successful");
       }
     } catch (error) {
@@ -161,7 +177,7 @@ const CheckSheetDashboard = () => {
     if (context.section_data) {
       postSectionToGetAllData();
     }
-  }, [selectedYear]);
+  }, [selectedYear, refKey]);
 
   const machineHeader = [
     {
@@ -285,6 +301,7 @@ const CheckSheetDashboard = () => {
             onClick: (event, selectedRow) => {
               navigate("/viewCheckSheet", {
                 state: { selectedRowForViewForm: selectedRow },
+                dashboardID: "FromChecksheetDashboard",
               });
             },
             disabled: false, // Set disabled to false by default for all actions
@@ -341,6 +358,7 @@ const CheckSheetDashboard = () => {
             onClick: (event, selectedRow) => {
               navigate("/viewCheckSheet", {
                 state: { selectedRowForViewForm: selectedRow },
+                dashboardID: "FromChecksheetDashboard",
               });
             },
             disabled: false, // Set disabled to false by default for all actions
@@ -354,6 +372,7 @@ const CheckSheetDashboard = () => {
 
   return (
     <>
+      <ToastContainer style={{ width: "30rem" }} />
       <div className="pageCard">
         <div className="creationDashboard">
           <h4 style={{ padding: "1rem 0 0 1rem" }}>Checksheet Dashboard</h4>

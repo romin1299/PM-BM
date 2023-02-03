@@ -247,6 +247,8 @@ const MachineWisePmMonthlyReport = () => {
       onClick: (event, selectedRow) => {
         navigate("/viewCheckSheet", {
           state: { selectedRowForViewForm: selectedRow },
+          dashboardID: "FromMachineWisePMReportDashboard",
+
         });
         // console.log(employeePassword)
       },
@@ -291,7 +293,7 @@ const MachineWisePmMonthlyReport = () => {
           rowData?.completionTargetDate === undefined ||
           (context.user_type === "TL/HOSS" && context.tm_department === "PRD"),
 
-        icon: () => <button className="btn-reset">PM Edit</button>,
+        icon: () => <button className="btn-primary1">PM Edit</button>,
         // tooltip: <h1>I am a tooltip</h1>,
         onClick: (event, selectedRow) => {
           navigate("/skipedPMWorkData", {
@@ -312,6 +314,8 @@ const MachineWisePmMonthlyReport = () => {
         onClick: (event, selectedRow) => {
           navigate("/viewCheckSheet", {
             state: { selectedRowForViewForm: selectedRow },
+          dashboardID: "FromMachineWisePMReportDashboard",
+
           });
           // console.log(employeePassword)
         },

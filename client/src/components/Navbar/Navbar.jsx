@@ -19,7 +19,7 @@ const Navbar = () => {
   } else if (context.user_type === "Operator") {
     return <Operator userData={context.user_type} />;
   }else if (context.user_type === "TL/HOSS") {
-    return <TL userData={context.user_type} userDepartment={context.tm_department} />;
+    return <TL userData={context} userDepartment={context.tm_department} />;
   }
 };
 export default Navbar;

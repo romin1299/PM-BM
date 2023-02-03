@@ -136,11 +136,11 @@ body {
     }
 }
 
-.bg-button{
+.bg-button {
     background-color: #002D37;
 }
 
-.bg-container{
+.bg-container {
     background-color: rgb(247, 247, 247) !important;
 }
 
@@ -148,6 +148,6 @@ body {
     border-bottom: black !important;
 } */
 
-.svg-font{
+.svg-font {
     font-size: 1rem !important;
 }

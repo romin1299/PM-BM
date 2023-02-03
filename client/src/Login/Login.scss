@@ -422,19 +422,6 @@
     font-weight: 580;
 }
 
-#footer {
-    display: flex;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-}
-
-#footer img {
-    /* margin-left: 0.3em; */
-    height: 15px;
-    width: 10%;
-}
-
 #warnings {
     visibility: hidden;
     border: 1px solid red;

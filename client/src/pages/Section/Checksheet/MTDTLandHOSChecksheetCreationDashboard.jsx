@@ -15,7 +15,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { ToastContainer, toast } from "react-toastify";
 
-const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
+const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
   const [tableData, setTableData] = useState([]);
   const [lineArray, setLineArray] = useState([]);
   const context = useContext(RoutingContext);
@@ -44,8 +44,8 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
     let line_name_array = [];
     selectedMachineData.state.lineData
       ? selectedMachineData.state.lineData.map((name) => {
-        line_name_array.push(`${name.line_id}-${name.line_name}`);
-      })
+          line_name_array.push(`${name.line_id}-${name.line_name}`);
+        })
       : (line_name_array = "");
     setLineArray(line_name_array);
   };
@@ -650,7 +650,15 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
       <div style={{ margin: "0.5rem" }}>
         <div className="pageCard">
           <button
-            onClick={() => navigate("/approvalDashboard")}
+            onClick={() =>
+              machineData[0]?.checkSheet_data?.checksheet_status ===
+              "Preparation"
+                ? navigate("/preparationApproval")
+                : machineData[0]?.checkSheet_data?.checksheet_status ===
+                  "Planning"
+                ? navigate("/planningApproval")
+                : navigate("/implementationApproval")
+            }
             style={{
               border: "none",
               background: "white",
@@ -783,8 +791,8 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
                 }),
                 headerStyle: {
                   fontSize: "13px",
-                  fontWeight: "bold"
-                }
+                  fontWeight: "bold",
+                },
               }}
             />
             <div className="col-4 mt-2" style={{ float: "right" }}>

@@ -106,11 +106,58 @@ const Section = ({ userData }) => {
             icon={<PersonAddAltIcon style={{ color: "#ffffff" }} />}
             description="User Assign"
           />
-          <NavUrl
+
+          <List sx={{ width: "100%", maxWidth: 400 }} component="nav">
+            <ListItemButton onClick={handleClick}>
+              <ListItemIcon>
+                <AddTaskIcon style={{ color: "#ffffff" }} />
+              </ListItemIcon>
+              <ListItemText
+                primary="Approval Dashboards"
+                style={{ fontWeight: "550", color: "#ffffff" }}
+              />
+              {open ? (
+                <ExpandLess style={{ color: "#ffffff" }} />
+              ) : (
+                <ExpandMore style={{ color: "#ffffff" }} />
+              )}
+            </ListItemButton>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItemButton sx={{ pl: 3 }}>
+                  <NavUrl
+                    url="/preparationApproval"
+                    icon={<AssignmentIcon style={{ color: "#ffffff" }} />}
+                    description="Preparation Approval"
+                  />
+                </ListItemButton>
+              </List>
+              <List component="div" disablePadding>
+                <ListItemButton sx={{ pl: 3 }}>
+                  <NavUrl
+                    url="/planningApproval"
+                    icon={<CreditScoreIcon style={{ color: "#ffffff" }} />}
+                    description="Planning Approval"
+                  />
+                </ListItemButton>
+              </List>
+              <List component="div" disablePadding>
+                <ListItemButton sx={{ pl: 3 }}>
+                  <NavUrl
+                    url="/implementationApproval"
+                    icon={<AssignmentIcon style={{ color: "#ffffff" }} />}
+                    description="Implementation Approval"
+                  />
+                </ListItemButton>
+              </List>
+            </Collapse>
+          </List>
+
+          {/* <NavUrl
             url="/approvalDashboard"
             icon={<AddTaskIcon style={{ color: "#ffffff" }} />}
             description="Approval Dashboard"
-          />
+          /> */}
           <NavUrl
             url="/pmSheetApproval"
             icon={<FactCheckIcon style={{ color: "#ffffff" }} />}

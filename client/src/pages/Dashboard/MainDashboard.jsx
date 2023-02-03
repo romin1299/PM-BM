@@ -385,7 +385,7 @@ const MainDashboard = () => {
 
   //copied successfully checksheet data from previous year
   const notifyForCopiedChecksheetDataDone = () => {
-    toast.success("Financial year not started yet !", {
+    toast.success("Machine data for new year successfully stored !", {
       position: "top-center",
       autoClose: 3000,
       hideProgressBar: false,
@@ -563,18 +563,21 @@ const MainDashboard = () => {
   ) => {
     // setSubSection(undefined);
     try {
-      const res = await fetch("/postSectionToGetAllDataForAnnualStatusReport/MainDashboardReport", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sectionOrSubSection,
-          dashboardLevel,
-          selectedYear,
-          // month: selectedMonth,setsections
-        }),
-      });
+      const res = await fetch(
+        "/postSectionToGetAllDataForAnnualStatusReport/MainDashboardReport",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sectionOrSubSection,
+            dashboardLevel,
+            selectedYear,
+            // month: selectedMonth,setsections
+          }),
+        }
+      );
       const data = await res.json();
 
       if (res.status === 400 || res.status === 422 || !data) {
@@ -609,7 +612,7 @@ const MainDashboard = () => {
                 <Row className="mx-2 mt-4 ">
                   <Col sm={6}>
                     <Row
-                      className="mx-1 cell p-2"
+                      className="cell p-2"
                       // className="mx-2 mt-5 p-2 cell"
                       // style={{ background: "#ffffff" }}
                       // style={{ background: "#cee4ee", border: "1px solid" }}
@@ -851,14 +854,44 @@ const MainDashboard = () => {
                     </Row>
                   </Col>
                 </Row>
-                <Row className="cell p-2 m-2">
-                  <Col style={{ background: "#ababab" }} className="d-flex justify-content-center align-items-center">Not Schedule</Col>
-                  <Col style={{ background: "#ffffff" }} className="d-flex justify-content-center align-items-center">Schedule</Col>
-                  <Col style={{ background: "#ffff59" }} className="d-flex justify-content-center align-items-center">Ongoing</Col>
-                  <Col style={{ background: "#5fe15f" }} className="d-flex justify-content-center align-items-center">Completed</Col>
-                  <Col style={{ background: "#ffc356" }} className="d-flex justify-content-center align-items-center">Done with delay</Col>
-                  <Col style={{ background: "#ff8888" }} className="d-flex justify-content-center align-items-center">No completion / PM Skip</Col>
+                <Row className="cell m-2 g-3">
+                  <Col
+                    style={{ background: "#ffffff" }}
+                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                  >
+                    Schedule
+                  </Col>
+                  <Col
+                    style={{ background: "#ffff59" }}
+                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                  >
+                    Ongoing
+                  </Col>
+                  <Col
+                    style={{ background: "#5fe15f" }}
+                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                  >
+                    Completed
+                  </Col>
+                  <Col
+                    style={{ background: "#ababab", color: "white" }}
+                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                  >
+                    Not Schedule
+                  </Col>
 
+                  <Col
+                    style={{ background: "#ffc356", color: "white" }}
+                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                  >
+                    Done with delay
+                  </Col>
+                  <Col
+                    style={{ background: "#ff8888", color: "white" }}
+                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                  >
+                    No completion / PM Skip
+                  </Col>
                 </Row>
 
                 {/* <div>{checkSheetState}</div> */}

@@ -252,35 +252,35 @@ function PMSheetApprovalOfImplementationPhase() {
                     <br />
                     {index.preparation_TL_date[idx]
                       } */}
-                        {index?.checkSheet_data?.implemetation_completed_tm_name[
+                        {index?.checkSheet_data?.implemetation_completed_tm_name?.[
                           monthKey
-                        ].map((value, idx) => (
+                        ]?.map((value, idx) => (
                           <p>
                             {value}-
                             {
                               index?.checkSheet_data
-                                ?.implemetation_completed_date[monthKey][idx]
+                                ?.implemetation_completed_date?.[monthKey]?.[idx]
                             }
                           </p>
                         ))}
                       </td>
                       {/* PRD Approval */}
                       <td className="td-padding">
-                        {index?.checkSheet_data?.implemetation_prd_tl_approval_status[
+                        {index?.checkSheet_data?.implemetation_prd_tl_approval_status?.[
                           monthKey
-                        ].map((value, idx) => (
+                        ]?.map((value, idx) => (
                           <p>
                             <b>{value}</b>-
                             {
                               index?.checkSheet_data
-                                ?.implementation_assign_PRD_TL_name?.[monthKey][
+                                ?.implementation_assign_PRD_TL_name?.[monthKey]?.[
                                 idx
                               ]
                             }
                             -
                             {
                               index?.checkSheet_data
-                                ?.implementation_approved_PRD_TL_date[monthKey][
+                                ?.implementation_approved_PRD_TL_date?.[monthKey]?.[
                                 idx
                               ]
                             }
@@ -289,54 +289,54 @@ function PMSheetApprovalOfImplementationPhase() {
                       </td>
                       {/* MTD TL approval */}
                       <td className="td-padding">
-                        {index?.checkSheet_data?.implemetation_mtd_tl_approval_status[
+                        {index?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
                           monthKey
-                        ].map((value, idx) => (
+                        ]?.map((value, idx) => (
                           <p>
                             <b>{value}</b>-
                             {
                               index?.checkSheet_data
-                                ?.implementation_assign_MTD_TL_name?.[monthKey][
+                                ?.implementation_assign_MTD_TL_name?.[monthKey]?.[
                                 idx
                               ]
                             }
                             -
                             {
                               index?.checkSheet_data
-                                ?.implementation_approved_MTD_TL_date[monthKey][
+                                ?.implementation_approved_MTD_TL_date?.[monthKey]?.[
                                 idx
                               ]
                             }{" "}
                             -{" "}
                             {value === "Rejected"
-                              ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks[monthKey][idx]}`
+                              ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
                               : ""}
                           </p>
                         ))}
                       </td>
                       {/* MTD HOS approval */}
                       <td className="td-padding">
-                        {index?.checkSheet_data?.implemetation_mtd_hos_approval_status[
+                        {index?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
                           monthKey
-                        ].map((value, idx) => (
+                        ]?.map((value, idx) => (
                           <p>
                             <b>{value}</b>-
                             {
                               index?.checkSheet_data
                                 ?.implementation_assign_MTD_HOS_name?.[
                                 monthKey
-                              ][idx]
+                              ]?.[idx]
                             }
                             -
                             {
                               index?.checkSheet_data
-                                ?.implementation_approved_MTD_HOS_date[
+                                ?.implementation_approved_MTD_HOS_date?.[
                                 monthKey
-                              ][idx]
+                              ]?.[idx]
                             }
                             -{" "}
                             {value === "Rejected"
-                              ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks[monthKey][idx]}`
+                              ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
                               : ""}
                           </p>
                         ))}

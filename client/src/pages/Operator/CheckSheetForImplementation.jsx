@@ -86,8 +86,10 @@ function CheckSheet({
     monthKeyArray[new Date().getMonth() - 1] === undefined
       ? monthKeyArray.splice(-1)[0]
       : monthKeyArray[new Date().getMonth() - 1];
-  let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
-
+  let previousToPreviousMonth =
+    new Date().getMonth() - 2 === -2
+      ? monthKeyArray.splice(-1)[1]
+      : monthKeyArray.splice(-1)[0];
   let monthInNumber = new Date().getMonth();
 
   // console.log(selectedSupportedTM);
