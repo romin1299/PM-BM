@@ -5,11 +5,34 @@ import {
   NavContext,
   NavLink,
   denso_logo,
+  halflogo,
   FaTimes,
   AccountCircleIcon,
   DashboardIcon,
   NoteAddIcon,
 } from "./ImportModules";
+
+import {
+  FiArrowLeftCircle,
+  FiArrowRightCircle,
+} from "react-icons/fi";
+import LogoutIcon from "@mui/icons-material/Logout";
+import Logout from "../../Integration/Logout/Logout";
+import { useNavigate } from "react-router-dom";
+
+import { useState } from "react";
+
+import {
+  Menu,
+  MenuItem,
+  ProSidebar,
+  SidebarHeader,
+  SubMenu,
+  SidebarFooter,
+  SidebarContent,
+} from "react-pro-sidebar";
+import "react-pro-sidebar/dist/css/styles.css";
+import styled from "styled-components";
 
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -24,135 +47,173 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import BackupTableIcon from "@mui/icons-material/BackupTable";
 
-const NavUrl = ({ url, icon, description }) => {
-  const { nav, setNav } = useContext(NavContext);
-  const checkWindowSize = () => {
-    if (window.innerWidth < 1024) setNav(!nav);
-  };
-  return (
-    <li className={styles.li_navlink}>
-      <NavLink
-        to={`${url}`}
-        className={({ isActive }) => (isActive ? styles.active : undefined)}
-        onClick={() => checkWindowSize()}
-      >
-        {icon}
-        <span className={styles.description}>{description}</span>
-      </NavLink>
-    </li>
-  );
-};
+
+const Menuitem = styled(MenuItem)`
+  :hover {
+    background-color: white;
+    padding: 5px;
+    color: black;
+    // border-radius: 10px;
+    // margin:10px;
+  }
+`;
+
 
 const Operator = ({ userData }) => {
-  const { nav, setNav } = useContext(NavContext);
   const [open, setOpen] = React.useState(true);
+  const [menuCollapse, setMenuCollapse] = useState(true);
+  const navigate = useNavigate();
 
-  const handleClick = () => {
-    setOpen(!open);
+  const [collapsed, setCollapsed] = useState(true);
+  const styles = {
+    sideBarHeight: {
+      height: "100vh",
+    },
+    menuIcon: {
+      float: "left",
+      marginBottom: "1rem",
+      marginLeft: "1.5rem",
+    },
+    bg: {
+      background: "#004B5B",
+    },
+  };
+  const onClickMenuIcon = () => {
+    // setCollapsed(!collapsed);
+    menuCollapse ? setMenuCollapse(false) : setMenuCollapse(true);
+  };
+
+  const loggedOut = () => {
+    navigate("/");
+    setTimeout(() => {
+      window.location.reload(false);
+    }, 100);
   };
   return (
-    <div
-      className={`${styles.navbar_container} ${
-        nav ? styles.navbar_mobile_active : undefined
-      }`}
-    >
-      <nav
-        className={
-          // nav ? undefined : styles.nav_small
-
-          //if window size < 1024px than user (nav? undefined : styles.nav_small) else (nav? styles.nav_small: undefined)
-          nav ? undefined : styles.nav_small
-        }
-      >
-        {/* LOGO */}
-        <div className="bg-white">
-          <div className={styles.logo}>
-            {/* <VscDashboard  /> */}
-            <img className={styles.logo_icon} src={denso_logo} alt="" />
-            <FaTimes
-              className={styles.mobile_cancel_icon}
-              onClick={() => {
-                setNav(!nav);
-              }}
-            />
-          </div>
-        </div>
-        {/* MENU */}
-        <ul className={styles.menu_container}>
-          {/* FIRST CATEGORY */}
-
-          <NavUrl
-            url="/"
-            icon={<DashboardIcon style={{ color: "#ffffff" }} />}
-            description="Dashboard"
-          />
-          <NavUrl
-            url="/pmSheetApprovalOfImplementationPhase"
-            icon={<AssignmentTurnedInIcon style={{ color: "#ffffff" }} />}
-            description="PM Plan vs Actual Approval"
-          />
-          <NavUrl
-            url="/sparePartUsageHistory"
-            icon={<BackupTableIcon style={{ color: "#ffffff" }} />}
-            description="Spare Part Usage History"
-          />
-          <List sx={{ width: "100%", maxWidth: 360 }} component="nav">
-            <ListItemButton onClick={handleClick}>
-              <ListItemIcon>
-                <SummarizeIcon style={{ color: "#ffffff" }} />
-              </ListItemIcon>
-              <ListItemText
-                primary="Reports"
-                style={{ fontWeight: "550", color: "#ffffff" }}
-              />
-              {open ? (
-                <ExpandLess style={{ color: "#ffffff" }} />
-              ) : (
-                <ExpandMore style={{ color: "#ffffff" }} />
-              )}
-            </ListItemButton>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton sx={{ pl: 3 }}>
-                  <NavUrl
-                    url="/pmMonthlyReport"
-                    icon={<AssignmentIcon style={{ color: "#ffffff" }} />}
-                    description="PM Report"
+    <ProSidebar style={styles.sideBarHeight} collapsed={menuCollapse}>
+      <div style={styles.bg}>
+        {/* <div className="d-flex align-items-center justify-content-center m-2">
+          <img src={denso_logo} alt="" style={{ width: "60px" }} />
+        </div> */}
+        <div>
+          <SidebarHeader>
+            <div className="logotext">
+              {/* small and big change using menucollapse state */}
+              <p className="d-flex align-items-center justify-content-center m-2 sticky-top">
+                {menuCollapse ? (
+                  <img
+                    src={halflogo}
+                    alt=""
+                    style={{ width: "50%", padding: "5px" }}
+                    className="bg-white"
+                    
                   />
-                </ListItemButton>
-              </List>
-            </Collapse>
-          </List>
-          {/* <NavUrl
-            url="/checkSheetDashboard"
-            icon={<NoteAddIcon style={{ color: "#ffffff" }} />}
-            description="CheckSheet Dashboard"
-          /> */}
-        </ul>
-        <div className={styles.btn_logout}>
-          <div class="navigation">
-            <NavUrl
-              url="/profile"
-              icon={
-                <AccountCircleIcon
-                  className="profileImages"
-                  style={{ color: "#ffffff" }}
-                />
-              }
-              description={userData}
-            />
-            {/* <div class="logout">{context.user_type}</div> */}
-          </div>
+                ) : (
+                  <img
+                    src={denso_logo}
+                    alt=""
+                    style={{ width: "50%" }}
+                    className="bg-white"
+                  />
+                )}
+              </p>
+            </div>
+            <div
+              className="closemenu"
+              onClick={onClickMenuIcon}
+              style={styles.menuIcon}
+            >
+              {/* changing menu collapse icon on click */}
+              {menuCollapse ? (
+                <FiArrowRightCircle className="text-white h4 mt-2" />
+              ) : (
+                <FiArrowLeftCircle className="text-white h4 mt-2" />
+              )}
+            </div>
+            {/* <div style={styles.menuIcon} onClick={onClickMenuIcon}>
+              <MenuIcon className="text-white" style={{ fontSize: "1.5rem" }} />
+            </div> */}
+          </SidebarHeader>
         </div>
-      </nav>
+      </div>
+      <SidebarContent>
+        <Menu iconShape="square" style={styles.bg}>
+          <Menuitem
+            className="text-white"
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Dashboard"
+            icon={<DashboardIcon className="text-white" />}
+          >
+            <NavLink to="/"></NavLink> Dashboard
+          </Menuitem>
+          <Menuitem
+            className="text-white"
+            data-toggle="tooltip"
+            data-placement="right"
+            title="PM Plan vs Actual Approval"
+            icon={<AssignmentTurnedInIcon className="text-white" />}
+          >
+            <NavLink to="/pmSheetApprovalOfImplementationPhase"></NavLink> PM Plan vs Actual Approval
+          </Menuitem>
+          <Menuitem
+            className="text-white"
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Spare Part Usage History"
+            icon={<BackupTableIcon className="text-white" />}
+          >
+            <NavLink to="/sparePartUsageHistory"></NavLink> Spare Part Usage History
+          </Menuitem>
+            <SubMenu
+              className="text-white"
+              title="Reports"
+              icon={<SummarizeIcon className="text-white" />}
+            >
+              <Menuitem
+                className="text-white"
+                icon={
+                  <NoteAddIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/pmMonthlyReport"></NavLink>
+                PM Report
+              </Menuitem>
+              
+            </SubMenu>
+        
 
-      <div
-        className={nav ? styles.mobile_nav_background_active : undefined}
-        onClick={() => {
-          setNav(!nav);
-        }}
-      ></div>
-    </div>
+        </Menu>
+      </SidebarContent>
+      <SidebarFooter fixed="bottom">
+        <Menu iconShape="square">
+          <MenuItem
+            className="text"
+            icon={<LogoutIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Logout"
+            onClick={() =>
+              Logout(userData).then((res) => {
+                if (res) {
+                  loggedOut();
+                }
+              })
+            }
+          >
+            {" "}
+            Logout{" "}
+          </MenuItem>
+        </Menu>
+      </SidebarFooter>
+    </ProSidebar>
   );
 };
 

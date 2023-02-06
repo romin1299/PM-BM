@@ -450,6 +450,7 @@ console.log(newTableData)
   return (
     <>
       {stateForOpeningSummeryPopups}
+      
       <div className="checkSheetForImplementation">
         <div className="row">
           <div className="col-1">
@@ -1483,6 +1484,8 @@ console.log(newTableData)
           </Container>
         </div>
       </div>
+      
+      
     </>
   );
 }

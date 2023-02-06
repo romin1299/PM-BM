@@ -64,7 +64,7 @@ function Router() {
                     <Route path="/ResetPassword/:token" element={<CreateNewPassword />} />
                     <Route path="/resetPasswordPage" element={<ResetPasswordPage />} />
                     <Route path="/updatePassword" element={<UpdatePassword />} />
-                    <Route path="/newnav" element={<Navbar />} />
+                    
 
                 </Routes>
 
