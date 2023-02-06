@@ -348,7 +348,7 @@ const SkipPMWorkData = () => {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
-                  fontSize: "12px",
+                  // fontSize: "12px",
                 },
                 headerStyle: {
                   fontSize: "14px",

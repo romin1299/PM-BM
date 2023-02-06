@@ -15,6 +15,8 @@ import ProfileCard from "./ProfileCard";
 import LogoutIcon from "@mui/icons-material/Logout";
 import RoutingContext from "../../context/routing/RoutingContext";
 import { useNavigate } from "react-router-dom";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+
 
 const RightNavbar = () => {
   const { nav, setNav } = useContext(NavContext);
@@ -82,18 +84,18 @@ const RightNavbar = () => {
       }}
     >
       {/* BURGER */}
-      <div
+      {/* <div
         className={styles.burger_container}
         onClick={() => {
           setNav(!nav);
         }}
       >
         <MdOutlineMenu />
-      </div>
+      </div> */}
 
       {/* ACTIONS */}
       <div className={styles.actions}>
-        <LogoutIcon onClick={logout} />
+        <AccountCircleIcon onClick={ () => navigate('/profile')}/>
       </div>
     </div>
   );

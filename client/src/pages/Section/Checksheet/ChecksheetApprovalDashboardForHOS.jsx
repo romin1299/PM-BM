@@ -28,7 +28,10 @@ const CheckSheetApprovalDashboardForHOS = () => {
       });
 
       const data = await res.json();
-      console.log(data);
+      
+      // console.log("============>",data);
+
+
       setTableData(data);
     } catch (error) {
       console.log(error);
@@ -43,6 +46,18 @@ const CheckSheetApprovalDashboardForHOS = () => {
     {
       title: "Serial no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
+      align: "center",
+      width: "5%",
+
+    },
+    {
+      title: "Status",
+      field: "checkSheet_data.checksheet_status",
+      align: "center",
+    },
+    {
+      title: "Month",
+      field: "senderApprovalMonth",
       align: "center",
     },
     {
@@ -259,12 +274,12 @@ const CheckSheetApprovalDashboardForHOS = () => {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
-                  fontSize: "12px",
+                  // fontSize: "12px",
                 },
                 headerStyle: {
                   fontSize: "13px",
-                  fontWeight: "bold"
-                }
+                  fontWeight: "bold",
+                },
               }}
             />
           </div>

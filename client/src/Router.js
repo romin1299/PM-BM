@@ -8,7 +8,7 @@ import PropagateLoader from "react-spinners/PropagateLoader";
 import denso_log from './static/images/denso_logo.png'
 import ResetPasswordPage from "./Login/ResetPasswordPage"
 import UpdatePassword from './Login/UpdatePassword';
-import Navbar from './components/NavbarNew/navbarNew'
+import Footer from './components/Footer/Footer';
 
 function Router() {
     const [auth, setauth] = useState();
@@ -69,7 +69,6 @@ function Router() {
                 </Routes>
 
             }
-
         </>
     );
 }

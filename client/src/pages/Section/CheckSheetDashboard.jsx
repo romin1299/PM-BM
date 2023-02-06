@@ -18,6 +18,8 @@ import YearDropDown from "../Dashboard/DashboardComponent/YearDropDown";
 import currentYear from "../Dashboard/DashboardComponent/currentYear";
 import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../Reports/ReportComponents/NotFound";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CheckSheetDashboard = () => {
   const context = useContext(RoutingContext);
@@ -29,14 +31,18 @@ const CheckSheetDashboard = () => {
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
-  const [selectedCell, setSelectedCell] = useState("");
+  const [selectedCell, setSelectedCell] = useState(
+    localStorage.getItem("selectedCell")
+  );
   const [lineDropdown, setLineDropdown] = useState([]);
-  const [selectedLine, setSelectedLine] = useState("");
+  const [selectedLine, setSelectedLine] = useState(
+    localStorage.getItem("selectedLine")
+  );
   const [loadingAnimationState, setLoadingAnimationState] = useState(
     <LoadingAnimation />
   );
 
-  const postSectionToGetAllData = async (selectedSection) => {
+  const postSectionToGetAllData = async (keyRef) => {
     // setSubSection(undefined);
     try {
       const res = await fetch("/postSectionToGetAllData", {
@@ -58,13 +64,19 @@ const CheckSheetDashboard = () => {
         setLineData(data.lineData);
         setTableData(data.machineLastData);
         setLoadingAnimationState(<NotFound />);
+        if (!keyRef) {
+          postCellToGetLineList(selectedCell);
+        }
       }
     } catch (error) {
       console.log(error);
     }
   };
 
+  // console.log(selectedCell);
+
   const postCellToGetLineList = async (selectedCell) => {
+    console.log("============================>");
     setSelectedLine("");
     try {
       const res = await fetch("/postCellToGetLineListForReport", {
@@ -84,6 +96,9 @@ const CheckSheetDashboard = () => {
         // window.alert(data.abcd);
         setLineDropdown(data.lineInfo);
         setLoadingAnimationState(<NotFound />);
+        if (selectedLine !== null) {
+          postLineToGetMachineList(localStorage.getItem("selectedLine"));
+        }
       }
     } catch (error) {
       console.log(error);
@@ -92,6 +107,7 @@ const CheckSheetDashboard = () => {
 
   const postLineToGetMachineList = async (selectedLine) => {
     // console.log(selectedLine);
+    console.log("============================>106");
     try {
       const res = await fetch("/postLineToGetMachineListForReportDashboard", {
         method: "POST",
@@ -116,6 +132,19 @@ const CheckSheetDashboard = () => {
     }
   };
 
+  const notifyForDeleteChecksheet = () => {
+    toast.success("CheckSheet deleted successfully", {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+
   // console.log(tableData);
   const deleteCheckSheet = async (selectedRow) => {
     try {
@@ -135,6 +164,7 @@ const CheckSheetDashboard = () => {
         window.alert("Invalid");
       } else {
         setRefKey((refKey) => refKey + 1);
+        notifyForDeleteChecksheet();
         console.log("Data Deleted Successful");
       }
     } catch (error) {
@@ -147,7 +177,7 @@ const CheckSheetDashboard = () => {
     if (context.section_data) {
       postSectionToGetAllData();
     }
-  }, [refKey, context.section_data, selectedYear]);
+  }, [selectedYear, refKey]);
 
   const machineHeader = [
     {
@@ -198,7 +228,7 @@ const CheckSheetDashboard = () => {
                     rowData.checkSheet_data.checksheet_status === "Planning"
                   : "",
               icon: () => (
-                <button className="btn-reset">
+                <button className="btn-reset1">
                   {rowData.checkSheet_data != null
                     ? rowData.checkSheet_data.checkSheet.length > 0
                       ? rowData.checkSheet_data.checkSheet.length < 1
@@ -271,6 +301,7 @@ const CheckSheetDashboard = () => {
             onClick: (event, selectedRow) => {
               navigate("/viewCheckSheet", {
                 state: { selectedRowForViewForm: selectedRow },
+                dashboardID: "FromChecksheetDashboard",
               });
             },
             disabled: false, // Set disabled to false by default for all actions
@@ -299,11 +330,11 @@ const CheckSheetDashboard = () => {
               hidden:
                 rowData.checkSheet_data != null
                   ? rowData.checkSheet_data.checksheet_status ===
-                  "Preparation" ||
-                  rowData.checkSheet_data.checksheet_status === "Planning" ||
-                  rowData.checkSheet_data.checksheet_status === undefined
+                      "Preparation" ||
+                    rowData.checkSheet_data.checksheet_status === "Planning" ||
+                    rowData.checkSheet_data.checksheet_status === undefined
                   : rowData.checkSheet_data === undefined ||
-                  rowData.checkSheet_data === null,
+                    rowData.checkSheet_data === null,
               icon: () => (
                 <button className="btn-warning">
                   <EditIcon className="svg-font" />
@@ -327,6 +358,7 @@ const CheckSheetDashboard = () => {
             onClick: (event, selectedRow) => {
               navigate("/viewCheckSheet", {
                 state: { selectedRowForViewForm: selectedRow },
+                dashboardID: "FromChecksheetDashboard",
               });
             },
             disabled: false, // Set disabled to false by default for all actions
@@ -334,26 +366,26 @@ const CheckSheetDashboard = () => {
           },
         ];
 
-  // console.log(tableData);
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
   }, [selectedYear]);
 
   return (
     <>
+      <ToastContainer style={{ width: "30rem" }} />
       <div className="pageCard">
         <div className="creationDashboard">
           <h4 style={{ padding: "1rem 0 0 1rem" }}>Checksheet Dashboard</h4>
 
           <Container fluid>
             <Row>
-              <Col>
+              <Col className="col-lg-3 col-md-6 col-sm-12">
                 <YearDropDown
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
                 />
               </Col>
-              <Col>
+              <Col className="col-lg-3 col-md-6 col-sm-12">
                 <Row className="p-2 ">
                   <Col sm={12} lg={3}>
                     <span>
@@ -371,6 +403,7 @@ const CheckSheetDashboard = () => {
                         value={selectedCell}
                         className="textField"
                         onChange={(e) => {
+                          localStorage.setItem("selectedCell", e.target.value);
                           // console.log(e.target.value);
                           setSelectedCell(e.target.value);
                           postCellToGetLineList(e.target.value);
@@ -396,7 +429,7 @@ const CheckSheetDashboard = () => {
                   </Col>
                 </Row>
               </Col>
-              <Col>
+              <Col className="col-lg-3 col-md-6 col-sm-12">
                 <Row className="p-2 ">
                   <Col sm={12} lg={3}>
                     <span>
@@ -411,9 +444,12 @@ const CheckSheetDashboard = () => {
                         // style={{ width: "100%" }}
                         id="standard-select-currency"
                         name="selectedPlant"
-                        value={selectedLine}
+                        value={
+                          selectedLine || localStorage.getItem("selectedLine")
+                        }
                         className="textField"
                         onChange={(e) => {
+                          localStorage.setItem("selectedLine", e.target.value);
                           setSelectedLine(e.target.value);
                           postLineToGetMachineList(e.target.value);
                           setLoadingAnimationState(<LoadingAnimation />);
@@ -437,6 +473,20 @@ const CheckSheetDashboard = () => {
                     </div>
                   </Col>
                 </Row>
+              </Col>
+              <Col className="col-lg-3 col-md-6 col-sm-12">
+                <button
+                  class="btn-primary1 w-25 "
+                  onClick={() => {
+                    localStorage.removeItem("selectedCell");
+                    localStorage.removeItem("selectedLine");
+                    setSelectedCell();
+                    setSelectedLine();
+                    postSectionToGetAllData("Reset");
+                  }}
+                >
+                  Reset
+                </button>
               </Col>
             </Row>
           </Container>
@@ -537,7 +587,7 @@ const CheckSheetDashboard = () => {
                     WebkitBackdropFilter: "blur( 2px )",
                     background: "rgba(255,255,255,0.1)",
                     backdropFilter: "blur(5px)",
-                    fontSize: "12px",
+                    // fontSize: "12px",
                   },
                   headerStyle: {
                     fontSize: "14px",

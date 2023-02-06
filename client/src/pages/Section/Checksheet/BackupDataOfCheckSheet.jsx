@@ -12,12 +12,12 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 //   import ChecksheetCreationDashboard from "./Checksheet/ChecksheetCreationDashboard";
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 
-
 const BackupDataOfCheckSheet = () => {
   const context = useContext(RoutingContext);
   const [tableData, setTableData] = useState([]);
   const [refKey, setRefKey] = useState(0);
 
+  // console.log(context?.tm_department, context?.tm_grade, context?.user_type);
   const navigate = useNavigate();
 
   const getDeletedMachineCheckSheetData = async () => {
@@ -73,6 +73,7 @@ const BackupDataOfCheckSheet = () => {
       title: "Serial no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
+      width: "5%",
     },
     {
       title: "Line Name",
@@ -106,6 +107,7 @@ const BackupDataOfCheckSheet = () => {
     },
   ];
 
+  // console.log(context);
   return (
     <>
       <div className="pageCard">
@@ -127,22 +129,28 @@ const BackupDataOfCheckSheet = () => {
                 // title="User Management"
                 // tableRef={this.tableRef.current.onQueryChange()}
 
-                editable={{
-                  onRowDelete: (selectedRow) =>
-                    new Promise((resolve, reject) => {
-                      // const index = selectedRow.tableData.id;
-                      // console.log(index);
-                      // const updatedRows = [...tableData];
-                      // updatedRows.splice(index, 1);
-                      //call the delete user function and pass the user data
-                      // // deleteUserInfo(selectedRow);
-                      deleteBackUpData(selectedRow);
-                      setTimeout(() => {
-                        setRefKey((refKey) => refKey + 1);
-                        resolve();
-                      }, 500);
-                    }),
-                }}
+                editable={
+                  context?.tm_department === "MTD" &&
+                  context?.tm_grade === "HOS" &&
+                  context?.user_type === "Section-Admin"
+                    ? {
+                        onRowDelete: (selectedRow) =>
+                          new Promise((resolve, reject) => {
+                            // const index = selectedRow.tableData.id;
+                            // console.log(index);
+                            // const updatedRows = [...tableData];
+                            // updatedRows.splice(index, 1);
+                            //call the delete user function and pass the user data
+                            // // deleteUserInfo(selectedRow);
+                            deleteBackUpData(selectedRow);
+                            setTimeout(() => {
+                              setRefKey((refKey) => refKey + 1);
+                              resolve();
+                            }, 500);
+                          }),
+                      }
+                    : ""
+                }
                 options={{
                   showTitle: false,
                   paging: false,
@@ -173,13 +181,12 @@ const BackupDataOfCheckSheet = () => {
                     WebkitBackdropFilter: "blur( 2px )",
                     background: "rgba(255,255,255,0.1)",
                     backdropFilter: "blur(5px)",
-                    fontSize: "12px",
-                    fontSize: "12px",
+                    // fontSize: "12px",
                   },
                   headerStyle: {
                     fontSize: "14px",
-                    fontWeight: "bold"
-                  }
+                    fontWeight: "bold",
+                  },
                 }}
               />
             </div>

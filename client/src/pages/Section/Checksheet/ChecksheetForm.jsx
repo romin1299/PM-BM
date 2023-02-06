@@ -18,6 +18,8 @@ import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
 import axios from "axios";
 import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 import FileDownload from "js-file-download";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function CheckSheetForm() {
   const context = useContext(RoutingContext);
@@ -34,6 +36,8 @@ function CheckSheetForm() {
     useState("");
 
   const [dataSheetName, setDataSheetName] = useState([]);
+
+  const [downloadingDataSheet, setDownloadingDataSheet] = useState();
 
   const navigate = useNavigate();
 
@@ -77,7 +81,7 @@ function CheckSheetForm() {
 
   let machineAllData =
     selectedMachineCheckSheetData?.state?.selectedRowForViewForm;
-  console.log(machineAllData);
+  // console.log(machineAllData);
 
   let phaseStatus =
     selectedMachineCheckSheetData?.state?.selectedRowForViewForm
@@ -312,24 +316,24 @@ function CheckSheetForm() {
 
         key === "tableRowId"
           ? newColData.push(
-            new Object({
-              key: key,
-              value: obj[key],
-              rowspan: 1,
-              // colspan: 1,
-              print: false,
-            }),
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: false,
+              }),
 
-            new Object({
-              key: "rowId",
-              value: i + 1,
-              rowspan: 1,
-              // colspan: 1,
-              print: true,
-            })
-          )
+              new Object({
+                key: "rowId",
+                value: i + 1,
+                rowspan: 1,
+                // colspan: 1,
+                print: true,
+              })
+            )
           : key === "isDeleted"
-            ? newColData.push(
+          ? newColData.push(
               new Object({
                 key: key,
                 value: obj[key],
@@ -338,7 +342,7 @@ function CheckSheetForm() {
                 print: false,
               })
             )
-            : newColData.push(
+          : newColData.push(
               new Object({
                 key: key,
                 value: obj[key],
@@ -625,6 +629,20 @@ function CheckSheetForm() {
     }
   };
 
+  const notifyForUploadDatasheet = () => {
+    toast.success("Data-sheet uploaded successfully", {
+      position: "top-center",
+      autoClose: false,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      // onClose: ()=> window.location.reload()
+    });
+  };
+
   //upload tag name XLS and XLSX file
   const uploadDataSheet = async (e) => {
     e.preventDefault();
@@ -645,7 +663,11 @@ function CheckSheetForm() {
         if (res.status === 422) {
           window.alert("Please select file");
         }
-        window.location.reload();
+        // window.alert("Uploaded successfully");
+        // console.log(res)
+        // window.location.reload();
+        notifyForUploadDatasheet();
+        setDownloadingDataSheet(res?.data?.machineLastData);
       })
       .catch((err) => {
         window.alert("Only .xls, .xlsx, .csv format allowed!");
@@ -655,7 +677,9 @@ function CheckSheetForm() {
 
   const downloadUploadedDataSheet = async () => {
     try {
-      let selectedFileName = machineAllData?.checkSheet_data?.dataSheet;
+      let selectedFileName = machineAllData?.checkSheet_data?.dataSheet
+        ? machineAllData?.checkSheet_data?.dataSheet
+        : downloadingDataSheet?.checkSheet_data?.dataSheet;
       const res = await fetch("/postDataSheetFileName", {
         method: "POST",
         headers: {
@@ -701,7 +725,11 @@ function CheckSheetForm() {
 
   const funForOpeningSummeryPopups = () => {
     setStateForOpeningSummeryPopups(
-      <SummeryPopups close={close} tableData={tableData} />
+      <SummeryPopups
+        close={close}
+        tableData={tableData}
+        machineData={machineAllData}
+      />
     );
     document.querySelector(
       ".checkSheetForImplementation1"
@@ -715,6 +743,8 @@ function CheckSheetForm() {
   // );
   return (
     <>
+      <ToastContainer style={{ width: "30rem" }} />
+
       {stateForOpeningSummeryPopups}
       <div className="checkSheetForImplementation1">
         <Container fluid>
@@ -750,17 +780,18 @@ function CheckSheetForm() {
                       type="file"
                       name="data_sheet"
                       accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                      // value={userPhoto}
+                      // value={dataSheetName}
                       onChange={(e) => setDataSheetName(e.target.files[0])}
                     />
                     &nbsp;
-                    <button type="submit" className="btn btn-primary1">
+                    <button type="submit" className="btn-primary1">
                       Upload
                     </button>
                   </form>
                 </Col>
                 <Col>
-                  {machineAllData?.checkSheet_data?.dataSheet ? (
+                  {downloadingDataSheet?.checkSheet_data?.dataSheet ||
+                  machineAllData?.checkSheet_data?.dataSheet ? (
                     <div>
                       <button
                         className="btn-reset mt-4"
@@ -782,6 +813,18 @@ function CheckSheetForm() {
             <div className=" mt-2 col-md-6 col-sm-6 col-lg-6"></div>
             <div className=" mt-2 col-md-6 col-sm-6 col-lg-6"></div>
           </div> */}
+
+          {/* {console.log(
+            varForConditionChecking?.tl_approval_status[
+              varForConditionChecking?.tl_approval_status.length - 1
+            ],
+            varForConditionChecking.hos_approval_status[
+              varForConditionChecking.hos_approval_status.length - 1
+            ],
+            varForConditionChecking?.hos_approval_status[
+              varForConditionChecking?.hos_approval_status.length - 1
+            ]
+          )} */}
           <Row>
             <Col lg={6} md={6} sm={6}>
               {" "}
@@ -950,7 +993,178 @@ function CheckSheetForm() {
                               ""
                             ) : (
                               <div>
-                                <button type="submit" className="btn-primary">
+                                <button type="submit" className="btn-primary1">
+                                  Send Request
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </form>
+                    ) : varForConditionChecking?.tl_approval_status[
+                        varForConditionChecking?.tl_approval_status.length - 1
+                      ] === "Rejected" ? (
+                      <form onSubmit={formik.handleSubmit}>
+                        <div className="row">
+                          <div className="row mb-3 mt-3">
+                            {" "}
+                            <span>
+                              Do you want to send request to TL/HOSS ? &nbsp;
+                              <input
+                                type="radio"
+                                name="request"
+                                id="outlined-number"
+                                value="Yes"
+                                onChange={formik.handleChange}
+                              />
+                              <span
+                                style={{
+                                  paddingLeft: "0.5rem",
+                                  fontWeight: "550",
+                                  color: "black",
+                                }}
+                              >
+                                Yes &nbsp;
+                              </span>
+                              <input
+                                type="radio"
+                                name="request"
+                                id="outlined-number"
+                                value="No"
+                                onChange={formik.handleChange}
+                              />
+                              <span
+                                style={{
+                                  paddingLeft: "0.5rem",
+                                  fontWeight: "550",
+                                  color: "black",
+                                }}
+                              >
+                                No
+                              </span>
+                              <p
+                                style={{
+                                  color: "#F44336",
+                                  fontWeight: "normal",
+                                  fontSize: "0.80rem",
+                                  float: "right",
+                                  marginRight: "12rem",
+                                  // paddingTop: "0.5rem",
+                                }}
+                              >
+                                {formik.touched.request &&
+                                  formik.errors.request}
+                              </p>
+                            </span>
+                          </div>
+                          <div className="col-4">
+                            <span>MTD HOS List:</span>
+                            <div style={{ marginTop: "0.5rem" }}>
+                              <select
+                                // class="form-select form-select-sm"
+                                // aria-label=".form-select-sm example"
+                                // style={{ width: "100%" }}
+                                id="standard-select-currency"
+                                name="hos_list"
+                                // className="textField"
+                                // fullWidth
+                                select // label="Select"
+                                autoComplete="off"
+                                value={formik.values.hos_list}
+                                onChange={(e) => {
+                                  // setUsertype(e.target.value);
+                                  formik.handleChange(e);
+                                }}
+                                variant="standard"
+                              >
+                                <option selected disabled value="">
+                                  Please select
+                                </option>
+                                {HOSList.map((index) => {
+                                  return (
+                                    <option value={index.email}>
+                                      {index.tm_name}
+                                    </option>
+                                  );
+                                })}
+                              </select>
+                              <div>
+                                <p
+                                  style={{
+                                    color: "#F44336",
+                                    fontWeight: "normal",
+                                    fontSize: "0.80rem",
+                                    float: "left",
+                                    paddingTop: "0.5rem",
+                                  }}
+                                >
+                                  {formik.touched.hos_list &&
+                                    formik.errors.hos_list}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-4 ">
+                            {formik.values.request === "Yes" ? (
+                              <div>
+                                <span>TL/HOSS List:</span>
+                                <div style={{ marginTop: "0.5rem" }}>
+                                  <select
+                                    // class="form-select form-select-sm"
+                                    // aria-label=".form-select-sm example"
+                                    // style={{ width: "100%" }}
+                                    id="standard-select-currency"
+                                    name="tl_list"
+                                    // className="textField"
+                                    // fullWidth
+                                    select // label="Select"
+                                    autoComplete="off"
+                                    value={formik.values.tl_list}
+                                    onChange={(e) => {
+                                      // setUsertype(e.target.value);
+                                      formik.handleChange(e);
+                                    }}
+                                    variant="standard"
+                                  >
+                                    <option selected disabled value="">
+                                      Please select
+                                    </option>
+                                    {TLList.map((index) => {
+                                      return (
+                                        <option value={index.email}>
+                                          {index.tm_name}
+                                        </option>
+                                      );
+                                    })}
+                                  </select>
+                                  <div>
+                                    <p
+                                      style={{
+                                        color: "#F44336",
+                                        fontWeight: "normal",
+                                        fontSize: "0.80rem",
+                                        float: "left",
+                                        paddingTop: "0.5rem",
+                                      }}
+                                    >
+                                      {formik.touched.tl_list &&
+                                        formik.errors.tl_list}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              ""
+                            )}
+                          </div>
+
+                          <div className="col-4 d-flex align-items-center">
+                            {selectedMachineCheckSheetData.state
+                              ?.selectedRowForViewForm?.status === "Pending" ? (
+                              ""
+                            ) : (
+                              <div>
+                                <button type="submit" className="btn-primary1">
                                   Send Request
                                 </button>
                               </div>
@@ -965,14 +1179,14 @@ function CheckSheetForm() {
                         varForConditionChecking.hos_approval_status.length - 1
                       ] === "Pending" ||
                       varForConditionChecking?.hos_approval_status[
-                      varForConditionChecking?.hos_approval_status.length - 1
+                        varForConditionChecking?.hos_approval_status.length - 1
                       ] === "Accepted" ? (
                       ""
                     ) : varForConditionChecking?.tl_approval_status[
-                      varForConditionChecking?.tl_approval_status.length - 1
-                    ] === "Accepted" &&
+                        varForConditionChecking?.tl_approval_status.length - 1
+                      ] === "Accepted" &&
                       varForConditionChecking?.hos_approval_status[
-                      varForConditionChecking?.hos_approval_status.length - 1
+                        varForConditionChecking?.hos_approval_status.length - 1
                       ] === "Rejected" ? (
                       // varForConditionChecking.tl_approval_status[(varForConditionChecking.tl_approval_status).length - 1] === "Accepted" && varForConditionChecking.hos_approval_status[(varForConditionChecking.hos_approval_status).length - 1] === "Pending"
                       <form onSubmit={formik.handleSubmit}>
@@ -1144,8 +1358,8 @@ function CheckSheetForm() {
                         </div>
                       </form>
                     ) : varForConditionChecking?.tl_approval_status[
-                      varForConditionChecking?.tl_approval_status.length - 1
-                    ] === "Accepted" ? (
+                        varForConditionChecking?.tl_approval_status.length - 1
+                      ] === "Accepted" ? (
                       ""
                     ) : (
                       <form onSubmit={formik.handleSubmit}>
@@ -1308,7 +1522,7 @@ function CheckSheetForm() {
                               ""
                             ) : (
                               <div>
-                                <button type="submit" className="btn-primary">
+                                <button type="submit" className="btn-primary1">
                                   Send Request
                                 </button>
                               </div>
@@ -1323,14 +1537,14 @@ function CheckSheetForm() {
                 </div>
 
                 {tableData?.length > 0 &&
-                  selectedMachineCheckSheetData.state?.planningApprovalShow ===
+                selectedMachineCheckSheetData.state?.planningApprovalShow ===
                   1 ? (
                   varForConditionChecking?.prd_tl_approval_status[
                     varForConditionChecking?.prd_tl_approval_status.length - 1
                   ] === "Pending" ||
-                    phaseStatus === "Implementation" ||
-                    phaseStatus === "Preparation" ||
-                    phaseStatus === undefined ? (
+                  phaseStatus === "Implementation" ||
+                  phaseStatus === "Preparation" ||
+                  phaseStatus === undefined ? (
                     ""
                   ) : (
                     <div>
@@ -1389,8 +1603,8 @@ function CheckSheetForm() {
                           <div className="col-sm">
                             <button
                               type="submit"
-                              className="btn"
-                            // onClick={sendRequestForApprovalToPRDTL}
+                              className="btn-primary1"
+                              // onClick={sendRequestForApprovalToPRDTL}
                             >
                               Send Request
                             </button>
@@ -1411,8 +1625,8 @@ function CheckSheetForm() {
                   <tr>
                     <th
                       className="ar-table-thead-header1"
-                    // colSpan={2}
-                    //  rowSpan={5}
+                      // colSpan={2}
+                      //  rowSpan={5}
                     >
                       PLAN ACCEPTANCE
                       <br />
@@ -1420,8 +1634,8 @@ function CheckSheetForm() {
                     </th>
                     <th
                       className="ar-table-thead-header1"
-                    // colSpan={2}
-                    //  rowSpan={5}
+                      // colSpan={2}
+                      //  rowSpan={5}
                     >
                       PLAN PREPARED
                       <br />
@@ -1431,35 +1645,37 @@ function CheckSheetForm() {
                   <tr>
                     <th
                       className="approvalName"
-                    // colSpan={2}
-                    //  rowSpan={5}
+                      // colSpan={2}
+                      //  rowSpan={5}
                     >
                       {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
                         machineAllData?.checkSheet_data?.approved_by_PRD_TL
                           .length - 1
                       ]
-                        ? `${machineAllData?.checkSheet_data?.approved_by_PRD_TL[
-                        machineAllData?.checkSheet_data
-                          ?.approved_by_PRD_TL.length - 1
-                        ]
-                        }`
+                        ? `${
+                            machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                              machineAllData?.checkSheet_data
+                                ?.approved_by_PRD_TL.length - 1
+                            ]
+                          }`
                         : ""}
                     </th>
                     <th
                       className="approvalName"
-                    // colSpan={2}
-                    //  rowSpan={5}
+                      // colSpan={2}
+                      //  rowSpan={5}
                     >
                       {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
                         machineAllData?.checkSheet_data?.plan_prepared_tm_name
                           .length - 1
                       ]
-                        ? `${machineAllData?.checkSheet_data
-                          ?.plan_prepared_tm_name[
-                        machineAllData?.checkSheet_data
-                          ?.plan_prepared_tm_name.length - 1
-                        ]
-                        }`
+                        ? `${
+                            machineAllData?.checkSheet_data
+                              ?.plan_prepared_tm_name[
+                              machineAllData?.checkSheet_data
+                                ?.plan_prepared_tm_name.length - 1
+                            ]
+                          }`
                         : ""}
                     </th>
                   </tr>
@@ -1470,7 +1686,7 @@ function CheckSheetForm() {
         </Container>
       </div>
       {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
-        machineAllData?.checkSheet_data?.checksheet_status ===
+      machineAllData?.checkSheet_data?.checksheet_status ===
         "Implementation" ? (
         <div className="row mt-3">
           <div className="col-6"></div>
@@ -1514,7 +1730,7 @@ function CheckSheetForm() {
                       className="ar-table-thead-header1 headerPD  align-items-center"
                       colSpan={2}
                       style={{ textAlign: "center" }}
-                    // rowSpan={2}
+                      // rowSpan={2}
                     >
                       Approved by
                       <br />
@@ -1524,7 +1740,7 @@ function CheckSheetForm() {
                       className="ar-table-thead-header1 headerPD"
                       colSpan={2}
                       style={{ textAlign: "center" }}
-                    // rowSpan={2}
+                      // rowSpan={2}
                     >
                       Prepared by
                       <br />
@@ -1538,16 +1754,16 @@ function CheckSheetForm() {
                     {machineAllData?.checkSheet_data
                       ?.implementation_approved_by_MTD_TL
                       ? Object.values(
-                        machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_MTD_TL
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
+                          machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_MTD_TL
+                        ).map((index) => (
+                          <td className="ar-table-col1">
+                            {index[index.length - 1]}
+                          </td>
+                        ))
                       : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
+                          <td className="ar-table-col1"></td>
+                        ))}
                   </tr>
                   <tr>
                     <th className="approvalName" colSpan={2} rowSpan={5}>
@@ -1556,32 +1772,33 @@ function CheckSheetForm() {
                           .length - 1
                       ]
                         ? machineAllData?.checkSheet_data?.approved_by_HOS[
-                        machineAllData?.checkSheet_data?.approved_by_HOS
-                          .length - 1
-                        ]
+                            machineAllData?.checkSheet_data?.approved_by_HOS
+                              .length - 1
+                          ]
                         : ""}
                       <br />
 
                       {machineAllData?.checkSheet_data?.approved_by_TL[
                         machineAllData?.checkSheet_data?.approved_by_TL.length -
-                        1
+                          1
                       ]
-                        ? `,${machineAllData?.checkSheet_data?.approved_by_TL[
-                        machineAllData?.checkSheet_data?.approved_by_TL
-                          .length - 1
-                        ]
-                        }`
+                        ? `,${
+                            machineAllData?.checkSheet_data?.approved_by_TL[
+                              machineAllData?.checkSheet_data?.approved_by_TL
+                                .length - 1
+                            ]
+                          }`
                         : ""}
                     </th>
                     <th className="approvalName" colSpan={2} rowSpan={5}>
                       {machineAllData?.checkSheet_data?.sender_tm_name[
                         machineAllData?.checkSheet_data?.sender_tm_name.length -
-                        1
+                          1
                       ]
                         ? machineAllData?.checkSheet_data?.sender_tm_name[
-                        machineAllData?.checkSheet_data?.sender_tm_name
-                          .length - 1
-                        ]
+                            machineAllData?.checkSheet_data?.sender_tm_name
+                              .length - 1
+                          ]
                         : ""}
                     </th>
                     <th className="ar-table-thead-header1">
@@ -1592,16 +1809,16 @@ function CheckSheetForm() {
                     {machineAllData?.checkSheet_data
                       ?.implementation_approved_by_MTD_HOS
                       ? Object.values(
-                        machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_MTD_HOS
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
+                          machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_MTD_HOS
+                        ).map((index) => (
+                          <td className="ar-table-col1">
+                            {index[index.length - 1]}
+                          </td>
+                        ))
                       : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
+                          <td className="ar-table-col1"></td>
+                        ))}
                   </tr>
                   <tr>
                     <th className="ar-table-thead-header1">
@@ -1609,8 +1826,16 @@ function CheckSheetForm() {
                       <br />
                       (MTD HOD)
                     </th>
-                    <th className="ar-table-col1" colSpan={6}></th>
-                    <th className="ar-table-col1" colSpan={6}></th>
+                    <td className="ar-table-col1" colSpan={6}>
+                      {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
+                        -1
+                      )}
+                    </td>
+                    <td className="ar-table-col1" colSpan={6}>
+                      {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
+                        -1
+                      )}
+                    </td>
                   </tr>
                 </thead>
                 {/* <thead className="ar-table-thead1">
@@ -1638,13 +1863,13 @@ function CheckSheetForm() {
                             ? "ar-table-thead-header3"
                             : "ar-table-thead-header"
                         }
-                      // colSpan={
-                      //   tColumn.header === "Inspection item"
-                      //     ? refKey === true
-                      //       ? 2
-                      //       : 0
-                      //     : 0
-                      // }
+                        // colSpan={
+                        //   tColumn.header === "Inspection item"
+                        //     ? refKey === true
+                        //       ? 2
+                        //       : 0
+                        //     : 0
+                        // }
                       >
                         {tColumn.header}
                       </th>
@@ -1675,13 +1900,13 @@ function CheckSheetForm() {
                     </th>
                     {machineAllData?.checkSheet_data?.PMworkedTMName
                       ? Object.values(
-                        machineAllData?.checkSheet_data?.PMworkedTMName
-                      ).map((index) => (
-                        <td className="ar-table-col1">{index.join(" ,")}</td>
-                      ))
+                          machineAllData?.checkSheet_data?.PMworkedTMName
+                        ).map((index) => (
+                          <td className="ar-table-col1">{index.join(" ,")}</td>
+                        ))
                       : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
+                          <td className="ar-table-col1"></td>
+                        ))}
                   </tr>
                   <tr>
                     <th colSpan={9}></th>
@@ -1693,16 +1918,16 @@ function CheckSheetForm() {
                     {machineAllData?.checkSheet_data
                       ?.implementation_approved_by_PRD_TL
                       ? Object.values(
-                        machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_PRD_TL
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
+                          machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_PRD_TL
+                        ).map((index) => (
+                          <td className="ar-table-col1">
+                            {index[index.length - 1]}
+                          </td>
+                        ))
                       : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
+                          <td className="ar-table-col1"></td>
+                        ))}
                   </tr>
                   <tr>
                     <th colSpan={9}></th>

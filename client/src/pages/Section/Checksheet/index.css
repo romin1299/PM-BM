@@ -32,6 +32,12 @@
 
 }
 
+.right-component-main-dashboard {
+    position: fixed;
+    right: 0px;
+    top: 0px;
+}
+
 .summeryPopupsCss {
 
 
@@ -68,8 +74,7 @@
 .ar-table-col1,
 .table-col-bg-skip,
 .table-col-bg-delay,
-.table-col-bg-ongoing
-.ar-table-thead-header {
+.table-col-bg-ongoing .ar-table-thead-header {
     border: 2px solid rgb(80, 80, 80);
     padding: 0.25rem 0.3rem;
     text-align: center;
@@ -88,6 +93,7 @@
     border: 2px solid rgb(80, 80, 80);
 
 }
+
 .table-col-bg-ongoing,
 .table-col-bg-delay,
 .table-col-bg-skip,
@@ -272,12 +278,12 @@
 .tableRowColor:nth-child(odd) {
     /* background: linear-gradient(213.32deg, #b9d5fe 7.27%, #ffd0d0 87.59%); */
     /* background: linear-gradient(213.32deg, #FEB9B9 7.27%, #FFF1D0 87.59%); */
-background-color: white;
+    background-color: white;
 }
 
 
 .table-col-bg-ongoing {
-    background-color:rgb(241, 127, 127);
+    background-color: rgb(241, 127, 127);
     border: 2px solid rgb(80, 80, 80);
 
 }
@@ -295,14 +301,20 @@ background-color: white;
 }
 
 .table-col-mid-year-delete {
-    text-decoration: line-through solid red 15% ;
+    text-decoration: line-through solid red 15%;
 
 }
+
 @media screen and (min-width: 200px) and (max-width: 1024px) {
 
     .checkSheetForImplementation {
         width: 100vw;
 
+
+    }
+
+    .right-component-main-dashboard {
+        position: relative;
 
     }
 }

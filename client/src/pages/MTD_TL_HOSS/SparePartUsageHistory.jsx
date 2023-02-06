@@ -3,6 +3,10 @@ import { Container, Row, Col } from "react-bootstrap";
 import TextField from "@material-ui/core/TextField";
 import MaterialTable from "@material-table/core";
 import YearDropDown from "../Dashboard/DashboardComponent/YearDropDown";
+import DeleteIcon from "@mui/icons-material/Delete";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../Reports/ReportComponents/NotFound";
@@ -19,7 +23,7 @@ import currentYear from "../Dashboard/DashboardComponent/currentYear";
 
 const SparePartUsageHistory = () => {
   const context = useContext(RoutingContext);
-  const typeDropdownList = ["BM", "Corrective", "Predictive", "Kaizen"];
+  const typeDropdownList = ["PM", "BM", "Corrective", "Predictive", "Kaizen"];
   const monthKeyArray = [
     "Apr",
     "May",
@@ -36,7 +40,6 @@ const SparePartUsageHistory = () => {
   ];
   const [tableDataOfSpareDetails, setTableDataOfSpareDetails] = useState([]);
 
-  const [selectedMonth, setSelectedMonth] = useState();
   const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const [allLineData, setAllLineData] = useState([]);
@@ -44,16 +47,20 @@ const SparePartUsageHistory = () => {
     []
   );
 
+  const [selectedMonth, setSelectedMonth] = useState();
+  const [selectedCategory, setSelectedCategory] = useState();
+  const [selectedLine, setSelectedLine] = useState();
+  const [selectedMachine, setSelectedMachine] = useState();
+
   const [stateForAnimationAndNotFound, setStateForAnimationAndNotFound] =
     useState(<LoadingAnimation />);
 
   // selectedMachine = index of machine from allMachineDataBasedOnLine dropdown
   // actual machine data = allMachineDataBasedOnLine?.[selectedMachine]
-  const [selectedMachine, setSelectedMachine] = useState();
 
   // console.log(allMachineDataBasedOnLine);
 
-  const tableColumn = [
+  let tableColumn = [
     {
       title: "Sr. no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
@@ -125,6 +132,15 @@ const SparePartUsageHistory = () => {
     },
   ];
 
+  if (context?.user_type === "Section-Admin") {
+    tableColumn.push({ title: "Action", editable: "false", align: "center" });
+  } else if (
+    context?.user_type !== "Operator" &&
+    context?.tm_department !== "PRD"
+  ) {
+    tableColumn.push({ title: "Action", editable: "false", align: "center" });
+  }
+
   const [financialYear, setFinancialYear] = useState();
 
   let current_year =
@@ -167,8 +183,63 @@ const SparePartUsageHistory = () => {
     "Mar",
   ];
 
+  const notifyForDeletedCategoryPoint = (rowValue) => {
+    toast.success(`Sr no. ${rowValue?.sr_no} is Deleted`, {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+
+    postSectionToGetAllDataForMainDashboard(
+      context?.section_data,
+      selectedYear
+    ).then((result) => {
+      setAllLineData(result?.lineData);
+      setTableDataOfSpareDetails(result?.allSpareDetailsWithCategories);
+      setStateForAnimationAndNotFound(<NotFound />);
+    });
+  };
+
+  const deleteCategoryPoint = async (rowValue) => {
+    // console.log(rowValue);
+
+    try {
+      const res = await fetch("/deleteCategoryPoint", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          rowValue,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        console.log("Data post");
+        notifyForDeletedCategoryPoint(rowValue);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const styleForDeleteButton = {
+    backgroundColor: "transparent",
+    border: "none",
+    textDecoration: "underline",
+  };
+
   return (
     <>
+      <ToastContainer style={{ width: "30rem" }} />
       <Container fluid className="pt-3 sparePartUsageHistory">
         <Row className="m-3 cell p-3">
           <Col>
@@ -195,6 +266,7 @@ const SparePartUsageHistory = () => {
               })}
             </select>
           </Col>
+
           <Col>
             <div>Category:</div>
             <select
@@ -208,8 +280,8 @@ const SparePartUsageHistory = () => {
               fullWidth
               select // label="Select"
               autoComplete="off"
-              // value={formik.values.selectedType}
-              // onChange={formik.handleChange}
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
               variant="standard"
             >
               <option selected disabled value="">
@@ -272,10 +344,11 @@ const SparePartUsageHistory = () => {
               fullWidth
               select // label="Select"
               autoComplete="off"
-              // value={formik.values.selectedLine}
+              value={selectedLine}
               onChange={(e) => {
                 // formik.handleChange(e);
                 setSelectedMachine();
+                setSelectedLine(e.target.value);
                 postLineToGetAllMachineData(e.target.value, currentYear).then(
                   (result) => setAllMachineDataBasedOnLine(result?.machineInfo)
                 );
@@ -318,7 +391,8 @@ const SparePartUsageHistory = () => {
               select // label="Select"
               autoComplete="off"
               value={
-                allMachineDataBasedOnLine?.[selectedMachine]?.machine_name || ""
+                // allMachineDataBasedOnLine?.[selectedMachine]?.machine_name || ""
+                selectedMachine
               }
               onChange={(e) => {
                 setSelectedMachine(e.target.value);
@@ -329,7 +403,9 @@ const SparePartUsageHistory = () => {
                 Please select
               </option>
               {allMachineDataBasedOnLine?.map((option, index) => {
-                return <option value={index}>{option?.machine_name}</option>;
+                return (
+                  <option value={option?._id}>{option?.machine_name}</option>
+                );
               })}
             </select>
             {/* <div>
@@ -347,7 +423,22 @@ const SparePartUsageHistory = () => {
               </p>
             </div> */}
           </Col>
+
+          <Col className="d-flex justify-content-center align-items-center">
+            <button
+              class="btn-primary1 w-75 "
+              onClick={() => {
+                setSelectedMonth();
+                setSelectedCategory();
+                setSelectedLine();
+                setSelectedMachine();
+              }}
+            >
+              Reset
+            </button>
+          </Col>
         </Row>
+
         <Row className="m-3">
           {tableDataOfSpareDetails?.length > 0 ? (
             <div className="container-fluid" style={{ overflow: "auto" }}>
@@ -385,36 +476,82 @@ const SparePartUsageHistory = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {tableDataOfSpareDetails?.map((index) => (
-                    <tr className="ar-table-thead-header4 tableRowColor">
-                      <td className="td-padding">{index?.sr_no}</td>
-                      <td className="td-padding">
-                        {index?.completionDateOfInspection}
-                      </td>
+                  {tableDataOfSpareDetails?.map((index, i) =>
+                    (selectedCategory
+                      ? index?.type === selectedCategory
+                      : true) &&
+                    (selectedMonth
+                      ? index?.schedule_month === selectedMonth
+                      : true) &&
+                    (selectedLine
+                      ? index?.line_names._id === selectedLine
+                      : true) &&
+                    (selectedMachine
+                      ? index?.machineId === selectedMachine
+                      : true) ? (
+                      <tr className="ar-table-thead-header4 tableRowColor">
+                        {/* {console.log(index)} */}
+                        <td className="td-padding">{index?.sr_no}</td>
+                        <td className="td-padding">
+                          {index?.completionDateOfInspection}
+                        </td>
 
-                      <td className="td-padding">
-                        {index?.line_names?.line_name}
-                      </td>
-                      <td className="td-padding">{index?.machine_name}</td>
-                      <td className="td-padding">{index?.machine_code}</td>
+                        <td className="td-padding">
+                          {index?.line_names?.line_name}
+                        </td>
+                        <td className="td-padding">{index?.machine_name}</td>
+                        <td className="td-padding">{index?.machine_code}</td>
 
-                      <td className="td-padding">
-                        {index?.type ? index?.type : "PM"}
-                      </td>
+                        <td className="td-padding">{index?.type}</td>
 
-                      <td className="td-padding">{index?.partName}</td>
-                      <td className="td-padding">{index?.partNo}</td>
-                      <td className="td-padding">
-                        {index?.inspectionCompletionBy}
-                      </td>
+                        <td className="td-padding">{index?.partName}</td>
+                        <td className="td-padding">{index?.partNo}</td>
+                        <td className="td-padding">
+                          {index?.inspectionCompletionBy}
+                        </td>
 
-                      <td className="td-padding">{index?.cost}</td>
-                      <td className="td-padding">
-                        {index?.spareParts ? "Yes" : "No"}
-                      </td>
-                      <td className="td-padding">{index?.spareParts}</td>
-                    </tr>
-                  ))}
+                        <td className="td-padding">{index?.cost}</td>
+                        <td className="td-padding">
+                          {index?.spareParts ? "Yes" : "No"}
+                        </td>
+                        <td className="td-padding">{index?.spareParts}</td>
+                        {/* <td className="td-padding">{index?.schedule_month}</td>  */}
+
+                        {context?.user_type === "Section-Admin" ? (
+                          index?.type !== "PM" ? (
+                            <button
+                              style={styleForDeleteButton}
+                              onClick={() => deleteCategoryPoint(index)}
+                            >
+                              <td className="td-padding">
+                                <DeleteIcon />
+                              </td>
+                            </button>
+                          ) : (
+                            <td className="td-padding"></td>
+                          )
+                        ) : context?.user_type !== "Operator" &&
+                          context?.tm_department !== "PRD" ? (
+                          index?.type !== "PM" ? (
+                            <td className="td-padding">
+                              <button
+                                style={styleForDeleteButton}
+                                onClick={() => deleteCategoryPoint(index)}
+                              >
+                                <DeleteIcon />
+                              </button>
+                            </td>
+                          ) : (
+                            <td className="td-padding"></td>
+                          )
+                        ) : (
+                          ""
+                        )}
+                      </tr>
+                    ) : (
+                      ""
+                    )
+                  )}
                 </tbody>
               </table>
             </div>

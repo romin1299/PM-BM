@@ -603,22 +603,22 @@ cron.schedule('00 00 01 01 * *', async (req, res) => {
 
 
 
-            // autoSendMail(
+            autoSendMail(
 
-            //     toEmailArray?.length > 0 ? toEmailArray : [undefined],
-            //     ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
-            //     // ["romin301.osl@gmail.com"],
-            //     // ["emailgen50@gmail.com"],
-            //     sectionInfo[i]?.section_name,
-            //     `Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
-            //     "Below Machine are Scheduled for PM",
-            //     planVsActualTable,
-            //     "Current Month Scheduled",
-            //     currentMonthTable,
-            //     "Last Month Pending PM",
-            //     previousMonthTable,
-            //     "Kindly Approve Pending PM in Database."
-            // )
+                toEmailArray?.length > 0 ? toEmailArray : [undefined],
+                ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
+                // ["romin301.osl@gmail.com"],
+                // ["emailgen50@gmail.com"],
+                sectionInfo[i]?.section_name,
+                `Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
+                "Below Machine are Scheduled for PM",
+                planVsActualTable,
+                "Current Month Scheduled",
+                currentMonthTable,
+                "Last Month Pending PM",
+                previousMonthTable,
+                "Kindly Approve Pending PM in Database."
+            )
 
         } else if (sectionInfo[i].dashboardLevel === "No") {
 
@@ -1139,19 +1139,19 @@ cron.schedule('00 00 01 01 * *', async (req, res) => {
 
 
 
-                // autoSendMail(
+                autoSendMail(
 
-                // toEmailArray?.length > 0 ? toEmailArray : [undefined],
-                // ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
-                //     subSectionsData[subIterator]?.subSection_name,
-                //     `Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
-                //     "Below Machine are Scheduled for PM",
-                //     planVsActualTable,
-                //     "Current Month Scheduled",
-                //     currentMonthTable,
-                //     "Last Month Pending PM",
-                //     previousMonthTable
-                // )
+                toEmailArray?.length > 0 ? toEmailArray : [undefined],
+                ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
+                    subSectionsData[subIterator]?.subSection_name,
+                    `Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
+                    "Below Machine are Scheduled for PM",
+                    planVsActualTable,
+                    "Current Month Scheduled",
+                    currentMonthTable,
+                    "Last Month Pending PM",
+                    previousMonthTable
+                )
 
             }
 

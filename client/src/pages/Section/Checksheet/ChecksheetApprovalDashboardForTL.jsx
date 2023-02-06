@@ -44,6 +44,12 @@ const CheckSheetApprovalDashboardForTL = () => {
       title: "Serial no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
+      width: "5%",
+    },
+    {
+      title: "Status",
+      field: "checkSheet_data.checksheet_status",
+      align: "center",
     },
     {
       title: "Cell Name",
@@ -115,7 +121,7 @@ const CheckSheetApprovalDashboardForTL = () => {
         hidden:
           rowData.checkSheet_data != null
             ? rowData.checkSheet_data.checksheet_status === "Implementation" ||
-            rowData.checkSheet_data.checksheet_status === "Planning"
+              rowData.checkSheet_data.checksheet_status === "Planning"
             : "",
 
         icon: () => <button className="btn-reset">Preparation</button>,
@@ -151,9 +157,15 @@ const CheckSheetApprovalDashboardForTL = () => {
       icon: () => <button className="btn-primary1">View</button>,
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
-        if (context.tm_department === "MTD" && selectedRow?.checkSheet_data?.checksheet_status === "Preparation") {
+        if (
+          context.tm_department === "MTD" &&
+          selectedRow?.checkSheet_data?.checksheet_status === "Preparation"
+        ) {
           navigate("/viewCheckSheet", {
-            state: { selectedRowForViewForm: selectedRow },
+            state: {
+              selectedRowForViewForm: selectedRow,
+              dashboardID: "FromApprovalDashboard",
+            },
           });
         } else {
           navigate("/checksheetFormApproval", {
@@ -267,12 +279,12 @@ const CheckSheetApprovalDashboardForTL = () => {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
-                  fontSize: "12px",
+                  // fontSize: "12px",
                 },
                 headerStyle: {
                   fontSize: "14px",
-                  fontWeight: "bold"
-                }
+                  fontWeight: "bold",
+                },
               }}
             />
           </div>

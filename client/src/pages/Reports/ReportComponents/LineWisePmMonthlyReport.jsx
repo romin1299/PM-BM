@@ -409,7 +409,9 @@ const LineWisePmMonthlyReport = () => {
               <Col>
                 <Row className="p-2 ">
                   <Col sm={12} lg={1}>
-                    <span><b>Line:</b></span>
+                    <span>
+                      <b>Line:</b>
+                    </span>
                   </Col>
                   <Col sm={12} lg={3}>
                     <div>
@@ -452,7 +454,7 @@ const LineWisePmMonthlyReport = () => {
             <Container fluid>
               <Row>
                 {tableData?.length > 0 ? (
-                  <Col lg={8}>
+                  <Col>
                     <MaterialTable
                       localization={{}}
                       actions={actions}
@@ -485,19 +487,25 @@ const LineWisePmMonthlyReport = () => {
                         rowStyle: {
                           // fontStyle:'bold'
 
-                          boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                          // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
                           // color:"rgba(255,255,255,0.8)",
                           borderRadius: "5px",
-                          border: "1px solid rgba(255,255,255)",
+                          border: "1px solid black",
                           WebkitBackdropFilter: "blur( 2px )",
+                          borderBottom: "black !important",
                           background: "rgba(255,255,255,0.1)",
-                          backdropFilter: "blur(5px)",
+                          // backdropFilter: "blur(5px)",
+                          // fontSize: "12px",
                         },
                         
+                        cellStyle: {
+                          border: "1px solid black",
+                        },
                         headerStyle: {
-                          fontSize: "14px",
-                          fontWeight: "bold"
-                        }
+                          border: "1px solid black",
+                          fontSize: "13px",
+                          fontWeight: "bold",
+                        },
                       }}
                     />
                   </Col>
@@ -509,11 +517,16 @@ const LineWisePmMonthlyReport = () => {
 
                 {statusSum?.totalPmSchedule ? (
                   <Col
-                    lg={4}
-
-                    // className="profileImg"
+                    lg={3}
+                    className="cell m-2"
+                    style={{
+                      minHeight: "15rem",
+                    }}
                   >
-                    <LineWIsePmMonthlyGraph statusSum={statusSum} />
+                    <LineWIsePmMonthlyGraph
+                      selectedMonth={selectedMonth}
+                      statusSum={statusSum}
+                    />
                     {/* <Row className="pt-2 ">
                     <Col></Col>
                   </Row> */}

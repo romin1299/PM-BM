@@ -21,7 +21,9 @@ const YearDropDown = ({ selectedYear, setSelectedYear }) => {
   return (
     <Row className="p-2 ">
       <Col sm={12} lg={3}>
-        <span><b>Year:</b></span>
+        <span>
+          <b>Year:</b>
+        </span>
       </Col>
       <Col>
         <div>

@@ -99,7 +99,7 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
       abc: 2,
     },
   ];
-  console.log(selectedSupportedTM);
+  // console.log(selectedSupportedTM);
   const formik = useFormik({
     initialValues: {
       workedOnPM: "",
@@ -673,7 +673,7 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
               ""
             )}
             <div className="row pt-2">
-              <button type="submit" className="btn-primary">
+              <button type="submit" className="btn-primary1">
                 Save
               </button>
             </div>

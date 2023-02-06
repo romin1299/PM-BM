@@ -31,7 +31,7 @@ import ChecksheetCreationDashboard from "./pages/Section/Checksheet/ChecksheetCr
 import CheckSheetForm from "./pages/Section/Checksheet/ChecksheetForm";
 import CheckSheetApprovalDashboardForTL from "./pages/Section/Checksheet/ChecksheetApprovalDashboardForTL";
 import CheckSheetApprovalDashboardForHOS from "./pages/Section/Checksheet/ChecksheetApprovalDashboardForHOS";
-import ChecksheetFormApprovalForHOS from "./pages/Section/Checksheet/ChecksheetFormApprovalForHOS";
+import ChecksheetFormApprovalForHOSAndHOD from "./pages/Section/Checksheet/ChecksheetFormApprovalForHOSAndHOD";
 import ChecksheetFormApprovalForTL from "./pages/Section/Checksheet/ChecksheetFormApprovalForTL";
 import BackupDataOfCheckSheet from "./pages/Section/Checksheet/BackupDataOfCheckSheet";
 import ShowBackupChecksheetTableData from "./pages/Section/Checksheet/ShowBackupChecksheetTableData";
@@ -67,6 +67,13 @@ import LogHistory from "./pages/Reports/LogHistory";
 import PendingPMLogHistory from "./pages/Reports/PendingPMLogHistory";
 
 import SpareReportMainDashboard from "./pages/Reports/SpareReport/SpareReportMainDashboard";
+
+import Footer from "./components/Footer/Footer";
+
+//approval dashboards
+import PreparationApprovalDashboard from "./pages/Section/Checksheet/PreparationApprovalDashboard";
+import PlanningApprovalDashboard from "./pages/Section/Checksheet/PlanningApprovalDashboard";
+import ImplementationApprovalDashboard from "./pages/Section/Checksheet/ImplementationApprovalDashboard";
 
 function App() {
 
@@ -137,7 +144,7 @@ function App() {
                 <Route path="/userAssign" element={<UserAssignSection />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/approvalDashboard" element={<CheckSheetApprovalDashboardForHOS />} />
-                <Route path="/checksheetFormApproval" element={<ChecksheetFormApprovalForHOS />} />
+                <Route path="/checksheetFormApproval" element={<ChecksheetFormApprovalForHOSAndHOD />} />
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
                 <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
                 <Route path="/machineWiseCheckSheet" element={<CheckSheet />} />
@@ -148,9 +155,16 @@ function App() {
                 <Route path="/summeryDashboard" element={<SummeryDashboard />} />
                 <Route path="/logHistory" element={<LogHistory />} />
                 <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
+                <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} />
+
+                <Route path="/backupDataOfCheckSheet" element={<BackupDataOfCheckSheet />} />
 
                 {/* <Route path="/checkSheet" element={<CheckSheet />} /> */}
 
+                {/* approval dashboard */}
+                <Route path="/preparationApproval" element={<PreparationApprovalDashboard />} />
+                <Route path="/planningApproval" element={<PlanningApprovalDashboard />} />
+                <Route path="/implementationApproval" element={<ImplementationApprovalDashboard />} />
 
               </Routes>
             }
@@ -169,6 +183,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<OperatorDashboard />} />
                 <Route path="/machineWiseCheckSheetForImplemetation" element={<CheckSheetForImplementation />} />
+                <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} />
                 <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
@@ -209,13 +224,15 @@ function App() {
                 {context.tm_department === "MTD" ?
                   <>
                     <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
-                    <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} />
+                    {/* <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} /> */}
                     <Route path="/operatorDataEntry" element={<OperatorDataEntry />} />
 
                   </>
                   :
                   ""
                 }
+                <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} />
+
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
                 <Route path="/checkSheetForm" element={<CheckSheetForm />} />
                 <Route path="/approvalDashboard" element={<CheckSheetApprovalDashboardForTL />} />
@@ -236,6 +253,11 @@ function App() {
                 <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
 
                 <Route path="/spareReportDashboard" element={<SpareReportMainDashboard />} />
+
+                {/* approval dashboard */}
+                <Route path="/preparationApproval" element={<PreparationApprovalDashboard />} />
+                <Route path="/planningApproval" element={<PlanningApprovalDashboard />} />
+                <Route path="/implementationApproval" element={<ImplementationApprovalDashboard />} />
 
 
 

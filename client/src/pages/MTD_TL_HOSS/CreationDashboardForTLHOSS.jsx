@@ -44,6 +44,7 @@ const CreationDashboardForTLHOSS = () => {
       title: "Serial no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
+      width: "10%",
     },
     {
       title: "Line Id",
@@ -68,6 +69,7 @@ const CreationDashboardForTLHOSS = () => {
       title: "Serial no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
+      width: "5%"
     },
     {
       title: "Machine Code",
@@ -89,6 +91,7 @@ const CreationDashboardForTLHOSS = () => {
       title: "Machine Sequence",
       field: "machine_sequence",
       align: "center",
+      width: "5%"
     },
     {
       title: "Installation Date",
@@ -343,7 +346,7 @@ const CreationDashboardForTLHOSS = () => {
                           deleteMachine(selectedRow);
                           setTimeout(() => {
                             // setSectionList(updatedRows);
-                            setRefKey2((refKey3) => refKey3 + 1);
+                            setRefKey3((refKey3) => refKey3 + 1);
                             resolve();
                           }, 500);
                         }),
@@ -398,8 +401,8 @@ const CreationDashboardForTLHOSS = () => {
                       },
                       headerStyle: {
                         fontSize: "14px",
-                        fontWeight: "bold"
-                      }
+                        fontWeight: "bold",
+                      },
                     }}
                   />
                 ) : (
@@ -508,8 +511,8 @@ const CreationDashboardForTLHOSS = () => {
                       },
                       headerStyle: {
                         fontSize: "14px",
-                        fontWeight: "bold"
-                      }
+                        fontWeight: "bold",
+                      },
                     }}
                   />
                 ) : (

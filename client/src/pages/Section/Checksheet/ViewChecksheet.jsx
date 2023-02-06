@@ -68,7 +68,7 @@ function ViewChecksheet() {
 
   let machineAllData =
     selectedMachineCheckSheetData.state.selectedRowForViewForm;
-  console.log(machineAllData);
+  // console.log(machineAllData);
 
   let phaseStatus =
     selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data
@@ -612,7 +612,11 @@ function ViewChecksheet() {
 
   const funForOpeningSummeryPopups = () => {
     setStateForOpeningSummeryPopups(
-      <SummeryPopups close={close} tableData={tableData} />
+      <SummeryPopups
+        close={close}
+        tableData={tableData}
+        machineData={machineAllData}
+      />
     );
     document.querySelector(
       ".checkSheetForImplementation1"
@@ -624,7 +628,7 @@ function ViewChecksheet() {
   //   selectedMachineCheckSheetData.state.selectedRowForViewForm
   //     .tl_approval_status
   // );
-  // console.log(context.user_type);
+  // console.log(selectedMachineCheckSheetData?.state?.dashboardID);
   return (
     <>
       {stateForOpeningSummeryPopups}
@@ -636,17 +640,40 @@ function ViewChecksheet() {
               <div>
                 <div className="col-2 mt-2">
                   <button
-                    onClick={() =>
-                      context.tm_department === "MTD" &&
-                      context.user_type === "TL/HOSS"
-                        ? navigate("/checkSheetDashboard")
-                        : (context.tm_department === "PRD" &&
-                            context.user_type === "TL/HOSS") ||
-                          context.user_type === "Section-Admin"
-                        ? navigate("/approvalDashboard")
-                        : context.user_type === "Operator"
-                        ? navigate("/pmMonthlyReport")
-                        : navigate("/checkSheetDashboard")
+                    onClick={
+                      () =>
+                        selectedMachineCheckSheetData?.state?.dashboardID ===
+                        "FromImplementationApprovalDashboard"
+                          ? navigate("/implementationApproval")
+                          : selectedMachineCheckSheetData?.state
+                              ?.dashboardID === "FromPlanningApprovalDashboard"
+                          ? navigate("/planningApproval")
+                          : selectedMachineCheckSheetData?.state
+                              ?.dashboardID ===
+                            "FromPreparationApprovalDashboard"
+                          ? navigate("/preparationApproval")
+                          : selectedMachineCheckSheetData?.state
+                              ?.dashboardID ===
+                            "FromMachineWisePMReportDashboard"
+                          ? navigate("/pmMonthlyReport")
+                          : selectedMachineCheckSheetData?.state
+                              ?.dashboardID === "FromChecksheetDashboard"
+                          ? navigate("/checkSheetDashboard")
+                          : navigate("/checkSheetDashboard")
+
+                      // context.tm_department === "MTD" &&
+                      // context.user_type === "TL/HOSS"
+                      //   ? selectedMachineCheckSheetData?.state?.dashboardID ===
+                      //     "FromApprovalDashboard"
+                      //     ? navigate("/approvalDashboard")
+                      //     : navigate("/checkSheetDashboard")
+                      //   : (context.tm_department === "PRD" &&
+                      //       context.user_type === "TL/HOSS") ||
+                      //     context.user_type === "Section-Admin"
+                      //   ? navigate("/approvalDashboard")
+                      //   : context.user_type === "Operator"
+                      //   ? navigate("/pmMonthlyReport")
+                      //   : navigate("/checkSheetDashboard")
                     }
                     style={{
                       border: "none",
@@ -866,8 +893,16 @@ function ViewChecksheet() {
                       <br />
                       (MTD HOD)
                     </th>
-                    <th className="ar-table-col1" colSpan={6}></th>
-                    <th className="ar-table-col1" colSpan={6}></th>
+                    <td className="ar-table-col1" colSpan={6}>
+                      {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
+                        -1
+                      )}
+                    </td>
+                    <td className="ar-table-col1" colSpan={6}>
+                      {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
+                        -1
+                      )}
+                    </td>
                   </tr>
                 </thead>
                 {/* <thead className="ar-table-thead1">
@@ -1149,7 +1184,10 @@ function ViewChecksheet() {
             </Col>
             <Col>
               <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-                <button className="btn" onClick={funForOpeningSummeryPopups}>
+                <button
+                  className="btn-danger"
+                  onClick={funForOpeningSummeryPopups}
+                >
                   Summary
                 </button>
               </div>

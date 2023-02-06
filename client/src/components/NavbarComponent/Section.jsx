@@ -11,7 +11,7 @@ import {
   AccountCircleIcon,
   NoteAddIcon,
   AddTaskIcon,
-  FactCheckIcon
+  FactCheckIcon,
 } from "./ImportModules";
 
 import List from "@mui/material/List";
@@ -22,10 +22,11 @@ import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import SummarizeIcon from "@mui/icons-material/Summarize";
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import BackupTableIcon from "@mui/icons-material/BackupTable";
 
 const NavUrl = ({ url, icon, description }) => {
   const { nav, setNav } = useContext(NavContext);
@@ -77,16 +78,16 @@ const Section = ({ userData }) => {
       >
         {/* LOGO */}
         <div className="bg-white">
-        <div className={styles.logo}>
-          {/* <VscDashboard  /> */}
-          <img className={styles.logo_icon} src={denso_logo} alt="" />
-          <FaTimes
-            className={styles.mobile_cancel_icon}
-            onClick={() => {
-              setNav(!nav);
-            }}
-          />
-        </div>
+          <div className={styles.logo}>
+            {/* <VscDashboard  /> */}
+            <img className={styles.logo_icon} src={denso_logo} alt="" />
+            <FaTimes
+              className={styles.mobile_cancel_icon}
+              onClick={() => {
+                setNav(!nav);
+              }}
+            />
+          </div>
         </div>
         {/* MENU */}
         <ul className={styles.menu_container}>
@@ -105,31 +106,92 @@ const Section = ({ userData }) => {
             icon={<PersonAddAltIcon style={{ color: "#ffffff" }} />}
             description="User Assign"
           />
-          <NavUrl
+
+          <List sx={{ width: "100%", maxWidth: 400 }} component="nav">
+            <ListItemButton onClick={handleClick}>
+              <ListItemIcon>
+                <AddTaskIcon style={{ color: "#ffffff" }} />
+              </ListItemIcon>
+              <ListItemText
+                primary="Approval Dashboards"
+                style={{ fontWeight: "550", color: "#ffffff" }}
+              />
+              {open ? (
+                <ExpandLess style={{ color: "#ffffff" }} />
+              ) : (
+                <ExpandMore style={{ color: "#ffffff" }} />
+              )}
+            </ListItemButton>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItemButton sx={{ pl: 3 }}>
+                  <NavUrl
+                    url="/preparationApproval"
+                    icon={<AssignmentIcon style={{ color: "#ffffff" }} />}
+                    description="Preparation Approval"
+                  />
+                </ListItemButton>
+              </List>
+              <List component="div" disablePadding>
+                <ListItemButton sx={{ pl: 3 }}>
+                  <NavUrl
+                    url="/planningApproval"
+                    icon={<CreditScoreIcon style={{ color: "#ffffff" }} />}
+                    description="Planning Approval"
+                  />
+                </ListItemButton>
+              </List>
+              <List component="div" disablePadding>
+                <ListItemButton sx={{ pl: 3 }}>
+                  <NavUrl
+                    url="/implementationApproval"
+                    icon={<AssignmentIcon style={{ color: "#ffffff" }} />}
+                    description="Implementation Approval"
+                  />
+                </ListItemButton>
+              </List>
+            </Collapse>
+          </List>
+
+          {/* <NavUrl
             url="/approvalDashboard"
             icon={<AddTaskIcon style={{ color: "#ffffff" }} />}
             description="Approval Dashboard"
-          />
+          /> */}
           <NavUrl
             url="/pmSheetApproval"
             icon={<FactCheckIcon style={{ color: "#ffffff" }} />}
             description="PM Sheet Approval"
           />
           <NavUrl
+            url="/backupDataOfCheckSheet"
+            icon={<CloudDownloadIcon style={{ color: "#ffffff" }} />}
+            description="Back-end Data"
+          />
+          <NavUrl
             url="/pmSheetApprovalOfImplementationPhase"
             icon={<AssignmentTurnedInIcon style={{ color: "#ffffff" }} />}
             description="PM Plan vs Actual Approval"
           />
-          <List
-            sx={{ width: "100%", maxWidth: 360 }}
-            component="nav"
-          >
+          <NavUrl
+            url="/sparePartUsageHistory"
+            icon={<BackupTableIcon style={{ color: "#ffffff" }} />}
+            description="Spare Part Usage History"
+          />
+          <List sx={{ width: "100%", maxWidth: 360 }} component="nav">
             <ListItemButton onClick={handleClick}>
               <ListItemIcon>
                 <SummarizeIcon style={{ color: "#ffffff" }} />
               </ListItemIcon>
-              <ListItemText primary="Reports" style={{ fontWeight: "550",color: "#ffffff" }} />
-              {open ? <ExpandLess style={{color: "#ffffff" }} /> : <ExpandMore style={{color: "#ffffff" }}/>}
+              <ListItemText
+                primary="Reports"
+                style={{ fontWeight: "550", color: "#ffffff" }}
+              />
+              {open ? (
+                <ExpandLess style={{ color: "#ffffff" }} />
+              ) : (
+                <ExpandMore style={{ color: "#ffffff" }} />
+              )}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
@@ -143,7 +205,6 @@ const Section = ({ userData }) => {
               </List>
             </Collapse>
           </List>
-          
         </ul>
         <div className={styles.btn_logout}>
           <div class="navigation">

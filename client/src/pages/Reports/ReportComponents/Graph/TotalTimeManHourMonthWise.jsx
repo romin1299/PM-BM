@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import Plot from "react-plotlyjs";
+import Plot from "react-plotly.js";
 import { Row, Col, Container, Card } from "react-bootstrap";
 
 import ManHourMonthWiseGraph from "./PmTimeMonitoringCharts/ManHourMonthWiseGraph";
@@ -222,7 +222,6 @@ const TotalTimeManHourMonthWise = ({ context }) => {
 
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
-
   }, [selectedYear]);
 
   return (
