@@ -48,21 +48,21 @@ const SpareReportMainDashboard = () => {
     <>
       <Container fluid>
         <Row>
-          <Col>
+          <Col className="col-lg-6 col-md-12">
             <MonthlySpareConsumptionTrend lineData={lineData} context={context} />
           </Col>
-          <Col>
+          <Col className="col-lg-6 col-md-12">
             <Top20MachineSparePartConsumption context={context}/>
           </Col>
         </Row>
 
-        <Row className="d-flex justify-content-center align-items-center">
-          <Col>
+        <Row >
+          <Col className="col-lg-7 col-md-12">
             <LineWiseSpareConsumptionTrend lineData={lineData} context={context} />
           </Col>
           <Col
             // className="d-flex justify-content-center align-items-center"
-            sm={4}
+            className="col-lg-5 col-md-12"
           >
             <SpareConsumptionTrendType context={context}/>
           </Col>

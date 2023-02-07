@@ -107,6 +107,7 @@ const MachineAdd = ({ line, refreshForMachineData }) => {
           ""
         )}
         <div>
+          <h3 style={{ textAlign: "left", color:"#dc3545"}}>Add Machine</h3>
           <form onSubmit={formik.handleSubmit}>
             <div className="pwd-container">
               <span>Machine Code: </span>

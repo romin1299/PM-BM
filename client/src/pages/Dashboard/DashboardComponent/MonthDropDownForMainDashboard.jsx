@@ -26,7 +26,7 @@ const MonthDropDownForMainDashboard = ({ selectedMonth, setSelectedMonth }) => {
         <select
           class="form-select form-select-sm"
           aria-label=".form-select-sm example"
-          style={{ width: "100%" }}
+          style={{ width: "70%" }}
           id="standard-select-currency"
           name="selectedPlant"
           className="textField"

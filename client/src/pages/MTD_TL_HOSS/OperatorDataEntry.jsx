@@ -162,7 +162,7 @@ function OperatorDataEntry() {
                     <select
                       // class="form-select form-select-sm"
                       // aria-label=".form-select-sm example"
-                      style={{ border: "2px solid gray", borderRadius: "5px" }}
+                      style={{ borderRadius: "5px" }}
                       // id="standard-select-currency"
                       id="outlined-number"
                       name="selectedType"
@@ -235,7 +235,7 @@ function OperatorDataEntry() {
                     <select
                       // class="form-select form-select-sm"
                       // aria-label=".form-select-sm example"
-                      style={{ border: "2px solid gray", borderRadius: "5px" }}
+                      style={{ borderRadius: "5px" }}
                       // id="standard-select-currency"
                       id="outlined-number"
                       name="selectedLine"
@@ -299,7 +299,7 @@ function OperatorDataEntry() {
                     <select
                       // class="form-select form-select-sm"
                       // aria-label=".form-select-sm example"
-                      style={{ border: "2px solid gray", borderRadius: "5px" }}
+                      style={{ borderRadius: "5px" }}
                       // id="standard-select-currency"
                       id="outlined-number"
                       name="selectedMachine"

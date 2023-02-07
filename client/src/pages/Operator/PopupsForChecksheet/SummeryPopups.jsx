@@ -135,6 +135,10 @@ const SummeryPopups = ({ close, machineData }) => {
     },
     {
       title: "TM",
+      render: (rowData) =>
+        rowData?.inspectionCompletionBy
+          ? rowData?.inspectionCompletionBy[monthForCompareSystemMonth]
+          : "",
       //   field: "",
     },
   ];
@@ -193,7 +197,7 @@ const SummeryPopups = ({ close, machineData }) => {
             actions={[]}
             columns={subSectionHeader}
             data={tableData}
-            // title="User Management"
+            title="Summery Data of Current Month"
             // tableRef={this.tableRef.current.onQueryChange()}
 
             editable={
@@ -225,7 +229,7 @@ const SummeryPopups = ({ close, machineData }) => {
                 : ""
             }
             options={{
-              showTitle: false,
+              showTitle: true,
               paging: false,
               sorting: true,
               search: true,
@@ -250,16 +254,22 @@ const SummeryPopups = ({ close, machineData }) => {
               rowStyle: {
                 // fontStyle:'bold'
 
-                boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
                 // color:"rgba(255,255,255,0.8)",
                 borderRadius: "5px",
-                border: "1px solid rgba(255,255,255)",
-                WebkitBackdropFilter: "blur( 2px )",
-                background: "rgba(255,255,255,0.1)",
-                backdropFilter: "blur(5px)",
+                border: "1px solid black",
+                // WebkitBackdropFilter: "blur( 2px )",
+                borderBottom: "black !important",
+                background: "rgba(255,255,255,0)",
+                // backdropFilter: "blur(5px)",
+                // fontSize: "12px",
+              },
+              cellStyle: {
+                border: "1px solid black",
               },
               headerStyle: {
-                fontSize: "14px",
+                border: "1px solid black",
+                fontSize: "13px",
                 fontWeight: "bold",
               },
             }}

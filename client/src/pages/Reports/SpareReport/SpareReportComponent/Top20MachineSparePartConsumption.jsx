@@ -102,8 +102,8 @@ const Top20MachineSparePartConsumption = ({ context }) => {
 
   let srNo = 0;
   return (
-    <div className="p-3 ">
-      <Container>
+    <div className="pt-3 ">
+      <Container fluid>
         <Row className="pt-2 cell">
           <Row>
             <Col
@@ -145,7 +145,7 @@ const Top20MachineSparePartConsumption = ({ context }) => {
           </Row>
         </Row>
       </Container>
-      <Container className="cell">
+      <Container className="cell pt-1" fluid>
         {tableData?.length > 0 ? (
           <Row className="m-2">
             <table>

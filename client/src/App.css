@@ -136,11 +136,15 @@ body {
     }
 }
 
-.bg-button{
+.bg-button {
     background-color: #002D37;
 }
 
-.bg-container{
+.bg-light-button {
+    background-color: #014858 !important;
+}
+
+.bg-container {
     background-color: rgb(247, 247, 247) !important;
 }
 
@@ -148,6 +152,16 @@ body {
     border-bottom: black !important;
 } */
 
-.svg-font{
+.svg-font {
     font-size: 1rem !important;
+}
+
+.css-i6bazn {
+    margin-left: -23px;
+    margin-right: -23px;
+}
+
+.css-p9qzma {
+    /* margin-left: -23px; */
+    margin-right: -10px;
 }

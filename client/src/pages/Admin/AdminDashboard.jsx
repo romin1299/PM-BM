@@ -116,7 +116,7 @@ function AdminDashboard() {
       // icon: () => <button className="addbutton">Add</button>,
       icon: () =>
         window.innerWidth > 1024 ? (
-          <button className="btn-warning" >Email Configuration</button>
+          <button className="btn-warning" style={{marginRight:"-1px "}} >Email Configuration</button>
         ) : (
           "Email"
         ),

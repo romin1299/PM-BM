@@ -43,7 +43,11 @@ function ChecksheetFormApprovalForTL() {
   let machineAllData =
     selectedMachineCheckSheetData.state?.selectedRowForViewForm;
 
-  // console.log(machineAllData);
+  let senderApprovalMonth =
+    selectedMachineCheckSheetData.state?.selectedRowForViewForm
+      ?.senderApprovalMonth;
+
+  // console.log(senderApprovalMonth);
   let columns = [
     {
       header: "SN",
@@ -486,6 +490,7 @@ function ChecksheetFormApprovalForTL() {
           implementation_approved_MTD_TL_date: timeStamp(),
           implementation_approved_by_MTD_TL: context.tm_name,
           implemetation_quality_remarks: values.qaulity_remarks,
+          senderApprovalMonth,
         }),
       });
       const data = res.json();
@@ -494,7 +499,11 @@ function ChecksheetFormApprovalForTL() {
         window.alert("Invalid credentials !");
       } else {
         console.log("User added sucessfully...");
-        navigate("/approvalDashboard");
+        machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
+          ? navigate("/preparationApproval")
+          : machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
+          ? navigate("/planningApproval")
+          : navigate("/implementationApproval");
 
         // refreshPage();
         // if (values.email) {
@@ -513,7 +522,11 @@ function ChecksheetFormApprovalForTL() {
 
   const funForOpeningSummeryPopups = () => {
     setStateForOpeningSummeryPopups(
-      <SummeryPopups close={close} tableData={tableData} machineData={machineAllData}/>
+      <SummeryPopups
+        close={close}
+        tableData={tableData}
+        machineData={machineAllData}
+      />
     );
     document.querySelector(
       ".checkSheetForImplementation1"
@@ -557,25 +570,25 @@ function ChecksheetFormApprovalForTL() {
 
       <div className="checkSheetForImplementation1">
         <Container fluid>
-          <Row>
+          <Row className="d-flex justify-content-center align-items-center">
             <Col lg={6} md={6} sm={6}>
               <div className="col-1">
-                <a
-                  className="mb-2"
-                  style={{ color: "Black" }}
-                  href="/approvalDashboard"
+                <button
+                  onClick={() =>
+                    machineAllData?.checkSheet_data?.checksheet_status ===
+                    "Implementation"
+                      ? navigate("/implementationApproval")
+                      : navigate("/planningApproval")
+                  }
+                  style={{
+                    border: "none",
+                    background: "white",
+                    borderRadius: 5,
+                    marginTop: "1rem",
+                  }}
                 >
-                  <button
-                    style={{
-                      border: "none",
-                      background: "white",
-                      borderRadius: 5,
-                      marginTop: "1rem",
-                    }}
-                  >
-                    <ArrowBackIcon />
-                  </button>
-                </a>
+                  <ArrowBackIcon />
+                </button>
               </div>
               <div>
                 <form onSubmit={formik.handleSubmit}>
@@ -723,13 +736,14 @@ function ChecksheetFormApprovalForTL() {
               </div>
             </Col>
             <Col lg={6} md={6} sm={6}>
-              <table className="ar-table tableCol1">
+              <table className="ar-table tableCol1 h-50">
                 <thead>
                   <tr>
                     <th
-                      className="ar-table-thead-header1"
+                      className="ar-table-thead-header1 "
                       // colSpan={2}
                       //  rowSpan={5}
+                      style={{ textAlign: "center" }}
                     >
                       PLAN ACCEPTANCE
                       <br />
@@ -739,6 +753,7 @@ function ChecksheetFormApprovalForTL() {
                       className="ar-table-thead-header1"
                       // colSpan={2}
                       //  rowSpan={5}
+                      style={{ textAlign: "center" }}
                     >
                       PLAN PREPARED
                       <br />

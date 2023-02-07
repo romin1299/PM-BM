@@ -120,7 +120,7 @@ function PMSheetApproval() {
               <th></th>
               <th></th>
               {columns1.map((tColumn) => (
-                <th className={"ar-table-thead-header4 td-padding"}>
+                <th className={"ar-table-thead-header4 td-padding bg-light-button text-light"}>
                   {tColumn.header}
                 </th>
               ))}
