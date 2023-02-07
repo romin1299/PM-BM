@@ -298,8 +298,8 @@ const CheckSheetDashboard = () => {
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
               navigate("/viewCheckSheet", {
-                state: { selectedRowForViewForm: selectedRow },
-                dashboardID: "FromChecksheetDashboard",
+                state: { selectedRowForViewForm: selectedRow, dashboardID: "FromChecksheetDashboard", },
+                
               });
             },
             disabled: false, // Set disabled to false by default for all actions
@@ -355,8 +355,8 @@ const CheckSheetDashboard = () => {
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
               navigate("/viewCheckSheet", {
-                state: { selectedRowForViewForm: selectedRow },
-                dashboardID: "FromChecksheetDashboard",
+                state: { selectedRowForViewForm: selectedRow , dashboardID: "FromChecksheetDashboard",},
+               
               });
             },
             disabled: false, // Set disabled to false by default for all actions

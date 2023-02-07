@@ -155,7 +155,7 @@ const Admin = ({ userData }) => {
         <Menu iconShape="square">
           <MenuItem
             className="text"
-            icon={<LogoutIcon className="text-white" />}
+            icon={<LogoutIcon className="text-white" style={{ transform: "rotate(180deg)" }} />}
             data-toggle="tooltip"
             data-placement="right"
             title="Logout"

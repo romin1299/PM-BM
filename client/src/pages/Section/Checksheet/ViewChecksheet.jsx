@@ -628,7 +628,7 @@ function ViewChecksheet() {
   //   selectedMachineCheckSheetData.state.selectedRowForViewForm
   //     .tl_approval_status
   // );
-  // console.log(selectedMachineCheckSheetData?.state?.dashboardID);
+  // console.log(selectedMachineCheckSheetData?.dashboardID);
   return (
     <>
       {stateForOpeningSummeryPopups}
@@ -655,7 +655,7 @@ function ViewChecksheet() {
                           : selectedMachineCheckSheetData?.state
                               ?.dashboardID ===
                             "FromMachineWisePMReportDashboard"
-                          ? navigate("/pmMonthlyReport")
+                          ? navigate("/machineWisePmMonthlyReport")
                           : selectedMachineCheckSheetData?.state
                               ?.dashboardID === "FromChecksheetDashboard"
                           ? navigate("/checkSheetDashboard")

@@ -2945,9 +2945,9 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
 
             PRDHOSlist = await User.find({ section_data: loggedUserData.section_data, tm_grade: "HOS", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
-            MTDHODlist = await User.find({ section_data: loggedUserData.section_data, tm_grade: "HOD", tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
+            MTDHODlist = await User.find({ plant_data: loggedUserData.plant_data, user_type: "Plant-Admin", tm_grade: "HOD", tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
 
-            PRDHODlist = await User.find({ section_data: loggedUserData.section_data, tm_grade: "HOD", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
+            PRDHODlist = await User.find({ plant_data: loggedUserData.plant_data, user_type: "Plant-Admin", tm_grade: "HOD", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
             PRDTLlist = await User.find({ section_data: loggedUserData.section_data, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
@@ -2978,9 +2978,9 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
 
             PRDHOSlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_grade: "HOS", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
-            MTDHODlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_grade: "HOD", tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
+            MTDHODlist = await User.find({ plant_data: loggedUserData.plant_data, user_type: "Plant-Admin", tm_grade: "HOD", tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
 
-            PRDHODlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_grade: "HOD", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
+            PRDHODlist = await User.find({ plant_data: loggedUserData.plant_data, user_type: "Plant-Admin", tm_grade: "HOD", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
             PRDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
@@ -5628,7 +5628,7 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
         }
         ])
 
-        // machineLastData = await Machine.populate(machineLastData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+        let machinePopulateData = await Machine.populate(perticularMachine, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
         // const perticularMachine = await Machine.findOne({ machine_code: machineId })
 
@@ -5660,6 +5660,49 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
         let keyOfPartName = `checkSheet_data.$[outer].checkSheet.$[inner].spareDetails.${monthForCompareSystemMonth}.partName`
         let keyOfPartNo = `checkSheet_data.$[outer].checkSheet.$[inner].spareDetails.${monthForCompareSystemMonth}.partNo`
         let keyOfCost = `checkSheet_data.$[outer].checkSheet.$[inner].spareDetails.${monthForCompareSystemMonth}.cost`
+
+        //mail content for abnormality open with target date
+        subject = `Abnormality Opened (${machinePopulateData[0]?.line_names?.cell_names?.cell_name}/${machinePopulateData[0]?.line_names?.line_name}/${machinePopulateData[0]?.machine_code})`
+        title = `Abnormality found in below Machine and will be Closed by "${targetDate}"`
+        greetings = `Sir/Mam`
+        bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+
+<tr>
+  <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+  <td style="border: 1px solid black;text-align: left;padding: 8px;">${machinePopulateData[0]?.line_names?.cell_names?.cell_name}</td>
+</tr>
+
+<tr style="background-color: #dddddd;">
+  <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+  <td style="border: 1px solid black;text-align: left;padding: 8px;">${machinePopulateData[0]?.line_names?.line_name}</td>
+</tr>
+
+<tr>
+    <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+    <td style="border: 1px solid black;text-align: left;padding: 8px;">${machinePopulateData[0]?.machine_name}</td>
+</tr>
+
+<tr style="background-color: #dddddd;">
+    <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+    <td style="border: 1px solid black;text-align: left;padding: 8px;">${machinePopulateData[0]?.machine_code}</td>
+</tr>
+ 
+<tr>
+  <td style="border: 1px solid black;text-align: left;padding: 8px;">Submitted by</td>
+  <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+</tr>   
+
+<tr style="background-color: #dddddd;">
+    <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+    <td style="border: 1px solid black;text-align: left;padding: 8px;">${completionDateOfInspection}</td>
+</tr>
+<tr style="background-color: #dddddd;">
+    <td style="border: 1px solid black;text-align: left;padding: 8px;">Abnormality Remark</td>
+    <td style="border: 1px solid black;text-align: left;padding: 8px;">${abnormalityRemarks}</td>
+</tr>
+
+</table>`
+
 
         // console.log(perticularMachine)
         let addPmData
@@ -5873,6 +5916,9 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
                     }, {
                         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
                     })
+
+                    // sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+
                 } else {
                     addPmData = await Machine.updateOne({ machine_code: machineId }, {
                         $set: {
@@ -5893,6 +5939,8 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
                     }, {
                         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
                     })
+                    // sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+
                 }
 
             } else {
@@ -5929,6 +5977,8 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
                     }, {
                         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
                     })
+                    // sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+
 
                 } else {
                     addPmData = await Machine.updateOne({ machine_code: machineId }, {
@@ -5950,6 +6000,8 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
                     }, {
                         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
                     })
+                    // sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+
                 }
 
             }
@@ -7990,7 +8042,8 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                                 cell_name: keyForCheckSheet?.line_names?.cell_names?.cell_name,
                                 schedule_month: previousMonth,
                                 PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[previousMonth],
-                                checkSheet_data: keyForCheckSheet?.checkSheet_data
+                                checkSheet_data: keyForCheckSheet?.checkSheet_data,
+                                flagForPreviousMonthData: true
                             })
                         )
                     }
@@ -8170,7 +8223,8 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                                 cell_name: keyForCheckSheet?.line_names?.cell_names?.cell_name,
                                 schedule_month: previousMonth,
                                 PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[previousMonth],
-                                checkSheet_data: keyForCheckSheet?.checkSheet_data
+                                checkSheet_data: keyForCheckSheet?.checkSheet_data,
+                                flagForPreviousMonthData: true
                             })
                         )
                     }
@@ -12652,7 +12706,7 @@ router.post('/approveMonthlyRequestForAnnualPmSchedule', authenticate, async (re
 
         if (keyRefForHosOrHod === "hos") {
             keyOfStatusForAssignHOSOrHOD = `annualPmScheduleApproval.$[outer].monthlyApprovalData.${month}.approvedByHOS`
-        }else{
+        } else {
             keyOfStatusForAssignHOSOrHOD = `annualPmScheduleApproval.$[outer].monthlyApprovalData.${month}.approvedByHODIfDelay`
 
         }
@@ -13778,7 +13832,7 @@ router.post('/postMachineToGetAllDataForSummary', authenticate, async (req, res)
                         logHistoryAllData.push(
                             new Object({
                                 sr_no: ++serialNoForLogHistory,
-                                schedule_month: month, 
+                                schedule_month: month,
                                 cell_names: keyForCheckSheet?.line_names?.cell_names,
                                 line_names: keyForCheckSheet?.line_names,
                                 machine_code: keyForCheckSheet?.machine_code,

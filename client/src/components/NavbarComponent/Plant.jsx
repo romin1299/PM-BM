@@ -6,17 +6,19 @@ import {
   PersonAddAltIcon,
   DashboardIcon,
   NoteAddIcon,
+  FactCheckIcon
 } from "./ImportModules";
-
 
 import Logout from "../../Integration/Logout/Logout";
 import { useNavigate } from "react-router-dom";
+import { FaThList } from "react-icons/fa";
 
 import { useState } from "react";
 
 import {
   Menu,
   MenuItem,
+  SubMenu,
   ProSidebar,
   SidebarHeader,
   SidebarFooter,
@@ -25,15 +27,19 @@ import {
 import "react-pro-sidebar/dist/css/styles.css";
 import styled from "styled-components";
 
-import {
-
-  FiArrowLeftCircle,
-  FiArrowRightCircle,
-} from "react-icons/fi";
+import { FiArrowLeftCircle, FiArrowRightCircle } from "react-icons/fi";
 
 import LogoutIcon from "@mui/icons-material/Logout";
 import BackupTableIcon from "@mui/icons-material/BackupTable";
-
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import StorageIcon from "@mui/icons-material/Storage";
+import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
+import ArticleIcon from "@mui/icons-material/Article";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import AssessmentIcon from "@mui/icons-material/Assessment";
+import SummarizeIcon from "@mui/icons-material/Summarize";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 
 const Menuitem = styled(MenuItem)`
   :hover {
@@ -44,8 +50,6 @@ const Menuitem = styled(MenuItem)`
     // margin:10px;
   }
 `;
-
-
 
 const Plant = ({ userData }) => {
   const [open, setOpen] = React.useState(true);
@@ -87,14 +91,13 @@ const Plant = ({ userData }) => {
           <SidebarHeader>
             <div className="logotext">
               {/* small and big change using menucollapse state */}
-              <p className="d-flex align-items-center justify-content-center m-2 sticky-top">
+              <p className="d-flex align-items-center justify-content-center m-2 sticky-top bg-white">
                 {menuCollapse ? (
                   <img
-                    src={halflogo}
+                    src={denso_logo}
                     alt=""
-                    style={{ width: "50%", padding: "5px" }}
+                    style={{ width: "100%", padding: "5px" }}
                     className="bg-white"
-
                   />
                 ) : (
                   <img
@@ -126,38 +129,293 @@ const Plant = ({ userData }) => {
       </div>
       <SidebarContent>
         <Menu iconShape="square" style={styles.bg}>
-          <Menuitem
+          <SubMenu
             className="text-white"
-            data-toggle="tooltip"
-            data-placement="right"
             title="Dashboard"
             icon={<DashboardIcon className="text-white" />}
           >
-            <NavLink to="/"></NavLink> Dashboard
-          </Menuitem>
+            {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+            <MenuItem
+              className="text"
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Dashboard"
+              icon={
+                <DashboardIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/"></NavLink> Section Dashboard
+            </MenuItem>
 
+            <MenuItem
+              className="text"
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Dashboard"
+              icon={
+                <DashboardIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/summeryDashboard"></NavLink> Plant Dashboard
+            </MenuItem>
+          </SubMenu>
 
-
-          <Menuitem
+          <SubMenu
             className="text-white"
-            icon={<NoteAddIcon className="text-white" />}
-            data-toggle="tooltip"
-            data-placement="right"
-            title="Creation Dashboard"
+            title="Creation"
+            icon={<FaThList className="text-white" />}
           >
-            <NavLink to="/creationDashboard"></NavLink>
-            Creation Dashboard
-          </Menuitem>
-          <Menuitem
-            className="text-white"
-            icon={<PersonAddAltIcon className="text-white" />}
-            data-toggle="tooltip"
-            data-placement="right"
-            title="User Assign"
-          >
-            <NavLink to="/userAssign"></NavLink>
-            User Assign
-          </Menuitem>
+            {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+            <MenuItem
+              className="text"
+              icon={
+                <NoteAddIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/creationDashboard"></NavLink>
+              Creation Dashboard
+            </MenuItem>
+            <MenuItem
+                className="text"
+                icon={
+                  <PersonAddIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+               <NavLink to="/userAssign"></NavLink>
+                User Assign
+              </MenuItem>
+          </SubMenu>
+          <SubMenu
+              className="text-white"
+              title="PM Report"
+              icon={<AssessmentIcon className="text-white" />}
+            >
+              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+              <MenuItem
+                className="text"
+                icon={
+                  <ArticleIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/machineWisePmMonthlyReport"></NavLink>
+                Monthly Report (Machine)
+              </MenuItem>
+
+              <MenuItem
+                className="text"
+                icon={
+                  <ArticleIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/lineWisePmMonthlyReport"></NavLink>
+                Monthly Report (Line)
+              </MenuItem>
+              <MenuItem
+                className="text"
+                icon={
+                  <ArticleIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/annualPMSchedule"></NavLink>
+                Annual PM Schedule
+              </MenuItem>
+              <MenuItem
+                className="text"
+                icon={
+                  <ArticleIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/annualPmStatus"></NavLink>
+                Annual PM PM vs Actual
+              </MenuItem>
+              <MenuItem
+                className="text"
+                icon={
+                  <ArticleIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/pmTimeMonitoringReport"></NavLink>
+                PM Time Monitoring
+              </MenuItem>
+            </SubMenu>
+
+            <SubMenu
+              className="text-white"
+              title="Approval Log"
+              icon={<StorageIcon className="text-white" />}
+            >
+              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+              <MenuItem
+                className="text"
+                icon={
+                  <FactCheckIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+                href="/pmSheetApproval"
+              >
+                <NavLink to="/pmSheetApproval"></NavLink>
+                Preparation / Planning
+              </MenuItem>
+
+              <MenuItem
+                className="text"
+                icon={
+                  <AssignmentTurnedInIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/pmSheetApprovalOfImplementationPhase"></NavLink>
+                PM Plan vs Actual Approval
+              </MenuItem>
+            </SubMenu>
+
+            <SubMenu
+              className="text-white"
+              title="PM Log"
+              icon={<LibraryBooksIcon className="text-white" />}
+            >
+              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+              <MenuItem
+                className="text"
+                icon={
+                  <LibraryBooksIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/logHistory"></NavLink>
+                PM Log
+              </MenuItem>
+
+              <MenuItem
+                className="text"
+                icon={
+                  <PendingActionsIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/pendingPMLogHistory"></NavLink>
+                Pending PM Log History
+              </MenuItem>
+            </SubMenu>
+
+            <Menuitem
+              className="text-white"
+              icon={<BackupTableIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Spare Log"
+            >
+              <NavLink to="/sparePartUsageHistory"></NavLink>
+              Spare Log
+            </Menuitem>
+            <Menuitem
+              className="text-white"
+              icon={<SummarizeIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Spare Report"
+            >
+              <NavLink to="/spareReportDashboard"></NavLink>
+              Spare Report
+            </Menuitem>
+            <Menuitem
+              className="text-white"
+              icon={<PendingActionsIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Open Abnormality Tracking"
+            >
+              <NavLink to="/openAbnormalityTrack"></NavLink>
+              Open Abnormality Tracking
+            </Menuitem>
+
         </Menu>
       </SidebarContent>
       <SidebarFooter fixed="bottom">

@@ -137,17 +137,17 @@ const MachineWisePmMonthlyReport = () => {
       width: "5%",
       render: (rowData) =>
         rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
-          rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
+        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
           "Done with delay" ? (
           <PanoramaFishEyeIcon fontSize="small" />
         ) : // : rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Current Plan" ? (
-          //   <PanoramaFishEyeIcon fontSize="small" />
-          // )
-          rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing" ? (
-            <ArrowDropUpIcon />
-          ) : (
-            <CloseIcon />
-          ),
+        //   <PanoramaFishEyeIcon fontSize="small" />
+        // )
+        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing" ? (
+          <ArrowDropUpIcon />
+        ) : (
+          <CloseIcon />
+        ),
       // console.log(rowData?.checkSheet_data?.PMStatus),
     },
   ];
@@ -246,9 +246,10 @@ const MachineWisePmMonthlyReport = () => {
       tooltip: "click here for details",
       onClick: (event, selectedRow) => {
         navigate("/viewCheckSheet", {
-          state: { selectedRowForViewForm: selectedRow },
-          dashboardID: "FromMachineWisePMReportDashboard",
-
+          state: {
+            selectedRowForViewForm: selectedRow,
+            dashboardID: "FromMachineWisePMReportDashboard",
+          },
         });
         // console.log(employeePassword)
       },
@@ -280,7 +281,7 @@ const MachineWisePmMonthlyReport = () => {
 
       tooltip: "CSV",
       isFreeAction: true,
-      onClick: (event, rowData) => { },
+      onClick: (event, rowData) => {},
     },
   ];
 
@@ -307,15 +308,16 @@ const MachineWisePmMonthlyReport = () => {
     },
     (rowData) => {
       return {
-        hidden: rowData.PMStatus === "PM Skip",
+        hidden: !rowData.flagForPreviousMonthData,
 
         icon: () => <button className="btn-reset">Details</button>,
         // tooltip: <h1>I am a tooltip</h1>,
         onClick: (event, selectedRow) => {
           navigate("/viewCheckSheet", {
-            state: { selectedRowForViewForm: selectedRow },
-            dashboardID: "FromMachineWisePMReportDashboard",
-
+            state: {
+              selectedRowForViewForm: selectedRow,
+              dashboardID: "FromMachineWisePMReportDashboard",
+            },
           });
           // console.log(employeePassword)
         },
@@ -364,11 +366,11 @@ const MachineWisePmMonthlyReport = () => {
         item.machine_name,
         item.machine_code,
         item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
-          item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
+        item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
-            ? "^"
-            : "X",
+          ? "^"
+          : "X",
       ])
     );
 
@@ -453,11 +455,11 @@ const MachineWisePmMonthlyReport = () => {
         item.machine_name,
         item.machine_code,
         item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
-          item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
+        item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
-            ? "^"
-            : "X",
+          ? "^"
+          : "X",
       ]);
     });
 
@@ -680,28 +682,38 @@ const MachineWisePmMonthlyReport = () => {
 
       <div>
         <Container fluid>
-          <Row className="gy-2 mt-2 cell" style={{ marginRight: "0.2rem", marginLeft: "0.2rem" }}>
-
+          <Row
+            className="gy-2 mt-2 cell"
+            style={{ marginRight: "0.2rem", marginLeft: "0.2rem" }}
+          >
             <div>
-              <h5><b>Month Status</b></h5>
+              <h5>
+                <b>Month Status</b>
+              </h5>
             </div>
-            <Col sm>  <PanoramaFishEyeIcon fontSize="small" /> <b>Completed :</b>{" "}
-              {statusCounter.completed}</Col>
-            <Col sm> <b>Schedule PM :&nbsp;</b>
-              {statusCounter.schedulePm}</Col>
             <Col sm>
-              <CloseIcon /><b> Pending : </b>{" "}
+              {" "}
+              <PanoramaFishEyeIcon fontSize="small" /> <b>Completed :</b>{" "}
+              {statusCounter.completed}
+            </Col>
+            <Col sm>
+              {" "}
+              <b>Schedule PM :&nbsp;</b>
+              {statusCounter.schedulePm}
+            </Col>
+            <Col sm>
+              <CloseIcon />
+              <b> Pending : </b>{" "}
               {statusCounter.schedulePm -
                 statusCounter.completed -
                 statusCounter.onGoing}
               {/* Pending : {statusCounter.pending} */}
             </Col>
-            <Col sm><ArrowDropUpIcon /><b> Ongoing : &nbsp;</b>{statusCounter.onGoing}</Col>
-
-
-
-
-
+            <Col sm>
+              <ArrowDropUpIcon />
+              <b> Ongoing : &nbsp;</b>
+              {statusCounter.onGoing}
+            </Col>
           </Row>
           <Row className="d-flex">
             {tableData1?.machineDataForCurrentMonth?.length > 0 ? (
@@ -805,15 +817,17 @@ const MachineWisePmMonthlyReport = () => {
               </Col>
             )}
 
-
-
             {statusCounter.schedulePm ? (
               <Col
-                lg={4} md={12}
+                lg={4}
+                md={12}
 
-              // className="profileImg"
+                // className="profileImg"
               >
-                <Row className="mt-2 cell" style={{ marginRight: "0.2rem", marginLeft: "0.2rem" }}>
+                <Row
+                  className="mt-2 cell"
+                  style={{ marginRight: "0.2rem", marginLeft: "0.2rem" }}
+                >
                   <MachineWisePmMonthlyGraph
                     statusCounter={statusCounter}
                     selectedMonth={selectedMonth}
@@ -859,12 +873,13 @@ const MachineWisePmMonthlyReport = () => {
                     title={"Pending Machine"}
                     editable={{
                       isEditHidden: (rowData) =>
-                        rowData.PMStatus !== "PM Skip" ||
-                        context.user_type === "Section-Admin" ||
-                        context.user_type === "Plant-Admin" ||
-                        context.user_type === "Operator" ||
-                        (context.user_type === "TL/HOSS" &&
-                          context.tm_department === "PRD"),
+                        rowData?.PMStatus !== "PM Skip" ||
+                        context?.user_type === "Section-Admin" ||
+                        context?.user_type === "Plant-Admin" ||
+                        context?.user_type === "Operator" ||
+                        (context?.user_type === "TL/HOSS" &&
+                          context?.tm_department === "PRD") ||
+                          rowData?.flagForPreviousMonthData === true,
                       onRowUpdate: (updatedRow, oldRow) =>
                         new Promise((resolve, reject) => {
                           //call the update user function and pass the user data
@@ -921,20 +936,15 @@ const MachineWisePmMonthlyReport = () => {
                   />
                 </Col>
               </Row>
-              {(skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                undefined ||
-                skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                "Rejected" ||
-                skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                "Rejected" ||
-                skipApprovalStatusData?.approvalStatusOfPRDHOS ===
-                "Rejected" ||
+              {(skipApprovalStatusData?.approvalStatusOfMTDHOS === undefined ||
+                skipApprovalStatusData?.approvalStatusOfMTDHOS === "Rejected" ||
+                skipApprovalStatusData?.approvalStatusOfMTDHOD === "Rejected" ||
+                skipApprovalStatusData?.approvalStatusOfPRDHOS === "Rejected" ||
+                skipApprovalStatusData?.approvalStatusOfPRDHOD === "Rejected" ||
                 skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                "Rejected" ||
-                skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                "Accepted") &&
-                context.user_type === "TL/HOSS" &&
-                context.tm_department === "MTD" ? (
+                  "Accepted") &&
+              context.user_type === "TL/HOSS" &&
+              context.tm_department === "MTD" ? (
                 <div>
                   <Row
                     className="d-flex mt-2 p-3 border bg-white rounded"
@@ -945,7 +955,7 @@ const MachineWisePmMonthlyReport = () => {
                       onSubmit={formik1.handleSubmit}
                       style={{ margin: "0px" }}
                     >
-                      <Col sm  className="mb-3">
+                      <Col sm className="mb-3">
                         <span>
                           <b>MTD HOS :</b>
                         </span>
@@ -993,7 +1003,7 @@ const MachineWisePmMonthlyReport = () => {
                           </div>
                         </div>
                       </Col>
-                      <Col sm  className="mb-3">
+                      <Col sm className="mb-3">
                         <span>
                           <b>MTD HOD :</b>
                         </span>
@@ -1041,7 +1051,7 @@ const MachineWisePmMonthlyReport = () => {
                         </div>
                       </Col>
 
-                      <Col sm  className="mb-3">
+                      <Col sm className="mb-3">
                         <span>
                           <b>PRD HOS :</b>
                         </span>
@@ -1088,7 +1098,7 @@ const MachineWisePmMonthlyReport = () => {
                           </div>
                         </div>
                       </Col>
-                      <Col sm  className="mb-3">
+                      <Col sm className="mb-3">
                         <span>
                           <b>PRD HOD :</b>
                         </span>
@@ -1135,7 +1145,7 @@ const MachineWisePmMonthlyReport = () => {
                           </div>
                         </div>
                       </Col>
-                      <Col sm >
+                      <Col sm>
                         <span>
                           <b>Reason for delay :</b>
                         </span>
@@ -1199,8 +1209,7 @@ const MachineWisePmMonthlyReport = () => {
                       <div style={{ marginTop: "0.5rem" }}>
                         <div>
                           {
-                            skipApprovalStatusData
-                              ?.assignAndApprovedMTDHODlist
+                            skipApprovalStatusData?.assignAndApprovedMTDHODlist
                               ?.assignMTDHODname
                           }
                         </div>
@@ -1218,8 +1227,7 @@ const MachineWisePmMonthlyReport = () => {
                       <div>
                         <div>
                           {
-                            skipApprovalStatusData
-                              ?.assignAndApprovedPRDHOSlist
+                            skipApprovalStatusData?.assignAndApprovedPRDHOSlist
                               ?.assignPRDHOSname
                           }
                         </div>
@@ -1236,8 +1244,7 @@ const MachineWisePmMonthlyReport = () => {
                       <div style={{ marginTop: "0.5rem" }}>
                         <div>
                           {
-                            skipApprovalStatusData
-                              ?.assignAndApprovedPRDHODlist
+                            skipApprovalStatusData?.assignAndApprovedPRDHODlist
                               ?.assignPRDHODname
                           }
                         </div>
@@ -1309,8 +1316,7 @@ const MachineWisePmMonthlyReport = () => {
                       <div style={{ marginTop: "0.5rem" }}>
                         <div>
                           {
-                            skipApprovalStatusData
-                              ?.assignAndApprovedMTDHODlist
+                            skipApprovalStatusData?.assignAndApprovedMTDHODlist
                               ?.assignMTDHODname
                           }
                         </div>
@@ -1331,8 +1337,7 @@ const MachineWisePmMonthlyReport = () => {
                       <div style={{ marginTop: "0.5rem" }}>
                         <div>
                           {
-                            skipApprovalStatusData
-                              ?.assignAndApprovedPRDHOSlist
+                            skipApprovalStatusData?.assignAndApprovedPRDHOSlist
                               ?.assignPRDHOSname
                           }
                         </div>
@@ -1351,8 +1356,7 @@ const MachineWisePmMonthlyReport = () => {
                       <div style={{ marginTop: "0.5rem" }}>
                         <div>
                           {
-                            skipApprovalStatusData
-                              ?.assignAndApprovedPRDHODlist
+                            skipApprovalStatusData?.assignAndApprovedPRDHODlist
                               ?.assignPRDHODname
                           }
                         </div>
@@ -1397,47 +1401,37 @@ const MachineWisePmMonthlyReport = () => {
               {context.email ===
                 skipApprovalStatusData?.assignAndApprovedHOSlist
                   ?.assignMTDHOSemail &&
-                skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                "Pending" ? (
+              skipApprovalStatusData?.approvalStatusOfMTDHOS === "Pending" ? (
                 <SkipApprovalComponent
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
                 />
               ) : context.email ===
-                skipApprovalStatusData?.assignAndApprovedMTDHODlist
-                  ?.assignMTDHODemail &&
-                skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                "Accepted" &&
-                skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                "Pending" ? (
+                  skipApprovalStatusData?.assignAndApprovedMTDHODlist
+                    ?.assignMTDHODemail &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOS === "Accepted" &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOD === "Pending" ? (
                 <SkipApprovalComponent
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
                 />
               ) : context.email ===
-                skipApprovalStatusData?.assignAndApprovedPRDHOSlist
-                  ?.assignPRDHOSemail &&
-                skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                "Accepted" &&
-                skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                "Accepted" &&
-                skipApprovalStatusData?.approvalStatusOfPRDHOS ===
-                "Pending" ? (
+                  skipApprovalStatusData?.assignAndApprovedPRDHOSlist
+                    ?.assignPRDHOSemail &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOS === "Accepted" &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOD === "Accepted" &&
+                skipApprovalStatusData?.approvalStatusOfPRDHOS === "Pending" ? (
                 <SkipApprovalComponent
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
                 />
               ) : context.email ===
-                skipApprovalStatusData?.assignAndApprovedPRDHODlist
-                  ?.assignPRDHODemail &&
-                skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                "Accepted" &&
-                skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                "Accepted" &&
-                skipApprovalStatusData?.approvalStatusOfPRDHOS ===
-                "Accepted" &&
-                skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                "Pending" ? (
+                  skipApprovalStatusData?.assignAndApprovedPRDHODlist
+                    ?.assignPRDHODemail &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOS === "Accepted" &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOD === "Accepted" &&
+                skipApprovalStatusData?.approvalStatusOfPRDHOS === "Accepted" &&
+                skipApprovalStatusData?.approvalStatusOfPRDHOD === "Pending" ? (
                 <SkipApprovalComponent
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
