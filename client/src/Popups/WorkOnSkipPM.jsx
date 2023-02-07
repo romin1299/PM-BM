@@ -253,7 +253,7 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey, machineId }) {
         <span onClick={close} className="close">
           &times;
         </span>
-        <button onClick={postNewPendingLogHistory}>ABCD</button>
+        {/* <button onClick={postNewPendingLogHistory}>ABCD</button> */}
         <div>
           <form
             onSubmit={formik.handleSubmit}

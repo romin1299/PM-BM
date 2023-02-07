@@ -6516,6 +6516,397 @@ router.post('/submitLogHistory', authenticate, async (req, res) => {
     }
 })
 
+
+router.post('/submitLogHistoryAfterRejection', authenticate, async (req, res) => {
+    try {
+        //-----------------------------------------------------
+
+        const {
+            yearOfCheckSheet,
+            values,
+            inceptionValueForLogHistory,
+            completionDateOfInspection,
+
+            remarks,
+            refKeyForScheduleMonthInLogHistory,
+            workedOnPM,
+            abnormalityRemarks,
+
+
+            spareParts,
+            part_name,
+            part_no,
+            part_cost,
+
+            target,
+
+            machineId
+        } = req.body
+
+
+        let {
+            machineAllData
+        } = req.body
+
+
+        //-----------------------------------------------------
+
+
+        const monthKeyArray = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "June",
+            "July",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
+
+        let newLog, sectionOrSubSection_Id, sectionOrSubSection_name
+
+        let scheduleMonth = refKeyForScheduleMonthInLogHistory === "2"
+            ? monthKeyArray[new Date().getMonth() - 1] === undefined
+                ? monthKeyArray.splice(-1)[0]
+                : monthKeyArray[new Date().getMonth() - 1]
+            : monthKeyArray[new Date().getMonth()]
+
+
+
+
+
+
+        // console.log(machineId, machineAllData)
+        if (machineId) {
+            machineAllData = await Machine.findOne({ _id: machineId })
+                .populate({
+                    path: "line_names",
+                    populate:
+                    {
+                        path: "cell_names",
+                        populate:
+                        {
+                            path: "subSection_names", model: "SubSections"
+                        }
+                    }
+                })
+        }
+
+        const sectionInfo = await Section
+            .findOne(
+                {
+                    section_id: req?.rootUser?.section_data?.split("-")?.[0]
+                }
+            ).populate({ path: "plant_names" })
+
+
+        if (sectionInfo?.dashboardLevel === "Yes") {
+
+            sectionOrSubSection_Id = sectionInfo?.section_id,
+                sectionOrSubSection_name = sectionInfo?.section_name
+
+        } else {
+            sectionOrSubSection_Id = machineAllData?.line_names?.cell_names?.subSection_names?.subSection_id,
+                sectionOrSubSection_name = machineAllData?.line_names?.cell_names?.subSection_names?.subSection_name
+
+        }
+
+
+
+
+        if (workedOnPM === "Yes") {
+
+            newLog = new LogHistory({
+                //-------------------
+                current_year: yearOfCheckSheet,
+                schedule_month: scheduleMonth,
+
+                //--------------------- Plant
+                "plantInfo.plant_Id": sectionInfo?.plant_names?.plant_id,
+                "plantInfo.plant_name": sectionInfo?.plant_names?.plant_name,
+
+                //--------------------- Section Or SubSection based on Dashboard Level
+                "sectionOrSubSectionInfo.sectionOrSubSection_Id": sectionOrSubSection_Id,
+                "sectionOrSubSectionInfo.sectionOrSubSection_name": sectionOrSubSection_name,
+
+                //--------------------- Cell
+                "cellInfo.cell_Id": machineAllData?.line_names?.cell_names?.cell_id,
+                "cellInfo.cell_name": machineAllData?.line_names?.cell_names?.cell_name,
+
+                //--------------------- Line
+                "lineInfo.line_Id": machineAllData?.line_names?.line_id,
+                "lineInfo.line_name": machineAllData?.line_names?.line_name,
+
+                //--------------------- Machine
+                "machineInfo.machine_Id": machineAllData?.machine_code,
+                "machineInfo.machine_name": machineAllData?.machine_name,
+
+                //--------------------- Done By
+                done_by: req?.rootUser?.tm_name,
+
+                // cell_id: machineAllData?.line_names?.cell_names?._id,
+                // line_id: machineAllData?.line_names?._id,
+                // machine_id: machineAllData?._id,
+
+                //-------------
+                inception_point: inceptionValueForLogHistory,
+                remarks: remarks,
+                date: completionDateOfInspection,
+
+                uploaded_file_name: fileNameForLogHistory,
+
+
+            })
+
+
+            // remarksOfImplementation,fileNameForLogHistory
+        } else if (workedOnPM === "Rectify") {
+            //remarksOfImplementation,fileNameForLogHistory,abnormalityRemarks,abnormalityStatus,spareParts
+            // spareParts === yes then => partName,partNo,cost
+
+            if (spareParts === "Yes") {
+                newLog = new LogHistory({
+                    //-------------------
+                    current_year: yearOfCheckSheet,
+                    schedule_month: scheduleMonth,
+
+                    //---------------------
+
+                    //--------------------- Plant
+                    "plantInfo.plant_Id": sectionInfo?.plant_names?.plant_id,
+                    "plantInfo.plant_name": sectionInfo?.plant_names?.plant_name,
+
+                    //--------------------- Section Or SubSection based on Dashboard Level
+                    "sectionOrSubSectionInfo.sectionOrSubSection_Id": sectionOrSubSection_Id,
+                    "sectionOrSubSectionInfo.sectionOrSubSection_name": sectionOrSubSection_name,
+
+                    //--------------------- Cell
+                    "cellInfo.cell_Id": machineAllData?.line_names?.cell_names?.cell_id,
+                    "cellInfo.cell_name": machineAllData?.line_names?.cell_names?.cell_name,
+
+                    //--------------------- Line
+                    "lineInfo.line_Id": machineAllData?.line_names?.line_id,
+                    "lineInfo.line_name": machineAllData?.line_names?.line_name,
+
+                    //--------------------- Machine
+                    "machineInfo.machine_Id": machineAllData?.machine_code,
+                    "machineInfo.machine_name": machineAllData?.machine_name,
+
+                    //--------------------- Done By
+                    done_by: req?.rootUser?.tm_name,
+
+
+                    // cell_id: machineAllData?.line_names?.cell_names?._id,
+                    // line_id: machineAllData?.line_names?._id,
+                    // machine_id: machineAllData?._id,
+
+                    //-------------
+                    inception_point: inceptionValueForLogHistory,
+                    remarks: remarks,
+                    date: completionDateOfInspection,
+
+                    abnormality_remarks: abnormalityRemarks,
+                    abnormality_status: "Closed",
+
+                    spare_used: spareParts,
+                    part_name: part_name,
+                    part_no: part_no,
+                    part_cost: part_cost,
+
+                    uploaded_file_name: fileNameForLogHistory,
+
+
+
+                })
+            } else {
+                newLog = new LogHistory({
+                    //-------------------
+                    current_year: yearOfCheckSheet,
+                    schedule_month: scheduleMonth,
+
+                    //---------------------
+
+                    //--------------------- Plant
+                    "plantInfo.plant_Id": sectionInfo?.plant_names?.plant_id,
+                    "plantInfo.plant_name": sectionInfo?.plant_names?.plant_name,
+
+                    //--------------------- Section Or SubSection based on Dashboard Level
+                    "sectionOrSubSectionInfo.sectionOrSubSection_Id": sectionOrSubSection_Id,
+                    "sectionOrSubSectionInfo.sectionOrSubSection_name": sectionOrSubSection_name,
+
+                    //--------------------- Cell
+                    "cellInfo.cell_Id": machineAllData?.line_names?.cell_names?.cell_id,
+                    "cellInfo.cell_name": machineAllData?.line_names?.cell_names?.cell_name,
+
+                    //--------------------- Line
+                    "lineInfo.line_Id": machineAllData?.line_names?.line_id,
+                    "lineInfo.line_name": machineAllData?.line_names?.line_name,
+
+                    //--------------------- Machine
+                    "machineInfo.machine_Id": machineAllData?.machine_code,
+                    "machineInfo.machine_name": machineAllData?.machine_name,
+
+                    //--------------------- Done By
+                    done_by: req?.rootUser?.tm_name,
+
+
+                    // cell_id: machineAllData?.line_names?.cell_names?._id,
+                    // line_id: machineAllData?.line_names?._id,
+                    // machine_id: machineAllData?._id,
+
+                    //-------------
+                    inception_point: inceptionValueForLogHistory,
+                    remarks: remarks,
+                    date: completionDateOfInspection,
+
+                    abnormality_remarks: abnormalityRemarks,
+                    abnormality_status: "Closed",
+                    spare_used: spareParts,
+
+
+                    uploaded_file_name: fileNameForLogHistory,
+
+                })
+            }
+
+
+
+        } else {
+            // remarksOfImplementation,fileNameForLogHistory
+
+            //targetDate
+
+            if (spareParts === "Yes") {
+                newLog = new LogHistory({
+                    //-------------------
+                    current_year: yearOfCheckSheet,
+                    schedule_month: scheduleMonth,
+
+                    //---------------------
+
+                    //--------------------- Plant
+                    "plantInfo.plant_Id": sectionInfo?.plant_names?.plant_id,
+                    "plantInfo.plant_name": sectionInfo?.plant_names?.plant_name,
+
+                    //--------------------- Section Or SubSection based on Dashboard Level
+                    "sectionOrSubSectionInfo.sectionOrSubSection_Id": sectionOrSubSection_Id,
+                    "sectionOrSubSectionInfo.sectionOrSubSection_name": sectionOrSubSection_name,
+
+                    //--------------------- Cell
+                    "cellInfo.cell_Id": machineAllData?.line_names?.cell_names?.cell_id,
+                    "cellInfo.cell_name": machineAllData?.line_names?.cell_names?.cell_name,
+
+                    //--------------------- Line
+                    "lineInfo.line_Id": machineAllData?.line_names?.line_id,
+                    "lineInfo.line_name": machineAllData?.line_names?.line_name,
+
+                    //--------------------- Machine
+                    "machineInfo.machine_Id": machineAllData?.machine_code,
+                    "machineInfo.machine_name": machineAllData?.machine_name,
+
+                    //--------------------- Done By
+                    done_by: req?.rootUser?.tm_name,
+
+                    // cell_id: machineAllData?.line_names?.cell_names?._id,
+                    // line_id: machineAllData?.line_names?._id,
+                    // machine_id: machineAllData?._id,
+
+                    //-------------
+                    inception_point: inceptionValueForLogHistory,
+                    remarks: remarks,
+                    uploaded_file_name: fileNameForLogHistory,
+                    date: completionDateOfInspection,
+
+                    abnormality_remarks: abnormalityRemarks,
+                    abnormality_status: "Open",
+                    target: target,
+                    spare_used: spareParts,
+                    part_name: part_name,
+                    part_no: part_no,
+                    part_cost: part_cost,
+
+                    uploaded_file_name: fileNameForLogHistory,
+
+
+                })
+            } else {
+                newLog = new LogHistory({
+                    //-------------------
+                    current_year: yearOfCheckSheet,
+                    schedule_month: scheduleMonth,
+
+                    //---------------------
+
+                    //--------------------- Plant
+                    "plantInfo.plant_Id": sectionInfo?.plant_names?.plant_id,
+                    "plantInfo.plant_name": sectionInfo?.plant_names?.plant_name,
+
+                    //--------------------- Section Or SubSection based on Dashboard Level
+                    "sectionOrSubSectionInfo.sectionOrSubSection_Id": sectionOrSubSection_Id,
+                    "sectionOrSubSectionInfo.sectionOrSubSection_name": sectionOrSubSection_name,
+
+                    //--------------------- Cell
+                    "cellInfo.cell_Id": machineAllData?.line_names?.cell_names?.cell_id,
+                    "cellInfo.cell_name": machineAllData?.line_names?.cell_names?.cell_name,
+
+                    //--------------------- Line
+                    "lineInfo.line_Id": machineAllData?.line_names?.line_id,
+                    "lineInfo.line_name": machineAllData?.line_names?.line_name,
+
+                    //--------------------- Machine
+                    "machineInfo.machine_Id": machineAllData?.machine_code,
+                    "machineInfo.machine_name": machineAllData?.machine_name,
+
+                    //--------------------- Done By
+                    done_by: req?.rootUser?.tm_name,
+
+
+                    // cell_id: machineAllData?.line_names?.cell_names?._id,
+                    // line_id: machineAllData?.line_names?._id,
+                    // machine_id: machineAllData?._id,
+
+                    //-------------
+                    inception_point: inceptionValueForLogHistory,
+                    remarks: remarks,
+                    uploaded_file_name: fileNameForLogHistory,
+                    date: completionDateOfInspection,
+
+                    abnormality_remarks: abnormalityRemarks,
+                    abnormality_status: "Open",
+                    target: target,
+                    spare_used: spareParts,
+
+                    uploaded_file_name: fileNameForLogHistory,
+
+
+                })
+            }
+
+        }
+
+
+        // console.log(newLog)
+
+        const logSaved = await newLog.save()
+
+        // fileNameForLogHistory = undefined
+
+        if (logSaved) {
+            return res.status(201).json("Log data added successfully");
+        } else {
+            return res.status(400).json("Getting error");
+        }
+
+    } catch (error) {
+        console.log(error)
+        console.log("Data not valid or received !!!");
+    }
+})
+
 router.post('/savedWorkedPMData', async (req, res) => {
     try {
         const { totalPMTime, yearOfCheckSheet, delayRemarks, PMworkedTMNo, PMworkedTMName, selectedSupportedTM, finishedPMTime, machine_code, monthForCompareSystemMonth } = req.body
@@ -11916,7 +12307,7 @@ router.post('/postSectionToGetAllDataForLogHistory', authenticate, async (req, r
 
 
 
-        res.json({ sectionInfo, subSectionsData, subSectionIdArray, cellData, cellIdArray, lineData, lineIdArray, logHistoryAllData })
+        res.json({ sectionInfo, subSectionsData, subSectionIdArray, cellData, cellIdArray, lineData, lineIdArray, logHistoryAllData, })
 
     } catch (error) {
         // console.log("2032", error)
@@ -12652,7 +13043,7 @@ router.post('/approveMonthlyRequestForAnnualPmSchedule', authenticate, async (re
 
         if (keyRefForHosOrHod === "hos") {
             keyOfStatusForAssignHOSOrHOD = `annualPmScheduleApproval.$[outer].monthlyApprovalData.${month}.approvedByHOS`
-        }else{
+        } else {
             keyOfStatusForAssignHOSOrHOD = `annualPmScheduleApproval.$[outer].monthlyApprovalData.${month}.approvedByHODIfDelay`
 
         }
@@ -13778,7 +14169,7 @@ router.post('/postMachineToGetAllDataForSummary', authenticate, async (req, res)
                         logHistoryAllData.push(
                             new Object({
                                 sr_no: ++serialNoForLogHistory,
-                                schedule_month: month, 
+                                schedule_month: month,
                                 cell_names: keyForCheckSheet?.line_names?.cell_names,
                                 line_names: keyForCheckSheet?.line_names,
                                 machine_code: keyForCheckSheet?.machine_code,

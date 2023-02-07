@@ -399,7 +399,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pmSheetApprovalOfImplementationPhase"></NavLink>
+              <NavLink to="/pendingPMLogHistory"></NavLink>
               Pending PM Log History
             </MenuItem>
           </SubMenu>

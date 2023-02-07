@@ -12,6 +12,8 @@ import MonthDropDown from "../Dashboard/DashboardComponent/MonthDropDown";
 import currentMonth from "../Dashboard/DashboardComponent/currentMonth";
 import { typography } from "@mui/system";
 
+import { postLineToGetAllMachineData } from "../../Integration/APIExports";
+
 import axios from "axios";
 import FileDownload from "js-file-download";
 
@@ -104,6 +106,13 @@ const LogHistory = () => {
   const [selectedLine, setSelectedLine] = useState("");
   const [selectedMonth, setSelectedMonth] = useState();
 
+  const [selectedMachine, setSelectedMachine] = useState();
+
+  const [machineDropdown, setMachineDropdown] = useState([]);
+  const [abnormalityYesOrNo, setAbnormalityYesOrNo] = useState();
+  const [spareYesOrNo, setSpareYesOrNo] = useState();
+  const [selectedAbnormalityStatus, setSelectedAbnormalityStatus] = useState();
+
   const [logHistoryData, setLogHistoryData] = useState([]);
 
   const [loadingAnimationState, setLoadingAnimationState] = useState(
@@ -193,9 +202,6 @@ const LogHistory = () => {
     }
   };
 
-  
-
-
   useEffect(() => {
     postSectionToGetAllDataForLogHistory();
 
@@ -223,7 +229,7 @@ const LogHistory = () => {
       console.log(error);
     }
   };
-  // console.log(lineDropdown);
+  // console.log(allDataSectionWise);
 
   return (
     <>
@@ -241,6 +247,7 @@ const LogHistory = () => {
               setSelectedMonth={setSelectedMonth}
             />
           </Col>
+
           <Col>
             <Row className="p-2 ">
               <Col sm={12} lg={3}>
@@ -289,6 +296,7 @@ const LogHistory = () => {
               </Col>
             </Row>
           </Col>
+
           <Col>
             <Row className="p-2 ">
               <Col sm={12} lg={3}>
@@ -307,8 +315,17 @@ const LogHistory = () => {
                     value={selectedLine}
                     className="textField"
                     onChange={(e) => {
+                      // console.log(
+                      //   "----------->",
+                      //   lineDropdown?.[e.target.value]?._id
+                      // );
                       setSelectedLine(e.target.value);
-                      //   postLineToGetMachineList(e.target.value);
+                      postLineToGetAllMachineData(
+                        lineDropdown?.[e.target.value]?._id,
+                        currentYear
+                      ).then((result) =>
+                        setMachineDropdown(result?.machineInfo)
+                      );
                       setLoadingAnimationState(<LoadingAnimation />);
                     }}
                     // fullWidth
@@ -327,6 +344,7 @@ const LogHistory = () => {
               </Col>
             </Row>
           </Col>
+
           <Col>
             <Row className="p-2 ">
               <Col>
@@ -338,10 +356,171 @@ const LogHistory = () => {
                       setSelectedLine("");
                       setLineDropdown([]);
                       setSelectedMonth();
+                      setSelectedMachine();
+                      setAbnormalityYesOrNo();
+                      setSpareYesOrNo();
+                      setSelectedAbnormalityStatus();
+                      setMachineDropdown([]);
                     }}
                   >
                     Reset
                   </button>
+                </div>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Row className="p-2 ">
+              <Col>
+                <span>
+                  <b>Machine:</b>
+                </span>
+              </Col>
+              <Col>
+                <div>
+                  <select
+                    class="form-select form-select-sm"
+                    aria-label=".form-select-sm example"
+                    // style={{ width: "100%" }}
+                    id="standard-select-currency"
+                    name="selectedMachine"
+                    value={selectedMachine ? selectedMachine : ""}
+                    className="textField"
+                    onChange={(e) => {
+                      setSelectedMachine(e.target.value);
+                    }}
+                    // fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {machineDropdown?.map((option, index) => {
+                      return (
+                        <option value={option?.machine_code}>
+                          {option?.machine_name}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              </Col>
+            </Row>
+          </Col>
+          {/* {console.log(abnormalityYesOrNo)} */}
+
+          <Col>
+            <Row className="p-2 ">
+              <Col sm={12} lg="auto">
+                <span>
+                  <b>Abnormality(Yes/No):</b>
+                </span>
+              </Col>
+              <Col>
+                <div>
+                  <select
+                    class="form-select form-select-sm"
+                    aria-label=".form-select-sm example"
+                    // style={{ width: "100%" }}
+                    id="standard-select-currency"
+                    name="abnormalityYesOrNo"
+                    value={abnormalityYesOrNo ? abnormalityYesOrNo : ""}
+                    className="textField"
+                    onChange={(e) => {
+                      setAbnormalityYesOrNo(e.target.value);
+                    }}
+                    // fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {["Yes", "No"]?.map((option, index) => {
+                      return <option value={option}>{option}</option>;
+                    })}
+                  </select>
+                </div>
+              </Col>
+            </Row>
+          </Col>
+
+          <Col>
+            <Row className="p-2 ">
+              <Col sm={12} lg="auto">
+                <span>
+                  <b>Spare(Yes/No):</b>
+                </span>
+              </Col>
+              <Col>
+                <div>
+                  <select
+                    class="form-select form-select-sm"
+                    aria-label=".form-select-sm example"
+                    // style={{ width: "100%" }}
+                    id="standard-select-currency"
+                    name="spareYesOrNo"
+                    value={spareYesOrNo ? spareYesOrNo : ""}
+                    className="textField"
+                    onChange={(e) => {
+                      setSpareYesOrNo(e.target.value);
+                    }}
+                    // fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {["Yes", "No"]?.map((option, index) => {
+                      return <option value={option}>{option}</option>;
+                    })}
+                  </select>
+                </div>
+              </Col>
+            </Row>
+          </Col>
+
+          <Col>
+            <Row className="p-2 ">
+              <Col sm={12} lg="auto">
+                <span>
+                  <b>Abnormality(Open/Closed):</b>
+                </span>
+              </Col>
+              <Col>
+                <div>
+                  <select
+                    class="form-select form-select-sm"
+                    aria-label=".form-select-sm example"
+                    // style={{ width: "100%" }}
+                    id="standard-select-currency"
+                    name="selectedAbnormalityStatus"
+                    value={
+                      selectedAbnormalityStatus ? selectedAbnormalityStatus : ""
+                    }
+                    className="textField"
+                    onChange={(e) => {
+                      setSelectedAbnormalityStatus(e.target.value);
+                    }}
+                    // fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {["Open", "Closed"]?.map((option, index) => {
+                      return <option value={option}>{option}</option>;
+                    })}
+                  </select>
                 </div>
               </Col>
             </Row>
@@ -372,141 +551,6 @@ const LogHistory = () => {
               </tr>
             </thead>
             <tbody>
-              {/* {tableData?.map((index) =>
-                (selectedCell
-                  ? index?.cell_names?._id === selectedCell
-                  : true) &&
-                (selectedMonth
-                  ? index?.schedule_month === selectedMonth
-                  : true) &&
-                (selectedLine
-                  ? index?.line_names._id === selectedLine
-                  : true) ? (
-                  <tr className="ar-table-thead-header4 tableRowColor">
-                    <td className="td-padding">{index?.sr_no}</td>
-                    <td className="td-padding">{index?.schedule_month}</td>
-                    <td className="td-padding">
-                      {index?.cell_names?.cell_name}
-                    </td>
-                    <td className="td-padding">
-                      {index?.line_names?.line_name}
-                    </td>
-                    <td className="td-padding">{index?.machine_code}</td>
-                    <td className="td-padding">{index?.machine_name}</td>
-                    <td className="td-padding">
-                      {index?.inspection_parent_name}
-                    </td>
-                    <td className="td-padding">
-                      {index?.completionDateOfInspection}
-                    </td>
-                    <td className="td-padding">
-                      {index?.remarksOfWorkedImplementaion}
-                    </td>
-                    <td className="td-padding">{index?.abnormality}</td>
-                    <td className="td-padding">{index?.abnormalityRemarks}</td>
-                    <td className="td-padding">{index?.abnormalityStatus}</td>
-                    <td className="td-padding">{index?.targetDate}</td>
-                    <td className="td-padding">{index?.spareParts}</td>
-                    <td className="td-padding">{index?.partName}</td>
-                    <td className="td-padding">{index?.partNo}</td>
-                    <td className="td-padding">{index?.cost}</td>
-                    <td className="td-padding">{(index?.doneBy).join(", ")}</td>
-                  </tr>
-                ) : (
-                  // <NotFound/>
-                  console.log("")
-                )
-              )} */}
-
-              {/* {selectedCell || selectedLine || selectedMonth
-                ? tableData?.map((index) =>
-                    (selectedCell !== ""
-                      ? index?.cell_names?._id === selectedCell
-                      : true) &&
-                    (selectedMonth !== undefined
-                      ? index?.schedule_month === selectedMonth
-                      : true) &&
-                    (selectedLine !== ""
-                      ? index?.line_names._id === selectedLine
-                      : true) ? (
-                      <tr className="ar-table-thead-header4 tableRowColor">
-                        <td className="td-padding">{index?.sr_no}</td>
-                        <td className="td-padding">{index?.schedule_month}</td>
-                        <td className="td-padding">
-                          {index?.cell_names?.cell_name}
-                        </td>
-                        <td className="td-padding">
-                          {index?.line_names?.line_name}
-                        </td>
-                        <td className="td-padding">{index?.machine_code}</td>
-                        <td className="td-padding">{index?.machine_name}</td>
-                        <td className="td-padding">
-                          {index?.inspection_parent_name}
-                        </td>
-                        <td className="td-padding">
-                          {index?.completionDateOfInspection}
-                        </td>
-                        <td className="td-padding">
-                          {index?.remarksOfWorkedImplementaion}
-                        </td>
-                        <td className="td-padding">{index?.abnormality}</td>
-                        <td className="td-padding">
-                          {index?.abnormalityRemarks}
-                        </td>
-                        <td className="td-padding">
-                          {index?.abnormalityStatus}
-                        </td>
-                        <td className="td-padding">{index?.targetDate}</td>
-                        <td className="td-padding">{index?.spareParts}</td>
-                        <td className="td-padding">{index?.partName}</td>
-                        <td className="td-padding">{index?.partNo}</td>
-                        <td className="td-padding">{index?.cost}</td>
-                        <td className="td-padding">
-                          {(index?.doneBy).join(", ")}
-                        </td>
-                      </tr>
-                    ) : (
-                      // <NotFound/>
-                      console.log("")
-                    )
-                  )
-                : tableData?.map((index) => (
-                    <tr className="ar-table-thead-header4 tableRowColor">
-                      <td className="td-padding">{index?.sr_no}</td>
-                      <td className="td-padding">{index?.schedule_month}</td>
-                      <td className="td-padding">
-                        {index?.cell_names?.cell_name}
-                      </td>
-                      <td className="td-padding">
-                        {index?.line_names?.line_name}
-                      </td>
-                      <td className="td-padding">{index?.machine_code}</td>
-                      <td className="td-padding">{index?.machine_name}</td>
-                      <td className="td-padding">
-                        {index?.inspection_parent_name}
-                      </td>
-                      <td className="td-padding">
-                        {index?.completionDateOfInspection}
-                      </td>
-                      <td className="td-padding">
-                        {index?.remarksOfWorkedImplementaion}
-                      </td>
-                      <td className="td-padding">{index?.abnormality}</td>
-                      <td className="td-padding">
-                        {index?.abnormalityRemarks}
-                      </td>
-                      <td className="td-padding">{index?.abnormalityStatus}</td>
-                      <td className="td-padding">{index?.targetDate}</td>
-                      <td className="td-padding">{index?.spareParts}</td>
-                      <td className="td-padding">{index?.partName}</td>
-                      <td className="td-padding">{index?.partNo}</td>
-                      <td className="td-padding">{index?.cost}</td>
-                      <td className="td-padding">
-                        {(index?.doneBy).join(", ")}
-                      </td>
-                    </tr>
-                  ))} */}
-
               {logHistoryData?.map((item, index) =>
                 (selectedCell
                   ? item?.cellInfo?.cell_Id ===
@@ -518,6 +562,22 @@ const LogHistory = () => {
                 (selectedLine
                   ? item?.lineInfo?.line_Id ===
                     lineDropdown?.[selectedLine]?.line_id
+                  : true) &&
+                (selectedMachine
+                  ? item?.machineInfo?.machine_Id === selectedMachine
+                  : true) &&
+                (abnormalityYesOrNo
+                  ? item?.abnormality_remarks
+                    ? abnormalityYesOrNo === "Yes"
+                    : abnormalityYesOrNo === "No"
+                  : true) &&
+                (selectedAbnormalityStatus
+                  ? item?.abnormality_status === selectedAbnormalityStatus
+                  : true) &&
+                (spareYesOrNo
+                  ? item?.spare_used
+                    ? spareYesOrNo === "Yes"
+                    : spareYesOrNo === "No"
                   : true) ? (
                   <tr className="ar-table-thead-header4 tableRowColor">
                     {/* {console.log(item?.lineInfo?.line_Id)} */}
