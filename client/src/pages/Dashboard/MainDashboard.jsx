@@ -6,9 +6,8 @@ import CheckSheet from "./CheckSheet";
 import { useNavigate } from "react-router-dom";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import { ToastContainer, toast } from "react-toastify";
-
 import "react-toastify/dist/ReactToastify.css";
-
+import { Button } from "react-bootstrap";
 import CheckSheetForImplementation from "../Operator/CheckSheetForImplementation";
 import GettingMachineDataForCheckSheetImplementation from "../Operator/GettingMachineDataForCheckSheetImplementation";
 
@@ -223,6 +222,7 @@ const MainDashboard = () => {
     //   : navigate("/machineWiseCheckSheet", {
     //       state: { machineData: machine, lineName: lineName },
     //     });
+
     setMachineWiseCheckSheetForImplementation(
       <GettingMachineDataForCheckSheetImplementation
         machineData={machine}
@@ -230,10 +230,13 @@ const MainDashboard = () => {
         closeCheckSheet={closeCheckSheet}
         loggedUserType={context.user_type}
         selectedYear={selectedYear}
+        showCheckSheet={true}
+        setMachineWiseCheckSheetForImplementation={setMachineWiseCheckSheetForImplementation}
+
       />
     );
 
-    document.querySelector(".operatorDashboard").style.pointerEvents = "none";
+    // document.querySelector(".operatorDashboard").style.pointerEvents = "none";
 
     // const postMachineIdToGetAllDetailsOfMachine = async () => {
     //   try {
@@ -606,7 +609,8 @@ const MainDashboard = () => {
 
       <Container fluid className="operatorDashboard">
         <Row>
-          <Col sm={12} md={12} lg={9} className="left-component-main-dashboard">
+
+          <Col sm={12} md={9} lg={9} className="left-component-main-dashboard">
             {Object.keys(allDataSectionWise).length > 0 ? (
               <Col>
                 <Row className="mx-2 mt-4 ">
@@ -840,7 +844,7 @@ const MainDashboard = () => {
                           setSelectedMonth={setSelectedMonth}
                         />
                       </Col>
-                      <Col sm>
+                      {/* <Col sm={2}>
                         <div className="d-flex justify-content-center align-items-center m-2">
                           <button
                             onClick={navigateToSummeryDashboard}
@@ -849,7 +853,7 @@ const MainDashboard = () => {
                             Summary
                           </button>
                         </div>
-                      </Col>
+                      </Col> */}
                     </Row>
                   </Col>
                 </Row>
@@ -1536,6 +1540,7 @@ const MainDashboard = () => {
                                                                 return line._id ===
                                                                   machine.line_names ? (
                                                                   <>
+                                                                    {/* <Button variant="primary" onClick={handleShow}>Generate QR</Button> */}
                                                                     <button
                                                                       style={{
                                                                         // border:
@@ -1589,12 +1594,12 @@ const MainDashboard = () => {
                                                                             : "#ababab",
                                                                       }}
                                                                       className="machine"
-                                                                      onClick={() =>
+                                                                      onClick={() => {
                                                                         pathToCheckSheet(
                                                                           machine,
                                                                           line.line_name
-                                                                        )
-                                                                      }
+                                                                        );
+                                                                      }}
                                                                     >
                                                                       {
                                                                         machine.machine_nickname

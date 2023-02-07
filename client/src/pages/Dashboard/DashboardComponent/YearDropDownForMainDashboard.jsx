@@ -20,9 +20,7 @@ const YearDropDownForMainDashboard = ({ selectedYear, setSelectedYear }) => {
   return (
     <Row className="p-1 ">
       <span>
-        <b>Year:</b>
-      </span>
-      <div>
+        <b>Year: &nbsp;</b>
         <select
           class="form-select form-select-sm"
           aria-label=".form-select-sm example"
@@ -46,7 +44,7 @@ const YearDropDownForMainDashboard = ({ selectedYear, setSelectedYear }) => {
             return <option value={option}>{option}</option>;
           })}
         </select>
-      </div>
+      </span>
     </Row>
   );
 };

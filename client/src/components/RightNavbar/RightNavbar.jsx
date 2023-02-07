@@ -97,7 +97,9 @@ const RightNavbar = () => {
       <div className={styles.actions}>
         <AccountCircleIcon onClick={() => navigate('/profile')} />
       </div>
-      <div className={styles.actions}>        <LogoutIcon onClick={logout} />      </div>
+      <div className={styles.actions}>
+        <LogoutIcon onClick={logout} />
+      </div>
     </div>
   );
 };

@@ -70,6 +70,16 @@ import SpareReportMainDashboard from "./pages/Reports/SpareReport/SpareReportMai
 
 import Footer from "./components/Footer/Footer";
 
+//for all reports routing 
+
+import MachineWisePmMonthlyReport from "./pages/Reports/ReportComponents/MachineWisePmMonthlyReport";
+import LineWisePmMonthlyReport from "./pages/Reports/ReportComponents/LineWisePmMonthlyReport";
+import AnnualPMSchedule from "./pages/Reports/ReportComponents/AnnualPMSchedule";
+import AnnualPmStatus from "./pages/Reports/ReportComponents/AnnualPmStatus";
+import PmTimeMonitoringReport from "./pages/Reports/ReportComponents/PmTimeMonitoringReport";
+
+
+
 //approval dashboards
 import PreparationApprovalDashboard from "./pages/Section/Checksheet/PreparationApprovalDashboard";
 import PlanningApprovalDashboard from "./pages/Section/Checksheet/PlanningApprovalDashboard";
@@ -123,6 +133,12 @@ function App() {
                 <Route path="/logHistory" element={<LogHistory />} />
                 <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
 
+                {/* All reports routing */}
+                <Route path="/machineWisePmMonthlyReport" element={<MachineWisePmMonthlyReport />} />
+                <Route path="/lineWisePmMonthlyReport" element={<LineWisePmMonthlyReport />} />
+                <Route path="/annualPMSchedule" element={<AnnualPMSchedule />} />
+                <Route path="/annualPmStatus" element={<AnnualPmStatus />} />
+                <Route path="/pmTimeMonitoringReport" element={<PmTimeMonitoringReport />} />
 
                 {/* Report Dashboard */}
 
@@ -172,6 +188,13 @@ function App() {
                 <Route path="/planningApproval" element={<PlanningApprovalDashboard />} />
                 <Route path="/implementationApproval" element={<ImplementationApprovalDashboard />} />
 
+                {/* All reports routing */}
+                <Route path="/machineWisePmMonthlyReport" element={<MachineWisePmMonthlyReport />} />
+                <Route path="/lineWisePmMonthlyReport" element={<LineWisePmMonthlyReport />} />
+                <Route path="/annualPMSchedule" element={<AnnualPMSchedule />} />
+                <Route path="/annualPmStatus" element={<AnnualPmStatus />} />
+                <Route path="/pmTimeMonitoringReport" element={<PmTimeMonitoringReport />} />
+
               </Routes>
             }
           />
@@ -203,6 +226,13 @@ function App() {
                 {/* <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
                 <Route path="/checkSheetForm" element={<CheckSheetForm />} /> */}
+
+                {/* All reports routing */}
+                <Route path="/machineWisePmMonthlyReport" element={<MachineWisePmMonthlyReport />} />
+                <Route path="/lineWisePmMonthlyReport" element={<LineWisePmMonthlyReport />} />
+                <Route path="/annualPMSchedule" element={<AnnualPMSchedule />} />
+                <Route path="/annualPmStatus" element={<AnnualPmStatus />} />
+                <Route path="/pmTimeMonitoringReport" element={<PmTimeMonitoringReport />} />
 
               </Routes>
             }
@@ -245,7 +275,7 @@ function App() {
                 <Route path="/checksheetFormApproval" element={<ChecksheetFormApprovalForTL />} />
                 <Route path="/planningPhaseTable" element={<PlanningPhaseTable />} />
                 <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
-                <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} />
+                {/* <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} /> */}
                 <Route path="/openAbnormalityTrack" element={<OpenAbnormalityTrack />} />
                 <Route path="/checksheetCreationDashboardForMTDTLandHOS" element={<MTDTLandHOSChecksheetCreationDashboard />} />
                 <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
@@ -265,6 +295,12 @@ function App() {
                 <Route path="/planningApproval" element={<PlanningApprovalDashboard />} />
                 <Route path="/implementationApproval" element={<ImplementationApprovalDashboard />} />
 
+                {/* All reports routing */}
+                <Route path="/machineWisePmMonthlyReport" element={<MachineWisePmMonthlyReport />} />
+                <Route path="/lineWisePmMonthlyReport" element={<LineWisePmMonthlyReport />} />
+                <Route path="/annualPMSchedule" element={<AnnualPMSchedule />} />
+                <Route path="/annualPmStatus" element={<AnnualPmStatus />} />
+                <Route path="/pmTimeMonitoringReport" element={<PmTimeMonitoringReport />} />
 
 
               </Routes>

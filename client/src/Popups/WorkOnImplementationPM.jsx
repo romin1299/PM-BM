@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Select } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import axios from "axios";
+import { Col, Row } from "react-bootstrap";
 
 function WorkOnImplementationPM({
   close,
@@ -19,6 +20,7 @@ function WorkOnImplementationPM({
   machineAllData,
   refKeyForScheduleMonthInLogHistory,
 }) {
+
   const [workedData, setWorkedData] = useState([]);
   const [userPhoto, setUserPhoto] = useState([]);
 
@@ -216,6 +218,8 @@ function WorkOnImplementationPM({
 
         <button onClick={postNewLogHistory}>functionCall</button>
         <div>
+        <h4 style={{ textAlign: "left", color:"#dc3545"}}>Work on Implementation</h4>
+        <br />
           <form
             onSubmit={formik.handleSubmit}
             style={{ textAlign: "left" }}
@@ -233,8 +237,8 @@ function WorkOnImplementationPM({
               </div>
               <br />
             </div> */}
-            <div className="row flex justify-content-center">
-              <div className="mb-2 d-flex col-4 justify-content-center">
+            <Row className="row flex justify-content-center">
+              <Col sm={12} md={6} lg={4} className="mb-2 d-flex col-4">
                 <input
                   type="radio"
                   name="workedOnPM"
@@ -246,8 +250,8 @@ function WorkOnImplementationPM({
                   // onClick={(e) => showTextBox(rData[0].value, e)}
                 />{" "}
                 &nbsp; &#x2713; OK{" "}
-              </div>
-              <div className="mb-2 d-flex col-4 justify-content-center">
+              </Col>
+              <Col sm={12} md={6} lg={4} className="mb-2 d-flex col-4">
                 <input
                   type="radio"
                   name="workedOnPM"
@@ -259,9 +263,9 @@ function WorkOnImplementationPM({
                   // onClick={(e) => showTextBox(rData[0].value, e)}
                 />{" "}
                 &nbsp; &#x2713; Rectify{" "}
-              </div>
+              </Col>
 
-              <div className="col-4 mb-2 d-flex justify-content-center">
+              <Col sm={12} md={6} lg={4} className="col-4 mb-2 d-flex">
                 <input
                   type="radio"
                   name="workedOnPM"
@@ -273,7 +277,7 @@ function WorkOnImplementationPM({
                   // onClick={(e) => hideTextBox(rData[0].value, e)}
                 />{" "}
                 &nbsp; &#x2715; NG ( Not Good ) <br />{" "}
-              </div>
+              </Col>
 
               <p
                 style={{
@@ -285,7 +289,7 @@ function WorkOnImplementationPM({
               >
                 {formik.touched.workedOnPM && formik.errors.workedOnPM}
               </p>
-            </div>
+            </Row>
 
             {formik.values.workedOnPM === "Yes" ? (
               <div>
@@ -545,8 +549,8 @@ function WorkOnImplementationPM({
             ) : (
               ""
             )}
-            <div className="row pt-2">
-              <button type="submit" className="btn-primary1">
+            <div className="row pt-2 d-flex justify-content-center align-items-center">
+              <button type="submit" className="btn-primary1 w-25">
                 Save
               </button>
             </div>

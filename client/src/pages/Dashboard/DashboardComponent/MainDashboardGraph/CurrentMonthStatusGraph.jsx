@@ -74,14 +74,14 @@ const CurrentMonthStatusGraph = ({ TableData }) => {
         // borderColor: ["black"],
 
         backgroundColor: [
-          "rgba(118, 235, 64, 0.2)",
-          "rgb(253, 193, 132)",
-          "rgba(255, 255, 255, 0.2)",
-          "rgba(201, 203, 207, 0.2)",
+          "#D4EDDA",
+          "#FFF3CD",
+          "#FFFFFF",
+          "#CCE5FF",
         ],
         borderColor: [
           "#adec71",
-          "rgb(243, 167, 92)",
+          "rgb(247, 208, 102)",
           "rgb(211, 223, 223)",
           "rgb(201, 203, 207)",
         ],
@@ -90,7 +90,7 @@ const CurrentMonthStatusGraph = ({ TableData }) => {
       },
     ],
   };
-  return <Pie data={data}  />;
+  return <Pie data={data} />;
 };
 
 export default CurrentMonthStatusGraph;
