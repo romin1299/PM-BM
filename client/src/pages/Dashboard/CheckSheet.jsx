@@ -453,6 +453,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
 
   return (
     <>
+      {stateForOpeningSummeryPopups}
       <div className="modal-fullscreen">
         <Modal
           className="d-flex align-items-center justify-content-center"

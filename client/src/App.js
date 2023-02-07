@@ -139,6 +139,13 @@ function App() {
                 <Route path="/annualPMSchedule" element={<AnnualPMSchedule />} />
                 <Route path="/annualPmStatus" element={<AnnualPmStatus />} />
                 <Route path="/pmTimeMonitoringReport" element={<PmTimeMonitoringReport />} />
+
+                {/* Report Dashboard */}
+
+                <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} />
+                <Route path="/openAbnormalityTrack" element={<OpenAbnormalityTrack />} />
+                <Route path="/spareReportDashboard" element={<SpareReportMainDashboard />} />
+
               </Routes>
             }
           />

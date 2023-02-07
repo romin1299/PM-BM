@@ -84,8 +84,8 @@ const SummeryDashboard = () => {
         </Row>
         {plantInfo?.map((item) => (
           <div>
-            <div class="shadow-sm cardCssForSubtitle card1 text-danger">
-              <h4>{item.plant_name}</h4>
+            <div class="shadow-sm cardCssForSubtitle card1 text-danger d-flex align-items-center">
+              <h4 style={{marginBottom:"0rem"}}>{item.plant_name}</h4>
             </div>
             <Row className=" gy-4">
               {sectionInfo?.length > 0 ? (

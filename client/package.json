@@ -29,6 +29,8 @@
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.28",
     "multiselect-react-dropdown": "^2.0.25",
+    "plotly.js": "^2.18.1",
+    "plotly.js-dist": "^2.18.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
     "react-chartjs-2": "^4.3.1",

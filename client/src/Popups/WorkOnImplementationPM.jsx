@@ -16,6 +16,9 @@ function WorkOnImplementationPM({
   monthForCompareSystemMonth,
   previousMonth,
   functionToSetRefKey,
+  inceptionValueForLogHistory,
+  machineAllData,
+  refKeyForScheduleMonthInLogHistory,
 }) {
 
   const [workedData, setWorkedData] = useState([]);
@@ -158,7 +161,8 @@ function WorkOnImplementationPM({
           if (res.status === 400 || res.status === 422) {
             window.alert("Invalid !");
           } else {
-            console.log("Submitted sucessfully...");
+            console.log("Submitted Successfully...");
+            postNewLogHistory();
             // disabledButtonAfterPM(tableRowId, true);
             close();
             functionToSetRefKey();
@@ -172,6 +176,29 @@ function WorkOnImplementationPM({
         });
     },
   });
+
+  const postNewLogHistory = async () => {
+    const res = await fetch("/submitLogHistory", {
+      method: "Post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        yearOfCheckSheet,
+        values: formik?.values,
+
+        inceptionValueForLogHistory,
+        completionDateOfInspection: timeStamp(),
+        refKeyForScheduleMonthInLogHistory,
+        machineAllData,
+      }),
+    });
+    const data = res.json();
+    // console.log(data);
+    if (res.status === 400 || res.status === 422 || !data) {
+      window.alert("Invalid credentials !");
+    } else {
+      console.log("Log Added Successfully...");
+    }
+  };
 
   const clearState = () => {
     formik.values.remarksOfImplementation = "";
@@ -188,6 +215,8 @@ function WorkOnImplementationPM({
         <span onClick={close} className="close">
           &times;
         </span>
+
+        <button onClick={postNewLogHistory}>functionCall</button>
         <div>
         <h4 style={{ textAlign: "left", color:"#dc3545"}}>Work on Implementation</h4>
         <br />
@@ -432,20 +461,21 @@ function WorkOnImplementationPM({
                         })}
                       </select>
                       <div>
-                      <p
-                        style={{
-                          color: "#F44336",
-                          fontWeight: "normal",
-                          fontSize: "0.80rem",
-                          float: "left",
-                          paddingTop: "0.5rem",
-                        }}
-                      >
-                        {formik.touched.spareParts && formik.errors.spareParts}
-                      </p>
+                        <p
+                          style={{
+                            color: "#F44336",
+                            fontWeight: "normal",
+                            fontSize: "0.80rem",
+                            float: "left",
+                            paddingTop: "0.5rem",
+                          }}
+                        >
+                          {formik.touched.spareParts &&
+                            formik.errors.spareParts}
+                        </p>
+                      </div>
                     </div>
-                    </div>
-                    
+
                     {formik.values.spareParts === "Yes" ? (
                       <div>
                         <div className="mb-2 row">

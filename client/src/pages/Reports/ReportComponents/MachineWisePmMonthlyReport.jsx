@@ -137,17 +137,17 @@ const MachineWisePmMonthlyReport = () => {
       width: "5%",
       render: (rowData) =>
         rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
-        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
+          rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
           "Done with delay" ? (
           <PanoramaFishEyeIcon fontSize="small" />
         ) : // : rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Current Plan" ? (
-        //   <PanoramaFishEyeIcon fontSize="small" />
-        // )
-        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing" ? (
-          <ArrowDropUpIcon />
-        ) : (
-          <CloseIcon />
-        ),
+          //   <PanoramaFishEyeIcon fontSize="small" />
+          // )
+          rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing" ? (
+            <ArrowDropUpIcon />
+          ) : (
+            <CloseIcon />
+          ),
       // console.log(rowData?.checkSheet_data?.PMStatus),
     },
   ];
@@ -280,7 +280,7 @@ const MachineWisePmMonthlyReport = () => {
 
       tooltip: "CSV",
       isFreeAction: true,
-      onClick: (event, rowData) => {},
+      onClick: (event, rowData) => { },
     },
   ];
 
@@ -314,7 +314,7 @@ const MachineWisePmMonthlyReport = () => {
         onClick: (event, selectedRow) => {
           navigate("/viewCheckSheet", {
             state: { selectedRowForViewForm: selectedRow },
-          dashboardID: "FromMachineWisePMReportDashboard",
+            dashboardID: "FromMachineWisePMReportDashboard",
 
           });
           // console.log(employeePassword)
@@ -364,11 +364,11 @@ const MachineWisePmMonthlyReport = () => {
         item.machine_name,
         item.machine_code,
         item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
-        item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
+          item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
-          ? "^"
-          : "X",
+            ? "^"
+            : "X",
       ])
     );
 
@@ -453,11 +453,11 @@ const MachineWisePmMonthlyReport = () => {
         item.machine_name,
         item.machine_code,
         item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
-        item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
+          item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
-          ? "^"
-          : "X",
+            ? "^"
+            : "X",
       ]);
     });
 
@@ -661,164 +661,166 @@ const MachineWisePmMonthlyReport = () => {
 
   return (
     <>
+      <Container fluid>
+        <Row className="p-2">
+          <Col sm={12} lg={3}>
+            <YearDropDown
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+            />
+          </Col>
+          <Col sm={12} lg={3}>
+            <MonthDropDown
+              selectedMonth={selectedMonth}
+              setSelectedMonth={setSelectedMonth}
+            />
+          </Col>
+        </Row>
+      </Container>
+
       <div>
-        <div>
-          <Container fluid>
-            <Row className="p-2">
-              <Col sm={12} lg={3}>
-                <YearDropDown
-                  selectedYear={selectedYear}
-                  setSelectedYear={setSelectedYear}
+        <Container fluid>
+          <Row className="gy-2 mt-2 cell" style={{ marginRight: "0.2rem", marginLeft: "0.2rem" }}>
+
+            <div>
+              <h5><b>Month Status</b></h5>
+            </div>
+            <Col sm>  <PanoramaFishEyeIcon fontSize="small" /> <b>Completed :</b>{" "}
+              {statusCounter.completed}</Col>
+            <Col sm> <b>Schedule PM :&nbsp;</b>
+              {statusCounter.schedulePm}</Col>
+            <Col sm>
+              <CloseIcon /><b> Pending : </b>{" "}
+              {statusCounter.schedulePm -
+                statusCounter.completed -
+                statusCounter.onGoing}
+              {/* Pending : {statusCounter.pending} */}
+            </Col>
+            <Col sm><ArrowDropUpIcon /><b> Ongoing : &nbsp;</b>{statusCounter.onGoing}</Col>
+
+
+
+
+
+          </Row>
+          <Row className="d-flex">
+            {tableData1?.machineDataForCurrentMonth?.length > 0 ? (
+              <Col lg={8} md={12}>
+                <MaterialTable
+                  style={{ padding: "10px", marginTop: "10px" }}
+                  localization={
+                    {
+                      // toolbar: {
+                      //   exportCSVName: "Export some Excel format",
+                      //   exportPDFName: "Export as pdf!!"
+                      // }
+                    }
+                  }
+                  actions={actionsForCurrentMonth}
+                  //   icons={tableIcons}
+                  columns={tableColumn1}
+                  data={tableData1?.machineDataForCurrentMonth}
+                  title={selectedMonth}
+                  // tableRef={this.tableRef.current.onQueryChange()}
+
+                  editable={
+                    {
+                      // isDeleteHidden: (rowData) => rowData.user_type === 0,
+                      // onRowUpdate: (updatedRow, oldRow) =>
+                      //   new Promise((resolve, reject) => {
+                      //     const index = oldRow.tableData.id;
+                      //     const updatedRows = [...tableData];
+                      //     updatedRows[index] = updatedRow;
+                      //     //call the update user function and pass the user data
+                      //     updateUserInfo(updatedRow);
+                      //     setTimeout(() => {
+                      //       setTableData(updatedRows);
+                      //       resolve();
+                      //     }, 500);
+                      //     //refreshPage();
+                      //   }),
+                    }
+                  }
+                  options={{
+                    // exportMenu: [
+                    //   {
+                    //     label: "Export PDF",
+                    //     //// You can do whatever you wish in this function. We provide the
+                    //     //// raw table columns and table data for you to modify, if needed.
+                    //     // exportFunc: (cols, datas) => console.log({ cols, datas })
+                    //     exportFunc: (cols, datas) => console.log(cols, tableData),
+                    //     // ExportPdf(cols, datas, "myPdfFileName"),
+                    //   },
+                    //   {
+                    //     label: "Export CSV",
+                    //     exportFunc: (cols, datas) =>
+                    //       ExportCsv(cols, datas, "myCsvFileName"),
+                    //   },
+                    // ],
+                    showTitle: true,
+                    paging: false,
+                    sorting: true,
+                    search: true,
+                    filtering: false,
+                    exportButton: true,
+                    exportAllData: true,
+                    draggable: false,
+                    actionsColumnIndex: -1,
+                    pageSize: 10,
+                    pageSizeOptions: false,
+                    paginationType: "stepped",
+                    addRowPosition: "first",
+                    headerStyle: {
+                      position: "sticky",
+                      top: "0",
+                      fontWeight: "bold",
+                    },
+                    maxBodyHeight: "40vh",
+                    rowStyle: {
+                      // fontStyle:'bold'
+
+                      // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                      // color:"rgba(255,255,255,0.8)",
+                      borderRadius: "5px",
+                      border: "1px solid black",
+                      WebkitBackdropFilter: "blur( 2px )",
+                      background: "rgba(255,255,255,0.1)",
+                      // backdropFilter: "blur(5px)",
+                      // fontSize: "13px",
+                    },
+                    cellStyle: {
+                      border: "1px solid black",
+                    },
+                    headerStyle: {
+                      fontSize: "13px",
+                      fontWeight: "bold",
+                      border: "1px solid black",
+                    },
+                  }}
                 />
               </Col>
-              <Col sm={12} lg={3}>
-                <MonthDropDown
-                  selectedMonth={selectedMonth}
-                  setSelectedMonth={setSelectedMonth}
-                />
+            ) : (
+              <Col className="d-flex justify-content-around align-items-center pt-5">
+                {loadingAnimationState}
               </Col>
-            </Row>
-          </Container>
+            )}
 
-          <div style={{ padding: "1rem" }}>
-            <Container fluid>
-              <Row>
-                {tableData1?.machineDataForCurrentMonth?.length > 0 ? (
-                  <Col lg={10}>
-                    <MaterialTable
-                      style={{ padding: "10px", marginTop: "10px" }}
-                      localization={
-                        {
-                          // toolbar: {
-                          //   exportCSVName: "Export some Excel format",
-                          //   exportPDFName: "Export as pdf!!"
-                          // }
-                        }
-                      }
-                      actions={actionsForCurrentMonth}
-                      //   icons={tableIcons}
-                      columns={tableColumn1}
-                      data={tableData1?.machineDataForCurrentMonth}
-                      title={selectedMonth}
-                      // tableRef={this.tableRef.current.onQueryChange()}
 
-                      editable={
-                        {
-                          // isDeleteHidden: (rowData) => rowData.user_type === 0,
-                          // onRowUpdate: (updatedRow, oldRow) =>
-                          //   new Promise((resolve, reject) => {
-                          //     const index = oldRow.tableData.id;
-                          //     const updatedRows = [...tableData];
-                          //     updatedRows[index] = updatedRow;
-                          //     //call the update user function and pass the user data
-                          //     updateUserInfo(updatedRow);
-                          //     setTimeout(() => {
-                          //       setTableData(updatedRows);
-                          //       resolve();
-                          //     }, 500);
-                          //     //refreshPage();
-                          //   }),
-                        }
-                      }
-                      options={{
-                        // exportMenu: [
-                        //   {
-                        //     label: "Export PDF",
-                        //     //// You can do whatever you wish in this function. We provide the
-                        //     //// raw table columns and table data for you to modify, if needed.
-                        //     // exportFunc: (cols, datas) => console.log({ cols, datas })
-                        //     exportFunc: (cols, datas) => console.log(cols, tableData),
-                        //     // ExportPdf(cols, datas, "myPdfFileName"),
-                        //   },
-                        //   {
-                        //     label: "Export CSV",
-                        //     exportFunc: (cols, datas) =>
-                        //       ExportCsv(cols, datas, "myCsvFileName"),
-                        //   },
-                        // ],
-                        showTitle: true,
-                        paging: false,
-                        sorting: true,
-                        search: true,
-                        filtering: false,
-                        exportButton: true,
-                        exportAllData: true,
-                        draggable: false,
-                        actionsColumnIndex: -1,
-                        pageSize: 10,
-                        pageSizeOptions: false,
-                        paginationType: "stepped",
-                        addRowPosition: "first",
-                        headerStyle: {
-                          position: "sticky",
-                          top: "0",
-                          fontWeight: "bold",
-                        },
-                        maxBodyHeight: "40vh",
-                        rowStyle: {
-                          // fontStyle:'bold'
 
-                          // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                          // color:"rgba(255,255,255,0.8)",
-                          borderRadius: "5px",
-                          border: "1px solid black",
-                          WebkitBackdropFilter: "blur( 2px )",
-                          background: "rgba(255,255,255,0.1)",
-                          // backdropFilter: "blur(5px)",
-                          // fontSize: "13px",
-                        },
-                        cellStyle: {
-                          border: "1px solid black",
-                        },
-                        headerStyle: {
-                          fontSize: "13px",
-                          fontWeight: "bold",
-                          border: "1px solid black",
-                        },
-                      }}
-                    />
-                  </Col>
-                ) : (
-                  <Col className="d-flex justify-content-around align-items-center pt-5">
-                    {loadingAnimationState}
-                  </Col>
-                )}
+            {statusCounter.schedulePm ? (
+              <Col
+                lg={4} md={12}
 
-                {statusCounter.schedulePm ? (
-                  <Col
-                    lg={2}
+              // className="profileImg"
+              >
+                <Row className="mt-2 cell" style={{ marginRight: "0.2rem", marginLeft: "0.2rem" }}>
+                  <MachineWisePmMonthlyGraph
+                    statusCounter={statusCounter}
+                    selectedMonth={selectedMonth}
+                  />
+                </Row>
 
-                    // className="profileImg"
-                  >
-                    <Row className="p-2 mt-2 cell">
-                      <MachineWisePmMonthlyGraph
-                        statusCounter={statusCounter}
-                        selectedMonth={selectedMonth}
-                      />
-                    </Row>
-                    <Row className="p-2 mt-2 cell">
-                      <Col>
-                        <div style={{ textAlign: "center" }}>
-                          <b>Month Status</b>
-                        </div>
-                        <br />
-                        &nbsp; &nbsp; &nbsp; Schedule PM :
-                        {statusCounter.schedulePm}
-                        <br />
-                        <PanoramaFishEyeIcon fontSize="small" /> Completed :{" "}
-                        {statusCounter.completed}
-                        <br />
-                        <CloseIcon /> Pending :{" "}
-                        {statusCounter.schedulePm -
-                          statusCounter.completed -
-                          statusCounter.onGoing}
-                        {/* Pending : {statusCounter.pending} */}
-                        <br />
-                        <ArrowDropUpIcon /> Ongoing :{statusCounter.onGoing}
-                        <br />
-                      </Col>
-                    </Row>
-                    {/* <Row style={{ padding: "10px" }}>
+                {/* <Row style={{ padding: "10px" }}>
                       <Col style={{ backgroundColor: "white" }}>
                         <PanoramaFishEyeIcon fontSize="small" /> Completed
                         <br />
@@ -827,7 +829,7 @@ const MachineWisePmMonthlyReport = () => {
                         <ArrowDropUpIcon /> Ongoing
                       </Col>
                     </Row>{" "} */}
-                    {/* <Container>
+                {/* <Container>
                     <Row>
                       <Col style={{ backgroundColor: "white" }}>ABCD</Col>
                       <Col style={{ backgroundColor: "white" }}>ABCD</Col>
@@ -837,621 +839,619 @@ const MachineWisePmMonthlyReport = () => {
                       <Col style={{ backgroundColor: "white" }}>ABCD</Col>
                     </Row>
                   </Container> */}
-                  </Col>
-                ) : (
-                  <Col className="d-flex justify-content-around align-items-center pt-5">
-                    {loadingAnimationState}
-                  </Col>
-                )}
+              </Col>
+            ) : (
+              <Col className="d-flex justify-content-around align-items-center pt-5">
+                {loadingAnimationState}
+              </Col>
+            )}
+          </Row>
+          {tableData1?.skipMachineDataWithEveryMonth?.length > 0 ? (
+            <div>
+              <Row>
+                <Col lg={12}>
+                  <MaterialTable
+                    style={{ padding: "10px", marginTop: "10px" }}
+                    localization={{}}
+                    actions={actionsForPreviousMonthForOpratorAndTL}
+                    columns={tableColumn2}
+                    data={tableData1?.skipMachineDataWithEveryMonth}
+                    title={"Pending Machine"}
+                    editable={{
+                      isEditHidden: (rowData) =>
+                        rowData.PMStatus !== "PM Skip" ||
+                        context.user_type === "Section-Admin" ||
+                        context.user_type === "Plant-Admin" ||
+                        context.user_type === "Operator" ||
+                        (context.user_type === "TL/HOSS" &&
+                          context.tm_department === "PRD"),
+                      onRowUpdate: (updatedRow, oldRow) =>
+                        new Promise((resolve, reject) => {
+                          //call the update user function and pass the user data
+                          updateCompletionTargetDateForSkipPM(updatedRow);
+                          setTimeout(() => {
+                            resolve();
+                          }, 500);
+                          //refreshPage();
+                        }),
+                    }}
+                    options={{
+                      showTitle: true,
+                      paging: false,
+                      sorting: true,
+                      search: true,
+                      filtering: false,
+                      exportButton: true,
+                      exportAllData: true,
+                      draggable: false,
+                      actionsColumnIndex: -1,
+                      pageSize: 10,
+                      pageSizeOptions: false,
+                      paginationType: "stepped",
+                      addRowPosition: "first",
+                      headerStyle: {
+                        position: "sticky",
+                        top: "0",
+                        fontWeight: "bold",
+                      },
+                      maxBodyHeight: "40vh",
+
+                      rowStyle: {
+                        // fontStyle:'bold'
+
+                        // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                        // color:"rgba(255,255,255,0.8)",
+                        borderRadius: "5px",
+                        border: "1px solid black",
+                        WebkitBackdropFilter: "blur( 2px )",
+                        borderBottom: "black !important",
+                        background: "rgba(255,255,255,0.1)",
+                        // backdropFilter: "blur(5px)",
+                        // fontSize: "12px",
+                      },
+                      cellStyle: {
+                        border: "1px solid black",
+                      },
+                      headerStyle: {
+                        border: "1px solid black",
+                        fontSize: "13px",
+                        fontWeight: "bold",
+                      },
+                    }}
+                  />
+                </Col>
               </Row>
-              {tableData1?.skipMachineDataWithEveryMonth?.length > 0 ? (
+              {(skipApprovalStatusData?.approvalStatusOfMTDHOS ===
+                undefined ||
+                skipApprovalStatusData?.approvalStatusOfMTDHOS ===
+                "Rejected" ||
+                skipApprovalStatusData?.approvalStatusOfMTDHOD ===
+                "Rejected" ||
+                skipApprovalStatusData?.approvalStatusOfPRDHOS ===
+                "Rejected" ||
+                skipApprovalStatusData?.approvalStatusOfPRDHOD ===
+                "Rejected" ||
+                skipApprovalStatusData?.approvalStatusOfPRDHOD ===
+                "Accepted") &&
+                context.user_type === "TL/HOSS" &&
+                context.tm_department === "MTD" ? (
                 <div>
-                  <Row>
-                    <Col lg={10}>
-                      <MaterialTable
-                        style={{ padding: "10px", marginTop: "10px" }}
-                        localization={{}}
-                        actions={actionsForPreviousMonthForOpratorAndTL}
-                        columns={tableColumn2}
-                        data={tableData1?.skipMachineDataWithEveryMonth}
-                        title={"Pending Machine"}
-                        editable={{
-                          isEditHidden: (rowData) =>
-                            rowData.PMStatus !== "PM Skip" ||
-                            context.user_type === "Section-Admin" ||
-                            context.user_type === "Plant-Admin" ||
-                            context.user_type === "Operator" ||
-                            (context.user_type === "TL/HOSS" &&
-                              context.tm_department === "PRD"),
-                          onRowUpdate: (updatedRow, oldRow) =>
-                            new Promise((resolve, reject) => {
-                              //call the update user function and pass the user data
-                              updateCompletionTargetDateForSkipPM(updatedRow);
-                              setTimeout(() => {
-                                resolve();
-                              }, 500);
-                              //refreshPage();
-                            }),
-                        }}
-                        options={{
-                          showTitle: true,
-                          paging: false,
-                          sorting: true,
-                          search: true,
-                          filtering: false,
-                          exportButton: true,
-                          exportAllData: true,
-                          draggable: false,
-                          actionsColumnIndex: -1,
-                          pageSize: 10,
-                          pageSizeOptions: false,
-                          paginationType: "stepped",
-                          addRowPosition: "first",
-                          headerStyle: {
-                            position: "sticky",
-                            top: "0",
-                            fontWeight: "bold",
-                          },
-                          maxBodyHeight: "40vh",
+                  <Row
+                    className="d-flex mt-2 p-3 border bg-white rounded"
+                    style={{ margin: "0px" }}
+                  >
+                    <form
+                      className="d-flex"
+                      onSubmit={formik1.handleSubmit}
+                      style={{ margin: "0px" }}
+                    >
+                      <Col sm  className="mb-3">
+                        <span>
+                          <b>MTD HOS :</b>
+                        </span>
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <select
+                            // class="form-select form-select-sm"
+                            // aria-label=".form-select-sm example"
+                            // style={{ width: "100%" }}
+                            id="standard-select-currency"
+                            name="mtd_hos_list"
+                            // className="textField"
+                            // fullWidth
+                            select // label="Select"
+                            autoComplete="off"
+                            value={formik1.values.mtd_hos_list?.tm_name}
+                            onChange={(e) => {
+                              // setUsertype(e.target.value);
+                              // console.log(e.target.value);
+                              formik1.handleChange(e);
+                            }}
+                            variant="standard"
+                          >
+                            <option selected disabled value="">
+                              Please select
+                            </option>
+                            {HOSList?.map((index, idx) => {
+                              return (
+                                <option value={idx}>{index.tm_name}</option>
+                              );
+                            })}
+                          </select>
+                          <div>
+                            <p
+                              style={{
+                                color: "#F44336",
+                                fontWeight: "normal",
+                                fontSize: "0.80rem",
+                                // float: "left",
+                                paddingTop: "0.5rem",
+                              }}
+                            >
+                              {formik1.touched.mtd_hos_list &&
+                                formik1.errors.mtd_hos_list}
+                            </p>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col sm  className="mb-3">
+                        <span>
+                          <b>MTD HOD :</b>
+                        </span>
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <select
+                            // class="form-select form-select-sm"
+                            // aria-label=".form-select-sm example"
+                            // style={{ width: "100%" }}
+                            id="standard-select-currency"
+                            name="mtd_hod_list"
+                            // className="textField"
+                            // fullWidth
+                            select // label="Select"
+                            autoComplete="off"
+                            value={formik1.values.mtd_hod_list?.tm_name}
+                            onChange={(e) => {
+                              // setUsertype(e.target.value);
+                              formik1.handleChange(e);
+                            }}
+                            variant="standard"
+                          >
+                            <option selected disabled value="">
+                              Please select
+                            </option>
+                            {MTDHODlist?.map((index, idx) => {
+                              return (
+                                <option value={idx}>{index.tm_name}</option>
+                              );
+                            })}
+                          </select>
+                          <div>
+                            <p
+                              style={{
+                                color: "#F44336",
+                                fontWeight: "normal",
+                                fontSize: "0.80rem",
+                                // float: "left",
+                                paddingTop: "0.5rem",
+                              }}
+                            >
+                              {formik1.touched.mtd_hod_list &&
+                                formik1.errors.mtd_hod_list}
+                            </p>
+                          </div>
+                        </div>
+                      </Col>
 
-                          rowStyle: {
-                            // fontStyle:'bold'
+                      <Col sm  className="mb-3">
+                        <span>
+                          <b>PRD HOS :</b>
+                        </span>
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <select
+                            // class="form-select form-select-sm"
+                            // aria-label=".form-select-sm example"
+                            // style={{ width: "100%" }}
+                            id="standard-select-currency"
+                            name="prd_hos_list"
+                            // className="textField"
+                            // fullWidth
+                            select // label="Select"
+                            autoComplete="off"
+                            value={formik1.values.prd_hos_list?.tm_name}
+                            onChange={(e) => {
+                              // setUsertype(e.target.value);
+                              formik1.handleChange(e);
+                            }}
+                            variant="standard"
+                          >
+                            <option selected disabled value="">
+                              Please select
+                            </option>
+                            {PRDHOSlist?.map((index, idx) => {
+                              return (
+                                <option value={idx}>{index.tm_name}</option>
+                              );
+                            })}
+                          </select>
+                          <div>
+                            <p
+                              style={{
+                                color: "#F44336",
+                                fontWeight: "normal",
+                                fontSize: "0.80rem",
+                                // float: "left",
+                                paddingTop: "0.5rem",
+                              }}
+                            >
+                              {formik1.touched.prd_hos_list &&
+                                formik1.errors.prd_hos_list}
+                            </p>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col sm  className="mb-3">
+                        <span>
+                          <b>PRD HOD :</b>
+                        </span>
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <select
+                            // class="form-select form-select-sm"
+                            // aria-label=".form-select-sm example"
+                            // style={{ width: "100%" }}
+                            id="standard-select-currency"
+                            name="prd_hod_list"
+                            // className="textField"
+                            // fullWidth
+                            select // label="Select"
+                            autoComplete="off"
+                            value={formik1.values.prd_hod_list?.tm_name}
+                            onChange={(e) => {
+                              // setUsertype(e.target.value);
+                              formik1.handleChange(e);
+                            }}
+                            variant="standard"
+                          >
+                            <option selected disabled value="">
+                              Please select
+                            </option>
+                            {PRDHODlist?.map((index, idx) => {
+                              return (
+                                <option value={idx}>{index.tm_name}</option>
+                              );
+                            })}
+                          </select>
+                          <div>
+                            <p
+                              style={{
+                                color: "#F44336",
+                                fontWeight: "normal",
+                                fontSize: "0.80rem",
+                                // float: "left",
+                                paddingTop: "0.5rem",
+                              }}
+                            >
+                              {formik1.touched.prd_hod_list &&
+                                formik1.errors.prd_hod_list}
+                            </p>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col sm >
+                        <span>
+                          <b>Reason for delay :</b>
+                        </span>
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <TextField
+                            fullWidth
+                            id="reasonForDelayOfTL"
+                            name="reasonForDelayOfTL"
+                            onChange={(e) => {
+                              formik1.handleChange(e);
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <p
+                            style={{
+                              color: "#F44336",
+                              fontWeight: "normal",
+                              fontSize: "0.80rem",
+                              // float: "left",
+                              paddingTop: "0.5rem",
+                            }}
+                          >
+                            {formik1.touched.reasonForDelayOfTL &&
+                              formik1.errors.reasonForDelayOfTL}
+                          </p>
+                        </div>
+                      </Col>
+                      <Col className="d-flex justify-content-center align-items-center">
+                        <button className="btn-approval" type="submit">
+                          Send for Approval
+                        </button>
+                      </Col>
+                    </form>
+                  </Row>
+                  <Row
+                    className="d-flex mt-2 p-3 border bg-white rounded"
+                    style={{ margin: "0px" }}
+                  >
+                    <Col sm className="mb-3">
+                      <span>
+                        <b>MTD HOS :</b>
+                      </span>
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <div>
+                          {
+                            skipApprovalStatusData?.assignAndApprovedHOSlist
+                              ?.assignMTDHOSname
+                          }
+                        </div>
+                        <div>
+                          Status : &nbsp;
+                          {skipApprovalStatusData?.approvalStatusOfMTDHOS}
+                        </div>
+                      </div>
+                    </Col>
+                    <Col sm className="mb-3">
+                      <span>
+                        <b>MTD HOD :</b>
+                      </span>
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <div>
+                          {
+                            skipApprovalStatusData
+                              ?.assignAndApprovedMTDHODlist
+                              ?.assignMTDHODname
+                          }
+                        </div>
+                        <div>
+                          Status : &nbsp;
+                          {skipApprovalStatusData?.approvalStatusOfMTDHOD}
+                        </div>
+                      </div>
+                    </Col>
 
-                            // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                            // color:"rgba(255,255,255,0.8)",
-                            borderRadius: "5px",
-                            border: "1px solid black",
-                            WebkitBackdropFilter: "blur( 2px )",
-                            borderBottom: "black !important",
-                            background: "rgba(255,255,255,0.1)",
-                            // backdropFilter: "blur(5px)",
-                            // fontSize: "12px",
-                          },
-                          cellStyle: {
-                            border: "1px solid black",
-                          },
-                          headerStyle: {
-                            border: "1px solid black",
-                            fontSize: "13px",
-                            fontWeight: "bold",
-                          },
-                        }}
-                      />
+                    <Col sm className="mb-3">
+                      <span>
+                        <b>PRD HOS :</b>
+                      </span>
+                      <div>
+                        <div>
+                          {
+                            skipApprovalStatusData
+                              ?.assignAndApprovedPRDHOSlist
+                              ?.assignPRDHOSname
+                          }
+                        </div>
+                        <div>
+                          Status :
+                          {skipApprovalStatusData?.approvalStatusOfPRDHOS}
+                        </div>
+                      </div>
+                    </Col>
+                    <Col sm className="mb-3">
+                      <span>
+                        <b>PRD HOD :</b>
+                      </span>
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <div>
+                          {
+                            skipApprovalStatusData
+                              ?.assignAndApprovedPRDHODlist
+                              ?.assignPRDHODname
+                          }
+                        </div>
+                        <div>
+                          Status : &nbsp;
+                          {skipApprovalStatusData?.approvalStatusOfPRDHOD}
+                        </div>
+                      </div>
+                    </Col>
+                    <Col>
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <span>
+                          {" "}
+                          <b>Reason for delay :</b>{" "}
+                        </span>
+                        <TextField
+                          fullWidth
+                          id="reasonForDelayOfTL"
+                          name="reasonForDelayOfTL"
+                          value={skipApprovalStatusData?.reasonForDelayOfTL}
+                        />
+                      </div>
+
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <span>
+                          <b>Rejected remarks :</b>
+                        </span>
+                        <TextField
+                          fullWidth
+                          id="rejectedRemarksOfSkipPM"
+                          name="rejectedRemarksOfSkipPM"
+                          value={
+                            skipApprovalStatusData?.rejectedRemarksOfSkipPMMachines
+                          }
+                        />
+                      </div>
                     </Col>
                   </Row>
-                  {(skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                    undefined ||
-                    skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                      "Rejected" ||
-                    skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                      "Rejected" ||
-                    skipApprovalStatusData?.approvalStatusOfPRDHOS ===
-                      "Rejected" ||
-                    skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                      "Rejected" ||
-                    skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                      "Accepted") &&
-                  context.user_type === "TL/HOSS" &&
-                  context.tm_department === "MTD" ? (
-                    <div>
-                      <Row
-                        className="d-flex mt-2 p-3 border bg-white rounded"
-                        style={{ margin: "0px" }}
-                      >
-                        <form
-                          className="d-flex"
-                          onSubmit={formik1.handleSubmit}
-                          style={{ margin: "0px" }}
-                        >
-                          <Col sm className="mb-3">
-                            <span>
-                              <b>MTD HOS :</b>
-                            </span>
-                            <div style={{ marginTop: "0.5rem" }}>
-                              <select
-                                // class="form-select form-select-sm"
-                                // aria-label=".form-select-sm example"
-                                // style={{ width: "100%" }}
-                                id="standard-select-currency"
-                                name="mtd_hos_list"
-                                // className="textField"
-                                // fullWidth
-                                select // label="Select"
-                                autoComplete="off"
-                                value={formik1.values.mtd_hos_list?.tm_name}
-                                onChange={(e) => {
-                                  // setUsertype(e.target.value);
-                                  // console.log(e.target.value);
-                                  formik1.handleChange(e);
-                                }}
-                                variant="standard"
-                              >
-                                <option selected disabled value="">
-                                  Please select
-                                </option>
-                                {HOSList?.map((index, idx) => {
-                                  return (
-                                    <option value={idx}>{index.tm_name}</option>
-                                  );
-                                })}
-                              </select>
-                              <div>
-                                <p
-                                  style={{
-                                    color: "#F44336",
-                                    fontWeight: "normal",
-                                    fontSize: "0.80rem",
-                                    // float: "left",
-                                    paddingTop: "0.5rem",
-                                  }}
-                                >
-                                  {formik1.touched.mtd_hos_list &&
-                                    formik1.errors.mtd_hos_list}
-                                </p>
-                              </div>
-                            </div>
-                          </Col>
-                          <Col sm className="mb-3">
-                            <span>
-                              <b>MTD HOD :</b>
-                            </span>
-                            <div style={{ marginTop: "0.5rem" }}>
-                              <select
-                                // class="form-select form-select-sm"
-                                // aria-label=".form-select-sm example"
-                                // style={{ width: "100%" }}
-                                id="standard-select-currency"
-                                name="mtd_hod_list"
-                                // className="textField"
-                                // fullWidth
-                                select // label="Select"
-                                autoComplete="off"
-                                value={formik1.values.mtd_hod_list?.tm_name}
-                                onChange={(e) => {
-                                  // setUsertype(e.target.value);
-                                  formik1.handleChange(e);
-                                }}
-                                variant="standard"
-                              >
-                                <option selected disabled value="">
-                                  Please select
-                                </option>
-                                {MTDHODlist?.map((index, idx) => {
-                                  return (
-                                    <option value={idx}>{index.tm_name}</option>
-                                  );
-                                })}
-                              </select>
-                              <div>
-                                <p
-                                  style={{
-                                    color: "#F44336",
-                                    fontWeight: "normal",
-                                    fontSize: "0.80rem",
-                                    // float: "left",
-                                    paddingTop: "0.5rem",
-                                  }}
-                                >
-                                  {formik1.touched.mtd_hod_list &&
-                                    formik1.errors.mtd_hod_list}
-                                </p>
-                              </div>
-                            </div>
-                          </Col>
-
-                          <Col sm className="mb-3">
-                            <span>
-                              <b>PRD HOS :</b>
-                            </span>
-                            <div style={{ marginTop: "0.5rem" }}>
-                              <select
-                                // class="form-select form-select-sm"
-                                // aria-label=".form-select-sm example"
-                                // style={{ width: "100%" }}
-                                id="standard-select-currency"
-                                name="prd_hos_list"
-                                // className="textField"
-                                // fullWidth
-                                select // label="Select"
-                                autoComplete="off"
-                                value={formik1.values.prd_hos_list?.tm_name}
-                                onChange={(e) => {
-                                  // setUsertype(e.target.value);
-                                  formik1.handleChange(e);
-                                }}
-                                variant="standard"
-                              >
-                                <option selected disabled value="">
-                                  Please select
-                                </option>
-                                {PRDHOSlist?.map((index, idx) => {
-                                  return (
-                                    <option value={idx}>{index.tm_name}</option>
-                                  );
-                                })}
-                              </select>
-                              <div>
-                                <p
-                                  style={{
-                                    color: "#F44336",
-                                    fontWeight: "normal",
-                                    fontSize: "0.80rem",
-                                    // float: "left",
-                                    paddingTop: "0.5rem",
-                                  }}
-                                >
-                                  {formik1.touched.prd_hos_list &&
-                                    formik1.errors.prd_hos_list}
-                                </p>
-                              </div>
-                            </div>
-                          </Col>
-                          <Col sm className="mb-3">
-                            <span>
-                              <b>PRD HOD :</b>
-                            </span>
-                            <div style={{ marginTop: "0.5rem" }}>
-                              <select
-                                // class="form-select form-select-sm"
-                                // aria-label=".form-select-sm example"
-                                // style={{ width: "100%" }}
-                                id="standard-select-currency"
-                                name="prd_hod_list"
-                                // className="textField"
-                                // fullWidth
-                                select // label="Select"
-                                autoComplete="off"
-                                value={formik1.values.prd_hod_list?.tm_name}
-                                onChange={(e) => {
-                                  // setUsertype(e.target.value);
-                                  formik1.handleChange(e);
-                                }}
-                                variant="standard"
-                              >
-                                <option selected disabled value="">
-                                  Please select
-                                </option>
-                                {PRDHODlist?.map((index, idx) => {
-                                  return (
-                                    <option value={idx}>{index.tm_name}</option>
-                                  );
-                                })}
-                              </select>
-                              <div>
-                                <p
-                                  style={{
-                                    color: "#F44336",
-                                    fontWeight: "normal",
-                                    fontSize: "0.80rem",
-                                    // float: "left",
-                                    paddingTop: "0.5rem",
-                                  }}
-                                >
-                                  {formik1.touched.prd_hod_list &&
-                                    formik1.errors.prd_hod_list}
-                                </p>
-                              </div>
-                            </div>
-                          </Col>
-                          <Col>
-                            <span>
-                              <b>Reason for delay :</b>
-                            </span>
-                            <div style={{ marginTop: "0.5rem" }}>
-                              <TextField
-                                fullWidth
-                                id="reasonForDelayOfTL"
-                                name="reasonForDelayOfTL"
-                                onChange={(e) => {
-                                  formik1.handleChange(e);
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <p
-                                style={{
-                                  color: "#F44336",
-                                  fontWeight: "normal",
-                                  fontSize: "0.80rem",
-                                  // float: "left",
-                                  paddingTop: "0.5rem",
-                                }}
-                              >
-                                {formik1.touched.reasonForDelayOfTL &&
-                                  formik1.errors.reasonForDelayOfTL}
-                              </p>
-                            </div>
-                          </Col>
-                          <Col className="d-flex justify-content-center align-items-center">
-                            <button className="btn-approval" type="submit">
-                              Send for Approval
-                            </button>
-                          </Col>
-                        </form>
-                      </Row>
-                      <Row
-                        className="d-flex mt-2 p-3 border bg-white rounded"
-                        style={{ margin: "0px" }}
-                      >
-                        <Col sm className="mb-3">
-                          <span>
-                            <b>MTD HOS :</b>
-                          </span>
-                          <div style={{ marginTop: "0.5rem" }}>
-                            <div>
-                              {
-                                skipApprovalStatusData?.assignAndApprovedHOSlist
-                                  ?.assignMTDHOSname
-                              }
-                            </div>
-                            <div>
-                              Status : &nbsp;
-                              {skipApprovalStatusData?.approvalStatusOfMTDHOS}
-                            </div>
-                          </div>
-                        </Col>
-                        <Col sm className="mb-3">
-                          <span>
-                            <b>MTD HOD :</b>
-                          </span>
-                          <div style={{ marginTop: "0.5rem" }}>
-                            <div>
-                              {
-                                skipApprovalStatusData
-                                  ?.assignAndApprovedMTDHODlist
-                                  ?.assignMTDHODname
-                              }
-                            </div>
-                            <div>
-                              Status : &nbsp;
-                              {skipApprovalStatusData?.approvalStatusOfMTDHOD}
-                            </div>
-                          </div>
-                        </Col>
-
-                        <Col sm className="mb-3">
-                          <span>
-                            <b>PRD HOS :</b>
-                          </span>
-                          <div>
-                            <div>
-                              {
-                                skipApprovalStatusData
-                                  ?.assignAndApprovedPRDHOSlist
-                                  ?.assignPRDHOSname
-                              }
-                            </div>
-                            <div>
-                              Status :
-                              {skipApprovalStatusData?.approvalStatusOfPRDHOS}
-                            </div>
-                          </div>
-                        </Col>
-                        <Col sm className="mb-3">
-                          <span>
-                            <b>PRD HOD :</b>
-                          </span>
-                          <div style={{ marginTop: "0.5rem" }}>
-                            <div>
-                              {
-                                skipApprovalStatusData
-                                  ?.assignAndApprovedPRDHODlist
-                                  ?.assignPRDHODname
-                              }
-                            </div>
-                            <div>
-                              Status : &nbsp;
-                              {skipApprovalStatusData?.approvalStatusOfPRDHOD}
-                            </div>
-                          </div>
-                        </Col>
-                        <Col>
-                          <div style={{ marginTop: "0.5rem" }}>
-                            <span>
-                              {" "}
-                              <b>Reason for delay :</b>{" "}
-                            </span>
-                            <TextField
-                              fullWidth
-                              id="reasonForDelayOfTL"
-                              name="reasonForDelayOfTL"
-                              value={skipApprovalStatusData?.reasonForDelayOfTL}
-                            />
-                          </div>
-
-                          <div style={{ marginTop: "0.5rem" }}>
-                            <span>
-                              <b>Rejected remarks :</b>
-                            </span>
-                            <TextField
-                              fullWidth
-                              id="rejectedRemarksOfSkipPM"
-                              name="rejectedRemarksOfSkipPM"
-                              value={
-                                skipApprovalStatusData?.rejectedRemarksOfSkipPMMachines
-                              }
-                            />
-                          </div>
-                        </Col>
-                      </Row>
-                    </div>
-                  ) : (
-                    <div>
-                      <Row
-                        className="d-flex mt-2 p-3 border bg-white rounded"
-                        style={{ padding: "10px", margin: "0px" }}
-                      >
-                        <Col sm className="mb-3">
-                          <span>
-                            <b>MTD HOS :</b>
-                          </span>
-                          <div style={{ marginTop: "0.5rem" }}>
-                            <div>
-                              {
-                                skipApprovalStatusData?.assignAndApprovedHOSlist
-                                  ?.assignMTDHOSname
-                              }
-                            </div>
-                            <div>
-                              Status :&nbsp;
-                              <b>
-                                {skipApprovalStatusData?.approvalStatusOfMTDHOS}
-                              </b>
-                            </div>
-                          </div>
-                        </Col>
-                        <Col sm className="mb-3">
-                          <span>
-                            <b>MTD HOD :</b>
-                          </span>
-                          <div style={{ marginTop: "0.5rem" }}>
-                            <div>
-                              {
-                                skipApprovalStatusData
-                                  ?.assignAndApprovedMTDHODlist
-                                  ?.assignMTDHODname
-                              }
-                            </div>
-                            <div>
-                              Status :&nbsp;
-                              <b>
-                                {" "}
-                                {skipApprovalStatusData?.approvalStatusOfMTDHOD}
-                              </b>
-                            </div>
-                          </div>
-                        </Col>
-
-                        <Col sm className="mb-3">
-                          <span>
-                            <b>PRD HOS :</b>
-                          </span>
-                          <div style={{ marginTop: "0.5rem" }}>
-                            <div>
-                              {
-                                skipApprovalStatusData
-                                  ?.assignAndApprovedPRDHOSlist
-                                  ?.assignPRDHOSname
-                              }
-                            </div>
-                            <div>
-                              Status :&nbsp;
-                              <b>
-                                {skipApprovalStatusData?.approvalStatusOfPRDHOS}
-                              </b>
-                            </div>
-                          </div>
-                        </Col>
-                        <Col sm className="mb-3">
-                          <span>
-                            <b>PRD HOD :</b>
-                          </span>
-                          <div style={{ marginTop: "0.5rem" }}>
-                            <div>
-                              {
-                                skipApprovalStatusData
-                                  ?.assignAndApprovedPRDHODlist
-                                  ?.assignPRDHODname
-                              }
-                            </div>
-                            <div>
-                              Status : &nbsp;
-                              <b>
-                                {skipApprovalStatusData?.approvalStatusOfPRDHOD}
-                              </b>
-                            </div>
-                          </div>
-                        </Col>
-                        <Col>
-                          <div>
-                            <span>
-                              <b>Reason for delay :</b>
-                            </span>
-                            <TextField
-                              fullWidth
-                              id="reasonForDelayOfTL"
-                              name="reasonForDelayOfTL"
-                              value={skipApprovalStatusData?.reasonForDelayOfTL}
-                            />
-                          </div>
-
-                          <div>
-                            <span>
-                              <b>Rejected remarks :</b>
-                            </span>
-                            <TextField
-                              fullWidth
-                              id="rejectedRemarksOfSkipPM"
-                              name="rejectedRemarksOfSkipPM"
-                              value={
-                                skipApprovalStatusData?.rejectedRemarksOfSkipPMMachines
-                              }
-                            />
-                          </div>
-                        </Col>
-                      </Row>
-                    </div>
-                  )}
-                  {context.email ===
-                    skipApprovalStatusData?.assignAndApprovedHOSlist
-                      ?.assignMTDHOSemail &&
-                  skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                    "Pending" ? (
-                    <SkipApprovalComponent
-                      skipApprovalStatusData={skipApprovalStatusData}
-                      functionToSetRefKey={functionToSetRefKey}
-                    />
-                  ) : context.email ===
-                      skipApprovalStatusData?.assignAndApprovedMTDHODlist
-                        ?.assignMTDHODemail &&
-                    skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                      "Accepted" &&
-                    skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                      "Pending" ? (
-                    <SkipApprovalComponent
-                      skipApprovalStatusData={skipApprovalStatusData}
-                      functionToSetRefKey={functionToSetRefKey}
-                    />
-                  ) : context.email ===
-                      skipApprovalStatusData?.assignAndApprovedPRDHOSlist
-                        ?.assignPRDHOSemail &&
-                    skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                      "Accepted" &&
-                    skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                      "Accepted" &&
-                    skipApprovalStatusData?.approvalStatusOfPRDHOS ===
-                      "Pending" ? (
-                    <SkipApprovalComponent
-                      skipApprovalStatusData={skipApprovalStatusData}
-                      functionToSetRefKey={functionToSetRefKey}
-                    />
-                  ) : context.email ===
-                      skipApprovalStatusData?.assignAndApprovedPRDHODlist
-                        ?.assignPRDHODemail &&
-                    skipApprovalStatusData?.approvalStatusOfMTDHOS ===
-                      "Accepted" &&
-                    skipApprovalStatusData?.approvalStatusOfMTDHOD ===
-                      "Accepted" &&
-                    skipApprovalStatusData?.approvalStatusOfPRDHOS ===
-                      "Accepted" &&
-                    skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                      "Pending" ? (
-                    <SkipApprovalComponent
-                      skipApprovalStatusData={skipApprovalStatusData}
-                      functionToSetRefKey={functionToSetRefKey}
-                    />
-                  ) : (
-                    ""
-                  )}
                 </div>
               ) : (
-                <Col className="d-flex justify-content-around align-items-center pt-5">
-                  {loadingAnimationState}
-                </Col>
+                <div>
+                  <Row
+                    className="d-flex mt-2 p-3 mb-3 border bg-white rounded"
+                    style={{ padding: "10px", margin: "0px" }}
+                  >
+                    <Col sm className="mb-3">
+                      <span>
+                        <b>MTD HOS :</b>
+                      </span>
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <div>
+                          {
+                            skipApprovalStatusData?.assignAndApprovedHOSlist
+                              ?.assignMTDHOSname
+                          }
+                        </div>
+                        <div>
+                          Status :&nbsp;
+                          <b>
+                            {skipApprovalStatusData?.approvalStatusOfMTDHOS}
+                          </b>
+                        </div>
+                      </div>
+                    </Col>
+                    <Col sm className="mb-3">
+                      <span>
+                        <b>MTD HOD :</b>
+                      </span>
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <div>
+                          {
+                            skipApprovalStatusData
+                              ?.assignAndApprovedMTDHODlist
+                              ?.assignMTDHODname
+                          }
+                        </div>
+                        <div>
+                          Status :&nbsp;
+                          <b>
+                            {" "}
+                            {skipApprovalStatusData?.approvalStatusOfMTDHOD}
+                          </b>
+                        </div>
+                      </div>
+                    </Col>
+
+                    <Col sm className="mb-3">
+                      <span>
+                        <b>PRD HOS :</b>
+                      </span>
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <div>
+                          {
+                            skipApprovalStatusData
+                              ?.assignAndApprovedPRDHOSlist
+                              ?.assignPRDHOSname
+                          }
+                        </div>
+                        <div>
+                          Status :&nbsp;
+                          <b>
+                            {skipApprovalStatusData?.approvalStatusOfPRDHOS}
+                          </b>
+                        </div>
+                      </div>
+                    </Col>
+                    <Col sm className="mb-3">
+                      <span>
+                        <b>PRD HOD :</b>
+                      </span>
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <div>
+                          {
+                            skipApprovalStatusData
+                              ?.assignAndApprovedPRDHODlist
+                              ?.assignPRDHODname
+                          }
+                        </div>
+                        <div>
+                          Status : &nbsp;
+                          <b>
+                            {skipApprovalStatusData?.approvalStatusOfPRDHOD}
+                          </b>
+                        </div>
+                      </div>
+                    </Col>
+                    <Col>
+                      <div>
+                        <span>
+                          <b>Reason for delay :</b>
+                        </span>
+                        <TextField
+                          fullWidth
+                          id="reasonForDelayOfTL"
+                          name="reasonForDelayOfTL"
+                          value={skipApprovalStatusData?.reasonForDelayOfTL}
+                        />
+                      </div>
+
+                      <div>
+                        <span>
+                          <b>Rejected remarks :</b>
+                        </span>
+                        <TextField
+                          fullWidth
+                          id="rejectedRemarksOfSkipPM"
+                          name="rejectedRemarksOfSkipPM"
+                          value={
+                            skipApprovalStatusData?.rejectedRemarksOfSkipPMMachines
+                          }
+                        />
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
               )}
-            </Container>
-          </div>
-        </div>
+              {context.email ===
+                skipApprovalStatusData?.assignAndApprovedHOSlist
+                  ?.assignMTDHOSemail &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOS ===
+                "Pending" ? (
+                <SkipApprovalComponent
+                  skipApprovalStatusData={skipApprovalStatusData}
+                  functionToSetRefKey={functionToSetRefKey}
+                />
+              ) : context.email ===
+                skipApprovalStatusData?.assignAndApprovedMTDHODlist
+                  ?.assignMTDHODemail &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOS ===
+                "Accepted" &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOD ===
+                "Pending" ? (
+                <SkipApprovalComponent
+                  skipApprovalStatusData={skipApprovalStatusData}
+                  functionToSetRefKey={functionToSetRefKey}
+                />
+              ) : context.email ===
+                skipApprovalStatusData?.assignAndApprovedPRDHOSlist
+                  ?.assignPRDHOSemail &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOS ===
+                "Accepted" &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOD ===
+                "Accepted" &&
+                skipApprovalStatusData?.approvalStatusOfPRDHOS ===
+                "Pending" ? (
+                <SkipApprovalComponent
+                  skipApprovalStatusData={skipApprovalStatusData}
+                  functionToSetRefKey={functionToSetRefKey}
+                />
+              ) : context.email ===
+                skipApprovalStatusData?.assignAndApprovedPRDHODlist
+                  ?.assignPRDHODemail &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOS ===
+                "Accepted" &&
+                skipApprovalStatusData?.approvalStatusOfMTDHOD ===
+                "Accepted" &&
+                skipApprovalStatusData?.approvalStatusOfPRDHOS ===
+                "Accepted" &&
+                skipApprovalStatusData?.approvalStatusOfPRDHOD ===
+                "Pending" ? (
+                <SkipApprovalComponent
+                  skipApprovalStatusData={skipApprovalStatusData}
+                  functionToSetRefKey={functionToSetRefKey}
+                />
+              ) : (
+                ""
+              )}
+            </div>
+          ) : (
+            <Col className="d-flex justify-content-around align-items-center pt-5">
+              {loadingAnimationState}
+            </Col>
+          )}
+        </Container>
       </div>
     </>
   );

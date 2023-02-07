@@ -19,9 +19,10 @@ const SkipPMWorkData = () => {
   const [tableData, setTableData] = useState([]);
   const navigate = useNavigate();
   const selectedMachineSkipData = useLocation();
-  console.log(selectedMachineSkipData.state.selectedRowForSkipData);
+  // console.log(selectedMachineSkipData.state.selectedRowForSkipData?.machine_id);
   const [refKey, setRefKey] = useState(0);
 
+  // console.log("===========>", tableData);
   const functionToSetRefKey = () => {
     setRefKey((refKey) => refKey + 1);
   };
@@ -163,6 +164,9 @@ const SkipPMWorkData = () => {
             close={close}
             selectedRow={selectedRow}
             functionToSetRefKey={functionToSetRefKey}
+            machineId={
+              selectedMachineSkipData?.state?.selectedRowForSkipData?.machine_id
+            }
           />
         );
       },
@@ -352,8 +356,8 @@ const SkipPMWorkData = () => {
                 },
                 headerStyle: {
                   fontSize: "14px",
-                  fontWeight: "bold"
-                }
+                  fontWeight: "bold",
+                },
               }}
             />
           </div>

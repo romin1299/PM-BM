@@ -51,7 +51,6 @@ const CheckSheet = ({
   const [HOSList, setHOSList] = useState([]);
   const [PRDTLlist, setPRDTLlist] = useState([]);
   const [MTDTLlist, setMTDTLlist] = useState([]);
-  const [MTDHODlist, setMTDHODlist] = useState([]);
 
   const [dataSheetName, setDataSheetName] = useState([]);
 
@@ -212,38 +211,38 @@ const CheckSheet = ({
     },
   });
 
-  const formik2 = useFormik({
-    initialValues: {
-      mtd_hod_list: "",
-    },
-    validationSchema: validationSchema2,
+  // const formik2 = useFormik({
+  //   initialValues: {
+  //     mtd_hod_list: "",
+  //   },
+  //   validationSchema: validationSchema2,
 
-    onSubmit: async (values) => {
-      const res = await fetch("/sendRequestForApproval", {
-        method: "Post",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mtd_hod_list: MTDHODlist[values.mtd_hod_list],
-          implemetation_completed_date: timeStamp(),
-          selected_machine_data: machineAllData,
-          monthForCompareSystemMonth,
-          phaseStatus: machineAllData?.checkSheet_data?.checksheet_status,
-        }),
-      });
-      const data = res.json();
-      // console.log(data);
-      if (res.status === 400 || res.status === 422 || !data) {
-        window.alert("Invalid credentials !");
-      } else if (res.status === 409) {
-        console.log("Machine code already exists!");
-      } else {
-        console.log("PM worked data save sucessfully...");
-        closeCheckSheet();
-        // navigate("/");
-        // clearState();
-      }
-    },
-  });
+  //   onSubmit: async (values) => {
+  //     const res = await fetch("/sendRequestForApproval", {
+  //       method: "Post",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         mtd_hod_list: MTDHODlist[values.mtd_hod_list],
+  //         implemetation_completed_date: timeStamp(),
+  //         selected_machine_data: machineAllData,
+  //         monthForCompareSystemMonth,
+  //         phaseStatus: machineAllData?.checkSheet_data?.checksheet_status,
+  //       }),
+  //     });
+  //     const data = res.json();
+  //     // console.log(data);
+  //     if (res.status === 400 || res.status === 422 || !data) {
+  //       window.alert("Invalid credentials !");
+  //     } else if (res.status === 409) {
+  //       console.log("Machine code already exists!");
+  //     } else {
+  //       console.log("PM worked data save sucessfully...");
+  //       closeCheckSheet();
+  //       // navigate("/");
+  //       // clearState();
+  //     }
+  //   },
+  // });
 
   const clearState = () => {
     formik.values.pmTime = "";
@@ -269,7 +268,6 @@ const CheckSheet = ({
       setHOSList(data.HOSlist);
       setMTDTLlist(data.MTDTLlist);
       setSupportingTMList(data.supportingOperatorList);
-      setMTDHODlist(data.MTDHODlist);
       // setTableData(finalData);
     } catch (error) {
       console.log(error);
@@ -1217,12 +1215,12 @@ const CheckSheet = ({
                                                   //   disabledButtonAfterPM
                                                   // }
                                                   machineId={
-                                                    machineAllData?.machine_code
+                                                    machineAllData.machine_code
                                                   }
                                                   tableRowId={rData[0].value}
                                                   yearOfCheckSheet={
                                                     machineData?.checkSheet_data
-                                                      ?.current_year
+                                                      .current_year
                                                   }
                                                   monthForCompareSystemMonth={
                                                     monthForCompareSystemMonth
@@ -1231,6 +1229,15 @@ const CheckSheet = ({
                                                     functionToSetRefKey
                                                   }
                                                   previousMonth={previousMonth}
+                                                  //--------------------
+    
+                                                  machineAllData={machineAllData}
+                                                  inceptionValueForLogHistory={
+                                                    rData?.[3]?.value
+                                                  }
+                                                  refKeyForScheduleMonthInLogHistory={
+                                                    colData?.value?.[0]
+                                                  }
                                                 />
                                               );
                                               // document.querySelector(
