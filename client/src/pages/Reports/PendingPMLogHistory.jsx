@@ -10,6 +10,9 @@ import MonthDropDown from "../Dashboard/DashboardComponent/MonthDropDown";
 import currentMonth from "../Dashboard/DashboardComponent/currentMonth";
 import { typography } from "@mui/system";
 
+import axios from "axios";
+import FileDownload from "js-file-download";
+
 const PendingPMLogHistory = () => {
   let columns = [
     {
@@ -88,11 +91,14 @@ const PendingPMLogHistory = () => {
       header: "Done By",
       sort: "true",
     },
+    {
+      header: "File",
+      sort: "true",
+    },
   ];
 
   const context = useContext(RoutingContext);
 
-  const [tableData, setTableData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
   const [selectedCell, setSelectedCell] = useState("");
@@ -103,6 +109,8 @@ const PendingPMLogHistory = () => {
   const [loadingAnimationState, setLoadingAnimationState] = useState(
     <LoadingAnimation />
   );
+
+  const [logHistoryData, setLogHistoryData] = useState([]);
 
   const postSectionToGetAllPendingPMLogHistory = async (selectedSection) => {
     // setSubSection(undefined);
@@ -123,8 +131,6 @@ const PendingPMLogHistory = () => {
         console.log("Invalid");
       } else {
         setAllDataSectionWise(data);
-        // setLineData(data.lineData);
-        setTableData(data.logHistoryAllPendingPMData);
         setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
@@ -185,9 +191,62 @@ const PendingPMLogHistory = () => {
     }
   };
 
+  const fetchSectionWiseLogHistory = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch("/fetchSectionWiseLogHistory/pendingLogHistory", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          section: context.section_data,
+          selectedYear,
+        }),
+      });
+      const data = await res.json();
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log("178   ===============>", data?.logHistoryData);
+        setLogHistoryData(data?.logHistoryData);
+
+        // setAllDataSectionWise(data);
+        // setTableData(data.logHistoryAllData);
+        // setLoadingAnimationState(<NotFound />);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     postSectionToGetAllPendingPMLogHistory();
+
+    fetchSectionWiseLogHistory();
   }, []);
+
+  const styleForDownloadFileButton = {
+    backgroundColor: "transparent",
+    border: "none",
+    color: "#0A58CA",
+    textDecoration: "underline",
+  };
+
+  const downloadUploadedImage = async (selectedFileName) => {
+    try {
+      axios({
+        url: `/downloadUploadedImage/${selectedFileName}`,
+        method: "GET",
+        responseType: "blob",
+      }).then((res) => {
+        // console.log("==========>")
+        FileDownload(res.data, selectedFileName);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -201,7 +260,7 @@ const PendingPMLogHistory = () => {
           </Col>
           <Col>
             <MonthDropDown
-              selectedMonth={selectedMonth}
+              selectedMonth={selectedMonth ? selectedMonth : ""}
               setSelectedMonth={setSelectedMonth}
             />
           </Col>
@@ -224,8 +283,17 @@ const PendingPMLogHistory = () => {
                     className="textField"
                     onChange={(e) => {
                       // console.log(e.target.value);
-                      setSelectedCell(e.target.value);
-                      postCellToGetLineList(e.target.value);
+
+                      // console.log(
+                      //   allDataSectionWise?.cellData?.[e.target.value]?.cell_id
+                      // );
+                      setSelectedCell(
+                        e.target.value
+                        // allDataSectionWise?.cellData?.[e.target.value]
+                      );
+                      postCellToGetLineList(
+                        allDataSectionWise?.cellData?.[e.target.value]?._id
+                      );
                       setLoadingAnimationState(<LoadingAnimation />);
                     }}
                     // fullWidth
@@ -236,10 +304,8 @@ const PendingPMLogHistory = () => {
                     <option selected disabled value="">
                       Please select
                     </option>
-                    {allDataSectionWise?.cellData?.map((option) => {
-                      return (
-                        <option value={option._id}>{option.cell_name}</option>
-                      );
+                    {allDataSectionWise?.cellData?.map((option, index) => {
+                      return <option value={index}>{option.cell_name}</option>;
                     })}
                   </select>
                 </div>
@@ -276,10 +342,8 @@ const PendingPMLogHistory = () => {
                     <option selected disabled value="">
                       Please select
                     </option>
-                    {lineDropdown?.map((option) => {
-                      return (
-                        <option value={option._id}>{option.line_name}</option>
-                      );
+                    {lineDropdown?.map((option, index) => {
+                      return <option value={index}>{option.line_name}</option>;
                     })}
                   </select>
                 </div>
@@ -307,9 +371,9 @@ const PendingPMLogHistory = () => {
           </Col>
         </Row>
       </Container>
-      {tableData?.length > 0 ? (
+      {logHistoryData?.length > 0 ? (
         <div className="container-fluid" style={{ overflow: "auto" }}>
-          <h4 style={{ padding: "1rem 0 0 0" }}>Pending PM Log History</h4>
+          <h4 style={{ padding: "1rem 0 0 0" }}>Log History</h4>
 
           <table className="ar-table pmSheetApprovalTableCol">
             <thead className="mt-5">
@@ -331,98 +395,64 @@ const PendingPMLogHistory = () => {
               </tr>
             </thead>
             <tbody>
-              {selectedCell || selectedLine || selectedMonth
-                ? tableData?.map((index) =>
-                    (selectedCell !== ""
-                      ? index?.cell_names?._id === selectedCell
-                      : true) &&
-                    (selectedMonth !== undefined
-                      ? index?.schedule_month === selectedMonth
-                      : true) &&
-                    (selectedLine !== ""
-                      ? index?.line_names._id === selectedLine
-                      : true) ? (
-                      <tr className="ar-table-thead-header4 tableRowColor">
-                        <td className="td-padding">{index?.sr_no}</td>
-                        <td className="td-padding">{index?.schedule_month}</td>
-                        <td className="td-padding">
-                          {index?.cell_names?.cell_name}
-                        </td>
-                        <td className="td-padding">
-                          {index?.line_names?.line_name}
-                        </td>
-                        <td className="td-padding">{index?.machine_name}</td>
-                        <td className="td-padding">{index?.machine_code}</td>
-
-                        <td className="td-padding">
-                          {index?.reasonForDelayWhenSkip}
-                        </td>
-                        <td className="td-padding">
-                          {index?.inspection_parent_name}
-                        </td>
-                        <td className="td-padding">
-                          {index?.completionDateOfInspection}
-                        </td>
-                        <td className="td-padding">
-                          {index?.remarksOfWorkedImplementaion}
-                        </td>
-                        <td className="td-padding">{index?.abnormality}</td>
-                        <td className="td-padding">
-                          {index?.abnormalityRemarks}
-                        </td>
-                        <td className="td-padding">
-                          {index?.abnormalityStatus}
-                        </td>
-                        <td className="td-padding">{index?.targetDate}</td>
-                        <td className="td-padding">{index?.spareParts}</td>
-                        <td className="td-padding">{index?.partName}</td>
-                        <td className="td-padding">{index?.partNo}</td>
-                        <td className="td-padding">{index?.cost}</td>
-                        <td className="td-padding">{index?.doneBy}</td>
-                      </tr>
-                    ) : (
-                      // <NotFound/>
-                      console.log("")
-                    )
-                  )
-                : tableData?.map((index) => (
-                    <tr className="ar-table-thead-header4 tableRowColor">
-                      <td className="td-padding">{index?.sr_no}</td>
-                      <td className="td-padding">{index?.schedule_month}</td>
-                      <td className="td-padding">
-                        {index?.cell_names?.cell_name}
-                      </td>
-                      <td className="td-padding">
-                        {index?.line_names?.line_name}
-                      </td>
-                      <td className="td-padding">{index?.machine_name}</td>
-
-                      <td className="td-padding">{index?.machine_code}</td>
-                      <td className="td-padding">
-                        {index?.reasonForDelayWhenSkip}
-                      </td>
-                      <td className="td-padding">
-                        {index?.inspection_parent_name}
-                      </td>
-                      <td className="td-padding">
-                        {index?.completionDateOfInspection}
-                      </td>
-                      <td className="td-padding">
-                        {index?.remarksOfWorkedImplementaion}
-                      </td>
-                      <td className="td-padding">{index?.abnormality}</td>
-                      <td className="td-padding">
-                        {index?.abnormalityRemarks}
-                      </td>
-                      <td className="td-padding">{index?.abnormalityStatus}</td>
-                      <td className="td-padding">{index?.targetDate}</td>
-                      <td className="td-padding">{index?.spareParts}</td>
-                      <td className="td-padding">{index?.partName}</td>
-                      <td className="td-padding">{index?.partNo}</td>
-                      <td className="td-padding">{index?.cost}</td>
-                      <td className="td-padding">{index?.doneBy}</td>
-                    </tr>
-                  ))}
+              {logHistoryData?.map((item, index) =>
+                (selectedCell
+                  ? item?.cellInfo?.cell_Id ===
+                    allDataSectionWise?.cellData?.[selectedCell]?.cell_id
+                  : true) &&
+                (selectedMonth
+                  ? item?.schedule_month === selectedMonth
+                  : true) &&
+                (selectedLine
+                  ? item?.lineInfo?.line_Id ===
+                    lineDropdown?.[selectedLine]?.line_id
+                  : true) ? (
+                  <tr className="ar-table-thead-header4 tableRowColor">
+                    {/* {console.log(item?.lineInfo?.line_Id)} */}
+                    <td className="td-padding">{index + 1}</td>
+                    <td className="td-padding">{item?.schedule_month}</td>
+                    <td className="td-padding">{item?.cellInfo?.cell_name}</td>
+                    <td className="td-padding">{item?.lineInfo?.line_name}</td>
+                    <td className="td-padding">
+                      {item?.machineInfo?.machine_name}
+                    </td>
+                    <td className="td-padding">
+                      {item?.machineInfo?.machine_Id}
+                    </td>
+                    <td className="td-padding">{item?.reason_for_delay}</td>
+                    <td className="td-padding">{item?.inception_point}</td>
+                    <td className="td-padding">{item?.date}</td>
+                    <td className="td-padding">{item?.remarks}</td>
+                    <td className="td-padding">
+                      {item?.abnormality_remarks ? "Yes" : "No"}
+                    </td>
+                    <td className="td-padding">{item?.abnormality_remarks}</td>
+                    <td className="td-padding">{item?.abnormality_status}</td>
+                    <td className="td-padding">{item?.target}</td>
+                    <td className="td-padding">{item?.spare_used}</td>
+                    <td className="td-padding">{item?.part_name}</td>
+                    <td className="td-padding">{item?.part_no}</td>
+                    <td className="td-padding">{item?.part_cost}</td>
+                    <td className="td-padding">{item?.done_by}</td>
+                    <td className="td-padding">
+                      {item?.uploaded_file_name ? (
+                        <button
+                          style={styleForDownloadFileButton}
+                          onClick={() =>
+                            downloadUploadedImage(item?.uploaded_file_name)
+                          }
+                        >
+                          {item?.uploaded_file_name}
+                        </button>
+                      ) : (
+                        ""
+                      )}
+                    </td>
+                  </tr>
+                ) : (
+                  ""
+                )
+              )}
             </tbody>
           </table>
         </div>

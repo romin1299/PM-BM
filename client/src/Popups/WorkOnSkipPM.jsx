@@ -9,9 +9,11 @@ import { Multiselect } from "multiselect-react-dropdown";
 import { useContext } from "react";
 import RoutingContext from "../context/routing/RoutingContext";
 
-function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
+function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey, machineId }) {
   const [workedData, setWorkedData] = useState([]);
   const [userPhoto, setUserPhoto] = useState([]);
+
+  console.log("+++++++++++++++++++++++++", selectedRow);
 
   const [supportingTMList, setSupportingTMList] = useState([]);
   const [selectedSupportedTM, setSelectedSupportedTM] = useState([]);
@@ -99,7 +101,7 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
       abc: 2,
     },
   ];
-  console.log(selectedSupportedTM);
+  // console.log(selectedSupportedTM);
   const formik = useFormik({
     initialValues: {
       workedOnPM: "",
@@ -138,7 +140,10 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
       formData.append("yearOfCheckSheet", selectedRow.yearOfCheckSheet);
       formData.append("schedule_month", selectedRow.schedule_month);
       formData.append("pmTime", values.pmTime);
-      formData.append("selectedSupportedTM", JSON.stringify(selectedSupportedTM));
+      formData.append(
+        "selectedSupportedTM",
+        JSON.stringify(selectedSupportedTM)
+      );
       formData.append("PMworkedTMName", context.tm_name.split(" ")[0]);
       formData.append("PMworkedTMNo", context.tm_no);
       // formData.append("monthForCompareSystemMonth", monthForCompareSystemMonth);
@@ -168,6 +173,7 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
             // disabledButtonAfterPM(tableRowId, true);
             close();
             functionToSetRefKey();
+            postNewPendingLogHistory();
             // window.location.reload();
             // navigate("/machineWiseCheckSheetForImplemetation");
           }
@@ -179,7 +185,32 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
     },
   });
 
-  console.log(formik.values.reasonForDelayWhenSkip);
+  const postNewPendingLogHistory = async () => {
+    const res = await fetch("/submitLogHistory", {
+      method: "Post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        yearOfCheckSheet: selectedRow.yearOfCheckSheet,
+        values: formik?.values,
+
+        inceptionValueForLogHistory: selectedRow?.inspection_parent_name,
+        completionDateOfInspection: timeStamp(),
+        schedule_month: selectedRow?.schedule_month,
+        // refKeyForScheduleMonthInLogHistory,
+        // machineAllData,
+        machineId,
+      }),
+    });
+    const data = res.json();
+    // console.log(data);
+    if (res.status === 400 || res.status === 422 || !data) {
+      window.alert("Invalid credentials !");
+    } else {
+      console.log("Log Added Successfully...");
+    }
+  };
+
+  // console.log(formik.values.reasonForDelayWhenSkip);
 
   //fetch supported operator list
   const getListForApproval = async () => {
@@ -222,6 +253,7 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey }) {
         <span onClick={close} className="close">
           &times;
         </span>
+        <button onClick={postNewPendingLogHistory}>ABCD</button>
         <div>
           <form
             onSubmit={formik.handleSubmit}

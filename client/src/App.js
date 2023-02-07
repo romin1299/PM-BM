@@ -117,6 +117,12 @@ function App() {
                 <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
 
 
+                {/* Report Dashboard */}
+
+                <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} />
+                <Route path="/openAbnormalityTrack" element={<OpenAbnormalityTrack />} />
+                <Route path="/spareReportDashboard" element={<SpareReportMainDashboard />} />
+
               </Routes>
             }
           />

@@ -55,7 +55,6 @@ function CheckSheet({
   const [HOSList, setHOSList] = useState([]);
   const [PRDTLlist, setPRDTLlist] = useState([]);
   const [MTDTLlist, setMTDTLlist] = useState([]);
-  const [MTDHODlist, setMTDHODlist] = useState([]);
 
   const [dataSheetName, setDataSheetName] = useState([]);
 
@@ -214,38 +213,38 @@ function CheckSheet({
     },
   });
 
-  const formik2 = useFormik({
-    initialValues: {
-      mtd_hod_list: "",
-    },
-    validationSchema: validationSchema2,
+  // const formik2 = useFormik({
+  //   initialValues: {
+  //     mtd_hod_list: "",
+  //   },
+  //   validationSchema: validationSchema2,
 
-    onSubmit: async (values) => {
-      const res = await fetch("/sendRequestForApproval", {
-        method: "Post",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mtd_hod_list: MTDHODlist[values.mtd_hod_list],
-          implemetation_completed_date: timeStamp(),
-          selected_machine_data: machineAllData,
-          monthForCompareSystemMonth,
-          phaseStatus: machineAllData?.checkSheet_data?.checksheet_status,
-        }),
-      });
-      const data = res.json();
-      // console.log(data);
-      if (res.status === 400 || res.status === 422 || !data) {
-        window.alert("Invalid credentials !");
-      } else if (res.status === 409) {
-        console.log("Machine code already exists!");
-      } else {
-        console.log("PM worked data save sucessfully...");
-        closeCheckSheet();
-        // navigate("/");
-        // clearState();
-      }
-    },
-  });
+  //   onSubmit: async (values) => {
+  //     const res = await fetch("/sendRequestForApproval", {
+  //       method: "Post",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         mtd_hod_list: MTDHODlist[values.mtd_hod_list],
+  //         implemetation_completed_date: timeStamp(),
+  //         selected_machine_data: machineAllData,
+  //         monthForCompareSystemMonth,
+  //         phaseStatus: machineAllData?.checkSheet_data?.checksheet_status,
+  //       }),
+  //     });
+  //     const data = res.json();
+  //     // console.log(data);
+  //     if (res.status === 400 || res.status === 422 || !data) {
+  //       window.alert("Invalid credentials !");
+  //     } else if (res.status === 409) {
+  //       console.log("Machine code already exists!");
+  //     } else {
+  //       console.log("PM worked data save sucessfully...");
+  //       closeCheckSheet();
+  //       // navigate("/");
+  //       // clearState();
+  //     }
+  //   },
+  // });
 
   const clearState = () => {
     formik.values.pmTime = "";
@@ -271,7 +270,6 @@ function CheckSheet({
       setHOSList(data.HOSlist);
       setMTDTLlist(data.MTDTLlist);
       setSupportingTMList(data.supportingOperatorList);
-      setMTDHODlist(data.MTDHODlist);
       // setTableData(finalData);
     } catch (error) {
       console.log(error);
@@ -1094,6 +1092,7 @@ function CheckSheet({
                     </tr>
                   </thead>
                   <tbody>
+                    {/* {console.log(newTableData)} */}
                     {newTableData.map((rData, rIndex) => (
                       <tr
                         className={
@@ -1104,7 +1103,7 @@ function CheckSheet({
                         }
                       >
                         {" "}
-                        {rData.map((colData) =>
+                        {rData.map((colData, index) =>
                           machineAllData?.checkSheet_data?.checksheet_status ===
                             "Implementation" &&
                           context.user_type === "Operator" ? (
@@ -1138,7 +1137,6 @@ function CheckSheet({
                                 rowSpan={colData.rowspan}
                                 colSpan={colData.colspan}
                               >
-                                {" "}
                                 {colData.value[0] === "0" &&
                                 colData.key !== "tableRowId" &&
                                 colData.key !== "cycle" &&
@@ -1157,6 +1155,44 @@ function CheckSheet({
                                         className="pmImplementationBtn"
                                         id={rData[0].value}
                                         onClick={() => {
+                                          // if (
+                                          //   colData.key === "inspection_point"
+                                          // ) {
+                                          //   console.log(
+                                          //     colData.key,
+                                          //     "<==>",
+                                          //     colData.value
+                                          //   );
+                                          // }
+
+                                          // console.log(
+                                          //   "????????????? ",
+                                          //   colData.key === "inspection_point"
+                                          //     ? colData.value
+                                          //     : "-----------",
+
+                                          //   colData.key,
+                                          //   "8888888888888",
+                                          //   colData.value
+                                          // );
+
+                                          // console.log(
+                                          //   rData?.[3]?.key,
+                                          //   ">>>>>>>>>>",
+                                          //   rData?.[3]?.value
+                                          // );
+
+                                          // console.log(
+                                          //   "@@@@@@@@@@@@@@@@@ 1187",
+                                          //   machineAllData
+                                          // );
+
+                                          // console.log(
+                                          //   "############",
+                                          //   colData?.value?.[0],
+                                          //   colData,
+                                          //   rData
+                                          // );
                                           setWorkOnImplementationPM(
                                             <WorkOnImplementationPM
                                               close={close}
@@ -1178,6 +1214,15 @@ function CheckSheet({
                                                 functionToSetRefKey
                                               }
                                               previousMonth={previousMonth}
+                                              //--------------------
+
+                                              machineAllData={machineAllData}
+                                              inceptionValueForLogHistory={
+                                                rData?.[3]?.value
+                                              }
+                                              refKeyForScheduleMonthInLogHistory={
+                                                colData?.value?.[0]
+                                              }
                                             />
                                           );
                                           document.querySelector(
@@ -2087,12 +2132,13 @@ function CheckSheet({
                           <form onSubmit={formik.handleSubmit}>
                             {delayRemarks === 1 ? (
                               machineAllData?.checkSheet_data?.PMDelayRemark ? (
-                                machineAllData?.checkSheet_data?.PMDelayRemark[
+                                machineAllData?.checkSheet_data
+                                  ?.PMDelayRemark?.[
                                   monthForCompareSystemMonth
-                                ][
+                                ]?.[
                                   machineAllData?.checkSheet_data
                                     ?.PMDelayRemark[monthForCompareSystemMonth]
-                                    .length - 1
+                                    ?.length - 1
                                 ] ? (
                                   <div className="mb-2 row">
                                     <span
@@ -2264,10 +2310,10 @@ function CheckSheet({
                               >
                                 {machineAllData?.checkSheet_data?.totalPMTime?.[
                                   monthForCompareSystemMonth
-                                ].totalWorkedPMTime
+                                ]?.totalWorkedPMTime
                                   ? machineAllData?.checkSheet_data
                                       ?.totalPMTime[monthForCompareSystemMonth]
-                                      .totalWorkedPMTime
+                                      ?.totalWorkedPMTime
                                   : "0"}
                               </span>
                             </div>

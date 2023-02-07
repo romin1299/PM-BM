@@ -14,6 +14,9 @@ const SubSection = require('../model/subSectionSchema')
 const Cell = require('../model/cellSchema')
 const Line = require('../model/lineSchema')
 const Machine = require('../model/machineSchema')
+const LogHistory = require("../model/logHistorySchema")
+
+
 const sendMail = require('../sendMail/sendMail');
 const sendApprovalOfImplementation = require('../sendMail/sendApprovalOfImplementation')
 const BackupMachineData = require('../model/backupMachine')
@@ -757,6 +760,48 @@ router.post('/deleteCell', authenticate, async (req, res) => {
 router.post('/addNewLine', authenticate, async (req, res) => {
     try {
         const { line_name, cell, line_sequence } = req.body
+
+        const commonVarForMonthlyApproval = {
+            checkedByTL: undefined,
+
+            assignHOS: undefined,
+            approvedByHOS: "",
+
+            assignHOD: undefined,
+            approvedByHODIfDelay: "",
+            remarksIfDelay: "",
+        }
+
+        let monthlyApprovalData = {
+            Apr: commonVarForMonthlyApproval,
+
+            May: commonVarForMonthlyApproval,
+
+            June: commonVarForMonthlyApproval,
+
+            July: commonVarForMonthlyApproval,
+
+            Aug: commonVarForMonthlyApproval,
+
+            Sep: commonVarForMonthlyApproval,
+
+            Oct: commonVarForMonthlyApproval,
+
+            Nov: commonVarForMonthlyApproval,
+
+            Dec: commonVarForMonthlyApproval,
+
+            Jan: commonVarForMonthlyApproval,
+
+            Feb: commonVarForMonthlyApproval,
+
+            Mar: commonVarForMonthlyApproval,
+        }
+
+        let currentYear =
+            new Date().getMonth() <= 3 ?
+                `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
+                `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
         // console.log(cell)
         if (req.body.line_id) {
 
@@ -788,9 +833,31 @@ router.post('/addNewLine', authenticate, async (req, res) => {
         if (sequenceFind) {
             const updateSequence = await Line.updateMany({ cell_names: cellInfo[0]._id, line_sequence: { $gte: line_sequence } }, { $inc: { line_sequence: 1 } })
             // console.log(updateSequence);
-            newLine = new Line({ line_id, line_name, cell_names: cellInfo[0]._id, line_sequence })
+            newLine = new Line(
+                {
+                    line_id,
+                    line_name,
+                    cell_names: cellInfo[0]._id,
+                    line_sequence,
+                    annualPmScheduleApproval: {
+                        current_year: currentYear,
+                        monthlyApprovalData: monthlyApprovalData
+                    },
+                },
+            )
         } else {
-            newLine = new Line({ line_id, line_name, cell_names: cellInfo[0]._id, line_sequence })
+            newLine = new Line(
+                {
+                    line_id, line_name,
+                    cell_names: cellInfo[0]._id,
+                    line_sequence,
+                    annualPmScheduleApproval: {
+                        current_year: currentYear,
+                        monthlyApprovalData: monthlyApprovalData
+                    },
+                },
+
+            )
         }
 
         // console.log(newLine)
@@ -2856,8 +2923,13 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
     try {
         let loggedUserData = req.rootUser;
 
+        // console.log(loggedUserData?.plant_data)
+
         let sectionSplit = loggedUserData.section_data.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+
+        const HODList = await User.find({ plant_data: loggedUserData.plant_data, user_type: "Plant-Admin", })
+
 
         let TLlist, HOSlist, PRDHOSlist, MTDHODlist, PRDHODlist, PRDTLlist, supportingOperatorList, allUser,
             MTDTLlist, MTDTLandOperatorList, supportingOperatorListArray, supportingOperatorListForReportDashboard = []
@@ -2949,7 +3021,7 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
 
         res.json({
             TLlist, HOSlist, PRDHOSlist, MTDHODlist, PRDHODlist, PRDTLlist, supportingOperatorList, MTDTLlist, allUser,
-            MTDTLandOperatorList, supportingOperatorListForReportDashboard
+            MTDTLandOperatorList, supportingOperatorListForReportDashboard, HODList
         });
     } catch (error) {
         console.log("User data not send or get!!!");
@@ -3542,7 +3614,7 @@ router.get('/getApprovalRequestData', authenticate, async (req, res) => {
                             ]
                         }
                     }
-  
+
                 ])
 
             }
@@ -5078,6 +5150,7 @@ router.post('/updateSelectedMachineCheckSheetTableRowDataForStartingMonth', asyn
     }
 })
 
+let fileNameForLogHistory
 //add data of implementation when operator worked on machine PM
 router.post('/postImplementationWorkedData', upload1.single('photoUpload'), authenticate, async (req, res) => {
     try {
@@ -5266,6 +5339,7 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
                     })
                 } else {
                     let PMuploadedImage = req.file.filename
+                    fileNameForLogHistory = req?.file?.filename
                     addPmData = await Machine.updateOne({ machine_code: machineId }, {
                         $set: {
                             // [keyOfMonth]: {$each:[workedOnPM, remarksOfImplementation]}
@@ -5339,7 +5413,7 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
                 }
             } else {
                 let PMuploadedImage = req.file.filename
-
+                fileNameForLogHistory = req?.file?.filename
                 let checkCarriedPM = 0
 
                 //for done with delay
@@ -5454,6 +5528,7 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
 
             } else {
                 let PMuploadedImage = req.file.filename
+                fileNameForLogHistory = req?.file?.filename
                 let checkCarriedPM = 0
 
                 //for done with delay
@@ -5650,6 +5725,422 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
         } else {
             return res.status(400).json("Checksheet worked data not posted!!!");
         }
+    } catch (error) {
+        console.log(error)
+        console.log("Data not valid or received !!!");
+    }
+})
+
+
+router.post('/submitLogHistory', authenticate, async (req, res) => {
+    try {
+        //-----------------------------------------------------
+
+        const {
+            yearOfCheckSheet,
+            values,
+            inceptionValueForLogHistory,
+            completionDateOfInspection,
+
+            refKeyForScheduleMonthInLogHistory,
+            schedule_month,
+
+            machineId
+        } = req.body
+
+
+        let {
+            machineAllData
+        } = req.body
+
+
+        //-----------------------------------------------------
+
+
+        const monthKeyArray = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "June",
+            "July",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
+
+        let newLog, sectionOrSubSection_Id, sectionOrSubSection_name
+
+        let scheduleMonth =
+            schedule_month
+                ? schedule_month
+                : refKeyForScheduleMonthInLogHistory === "2"
+                    ? monthKeyArray[new Date().getMonth() - 1] === undefined
+                        ? monthKeyArray.splice(-1)[0]
+                        : monthKeyArray[new Date().getMonth() - 1]
+                    : monthKeyArray[new Date().getMonth()]
+
+
+
+
+
+
+        // console.log(machineId, machineAllData)
+        if (machineId) {
+            machineAllData = await Machine.findOne({ _id: machineId })
+                .populate({
+                    path: "line_names",
+                    populate:
+                    {
+                        path: "cell_names",
+                        populate:
+                        {
+                            path: "subSection_names", model: "SubSections"
+                        }
+                    }
+                })
+        }
+        // console.log(machineId, "5745 =============>", machineAllData)
+
+
+        // console.log(
+
+        //     fileNameForLogHistory,
+
+        //     yearOfCheckSheet,
+        //     values,
+        //     inceptionValueForLogHistory,
+        //     refKeyForScheduleMonthInLogHistory,
+        //     scheduleMonth,
+        //     "machineInfo ===========================>",
+        //     machineAllData?.machine_code,
+        //     machineAllData?.machine_name,
+
+        //     " lineInfo ===========================>",
+
+        //     machineAllData?.line_names?.line_id,
+        //     machineAllData?.line_names?.line_name,
+
+        //     "cellInfo ===========================>",
+
+        //     machineAllData?.line_names?.cell_names?.cell_id,
+        //     machineAllData?.line_names?.cell_names?.cell_name,
+
+        //     "subSectionInfo ===========================>",
+
+        //     machineAllData?.line_names?.cell_names?.subSection_names?.subSection_id,
+        //     machineAllData?.line_names?.cell_names?.subSection_names?.subSection_name,
+        // )
+
+
+        const sectionInfo = await Section
+            .findOne(
+                {
+                    section_id: req?.rootUser?.section_data?.split("-")?.[0]
+                }
+            ).populate({ path: "plant_names" })
+
+
+        if (sectionInfo?.dashboardLevel === "Yes") {
+
+            sectionOrSubSection_Id = sectionInfo?.section_id,
+                sectionOrSubSection_name = sectionInfo?.section_name
+
+        } else {
+            sectionOrSubSection_Id = machineAllData?.line_names?.cell_names?.subSection_names?.subSection_id,
+                sectionOrSubSection_name = machineAllData?.line_names?.cell_names?.subSection_names?.subSection_name
+
+        }
+
+
+
+
+        if (values?.workedOnPM === "Yes") {
+
+            newLog = new LogHistory({
+                //-------------------
+                current_year: yearOfCheckSheet,
+                schedule_month: scheduleMonth,
+
+                //--------------------- Plant
+                "plantInfo.plant_Id": sectionInfo?.plant_names?.plant_id,
+                "plantInfo.plant_name": sectionInfo?.plant_names?.plant_name,
+
+                //--------------------- Section Or SubSection based on Dashboard Level
+                "sectionOrSubSectionInfo.sectionOrSubSection_Id": sectionOrSubSection_Id,
+                "sectionOrSubSectionInfo.sectionOrSubSection_name": sectionOrSubSection_name,
+
+                //--------------------- Cell
+                "cellInfo.cell_Id": machineAllData?.line_names?.cell_names?.cell_id,
+                "cellInfo.cell_name": machineAllData?.line_names?.cell_names?.cell_name,
+
+                //--------------------- Line
+                "lineInfo.line_Id": machineAllData?.line_names?.line_id,
+                "lineInfo.line_name": machineAllData?.line_names?.line_name,
+
+                //--------------------- Machine
+                "machineInfo.machine_Id": machineAllData?.machine_code,
+                "machineInfo.machine_name": machineAllData?.machine_name,
+
+                //--------------------- Done By
+                done_by: req?.rootUser?.tm_name,
+
+                // cell_id: machineAllData?.line_names?.cell_names?._id,
+                // line_id: machineAllData?.line_names?._id,
+                // machine_id: machineAllData?._id,
+
+                //-------------
+                inception_point: inceptionValueForLogHistory,
+                remarks: values?.remarksOfImplementation,
+                uploaded_file_name: fileNameForLogHistory,
+                date: completionDateOfInspection,
+
+                //--------------------- Reason For Delay
+                reason_for_delay: values?.reasonForDelayWhenSkip
+            })
+
+
+            // remarksOfImplementation,fileNameForLogHistory
+        } else if (values?.workedOnPM === "Rectify") {
+            //remarksOfImplementation,fileNameForLogHistory,abnormalityRemarks,abnormalityStatus,spareParts
+            // spareParts === yes then => partName,partNo,cost
+
+            if (values?.spareParts === "Yes") {
+                newLog = new LogHistory({
+                    //-------------------
+                    current_year: yearOfCheckSheet,
+                    schedule_month: scheduleMonth,
+
+                    //---------------------
+
+                    //--------------------- Plant
+                    "plantInfo.plant_Id": sectionInfo?.plant_names?.plant_id,
+                    "plantInfo.plant_name": sectionInfo?.plant_names?.plant_name,
+
+                    //--------------------- Section Or SubSection based on Dashboard Level
+                    "sectionOrSubSectionInfo.sectionOrSubSection_Id": sectionOrSubSection_Id,
+                    "sectionOrSubSectionInfo.sectionOrSubSection_name": sectionOrSubSection_name,
+
+                    //--------------------- Cell
+                    "cellInfo.cell_Id": machineAllData?.line_names?.cell_names?.cell_id,
+                    "cellInfo.cell_name": machineAllData?.line_names?.cell_names?.cell_name,
+
+                    //--------------------- Line
+                    "lineInfo.line_Id": machineAllData?.line_names?.line_id,
+                    "lineInfo.line_name": machineAllData?.line_names?.line_name,
+
+                    //--------------------- Machine
+                    "machineInfo.machine_Id": machineAllData?.machine_code,
+                    "machineInfo.machine_name": machineAllData?.machine_name,
+
+                    //--------------------- Done By
+                    done_by: req?.rootUser?.tm_name,
+
+
+                    // cell_id: machineAllData?.line_names?.cell_names?._id,
+                    // line_id: machineAllData?.line_names?._id,
+                    // machine_id: machineAllData?._id,
+
+                    //-------------
+                    inception_point: inceptionValueForLogHistory,
+                    remarks: values?.remarksOfImplementation,
+                    uploaded_file_name: fileNameForLogHistory,
+                    date: completionDateOfInspection,
+
+                    abnormality_remarks: values?.abnormalityRemarks,
+                    abnormality_status: "Closed",
+                    spare_used: values?.spareParts,
+                    part_name: values?.partName,
+                    part_no: values?.partNo,
+                    part_cost: values?.cost,
+
+                    //--------------------- Reason For Delay
+                    reason_for_delay: values?.reasonForDelayWhenSkip
+
+                })
+            } else {
+                newLog = new LogHistory({
+                    //-------------------
+                    current_year: yearOfCheckSheet,
+                    schedule_month: scheduleMonth,
+
+                    //---------------------
+
+                    //--------------------- Plant
+                    "plantInfo.plant_Id": sectionInfo?.plant_names?.plant_id,
+                    "plantInfo.plant_name": sectionInfo?.plant_names?.plant_name,
+
+                    //--------------------- Section Or SubSection based on Dashboard Level
+                    "sectionOrSubSectionInfo.sectionOrSubSection_Id": sectionOrSubSection_Id,
+                    "sectionOrSubSectionInfo.sectionOrSubSection_name": sectionOrSubSection_name,
+
+                    //--------------------- Cell
+                    "cellInfo.cell_Id": machineAllData?.line_names?.cell_names?.cell_id,
+                    "cellInfo.cell_name": machineAllData?.line_names?.cell_names?.cell_name,
+
+                    //--------------------- Line
+                    "lineInfo.line_Id": machineAllData?.line_names?.line_id,
+                    "lineInfo.line_name": machineAllData?.line_names?.line_name,
+
+                    //--------------------- Machine
+                    "machineInfo.machine_Id": machineAllData?.machine_code,
+                    "machineInfo.machine_name": machineAllData?.machine_name,
+
+                    //--------------------- Done By
+                    done_by: req?.rootUser?.tm_name,
+
+
+                    // cell_id: machineAllData?.line_names?.cell_names?._id,
+                    // line_id: machineAllData?.line_names?._id,
+                    // machine_id: machineAllData?._id,
+
+                    //-------------
+                    inception_point: inceptionValueForLogHistory,
+                    remarks: values?.remarksOfImplementation,
+                    uploaded_file_name: fileNameForLogHistory,
+                    date: completionDateOfInspection,
+
+                    abnormality_remarks: values?.abnormalityRemarks,
+                    abnormality_status: "Closed",
+                    spare_used: values?.spareParts,
+
+                    //--------------------- Reason For Delay
+                    reason_for_delay: values?.reasonForDelayWhenSkip
+
+                })
+            }
+
+
+
+        } else {
+            // remarksOfImplementation,fileNameForLogHistory
+
+            //targetDate
+
+            if (values?.spareParts === "Yes") {
+                newLog = new LogHistory({
+                    //-------------------
+                    current_year: yearOfCheckSheet,
+                    schedule_month: scheduleMonth,
+
+                    //---------------------
+
+                    //--------------------- Plant
+                    "plantInfo.plant_Id": sectionInfo?.plant_names?.plant_id,
+                    "plantInfo.plant_name": sectionInfo?.plant_names?.plant_name,
+
+                    //--------------------- Section Or SubSection based on Dashboard Level
+                    "sectionOrSubSectionInfo.sectionOrSubSection_Id": sectionOrSubSection_Id,
+                    "sectionOrSubSectionInfo.sectionOrSubSection_name": sectionOrSubSection_name,
+
+                    //--------------------- Cell
+                    "cellInfo.cell_Id": machineAllData?.line_names?.cell_names?.cell_id,
+                    "cellInfo.cell_name": machineAllData?.line_names?.cell_names?.cell_name,
+
+                    //--------------------- Line
+                    "lineInfo.line_Id": machineAllData?.line_names?.line_id,
+                    "lineInfo.line_name": machineAllData?.line_names?.line_name,
+
+                    //--------------------- Machine
+                    "machineInfo.machine_Id": machineAllData?.machine_code,
+                    "machineInfo.machine_name": machineAllData?.machine_name,
+
+                    //--------------------- Done By
+                    done_by: req?.rootUser?.tm_name,
+
+                    // cell_id: machineAllData?.line_names?.cell_names?._id,
+                    // line_id: machineAllData?.line_names?._id,
+                    // machine_id: machineAllData?._id,
+
+                    //-------------
+                    inception_point: inceptionValueForLogHistory,
+                    remarks: values?.remarksOfImplementation,
+                    uploaded_file_name: fileNameForLogHistory,
+                    date: completionDateOfInspection,
+
+                    abnormality_remarks: values?.abnormalityRemarks,
+                    abnormality_status: "Open",
+                    target: values?.targetDate,
+                    spare_used: values?.spareParts,
+                    part_name: values?.partName,
+                    part_no: values?.partNo,
+                    part_cost: values?.cost,
+
+                    //--------------------- Reason For Delay
+                    reason_for_delay: values?.reasonForDelayWhenSkip
+
+                })
+            } else {
+                newLog = new LogHistory({
+                    //-------------------
+                    current_year: yearOfCheckSheet,
+                    schedule_month: scheduleMonth,
+
+                    //---------------------
+
+                    //--------------------- Plant
+                    "plantInfo.plant_Id": sectionInfo?.plant_names?.plant_id,
+                    "plantInfo.plant_name": sectionInfo?.plant_names?.plant_name,
+
+                    //--------------------- Section Or SubSection based on Dashboard Level
+                    "sectionOrSubSectionInfo.sectionOrSubSection_Id": sectionOrSubSection_Id,
+                    "sectionOrSubSectionInfo.sectionOrSubSection_name": sectionOrSubSection_name,
+
+                    //--------------------- Cell
+                    "cellInfo.cell_Id": machineAllData?.line_names?.cell_names?.cell_id,
+                    "cellInfo.cell_name": machineAllData?.line_names?.cell_names?.cell_name,
+
+                    //--------------------- Line
+                    "lineInfo.line_Id": machineAllData?.line_names?.line_id,
+                    "lineInfo.line_name": machineAllData?.line_names?.line_name,
+
+                    //--------------------- Machine
+                    "machineInfo.machine_Id": machineAllData?.machine_code,
+                    "machineInfo.machine_name": machineAllData?.machine_name,
+
+                    //--------------------- Done By
+                    done_by: req?.rootUser?.tm_name,
+
+
+                    // cell_id: machineAllData?.line_names?.cell_names?._id,
+                    // line_id: machineAllData?.line_names?._id,
+                    // machine_id: machineAllData?._id,
+
+                    //-------------
+                    inception_point: inceptionValueForLogHistory,
+                    remarks: values?.remarksOfImplementation,
+                    uploaded_file_name: fileNameForLogHistory,
+                    date: completionDateOfInspection,
+
+                    abnormality_remarks: values?.abnormalityRemarks,
+                    abnormality_status: "Open",
+                    target: values?.targetDate,
+                    spare_used: values?.spareParts,
+
+                    //--------------------- Reason For Delay
+                    reason_for_delay: values?.reasonForDelayWhenSkip
+
+                })
+            }
+
+        }
+
+
+        // console.log(newLog)
+
+        const logSaved = await newLog.save()
+
+        fileNameForLogHistory = undefined
+
+        if (logSaved) {
+            return res.status(201).json("Log data added successfully");
+        } else {
+            return res.status(400).json("Getting error");
+        }
+
     } catch (error) {
         console.log(error)
         console.log("Data not valid or received !!!");
@@ -6037,7 +6528,18 @@ router.post('/postMachineIdToGetAllDetailsOfMachine', authenticate, async (req, 
         }
         ])
 
-        machineLastData = await Machine.populate(machineLastData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+        machineLastData = await Machine.populate(machineLastData,
+            {
+                path: "line_names",
+                populate:
+                {
+                    path: "cell_names",
+                    populate:
+                    {
+                        path: "subSection_names", model: "SubSections"
+                    }
+                }
+            })
 
         // console.log(machineLastData)
 
@@ -6182,6 +6684,74 @@ router.post('/postCellToGetLineListForReport', authenticate, async (req, res) =>
 
         // console.log("============>",cell)
 
+
+
+        const refKeyForPopulateHosHodUser = [
+            {
+                tl: "annualPmScheduleApproval.monthlyApprovalData.Jan.checkedByTL",
+                hos: "annualPmScheduleApproval.monthlyApprovalData.Jan.assignHOS",
+                hod: "annualPmScheduleApproval.monthlyApprovalData.Jan.assignHOD",
+            },
+
+            {
+                tl: "annualPmScheduleApproval.monthlyApprovalData.Feb.checkedByTL",
+                hos: "annualPmScheduleApproval.monthlyApprovalData.Feb.assignHOS",
+                hod: "annualPmScheduleApproval.monthlyApprovalData.Feb.assignHOD",
+            },
+
+            {
+                tl: "annualPmScheduleApproval.monthlyApprovalData.Mar.checkedByTL",
+                hos: "annualPmScheduleApproval.monthlyApprovalData.Mar.assignHOS",
+                hod: "annualPmScheduleApproval.monthlyApprovalData.Mar.assignHOD",
+            },
+            {
+                tl: "annualPmScheduleApproval.monthlyApprovalData.Apr.checkedByTL",
+                hos: "annualPmScheduleApproval.monthlyApprovalData.Apr.assignHOS",
+                hod: "annualPmScheduleApproval.monthlyApprovalData.Apr.assignHOD",
+            },
+            {
+                tl: "annualPmScheduleApproval.monthlyApprovalData.May.checkedByTL",
+                hos: "annualPmScheduleApproval.monthlyApprovalData.May.assignHOS",
+                hod: "annualPmScheduleApproval.monthlyApprovalData.May.assignHOD",
+            },
+            {
+                tl: "annualPmScheduleApproval.monthlyApprovalData.June.checkedByTL",
+                hos: "annualPmScheduleApproval.monthlyApprovalData.June.assignHOS",
+                hod: "annualPmScheduleApproval.monthlyApprovalData.June.assignHOD",
+            },
+            {
+                tl: "annualPmScheduleApproval.monthlyApprovalData.July.checkedByTL",
+                hos: "annualPmScheduleApproval.monthlyApprovalData.July.assignHOS",
+                hod: "annualPmScheduleApproval.monthlyApprovalData.July.assignHOD",
+            },
+            {
+                tl: "annualPmScheduleApproval.monthlyApprovalData.Aug.checkedByTL",
+                hos: "annualPmScheduleApproval.monthlyApprovalData.Aug.assignHOS",
+                hod: "annualPmScheduleApproval.monthlyApprovalData.Aug.assignHOD",
+            },
+            {
+                tl: "annualPmScheduleApproval.monthlyApprovalData.Sep.checkedByTL",
+                hos: "annualPmScheduleApproval.monthlyApprovalData.Sep.assignHOS",
+                hod: "annualPmScheduleApproval.monthlyApprovalData.Sep.assignHOD",
+            },
+            {
+                tl: "annualPmScheduleApproval.monthlyApprovalData.Oct.checkedByTL",
+                hos: "annualPmScheduleApproval.monthlyApprovalData.Oct.assignHOS",
+                hod: "annualPmScheduleApproval.monthlyApprovalData.Oct.assignHOD",
+            },
+            {
+                tl: "annualPmScheduleApproval.monthlyApprovalData.Nov.checkedByTL",
+                hos: "annualPmScheduleApproval.monthlyApprovalData.Nov.assignHOS",
+                hod: "annualPmScheduleApproval.monthlyApprovalData.Nov.assignHOD",
+            },
+            {
+                tl: "annualPmScheduleApproval.monthlyApprovalData.Dec.checkedByTL",
+                hos: "annualPmScheduleApproval.monthlyApprovalData.Dec.assignHOS",
+                hod: "annualPmScheduleApproval.monthlyApprovalData.Dec.assignHOD",
+            },
+        ]
+
+
         const lineInfo = await Line.find({ cell_names: cell })
             .populate({ path: "cell_names" })
             .populate({ path: "annualPmScheduleApproval.mtdTlId", model: "Users" })
@@ -6189,9 +6759,68 @@ router.post('/postCellToGetLineListForReport', authenticate, async (req, res) =>
             .populate({ path: "annualPmScheduleApproval.mtdHod.mtdHodId", model: "Users" })
             .populate({ path: "annualPmScheduleApproval.prdHos.prdHosId", model: "Users" })
 
+            .populate({ path: refKeyForPopulateHosHodUser[0].tl, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[0].hos, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[0].hod, model: "Users" })
+
+            .populate({ path: refKeyForPopulateHosHodUser[1].tl, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[1].hos, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[1].hod, model: "Users" })
+
+            .populate({ path: refKeyForPopulateHosHodUser[2].tl, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[2].hos, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[2].hod, model: "Users" })
+
+            .populate({ path: refKeyForPopulateHosHodUser[3].tl, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[3].hos, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[3].hod, model: "Users" })
+
+            .populate({ path: refKeyForPopulateHosHodUser[4].tl, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[4].hos, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[4].hod, model: "Users" })
+
+            .populate({ path: refKeyForPopulateHosHodUser[5].tl, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[5].hos, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[5].hod, model: "Users" })
+
+            .populate({ path: refKeyForPopulateHosHodUser[6].tl, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[6].hos, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[6].hod, model: "Users" })
+
+            .populate({ path: refKeyForPopulateHosHodUser[7].tl, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[7].hos, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[7].hod, model: "Users" })
+
+            .populate({ path: refKeyForPopulateHosHodUser[8].tl, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[8].hos, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[8].hod, model: "Users" })
+
+            .populate({ path: refKeyForPopulateHosHodUser[9].tl, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[9].hos, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[9].hod, model: "Users" })
+
+            .populate({ path: refKeyForPopulateHosHodUser[10].tl, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[10].hos, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[10].hod, model: "Users" })
+
+            .populate({ path: refKeyForPopulateHosHodUser[11].tl, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[11].hos, model: "Users" })
+            .populate({ path: refKeyForPopulateHosHodUser[11].hod, model: "Users" })
+        // .populate({ path: "annualPmScheduleApproval.monthlyApprovalData.Apr.assignHOD", model: "Users" })
+
 
 
         // console.log(lineInfo)
+
+        // lineInfo?.map((item) => {
+        //     if (item?.line_name === "Linbe11") {
+
+        //         console.log(
+        //             item?.annualPmScheduleApproval?.[0]
+        //         )
+        //     }
+
+        // })
 
         res.json({ lineInfo })
 
@@ -6250,7 +6879,17 @@ router.post('/postLineToGetMachineListForReportDashboard', authenticate, async (
         }
         ])
         // const machineInfo = await Machine.find({ line_names: line }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-        machineInfo = await Machine.populate(machineInfo, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+        machineInfo = await
+            Machine
+                .populate(machineInfo,
+                    {
+                        path: "line_names",
+                        populate:
+                        {
+                            path: "cell_names", model: "Cells",
+                            // path: "annualPmScheduleApproval[0]", model: "Cells"
+                        }
+                    })
 
 
         // console.log(machineInfo)
@@ -6930,6 +7569,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
 
                                 skipMachineDataWithEveryMonth.push(
                                     new Object({
+                                        machine_id: keyForCheckSheet?._id,
                                         machine_name: keyForCheckSheet?.machine_name,
                                         machine_code: keyForCheckSheet?.machine_code,
                                         yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
@@ -6953,6 +7593,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                         keyForCheckSheet?.checkSheet_data?.flagOfDoneWithDelayForOneMonth?.[month] === currentMonthInNumber)) {
                         skipMachineDataWithEveryMonth.push(
                             new Object({
+                                machine_id: keyForCheckSheet?._id,
                                 machine_name: keyForCheckSheet?.machine_name,
                                 machine_code: keyForCheckSheet?.machine_code,
                                 yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
@@ -6972,6 +7613,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                     if (keyForCheckSheet?.checkSheet_data?.carriedPMStatus?.[monthForCompareSystemMonth] != "" && keyForCheckSheet?.checkSheet_data?.carriedPMStatus != undefined) {
                         skipMachineDataWithEveryMonth.push(
                             new Object({
+                                machine_id: keyForCheckSheet?._id,
                                 machine_name: keyForCheckSheet?.machine_name,
                                 machine_code: keyForCheckSheet?.machine_code,
                                 yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
@@ -7107,6 +7749,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
 
                                 skipMachineDataWithEveryMonth.push(
                                     new Object({
+                                        machine_id: keyForCheckSheet?._id,
                                         machine_name: keyForCheckSheet?.machine_name,
                                         machine_code: keyForCheckSheet?.machine_code,
                                         yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
@@ -7130,6 +7773,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                         keyForCheckSheet?.checkSheet_data?.flagOfDoneWithDelayForOneMonth?.[month] === currentMonthInNumber)) {
                         skipMachineDataWithEveryMonth.push(
                             new Object({
+                                machine_id: keyForCheckSheet?._id,
                                 machine_name: keyForCheckSheet?.machine_name,
                                 machine_code: keyForCheckSheet?.machine_code,
                                 yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
@@ -7149,6 +7793,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                     if (keyForCheckSheet?.checkSheet_data?.carriedPMStatus?.[monthForCompareSystemMonth] != "" && keyForCheckSheet?.checkSheet_data?.carriedPMStatus != undefined) {
                         skipMachineDataWithEveryMonth.push(
                             new Object({
+                                machine_id: keyForCheckSheet?._id,
                                 machine_name: keyForCheckSheet?.machine_name,
                                 machine_code: keyForCheckSheet?.machine_code,
                                 yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
@@ -10005,6 +10650,7 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
             completionDateOfInspection
         } = req.body
 
+
         const loggedUserData = req.rootUser
 
         let selectedSupportedTM = JSON.parse(req.body?.selectedSupportedTM)
@@ -10114,6 +10760,8 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
                 })
             } else {
                 let PMuploadedImage = req.file.filename
+                fileNameForLogHistory = req?.file?.filename
+
                 addPmData = await Machine.updateOne({ machine_code: machineId }, {
                     $set: {
                         // [keyOfMonth]: {$each:[workedOnPM, remarksOfImplementation]}
@@ -10159,6 +10807,8 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
             }
             else {
                 let PMuploadedImage = req.file.filename
+                fileNameForLogHistory = req?.file?.filename
+
 
 
                 addPmData = await Machine.updateOne({ machine_code: machineId }, {
@@ -10209,6 +10859,8 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
 
             } else {
                 let PMuploadedImage = req.file.filename
+                fileNameForLogHistory = req?.file?.filename
+
 
                 addPmData = await Machine.updateOne({ machine_code: machineId }, {
                     $set: {
@@ -10223,7 +10875,7 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
                         [keyOfPartNo]: partNo,
                         [keyOfCost]: cost,
                         [keyOfCompletionDateOfInspection]: completionDateOfInspection,
-                        [keyOfInspectionCompletionBy]: loggedUserData.tm_name,
+                        [keyOfInspectionCompletionBy]: loggedUserData?.tm_name,
                         [keyOfReasonForDelayWhenSkip]: reasonForDelayWhenSkip
 
                     }
@@ -10348,7 +11000,7 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
 
         let updatePMworkedTMName
         if (machineDataAfterSaveAllData[0].checkSheet_data.PMworkedTMName != undefined) {
-            if (!getSelectedMachineChecksheet[0]?.checkSheet_data?.PMworkedTMName[monthForCompareSystemMonth].includes(PMworkedTMName)) {
+            if (!machineDataAfterSaveAllData[0]?.checkSheet_data?.PMworkedTMName[monthForCompareSystemMonth].includes(PMworkedTMName)) {
                 updatePMworkedTMName = await Machine.updateOne({
                     machine_code: machineId
                 }, {
@@ -10837,6 +11489,10 @@ router.post('/postSectionToGetAllDataForLogHistory', authenticate, async (req, r
                             (keyOfChecksheetData?.planningTableAnimationArray2?.[month][1] !== "dummy" ||
                                 keyOfChecksheetData?.planningTableAnimationArray2?.[month][1] !== "delay")) {
                             let abnormality = keyOfChecksheetData?.abnormalityDetails?.[month]?.abnormalityRemarks ? "Yes" : "No"
+
+                            // console.log(
+                            //     keyOfChecksheetData?.abnormalityDetails?.[month]?.PMuploadedImage
+                            // )
 
                             logHistoryAllData.push(
                                 new Object({
@@ -11388,31 +12044,31 @@ router.post('/annualPmScheduleApproval', async (req, res) => {
 
         let updatedLine = await Line.updateOne(
             { _id: selectedLine?._id },
+
             {
-                $push: {
-                    annualPmScheduleApproval: {
+                $set: {
 
-                        //current year
-                        "current_year": currentYear,
+                    //prepared User
+                    "annualPmScheduleApproval.$[outer].mtdTlId": selectedMtdTl,
 
-                        //prepared User
-                        "mtdTlId": selectedMtdTl,
+                    //MTD HOS
+                    "annualPmScheduleApproval.$[outer].mtdHos.mtdHosId": selectedMtdHos,
+                    "annualPmScheduleApproval.$[outer].mtdHos.mtdHosApprovalStatus": "Pending",
 
-                        //MTD HOS
-                        "mtdHos.mtdHosId": selectedMtdHos,
-                        "mtdHos.mtdHosApprovalStatus": "Pending",
+                    //MTD HOD
+                    "annualPmScheduleApproval.$[outer].mtdHod.mtdHodId": selectedMtdHod,
+                    "annualPmScheduleApproval.$[outer].mtdHod.mtdHodApprovalStatus": "Pending",
 
-                        //MTD HOD
-                        "mtdHod.mtdHodId": selectedMtdHod,
-                        "mtdHod.mtdHodApprovalStatus": "Pending",
-
-                        //PRD HOS
-                        "prdHos.prdHosId": selectedPrdHos,
-                        "prdHos.prdHosApprovalStatus": "Pending",
-                    }
-
+                    //PRD HOS
+                    "annualPmScheduleApproval.$[outer].prdHos.prdHosId": selectedPrdHos,
+                    "annualPmScheduleApproval.$[outer].prdHos.prdHosApprovalStatus": "Pending",
                 }
-            });
+            },
+
+            {
+                arrayFilters: [{ 'outer.current_year': currentYear }],
+            }
+        );
 
 
         const userInfoForMail = await User.findOne({ _id: selectedMtdHos })
@@ -11485,6 +12141,143 @@ router.post('/approveRequestForAnnualPmSchedule', async (req, res) => {
         // console.log(toEmail)
 
         sendMailForAnnualPmScheduleReport(toEmail, lineData)
+
+        res.status(200).json({ msg: "uploaded successfully" })
+
+
+
+    } catch (error) {
+        console.log(error)
+        console.log("Data not valid or received !!!");
+    }
+})
+
+router.post('/submitMonthlyApprovalRequestForAnnualPmSchedule', authenticate, async (req, res) => {
+    try {
+
+        const {
+            values,
+            selectedYear,
+            lineInfo,
+            month,
+
+            assignHOS,
+            assignHOD
+        } = req.body
+
+        // console.log(
+        //     values,
+        //     selectedYear,
+        //     lineInfo,
+
+        //     month,
+
+        //     assignHOS,
+        //     assignHOD
+        // )
+
+        // console.log(
+        //     req.rootUser?._id
+        // )
+
+        let keyForAssignHOD,
+            keyOfStatusForAssignHOD,
+            keyOfRemarksForAssignHOD
+
+        let objectForSetValueInDB
+
+
+
+        let keyForApprovalSenderUser = `annualPmScheduleApproval.$[outer].monthlyApprovalData.${month}.checkedByTL`
+
+        let keyForAssignHOS = `annualPmScheduleApproval.$[outer].monthlyApprovalData.${month}.assignHOS`
+        let keyOfStatusForAssignHOS = `annualPmScheduleApproval.$[outer].monthlyApprovalData.${month}.approvedByHOS`
+
+        if (values?.delay === "Yes") {
+
+            keyForAssignHOD = `annualPmScheduleApproval.$[outer].monthlyApprovalData.${month}.assignHOD`
+            keyOfStatusForAssignHOD = `annualPmScheduleApproval.$[outer].monthlyApprovalData.${month}.approvedByHODIfDelay`
+            keyOfRemarksForAssignHOD = `annualPmScheduleApproval.$[outer].monthlyApprovalData.${month}.remarksIfDelay`
+
+
+            objectForSetValueInDB = {
+                [keyForApprovalSenderUser]: req.rootUser?._id,
+
+                [keyForAssignHOS]: assignHOS,
+                [keyOfStatusForAssignHOS]: "Pending",
+
+                [keyForAssignHOD]: assignHOD,
+                [keyOfStatusForAssignHOD]: "Pending",
+                [keyOfRemarksForAssignHOD]: values?.remarks,
+            }
+        } else {
+            objectForSetValueInDB = {
+                [keyForApprovalSenderUser]: req.rootUser?._id,
+
+                [keyForAssignHOS]: assignHOS,
+                [keyOfStatusForAssignHOS]: "Pending",
+            }
+        }
+
+        await Line.updateOne(
+            { _id: lineInfo?._id },
+            {
+                $set: objectForSetValueInDB
+            },
+            {
+                arrayFilters: [{ 'outer.current_year': selectedYear }],
+            }
+
+        );
+
+        res.status(200).json({ msg: "uploaded successfully" })
+
+
+
+    } catch (error) {
+        console.log(error)
+        console.log("Data not valid or received !!!");
+    }
+})
+
+router.post('/approveMonthlyRequestForAnnualPmSchedule', authenticate, async (req, res) => {
+    try {
+
+        const {
+            selectedYear,
+            month,
+            keyRefForHosOrHod,
+            lineInfo,
+        } = req.body
+
+        // console.log(
+        //     selectedYear,
+        //     month,
+        //     keyRefForHosOrHod,
+        //     lineInfo
+        // )
+
+        let keyOfStatusForAssignHOSOrHOD
+
+        if (keyRefForHosOrHod === "hos") {
+            keyOfStatusForAssignHOSOrHOD = `annualPmScheduleApproval.$[outer].monthlyApprovalData.${month}.approvedByHOS`
+        }else{
+            keyOfStatusForAssignHOSOrHOD = `annualPmScheduleApproval.$[outer].monthlyApprovalData.${month}.approvedByHODIfDelay`
+
+        }
+
+        await Line.updateOne(
+            { _id: lineInfo?._id },
+            {
+                $set: {
+                    [keyOfStatusForAssignHOSOrHOD]: "Accepted"
+                }
+            },
+            {
+                arrayFilters: [{ 'outer.current_year': selectedYear }],
+            }
+
+        );
 
         res.status(200).json({ msg: "uploaded successfully" })
 
@@ -12543,6 +13336,81 @@ router.post('/postSectionToGetAllDataForTop20MachineSparePartsReport', authentic
     } catch (error) {
         console.log(error)
         console.log("User id not received!!!");
+    }
+})
+
+
+router.post('/fetchSectionWiseLogHistory/:id', authenticate, async (req, res) => {
+    try {
+        const {
+            section,
+            selectedYear
+        } = req.body
+
+
+        let logHistoryData, conditionVarForLogHistory
+
+        const sectionInfo = await Section
+            .findOne(
+                {
+                    section_id: section?.split("-")?.[0]
+                }
+            ).populate({ path: "plant_names" })
+
+
+        conditionVarForLogHistory = req.params.id === "simpleLogHistory" ? undefined : { $ne: undefined }
+
+        if (sectionInfo?.dashboardLevel === "Yes") {
+
+            logHistoryData = await LogHistory.find(
+                {
+                    reason_for_delay: conditionVarForLogHistory,
+                    current_year: selectedYear,
+                    "sectionOrSubSectionInfo.sectionOrSubSection_Id": sectionInfo?.section_id
+                })
+        } else {
+            // req?.rootUser?.subSection_data
+
+            // console.log(
+            //     req?.rootUser?.subSection_data?.map((item, index) => item?.split("-")[0])
+            // )
+
+
+            logHistoryData = await LogHistory.find(
+                {
+                    reason_for_delay: conditionVarForLogHistory,
+                    current_year: selectedYear,
+                    "sectionOrSubSectionInfo.sectionOrSubSection_Id":
+                    {
+                        $in: req?.rootUser?.subSection_data?.map((item, index) => item?.split("-")?.[0])
+                    }
+                })
+
+        }
+
+        // console.log(
+        //     logHistoryData
+        // )
+
+        // const logHistoryData = await LogHistory.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+
+        res.status(201).json({ logHistoryData })
+
+
+    } catch (error) {
+        console.log(error)
+        console.log("Data not valid or received !!!");
+    }
+})
+
+
+router.get('/downloadUploadedImage/:fileName', authenticate, async (req, res) => {
+    try {
+        // console.log(req?.params?.fileName)
+        res.download(path.join(__dirname, `../PMimages/${req?.params?.fileName}`))
+
+    } catch (error) {
+        console.log("Filename not received");
     }
 })
 
