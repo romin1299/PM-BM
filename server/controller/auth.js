@@ -8292,6 +8292,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
 
 
             // const machineData = await Machine.findOne({ _id: machineID })
+            let keyOfPMStatusOfCurrentMonth = `checkSheet_data.PMStatus.${monthForCompareSystemMonth}`
 
             machineDataForCurrentMonth = await Machine.aggregate([{
                 $match: {
@@ -8319,6 +8320,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                 $match: {
                     [keyForCurrentMonthPMStatus]: { $ne: "" },
                     "checkSheet_data.PMStatus": { $ne: undefined },
+                    // [keyOfPMStatusOfCurrentMonth]: { $ne:  "No Completion" }
                 }
             },
             ])
@@ -8352,6 +8354,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                 $match: {
                     // [keyForPreviousMonthPMStatus]: { $ne: "" },
                     "checkSheet_data.PMStatus": { $ne: undefined },
+
                 }
             },
             ])
@@ -8625,7 +8628,6 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
 
             machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
-            machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
             // machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
         }
 
@@ -9202,6 +9204,13 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
                 // console.log(lineIdArray)
 
                 // machineData = await Machine.find({ line_names: { $in: lineIdArray }, checkSheet_data:{$exists:true}}).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+
+                let deleteMidYearDeletedInceptionItem = await Machine.updateMany(
+                    { line_names: { $in: lineIdArray } },
+                    { $pull: { "checkSheet_data.$[outer].checkSheet": { isDeleted: true } } }, {
+                    arrayFilters: [{ 'outer.current_year': previous_year }],
+                })
+
 
                 let previousYearCheckCheetDataOfPeraticularSection
                 previousYearCheckCheetDataOfPeraticularSection = await Machine.aggregate([{
