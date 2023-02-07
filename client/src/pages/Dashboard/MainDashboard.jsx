@@ -6,7 +6,6 @@ import CheckSheet from "./CheckSheet";
 import { useNavigate } from "react-router-dom";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import { ToastContainer, toast } from "react-toastify";
-import Modal from "../../Popups/Modal";
 import "react-toastify/dist/ReactToastify.css";
 import { Button } from "react-bootstrap";
 import CheckSheetForImplementation from "../Operator/CheckSheetForImplementation";

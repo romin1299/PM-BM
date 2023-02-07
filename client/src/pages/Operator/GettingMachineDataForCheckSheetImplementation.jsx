@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CheckSheetForImplementation from "./CheckSheetForImplementation";
 import CheckSheet from "../Dashboard/CheckSheet";
-import Modal from "../../Popups/Modal";
 
 const GettingMachineDataForCheckSheetImplementation = ({
   machineData,
