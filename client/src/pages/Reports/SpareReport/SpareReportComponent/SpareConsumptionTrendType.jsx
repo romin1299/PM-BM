@@ -43,8 +43,8 @@ const SpareConsumptionTrendType = ({context}) => {
   }, []);
 console.log(graphData)
   return (
-    <div className="p-3 ">
-      <Container className="cell">
+    <div className="pt-3 ">
+      <Container className="cell" fluid>
         <Row>
           <h5 className="d-flex justify-content-center align-items-center m-2">
             Spare Consumption Trend Type

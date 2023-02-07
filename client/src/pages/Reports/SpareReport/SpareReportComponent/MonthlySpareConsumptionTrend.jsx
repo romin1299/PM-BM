@@ -175,8 +175,8 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
   }, [selectedYear]);
 
   return (
-    <div className="p-3 ">
-      <Container>
+    <div className="pt-3 ">
+      <Container fluid>
         <Row className="pt-2 cell">
           <Row>
             <Col
@@ -255,7 +255,7 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
           </Row>
         </Row>
       </Container>
-      <Container className="cell">
+      <Container className="cell" fluid>
         <Row>
           <Col>
             {graphData?.totalMonthlyPMSpareConsumption?.length > 0 ? (

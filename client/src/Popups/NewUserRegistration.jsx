@@ -148,6 +148,7 @@ function NewUserRegistration() {
 
         <h4>New Plant User Registration</h4>
         <div>
+        <h3 style={{ textAlign: "left", color:"#dc3545"}}>New User Registeration</h3>
           <form onSubmit={formik.handleSubmit}>
             <div className="pwd-container">
               <span>TM Name: </span>

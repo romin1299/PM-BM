@@ -139,7 +139,8 @@ body {
 .bg-button {
     background-color: #002D37;
 }
-.bg-light-button{
+
+.bg-light-button {
     background-color: #014858 !important;
 }
 
@@ -153,4 +154,14 @@ body {
 
 .svg-font {
     font-size: 1rem !important;
+}
+
+.css-i6bazn {
+    margin-left: -23px;
+    margin-right: -23px;
+}
+
+.css-p9qzma {
+    /* margin-left: -23px; */
+    margin-right: -10px;
 }

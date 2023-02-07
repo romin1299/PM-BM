@@ -130,8 +130,8 @@ const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
   }, [selectedYear]);
 
   return (
-    <div className="p-3 ">
-      <Container>
+    <div className="pt-3">
+      <Container fluid>
         <Row className="pt-2 cell">
           <Row>
             <Col
@@ -142,15 +142,13 @@ const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
             </Col>
           </Row>
           <Row>
-            <Col sm={12} lg={5}>
+            <Col sm={12} lg={6}>
               <YearDropDown
                 selectedYear={selectedYear}
                 setSelectedYear={setSelectedYear}
               />
             </Col>
-          </Row>
-          <Row className="p-2">
-            <Col className="d-flex ">
+            <Col sm={12} lg={6}>
               <Col className="d-flex justify-content-end">
                 <CSVLink
                   data={csvData}
@@ -170,9 +168,10 @@ const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
               </Col>
             </Col>
           </Row>
+
         </Row>
       </Container>
-      <Container className="cell">
+      <Container className="cell pt-1" fluid>
         <Row>
           <Col
           // style={{ height: "25rem" }}

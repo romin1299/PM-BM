@@ -13,6 +13,11 @@ function EmailConfiguration({ close }) {
         </span>
         <br />
         <div>
+          <div>
+          <h5 style={{ textAlign: "left", color: "#dc3545" }}>Enter Email and Password</h5>
+
+          </div>
+          
           <form
           //   onSubmit={formik.handleSubmit}
           >
