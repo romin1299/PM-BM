@@ -84,18 +84,21 @@ const RightNavbar = () => {
       }}
     >
       {/* BURGER */}
-      {/* <div
+      <div
         className={styles.burger_container}
         onClick={() => {
           setNav(!nav);
         }}
       >
         <MdOutlineMenu />
-      </div> */}
+      </div>
 
       {/* ACTIONS */}
       <div className={styles.actions}>
         <AccountCircleIcon onClick={ () => navigate('/profile')}/>
+      </div>
+      <div className={styles.actions}>
+        <LogoutIcon onClick={logout} />
       </div>
     </div>
   );

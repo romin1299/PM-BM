@@ -120,7 +120,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
       sort: "true",
     },
     {
-      header: "Fab",
+      header: "Feb",
       sort: "true",
     },
     {
@@ -502,7 +502,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
               preparation_HOS_date: timeStamp(),
               implementation_approved_by_MTD_HOS: context.tm_name,
               implementation_approved_MTD_HOS_date: timeStamp(),
-              senderApprovalMonth
+              senderApprovalMonth,
             };
 
       // console.log("________");
@@ -781,7 +781,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                 <thead>
                   <tr>
                     <th
-                      className="ar-table-thead-header1"
+                      className="ar-table-thead-header1 text-center"
                       // colSpan={2}
                       //  rowSpan={5}
                     >
@@ -790,7 +790,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       (By PRD TL)
                     </th>
                     <th
-                      className="ar-table-thead-header1"
+                      className="ar-table-thead-header1 text-center"
                       // colSpan={2}
                       //  rowSpan={5}
                     >

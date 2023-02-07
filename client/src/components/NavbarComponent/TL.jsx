@@ -61,12 +61,12 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { height } from "@mui/system";
 import MenuIcon from "@mui/icons-material/Menu";
-import TaskIcon from '@mui/icons-material/Task';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import OfflinePinIcon from '@mui/icons-material/OfflinePin';
-import StorageIcon from '@mui/icons-material/Storage';
-import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
-import ArticleIcon from '@mui/icons-material/Article';
+import TaskIcon from "@mui/icons-material/Task";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import OfflinePinIcon from "@mui/icons-material/OfflinePin";
+import StorageIcon from "@mui/icons-material/Storage";
+import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
+import ArticleIcon from "@mui/icons-material/Article";
 
 const Menuitem = styled(MenuItem)`
   :hover {
@@ -103,6 +103,7 @@ const TL = ({ userData, userDepartment }) => {
   };
 
   const loggedOut = () => {
+    localStorage.clear();
     navigate("/");
     setTimeout(() => {
       window.location.reload(false);
@@ -119,14 +120,13 @@ const TL = ({ userData, userDepartment }) => {
           <SidebarHeader>
             <div className="logotext">
               {/* small and big change using menucollapse state */}
-              <p className="d-flex align-items-center justify-content-center m-2 sticky-top">
+              <p className="d-flex align-items-center justify-content-center m-2 sticky-top bg-white">
                 {menuCollapse ? (
                   <img
-                    src={halflogo}
+                    src={denso_logo}
                     alt=""
-                    style={{ width: "50%", padding: "5px" }}
+                    style={{ width: "50%",  padding: "5px" }}
                     className="bg-white"
-                    
                   />
                 ) : (
                   <img
@@ -158,15 +158,50 @@ const TL = ({ userData, userDepartment }) => {
       </div>
       <SidebarContent>
         <Menu iconShape="square" style={styles.bg}>
-          <Menuitem
+          <SubMenu
             className="text-white"
-            data-toggle="tooltip"
-            data-placement="right"
             title="Dashboard"
             icon={<DashboardIcon className="text-white" />}
           >
-            <NavLink to="/"></NavLink> Dashboard
-          </Menuitem>
+            {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+            <MenuItem
+              className="text"
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Dashboard"
+              icon={
+                <DashboardIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/"></NavLink> Section Dashboard
+            </MenuItem>
+
+            <MenuItem
+              className="text"
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Dashboard"
+              icon={
+                <DashboardIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/summeryDashboard"></NavLink> Plant Dashboard
+            </MenuItem>
+          </SubMenu>
           {userDepartment === "MTD" ? (
             <SubMenu
               className="text-white"
@@ -430,8 +465,8 @@ const TL = ({ userData, userDepartment }) => {
                   }}
                 />
               }
-              href="/logHistory"
             >
+              <NavLink to="/machineWisePmMonthlyReport"></NavLink>
               Monthly Report (Machine)
             </MenuItem>
 
@@ -447,8 +482,8 @@ const TL = ({ userData, userDepartment }) => {
                   }}
                 />
               }
-              href="/pmSheetApprovalOfImplementationPhase"
             >
+              <NavLink to="/lineWisePmMonthlyReport"></NavLink>
               Monthly Report (Line)
             </MenuItem>
             <MenuItem
@@ -463,8 +498,8 @@ const TL = ({ userData, userDepartment }) => {
                   }}
                 />
               }
-              href="/pmSheetApprovalOfImplementationPhase"
             >
+              <NavLink to="/annualPMSchedule"></NavLink>
               Annual PM Schedule
             </MenuItem>
             <MenuItem
@@ -479,8 +514,8 @@ const TL = ({ userData, userDepartment }) => {
                   }}
                 />
               }
-              href="/pmSheetApprovalOfImplementationPhase"
             >
+              <NavLink to="/annualPmStatus"></NavLink>
               Annual PM PM vs Actual
             </MenuItem>
             <MenuItem
@@ -495,8 +530,8 @@ const TL = ({ userData, userDepartment }) => {
                   }}
                 />
               }
-              href="/pmSheetApprovalOfImplementationPhase"
             >
+              <NavLink to="/pmTimeMonitoringReport"></NavLink>
               PM Time Monitoring
             </MenuItem>
           </SubMenu>

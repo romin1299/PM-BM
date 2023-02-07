@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CheckSheetForImplementation from "./CheckSheetForImplementation";
 import CheckSheet from "../Dashboard/CheckSheet";
+import Modal from "../../Popups/Modal";
 
 const GettingMachineDataForCheckSheetImplementation = ({
   machineData,
@@ -8,6 +9,8 @@ const GettingMachineDataForCheckSheetImplementation = ({
   closeCheckSheet,
   loggedUserType,
   selectedYear,
+  showCheckSheet,
+  setMachineWiseCheckSheetForImplementation
 }) => {
   const [implementationPhaseCheckSheet, setImplementationPhaseCheckSheet] =
     useState("");
@@ -17,7 +20,11 @@ const GettingMachineDataForCheckSheetImplementation = ({
     setRefKey((refKey) => refKey + 1);
   };
 
-  console.log(selectedYear);
+  // const [show, setShow] = useState(showCheckSheet);
+  const handleClose = () => setMachineWiseCheckSheetForImplementation("");
+  // const handleShow = () => setShow(true);
+
+  // console.log(show);
   const postMachineIdToGetAllDetailsOfMachine = async () => {
     try {
       const res = await fetch("/postMachineIdToGetAllDetailsOfMachine", {
@@ -44,13 +51,16 @@ const GettingMachineDataForCheckSheetImplementation = ({
                 lineName={lineName}
                 closeCheckSheet={closeCheckSheet}
                 functionToSetRefKey={functionToSetRefKey}
+                handleClose={handleClose}
+                show={showCheckSheet}
               />
             )
           : setImplementationPhaseCheckSheet(
               <CheckSheet
+                show={showCheckSheet}
                 machineData={data?.machineLastData}
                 lineName={lineName}
-                closeCheckSheet={closeCheckSheet}
+                handleClose={handleClose}
               />
             );
       }

@@ -180,7 +180,7 @@ function CheckSheetForm() {
       sort: "true",
     },
     {
-      header: "Fab",
+      header: "Feb",
       sort: "true",
     },
     {
@@ -765,7 +765,7 @@ function CheckSheetForm() {
               {/* </a> */}
             </Col>
             {tableData?.length > 0 ? (
-              <Col lg={6} md={6} sm={6}>
+              <Col lg={6} md={6} sm={6} className="d-flex">
                 <Col>
                   <span style={{ fontWeight: "bold" }}>
                     Upload Data-sheet XLSx/CSV:
@@ -1624,7 +1624,7 @@ function CheckSheetForm() {
                 <thead>
                   <tr>
                     <th
-                      className="ar-table-thead-header1"
+                      className="ar-table-thead-header1 text-center"
                       // colSpan={2}
                       //  rowSpan={5}
                     >
@@ -1633,7 +1633,7 @@ function CheckSheetForm() {
                       (By PRD TL)
                     </th>
                     <th
-                      className="ar-table-thead-header1"
+                      className="ar-table-thead-header1 text-center"
                       // colSpan={2}
                       //  rowSpan={5}
                     >

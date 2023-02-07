@@ -76,7 +76,6 @@ const CheckSheetDashboard = () => {
   // console.log(selectedCell);
 
   const postCellToGetLineList = async (selectedCell) => {
-    console.log("============================>");
     setSelectedLine("");
     try {
       const res = await fetch("/postCellToGetLineListForReport", {
@@ -107,7 +106,6 @@ const CheckSheetDashboard = () => {
 
   const postLineToGetMachineList = async (selectedLine) => {
     // console.log(selectedLine);
-    console.log("============================>106");
     try {
       const res = await fetch("/postLineToGetMachineListForReportDashboard", {
         method: "POST",
@@ -478,11 +476,14 @@ const CheckSheetDashboard = () => {
                 <button
                   class="btn-primary1 w-25 "
                   onClick={() => {
-                    localStorage.removeItem("selectedCell");
-                    localStorage.removeItem("selectedLine");
-                    setSelectedCell();
-                    setSelectedLine();
+                    // localStorage.removeItem("selectedCell");
+                    // localStorage.removeItem("selectedLine");
+                    localStorage.clear();
+                    // setSelectedCell();
+                    // setSelectedLine();
+                    
                     postSectionToGetAllData("Reset");
+                    window.location.reload()
                   }}
                 >
                   Reset

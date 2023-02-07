@@ -178,6 +178,11 @@ const GraphsInMainDashboard = ({
 
   let TableData = [
     {
+      name: "Pending(Previous Month)",
+      // colorClass: "table-danger",
+      value: currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending,
+    },
+    {
       name: "Completed",
       bgColor: "table-success",
       // colorClass: "#789c50",
@@ -190,18 +195,14 @@ const GraphsInMainDashboard = ({
       value: currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
     },
     {
-      name: "Pending(Current Month)",
+      name: "Remaining(Current Month)",
       // colorClass: "table-danger",
       value:
         currentMonthGraphAndTableData?.sumVariableForTotalSchedule -
         currentMonthGraphAndTableData?.sumVariableForTotalCompleted -
         currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
     },
-    {
-      name: "Pending(Previous Month)",
-      // colorClass: "table-danger",
-      value: currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending,
-    },
+    
   ];
 
   let TableDataOfCharts = [
