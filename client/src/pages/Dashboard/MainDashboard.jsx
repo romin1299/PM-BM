@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Button } from "react-bootstrap";
 import CheckSheetForImplementation from "../Operator/CheckSheetForImplementation";
 import GettingMachineDataForCheckSheetImplementation from "../Operator/GettingMachineDataForCheckSheetImplementation";
-import RectangleIcon from '@mui/icons-material/Rectangle';
+import RectangleIcon from "@mui/icons-material/Rectangle";
 
 import currentYear from "./DashboardComponent/currentYear";
 import YearDropDown from "./DashboardComponent/YearDropDown";
@@ -140,6 +140,7 @@ const MainDashboard = () => {
         // console.log(data);
         setallDataSectionWise(data);
         setDefaultSubSection(data.defaultSubSectionArray);
+        setDeafaultDataForNoDashboard(data);
       }
     } catch (error) {
       console.log(error);
@@ -347,7 +348,7 @@ const MainDashboard = () => {
             let subSectionSplit = context.subSection_data[0].split("-");
             // console.log(subSectionSplit[0]);
             if (id.subSection_id === subSectionSplit[0]) {
-              // console.log("***************** 339", id._id);
+              console.log("***************** 339", id._id);
               setSelectedSubSectionIdForDefaultDashboard(id._id);
             }
           });
@@ -627,6 +628,8 @@ const MainDashboard = () => {
     }
   };
 
+  console.log(selectedSubSectionIdForDefaultDashboard);
+
   return (
     <>
       {machineWiseCheckSheetForImplementation}
@@ -635,10 +638,9 @@ const MainDashboard = () => {
 
       {/* <button onClick={funForDummyApi}>dummy</button> */}
       <Container fluid className="operatorDashboard">
-        
-      <Row>
+        <Row>
           <Col xs={12} sm={12} md={12} lg={9}>
-          {Object.keys(allDataSectionWise).length > 0 ? (
+            {Object.keys(allDataSectionWise).length > 0 ? (
               <Col>
                 <Row className="mx-2 mt-4 ">
                   <Col sm={6}>
@@ -835,15 +837,24 @@ const MainDashboard = () => {
                         ""
                       )}
                       {context.user_type === "Section-Admin" ? (
-                        <Col sm={6} className="d-flex align-items-center justify-content-center" >
+                        <Col
+                          sm={6}
+                          lg={4}
+                          className="d-flex align-items-center justify-content-center"
+                        >
                           <button
-                            className="btn text-dark" style={{ background: "#D1ECF1" }}
+                            className="btn text-dark"
+                            style={{ background: "#D1ECF1" }}
                             onClick={addNewCheckSheetAfterChangeFinancialyear}
                           >
                             <AutorenewIcon style={{ fontSize: "small" }} />{" "}
-                            &nbsp; <b>Update{" "}
-                              {`${new Date().getFullYear()}-${new Date().getFullYear() + 1
-                                }`}</b>
+                            &nbsp;{" "}
+                            <b>
+                              Update{" "}
+                              {`${new Date().getFullYear()}-${
+                                new Date().getFullYear() + 1
+                              }`}
+                            </b>
                           </button>
                         </Col>
                       ) : (
@@ -855,8 +866,8 @@ const MainDashboard = () => {
                   <Col sm={6}>
                     <Row
                       className="mx-1 cell d-flex align-content-center justify-content-center pt-2 "
-                    // className="mx-2 mt-4 p-2 cell"
-                    // style={{ background: "#cee4ee", border: "1px solid" }}
+                      // className="mx-2 mt-4 p-2 cell"
+                      // style={{ background: "#cee4ee", border: "1px solid" }}
                     >
                       <Col sm>
                         <YearDropDownForMainDashboard
@@ -884,55 +895,83 @@ const MainDashboard = () => {
                     </Row>
                   </Col>
                 </Row>
-                <Row className="d-flex align-content-center justify cell m-2 g-3" style={{ background: "#E0E0E0" }}>
+                <Row
+                  className="d-flex align-content-center justify cell m-2 pb-3 g-3"
+                  style={{ background: "#E0E0E0" }}
+                >
                   <Col
-
-                    className=" col-lg-2 col-md-6 col-sm-6 " style={{
-                      fontWeight: "bold", fontSize: "14px"
+                    className=" col-lg-2 col-md-6 col-sm-6 "
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "14px",
                     }}
                   >
-                    <RectangleIcon className="bg-white" style={{ color: "#ffffff" }} /> &nbsp;Schedule
+                    <RectangleIcon
+                      className="bg-white"
+                      style={{ color: "#ffffff" }}
+                    />{" "}
+                    &nbsp;Schedule
                   </Col>
                   <Col
-
-                    className="col-lg-2 col-md-6 col-sm-6 " style={{
-                      fontWeight: "bold", fontSize: "14px"
+                    className="col-lg-2 col-md-6 col-sm-6 "
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "14px",
                     }}
                   >
-                    <RectangleIcon style={{ background: "#ffff59", color: "#ffff59" }} /> &nbsp;Ongoing
+                    <RectangleIcon
+                      style={{ background: "#ffff59", color: "#ffff59" }}
+                    />{" "}
+                    &nbsp;Ongoing
                   </Col>
                   <Col
-
-                    className=" col-lg-2 col-md-6 col-sm-6 " style={{
-                      fontWeight: "bold", fontSize: "14px"
+                    className=" col-lg-2 col-md-6 col-sm-6 "
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "14px",
                     }}
                   >
-                    <RectangleIcon style={{ background: "#5fe15f", color: "5fe15f" }} /> &nbsp;Completed
+                    <RectangleIcon
+                      style={{ background: "#5fe15f", color: "5fe15f" }}
+                    />{" "}
+                    &nbsp;Completed
                   </Col>
                   <Col
-
-                    className=" col-lg-2 col-md-6 col-sm-6 " style={{
-                      fontWeight: "bold", fontSize: "14px"
+                    className=" col-lg-2 col-md-6 col-sm-6 "
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "14px",
                     }}
                   >
-                    <RectangleIcon style={{ background: "#ababab", color: "#ababab" }} /> &nbsp;Not Schedule
+                    <RectangleIcon
+                      style={{ background: "#ababab", color: "#ababab" }}
+                    />{" "}
+                    &nbsp;Not Schedule
                   </Col>
 
                   <Col
-
-                    className=" col-lg-2 col-md-6 col-sm-6 " style={{
-                      fontWeight: "bold", fontSize: "14px"
+                    className=" col-lg-2 col-md-6 col-sm-6 "
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "14px",
                     }}
                   >
-                    <RectangleIcon style={{ background: "#ffc356", color: "#ffc356" }} /> &nbsp;Done with delay
+                    <RectangleIcon
+                      style={{ background: "#ffc356", color: "#ffc356" }}
+                    />{" "}
+                    &nbsp;Done with delay
                   </Col>
                   <Col
-
-                    className=" col-lg-2 col-md-6 col-sm-6 " style={{
-                      fontWeight: "bold", fontSize: "14px"
+                    className=" col-lg-2 col-md-6 col-sm-6 "
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "14px",
                     }}
                   >
-                    <RectangleIcon style={{ background: "#ff8888", color: "#ff8888" }} /> &nbsp;No completion / PM Skip
+                    <RectangleIcon
+                      style={{ background: "#ff8888", color: "#ff8888" }}
+                    />{" "}
+                    &nbsp;No completion / PM Skip
                   </Col>
                 </Row>
 
@@ -1523,7 +1562,7 @@ const MainDashboard = () => {
                                     );
                                   }
                                 )
-                                : ""}
+                              : ""}
                           </Row>
                         </Container>
                       </div>
@@ -2021,7 +2060,13 @@ const MainDashboard = () => {
                                                                           ] ===
                                                                             "No Completion"
                                                                         ? "#ff8888"
-                                                                        : "#ababab"
+                                                                        : console.log(
+                                                                            "8888888888888888888888888",
+                                                                            selectedMonth,
+                                                                            machine
+                                                                              .checkSheet_data
+                                                                              ?.PMStatus
+                                                                          )
                                                                       : "#ababab",
                                                                 }}
                                                                 className="machine"
@@ -2079,19 +2124,19 @@ const MainDashboard = () => {
               </div>
             )}
           </Col>
-        
+
           <Col xs={12} sm={12} md={12} lg={3}>
-          <GraphsInMainDashboard
-                sections={sections}
-                subSection={subSection}
-                allDataSectionWise={allDataSectionWise}
-                selectedMonth={selectedMonth}
-                selectedYear={selectedYear}
-                currentMonthGraphAndTableData={currentMonthGraphAndTableData}
-                annualGraph={annualGraph}
-              />
-        </Col>
-      </Row>
+            <GraphsInMainDashboard
+              sections={sections}
+              subSection={subSection}
+              allDataSectionWise={allDataSectionWise}
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+              currentMonthGraphAndTableData={currentMonthGraphAndTableData}
+              annualGraph={annualGraph}
+            />
+          </Col>
+        </Row>
       </Container>
       <Footer />
     </>

@@ -113,9 +113,9 @@ function App() {
               </Routes>
             }
           />
-          
+
         </NavContext.Provider>
-        
+
       </div>
     );
   } else if (context.user_type === "Plant-Admin") {

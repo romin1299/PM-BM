@@ -5,11 +5,11 @@ import {
   MaterialTable,
   tableIcons,
   useContext,
-} from "../../../modules/PageModules";
+} from "../../modules/PageModules";
 import { Navigate, useNavigate } from "react-router-dom";
-import "../../../SCSS/MaterialTable.scss";
-import RoutingContext from "../../../context/routing/RoutingContext";
-import Footer from "../../../components/Footer/Footer";
+import "../../SCSS/MaterialTable.scss";
+import RoutingContext from "../../context/routing/RoutingContext";
+import Footer from "../../components/Footer/Footer";
 
 
 const SixMonthApprovalDashboard = () => {
