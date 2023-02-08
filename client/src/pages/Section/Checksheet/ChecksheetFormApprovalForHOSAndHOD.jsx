@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
+import Footer from "../../../components/Footer/Footer";
 
 function ChecksheetFormApprovalForHOSAndHOD() {
   const context = useContext(RoutingContext);
@@ -1288,6 +1289,8 @@ function ChecksheetFormApprovalForHOSAndHOD() {
           </Col>
         </Row>
       </Container>
+
+      <Footer/>
     </>
   );
 }

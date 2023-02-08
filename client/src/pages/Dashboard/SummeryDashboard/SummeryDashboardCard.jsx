@@ -60,7 +60,7 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
       value: data?.chartData?.sumVariableForTotalSchedule,
     },
     {
-      name: "Last Month Pending",
+      name: "Pending(Previous Month)",
       bgColor: "table-danger",
       value: data?.chartData?.sumVariableForTotalPreviousPending,
     },
@@ -77,7 +77,7 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
   ];
 
   let PendingStatusData = {
-    name: "Pending",
+    name: "Remaining(Current Month)",
     // bgColor: "table-danger",
     value: TableData[0].value - TableData[2].value - TableData[3].value,
   };
@@ -157,16 +157,16 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
                 </tr> */}
                     {TableData.map((item) => (
                       <tr className={item.bgColor}>
-                        <td style={{ fontSize: "8px" }}>{item.name}</td>
+                        <td style={{ fontSize: "12px", fontWeight:"bold" }}>{item.name}</td>
 
-                        <td style={{ fontSize: "8px" }}>{item.value}</td>
+                        <td style={{ fontSize: "12px", fontWeight:"bold" }}>{item.value}</td>
                       </tr>
                     ))}
                     <tr>
-                      <td style={{ fontSize: "8px" }}>
+                      <td style={{ fontSize: "12px", fontWeight:"bold" }}>
                         {PendingStatusData.name}
                       </td>
-                      <td style={{ fontSize: "8px" }}>
+                      <td style={{ fontSize: "12px", fontWeight:"bold" }}>
                         {PendingStatusData.value}
                       </td>
                     </tr>
@@ -179,12 +179,12 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
                 sm
                 className="d-flex justify-content-center align-items-center "
               >
-                <h5
+                <h6
                   className="text-dark "
                   // style={{ background: "rgba(255, 159, 64, 1)" }}
                 >
                   Achievement Ratio
-                </h5>
+                </h6>
               </Col>
             </Row>
             <Row className=" gy-4">
@@ -197,7 +197,10 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
             </Row>
           </div>
         ) : (
-          <NotFound />
+            <div className="d-flex align-items-center justify-content-center">
+<NotFound />
+            </div>
+          
         )}
       </Card>
     </Col>

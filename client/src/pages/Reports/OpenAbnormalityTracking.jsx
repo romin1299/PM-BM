@@ -7,6 +7,7 @@ import axios from "axios";
 import { Row, Col } from "react-bootstrap";
 import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "./ReportComponents/NotFound";
+import Footer from "../../components/Footer/Footer";
 
 function OpenAbnormalityTracking() {
   const context = useContext(RoutingContext);
@@ -362,19 +363,16 @@ function OpenAbnormalityTracking() {
             Open Abnormality Tracking
           </h4>
           <Row className="mt-3">
-            <Col lg={1} md={1} sm={1}>
-              <span style={{ padding: "1rem 0 0 1rem" }}>Line:</span>
-            </Col>
-            <Col lg={3} md={3} sm={3}>
-              <div>
-                <select
+            <Col>
+            <span style={{ padding: "1rem 0 0 1rem" }}><b>Line:</b>&nbsp;&nbsp;</span>
+            <select
                   class="form-select form-select-sm"
                   aria-label=".form-select-sm example"
                   // style={{ width: "100%" }}
                   id="standard-select-currency"
                   name="selectedPlant"
                   value={selectedLine}
-                  className="textField"
+                  className="textField w-25"
                   onChange={(e) => {
                     setSelectedLine(e.target.value);
                     setLoadingAnimationState(<LoadingAnimation />);
@@ -393,9 +391,9 @@ function OpenAbnormalityTracking() {
                       <option value={option._id}>{option.line_name}</option>
                     );
                   })}
-                </select>
-              </div>
-            </Col>
+                </select></Col>
+           
+            
           </Row>
           {tableData?.length > 0 ? (
             <div style={{ padding: "1rem" }}>
@@ -480,6 +478,7 @@ function OpenAbnormalityTracking() {
           )}
         </div>
       </div>
+      <Footer/>
     </>
   );
 }

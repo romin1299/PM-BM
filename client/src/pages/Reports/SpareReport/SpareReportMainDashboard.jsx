@@ -9,6 +9,7 @@ import {
 } from "./SpareReportComponent/FileExports";
 
 import RoutingContext from "../../../context/routing/RoutingContext";
+import Footer from "../../../components/Footer/Footer";
 
 const SpareReportMainDashboard = () => {
   const context = useContext(RoutingContext);
@@ -68,6 +69,7 @@ const SpareReportMainDashboard = () => {
           </Col>
         </Row>
       </Container>
+      <Footer/>
     </>
   );
 };

@@ -6,6 +6,7 @@ import SortIcon from "@mui/icons-material/Sort";
 
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../../Reports/ReportComponents/NotFound";
+import Footer from "../../../components/Footer/Footer";
 
 function PMSheetApprovalOfImplementationPhase() {
   const context = useContext(RoutingContext);
@@ -387,6 +388,8 @@ function PMSheetApprovalOfImplementationPhase() {
           {/* <LoadingAnimation /> */}
         </div>
       )}
+
+      <Footer/>
     </>
   );
 }

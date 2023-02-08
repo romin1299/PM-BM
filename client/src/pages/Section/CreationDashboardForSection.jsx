@@ -24,6 +24,7 @@ import "../../SCSS/MaterialTable.scss";
 import { RadioGroup } from "@mui/material";
 import RoutingContext from "../../context/routing/RoutingContext";
 import MachineAdd from "../../Popups/machineAdd";
+import Footer from "../../components/Footer/Footer";
 
 const CreationDashboardForSection = () => {
   const [subSection, setSubSection] = useState();
@@ -747,6 +748,7 @@ const CreationDashboardForSection = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

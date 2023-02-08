@@ -1,25 +1,14 @@
-@media only screen and (min-width:375px) and (max-width: 900px) {
-    .footer-bottom {
-        display: flex;
-        justify-content: flex-start;
-    }
-
-    .center {
-        text-align: center !important;
-    }
-}
-
-@media only screen and (max-width: 800px) {
-    .bg-footer {
-        background-color: white;
-    }
-}
-
-.bg-footer {
+#footer {
     position: fixed;
-    left: 0;
+    padding: 10px 10px 0px 10px;
     bottom: 0;
     width: 100%;
-    color: white;
-    z-index: 2;
+    /* Height of the footer*/
+    height: 40px;
+    background: rgb(255, 255, 255);
+    /* float: right; */
+    
+}
+#footer p {
+   text-align: center;
 }

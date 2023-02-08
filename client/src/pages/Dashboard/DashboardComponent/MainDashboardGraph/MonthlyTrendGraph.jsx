@@ -27,8 +27,8 @@ export const options = {
       position: "top",
     },
     title: {
-      display: false,
-      text: "Chart.js Bar Chart",
+      display: true,
+      text: "Annual Plan vs Actual",
     },
   },
   // interaction: {
@@ -106,5 +106,5 @@ export function MonthlyTrendGraph({ annualGraph }) {
     ],
   };
 
-  return <Bar options={options} height={200} data={data} />;
+  return <Bar options={options} height={200} data={data} title={"Hello"} />;
 }

@@ -5,6 +5,7 @@ import * as yup from "yup";
 import RoutingContext from "../../context/routing/RoutingContext";
 import { Row, Col, Container } from "react-bootstrap";
 import TextField from "@material-ui/core/TextField";
+import Footer from "../../components/Footer/Footer";
 
 const SkipApprovalComponent = ({skipApprovalStatusData, functionToSetRefKey}) => {
   const context = useContext(RoutingContext);
@@ -136,6 +137,7 @@ const SkipApprovalComponent = ({skipApprovalStatusData, functionToSetRefKey}) =>
         </div>
       </form>
     </Col>
+    
   );
 };
 

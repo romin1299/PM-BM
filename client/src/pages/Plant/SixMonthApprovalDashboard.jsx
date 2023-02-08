@@ -1,9 +1,16 @@
-import React, { useState, useEffect } from "react";
+import {
+  React,
+  useEffect,
+  useState,
+  MaterialTable,
+  tableIcons,
+  useContext,
+} from "../../../modules/PageModules";
+import { Navigate, useNavigate } from "react-router-dom";
+import "../../../SCSS/MaterialTable.scss";
+import RoutingContext from "../../../context/routing/RoutingContext";
+import Footer from "../../../components/Footer/Footer";
 
-import { useNavigate } from "react-router-dom";
-
-import tableIcons from "../../components/MatrialTableIcon";
-import MaterialTable from "@material-table/core";
 
 const SixMonthApprovalDashboard = () => {
   //----------------------------------------------------------------
@@ -216,6 +223,7 @@ const SixMonthApprovalDashboard = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

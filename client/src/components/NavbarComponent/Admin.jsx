@@ -90,7 +90,7 @@ const Admin = ({ userData }) => {
               <p className="d-flex align-items-center justify-content-center m-2 sticky-top">
                 {menuCollapse ? (
                   <img
-                    src={halflogo}
+                    src={denso_logo}
                     alt=""
                     style={{ width: "50%", padding: "5px" }}
                     className="bg-white"
@@ -155,7 +155,7 @@ const Admin = ({ userData }) => {
         <Menu iconShape="square">
           <MenuItem
             className="text"
-            icon={<LogoutIcon className="text-white" style={{ transform: "rotate(180deg)" }} />}
+            icon={<LogoutIcon className="text-white" style={{ transform: "rotate(180deg)" }}/>}
             data-toggle="tooltip"
             data-placement="right"
             title="Logout"

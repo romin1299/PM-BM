@@ -9,6 +9,7 @@ import {
   import { Navigate, useNavigate } from "react-router-dom";
   import "../../../SCSS/MaterialTable.scss";
   import RoutingContext from "../../../context/routing/RoutingContext";
+import Footer from "../../../components/Footer/Footer";
   //   import ChecksheetCreationDashboard from "./Checksheet/ChecksheetCreationDashboard";
   
   const PreparationApprovalDashboard = () => {
@@ -49,11 +50,13 @@ import {
         title: "Cell Name",
         field: "line_names.cell_names.cell_name",
         align: "center",
+        width: "10%",
       },
       {
         title: "Line Name",
         field: "line_names.line_name",
         align: "center",
+        width: "10%",
       },
       {
         title: "Machine Code",
@@ -284,6 +287,7 @@ import {
             </div>
           </div>
         </div>
+        <Footer/>
       </>
     );
   };

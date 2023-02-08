@@ -69,7 +69,7 @@ import PendingPMLogHistory from "./pages/Reports/PendingPMLogHistory";
 
 import SpareReportMainDashboard from "./pages/Reports/SpareReport/SpareReportMainDashboard";
 
-import Footer from "./components/Footer/Footer";
+
 
 //for all reports routing 
 
@@ -85,6 +85,7 @@ import PmTimeMonitoringReport from "./pages/Reports/ReportComponents/PmTimeMonit
 import PreparationApprovalDashboard from "./pages/Section/Checksheet/PreparationApprovalDashboard";
 import PlanningApprovalDashboard from "./pages/Section/Checksheet/PlanningApprovalDashboard";
 import ImplementationApprovalDashboard from "./pages/Section/Checksheet/ImplementationApprovalDashboard";
+import Footer from './components/Footer/Footer'
 
 function App() {
 
@@ -112,7 +113,9 @@ function App() {
               </Routes>
             }
           />
+          
         </NavContext.Provider>
+        
       </div>
     );
   } else if (context.user_type === "Plant-Admin") {
@@ -333,6 +336,8 @@ function App() {
       </div>
     );
   }
+
+  // <Footer/>
 
 }
 

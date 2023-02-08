@@ -13,6 +13,7 @@ import "../../SCSS/MaterialTable.scss";
 import UserUpdate from "../../Popups/UserUpdate";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import EmailConfiguration from "../../Popups/EmailConfiguration";
+import Footer from "../../components/Footer/Footer";
 
 function AdminDashboard() {
   const [tableData, setTableData] = useState([]);
@@ -352,6 +353,7 @@ function AdminDashboard() {
           </div>
         </div>
       </div>
+      <Footer/>
       {/* <Footer /> */}
     </>
   );

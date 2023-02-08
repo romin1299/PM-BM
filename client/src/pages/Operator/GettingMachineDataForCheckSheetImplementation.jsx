@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CheckSheetForImplementation from "./CheckSheetForImplementation";
 import CheckSheet from "../Dashboard/CheckSheet";
+import Footer from "../../components/Footer/Footer";
 
 const GettingMachineDataForCheckSheetImplementation = ({
   machineData,
@@ -106,6 +107,7 @@ const GettingMachineDataForCheckSheetImplementation = ({
   return (
     <>
       <div>{implementationPhaseCheckSheet}</div>
+      <Footer/>
     </>
   );
 };

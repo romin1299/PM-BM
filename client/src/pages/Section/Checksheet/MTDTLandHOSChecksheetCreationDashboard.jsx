@@ -14,6 +14,7 @@ import { useFormik } from "formik";
 import { Navigate, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { ToastContainer, toast } from "react-toastify";
+import Footer from "../../../components/Footer/Footer";
 
 const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
   const [tableData, setTableData] = useState([]);
@@ -910,6 +911,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
           ""
         )}
       </div>
+      <Footer/>
     </>
   );
 };

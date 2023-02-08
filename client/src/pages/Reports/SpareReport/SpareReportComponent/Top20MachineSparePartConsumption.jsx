@@ -103,28 +103,19 @@ const Top20MachineSparePartConsumption = ({ context }) => {
   let srNo = 0;
   return (
     <div className="pt-3 ">
-      <Container fluid>
-        <Row className="pt-2 cell">
-          <Row>
-            <Col
-            // className="cell"
-            // style={{ backgroundColor: "white" }}
-            >
-              <h4>Top 20 Machine (Spare Part Consumption)</h4>
-            </Col>
-          </Row>
-          <Row>
-            <Col sm={12} lg={5}>
-              <YearDropDown
+
+
+<Container fluid>
+        <h4 className="mb-3">Top 20 Machine (Spare Part Consumption)</h4>
+        <Row className="pt-2 cell gy-2">
+          <Col sm={12} lg={6} md={12}>
+          <YearDropDown
                 selectedYear={selectedYear}
                 setSelectedYear={setSelectedYear}
               />
-            </Col>
-          </Row>
-          <Row className="p-2">
-            <Col className="d-flex ">
-              <Col className="d-flex justify-content-end">
-                <CSVLink
+          </Col>
+          <Col sm={12} lg={6} md={12} className="d-flex justify-content-end">
+          <CSVLink
                   headers={label}
                   data={tableData}
                   filename={`${selectedYear}_top20_Machine_SparePart_Consumption_Trend_${timeStamp()}`}
@@ -140,13 +131,12 @@ const Top20MachineSparePartConsumption = ({ context }) => {
                 >
                   PDF
                 </button>
-              </Col>
-            </Col>
-          </Row>
-        </Row>
-      </Container>
-      <Container className="cell pt-1" fluid>
-        {tableData?.length > 0 ? (
+          </Col>
+
+
+          
+          <Row className="mt-3">
+          {tableData?.length > 0 ? (
           <Row className="m-2">
             <table>
               <tr>
@@ -169,7 +159,12 @@ const Top20MachineSparePartConsumption = ({ context }) => {
         ) : (
           loadingAnimationState
         )}
+          </Row>
+        </Row>
       </Container>
+
+
+      
     </div>
   );
 };
