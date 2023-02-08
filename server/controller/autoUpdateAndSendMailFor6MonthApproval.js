@@ -27,6 +27,7 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
 
         const sectionInfo = await Section.find({})
 
+        let plantInfo = await Plant.find({})
 
         let subSectionsData,
             cellData,

@@ -14334,4 +14334,14 @@ router.get('/downloadUploadedImage/:fileName', authenticate, async (req, res) =>
 })
 
 
+router.get('/dummyApi', authenticate, async (req, res) => {
+    try {
+        let plantInfo = await Plant.find({})
+
+        console.log(plantInfo)
+    } catch (error) {
+        console.log("Filename not received");
+    }
+})
+
 module.exports = router;
