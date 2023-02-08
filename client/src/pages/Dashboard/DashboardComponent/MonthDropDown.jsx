@@ -18,16 +18,12 @@ const MonthDropDown = ({ selectedMonth, setSelectedMonth }) => {
   ];
 
   return (
-    <Row className="p-2 ">
-      <Col sm={12} lg={3}>
-        <span><b>Month:</b></span>
-      </Col>
-      <Col>
-        <div>
-          <select
+    <>
+    <span><b>Month:&nbsp; &nbsp;</b></span>
+        <select
             class="form-select form-select-sm"
             aria-label=".form-select-sm example"
-            style={{ width: "100%" }}
+            style={{ width: "50%" }}
             id="standard-select-currency"
             name="selectedPlant"
             className="textField"
@@ -45,9 +41,7 @@ const MonthDropDown = ({ selectedMonth, setSelectedMonth }) => {
               return <option value={option}>{option}</option>;
             })}
           </select>
-        </div>
-      </Col>
-    </Row>
+    </>
   );
 };
 

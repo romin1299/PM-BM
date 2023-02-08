@@ -130,7 +130,7 @@ const AnnualPmStatus = () => {
               <Col
                 sm={12}
                 lg={6} md={6}
-                className="d-flex mt-1 justify-content-start"
+                className="d-flex mt-1 justify-content-end"
               >
                 <CSVLink
                   data={csvData}

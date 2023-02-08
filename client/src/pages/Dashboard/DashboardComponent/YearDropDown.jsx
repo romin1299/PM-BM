@@ -19,18 +19,18 @@ const YearDropDown = ({ selectedYear, setSelectedYear }) => {
 
   const keyArrayForYear = ["2021-2022", "2022-2023", "2023-2024", "2024-2025"];
   return (
-    <div>
-      <span>
-          <b>Year:</b>
+    <>
+    <span>
+          <b>Year:&nbsp; &nbsp;</b>
         </span>
         <select
             class="form-select form-select-sm"
             aria-label=".form-select-sm example"
-            style={{ width: "100%" }}
+            style={{ width: "50%" }}
             id="standard-select-currency"
             name="selectedPlant"
             value={selectedYear ? selectedYear : current_year}
-            className="textField w-50"
+            className="textField"
             onChange={(e) => {
               setSelectedYear(e.target.value);
             }}
@@ -46,8 +46,7 @@ const YearDropDown = ({ selectedYear, setSelectedYear }) => {
               return <option value={option}>{option}</option>;
             })}
           </select>
-      
-    </div>
+    </>
   );
 };
 
