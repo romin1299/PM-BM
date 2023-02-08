@@ -19,7 +19,12 @@ import { ToastContainer, toast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
 
-const ChecksheetCreationDashboard = ({ }) => {
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+
+const ChecksheetCreationDashboard = ({}) => {
   const [tableData, setTableData] = useState([]);
   const [lineArray, setLineArray] = useState([]);
   const [revisionContentTableData, setRevisionContentTableData] = useState([]);
@@ -51,8 +56,8 @@ const ChecksheetCreationDashboard = ({ }) => {
     let line_name_array = [];
     selectedMachineData.state.lineData
       ? selectedMachineData.state.lineData.map((name) => {
-        line_name_array.push(`${name.line_id}-${name.line_name}`);
-      })
+          line_name_array.push(`${name.line_id}-${name.line_name}`);
+        })
       : (line_name_array = "");
     setLineArray(line_name_array);
   };
@@ -257,6 +262,41 @@ const ChecksheetCreationDashboard = ({ }) => {
     },
   ];
 
+  const checksheetCreationDataOfCSV = [
+    {
+      label: "C",
+      key: "category",
+    },
+    {
+      label: "Inspection Item",
+      key: "inspection_parent_name",
+    },
+    {
+      label: "Inspection Point",
+      key: "inspection_point",
+    },
+    {
+      label: "Judgement Criteria",
+      key: "judgement_criteria",
+    },
+    {
+      label: "Action",
+      key: "action",
+    },
+    {
+      label: "Cycle",
+      key: "cycle",
+    },
+    {
+      label: "Person In Charge",
+      key: "personInCharge",
+    },
+    {
+      label: "PM Time (min)",
+      key: "PM_time",
+    },
+  ];
+
   const revisedColumns = [
     {
       title: "SR. NO.",
@@ -292,6 +332,76 @@ const ChecksheetCreationDashboard = ({ }) => {
       filtering: false,
       align: "center",
       editable: "false",
+    },
+  ];
+
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+  const downloadPDFOfChecksheetCreation = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    tableData?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.category,
+        item.inspection_parent_name,
+        item.inspection_point,
+        item.judgement_criteria,
+        item.action,
+        item.cycle,
+        item.personInCharge,
+        item.PM_time
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`Checksheet Creation Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [columns?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Checksheet_Creation_Data_${timeStamp()}`);
+  };
+
+  const checkSheetCreationDataAction = [
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFOfChecksheetCreation();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={checksheetCreationDataOfCSV}
+          className="downloadCSV text-decoration-none"
+          data={tableData ? tableData : []}
+          filename={`Checksheet_Creation_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
     },
   ];
 
@@ -343,7 +453,7 @@ const ChecksheetCreationDashboard = ({ }) => {
           machineId: selectedMachineData.state.selectedRow.machine_code,
           isAdded:
             machineData[0]?.checkSheet_data?.checksheet_status ===
-              "Implementation"
+            "Implementation"
               ? true
               : false,
         }),
@@ -393,7 +503,7 @@ const ChecksheetCreationDashboard = ({ }) => {
           yearOfCheckSheet,
           isEdited:
             machineData[0]?.checkSheet_data?.checksheet_status ===
-              "Implementation"
+            "Implementation"
               ? true
               : false,
         }),
@@ -434,7 +544,7 @@ const ChecksheetCreationDashboard = ({ }) => {
           yearOfCheckSheet,
           isDeleted:
             machineData[0]?.checkSheet_data?.checksheet_status ===
-              "Implementation"
+            "Implementation"
               ? true
               : false,
         }),
@@ -838,13 +948,13 @@ const ChecksheetCreationDashboard = ({ }) => {
 
                                     {machineArray != undefined
                                       ? machineArray.map((option) => {
-                                        return (
-                                          <option value={option.machine_code}>
-                                            {option.machine_code}-
-                                            {option.machine_name}
-                                          </option>
-                                        );
-                                      })
+                                          return (
+                                            <option value={option.machine_code}>
+                                              {option.machine_code}-
+                                              {option.machine_name}
+                                            </option>
+                                          );
+                                        })
                                       : ""}
                                   </select>
                                 </div>
@@ -879,13 +989,13 @@ const ChecksheetCreationDashboard = ({ }) => {
 
                                     {machineArray != undefined
                                       ? machineArray.map((option) => {
-                                        return (
-                                          <option value={option.machine_code}>
-                                            {option.machine_code}-
-                                            {option.machine_name}
-                                          </option>
-                                        );
-                                      })
+                                          return (
+                                            <option value={option.machine_code}>
+                                              {option.machine_code}-
+                                              {option.machine_name}
+                                            </option>
+                                          );
+                                        })
                                       : ""}
                                   </select>
                                 </div>
@@ -947,6 +1057,7 @@ const ChecksheetCreationDashboard = ({ }) => {
                   // }
                 }
               }
+              actions={checkSheetCreationDataAction}
               icons={tableIcons}
               columns={columns}
               data={tableData?.sort(compareCycle)}
@@ -1027,12 +1138,12 @@ const ChecksheetCreationDashboard = ({ }) => {
                     : "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
                   // textDecoration: rowData?.isDeleted ? "line-through solid red 15%" : "none"
-                // fontSize: "12px",
+                  // fontSize: "12px",
                 }),
                 headerStyle: {
                   fontSize: "14px",
-                  fontWeight: "bold"
-                }
+                  fontWeight: "bold",
+                },
               }}
             />
             <div className="col-4 mt-2" style={{ float: "right" }}>
@@ -1047,11 +1158,11 @@ const ChecksheetCreationDashboard = ({ }) => {
           </div>
         </div>
         {machineData[0]?.checkSheet_data?.checksheet_status ===
-          "Implementation" ? (
+        "Implementation" ? (
           <div className="row m-3 p-3 border bg-white rounded">
             <div>
               <MaterialTable
-                style={{ boxShadow: "none"}}
+                style={{ boxShadow: "none" }}
                 localization={
                   {
                     // toolbar: {
@@ -1145,8 +1256,8 @@ const ChecksheetCreationDashboard = ({ }) => {
                   },
                   headerStyle: {
                     fontSize: "14px",
-                    fontWeight: "bold"
-                  }
+                    fontWeight: "bold",
+                  },
                 }}
               />
             </div>

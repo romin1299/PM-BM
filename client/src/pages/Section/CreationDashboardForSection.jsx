@@ -25,6 +25,11 @@ import { RadioGroup } from "@mui/material";
 import RoutingContext from "../../context/routing/RoutingContext";
 import MachineAdd from "../../Popups/machineAdd";
 
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+
 const CreationDashboardForSection = () => {
   const [subSection, setSubSection] = useState();
   const [cell, setCell] = useState();
@@ -75,6 +80,88 @@ const CreationDashboardForSection = () => {
     },
   ];
 
+  
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+
+  const cellHeaderForCSV = [
+    {
+      label: "Cell/Product Id",
+      key: "cell_id",
+    },
+    {
+      label: "Cell/Product Name",
+      key: "cell_name",
+    },
+    {
+      label: "Cell/Product Sequence",
+      key: "cell_sequence",
+    },
+  ];
+
+  const downloadPDFOfCellData = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    cellList?.cellInfo?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.cell_id,
+        item.cell_name,
+        item.cell_sequence,
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`Cell Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [cellHeader?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Cell_Data_${timeStamp()}`);
+  };
+
+  const cellAction = [
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFOfCellData();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={cellHeaderForCSV}
+          className="downloadCSV text-decoration-none"
+          data={cellList.cellInfo}
+          filename={`Cell_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
+    },
+  ];
+
   const lineHeader = [
     {
       title: "Serial no",
@@ -96,6 +183,71 @@ const CreationDashboardForSection = () => {
       title: "Line Sequence",
       field: "line_sequence",
       align: "center",
+    },
+  ];
+
+  const lineHeaderForCSV = [
+    {
+      label: "Line Id",
+      key: "line_id",
+    },
+    {
+      label: "Line Name",
+      key: "line_name",
+    },
+    {
+      label: "Line Sequence",
+      key: "line_sequence",
+    },
+  ];
+
+  const downloadPDFOfLineData = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    lineList?.lineInfo?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.line_id,
+        item.line_name,
+        item.line_sequence,
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`Line Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [lineHeader?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Line_Data_${timeStamp()}`);
+  };
+
+  const lineAction = [
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFOfLineData();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={lineHeaderForCSV}
+          className="downloadCSV text-decoration-none"
+          data={lineList?.lineInfo}
+          filename={`Line_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
     },
   ];
 
@@ -538,7 +690,7 @@ const CreationDashboardForSection = () => {
                         //   exportPDFName: "Export as pdf!!"
                         // }
                       }}
-                      // actions={actions}
+                      actions={lineAction}
                       icons={tableIcons}
                       columns={lineHeader}
                       data={lineList.lineInfo}
@@ -644,7 +796,7 @@ const CreationDashboardForSection = () => {
                         //   exportPDFName: "Export as pdf!!"
                         // }
                       }}
-                      // actions={actions}
+                      actions={cellAction}
                       icons={tableIcons}
                       columns={cellHeader}
                       data={cellList.cellInfo}

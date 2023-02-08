@@ -21,6 +21,11 @@ import NotFound from "../Reports/ReportComponents/NotFound";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+
 const CheckSheetDashboard = () => {
   const context = useContext(RoutingContext);
   const [tableData, setTableData] = useState([]);
@@ -214,6 +219,63 @@ const CheckSheetDashboard = () => {
     },
   ];
 
+  const checkSheetDashboardForCSV = [
+    {
+      label: "Cell/Product",
+      key: "line_names.cell_names.cell_name",
+    },
+    {
+      label: "Line",
+      key: "line_names.line_name",
+    },
+    {
+      label: "Machine Code",
+      key: "machine_code",
+    },
+    {
+      label: "Machine Name",
+      key: "machine_name",
+    },
+  ];
+
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+  const downloadPDFForChecksheetDashboard = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    tableData?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.line_names.cell_names.cell_name,
+        item.line_names.line_name,
+        item.machine_code,
+        item.machine_name,
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`All Checksheet Dashboard Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [machineHeader?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Checksheet_Dashboard_Data_${timeStamp()}`);
+  };
+
   const actions =
     currentYear === selectedYear
       ? [
@@ -298,8 +360,10 @@ const CheckSheetDashboard = () => {
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
               navigate("/viewCheckSheet", {
-                state: { selectedRowForViewForm: selectedRow, dashboardID: "FromChecksheetDashboard", },
-                
+                state: {
+                  selectedRowForViewForm: selectedRow,
+                  dashboardID: "FromChecksheetDashboard",
+                },
               });
             },
             disabled: false, // Set disabled to false by default for all actions
@@ -348,6 +412,31 @@ const CheckSheetDashboard = () => {
               position: "row",
             };
           },
+          {
+            icon: () => <button className="downloadPDF">PDF</button>,
+            tooltip: "PDF",
+            isFreeAction: true,
+            onClick: (event) => {
+              downloadPDFForChecksheetDashboard();
+            },
+          },
+
+          {
+            icon: () => (
+              <CSVLink
+                headers={checkSheetDashboardForCSV}
+                className="downloadCSV text-decoration-none"
+                data={tableData ? tableData : []}
+                filename={`Checksheet_Dashboard_Data_${timeStamp()}`}
+                style={{ textDecoration: "none", color: "white" }}
+              >
+                {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+                CSV
+              </CSVLink>
+            ),
+            tooltip: "PDF",
+            isFreeAction: true,
+          },
         ]
       : [
           {
@@ -355,8 +444,10 @@ const CheckSheetDashboard = () => {
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
               navigate("/viewCheckSheet", {
-                state: { selectedRowForViewForm: selectedRow , dashboardID: "FromChecksheetDashboard",},
-               
+                state: {
+                  selectedRowForViewForm: selectedRow,
+                  dashboardID: "FromChecksheetDashboard",
+                },
               });
             },
             disabled: false, // Set disabled to false by default for all actions
@@ -481,9 +572,9 @@ const CheckSheetDashboard = () => {
                     localStorage.clear();
                     // setSelectedCell();
                     // setSelectedLine();
-                    
+
                     postSectionToGetAllData("Reset");
-                    window.location.reload()
+                    window.location.reload();
                   }}
                 >
                   Reset

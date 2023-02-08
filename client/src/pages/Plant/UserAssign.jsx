@@ -11,6 +11,11 @@ import UserUpdate from "../../Popups/UserUpdate";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import "../../SCSS/MaterialTable.scss";
 
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+
 function UserAssigns() {
   const [tableData, setTableData] = useState([]);
   const [selectedRow, setSelectedRow] = useState([]);
@@ -33,7 +38,6 @@ function UserAssigns() {
       align: "center",
       editable: "false",
       width: "10%",
-
     },
     {
       title: "TM Name",
@@ -41,7 +45,6 @@ function UserAssigns() {
       filtering: false,
       align: "center",
       width: "10%",
-
     },
     {
       title: "Email",
@@ -100,6 +103,89 @@ function UserAssigns() {
     //   width: "10%",
     // },
   ];
+
+  const userDataHeaderForCSV = [
+    {
+      label: "TM No.",
+      key: "tm_no",
+    },
+    {
+      label: "TM Name",
+      key: "tm_name",
+    },
+    {
+      label: "Email",
+      key: "email",
+    },
+    {
+      label: "User Type",
+      key: "user_type",
+    },
+    {
+      label: "Grade",
+      key: "tm_grade",
+    },
+    {
+      label: "Department",
+      key: "tm_department",
+    },
+    {
+      label: "Plant",
+      key: "plant_data",
+    },
+    {
+      label: "Section",
+      key: "section_data",
+    },
+    {
+      label: "Sub Section",
+      key: "subSection_data",
+    },
+  ];
+
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+  const downloadPDFOfUserData = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    tableData?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.tm_no,
+        item.tm_name,
+        item.email,
+        item.user_type,
+        item.tm_grade,
+        item.tm_department,
+        item.plant_data,
+        item.section_data,
+        item.subSection_data,
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`User Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [columns?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`User_Data_${timeStamp()}`);
+  };
+
   const actions = [
     {
       // icon: () => <button className="addbutton">Add</button>,
@@ -130,6 +216,31 @@ function UserAssigns() {
       },
       disabled: false, // Set disabled to false by default for all actions
       position: "row",
+    },
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFOfUserData();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={userDataHeaderForCSV}
+          className="downloadCSV text-decoration-none"
+          data={tableData}
+          filename={`User_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
     },
   ];
 
@@ -329,8 +440,8 @@ function UserAssigns() {
                 },
                 headerStyle: {
                   fontSize: "13px",
-                  fontWeight: "bold"
-                }
+                  fontWeight: "bold",
+                },
               }}
             />
           </div>

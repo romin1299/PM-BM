@@ -470,7 +470,7 @@ const AnnualPMSchedule = () => {
                         name="selectedCell"
                         value={
                           selectedCell === ""
-                            ? allDataSectionWise?.cellData?.[0].cell_name
+                            ? allDataSectionWise?.cellData?.[0]?.cell_name
                             : selectedCell
                         }
                         className="textField"
@@ -571,11 +571,11 @@ const AnnualPMSchedule = () => {
                         <td className={"td-padding"}>
                           {selectedCell
                             ? allDataSectionWise?.cellData?.map((option) =>
-                                option._id === selectedCell
-                                  ? option.cell_name
+                                option?._id === selectedCell
+                                  ? option?.cell_name
                                   : ""
                               )
-                            : allDataSectionWise?.cellData?.[0].cell_name}
+                            : allDataSectionWise?.cellData?.[0]?.cell_name}
                         </td>
                         <td className={"td-padding"}>{selectedYear}</td>
                       </tr>

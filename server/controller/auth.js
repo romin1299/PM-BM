@@ -12592,7 +12592,7 @@ router.post('/postSectionToGetLineData', authenticate, async (req, res) => {
         let sectionSplit = section.split("-")
         const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
 
-        let subSectionsData, cellData, lineData, machineDataForSpareHistory
+        let subSectionsData, cellData, lineData, machineDataForSpareHistory, subsectionSplitIdArrayForChecksheet = []
 
         let currentYear =
             new Date().getMonth() <= 3 ?

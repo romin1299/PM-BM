@@ -16,6 +16,11 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+
 
 const ShowBackupChecksheetTableData = ({}) => {
   const [tableData, setTableData] = useState([]);
@@ -115,6 +120,116 @@ const ShowBackupChecksheetTableData = ({}) => {
     return comparison;
   }
 
+  const showBackupChecksheetTableDataOfCSV = [
+    
+    {
+      label: "C",
+      field: "category",
+      
+    },
+    {
+      label: "Inspection Item",
+      // editable: false,
+      key: "inspection_parent_name",
+      
+    },
+    {
+      label: "Inspection Point",
+      key: "inspection_point",
+    },
+    {
+      label: "Judgement Criteria",
+      key: "judgement_criteria",
+    },
+    {
+      label: "Action",
+      key: "action",
+    },
+    {
+      label: "Cycle",
+      key: "cycle",
+    },
+    {
+      label: "Person In Charge",
+      key: "personInCharge",
+    },
+    {
+      label: "PM Time (min)",
+      key: "PM_time",
+    },
+  ];
+
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+  const downloadPDFForShowBackupChecksheetTableData = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    tableData?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.category,
+        item.inspection_parent_name,
+        item.inspection_point,
+        item.judgement_criteria,
+        item.action,
+        item.cycle,
+        item.personInCharge,
+        item.PM_time
+        
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`Backup Checksheet Inception Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [columns?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Backup_Checksheet_Inception_Data_${timeStamp()}`);
+  };
+
+  const showBackupChecksheetTableAction = [
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFForShowBackupChecksheetTableData();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={showBackupChecksheetTableDataOfCSV}
+          className="downloadCSV text-decoration-none"
+          data={tableData ? tableData : []}
+          filename={`Backup_Checksheet_Inception_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
+    },
+  ]
+
   return (
     <>
       <div style={{ margin: "0.5rem" }}>
@@ -171,6 +286,7 @@ const ShowBackupChecksheetTableData = ({}) => {
                   // }
                 }
               }
+              actions= {showBackupChecksheetTableAction}
               icons={tableIcons}
               columns={columns}
               data={tableData?.sort(compareCycle)}

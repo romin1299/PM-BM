@@ -8,11 +8,16 @@ import {
   UserAdd,
   AddBoxIcon,
 } from "../../modules/PageModules";
-import "../../Login/Login.scss"
+import "../../Login/Login.scss";
 import "../../SCSS/MaterialTable.scss";
 import UserUpdate from "../../Popups/UserUpdate";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import EmailConfiguration from "../../Popups/EmailConfiguration";
+
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
 
 function AdminDashboard() {
   const [tableData, setTableData] = useState([]);
@@ -26,6 +31,13 @@ function AdminDashboard() {
   };
   //fetch the user data and show on user management table
   const columns = [
+    {
+      title: "Sr.no",
+      render: (rowData) => `${rowData.tableData.id + 1}`,
+      align: "center",
+      width: "5%",
+
+    },
     {
       title: "TM No.",
       field: "tm_no",
@@ -94,6 +106,84 @@ function AdminDashboard() {
       // width: "10%",
     },
   ];
+
+  const userDataHeaderForCSV = [
+    {
+      label: "TM No.",
+      key: "tm_no",
+    },
+    {
+      label: "TM Name",
+      key: "tm_name",
+    },
+    {
+      label: "Email",
+      key: "email",
+    },
+    {
+      label: "Plant",
+      key: "plant_data",
+
+      // editable: "false",
+    },
+    {
+      label: "User Type",
+      key: "user_type",
+    },
+    {
+      label: "Grade",
+      key: "tm_grade",
+    },
+    {
+      label: "Department",
+      key: "tm_department",
+    },
+    {
+      label: "Joining Date",
+      key: "joining_date",
+    },
+    {
+      label: "Contact No",
+      key: "contact_no",
+    },
+    {
+      label: "Address",
+      key: "address",
+    },
+  ];
+
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+  const downloadPDFOfUserData = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    tableData?.map((item, idx) => {
+      let rowArrayOfTable = [++idx, item.tm_no, item.tm_name, item.email, item.plant_data, item.user_type, item.tm_grade, item.tm_department, item.joining_date, item.contact_no, item.address];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`User Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [columns?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`User_Data_${timeStamp()}`);
+  };
+
   const actions = [
     {
       // icon: () => <button className="addbutton">Add</button>,
@@ -116,7 +206,9 @@ function AdminDashboard() {
       // icon: () => <button className="addbutton">Add</button>,
       icon: () =>
         window.innerWidth > 1024 ? (
-          <button className="btn-warning" style={{marginRight:"-1px "}} >Email Configuration</button>
+          <button className="btn-warning" style={{ marginRight: "-1px " }}>
+            Email Configuration
+          </button>
         ) : (
           "Email"
         ),
@@ -141,6 +233,31 @@ function AdminDashboard() {
       },
       disabled: false, // Set disabled to false by default for all actions
       position: "row",
+    },
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFOfUserData();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={userDataHeaderForCSV}
+          className="downloadCSV text-decoration-none"
+          data={tableData}
+          filename={`User_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
     },
   ];
   const refreshPage = () => {
@@ -345,8 +462,8 @@ function AdminDashboard() {
                 },
                 headerStyle: {
                   fontSize: "13px",
-                  fontWeight: "bold"
-                }
+                  fontWeight: "bold",
+                },
               }}
             />
           </div>

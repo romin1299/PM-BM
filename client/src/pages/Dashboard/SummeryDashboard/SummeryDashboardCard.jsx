@@ -60,7 +60,7 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
       value: data?.chartData?.sumVariableForTotalSchedule,
     },
     {
-      name: "Last Month Pending",
+      name: "Pending(Previous Month)",
       bgColor: "table-danger",
       value: data?.chartData?.sumVariableForTotalPreviousPending,
     },
