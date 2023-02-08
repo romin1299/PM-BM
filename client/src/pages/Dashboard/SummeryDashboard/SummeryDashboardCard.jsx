@@ -197,7 +197,10 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
             </Row>
           </div>
         ) : (
-          <NotFound />
+            <div className="d-flex align-items-center justify-content-center">
+<NotFound />
+            </div>
+          
         )}
       </Card>
     </Col>

@@ -473,7 +473,7 @@ const CheckSheetDashboard = () => {
                   </Col>
                 </Row>
               </Col>
-              <Col className="col-lg-3 col-md-6 col-sm-12">
+              <Col className="col-lg-3 col-md-6 col-sm-12 mt-3">
                 <button
                   class="btn-primary1 w-25 "
                   onClick={() => {

@@ -214,7 +214,7 @@ const MainDashboard = () => {
       postSectionToGetAllDataForMainDashboardForOtherUser(context.section_data);
     }
     setMachineWiseCheckSheetForImplementation("");
-    document.querySelector(".operatorDashboard").style.pointerEvents = "auto";
+    // document.querySelector(".operatorDashboard").style.pointerEvents = "auto";
   };
 
   const pathToCheckSheet = (machine, lineName) => {
@@ -611,10 +611,10 @@ const MainDashboard = () => {
       <ToastContainer />
 
       <Container fluid className="operatorDashboard">
-        <Row>
-
-          <Col sm={12} md={12} lg={9} className="left-component-main-dashboard">
-            {Object.keys(allDataSectionWise).length > 0 ? (
+        
+      <Row>
+          <Col xs={12} sm={12} md={12} lg={9}>
+          {Object.keys(allDataSectionWise).length > 0 ? (
               <Col>
                 <Row className="mx-2 mt-4 ">
                   <Col sm={6}>
@@ -2055,14 +2055,9 @@ const MainDashboard = () => {
               </div>
             )}
           </Col>
-          <Col
-            sm={12}
-            md={12}
-            lg={3}
-            className="right-component-main-dashboard mt-5"
-          >
-            <Col style={{ margin: "10px" }}>
-              <GraphsInMainDashboard
+        
+          <Col xs={12} sm={12} md={12} lg={3}>
+          <GraphsInMainDashboard
                 sections={sections}
                 subSection={subSection}
                 allDataSectionWise={allDataSectionWise}
@@ -2071,12 +2066,10 @@ const MainDashboard = () => {
                 currentMonthGraphAndTableData={currentMonthGraphAndTableData}
                 annualGraph={annualGraph}
               />
-            </Col>
-          </Col>
-        </Row>
-        <Footer />
+        </Col>
+      </Row>
       </Container>
-
+      <Footer />
     </>
   );
 };

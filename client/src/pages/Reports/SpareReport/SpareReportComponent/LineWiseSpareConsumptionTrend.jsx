@@ -132,25 +132,16 @@ const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
   return (
     <div className="pt-3">
       <Container fluid>
-        <Row className="pt-2 cell">
-          <Row>
-            <Col
-            // className="cell"
-            // style={{ backgroundColor: "white" }}
-            >
-              <h4>Line Wise Spare Consumption Trend</h4>
-            </Col>
-          </Row>
-          <Row>
-            <Col sm={12} lg={6}>
-              <YearDropDown
+        <h4 className="mb-3">Line Wise Spare Consumption Trend</h4>
+        <Row className="pt-2 cell gy-2">
+          <Col sm={12} lg={6} md={12}>
+          <YearDropDown
                 selectedYear={selectedYear}
                 setSelectedYear={setSelectedYear}
               />
-            </Col>
-            <Col sm={12} lg={6}>
-              <Col className="d-flex justify-content-end">
-                <CSVLink
+          </Col>
+          <Col sm={12} lg={6} md={12} className="d-flex justify-content-end">
+          <CSVLink
                   data={csvData}
                   filename={`${selectedYear}_Line_Wise_Spare_Consumption_Trend_${timeStamp()}`}
                   className="downloadCSV text-decoration-none"
@@ -165,18 +156,13 @@ const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
                 >
                   PDF
                 </button>
-              </Col>
-            </Col>
-          </Row>
+          </Col>
+          
 
-        </Row>
-      </Container>
-      <Container className="cell pt-1" fluid>
-        <Row>
-          <Col
-          // style={{ height: "25rem" }}
-          >
-            {graphData?.lineWiseSpareCost?.length > 0 ? (
+
+          
+          <Row className="mt-3">
+          {graphData?.lineWiseSpareCost?.length > 0 ? (
               <LineWiseSpareConsumptionTrendGraph
                 lineData={lineData}
                 graphData={graphData}
@@ -184,9 +170,11 @@ const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
             ) : (
               loadingAnimationState
             )}
-          </Col>
+          </Row>
         </Row>
       </Container>
+
+      
     </div>
   );
 };

@@ -8,7 +8,7 @@ function Footer() {
         <div id="footer">
           {/* <p>© 2020 <span style={{ color: "red" }}>Denso</span>. All rights reserved</p> */}
           <p>
-            © {new Date().getFullYear()}<span style={{ color: "red" }}><b> Denso</b></span>. All rights reserved
+            © {new Date().getFullYear()}<span style={{ color:"#dc3545"}}><b> Denso</b></span>. All rights reserved
           </p>
         </div>
       </div>

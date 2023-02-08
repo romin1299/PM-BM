@@ -117,20 +117,20 @@ const AnnualPmStatus = () => {
   return (
     <>
       <div>
-        <Container>
+        <Container fluid>
           <Container fluid>
-            <Row className="p-2">
-              <Col sm={12} lg={3}>
+            <Row className="mt-3">
+              <Col sm={12} lg={6} md={6}>
                 <YearDropDown
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
                 />
               </Col>
-              <Col></Col>
+              
               <Col
                 sm={12}
-                lg={1}
-                className="d-flex justify-content-around align-items-center"
+                lg={6} md={6}
+                className="d-flex mt-1 justify-content-start"
               >
                 <CSVLink
                   data={csvData}
@@ -150,7 +150,7 @@ const AnnualPmStatus = () => {
               </Col>
             </Row>
           </Container>
-          <Row className="pt-2">
+          <Row className="mt-3 pt-2 container-fluid">
             {graphData?.annual_total_current_schedule?.length > 0 ? (
               <Col className="cell">
                 <AnnualPmStatusGraph graphData={graphData} />
