@@ -395,31 +395,26 @@ const LineWisePmMonthlyReport = () => {
         <div className="lineWisePmMonthlyReport">
           <Container fluid>
             <Row className="p-2">
-              <Col sm={12} lg={3}>
+              <Col sm={12} lg={4}>
                 <YearDropDown
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
                 />
               </Col>
-              <Col sm={12} lg={3}>
+              <Col sm={12} lg={4}>
                 <MonthDropDown
                   selectedMonth={selectedMonth}
                   setSelectedMonth={setSelectedMonth}
                 />
               </Col>
-              <Col>
-                <Row className="p-2 ">
-                  <Col sm={12} lg={1}>
+              <Col sm={12} lg={4}>
                     <span>
                       <b>Line:</b>
                     </span>
-                  </Col>
-                  <Col sm={12} lg={3}>
-                    <div>
-                      <select
+                    <select
                         class="form-select form-select-sm"
                         aria-label=".form-select-sm example"
-                        // style={{ width: "100%" }}
+                        style={{ width: "50%" }}
                         id="standard-select-currency"
                         name="selectedPlant"
                         value={selectedLine}
@@ -444,10 +439,8 @@ const LineWisePmMonthlyReport = () => {
                           );
                         })}
                       </select>
-                    </div>
                   </Col>
-                </Row>
-              </Col>
+              
             </Row>
           </Container>
 

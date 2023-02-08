@@ -83,13 +83,12 @@ const SummeryDashboard = () => {
               setSelectedMonth={setSelectedMonth}
             />
           </Col>
-          <Col sm></Col>
-          <Col sm></Col>
+          
         </Row>
         {plantInfo?.map((item) => (
           <div>
             <div class="shadow-sm cardCssForSubtitle card1 text-danger d-flex align-items-center">
-              <h4 style={{ marginBottom: "0rem" }}>{item.plant_name}</h4>
+              <h4 style={{ marginBottom: "0rem", color: "rgb(220, 53, 69)" }}>{item.plant_name}</h4>
             </div>
             <Row className=" gy-4">
               {sectionInfo?.length > 0 ? (

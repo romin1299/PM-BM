@@ -374,7 +374,7 @@ const PendingPMLogHistory = () => {
               <Col>
                 <div>
                   <button
-                    class="btn-primary1 w-75"
+                    class="btn-primary1 w-50"
                     onClick={() => {
                       setSelectedCell("");
                       setSelectedLine("");

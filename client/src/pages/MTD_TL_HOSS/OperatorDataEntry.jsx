@@ -231,7 +231,7 @@ function OperatorDataEntry() {
                 </Row>
 
                 <Row>
-                  <Col sm={6}  md={12}>
+                  <Col sm={6}  md={12} lg={6}>
                     <div>Line:</div>
                     <select
                       // class="form-select form-select-sm"

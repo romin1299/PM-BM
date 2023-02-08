@@ -338,7 +338,7 @@ const TotalMonthWiseGraph = ({ context }) => {
           <Col sm={12} lg={6} md={12}>
             <select
               
-              style={{ width: "750%" }}
+              style={{ width: "75%" }}
               name="selectedLine"
               fullWidth
               select // label="Select"
