@@ -159,7 +159,14 @@ const SkipPMWorkData = () => {
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
         setWorkOnSkipPM(
-          <WorkOnSkipPM close={close} selectedRow={selectedRow} functionToSetRefKey={functionToSetRefKey} />
+          <WorkOnSkipPM
+            close={close}
+            selectedRow={selectedRow}
+            functionToSetRefKey={functionToSetRefKey}
+            machineId={
+              selectedMachineSkipData?.state?.selectedRowForSkipData?.machine_id
+            }
+          />
         );
       },
       disabled: false, // Set disabled to false by default for all actions
@@ -344,12 +351,12 @@ const SkipPMWorkData = () => {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
-                  fontSize: "12px",
+                  // fontSize: "12px",
                 },
                 headerStyle: {
                   fontSize: "13px",
-                  fontWeight: "bold"
-                }
+                  fontWeight: "bold",
+                },
               }}
             />
           </div>

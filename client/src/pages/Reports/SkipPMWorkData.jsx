@@ -19,9 +19,10 @@ const SkipPMWorkData = () => {
   const [tableData, setTableData] = useState([]);
   const navigate = useNavigate();
   const selectedMachineSkipData = useLocation();
-  console.log(selectedMachineSkipData.state.selectedRowForSkipData);
+  // console.log(selectedMachineSkipData.state.selectedRowForSkipData?.machine_id);
   const [refKey, setRefKey] = useState(0);
 
+  // console.log("===========>", tableData);
   const functionToSetRefKey = () => {
     setRefKey((refKey) => refKey + 1);
   };
@@ -163,6 +164,9 @@ const SkipPMWorkData = () => {
             close={close}
             selectedRow={selectedRow}
             functionToSetRefKey={functionToSetRefKey}
+            machineId={
+              selectedMachineSkipData?.state?.selectedRowForSkipData?.machine_id
+            }
           />
         );
       },
@@ -208,7 +212,7 @@ const SkipPMWorkData = () => {
       {workOnSkipPM}
       <div className="pageCard">
         <button
-          onClick={() => navigate("/pmMonthlyReport")}
+          onClick={() => navigate("/machineWisePmMonthlyReport")}
           style={{
             border: "none",
             background: "white",
@@ -348,12 +352,12 @@ const SkipPMWorkData = () => {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
-                  fontSize: "12px",
+                  // fontSize: "12px",
                 },
                 headerStyle: {
                   fontSize: "14px",
-                  fontWeight: "bold"
-                }
+                  fontWeight: "bold",
+                },
               }}
             />
           </div>

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Button, Modal } from "react-bootstrap";
+import $ from "jquery";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import Rows from "../Section/Checksheet/row";
-import "../Section/Checksheet/index.css";
-import { useContext, tableIcons } from "../../modules/PageModules";
+import { useContext, tableIcons } from "../../../src/modules/PageModules";
 import RoutingContext from "../../context/routing/RoutingContext";
 import TextField from "@material-ui/core/TextField";
 import { useLocation } from "react-router-dom";
@@ -13,30 +13,26 @@ import MaterialTable from "@material-table/core";
 import EastIcon from "@mui/icons-material/East";
 import { useNavigate } from "react-router-dom";
 import SummeryPopups from "./PopupsForChecksheet/SummeryPopups";
+import EditRemarksAfterRejectPopups from "./PopupsForChecksheet/EditRemarksAfterRejectPopups";
 import { Multiselect } from "multiselect-react-dropdown";
 import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 import axios from "axios";
 import FileDownload from "js-file-download";
-
-import {
-  Checkbox,
-  Select,
-  ListItemText,
-  MenuItem,
-  OutlinedInput,
-  InputLabel,
-  FormControl,
-} from "@material-ui/core";
-
-function CheckSheet({
-  machineData,
+// import 'reactjs-popup/dist/index.css';
+const CheckSheet = ({
+  show,
+  handleClose,
   lineName,
-  closeCheckSheet,
+  machineData,
   functionToSetRefKey,
-}) {
+  closeCheckSheet,
+}) => {
   const context = useContext(RoutingContext);
 
   const [stateForOpeningSummeryPopups, setStateForOpeningSummeryPopups] =
+    useState("");
+
+  const [stateForEditRemarksAfterReject, setStateForEditRemarksAfterReject] =
     useState("");
 
   const [newTableData, setNewTableData] = useState([]);
@@ -55,7 +51,6 @@ function CheckSheet({
   const [HOSList, setHOSList] = useState([]);
   const [PRDTLlist, setPRDTLlist] = useState([]);
   const [MTDTLlist, setMTDTLlist] = useState([]);
-  const [MTDHODlist, setMTDHODlist] = useState([]);
 
   const [dataSheetName, setDataSheetName] = useState([]);
 
@@ -86,8 +81,10 @@ function CheckSheet({
     monthKeyArray[new Date().getMonth() - 1] === undefined
       ? monthKeyArray.splice(-1)[0]
       : monthKeyArray[new Date().getMonth() - 1];
-  let previousToPreviousMonth = monthKeyArray[new Date().getMonth() - 2];
-
+  let previousToPreviousMonth =
+    new Date().getMonth() - 2 === -2
+      ? monthKeyArray.splice(-1)[1]
+      : monthKeyArray.splice(-1)[0];
   let monthInNumber = new Date().getMonth();
 
   // console.log(selectedSupportedTM);
@@ -214,38 +211,38 @@ function CheckSheet({
     },
   });
 
-  const formik2 = useFormik({
-    initialValues: {
-      mtd_hod_list: "",
-    },
-    validationSchema: validationSchema2,
+  // const formik2 = useFormik({
+  //   initialValues: {
+  //     mtd_hod_list: "",
+  //   },
+  //   validationSchema: validationSchema2,
 
-    onSubmit: async (values) => {
-      const res = await fetch("/sendRequestForApproval", {
-        method: "Post",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mtd_hod_list: MTDHODlist[values.mtd_hod_list],
-          implemetation_completed_date: timeStamp(),
-          selected_machine_data: machineAllData,
-          monthForCompareSystemMonth,
-          phaseStatus: machineAllData?.checkSheet_data?.checksheet_status,
-        }),
-      });
-      const data = res.json();
-      // console.log(data);
-      if (res.status === 400 || res.status === 422 || !data) {
-        window.alert("Invalid credentials !");
-      } else if (res.status === 409) {
-        console.log("Machine code already exists!");
-      } else {
-        console.log("PM worked data save sucessfully...");
-        closeCheckSheet();
-        // navigate("/");
-        // clearState();
-      }
-    },
-  });
+  //   onSubmit: async (values) => {
+  //     const res = await fetch("/sendRequestForApproval", {
+  //       method: "Post",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         mtd_hod_list: MTDHODlist[values.mtd_hod_list],
+  //         implemetation_completed_date: timeStamp(),
+  //         selected_machine_data: machineAllData,
+  //         monthForCompareSystemMonth,
+  //         phaseStatus: machineAllData?.checkSheet_data?.checksheet_status,
+  //       }),
+  //     });
+  //     const data = res.json();
+  //     // console.log(data);
+  //     if (res.status === 400 || res.status === 422 || !data) {
+  //       window.alert("Invalid credentials !");
+  //     } else if (res.status === 409) {
+  //       console.log("Machine code already exists!");
+  //     } else {
+  //       console.log("PM worked data save sucessfully...");
+  //       closeCheckSheet();
+  //       // navigate("/");
+  //       // clearState();
+  //     }
+  //   },
+  // });
 
   const clearState = () => {
     formik.values.pmTime = "";
@@ -266,12 +263,11 @@ function CheckSheet({
       });
 
       const data = await res.json();
-      console.log(data);
+      // console.log(data);
       setPRDTLlist(data.PRDTLlist);
       setHOSList(data.HOSlist);
       setMTDTLlist(data.MTDTLlist);
       setSupportingTMList(data.supportingOperatorList);
-      setMTDHODlist(data.MTDHODlist);
       // setTableData(finalData);
     } catch (error) {
       console.log(error);
@@ -370,7 +366,7 @@ function CheckSheet({
       sort: "true",
     },
     {
-      header: "Fab",
+      header: "Feb",
       sort: "true",
     },
     {
@@ -627,8 +623,9 @@ function CheckSheet({
   const close = () => {
     setWorkOnImplementationPM("");
     setStateForOpeningSummeryPopups("");
-    document.querySelector(".checkSheetForImplementation").style.pointerEvents =
-      "auto";
+    setStateForEditRemarksAfterReject("");
+    // document.querySelector(".checkSheetForImplementation").style.pointerEvents =
+    //   "auto";
   };
 
   const disabledButtonAfterPM = (tableRowId, id) => {
@@ -639,6 +636,20 @@ function CheckSheet({
     setStateForOpeningSummeryPopups(
       <SummeryPopups
         close={close}
+        // tableData={tableData}
+        machineData={machineData}
+      />
+    );
+    document.querySelector(".checkSheetForImplementation").style.pointerEvents =
+      "none";
+  };
+
+  const OpenPopupForEditRemarksAfterReject = (senderApprovalMonth) => {
+    setStateForEditRemarksAfterReject(
+      <EditRemarksAfterRejectPopups
+        close={close}
+        senderApprovalMonth={senderApprovalMonth}
+        functionToSetRefKey={functionToSetRefKey}
         // tableData={tableData}
         machineData={machineData}
       />
@@ -781,281 +792,305 @@ function CheckSheet({
     <>
       {workOnImplementationPM}
       {stateForOpeningSummeryPopups}
-      <div className="checkSheetForImplementation">
-        <div className="row">
-          <div className="col-1">
-            <button
-              className="btn-closeForChecksheet"
-              onClick={closeCheckSheet}
+      {stateForEditRemarksAfterReject}
+      <div className="modal-fullscreen">
+        <Modal
+          className="d-flex align-items-center justify-content-center"
+          show={show}
+          fullscreen={true}
+          onHide={handleClose}
+          scrollable={true}
+          enforceFocus={false}
+        >
+          <Modal.Header>
+            <Modal.Title>CheckSheet</Modal.Title>
+            <Button
+              variant="secondary"
+              onClick={handleClose}
+              className="btn-danger"
             >
               Close
-            </button>
-          </div>
-          <div className="col-11"></div>
-        </div>
-        <br />
-        <div>
-          <Container fluid>
-            <Row>
-              {machineAllData?.checkSheet_data?.dataSheet ? (
-                <Col>
-                  <Col>
-                    <div style={{ float: "left" }}>
-                      <span style={{ fontWeight: "bold", float: "left" }}>
-                        Upload Data-sheet XLSx/CSV:
-                      </span>
-                      &nbsp;
-                      <form
-                        onSubmit={uploadDataSheet}
-                        // method="post"
-                        encType="multipart/form-data"
+            </Button>
+          </Modal.Header>
+          <Modal.Body>
+            <div>
+              <Container fluid>
+                <Row>
+                  {machineAllData?.checkSheet_data?.dataSheet ? (
+                    <Col>
+                      <Col sm={12} md={6}>
+                        <div style={{ float: "left" }}>
+                          <span style={{ fontWeight: "bold", float: "left" }}>
+                            Upload Data-sheet XLSx/CSV:
+                          </span>
+                          &nbsp;
+                          <form
+                            onSubmit={uploadDataSheet}
+                            // method="post"
+                            encType="multipart/form-data"
+                          >
+                            <input
+                              type="file"
+                              name="data_sheet"
+                              accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                              // value={userPhoto}
+                              onChange={(e) =>
+                                setDataSheetName(e.target.files[0])
+                              }
+                            />
+                            <br />
+                            &nbsp;
+                            <button
+                              type="submit"
+                              className="btn-primary1 mt-2 mb-2"
+                            >
+                              Upload
+                            </button>
+                          </form>
+                        </div>{" "}
+                      </Col>
+                      <Col
+                        sm={12}
+                        md={6}
+                        className="d-flex justify-content-center align-items-center"
                       >
-                        <input
-                          type="file"
-                          name="data_sheet"
-                          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                          // value={userPhoto}
-                          onChange={(e) => setDataSheetName(e.target.files[0])}
-                        />
-                        &nbsp;
-                        <button type="submit" className="btn-primary1">
-                          Upload
+                        <button
+                          className="btn-reset"
+                          onClick={downloadUploadedDataSheet}
+                        >
+                          <SimCardDownloadIcon /> Download DATA-SHEET
                         </button>
-                      </form>
-                    </div>{" "}
-                  </Col>
-                  <Col>
-                    <button
-                      className="btn-reset"
-                      onClick={downloadUploadedDataSheet}
-                    >
-                      <SimCardDownloadIcon /> Download DATA-SHEET
-                    </button>
-                  </Col>
-                </Col>
-              ) : (
-                <Col></Col>
-              )}
-              <Col lg={6} md={6} sm={6}>
-                <table className="ar-table tableCol1">
-                  <thead>
-                    <tr>
-                      <th
-                        className="ar-table-thead-header1"
-                        // colSpan={2}
-                        //  rowSpan={5}
-                      >
-                        PLAN ACCEPTANCE
-                        <br />
-                        (By PRD TL)
-                      </th>
-                      <th
-                        className="ar-table-thead-header1"
-                        // colSpan={2}
-                        //  rowSpan={5}
-                      >
-                        PLAN PREPARED
-                        <br />
-                        (By MTD TL)
-                      </th>
-                    </tr>
-                    <tr>
-                      <th
-                        className="approvalName"
-                        // colSpan={2}
-                        //  rowSpan={5}
-                      >
-                        {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
-                          machineAllData?.checkSheet_data?.approved_by_PRD_TL
-                            .length - 1
-                        ]
-                          ? `${
+                      </Col>
+                    </Col>
+                  ) : (
+                    <Col sm={12} md={6}></Col>
+                  )}
+                  <Col lg={6} md={6} sm={12}>
+                    <table className="ar-table tableCol1 ">
+                      <thead>
+                        <tr>
+                          <th
+                            className="ar-table-thead-header1 text-center"
+                            // colSpan={2}
+                            //  rowSpan={5}
+                          >
+                            PLAN ACCEPTANCE
+                            <br />
+                            (By PRD TL)
+                          </th>
+                          <th
+                            className="ar-table-thead-header1 text-center"
+                            // colSpan={2}
+                            //  rowSpan={5}
+                          >
+                            PLAN PREPARED
+                            <br />
+                            (By MTD TL)
+                          </th>
+                        </tr>
+                        <tr>
+                          <th
+                            className="approvalName"
+                            // colSpan={2}
+                            //  rowSpan={5}
+                          >
+                            {machineAllData?.checkSheet_data
+                              ?.approved_by_PRD_TL?.[
                               machineAllData?.checkSheet_data
-                                ?.approved_by_PRD_TL[
-                                machineAllData?.checkSheet_data
-                                  ?.approved_by_PRD_TL.length - 1
-                              ]
-                            }`
-                          : ""}
-                      </th>
-                      <th
-                        className="approvalName"
-                        // colSpan={2}
-                        //  rowSpan={5}
-                      >
-                        {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
-                          machineAllData?.checkSheet_data?.plan_prepared_tm_name
-                            .length - 1
-                        ]
-                          ? `${
+                                ?.approved_by_PRD_TL?.length - 1
+                            ]
+                              ? `${
+                                  machineAllData?.checkSheet_data
+                                    ?.approved_by_PRD_TL?.[
+                                    machineAllData?.checkSheet_data
+                                      ?.approved_by_PRD_TL?.length - 1
+                                  ]
+                                }`
+                              : ""}
+                          </th>
+                          <th
+                            className="approvalName"
+                            // colSpan={2}
+                            //  rowSpan={5}
+                          >
+                            {machineAllData?.checkSheet_data
+                              ?.plan_prepared_tm_name?.[
                               machineAllData?.checkSheet_data
-                                ?.plan_prepared_tm_name[
-                                machineAllData?.checkSheet_data
-                                  ?.plan_prepared_tm_name.length - 1
-                              ]
-                            }`
-                          : ""}
-                      </th>
-                    </tr>
-                  </thead>
-                </table>
-              </Col>
-            </Row>
-          </Container>
-        </div>
-        {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
-        machineAllData?.checkSheet_data?.checksheet_status ===
-          "Implementation" ? (
-          <div className="row mt-3">
-            <div className="col-6"></div>
-            <span className="col-6">
-              <div className="row">
+                                ?.plan_prepared_tm_name?.length - 1
+                            ]
+                              ? `${
+                                  machineAllData?.checkSheet_data
+                                    ?.plan_prepared_tm_name?.[
+                                    machineAllData?.checkSheet_data
+                                      ?.plan_prepared_tm_name?.length - 1
+                                  ]
+                                }`
+                              : ""}
+                          </th>
+                        </tr>
+                      </thead>
+                    </table>
+                  </Col>
+                </Row>
+              </Container>
+            </div>
+            {machineAllData?.checkSheet_data?.checksheet_status ===
+              "Planning" ||
+            machineAllData?.checkSheet_data?.checksheet_status ===
+              "Implementation" ? (
+              <div className="row mt-3">
                 <div className="col-6"></div>
-                <div className="col-6" style={{ fontWeight: "bold" }}>
-                  Year: {machineAllData?.checkSheet_data?.current_year}{" "}
-                </div>
+                <span className="col-6">
+                  <div className="row">
+                    <div className="col-6"></div>
+                    <div className="col-6" style={{ fontWeight: "bold" }}>
+                      Year: {machineAllData?.checkSheet_data?.current_year}{" "}
+                    </div>
+                  </div>
+                </span>
               </div>
-            </span>
-          </div>
-        ) : (
-          ""
-        )}
-        <div>
-          <Container fluid>
-            <Row>
-              <Col className="table-scrolling">
-                <table className="ar-table tableCol">
-                  <thead>
-                    <tr style={{ height: "2rem" }}>
-                      <th
-                        className="ar-table-thead-header2 headerPD"
-                        colSpan={3}
-                        rowSpan={5}
-                      >
-                        <b>Line:</b>- {lineName}
-                        <br />
-                        M/c No : {machineAllData?.machine_code}
-                      </th>
-                      <th
-                        className="ar-table-thead-header2 headerPD"
-                        colSpan={2}
-                        rowSpan={5}
-                      >
-                        Machine Name: {machineAllData?.machine_name}
-                      </th>
-                      <th
-                        className="ar-table-thead-header1 headerPD  align-items-center"
-                        colSpan={2}
-                        style={{ textAlign: "center" }}
-                        // rowSpan={2}
-                      >
-                        Approved by
-                        <br />
-                        (MTD HOS)
-                      </th>
-                      <th
-                        className="ar-table-thead-header1 headerPD"
-                        colSpan={2}
-                        style={{ textAlign: "center" }}
-                        // rowSpan={2}
-                      >
-                        Prepared by
-                        <br />
-                        (MTD TL)
-                      </th>
-                      <th className="ar-table-thead-header1">
-                        Checked & Verify by
-                        <br />
-                        (MTD TL)
-                      </th>
-                      {machineAllData?.checkSheet_data
-                        ?.implementation_approved_by_MTD_TL
-                        ? Object.values(
-                            machineAllData?.checkSheet_data
-                              ?.implementation_approved_by_MTD_TL
-                          ).map((index) => (
-                            <td className="ar-table-col1">
-                              {index[index.length - 1]}
-                            </td>
-                          ))
-                        : refArrayForTDMapping.map((index) => (
-                            <td className="ar-table-col1"></td>
-                          ))}
-                    </tr>
-                    <tr>
-                      <th className="approvalName" colSpan={2} rowSpan={5}>
-                        {machineAllData?.checkSheet_data?.approved_by_HOS[
-                          machineAllData?.checkSheet_data?.approved_by_HOS
-                            .length - 1
-                        ]
-                          ? machineAllData?.checkSheet_data?.approved_by_HOS[
+            ) : (
+              ""
+            )}
+            <div>
+              <Container fluid>
+                <Row>
+                  <Col className="table-scrolling">
+                    <table className="ar-table tableCol">
+                      <thead>
+                        <tr style={{ height: "2rem" }}>
+                          <th
+                            className="ar-table-thead-header2 headerPD"
+                            colSpan={3}
+                            rowSpan={5}
+                          >
+                            <b>Line:</b>- {lineName}
+                            <br />
+                            M/c No : {machineAllData?.machine_code}
+                          </th>
+                          <th
+                            className="ar-table-thead-header2 headerPD"
+                            colSpan={2}
+                            rowSpan={5}
+                          >
+                            Machine Name: {machineAllData?.machine_name}
+                          </th>
+                          <th
+                            className="ar-table-thead-header1 headerPD  align-items-center"
+                            colSpan={2}
+                            style={{ textAlign: "center" }}
+                            // rowSpan={2}
+                          >
+                            Approved by
+                            <br />
+                            (MTD HOS)
+                          </th>
+                          <th
+                            className="ar-table-thead-header1 headerPD"
+                            colSpan={2}
+                            style={{ textAlign: "center" }}
+                            // rowSpan={2}
+                          >
+                            Prepared by
+                            <br />
+                            (MTD TL)
+                          </th>
+                          <th className="ar-table-thead-header1">
+                            Checked & Verify by
+                            <br />
+                            (MTD TL)
+                          </th>
+                          {machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_MTD_TL
+                            ? Object?.values(
+                                machineAllData?.checkSheet_data
+                                  ?.implementation_approved_by_MTD_TL
+                              )?.map((index) => (
+                                <td className="ar-table-col1">
+                                  {index[index?.length - 1]}
+                                </td>
+                              ))
+                            : refArrayForTDMapping?.map((index) => (
+                                <td className="ar-table-col1"></td>
+                              ))}
+                        </tr>
+                        <tr>
+                          <th className="approvalName" colSpan={2} rowSpan={5}>
+                            {machineAllData?.checkSheet_data?.approved_by_HOS?.[
                               machineAllData?.checkSheet_data?.approved_by_HOS
-                                .length - 1
+                                ?.length - 1
                             ]
-                          : ""}
-                        <br />
+                              ? machineAllData?.checkSheet_data
+                                  ?.approved_by_HOS?.[
+                                  machineAllData?.checkSheet_data
+                                    ?.approved_by_HOS?.length - 1
+                                ]
+                              : ""}
+                            <br />
 
-                        {machineAllData?.checkSheet_data?.approved_by_TL[
-                          machineAllData?.checkSheet_data?.approved_by_TL
-                            .length - 1
-                        ]
-                          ? `,${
-                              machineAllData?.checkSheet_data?.approved_by_TL[
-                                machineAllData?.checkSheet_data?.approved_by_TL
-                                  .length - 1
-                              ]
-                            }`
-                          : ""}
-                      </th>
-                      <th className="approvalName" colSpan={2} rowSpan={5}>
-                        {machineAllData?.checkSheet_data?.sender_tm_name[
-                          machineAllData?.checkSheet_data?.sender_tm_name
-                            .length - 1
-                        ]
-                          ? machineAllData?.checkSheet_data?.sender_tm_name[
-                              machineAllData?.checkSheet_data?.sender_tm_name
-                                .length - 1
+                            {machineAllData?.checkSheet_data?.approved_by_TL?.[
+                              machineAllData?.checkSheet_data?.approved_by_TL
+                                ?.length - 1
                             ]
-                          : ""}
-                      </th>
-                      <th className="ar-table-thead-header1">
-                        Approved by
-                        <br />
-                        (MTD HOS)
-                      </th>
-                      {machineAllData?.checkSheet_data
-                        ?.implementation_approved_by_MTD_HOS
-                        ? Object.values(
-                            machineAllData?.checkSheet_data
-                              ?.implementation_approved_by_MTD_HOS
-                          ).map((index) => (
-                            <td className="ar-table-col1">
-                              {index[index.length - 1]}
-                            </td>
-                          ))
-                        : refArrayForTDMapping.map((index) => (
-                            <td className="ar-table-col1"></td>
-                          ))}
-                    </tr>
-                    <tr>
-                      <th className="ar-table-thead-header1">
-                        Approved by
-                        <br />
-                        (MTD HOD)
-                      </th>
-                      <td className="ar-table-col1" colSpan={6}>
-                        {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
-                          -1
-                        )}
-                      </td>
-                      <td className="ar-table-col1" colSpan={6}>
-                        {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
-                          -1
-                        )}
-                      </td>
-                    </tr>
-                  </thead>
-                  {/* <thead className="ar-table-thead1">
+                              ? `,${
+                                  machineAllData?.checkSheet_data
+                                    ?.approved_by_TL?.[
+                                    machineAllData?.checkSheet_data
+                                      ?.approved_by_TL?.length - 1
+                                  ]
+                                }`
+                              : ""}
+                          </th>
+                          <th className="approvalName" colSpan={2} rowSpan={5}>
+                            {machineAllData?.checkSheet_data?.sender_tm_name?.[
+                              machineAllData?.checkSheet_data?.sender_tm_name
+                                ?.length - 1
+                            ]
+                              ? machineAllData?.checkSheet_data
+                                  ?.sender_tm_name?.[
+                                  machineAllData?.checkSheet_data
+                                    ?.sender_tm_name?.length - 1
+                                ]
+                              : ""}
+                          </th>
+                          <th className="ar-table-thead-header1">
+                            Approved by
+                            <br />
+                            (MTD HOS)
+                          </th>
+                          {machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_MTD_HOS
+                            ? Object?.values(
+                                machineAllData?.checkSheet_data
+                                  ?.implementation_approved_by_MTD_HOS
+                              )?.map((index) => (
+                                <td className="ar-table-col1">
+                                  {index[index?.length - 1]}
+                                </td>
+                              ))
+                            : refArrayForTDMapping?.map((index) => (
+                                <td className="ar-table-col1"></td>
+                              ))}
+                        </tr>
+                        <tr>
+                          <th className="ar-table-thead-header1">
+                            Approved by
+                            <br />
+                            (MTD HOD)
+                          </th>
+                          <td className="ar-table-col1" colSpan={6}>
+                            {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
+                              -1
+                            )}
+                          </td>
+                          <td className="ar-table-col1" colSpan={6}>
+                            {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
+                              -1
+                            )}
+                          </td>
+                        </tr>
+                      </thead>
+                      {/* <thead className="ar-table-thead1">
                   <tr>
                     {refArrayForTDMapping.map((index) => (
                       <td className="ar-table-col1"></td>
@@ -1071,319 +1106,356 @@ function CheckSheet({
                     <td className="ar-table-col1" colSpan={6}></td>
                   </tr>
                 </thead> */}
-                  <thead className="mt-5">
-                    <tr>
-                      {columns.map((tColumn) => (
-                        <th
-                          className={
-                            tColumn.header === ""
-                              ? "ar-table-thead-header3"
-                              : "ar-table-thead-header"
-                          }
-                          // colSpan={
-                          //   tColumn.header === "Inspection item"
-                          //     ? refKey === true
-                          //       ? 2
-                          //       : 0
-                          //     : 0
-                          // }
-                        >
-                          {tColumn.header}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {newTableData.map((rData, rIndex) => (
-                      <tr
-                        className={
-                          rData[10]?.["key"] === "isDeleted" &&
-                          rData[10]?.["value"] === true
-                            ? "ar-table-row table-col-mid-year-delete"
-                            : "ar-table-row"
-                        }
-                      >
-                        {" "}
-                        {rData.map((colData) =>
-                          machineAllData?.checkSheet_data?.checksheet_status ===
-                            "Implementation" &&
-                          context.user_type === "Operator" ? (
-                            colData.print == true ? (
-                              <td
-                                className={
-                                  colData.value === ""
-                                    ? "ar-table-col2"
-                                    : colData.key ===
-                                        "inspection_parent_name" ||
-                                      colData.key === "inspection_child_name" ||
-                                      colData.key === "inspection_point" ||
-                                      colData.key === "judgement_criteria" ||
-                                      colData.key === "action"
-                                    ? "table_text_alignment"
-                                    : colData.value.length === 2 &&
-                                      colData.value[0] === "1" &&
-                                      colData.value[1] === "dummy"
-                                    ? "table-col-bg-ongoing"
-                                    : colData.value.length === 2 &&
-                                      colData.value[0] === "1" &&
-                                      colData.value[1] === "delay"
-                                    ? "table-col-bg-delay"
-                                    : colData.value.length === 2 &&
-                                      colData.value[0] === "1" &&
-                                      colData.value[1] === "skip"
-                                    ? "table-col-bg-skip"
-                                    : "ar-table-col"
-                                  //ar-table-col
-                                }
-                                rowSpan={colData.rowspan}
-                                colSpan={colData.colspan}
-                              >
-                                {" "}
-                                {colData.value[0] === "0" &&
-                                colData.key !== "tableRowId" &&
-                                colData.key !== "cycle" &&
-                                colData.key !== "PM_time" ? (
-                                  ""
-                                ) : (colData.value[0] === "1" ||
-                                    colData.value[0] === "2") &&
-                                  colData.key !== "tableRowId" &&
-                                  colData.key !== "cycle" &&
-                                  colData.key !== "PM_time" ? (
-                                  colData.value.length === 1 &&
-                                  colData.key === monthForCompareSystemMonth ? (
-                                    <>
-                                      {" "}
-                                      <button
-                                        className="pmImplementationBtn"
-                                        id={rData[0].value}
-                                        onClick={() => {
-                                          setWorkOnImplementationPM(
-                                            <WorkOnImplementationPM
-                                              close={close}
-                                              // disabledButtonAfterPM={
-                                              //   disabledButtonAfterPM
-                                              // }
-                                              machineId={
-                                                machineAllData.machine_code
-                                              }
-                                              tableRowId={rData[0].value}
-                                              yearOfCheckSheet={
-                                                machineData?.checkSheet_data
-                                                  .current_year
-                                              }
-                                              monthForCompareSystemMonth={
-                                                monthForCompareSystemMonth
-                                              }
-                                              functionToSetRefKey={
-                                                functionToSetRefKey
-                                              }
-                                              previousMonth={previousMonth}
-                                            />
-                                          );
-                                          document.querySelector(
-                                            ".checkSheetForImplementation"
-                                          ).style.pointerEvents = "none";
-                                        }}
-                                      >
-                                        -->
-                                      </button>
-                                      <br />{" "}
-                                    </>
-                                  ) : colData.value.length === 1 &&
-                                    colData.value[0] === "1" ? (
-                                    <p style={{ fontWeight: "900" }}>--></p>
-                                  ) : colData.value[0] === "1" &&
-                                    (colData.value[1] === "Yes" ||
-                                      colData.value[1] === "Rectify") ? (
-                                    <>
-                                      <div style={{ fontWeight: "900" }}>
-                                        -->
-                                        <br />
-                                        <EastIcon fontSize="small" />
-                                        <br />
-                                      </div>
-                                      {colData.value[2] ? (
-                                        <p className="remarksText">
-                                          {colData.value[2]}
-                                        </p>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </>
-                                  ) : colData.value[0] === "2" &&
-                                    (colData.value[1] === "Yes" ||
-                                      colData.value[1] === "Rectify") ? (
-                                    <>
-                                      <div style={{ fontWeight: "900" }}>
-                                        <EastIcon fontSize="small" />
-                                        <br />
-                                      </div>
-                                      {colData.value[2] ? (
-                                        <p className="remarksText">
-                                          {colData.value[2]}
-                                        </p>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </>
-                                  ) : colData.value.length === 2 &&
-                                    colData.value[0] === "1" &&
-                                    (colData.value[1] === "dummy" ||
-                                      colData.value[1] === "delay") ? (
-                                    <p
-                                      className="d-flex justify-content-center align-items-center"
-                                      style={{ fontWeight: "900" }}
-                                    >
-                                      {" "}
-                                      -->
-                                    </p>
-                                  ) : colData.value.length === 2 &&
-                                    colData.value[0] === "1" &&
-                                    colData.value[1] === "skip" ? (
-                                    <p
-                                      className="d-flex justify-content-center align-items-center"
-                                      style={{ fontWeight: "900" }}
-                                    >
-                                      {" "}
-                                      -->
-                                    </p>
-                                  ) : colData.value.length === 1 &&
-                                    colData.value[0] === "2" ? (
-                                    <p
-                                      className="d-flex justify-content-center align-items-center"
-                                      style={{ fontWeight: "900" }}
-                                    >
-                                      {" "}
-                                      -->
-                                    </p>
-                                  ) : colData.value.length === 2 &&
-                                    colData.value[0] === "2" &&
-                                    colData.value[1] === "skip_previous" ? (
-                                    <p
-                                      className="d-flex justify-content-center align-items-center"
-                                      style={{ fontWeight: "900" }}
-                                    >
-                                      {" "}
-                                      -->
-                                    </p>
-                                  ) : (
-                                    <>
-                                      <div style={{ fontWeight: "900" }}>
-                                        --> *
-                                        <br />
-                                      </div>
-                                      {colData.value[2] ? (
-                                        <p className="remarksText">
-                                          {colData.value[2]}
-                                        </p>
-                                      ) : (
-                                        ""
-                                      )}
-                                      {colData.value[3] ? (
-                                        <p className="remarksText">
-                                          &#x2B24; &nbsp;
-                                          {colData.value[3]}
-                                        </p>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </>
-                                  )
-                                ) : (
-                                  colData.value
-                                )}{" "}
-                              </td>
-                            ) : (
-                              ""
-                            )
-                          ) : colData.print == true ? (
-                            <td
+                      <thead className="mt-5">
+                        <tr>
+                          {columns.map((tColumn) => (
+                            <th
                               className={
-                                colData.value === ""
-                                  ? "ar-table-col2"
-                                  : colData.key === "inspection_parent_name" ||
-                                    colData.key === "inspection_child_name" ||
-                                    colData.key === "inspection_point" ||
-                                    colData.key === "judgement_criteria" ||
-                                    colData.key === "action"
-                                  ? "table_text_alignment"
-                                  : "ar-table-col"
+                                tColumn.header === ""
+                                  ? "ar-table-thead-header3"
+                                  : "ar-table-thead-header"
                               }
-                              rowSpan={colData.rowspan}
-                              colSpan={colData.colspan}
+                              // colSpan={
+                              //   tColumn.header === "Inspection item"
+                              //     ? refKey === true
+                              //       ? 2
+                              //       : 0
+                              //     : 0
+                              // }
                             >
-                              {" "}
-                              {colData.value[0] === "0" &&
-                              colData.key !== "cycle" &&
-                              colData.key !== "PM_time"
-                                ? ""
-                                : colData.value[0] === "1" &&
+                              {machineAllData?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
+                                tColumn?.header
+                              ]?.at(-1) === "Rejected" ||
+                              machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
+                                tColumn?.header
+                              ]?.at(-1) === "Rejected" ? (
+                                <button
+                                  style={{
+                                    backgroundColor: "#E5232A",
+                                    color: "#ffffff",
+                                  }}
+                                  onClick={() =>
+                                    OpenPopupForEditRemarksAfterReject(
+                                      tColumn.header
+                                    )
+                                  }
+                                >
+                                  {tColumn.header}
+                                </button>
+                              ) : (
+                                tColumn.header
+                              )}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {newTableData?.map((rData, rIndex) => (
+                          <tr
+                            className={
+                              rData[10]?.["key"] === "isDeleted" &&
+                              rData[10]?.["value"] === true
+                                ? "ar-table-row table-col-mid-year-delete"
+                                : "ar-table-row"
+                            }
+                          >
+                            {" "}
+                            {rData.map((colData) =>
+                              machineAllData?.checkSheet_data
+                                ?.checksheet_status === "Implementation" &&
+                              context?.user_type === "Operator" ? (
+                                colData?.print == true ? (
+                                  <td
+                                    className={
+                                      colData.value === ""
+                                        ? "ar-table-col2"
+                                        : colData.key ===
+                                            "inspection_parent_name" ||
+                                          colData.key ===
+                                            "inspection_child_name" ||
+                                          colData.key === "inspection_point" ||
+                                          colData.key ===
+                                            "judgement_criteria" ||
+                                          colData.key === "action"
+                                        ? "table_text_alignment"
+                                        : colData.value.length === 2 &&
+                                          colData.value[0] === "1" &&
+                                          colData.value[1] === "dummy"
+                                        ? "table-col-bg-ongoing"
+                                        : colData.value.length === 2 &&
+                                          colData.value[0] === "1" &&
+                                          colData.value[1] === "delay"
+                                        ? "table-col-bg-delay"
+                                        : colData.value.length === 2 &&
+                                          colData.value[0] === "1" &&
+                                          colData.value[1] === "skip"
+                                        ? "table-col-bg-skip"
+                                        : "ar-table-col"
+                                      //ar-table-col
+                                    }
+                                    rowSpan={colData.rowspan}
+                                    colSpan={colData.colspan}
+                                  >
+                                    {" "}
+                                    {colData.value[0] === "0" &&
+                                    colData.key !== "tableRowId" &&
+                                    colData.key !== "cycle" &&
+                                    colData.key !== "PM_time" ? (
+                                      ""
+                                    ) : (colData.value[0] === "1" ||
+                                        colData.value[0] === "2") &&
+                                      colData.key !== "tableRowId" &&
+                                      colData.key !== "cycle" &&
+                                      colData.key !== "PM_time" ? (
+                                      colData.value.length === 1 &&
+                                      colData.key ===
+                                        monthForCompareSystemMonth ? (
+                                        <>
+                                          {" "}
+                                          <button
+                                            className="pmImplementationBtn"
+                                            id={rData[0].value}
+                                            onClick={() => {
+                                              setWorkOnImplementationPM(
+                                                <WorkOnImplementationPM
+                                                  close={close}
+                                                  // disabledButtonAfterPM={
+                                                  //   disabledButtonAfterPM
+                                                  // }
+                                                  machineId={
+                                                    machineAllData.machine_code
+                                                  }
+                                                  tableRowId={rData[0].value}
+                                                  yearOfCheckSheet={
+                                                    machineData?.checkSheet_data
+                                                      .current_year
+                                                  }
+                                                  monthForCompareSystemMonth={
+                                                    monthForCompareSystemMonth
+                                                  }
+                                                  functionToSetRefKey={
+                                                    functionToSetRefKey
+                                                  }
+                                                  previousMonth={previousMonth}
+                                                  //--------------------
+
+                                                  machineAllData={
+                                                    machineAllData
+                                                  }
+                                                  inceptionValueForLogHistory={
+                                                    rData?.[3]?.value
+                                                  }
+                                                  refKeyForScheduleMonthInLogHistory={
+                                                    colData?.value?.[0]
+                                                  }
+                                                />
+                                              );
+                                              // document.querySelector(
+                                              //   ".checkSheetForImplementation"
+                                              // ).style.pointerEvents = "none";
+                                            }}
+                                          >
+                                            -->
+                                          </button>
+                                          <br />{" "}
+                                        </>
+                                      ) : colData.value.length === 1 &&
+                                        colData.value[0] === "1" ? (
+                                        <p style={{ fontWeight: "900" }}>--></p>
+                                      ) : colData.value[0] === "1" &&
+                                        (colData.value[1] === "Yes" ||
+                                          colData.value[1] === "Rectify") ? (
+                                        <>
+                                          <div style={{ fontWeight: "900" }}>
+                                            -->
+                                            <br />
+                                            <EastIcon fontSize="small" />
+                                            <br />
+                                          </div>
+                                          {colData.value[2] ? (
+                                            <p className="remarksText">
+                                              {colData.value[2]}
+                                            </p>
+                                          ) : (
+                                            ""
+                                          )}
+                                        </>
+                                      ) : colData.value[0] === "2" &&
+                                        (colData.value[1] === "Yes" ||
+                                          colData.value[1] === "Rectify") ? (
+                                        <>
+                                          <div style={{ fontWeight: "900" }}>
+                                            <EastIcon fontSize="small" />
+                                            <br />
+                                          </div>
+                                          {colData.value[2] ? (
+                                            <p className="remarksText">
+                                              {colData.value[2]}
+                                            </p>
+                                          ) : (
+                                            ""
+                                          )}
+                                        </>
+                                      ) : colData.value.length === 2 &&
+                                        colData.value[0] === "1" &&
+                                        (colData.value[1] === "dummy" ||
+                                          colData.value[1] === "delay") ? (
+                                        <p
+                                          className="d-flex justify-content-center align-items-center"
+                                          style={{ fontWeight: "900" }}
+                                        >
+                                          {" "}
+                                          -->
+                                        </p>
+                                      ) : colData.value.length === 2 &&
+                                        colData.value[0] === "1" &&
+                                        colData.value[1] === "skip" ? (
+                                        <p
+                                          className="d-flex justify-content-center align-items-center"
+                                          style={{ fontWeight: "900" }}
+                                        >
+                                          {" "}
+                                          -->
+                                        </p>
+                                      ) : colData.value.length === 1 &&
+                                        colData.value[0] === "2" ? (
+                                        <p
+                                          className="d-flex justify-content-center align-items-center"
+                                          style={{ fontWeight: "900" }}
+                                        >
+                                          {" "}
+                                          -->
+                                        </p>
+                                      ) : colData.value.length === 2 &&
+                                        colData.value[0] === "2" &&
+                                        colData.value[1] === "skip_previous" ? (
+                                        <p
+                                          className="d-flex justify-content-center align-items-center"
+                                          style={{ fontWeight: "900" }}
+                                        >
+                                          {" "}
+                                          -->
+                                        </p>
+                                      ) : (
+                                        <>
+                                          <div style={{ fontWeight: "900" }}>
+                                            --> *
+                                            <br />
+                                          </div>
+                                          {colData.value[2] ? (
+                                            <p className="remarksText">
+                                              {colData.value[2]}
+                                            </p>
+                                          ) : (
+                                            ""
+                                          )}
+                                          {colData.value[3] ? (
+                                            <p className="remarksText">
+                                              &#x2B24; &nbsp;
+                                              {colData.value[3]}
+                                            </p>
+                                          ) : (
+                                            ""
+                                          )}
+                                        </>
+                                      )
+                                    ) : (
+                                      colData.value
+                                    )}{" "}
+                                  </td>
+                                ) : (
+                                  ""
+                                )
+                              ) : colData.print == true ? (
+                                <td
+                                  className={
+                                    colData.value === ""
+                                      ? "ar-table-col2"
+                                      : colData.key ===
+                                          "inspection_parent_name" ||
+                                        colData.key ===
+                                          "inspection_child_name" ||
+                                        colData.key === "inspection_point" ||
+                                        colData.key === "judgement_criteria" ||
+                                        colData.key === "action"
+                                      ? "table_text_alignment"
+                                      : "ar-table-col"
+                                  }
+                                  rowSpan={colData.rowspan}
+                                  colSpan={colData.colspan}
+                                >
+                                  {" "}
+                                  {colData.value[0] === "0" &&
                                   colData.key !== "cycle" &&
                                   colData.key !== "PM_time"
-                                ? "-->"
-                                : colData.value}{" "}
-                            </td>
-                          ) : (
-                            ""
-                          )
-                        )}
-                      </tr>
-                    ))}
-                    <tr>
-                      <th colSpan={9}></th>
-                      <th className="ar-table-thead-header1">
-                        Done By
-                        <br />
-                        (MTD TM's)
-                      </th>
-                      {machineAllData?.checkSheet_data?.PMworkedTMName
-                        ? Object.values(
-                            machineAllData?.checkSheet_data?.PMworkedTMName
-                          ).map((index) => (
-                            <td className="ar-table-col1">
-                              {index.join(" ,")}
-                            </td>
-                          ))
-                        : refArrayForTDMapping.map((index) => (
+                                    ? ""
+                                    : colData.value[0] === "1" &&
+                                      colData.key !== "cycle" &&
+                                      colData.key !== "PM_time"
+                                    ? "-->"
+                                    : colData.value}{" "}
+                                </td>
+                              ) : (
+                                ""
+                              )
+                            )}
+                          </tr>
+                        ))}
+                        <tr>
+                          <th colSpan={9}></th>
+                          <th className="ar-table-thead-header1">
+                            Done By
+                            <br />
+                            (MTD TM's)
+                          </th>
+                          {machineAllData?.checkSheet_data?.PMworkedTMName
+                            ? Object?.values(
+                                machineAllData?.checkSheet_data?.PMworkedTMName
+                              )?.map((index) => (
+                                <td className="ar-table-col1">
+                                  {index.join(" ,")}
+                                </td>
+                              ))
+                            : refArrayForTDMapping.map((index) => (
+                                <td className="ar-table-col1"></td>
+                              ))}
+                        </tr>
+                        <tr>
+                          <th colSpan={9}></th>
+                          <th className="ar-table-thead-header1">
+                            Quality Check
+                            <br />
+                            (By PRD TL)
+                          </th>
+                          {machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_PRD_TL
+                            ? Object.values(
+                                machineAllData?.checkSheet_data
+                                  ?.implementation_approved_by_PRD_TL
+                              )?.map((index) => (
+                                <td className="ar-table-col1">
+                                  {index[index?.length - 1]}
+                                </td>
+                              ))
+                            : refArrayForTDMapping?.map((index) => (
+                                <td className="ar-table-col1"></td>
+                              ))}
+                        </tr>
+                        <tr>
+                          <th colSpan={9}></th>
+                          <th className="ar-table-thead-header1">
+                            Revised Plan
+                            <br />
+                            Approved(MTD HOS)
+                          </th>
+                          {refArrayForTDMapping?.map((index) => (
                             <td className="ar-table-col1"></td>
                           ))}
-                    </tr>
-                    <tr>
-                      <th colSpan={9}></th>
-                      <th className="ar-table-thead-header1">
-                        Quality Check
-                        <br />
-                        (By PRD TL)
-                      </th>
-                      {machineAllData?.checkSheet_data
-                        ?.implementation_approved_by_PRD_TL
-                        ? Object.values(
-                            machineAllData?.checkSheet_data
-                              ?.implementation_approved_by_PRD_TL
-                          ).map((index) => (
-                            <td className="ar-table-col1">
-                              {index[index.length - 1]}
-                            </td>
-                          ))
-                        : refArrayForTDMapping.map((index) => (
-                            <td className="ar-table-col1"></td>
-                          ))}
-                    </tr>
-                    <tr>
-                      <th colSpan={9}></th>
-                      <th className="ar-table-thead-header1">
-                        Revised Plan
-                        <br />
-                        Approved(MTD HOS)
-                      </th>
-                      {refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </Col>
-              {/* <Col lg={6} md={6} sm={6}>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </Col>
+                  {/* <Col lg={6} md={6} sm={6}>
               {phaseStatus === "Planning" ? (
                 <div>
                   <div>
@@ -1490,227 +1562,699 @@ function CheckSheet({
                 console.log("not plannig")
               )}
             </Col> */}
-            </Row>
-            <Row>
-              <Col>
-                <div className="m-2 p-3 border bg-white rounded">
-                  <div>
-                    <MaterialTable
-                      style={{ boxShadow: "none" }}
-                      localization={
-                        {
-                          // toolbar: {
-                          //   exportCSVName: "Export some Excel format",
-                          //   exportPDFName: "Export as pdf!!"
-                          // }
-                        }
-                      }
-                      icons={tableIcons}
-                      columns={revisedColumns}
-                      data={
-                        machineAllData?.checkSheet_data?.revisionContentData
-                      }
-                      // title="User Management"
-                      // tableRef={this.tableRef.current.onQueryChange()}
+                </Row>
+                <Row>
+                  <Col>
+                    <div className="m-2 p-3 border bg-white rounded">
+                      <div>
+                        <MaterialTable
+                          style={{ boxShadow: "none" }}
+                          localization={
+                            {
+                              // toolbar: {
+                              //   exportCSVName: "Export some Excel format",
+                              //   exportPDFName: "Export as pdf!!"
+                              // }
+                            }
+                          }
+                          icons={tableIcons}
+                          columns={revisedColumns}
+                          data={
+                            machineAllData?.checkSheet_data?.revisionContentData
+                          }
+                          // title="User Management"
+                          // tableRef={this.tableRef.current.onQueryChange()}
 
-                      editable={{}}
-                      options={{
-                        showTitle: false,
-                        paging: false,
-                        sorting: true,
-                        search: true,
-                        filtering: false,
-                        exportButton: true,
-                        exportAllData: true,
-                        draggable: false,
-                        actionsColumnIndex: -1,
-                        pageSize: 10,
-                        pageSizeOptions: false,
-                        paginationType: "stepped",
-                        addRowPosition: "first",
-                        headerStyle: {
-                          position: "sticky",
-                          top: "0",
-                          fontWeight: "bold",
-                        },
-                        maxBodyHeight: "70vh",
-                        rowStyle: {
-                          // fontStyle:'bold'
+                          editable={{}}
+                          options={{
+                            showTitle: false,
+                            paging: false,
+                            sorting: true,
+                            search: true,
+                            filtering: false,
+                            exportButton: true,
+                            exportAllData: true,
+                            draggable: false,
+                            actionsColumnIndex: -1,
+                            pageSize: 10,
+                            pageSizeOptions: false,
+                            paginationType: "stepped",
+                            addRowPosition: "first",
+                            headerStyle: {
+                              position: "sticky",
+                              top: "0",
+                              fontWeight: "bold",
+                            },
+                            maxBodyHeight: "70vh",
+                            rowStyle: {
+                              // fontStyle:'bold'
 
-                          // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                          // color:"rgba(255,255,255,0.8)",
-                          borderRadius: "5px",
-                          border: "1px solid black",
-                          // WebkitBackdropFilter: "blur( 2px )",
-                          background: "rgba(255,255,255,0.1)",
-                          // backdropFilter: "blur(5px)",
-                        },
-                        cellStyle: {
-                          border: "1px solid black",
-                        },
-                        headerStyle: {
-                          border: "1px solid black",
-                          fontWeight: "bold",
-                        },
-                      }}
-                    />
-                  </div>
-                </div>
-              </Col>
-              <Col>
-                <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-                  <button
-                    className="btn-danger"
-                    onClick={funForOpeningSummeryPopups}
-                  >
-                    Summary
-                  </button>
-                </div>
-                {machineAllData?.checkSheet_data?.checksheet_status ===
-                  "Implementation" && context.user_type === "Operator" ? (
-                  machineAllData?.checkSheet_data
-                    ?.implemetation_prd_tl_approval_status ||
-                  machineAllData?.checkSheet_data
-                    ?.implemetation_mtd_tl_approval_status ||
-                  machineAllData?.checkSheet_data
-                    ?.implemetation_mtd_hos_approval_status ? (
-                    machineAllData?.checkSheet_data
-                      ?.implemetation_prd_tl_approval_status[
-                      monthForCompareSystemMonth
-                    ][
+                              // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                              // color:"rgba(255,255,255,0.8)",
+                              borderRadius: "5px",
+                              border: "1px solid black",
+                              // WebkitBackdropFilter: "blur( 2px )",
+                              background: "rgba(255,255,255,0.1)",
+                              // backdropFilter: "blur(5px)",
+                            },
+                            cellStyle: {
+                              border: "1px solid black",
+                            },
+                            headerStyle: {
+                              border: "1px solid black",
+                              fontWeight: "bold",
+                            },
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </Col>
+                  <Col>
+                    <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                      <button
+                        className="btn-danger"
+                        onClick={funForOpeningSummeryPopups}
+                      >
+                        Summary
+                      </button>
+                    </div>
+                    {machineAllData?.checkSheet_data?.checksheet_status ===
+                      "Implementation" && context.user_type === "Operator" ? (
                       machineAllData?.checkSheet_data
-                        ?.implemetation_prd_tl_approval_status[
-                        monthForCompareSystemMonth
-                      ].length - 1
-                    ] === "Rejected" ||
-                    machineAllData?.checkSheet_data
-                      ?.implemetation_prd_tl_approval_status[
-                      monthForCompareSystemMonth
-                    ].length === 0 ||
-                    machineAllData?.checkSheet_data
-                      ?.implemetation_mtd_tl_approval_status[
-                      monthForCompareSystemMonth
-                    ][
+                        ?.implemetation_prd_tl_approval_status ||
                       machineAllData?.checkSheet_data
-                        ?.implemetation_mtd_tl_approval_status[
-                        monthForCompareSystemMonth
-                      ].length - 1
-                    ] === "Rejected" ||
-                    machineAllData?.checkSheet_data
-                      ?.implemetation_mtd_tl_approval_status[
-                      monthForCompareSystemMonth
-                    ].length === 0 ||
-                    machineAllData?.checkSheet_data
-                      ?.implemetation_mtd_hos_approval_status[
-                      monthForCompareSystemMonth
-                    ][
+                        ?.implemetation_mtd_tl_approval_status ||
                       machineAllData?.checkSheet_data
-                        ?.implemetation_mtd_hos_approval_status[
-                        monthForCompareSystemMonth
-                      ].length - 1
-                    ] === "Rejected" ||
-                    machineAllData?.checkSheet_data
-                      ?.implemetation_mtd_hos_approval_status[
-                      monthForCompareSystemMonth
-                    ].length === 0 ? (
-                      <>
-                        <Row className="m-2 p-3 border bg-white rounded">
-                          <Col>
-                            <form onSubmit={formik.handleSubmit}>
-                              {machineAllData?.checkSheet_data
-                                ?.implemetation_mtd_hos_approval_status[
-                                monthForCompareSystemMonth
-                              ][
-                                machineAllData?.checkSheet_data
-                                  ?.implemetation_mtd_hos_approval_status[
-                                  monthForCompareSystemMonth
-                                ].length - 1
-                              ] === "Rejected" ||
-                              machineAllData?.checkSheet_data
-                                ?.implemetation_mtd_tl_approval_status[
-                                monthForCompareSystemMonth
-                              ][
-                                machineAllData?.checkSheet_data
-                                  ?.implemetation_mtd_tl_approval_status[
-                                  monthForCompareSystemMonth
-                                ].length - 1
-                              ] === "Rejected" ||
-                              machineAllData?.checkSheet_data
-                                ?.implemetation_prd_tl_approval_status[
-                                monthForCompareSystemMonth
-                              ][
-                                machineAllData?.checkSheet_data
-                                  ?.implemetation_prd_tl_approval_status[
-                                  monthForCompareSystemMonth
-                                ].length - 1
-                              ] === "Rejected" ? (
-                                <div className="mb-2 row">
-                                  <span
-                                    className="col-3"
-                                    style={{
-                                      textAlign: "left",
-                                      fontWeight: "bold",
-                                    }}
-                                  >
-                                    Rejected Remarks:{" "}
-                                  </span>
-                                  <TextField
-                                    type="text"
-                                    className="col-8"
-                                    name="pmStatus"
-                                    autoComplete="off"
-                                    value={
+                        ?.implemetation_mtd_hos_approval_status ? (
+                        machineAllData?.checkSheet_data
+                          ?.implemetation_prd_tl_approval_status[
+                          monthForCompareSystemMonth
+                        ][
+                          machineAllData?.checkSheet_data
+                            ?.implemetation_prd_tl_approval_status?.[
+                            monthForCompareSystemMonth
+                          ]?.length - 1
+                        ] === "Rejected" ||
+                        machineAllData?.checkSheet_data
+                          ?.implemetation_prd_tl_approval_status?.[
+                          monthForCompareSystemMonth
+                        ]?.length === 0 ||
+                        machineAllData?.checkSheet_data
+                          ?.implemetation_mtd_tl_approval_status?.[
+                          monthForCompareSystemMonth
+                        ][
+                          machineAllData?.checkSheet_data
+                            ?.implemetation_mtd_tl_approval_status?.[
+                            monthForCompareSystemMonth
+                          ]?.length - 1
+                        ] === "Rejected" ||
+                        machineAllData?.checkSheet_data
+                          ?.implemetation_mtd_tl_approval_status?.[
+                          monthForCompareSystemMonth
+                        ]?.length === 0 ||
+                        machineAllData?.checkSheet_data
+                          ?.implemetation_mtd_hos_approval_status?.[
+                          monthForCompareSystemMonth
+                        ][
+                          machineAllData?.checkSheet_data
+                            ?.implemetation_mtd_hos_approval_status?.[
+                            monthForCompareSystemMonth
+                          ]?.length - 1
+                        ] === "Rejected" ||
+                        machineAllData?.checkSheet_data
+                          ?.implemetation_mtd_hos_approval_status?.[
+                          monthForCompareSystemMonth
+                        ]?.length === 0 ? (
+                          <>
+                            <Row className="m-2 p-3 border bg-white rounded">
+                              <Col>
+                                <form onSubmit={formik.handleSubmit}>
+                                  {delayRemarks === 1 ? (
+                                    machineAllData?.checkSheet_data
+                                      ?.PMDelayRemark ? (
                                       machineAllData?.checkSheet_data
-                                        ?.implementation_rejected_remarks
-                                        ? machineAllData?.checkSheet_data
-                                            ?.implementation_rejected_remarks[
-                                            monthForCompareSystemMonth
-                                          ][
+                                        ?.PMDelayRemark?.[
+                                        monthForCompareSystemMonth
+                                      ] ? (
+                                        <div className="mb-2 row">
+                                          <span
+                                            className="col-3"
+                                            style={{
+                                              textAlign: "left",
+                                              fontWeight: "bold",
+                                            }}
+                                          >
+                                            Delay reason:{" "}
+                                          </span>
+                                          <TextField
+                                            type="text"
+                                            className="col-8"
+                                            name="delayRemarks"
+                                            autoComplete="off"
+                                            value={
+                                              machineAllData?.checkSheet_data
+                                                ?.PMDelayRemark?.[
+                                                monthForCompareSystemMonth
+                                              ]
+                                            }
+                                          />
+                                        </div>
+                                      ) : (
+                                        <div className="mb-2 row">
+                                          <span
+                                            className="col-3"
+                                            style={{
+                                              textAlign: "left",
+                                              fontWeight: "bold",
+                                            }}
+                                          >
+                                            Delay reason:{" "}
+                                          </span>
+                                          <TextField
+                                            type="text"
+                                            className="col-8"
+                                            name="delayRemarks"
+                                            autoComplete="off"
+                                            value={formik.values.delayRemarks}
+                                            placeholder={
+                                              machineAllData?.checkSheet_data
+                                                ?.PMDelayRemark?.[
+                                                monthForCompareSystemMonth
+                                              ]
+                                                ? machineAllData
+                                                    ?.checkSheet_data
+                                                    ?.PMDelayRemark?.[
+                                                    monthForCompareSystemMonth
+                                                  ]
+                                                : ""
+                                            }
+                                            onChange={formik.handleChange}
+                                            error={
+                                              formik.touched.delayRemarks &&
+                                              Boolean(
+                                                formik.errors.delayRemarks
+                                              )
+                                            }
+                                            helperText={
+                                              formik.touched.delayRemarks &&
+                                              formik.errors.delayRemarks
+                                            }
+                                          />
+                                        </div>
+                                      )
+                                    ) : (
+                                      <div className="mb-2 row">
+                                        <span
+                                          className="col-3"
+                                          style={{
+                                            textAlign: "left",
+                                            fontWeight: "bold",
+                                          }}
+                                        >
+                                          Delay reason:{" "}
+                                        </span>
+                                        <TextField
+                                          type="text"
+                                          className="col-8"
+                                          name="delayRemarks"
+                                          autoComplete="off"
+                                          value={formik.values.delayRemarks}
+                                          placeholder={
                                             machineAllData?.checkSheet_data
-                                              ?.implementation_rejected_remarks[
+                                              ?.PMDelayRemark?.[
                                               monthForCompareSystemMonth
-                                            ].length - 1
-                                          ]
-                                        : ""
-                                    }
-                                  />
-                                </div>
-                              ) : (
-                                ""
-                              )}
-
-                              {delayRemarks === 1 ? (
-                                machineAllData?.checkSheet_data
-                                  ?.PMDelayRemark ? (
-                                  machineAllData?.checkSheet_data
-                                    ?.PMDelayRemark[
-                                    monthForCompareSystemMonth
-                                  ] ? (
-                                    <div className="mb-2 row">
-                                      <span
-                                        className="col-3"
-                                        style={{ textAlign: "left" }}
-                                      >
-                                        Delay reason:{" "}
-                                      </span>
-                                      <TextField
-                                        type="text"
-                                        className="col-8"
-                                        name="delayRemarks"
-                                        autoComplete="off"
-                                        value={
-                                          machineAllData?.checkSheet_data
-                                            ?.PMDelayRemark[
+                                            ]
+                                              ? machineAllData?.checkSheet_data
+                                                  ?.PMDelayRemark?.[
+                                                  monthForCompareSystemMonth
+                                                ]
+                                              : ""
+                                          }
+                                          onChange={formik.handleChange}
+                                          error={
+                                            formik.touched.delayRemarks &&
+                                            Boolean(formik.errors.delayRemarks)
+                                          }
+                                          helperText={
+                                            formik.touched.delayRemarks &&
+                                            formik.errors.delayRemarks
+                                          }
+                                        />
+                                      </div>
+                                    )
+                                  ) : (
+                                    ""
+                                  )}
+                                  <div className="mb-2 row">
+                                    <span
+                                      className="col-3"
+                                      style={{
+                                        textAlign: "left",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      PM Status:{" "}
+                                    </span>
+                                    <TextField
+                                      type="text"
+                                      className="col-8"
+                                      name="pmStatus"
+                                      autoComplete="off"
+                                      value={
+                                        machineAllData?.checkSheet_data
+                                          ?.PMStatus
+                                          ? machineAllData?.checkSheet_data
+                                              ?.PMStatus?.[
+                                              monthForCompareSystemMonth
+                                            ] === ""
+                                            ? "Not schedule"
+                                            : machineAllData?.checkSheet_data
+                                                ?.PMStatus?.[
+                                                monthForCompareSystemMonth
+                                              ]
+                                          : ""
+                                      }
+                                      // onChange={formik.handleChange}
+                                      // error={
+                                      //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
+                                      // }
+                                      // helperText={
+                                      //   formik.touched.pmTime && formik.errors.pmTime
+                                      // }
+                                    />
+                                  </div>
+                                  <div className="mb-2 row">
+                                    <span
+                                      className="col-3"
+                                      style={{
+                                        textAlign: "left",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      PM Time(min):{" "}
+                                    </span>
+                                    <TextField
+                                      type="text"
+                                      className="col-8"
+                                      name="pmTime"
+                                      autoComplete="off"
+                                      value={formik.values.pmTime}
+                                      onChange={formik.handleChange}
+                                      error={
+                                        formik.touched.pmTime &&
+                                        Boolean(formik.errors.pmTime)
+                                      }
+                                      helperText={
+                                        formik.touched.pmTime &&
+                                        formik.errors.pmTime
+                                      }
+                                    />
+                                  </div>
+                                  <div className="mb-2 row">
+                                    <span
+                                      className="col-3"
+                                      style={{
+                                        textAlign: "left",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      Previous PM Time(min):{" "}
+                                    </span>
+                                    <span
+                                      className="col-8"
+                                      style={{ textAlign: "left" }}
+                                    >
+                                      {machineAllData?.checkSheet_data
+                                        ?.totalPMTime?.[
+                                        monthForCompareSystemMonth
+                                      ]?.totalWorkedPMTime
+                                        ? machineAllData?.checkSheet_data
+                                            ?.totalPMTime?.[
                                             monthForCompareSystemMonth
-                                          ]
-                                        }
-                                      />
-                                    </div>
+                                          ]?.totalWorkedPMTime
+                                        : "0"}
+                                    </span>
+                                  </div>
+                                  <div className="mb-2 d-flex align-items-center">
+                                    <span
+                                      className="col-3"
+                                      style={{
+                                        textAlign: "left",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      Supporting TM:{" "}
+                                    </span>
+
+                                    <Multiselect
+                                      displayValue="tm_name"
+                                      className="col-9 "
+                                      options={supportingTMList} // Options to display in the dropdown
+                                      // selectedValues={departmentList} // Preselected value to persist in dropdown
+                                      onSelect={async (selectedList) => {
+                                        await setSelectedSupportedTM(
+                                          selectedList
+                                        );
+                                      }} // Function will trigger on select event
+                                      onRemove={async (selectedList) => {
+                                        await setSelectedSupportedTM(
+                                          selectedList
+                                        );
+                                      }} // Function will trigger on remove event
+                                      style={{
+                                        multiselectContainer: {
+                                          width: "15rem",
+                                        },
+                                      }}
+                                    />
+                                  </div>
+
+                                  <button
+                                    className="btn-primary1"
+                                    type="submit"
+                                  >
+                                    Save
+                                  </button>
+                                </form>
+                              </Col>
+                            </Row>
+                            <Row>
+                              <Col>
+                                {machineAllData?.checkSheet_data?.PMStatus ? (
+                                  machineAllData?.checkSheet_data?.PMStatus[
+                                    monthForCompareSystemMonth
+                                  ] === "Completed" ||
+                                  (machineAllData?.checkSheet_data?.PMStatus[
+                                    previousMonth
+                                  ] === "Done with delay" &&
+                                    machineAllData?.checkSheet_data?.PMStatus[
+                                      monthForCompareSystemMonth
+                                    ] === "") &&
+                                  machineAllData?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
+                                    monthForCompareSystemMonth
+                                  ]?.at(-1) !== "Rejected" ||
+                                  machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
+                                    monthForCompareSystemMonth
+                                  ]?.at(-1) !== "Rejected" ? (
+                                    <form onSubmit={formik1.handleSubmit}>
+                                      <div className="m-2 p-3 border bg-white rounded">
+                                        <div className="d-flex">
+                                          <div className="col-3">
+                                            <span>
+                                              PRD TL List <br /> (Quality Check)
+                                            </span>
+                                            <div
+                                              style={{ marginTop: "0.5rem" }}
+                                            >
+                                              <select
+                                                // class="form-select form-select-sm"
+                                                // aria-label=".form-select-sm example"
+                                                // style={{ width: "100%" }}
+                                                id="standard-select-currency"
+                                                name="prd_tl_list"
+                                                // className="textField"
+                                                // fullWidth
+                                                select // label="Select"
+                                                autoComplete="off"
+                                                value={
+                                                  formik1.values.prd_tl_list
+                                                }
+                                                onChange={(e) => {
+                                                  // setUsertype(e.target.value);
+                                                  formik1.handleChange(e);
+                                                }}
+                                                variant="standard"
+                                              >
+                                                <option
+                                                  selected
+                                                  disabled
+                                                  value=""
+                                                >
+                                                  Please select
+                                                </option>
+                                                {PRDTLlist?.map(
+                                                  (index, idx) => {
+                                                    return (
+                                                      <option value={idx}>
+                                                        {index.tm_name}
+                                                      </option>
+                                                    );
+                                                  }
+                                                )}
+                                              </select>
+                                              <div>
+                                                <p
+                                                  style={{
+                                                    color: "#F44336",
+                                                    fontWeight: "normal",
+                                                    fontSize: "0.80rem",
+                                                    // float: "left",
+                                                    paddingTop: "0.5rem",
+                                                  }}
+                                                >
+                                                  {formik1.touched
+                                                    .prd_tl_list &&
+                                                    formik1.errors.prd_tl_list}
+                                                </p>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div className="col-1 d-flex align-items-center justify-content-center ">
+                                              <EastIcon/>
+                                          </div>
+                                          <div className="col-3">
+                                            <span>
+                                              MTD TL List <br /> (Checked &
+                                              Verify by)
+                                            </span>
+                                            <div
+                                              style={{ marginTop: "0.5rem" }}
+                                            >
+                                              <select
+                                                // class="form-select form-select-sm"
+                                                // aria-label=".form-select-sm example"
+                                                // style={{ width: "100%" }}
+                                                id="standard-select-currency"
+                                                name="mtd_tl_list"
+                                                // className="textField"
+                                                // fullWidth
+                                                select // label="Select"
+                                                autoComplete="off"
+                                                value={
+                                                  formik1.values.mtd_tl_list
+                                                }
+                                                onChange={(e) => {
+                                                  // setUsertype(e.target.value);
+                                                  formik1.handleChange(e);
+                                                }}
+                                                variant="standard"
+                                              >
+                                                <option
+                                                  selected
+                                                  disabled
+                                                  value=""
+                                                >
+                                                  Please select
+                                                </option>
+                                                {MTDTLlist?.map(
+                                                  (index, idx) => {
+                                                    return (
+                                                      <option value={idx}>
+                                                        {index.tm_name}
+                                                      </option>
+                                                    );
+                                                  }
+                                                )}
+                                              </select>
+                                              <div>
+                                                <p
+                                                  style={{
+                                                    color: "#F44336",
+                                                    fontWeight: "normal",
+                                                    fontSize: "0.80rem",
+                                                    // float: "left",
+                                                    paddingTop: "0.5rem",
+                                                  }}
+                                                >
+                                                  {formik1.touched
+                                                    .mtd_tl_list &&
+                                                    formik1.errors.mtd_tl_list}
+                                                </p>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div className="col-1 d-flex align-items-center justify-content-center">
+                                              <EastIcon/>
+                                          </div>
+                                          <div className="col-3">
+                                            <span>
+                                              MTD HOS List <br /> (Approved by)
+                                            </span>
+                                            <div
+                                              style={{ marginTop: "0.5rem" }}
+                                            >
+                                              <select
+                                                // class="form-select form-select-sm"
+                                                // aria-label=".form-select-sm example"
+                                                // style={{ width: "100%" }}
+                                                id="standard-select-currency"
+                                                name="mtd_hos_list"
+                                                // className="textField"
+                                                // fullWidth
+                                                select // label="Select"
+                                                autoComplete="off"
+                                                value={
+                                                  formik1.values.mtd_hos_list
+                                                }
+                                                onChange={(e) => {
+                                                  // setUsertype(e.target.value);
+                                                  formik1.handleChange(e);
+                                                }}
+                                                variant="standard"
+                                              >
+                                                <option
+                                                  selected
+                                                  disabled
+                                                  value=""
+                                                >
+                                                  Please select
+                                                </option>
+                                                {HOSList?.map((index, idx) => {
+                                                  return (
+                                                    <option value={idx}>
+                                                      {index.tm_name}
+                                                    </option>
+                                                  );
+                                                })}
+                                              </select>
+                                              <div>
+                                                <p
+                                                  style={{
+                                                    color: "#F44336",
+                                                    fontWeight: "normal",
+                                                    fontSize: "0.80rem",
+                                                    // float: "left",
+                                                    paddingTop: "0.5rem",
+                                                  }}
+                                                >
+                                                  {formik1.touched
+                                                    .mtd_hos_list &&
+                                                    formik1.errors.mtd_hos_list}
+                                                </p>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <button
+                                            className="btn-approval"
+                                            type="submit"
+                                          >
+                                            Send for Approval
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </form>
+                                  ) : (
+                                    ""
+                                  )
+                                ) : (
+                                  ""
+                                )}
+                              </Col>
+                            </Row>
+                          </>
+                        ) : (
+                          ""
+                        )
+                      ) : (
+                        <>
+                          <Row className="m-2 p-3 border bg-white rounded">
+                            <Col>
+                              <form onSubmit={formik.handleSubmit}>
+                                {delayRemarks === 1 ? (
+                                  machineAllData?.checkSheet_data
+                                    ?.PMDelayRemark ? (
+                                    machineAllData?.checkSheet_data
+                                      ?.PMDelayRemark?.[
+                                      monthForCompareSystemMonth
+                                    ]?.[
+                                      machineAllData?.checkSheet_data
+                                        ?.PMDelayRemark?.[
+                                        monthForCompareSystemMonth
+                                      ]?.length - 1
+                                    ] ? (
+                                      <div className="mb-2 row">
+                                        <span
+                                          className="col-3"
+                                          style={{
+                                            textAlign: "left",
+                                            fontWeight: "bold",
+                                          }}
+                                        >
+                                          Delay reason:{" "}
+                                        </span>
+                                        <TextField
+                                          type="text"
+                                          className="col-8"
+                                          name="delayRemarks"
+                                          autoComplete="off"
+                                          value={
+                                            machineAllData?.checkSheet_data
+                                              ?.PMDelayRemark?.[
+                                              monthForCompareSystemMonth
+                                            ]
+                                          }
+                                        />
+                                      </div>
+                                    ) : (
+                                      <div className="mb-2 row">
+                                        <span
+                                          className="col-3"
+                                          style={{
+                                            textAlign: "left",
+                                            fontWeight: "bold",
+                                          }}
+                                        >
+                                          Delay reason:{" "}
+                                        </span>
+                                        <TextField
+                                          type="text"
+                                          className="col-8"
+                                          name="delayRemarks"
+                                          autoComplete="off"
+                                          value={formik.values.delayRemarks}
+                                          placeholder={
+                                            machineAllData?.checkSheet_data
+                                              ?.PMDelayRemark?.[
+                                              monthForCompareSystemMonth
+                                            ]
+                                              ? machineAllData?.checkSheet_data
+                                                  ?.PMDelayRemark?.[
+                                                  monthForCompareSystemMonth
+                                                ]
+                                              : ""
+                                          }
+                                          onChange={formik.handleChange}
+                                          error={
+                                            formik.touched.delayRemarks &&
+                                            Boolean(formik.errors.delayRemarks)
+                                          }
+                                          helperText={
+                                            formik.touched.delayRemarks &&
+                                            formik.errors.delayRemarks
+                                          }
+                                        />
+                                      </div>
+                                    )
                                   ) : (
                                     <div className="mb-2 row">
                                       <span
                                         className="col-3"
-                                        style={{ textAlign: "left" }}
+                                        style={{
+                                          textAlign: "left",
+                                          fontWeight: "bold",
+                                        }}
                                       >
                                         Delay reason:{" "}
                                       </span>
@@ -1722,11 +2266,11 @@ function CheckSheet({
                                         value={formik.values.delayRemarks}
                                         placeholder={
                                           machineAllData?.checkSheet_data
-                                            ?.PMDelayRemark[
+                                            ?.PMDelayRemark?.[
                                             monthForCompareSystemMonth
                                           ]
                                             ? machineAllData?.checkSheet_data
-                                                ?.PMDelayRemark[
+                                                ?.PMDelayRemark?.[
                                                 monthForCompareSystemMonth
                                               ]
                                             : ""
@@ -1744,414 +2288,8 @@ function CheckSheet({
                                     </div>
                                   )
                                 ) : (
-                                  <div className="mb-2 row">
-                                    <span
-                                      className="col-3"
-                                      style={{ textAlign: "left" }}
-                                    >
-                                      Delay reason:{" "}
-                                    </span>
-                                    <TextField
-                                      type="text"
-                                      className="col-8"
-                                      name="delayRemarks"
-                                      autoComplete="off"
-                                      value={formik.values.delayRemarks}
-                                      placeholder={
-                                        machineAllData?.checkSheet_data
-                                          ?.PMDelayRemark?.[
-                                          monthForCompareSystemMonth
-                                        ]
-                                          ? machineAllData?.checkSheet_data
-                                              ?.PMDelayRemark?.[
-                                              monthForCompareSystemMonth
-                                            ]
-                                          : ""
-                                      }
-                                      onChange={formik.handleChange}
-                                      error={
-                                        formik.touched.delayRemarks &&
-                                        Boolean(formik.errors.delayRemarks)
-                                      }
-                                      helperText={
-                                        formik.touched.delayRemarks &&
-                                        formik.errors.delayRemarks
-                                      }
-                                    />
-                                  </div>
-                                )
-                              ) : (
-                                ""
-                              )}
-                              <div className="mb-2 row">
-                                <span
-                                  className="col-3"
-                                  style={{ textAlign: "left" }}
-                                >
-                                  PM Status:{" "}
-                                </span>
-                                <TextField
-                                  type="text"
-                                  className="col-8"
-                                  name="pmStatus"
-                                  autoComplete="off"
-                                  value={
-                                    machineAllData?.checkSheet_data?.PMStatus
-                                      ? machineAllData?.checkSheet_data
-                                          ?.PMStatus[
-                                          monthForCompareSystemMonth
-                                        ] === ""
-                                        ? "Not schedule"
-                                        : machineAllData?.checkSheet_data
-                                            ?.PMStatus[
-                                            monthForCompareSystemMonth
-                                          ]
-                                      : ""
-                                  }
-                                  // onChange={formik.handleChange}
-                                  // error={
-                                  //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
-                                  // }
-                                  // helperText={
-                                  //   formik.touched.pmTime && formik.errors.pmTime
-                                  // }
-                                />
-                              </div>
-                              <div className="mb-2 row">
-                                <span
-                                  className="col-3"
-                                  style={{ textAlign: "left" }}
-                                >
-                                  PM Time(min):{" "}
-                                </span>
-                                <TextField
-                                  type="text"
-                                  className="col-8"
-                                  name="pmTime"
-                                  autoComplete="off"
-                                  value={formik.values.pmTime}
-                                  onChange={formik.handleChange}
-                                  error={
-                                    formik.touched.pmTime &&
-                                    Boolean(formik.errors.pmTime)
-                                  }
-                                  helperText={
-                                    formik.touched.pmTime &&
-                                    formik.errors.pmTime
-                                  }
-                                />
-                              </div>
-                              <div className="mb-2 row">
-                                <span
-                                  className="col-3"
-                                  style={{ textAlign: "left" }}
-                                >
-                                  Previous PM Time(min):{" "}
-                                </span>
-                                <span
-                                  className="col-8"
-                                  style={{ textAlign: "left" }}
-                                >
-                                  {machineAllData?.checkSheet_data
-                                    ?.totalPMTime?.[monthForCompareSystemMonth]
-                                    .totalWorkedPMTime
-                                    ? machineAllData?.checkSheet_data
-                                        ?.totalPMTime[
-                                        monthForCompareSystemMonth
-                                      ].totalWorkedPMTime
-                                    : "0"}
-                                </span>
-                              </div>
-                              <div className="mb-2 row">
-                                <span
-                                  className="col-3"
-                                  style={{ textAlign: "left" }}
-                                >
-                                  Supporting TM:{" "}
-                                </span>
-
-                                <Multiselect
-                                  displayValue="tm_name"
-                                  options={supportingTMList} // Options to display in the dropdown
-                                  // selectedValues={departmentList} // Preselected value to persist in dropdown
-                                  onSelect={async (selectedList) => {
-                                    await setSelectedSupportedTM(selectedList);
-                                  }} // Function will trigger on select event
-                                  onRemove={async (selectedList) => {
-                                    await setSelectedSupportedTM(selectedList);
-                                  }} // Function will trigger on remove event
-                                  style={{
-                                    multiselectContainer: {
-                                      width: "15rem",
-                                    },
-                                  }}
-                                />
-                              </div>
-
-                              <button className="btn-primary1" type="submit">
-                                Save
-                              </button>
-                            </form>
-                          </Col>
-                        </Row>
-                        <Row>
-                          <Col>
-                            {machineAllData?.checkSheet_data?.PMStatus ? (
-                              machineAllData?.checkSheet_data?.PMStatus[
-                                monthForCompareSystemMonth
-                              ] === "Completed" ||
-                              (machineAllData?.checkSheet_data?.PMStatus[
-                                previousMonth
-                              ] === "Done with delay" &&
-                                machineAllData?.checkSheet_data?.PMStatus[
-                                  monthForCompareSystemMonth
-                                ] === "") ? (
-                                <form onSubmit={formik1.handleSubmit}>
-                                  <div className="m-2 p-3 border bg-white rounded">
-                                    <div className="d-flex">
-                                      <div className="col-4">
-                                        <span>
-                                          PRD TL List <br /> (Quality Check)
-                                        </span>
-                                        <div style={{ marginTop: "0.5rem" }}>
-                                          <select
-                                            // class="form-select form-select-sm"
-                                            // aria-label=".form-select-sm example"
-                                            // style={{ width: "100%" }}
-                                            id="standard-select-currency"
-                                            name="prd_tl_list"
-                                            // className="textField"
-                                            // fullWidth
-                                            select // label="Select"
-                                            autoComplete="off"
-                                            value={formik1.values.prd_tl_list}
-                                            onChange={(e) => {
-                                              // setUsertype(e.target.value);
-                                              formik1.handleChange(e);
-                                            }}
-                                            variant="standard"
-                                          >
-                                            <option selected disabled value="">
-                                              Please select
-                                            </option>
-                                            {PRDTLlist?.map((index, idx) => {
-                                              return (
-                                                <option value={idx}>
-                                                  {index.tm_name}
-                                                </option>
-                                              );
-                                            })}
-                                          </select>
-                                          <div>
-                                            <p
-                                              style={{
-                                                color: "#F44336",
-                                                fontWeight: "normal",
-                                                fontSize: "0.80rem",
-                                                // float: "left",
-                                                paddingTop: "0.5rem",
-                                              }}
-                                            >
-                                              {formik1.touched.prd_tl_list &&
-                                                formik1.errors.prd_tl_list}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div className="col-4">
-                                        <span>
-                                          MTD TL List <br /> (Checked & Verify
-                                          by)
-                                        </span>
-                                        <div style={{ marginTop: "0.5rem" }}>
-                                          <select
-                                            // class="form-select form-select-sm"
-                                            // aria-label=".form-select-sm example"
-                                            // style={{ width: "100%" }}
-                                            id="standard-select-currency"
-                                            name="mtd_tl_list"
-                                            // className="textField"
-                                            // fullWidth
-                                            select // label="Select"
-                                            autoComplete="off"
-                                            value={formik1.values.mtd_tl_list}
-                                            onChange={(e) => {
-                                              // setUsertype(e.target.value);
-                                              formik1.handleChange(e);
-                                            }}
-                                            variant="standard"
-                                          >
-                                            <option selected disabled value="">
-                                              Please select
-                                            </option>
-                                            {MTDTLlist?.map((index, idx) => {
-                                              return (
-                                                <option value={idx}>
-                                                  {index.tm_name}
-                                                </option>
-                                              );
-                                            })}
-                                          </select>
-                                          <div>
-                                            <p
-                                              style={{
-                                                color: "#F44336",
-                                                fontWeight: "normal",
-                                                fontSize: "0.80rem",
-                                                // float: "left",
-                                                paddingTop: "0.5rem",
-                                              }}
-                                            >
-                                              {formik1.touched.mtd_tl_list &&
-                                                formik1.errors.mtd_tl_list}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div className="col-4">
-                                        <span>
-                                          MTD HOS List <br /> (Approved by)
-                                        </span>
-                                        <div style={{ marginTop: "0.5rem" }}>
-                                          <select
-                                            // class="form-select form-select-sm"
-                                            // aria-label=".form-select-sm example"
-                                            // style={{ width: "100%" }}
-                                            id="standard-select-currency"
-                                            name="mtd_hos_list"
-                                            // className="textField"
-                                            // fullWidth
-                                            select // label="Select"
-                                            autoComplete="off"
-                                            value={formik1.values.mtd_hos_list}
-                                            onChange={(e) => {
-                                              // setUsertype(e.target.value);
-                                              formik1.handleChange(e);
-                                            }}
-                                            variant="standard"
-                                          >
-                                            <option selected disabled value="">
-                                              Please select
-                                            </option>
-                                            {HOSList?.map((index, idx) => {
-                                              return (
-                                                <option value={idx}>
-                                                  {index.tm_name}
-                                                </option>
-                                              );
-                                            })}
-                                          </select>
-                                          <div>
-                                            <p
-                                              style={{
-                                                color: "#F44336",
-                                                fontWeight: "normal",
-                                                fontSize: "0.80rem",
-                                                // float: "left",
-                                                paddingTop: "0.5rem",
-                                              }}
-                                            >
-                                              {formik1.touched.mtd_hos_list &&
-                                                formik1.errors.mtd_hos_list}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div>
-                                      <button
-                                        className="btn-approval"
-                                        type="submit"
-                                      >
-                                        Send for Approval
-                                      </button>
-                                    </div>
-                                  </div>
-                                </form>
-                              ) : (
-                                ""
-                              )
-                            ) : (
-                              ""
-                            )}
-                          </Col>
-                        </Row>
-                      </>
-                    ) : (
-                      ""
-                    )
-                  ) : (
-                    <>
-                      <Row className="m-2 p-3 border bg-white rounded">
-                        <Col>
-                          <form onSubmit={formik.handleSubmit}>
-                            {delayRemarks === 1 ? (
-                              machineAllData?.checkSheet_data?.PMDelayRemark ? (
-                                machineAllData?.checkSheet_data?.PMDelayRemark[
-                                  monthForCompareSystemMonth
-                                ][
-                                  machineAllData?.checkSheet_data
-                                    ?.PMDelayRemark[monthForCompareSystemMonth]
-                                    .length - 1
-                                ] ? (
-                                  <div className="mb-2 row">
-                                    <span
-                                      className="col-3"
-                                      style={{ textAlign: "left" }}
-                                    >
-                                      Delay reason:{" "}
-                                    </span>
-                                    <TextField
-                                      type="text"
-                                      className="col-8"
-                                      name="delayRemarks"
-                                      autoComplete="off"
-                                      value={
-                                        machineAllData?.checkSheet_data
-                                          ?.PMDelayRemark[
-                                          monthForCompareSystemMonth
-                                        ]
-                                      }
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="mb-2 row">
-                                    <span
-                                      className="col-3"
-                                      style={{ textAlign: "left" }}
-                                    >
-                                      Delay reason:{" "}
-                                    </span>
-                                    <TextField
-                                      type="text"
-                                      className="col-8"
-                                      name="delayRemarks"
-                                      autoComplete="off"
-                                      value={formik.values.delayRemarks}
-                                      placeholder={
-                                        machineAllData?.checkSheet_data
-                                          ?.PMDelayRemark[
-                                          monthForCompareSystemMonth
-                                        ]
-                                          ? machineAllData?.checkSheet_data
-                                              ?.PMDelayRemark[
-                                              monthForCompareSystemMonth
-                                            ]
-                                          : ""
-                                      }
-                                      onChange={formik.handleChange}
-                                      error={
-                                        formik.touched.delayRemarks &&
-                                        Boolean(formik.errors.delayRemarks)
-                                      }
-                                      helperText={
-                                        formik.touched.delayRemarks &&
-                                        formik.errors.delayRemarks
-                                      }
-                                    />
-                                  </div>
-                                )
-                              ) : (
+                                  ""
+                                )}
                                 <div className="mb-2 row">
                                   <span
                                     className="col-3"
@@ -2160,331 +2298,324 @@ function CheckSheet({
                                       fontWeight: "bold",
                                     }}
                                   >
-                                    Delay reason:{" "}
+                                    PM Status:{" "}
                                   </span>
                                   <TextField
                                     type="text"
                                     className="col-8"
-                                    name="delayRemarks"
+                                    name="pmStatus"
                                     autoComplete="off"
-                                    value={formik.values.delayRemarks}
-                                    placeholder={
-                                      machineAllData?.checkSheet_data
-                                        ?.PMDelayRemark?.[
-                                        monthForCompareSystemMonth
-                                      ]
+                                    value={
+                                      machineAllData?.checkSheet_data?.PMStatus
                                         ? machineAllData?.checkSheet_data
-                                            ?.PMDelayRemark?.[
+                                            ?.PMStatus[
                                             monthForCompareSystemMonth
-                                          ]
+                                          ] === ""
+                                          ? "Not schedule"
+                                          : machineAllData?.checkSheet_data
+                                              ?.PMStatus[
+                                              monthForCompareSystemMonth
+                                            ]
                                         : ""
                                     }
+                                    // onChange={formik.handleChange}
+                                    // error={
+                                    //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
+                                    // }
+                                    // helperText={
+                                    //   formik.touched.pmTime && formik.errors.pmTime
+                                    // }
+                                  />
+                                </div>
+                                <div className="mb-2 row">
+                                  <span
+                                    className="col-3"
+                                    style={{
+                                      textAlign: "left",
+                                      fontWeight: "bold",
+                                    }}
+                                  >
+                                    PM Time(min):{" "}
+                                  </span>
+                                  <TextField
+                                    type="text"
+                                    className="col-8"
+                                    name="pmTime"
+                                    autoComplete="off"
+                                    value={formik.values.pmTime}
                                     onChange={formik.handleChange}
                                     error={
-                                      formik.touched.delayRemarks &&
-                                      Boolean(formik.errors.delayRemarks)
+                                      formik.touched.pmTime &&
+                                      Boolean(formik.errors.pmTime)
                                     }
                                     helperText={
-                                      formik.touched.delayRemarks &&
-                                      formik.errors.delayRemarks
+                                      formik.touched.pmTime &&
+                                      formik.errors.pmTime
                                     }
                                   />
                                 </div>
-                              )
-                            ) : (
-                              ""
-                            )}
-                            <div className="mb-2 row">
-                              <span
-                                className="col-3"
-                                style={{
-                                  textAlign: "left",
-                                  fontWeight: "bold",
-                                }}
-                              >
-                                PM Status:{" "}
-                              </span>
-                              <TextField
-                                type="text"
-                                className="col-8"
-                                name="pmStatus"
-                                autoComplete="off"
-                                value={
-                                  machineAllData?.checkSheet_data?.PMStatus
-                                    ? machineAllData?.checkSheet_data?.PMStatus[
-                                        monthForCompareSystemMonth
-                                      ] === ""
-                                      ? "Not schedule"
-                                      : machineAllData?.checkSheet_data
-                                          ?.PMStatus[monthForCompareSystemMonth]
-                                    : ""
-                                }
-                                // onChange={formik.handleChange}
-                                // error={
-                                //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
-                                // }
-                                // helperText={
-                                //   formik.touched.pmTime && formik.errors.pmTime
-                                // }
-                              />
-                            </div>
-                            <div className="mb-2 row">
-                              <span
-                                className="col-3"
-                                style={{ textAlign: "left" }}
-                              >
-                                PM Time(min):{" "}
-                              </span>
-                              <TextField
-                                type="text"
-                                className="col-8"
-                                name="pmTime"
-                                autoComplete="off"
-                                value={formik.values.pmTime}
-                                onChange={formik.handleChange}
-                                error={
-                                  formik.touched.pmTime &&
-                                  Boolean(formik.errors.pmTime)
-                                }
-                                helperText={
-                                  formik.touched.pmTime && formik.errors.pmTime
-                                }
-                              />
-                            </div>
-                            <div className="mb-2 row">
-                              <span
-                                className="col-3"
-                                style={{ textAlign: "left" }}
-                              >
-                                Previous PM Time(min):{" "}
-                              </span>
-                              <span
-                                className="col-8"
-                                style={{ textAlign: "left" }}
-                              >
-                                {machineAllData?.checkSheet_data?.totalPMTime?.[
-                                  monthForCompareSystemMonth
-                                ].totalWorkedPMTime
-                                  ? machineAllData?.checkSheet_data
-                                      ?.totalPMTime[monthForCompareSystemMonth]
-                                      .totalWorkedPMTime
-                                  : "0"}
-                              </span>
-                            </div>
-                            <div className="mb-2 row">
-                              <span
-                                className="col-3"
-                                style={{ textAlign: "left" }}
-                              >
-                                Supporting TM:{" "}
-                              </span>
-
-                              <Multiselect
-                                displayValue="tm_name"
-                                options={supportingTMList} // Options to display in the dropdown
-                                // selectedValues={departmentList} // Preselected value to persist in dropdown
-                                onSelect={async (selectedList) => {
-                                  await setSelectedSupportedTM(selectedList);
-                                }} // Function will trigger on select event
-                                onRemove={async (selectedList) => {
-                                  await setSelectedSupportedTM(selectedList);
-                                }} // Function will trigger on remove event
-                              />
-                            </div>
-
-                            <button className="btn-primary1" type="submit">
-                              Save
-                            </button>
-                          </form>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col>
-                          {machineAllData?.checkSheet_data?.PMStatus ? (
-                            machineAllData?.checkSheet_data?.PMStatus[
-                              monthForCompareSystemMonth
-                            ] === "Completed" ||
-                            (machineAllData?.checkSheet_data?.PMStatus[
-                              previousMonth
-                            ] === "Done with delay" &&
-                              machineAllData?.checkSheet_data?.PMStatus[
-                                monthForCompareSystemMonth
-                              ] === "") ? (
-                              <form onSubmit={formik1.handleSubmit}>
-                                <div className="m-2 p-3 border bg-white rounded">
-                                  <div className="d-flex">
-                                    <div className="col-4">
-                                      <span>
-                                        PRD TL List <br /> (Quality Check)
-                                      </span>
-                                      <div style={{ marginTop: "0.5rem" }}>
-                                        <select
-                                          // class="form-select form-select-sm"
-                                          // aria-label=".form-select-sm example"
-                                          // style={{ width: "100%" }}
-                                          id="standard-select-currency"
-                                          name="prd_tl_list"
-                                          // className="textField"
-                                          // fullWidth
-                                          select // label="Select"
-                                          autoComplete="off"
-                                          value={formik1.values.prd_tl_list}
-                                          onChange={(e) => {
-                                            // setUsertype(e.target.value);
-                                            formik1.handleChange(e);
-                                          }}
-                                          variant="standard"
-                                        >
-                                          <option selected disabled value="">
-                                            Please select
-                                          </option>
-                                          {PRDTLlist?.map((index, idx) => {
-                                            return (
-                                              <option value={idx}>
-                                                {index.tm_name}
-                                              </option>
-                                            );
-                                          })}
-                                        </select>
-                                        <div>
-                                          <p
-                                            style={{
-                                              color: "#F44336",
-                                              fontWeight: "normal",
-                                              fontSize: "0.80rem",
-                                              // float: "left",
-                                              paddingTop: "0.5rem",
-                                            }}
-                                          >
-                                            {formik1.touched.prd_tl_list &&
-                                              formik1.errors.prd_tl_list}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div className="col-4">
-                                      <span>
-                                        MTD TL List <br /> (Checked & Verify by)
-                                      </span>
-                                      <div style={{ marginTop: "0.5rem" }}>
-                                        <select
-                                          // class="form-select form-select-sm"
-                                          // aria-label=".form-select-sm example"
-                                          // style={{ width: "100%" }}
-                                          id="standard-select-currency"
-                                          name="mtd_tl_list"
-                                          // className="textField"
-                                          // fullWidth
-                                          select // label="Select"
-                                          autoComplete="off"
-                                          value={formik1.values.mtd_tl_list}
-                                          onChange={(e) => {
-                                            // setUsertype(e.target.value);
-                                            formik1.handleChange(e);
-                                          }}
-                                          variant="standard"
-                                        >
-                                          <option selected disabled value="">
-                                            Please select
-                                          </option>
-                                          {MTDTLlist?.map((index, idx) => {
-                                            return (
-                                              <option value={idx}>
-                                                {index.tm_name}
-                                              </option>
-                                            );
-                                          })}
-                                        </select>
-                                        <div>
-                                          <p
-                                            style={{
-                                              color: "#F44336",
-                                              fontWeight: "normal",
-                                              fontSize: "0.80rem",
-                                              // float: "left",
-                                              paddingTop: "0.5rem",
-                                            }}
-                                          >
-                                            {formik1.touched.mtd_tl_list &&
-                                              formik1.errors.mtd_tl_list}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div className="col-4">
-                                      <span>
-                                        MTD HOS List <br /> (Approved by)
-                                      </span>
-                                      <div style={{ marginTop: "0.5rem" }}>
-                                        <select
-                                          // class="form-select form-select-sm"
-                                          // aria-label=".form-select-sm example"
-                                          // style={{ width: "100%" }}
-                                          id="standard-select-currency"
-                                          name="mtd_hos_list"
-                                          // className="textField"
-                                          // fullWidth
-                                          select // label="Select"
-                                          autoComplete="off"
-                                          value={formik1.values.mtd_hos_list}
-                                          onChange={(e) => {
-                                            // setUsertype(e.target.value);
-                                            formik1.handleChange(e);
-                                          }}
-                                          variant="standard"
-                                        >
-                                          <option selected disabled value="">
-                                            Please select
-                                          </option>
-                                          {HOSList?.map((index, idx) => {
-                                            return (
-                                              <option value={idx}>
-                                                {index.tm_name}
-                                              </option>
-                                            );
-                                          })}
-                                        </select>
-                                        <div>
-                                          <p
-                                            style={{
-                                              color: "#F44336",
-                                              fontWeight: "normal",
-                                              fontSize: "0.80rem",
-                                              // float: "left",
-                                              paddingTop: "0.5rem",
-                                            }}
-                                          >
-                                            {formik1.touched.mtd_hos_list &&
-                                              formik1.errors.mtd_hos_list}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <button
-                                      className="btn-approval"
-                                      type="submit"
-                                    >
-                                      Send for Approval
-                                    </button>
-                                  </div>
+                                <div className="mb-2 row">
+                                  <span
+                                    className="col-3"
+                                    style={{
+                                      textAlign: "left",
+                                      fontWeight: "bold",
+                                    }}
+                                  >
+                                    Previous PM Time(min):{" "}
+                                  </span>
+                                  <span
+                                    className="col-8"
+                                    style={{ textAlign: "left" }}
+                                  >
+                                    {machineAllData?.checkSheet_data
+                                      ?.totalPMTime?.[
+                                      monthForCompareSystemMonth
+                                    ]?.totalWorkedPMTime
+                                      ? machineAllData?.checkSheet_data
+                                          ?.totalPMTime?.[
+                                          monthForCompareSystemMonth
+                                        ]?.totalWorkedPMTime
+                                      : "0"}
+                                  </span>
                                 </div>
+                                <div className="mb-2 d-flex align-items-center">
+                                  <span
+                                    className="col-3"
+                                    style={{
+                                      textAlign: "left",
+                                      fontWeight: "bold",
+                                    }}
+                                  >
+                                    Supporting TM:{" "}
+                                  </span>
+
+                                  <Multiselect
+                                    displayValue="tm_name"
+                                    options={supportingTMList} // Options to display in the dropdown
+                                    className="col-9"
+                                    // selectedValues={departmentList} // Preselected value to persist in dropdown
+                                    onSelect={async (selectedList) => {
+                                      await setSelectedSupportedTM(
+                                        selectedList
+                                      );
+                                    }} // Function will trigger on select event
+                                    onRemove={async (selectedList) => {
+                                      await setSelectedSupportedTM(
+                                        selectedList
+                                      );
+                                    }} // Function will trigger on remove event
+                                  />
+                                </div>
+
+                                <button className="btn-primary1" type="submit">
+                                  Save
+                                </button>
                               </form>
-                            ) : (
-                              ""
-                            )
-                          ) : (
-                            ""
-                          )}
-                        </Col>
-                      </Row>
-                    </>
-                  )
-                ) : (
-                  ""
-                )}
-                {/* {monthForCompareSystemMonth === "Jan" ||
+                            </Col>
+                          </Row>
+                          <Row>
+                            <Col>
+                              {machineAllData?.checkSheet_data?.PMStatus ? (
+                                machineAllData?.checkSheet_data?.PMStatus?.[
+                                  monthForCompareSystemMonth
+                                ] === "Completed" ||
+                                (machineAllData?.checkSheet_data?.PMStatus?.[
+                                  previousMonth
+                                ] === "Done with delay" &&
+                                  machineAllData?.checkSheet_data?.PMStatus?.[
+                                    monthForCompareSystemMonth
+                                  ] === "") ? (
+                                  <form onSubmit={formik1.handleSubmit}>
+                                    <div className="m-2 p-3 border bg-white rounded">
+                                      <div className="d-flex">
+                                        <div className="col-4">
+                                          <span>
+                                            PRD TL List <br /> (Quality Check)
+                                          </span>
+                                          <div style={{ marginTop: "0.5rem" }}>
+                                            <select
+                                              // class="form-select form-select-sm"
+                                              // aria-label=".form-select-sm example"
+                                              // style={{ width: "100%" }}
+                                              id="standard-select-currency"
+                                              name="prd_tl_list"
+                                              // className="textField"
+                                              // fullWidth
+                                              select // label="Select"
+                                              autoComplete="off"
+                                              value={formik1.values.prd_tl_list}
+                                              onChange={(e) => {
+                                                // setUsertype(e.target.value);
+                                                formik1.handleChange(e);
+                                              }}
+                                              variant="standard"
+                                            >
+                                              <option
+                                                selected
+                                                disabled
+                                                value=""
+                                              >
+                                                Please select
+                                              </option>
+                                              {PRDTLlist?.map((index, idx) => {
+                                                return (
+                                                  <option value={idx}>
+                                                    {index.tm_name}
+                                                  </option>
+                                                );
+                                              })}
+                                            </select>
+                                            <div>
+                                              <p
+                                                style={{
+                                                  color: "#F44336",
+                                                  fontWeight: "normal",
+                                                  fontSize: "0.80rem",
+                                                  // float: "left",
+                                                  paddingTop: "0.5rem",
+                                                }}
+                                              >
+                                                {formik1.touched.prd_tl_list &&
+                                                  formik1.errors.prd_tl_list}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="col-4">
+                                          <span>
+                                            MTD TL List <br /> (Checked & Verify
+                                            by)
+                                          </span>
+                                          <div style={{ marginTop: "0.5rem" }}>
+                                            <select
+                                              // class="form-select form-select-sm"
+                                              // aria-label=".form-select-sm example"
+                                              // style={{ width: "100%" }}
+                                              id="standard-select-currency"
+                                              name="mtd_tl_list"
+                                              // className="textField"
+                                              // fullWidth
+                                              select // label="Select"
+                                              autoComplete="off"
+                                              value={formik1.values.mtd_tl_list}
+                                              onChange={(e) => {
+                                                // setUsertype(e.target.value);
+                                                formik1.handleChange(e);
+                                              }}
+                                              variant="standard"
+                                            >
+                                              <option
+                                                selected
+                                                disabled
+                                                value=""
+                                              >
+                                                Please select
+                                              </option>
+                                              {MTDTLlist?.map((index, idx) => {
+                                                return (
+                                                  <option value={idx}>
+                                                    {index.tm_name}
+                                                  </option>
+                                                );
+                                              })}
+                                            </select>
+                                            <div>
+                                              <p
+                                                style={{
+                                                  color: "#F44336",
+                                                  fontWeight: "normal",
+                                                  fontSize: "0.80rem",
+                                                  // float: "left",
+                                                  paddingTop: "0.5rem",
+                                                }}
+                                              >
+                                                {formik1.touched.mtd_tl_list &&
+                                                  formik1.errors.mtd_tl_list}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="col-4">
+                                          <span>
+                                            MTD HOS List <br /> (Approved by)
+                                          </span>
+                                          <div style={{ marginTop: "0.5rem" }}>
+                                            <select
+                                              // class="form-select form-select-sm"
+                                              // aria-label=".form-select-sm example"
+                                              // style={{ width: "100%" }}
+                                              id="standard-select-currency"
+                                              name="mtd_hos_list"
+                                              // className="textField"
+                                              // fullWidth
+                                              select // label="Select"
+                                              autoComplete="off"
+                                              value={
+                                                formik1.values.mtd_hos_list
+                                              }
+                                              onChange={(e) => {
+                                                // setUsertype(e.target.value);
+                                                formik1.handleChange(e);
+                                              }}
+                                              variant="standard"
+                                            >
+                                              <option
+                                                selected
+                                                disabled
+                                                value=""
+                                              >
+                                                Please select
+                                              </option>
+                                              {HOSList?.map((index, idx) => {
+                                                return (
+                                                  <option value={idx}>
+                                                    {index.tm_name}
+                                                  </option>
+                                                );
+                                              })}
+                                            </select>
+                                            <div>
+                                              <p
+                                                style={{
+                                                  color: "#F44336",
+                                                  fontWeight: "normal",
+                                                  fontSize: "0.80rem",
+                                                  // float: "left",
+                                                  paddingTop: "0.5rem",
+                                                }}
+                                              >
+                                                {formik1.touched.mtd_hos_list &&
+                                                  formik1.errors.mtd_hos_list}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <button
+                                          className="btn-approval"
+                                          type="submit"
+                                        >
+                                          Send for Approval
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </form>
+                                ) : (
+                                  ""
+                                )
+                              ) : (
+                                ""
+                              )}
+                            </Col>
+                          </Row>
+                        </>
+                      )
+                    ) : (
+                      ""
+                    )}
+                    {/* {monthForCompareSystemMonth === "Jan" ||
                 monthForCompareSystemMonth === "Mar" ||
                 machineAllData?.checkSheet_data
                   ?.implemetation_mtd_hod_approval_status[
@@ -2561,13 +2692,19 @@ function CheckSheet({
                 ) : (
                   ""
                 )} */}
-              </Col>
-            </Row>
-          </Container>
-        </div>
+                  </Col>
+                </Row>
+              </Container>
+            </div>
+          </Modal.Body>
+          {/* <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+              Close
+            </Button>
+          </Modal.Footer> */}
+        </Modal>
       </div>
     </>
   );
-}
-
+};
 export default CheckSheet;

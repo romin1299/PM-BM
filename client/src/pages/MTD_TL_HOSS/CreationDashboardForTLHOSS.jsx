@@ -20,6 +20,8 @@ import {
   deleteMachine,
 } from "../../Integration/APIExports.js";
 
+import { Row, Col } from 'react-bootstrap'
+
 import "../../SCSS/MaterialTable.scss";
 import { RadioGroup } from "@mui/material";
 import RoutingContext from "../../context/routing/RoutingContext";
@@ -44,6 +46,7 @@ const CreationDashboardForTLHOSS = () => {
       title: "Serial no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
+      width: "10%",
     },
     {
       title: "Line Id",
@@ -68,6 +71,7 @@ const CreationDashboardForTLHOSS = () => {
       title: "Serial no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
+      width: "5%"
     },
     {
       title: "Machine Code",
@@ -89,6 +93,7 @@ const CreationDashboardForTLHOSS = () => {
       title: "Machine Sequence",
       field: "machine_sequence",
       align: "center",
+      width: "5%"
     },
     {
       title: "Installation Date",
@@ -237,62 +242,71 @@ const CreationDashboardForTLHOSS = () => {
         <div className="pageCard">
           <div className="creationDashboard">
             <div className="selection_div">
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <span>Cell/Product</span>
-                <select
-                  class="form-select form-select-sm"
-                  aria-label=".form-select-sm example"
-                  style={{ width: "100%", background: "white" }}
-                  id="standard-select-currency"
-                  name="plant"
-                  className="textField"
-                  select
-                  fullWidth // label="Select"
-                  autoComplete="off"
-                  value={cell === undefined ? "" : cell}
-                  onChange={(e) => {
-                    setCell(e.target.value);
-                  }}
-                  variant="standard"
-                >
-                  <option selected disabled value="">
-                    Please select
-                  </option>
-                  {context?.cell_data?.map((option) => {
-                    return <option value={option}>{option}</option>;
-                  })}
-                </select>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <span>Line</span>
-                <select
-                  class="form-select form-select-sm"
-                  aria-label=".form-select-sm example"
-                  style={{ width: "100%", background: "white" }}
-                  id="standard-select-currency"
-                  name="plant"
-                  className="textField"
-                  select
-                  fullWidth // label="Select"
-                  autoComplete="off"
-                  //   value={plant}
+              <Row>
+                <Col sm >
+                  <span><b>Cell/Product :</b>&nbsp;</span>
+                  <select
+                    class="form-select form-select-sm"
+                    aria-label=".form-select-sm example"
+                    style={{ width: "50%", background: "white" }}
+                    id="standard-select-currency"
+                    name="plant"
+                    className="textField"
+                    select
+                    fullWidth // label="Select"
+                    autoComplete="off"
+                    value={cell === undefined ? "" : cell}
+                    onChange={(e) => {
+                      setCell(e.target.value);
+                    }}
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {context?.cell_data?.map((option) => {
+                      return <option value={option}>{option}</option>;
+                    })}
+                  </select>
+                </Col>
+                <Col sm>
+                  <span><b>Line :</b>&nbsp;</span>
+                  <select
+                    class="form-select form-select-sm"
+                    aria-label=".form-select-sm example"
+                    style={{ width: "50%", background: "white" }}
+                    id="standard-select-currency"
+                    name="plant"
+                    className="textField"
+                    select
+                    fullWidth // label="Select"
+                    autoComplete="off"
+                    //   value={plant}
 
-                  value={line === undefined ? "" : line}
-                  onChange={(e) => {
-                    setLine(e.target.value);
-                  }}
-                  variant="standard"
-                >
-                  <option selected disabled value="">
-                    Please select
-                  </option>
-                  {lineList !== ""
-                    ? lineList.lineArray.map((option) => {
+                    value={line === undefined ? "" : line}
+                    onChange={(e) => {
+                      setLine(e.target.value);
+                    }}
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {lineList !== ""
+                      ? lineList.lineArray.map((option) => {
                         return <option value={option}>{option}</option>;
                       })
-                    : ""}
-                </select>
+                      : ""}
+                  </select>
+                </Col>
+                
+              </Row>
+              {/* <div style={{ display: "flex", flexDirection: "column" }}>
+
               </div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+
+              </div> */}
             </div>
             <div style={{ padding: "1rem" }}>
               {cell && line ? (
@@ -398,8 +412,8 @@ const CreationDashboardForTLHOSS = () => {
                       },
                       headerStyle: {
                         fontSize: "14px",
-                        fontWeight: "bold"
-                      }
+                        fontWeight: "bold",
+                      },
                     }}
                   />
                 ) : (
@@ -508,8 +522,8 @@ const CreationDashboardForTLHOSS = () => {
                       },
                       headerStyle: {
                         fontSize: "14px",
-                        fontWeight: "bold"
-                      }
+                        fontWeight: "bold",
+                      },
                     }}
                   />
                 ) : (

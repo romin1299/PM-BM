@@ -91,6 +91,8 @@ function OperatorDataEntry() {
     sparePurpose: yup.string().required("Please enter Spare Purpose"),
   });
 
+  
+
   //creating new user
   const formik = useFormik({
     initialValues: {
@@ -121,6 +123,7 @@ function OperatorDataEntry() {
           sparePurpose: values.sparePurpose,
         }),
       });
+
 
       const data = res.json();
       // console.log(data);
@@ -159,7 +162,7 @@ function OperatorDataEntry() {
                     <select
                       // class="form-select form-select-sm"
                       // aria-label=".form-select-sm example"
-                      style={{ border: "2px solid gray", borderRadius: "5px" }}
+                      style={{ borderRadius: "5px" }}
                       // id="standard-select-currency"
                       id="outlined-number"
                       name="selectedType"
@@ -232,7 +235,7 @@ function OperatorDataEntry() {
                     <select
                       // class="form-select form-select-sm"
                       // aria-label=".form-select-sm example"
-                      style={{ border: "2px solid gray", borderRadius: "5px" }}
+                      style={{ borderRadius: "5px" }}
                       // id="standard-select-currency"
                       id="outlined-number"
                       name="selectedLine"
@@ -296,7 +299,7 @@ function OperatorDataEntry() {
                     <select
                       // class="form-select form-select-sm"
                       // aria-label=".form-select-sm example"
-                      style={{ border: "2px solid gray", borderRadius: "5px" }}
+                      style={{ borderRadius: "5px" }}
                       // id="standard-select-currency"
                       id="outlined-number"
                       name="selectedMachine"
@@ -557,7 +560,7 @@ function OperatorDataEntry() {
 
                 <Row className="pt-3">
                   <Col>
-                    <button type="submit" className="btn">
+                    <button type="submit" className="btn-primary1 mt-2">
                       Submit
                     </button>
                   </Col>

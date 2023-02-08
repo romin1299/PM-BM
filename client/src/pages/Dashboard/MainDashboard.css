@@ -151,10 +151,10 @@ select {
     padding: 0.5rem;
     /* overflow: hidden; */
 
-    margin: auto;
+    /* margin: auto; */
     /* display: flex; */
     flex-direction: row;
-    justify-content: space-evenly;
+    /* justify-content: space-evenly; */
     flex-flow: wrap;
 
     /* border-radius: 15px; */
@@ -181,14 +181,14 @@ select {
     border-radius: 5px;
     align-items: center;
     font-weight: 630;
-    margin: auto auto 0.5rem auto;
+    margin: 0.2rem 0.2rem 0.5rem 0.2rem;
     font-size: 10px;
     background: rgba(255, 255, 255, 0.4);
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    /* box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px); */
     /* border-radius: 10px; */
-    border: 2px solid white;
+    border: 1.5px solid rgb(156, 154, 154);
     flex-wrap: wrap;
 }
 

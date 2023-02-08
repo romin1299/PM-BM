@@ -20,13 +20,11 @@ const YearDropDownForMainDashboard = ({ selectedYear, setSelectedYear }) => {
   return (
     <Row className="p-1 ">
       <span>
-        <b>Year:</b>
-      </span>
-      <div>
+        <b>Year: &nbsp;</b>
         <select
           class="form-select form-select-sm"
           aria-label=".form-select-sm example"
-          style={{ width: "100%" }}
+          style={{ width: "70%" }}
           id="standard-select-currency"
           name="selectedPlant"
           value={selectedYear ? selectedYear : current_year}
@@ -46,7 +44,7 @@ const YearDropDownForMainDashboard = ({ selectedYear, setSelectedYear }) => {
             return <option value={option}>{option}</option>;
           })}
         </select>
-      </div>
+      </span>
     </Row>
   );
 };

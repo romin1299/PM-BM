@@ -8,6 +8,7 @@ import NavContext from "../../context/NavContext";
 //REACT ROUTER
 import { NavLink } from "react-router-dom";
 import { denso_logo } from "../../modules/LoginModules";
+import { halflogo } from  "../../modules/LoginModules";
 
 //ICONS
 import { MdOutlineLogout } from "react-icons/md";
@@ -43,4 +44,5 @@ export {
   RoutingContext,
   AddTaskIcon,
   FactCheckIcon,
+  halflogo
 };

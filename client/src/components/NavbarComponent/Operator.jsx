@@ -5,11 +5,34 @@ import {
   NavContext,
   NavLink,
   denso_logo,
+  halflogo,
   FaTimes,
   AccountCircleIcon,
   DashboardIcon,
   NoteAddIcon,
 } from "./ImportModules";
+
+import {
+  FiArrowLeftCircle,
+  FiArrowRightCircle,
+} from "react-icons/fi";
+import LogoutIcon from "@mui/icons-material/Logout";
+import Logout from "../../Integration/Logout/Logout";
+import { useNavigate } from "react-router-dom";
+
+import { useState } from "react";
+
+import {
+  Menu,
+  MenuItem,
+  ProSidebar,
+  SidebarHeader,
+  SubMenu,
+  SidebarFooter,
+  SidebarContent,
+} from "react-pro-sidebar";
+import "react-pro-sidebar/dist/css/styles.css";
+import styled from "styled-components";
 
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -19,131 +42,406 @@ import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import SummarizeIcon from "@mui/icons-material/Summarize";
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import BackupTableIcon from "@mui/icons-material/BackupTable";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 
+import TaskIcon from "@mui/icons-material/Task";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import StorageIcon from "@mui/icons-material/Storage";
+import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
+import ArticleIcon from "@mui/icons-material/Article";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import FactCheckIcon from "@mui/icons-material/FactCheck";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 
-const NavUrl = ({ url, icon, description }) => {
-  const { nav, setNav } = useContext(NavContext);
-  const checkWindowSize = () => {
-    if (window.innerWidth < 1024) setNav(!nav);
-  };
-  return (
-    <li className={styles.li_navlink}>
-      <NavLink
-        to={`${url}`}
-        className={({ isActive }) => (isActive ? styles.active : undefined)}
-        onClick={() => checkWindowSize()}
-      >
-        {icon}
-        <span className={styles.description}>{description}</span>
-      </NavLink>
-    </li>
-  );
-};
+const Menuitem = styled(MenuItem)`
+  :hover {
+    background-color: white;
+    padding: 5px;
+    color: black;
+    // border-radius: 10px;
+    // margin:10px;
+  }
+`;
+
 
 const Operator = ({ userData }) => {
-  const { nav, setNav } = useContext(NavContext);
   const [open, setOpen] = React.useState(true);
+  const [menuCollapse, setMenuCollapse] = useState(true);
+  const navigate = useNavigate();
 
-  const handleClick = () => {
-    setOpen(!open);
+  const [collapsed, setCollapsed] = useState(true);
+  const styles = {
+    sideBarHeight: {
+      height: "100vh",
+    },
+    menuIcon: {
+      float: "left",
+      marginBottom: "1rem",
+      marginLeft: "1.5rem",
+    },
+    bg: {
+      background: "#004B5B",
+    },
+  };
+  const onClickMenuIcon = () => {
+    // setCollapsed(!collapsed);
+    menuCollapse ? setMenuCollapse(false) : setMenuCollapse(true);
+  };
+
+  const loggedOut = () => {
+    navigate("/");
+    setTimeout(() => {
+      window.location.reload(false);
+    }, 100);
   };
   return (
-    <div
-      className={`${styles.navbar_container} ${
-        nav ? styles.navbar_mobile_active : undefined
-      }`}
-    >
-      <nav
-        className={
-          // nav ? undefined : styles.nav_small
-
-          //if window size < 1024px than user (nav? undefined : styles.nav_small) else (nav? styles.nav_small: undefined)
-          nav ? undefined : styles.nav_small
-        }
-      >
-        {/* LOGO */}
-        <div className="bg-white">
-        <div className={styles.logo}>
-          {/* <VscDashboard  /> */}
-          <img className={styles.logo_icon} src={denso_logo} alt="" />
-          <FaTimes
-            className={styles.mobile_cancel_icon}
-            onClick={() => {
-              setNav(!nav);
-            }}
-          />
-        </div>
-        </div>
-        {/* MENU */}
-        <ul className={styles.menu_container}>
-          {/* FIRST CATEGORY */}
-
-          <NavUrl
-            url="/"
-            icon={<DashboardIcon style={{ color: "#ffffff" }} />}
-            description="Dashboard"
-          />
-          <NavUrl
-            url="/pmSheetApprovalOfImplementationPhase"
-            icon={<AssignmentTurnedInIcon style={{ color: "#ffffff" }} />}
-            description="PM Plan vs Actual Approval"
-          />
-          <List
-            sx={{ width: "100%", maxWidth: 360,  }}
-            component="nav"
-          >
-            <ListItemButton onClick={handleClick}>
-              <ListItemIcon>
-                <SummarizeIcon style={{ color: "#ffffff" }} />
-              </ListItemIcon>
-              <ListItemText primary="Reports" style={{ fontWeight: "550",color: "#ffffff" }} />
-              {open ? <ExpandLess style={{color: "#ffffff" }} /> : <ExpandMore style={{color: "#ffffff" }}/>}
-            </ListItemButton>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton sx={{ pl: 3 }}>
-                  <NavUrl
-                    url="/pmMonthlyReport"
-                    icon={<AssignmentIcon style={{ color: "#ffffff" }} />}
-                    description="PM Report"
+    <ProSidebar style={styles.sideBarHeight} collapsed={menuCollapse}>
+      <div style={styles.bg}>
+        {/* <div className="d-flex align-items-center justify-content-center m-2">
+          <img src={denso_logo} alt="" style={{ width: "60px" }} />
+        </div> */}
+        <div>
+          <SidebarHeader>
+            <div className="logotext">
+              {/* small and big change using menucollapse state */}
+              <p className="d-flex align-items-center justify-content-center m-2 sticky-top">
+                {menuCollapse ? (
+                  <img
+                    src={halflogo}
+                    alt=""
+                    style={{ width: "50%", padding: "5px" }}
+                    className="bg-white"
+                    
                   />
-                </ListItemButton>
-              </List>
-            </Collapse>
-          </List>
-          {/* <NavUrl
-            url="/checkSheetDashboard"
-            icon={<NoteAddIcon style={{ color: "#ffffff" }} />}
-            description="CheckSheet Dashboard"
-          /> */}
-        </ul>
-        <div className={styles.btn_logout}>
-          <div class="navigation">
-            <NavUrl
-              url="/profile"
+                ) : (
+                  <img
+                    src={denso_logo}
+                    alt=""
+                    style={{ width: "50%" }}
+                    className="bg-white"
+                  />
+                )}
+              </p>
+            </div>
+            <div
+              className="closemenu"
+              onClick={onClickMenuIcon}
+              style={styles.menuIcon}
+            >
+              {/* changing menu collapse icon on click */}
+              {menuCollapse ? (
+                <FiArrowRightCircle className="text-white h4 mt-2" />
+              ) : (
+                <FiArrowLeftCircle className="text-white h4 mt-2" />
+              )}
+            </div>
+            {/* <div style={styles.menuIcon} onClick={onClickMenuIcon}>
+              <MenuIcon className="text-white" style={{ fontSize: "1.5rem" }} />
+            </div> */}
+          </SidebarHeader>
+        </div>
+      </div>
+      <SidebarContent>
+        <Menu iconShape="square" style={styles.bg}>
+        <SubMenu
+            className="text-white"
+            title="Dashboard"
+            icon={<DashboardIcon className="text-white" />}
+          >
+            {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+            <MenuItem
+              className="text"
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Dashboard"
               icon={
-                <AccountCircleIcon
-                  className="profileImages"
-                  style={{ color: "#ffffff" }}
+                <DashboardIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
                 />
               }
-              description={userData}
-            />
-            {/* <div class="logout">{context.user_type}</div> */}
-          </div>
-        </div>
-      </nav>
+            >
+              <NavLink to="/"></NavLink> Section Dashboard
+            </MenuItem>
 
-      <div
-        className={nav ? styles.mobile_nav_background_active : undefined}
-        onClick={() => {
-          setNav(!nav);
-        }}
-      ></div>
-    </div>
+            <MenuItem
+              className="text"
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Dashboard"
+              icon={
+                <DashboardIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/summeryDashboard"></NavLink> Plant Dashboard
+            </MenuItem>
+          </SubMenu>
+          <SubMenu
+            className="text-white"
+            title="Approval Log"
+            icon={<StorageIcon className="text-white" />}
+          >
+            {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+            <MenuItem
+              className="text"
+              icon={
+                <FactCheckIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+              href="/pmSheetApproval"
+            >
+              <NavLink to="/pmSheetApproval"></NavLink>
+              Preparation / Planning
+            </MenuItem>
+
+            <MenuItem
+              className="text"
+              icon={
+                <AssignmentTurnedInIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/pmSheetApprovalOfImplementationPhase"></NavLink>
+              PM Plan vs Actual Approval
+            </MenuItem>
+          </SubMenu>
+
+          <SubMenu
+            className="text-white"
+            title="PM Log"
+            icon={<LibraryBooksIcon className="text-white" />}
+          >
+            {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+            <MenuItem
+              className="text"
+              icon={
+                <LibraryBooksIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/logHistory"></NavLink>
+              PM Log
+            </MenuItem>
+
+            <MenuItem
+              className="text"
+              icon={
+                <PendingActionsIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/pendingPMLogHistory"></NavLink>
+              Pending PM Log History
+            </MenuItem>
+          </SubMenu>
+         
+            <Menuitem
+              className="text-white"
+              icon={<AddToPhotosIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Spare Entry"
+            >
+              <NavLink to="/operatorDataEntry"></NavLink>
+              Spare Entry
+            </Menuitem>
+         
+          <Menuitem
+            className="text-white"
+            icon={<BackupTableIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Spare Log"
+          >
+            <NavLink to="/sparePartUsageHistory"></NavLink>
+            Spare Log
+          </Menuitem>
+          <Menuitem
+            className="text-white"
+            icon={<SummarizeIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Spare Report"
+          >
+            <NavLink to="/spareReportDashboard"></NavLink>
+            Spare Report
+          </Menuitem>
+          
+            <Menuitem
+              className="text-white"
+              icon={<CloudDownloadIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Back-end Data"
+            >
+              <NavLink to="/backupDataOfCheckSheet"></NavLink>
+              Back-end Data
+            </Menuitem>
+          
+          <SubMenu
+            className="text-white"
+            title="PM Report"
+            icon={<AssessmentIcon className="text-white" />}
+          >
+            {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+            <MenuItem
+              className="text"
+              icon={
+                <ArticleIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/machineWisePmMonthlyReport"></NavLink>
+              Monthly Report (Machine)
+            </MenuItem>
+
+            <MenuItem
+              className="text"
+              icon={
+                <ArticleIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/lineWisePmMonthlyReport"></NavLink>
+              Monthly Report (Line)
+            </MenuItem>
+            <MenuItem
+              className="text"
+              icon={
+                <ArticleIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/annualPMSchedule"></NavLink>
+              Annual PM Schedule
+            </MenuItem>
+            <MenuItem
+              className="text"
+              icon={
+                <ArticleIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/annualPmStatus"></NavLink>
+              Annual PM PM vs Actual
+            </MenuItem>
+            <MenuItem
+              className="text"
+              icon={
+                <ArticleIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/pmTimeMonitoringReport"></NavLink>
+              PM Time Monitoring
+            </MenuItem>
+          </SubMenu>
+          <Menuitem
+            className="text-white"
+            icon={<PendingActionsIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Open Abnormality Tracking"
+          >
+            <NavLink to="/openAbnormalityTrack"></NavLink>
+            Open Abnormality Tracking
+          </Menuitem>
+        
+
+        </Menu>
+      </SidebarContent>
+      <SidebarFooter fixed="bottom">
+        <Menu iconShape="square">
+          <MenuItem
+            className="text"
+            icon={<LogoutIcon className="text-white" style={{ transform: "rotate(180deg)" }} />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Logout"
+            onClick={() =>
+              Logout(userData).then((res) => {
+                if (res) {
+                  loggedOut();
+                }
+              })
+            }
+          >
+            {" "}
+            Logout{" "}
+          </MenuItem>
+        </Menu>
+      </SidebarFooter>
+    </ProSidebar>
   );
 };
 

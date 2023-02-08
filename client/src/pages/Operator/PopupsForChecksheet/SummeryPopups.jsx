@@ -1,10 +1,43 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MaterialTable from "@material-table/core";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
+import NotFound from "../../Reports/ReportComponents/NotFound";
 
 const SummeryPopups = ({ close, machineData }) => {
-  const tableData = machineData?.checkSheet_data?.checkSheet;
+  // const tableData = machineData?.checkSheet_data?.checkSheet;
+  const [tableData, setTableData] = useState([]);
 
+  const [loadingAnimationState, setLoadingAnimationState] = useState(
+    <LoadingAnimation />
+  );
+  const postMachineToGetAllDataForSummary = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch("/postMachineToGetAllDataForSummary", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          machine_code: machineData?.machine_code,
+          selectedYear: machineData?.checkSheet_data?.current_year,
+        }),
+      });
+      const data = await res.json();
+      console.log(data);
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // setLineData(data.lineData);
+        setTableData(data.logHistoryAllData);
+        setLoadingAnimationState(<NotFound />);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  console.log(tableData);
   const monthKeyArray = [
     "Jan",
     "Feb",
@@ -46,12 +79,12 @@ const SummeryPopups = ({ close, machineData }) => {
   // );
 
   const subSectionHeader = [
-    // {
-    //   title: "Month",
-    //   // field: "start_month",
-    //   render: (rowData) => financialYearWiseMonthKeyArray[rowData?.start_month],
-    //   width: "5%",
-    // },
+    {
+      title: "Month",
+      field: "schedule_month",
+      // render: (rowData) => financialYearWiseMonthKeyArray[rowData?.start_month],
+      width: "5%",
+    },
     {
       title: "Sr. No",
       render: (rowData) => `${rowData?.tableData.id + 1}`,
@@ -64,78 +97,90 @@ const SummeryPopups = ({ close, machineData }) => {
       editable: "false",
     },
     {
+      title: "Remarks",
+      field: "remarks",
+      editable: "false",
+    },
+    {
       title: "Abnormality{Yes/No}",
-      render: (rowData) =>
-        rowData?.abnormalityDetails
-          ? rowData?.abnormalityDetails[monthForCompareSystemMonth]
-              ?.abnormalityRemarks
-            ? "Yes"
-            : ""
-          : "",
-      width: "5%",
-      // field: "abnormality",
+      // render: (rowData) =>
+      //   rowData?.abnormalityDetails
+      //     ? rowData?.abnormalityDetails[monthForCompareSystemMonth]
+      //         ?.abnormalityRemarks
+      //       ? "Yes"
+      //       : ""
+      //     : "",
+      // width: "5%",
+      field: "abnormality",
     },
     {
       title: "Ab. Remarks",
-      field: `remarks`,
-      render: (rowData) =>
-        rowData?.abnormalityDetails
-          ? rowData?.abnormalityDetails[monthForCompareSystemMonth]
-              ?.abnormalityRemarks
-          : "",
+      field: `abnormalityRemarks`,
+      // render: (rowData) =>
+      //   rowData?.abnormalityDetails
+      //     ? rowData?.abnormalityDetails[monthForCompareSystemMonth]
+      //         ?.abnormalityRemarks
+      //     : "",
     },
     {
       title: "Status",
-      render: (rowData) =>
-        rowData?.abnormalityDetails
-          ? rowData?.abnormalityDetails[monthForCompareSystemMonth]
-              ?.abnormalityStatus
-          : "",
+      // render: (rowData) =>
+      //   rowData?.abnormalityDetails
+      //     ? rowData?.abnormalityDetails[monthForCompareSystemMonth]
+      //         ?.abnormalityStatus
+      //     : "",
       width: "5%",
 
-      // field: "planningTableAnimationArray2.abnormalityDetails.abnormalityStatus",
+      field: "abnormalityStatus",
     },
     {
       title: "T.D",
-      render: (rowData) =>
-        rowData?.abnormalityDetails
-          ? rowData?.abnormalityDetails[monthForCompareSystemMonth]?.targetDate
-          : "",
-      //   field: "",
+      // render: (rowData) =>
+      //   rowData?.abnormalityDetails
+      //     ? rowData?.abnormalityDetails[monthForCompareSystemMonth]?.targetDate
+      //     : "",
+      field: "targetDate",
     },
     {
       title: "Spare{Yes/No}",
-      render: (rowData) =>
-        rowData?.spareDetails
-          ? rowData?.spareDetails[monthForCompareSystemMonth]?.spareParts
-          : "",
-      //   field: "",
+      // render: (rowData) =>
+      //   rowData?.spareDetails
+      //     ? rowData?.spareDetails[monthForCompareSystemMonth]?.spareParts
+      //     : "",
+      field: "spareParts",
       width: "5%",
     },
     {
       title: "P. Name",
-      render: (rowData) =>
-        rowData?.spareDetails
-          ? rowData?.spareDetails[monthForCompareSystemMonth]?.partName
-          : "",
+      // render: (rowData) =>
+      //   rowData?.spareDetails
+      //     ? rowData?.spareDetails[monthForCompareSystemMonth]?.partName
+      //     : "",
+      field: "partName",
     },
     {
       title: "P. No",
-      render: (rowData) =>
-        rowData?.spareDetails
-          ? rowData?.spareDetails[monthForCompareSystemMonth]?.partNo
-          : "",
+      // render: (rowData) =>
+      //   rowData?.spareDetails
+      //     ? rowData?.spareDetails[monthForCompareSystemMonth]?.partNo
+      //     : "",
+      field: "partNo",
     },
     {
       title: "Cost",
-      render: (rowData) =>
-        rowData?.spareDetails
-          ? rowData?.spareDetails[monthForCompareSystemMonth]?.cost
-          : "",
+      // render: (rowData) =>
+      //   rowData?.spareDetails
+      //     ? rowData?.spareDetails[monthForCompareSystemMonth]?.cost
+      //     : "",
+      field: "cost",
     },
     {
       title: "TM",
-      //   field: "",
+      // render: (rowData) =>
+      //   rowData?.inspectionCompletionBy
+      //     ? rowData?.inspectionCompletionBy[monthForCompareSystemMonth]
+      //     : "",
+        field: "doneBy",
     },
   ];
 
@@ -165,6 +210,10 @@ const SummeryPopups = ({ close, machineData }) => {
     }
   };
 
+  useEffect(() => {
+    postMachineToGetAllDataForSummary();
+  }, []);
+
   // console.log(machineData);
   return (
     <>
@@ -180,90 +229,105 @@ const SummeryPopups = ({ close, machineData }) => {
         <br />
         <br />
         <div>
-          <MaterialTable
-            localization={{
-              header: {
-                actions: "Actions",
-              },
-              // toolbar: {
-              //   exportCSVName: "Export some Excel format",
-              //   exportPDFName: "Export as pdf!!"
+          {tableData?.length > 0 ? (
+            <MaterialTable
+              localization={{
+                header: {
+                  actions: "Actions",
+                },
+                // toolbar: {
+                //   exportCSVName: "Export some Excel format",
+                //   exportPDFName: "Export as pdf!!"
+                // }
+              }}
+              actions={[]}
+              columns={subSectionHeader}
+              data={tableData}
+              title="Summary Data of All Month"
+              // tableRef={this.tableRef.current.onQueryChange()}
+
+              // editable={
+              //   machineData?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
+              //     monthForCompareSystemMonth
+              //   ]?.at(-1) === "Rejected" ||
+              //   machineData?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
+              //     monthForCompareSystemMonth
+              //   ]?.at(-1) === "Rejected"
+              //     ? {
+              //         onRowUpdate: (updatedRow, oldRow) =>
+              //           new Promise((resolve, reject) => {
+              //             const index = oldRow.tableData.id;
+              //             const updatedRows = [...tableData];
+              //             updatedRows[index] = updatedRow;
+              //             //call the update user function and pass the user data
+              //             // updateUserInfo(updatedRow);
+
+              //             console.log(updatedRow);
+
+              //             submitRemarksAfterTLOrHosRejection(updatedRow, oldRow);
+              //             setTimeout(() => {
+              //               // setRefKey2((refKey2) => refKey2 + 1);
+              //               resolve();
+              //             }, 500);
+              //             //refreshPage();
+              //           }),
+              //       }
+              //     : ""
               // }
-            }}
-            actions={[]}
-            columns={subSectionHeader}
-            data={tableData}
-            // title="User Management"
-            // tableRef={this.tableRef.current.onQueryChange()}
+              options={{
+                showTitle: true,
+                paging: false,
+                sorting: true,
+                search: true,
+                filtering: false,
+                exportButton: true,
+                exportAllData: true,
+                draggable: false,
+                actionsColumnIndex: -1,
+                pageSize: 10,
+                pageSizeOptions: false,
+                paginationType: "stepped",
+                addRowPosition: "first",
+                headerStyle: {
+                  // color: "red",
+                  position: "sticky",
+                  top: "0",
+                  fontWeight: "bold",
+                  // backgroundColor: "#E6232A",
+                },
 
-            editable={
-              machineData?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
-                monthForCompareSystemMonth
-              ]?.at(-1) === "Rejected" ||
-              machineData?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
-                monthForCompareSystemMonth
-              ]?.at(-1) === "Rejected"
-                ? {
-                    onRowUpdate: (updatedRow, oldRow) =>
-                      new Promise((resolve, reject) => {
-                        const index = oldRow.tableData.id;
-                        const updatedRows = [...tableData];
-                        updatedRows[index] = updatedRow;
-                        //call the update user function and pass the user data
-                        // updateUserInfo(updatedRow);
+                maxBodyHeight: "50vh",
+                rowStyle: {
+                  // fontStyle:'bold'
 
-                        console.log(updatedRow);
-
-                        submitRemarksAfterTLOrHosRejection(updatedRow, oldRow);
-                        setTimeout(() => {
-                          // setRefKey2((refKey2) => refKey2 + 1);
-                          resolve();
-                        }, 500);
-                        //refreshPage();
-                      }),
-                  }
-                : ""
-            }
-            options={{
-              showTitle: false,
-              paging: false,
-              sorting: true,
-              search: true,
-              filtering: false,
-              exportButton: true,
-              exportAllData: true,
-              draggable: false,
-              actionsColumnIndex: -1,
-              pageSize: 10,
-              pageSizeOptions: false,
-              paginationType: "stepped",
-              addRowPosition: "first",
-              headerStyle: {
-                // color: "red",
-                position: "sticky",
-                top: "0",
-                fontWeight: "bold",
-                // backgroundColor: "#E6232A",
-              },
-
-              maxBodyHeight: "70vh",
-              rowStyle: {
-                // fontStyle:'bold'
-
-                boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                // color:"rgba(255,255,255,0.8)",
-                borderRadius: "5px",
-                border: "1px solid rgba(255,255,255)",
-                WebkitBackdropFilter: "blur( 2px )",
-                background: "rgba(255,255,255,0.1)",
-                backdropFilter: "blur(5px)",
-              },
-              headerStyle: {
-                fontSize: "14px",
-                fontWeight: "bold",
-              },
-            }}
-          />
+                  // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                  // color:"rgba(255,255,255,0.8)",
+                  borderRadius: "5px",
+                  border: "1px solid black",
+                  // WebkitBackdropFilter: "blur( 2px )",
+                  borderBottom: "black !important",
+                  background: "rgba(255,255,255,0)",
+                  // backdropFilter: "blur(5px)",
+                  // fontSize: "12px",
+                },
+                cellStyle: {
+                  border: "1px solid black",
+                },
+                headerStyle: {
+                  border: "1px solid black",
+                  fontSize: "13px",
+                  fontWeight: "bold",
+                },
+              }}
+            />
+          ) : (
+            <div
+              className="container-fluid d-flex justify-content-center align-items-center p-5"
+              // style={{ height: "100vh" }}
+            >
+              {loadingAnimationState}
+            </div>
+          )}
         </div>
       </div>
     </>

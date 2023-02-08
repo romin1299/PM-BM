@@ -4,17 +4,24 @@ import MaterialTable from "@material-table/core";
 import { jsPDF } from "jspdf";
 import { CSVLink, CSVDownload } from "react-csv";
 import { Row, Col, Container, Button } from "react-bootstrap";
+
 import CircleIcon from "@mui/icons-material/Circle";
+import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 
 import * as yup from "yup";
 import { useFormik } from "formik";
 
-import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import RoutingContext from "../../../context/routing/RoutingContext";
 
 import LoadingAnimation from "./LoadingAnimation";
 import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
 import currentYear from "../../Dashboard/DashboardComponent/currentYear";
+
+import DefaultMonthlyApprovalComponent from "./AnnualPmScheduleReportSubComponent/DefaultMonthlyApprovalComponent";
+import MonthlyApprovalComponentAfterAllApproval from "./AnnualPmScheduleReportSubComponent/MonthlyApprovalComponentAfterAllApproval";
+import SendApprovalComponent from "./AnnualPmScheduleReportSubComponent/SendApprovalComponent";
+
+// import PopupForAnnualPmScheduleReport from "../../../Popups/PopupForAnnualPmScheduleReport";
 
 const AnnualPMSchedule = () => {
   const context = useContext(RoutingContext);
@@ -45,6 +52,16 @@ const AnnualPMSchedule = () => {
     <LoadingAnimation />
   );
 
+  const [
+    stateForMonthlyApprovalComponent,
+    setStateForMonthlyApprovalComponent,
+  ] = useState(<DefaultMonthlyApprovalComponent />);
+
+  const [
+    stateForSendingApprovalDashboard,
+    setStateForSendingApprovalDashboard,
+  ] = useState();
+
   let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
   const postSectionToGetAllDataForMainDashboard = async () => {
@@ -56,6 +73,7 @@ const AnnualPMSchedule = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          selectedYear,
           section: context.section_data,
         }),
       });
@@ -88,6 +106,7 @@ const AnnualPMSchedule = () => {
   const postCellToGetLineList = async (selectedCell, refKey) => {
     if (!refKey) {
       setSelectedLine(undefined);
+      setIndexOfSelectedLine(0);
     }
 
     try {
@@ -142,8 +161,8 @@ const AnnualPMSchedule = () => {
         console.log("Invalid");
       } else {
         // window.alert(data.abcd);
-        // console.log("Data post", data);
-        setTableData(data.machineInfo);
+        console.log("Data post", data?.machineInfo);
+        setTableData(data?.machineInfo);
       }
     } catch (error) {
       console.log(error);
@@ -170,8 +189,10 @@ const AnnualPMSchedule = () => {
       });
 
       const data = await res.json();
-      // console.log(data?.allUser);
-      setAllUserDropdownList(data?.allUser);
+      console.log(data);
+
+      // data?.allUser?.map((item) => console.log(item?.plant_data));
+      setAllUserDropdownList(data);
     } catch (error) {
       console.log(error);
     }
@@ -222,7 +243,6 @@ const AnnualPMSchedule = () => {
     "Checked By (MTD HOS)",
     "Prepared By (MTD TL)",
   ];
-  let refArrayForTDSpacing = [1, 1, 1];
 
   // console.log(tableData);
 
@@ -279,7 +299,6 @@ const AnnualPMSchedule = () => {
       }
     },
   });
-
   // console.log(lineDropdown?.[indexOfSelectedLine]);
 
   const approveRequest = async (
@@ -314,11 +333,23 @@ const AnnualPMSchedule = () => {
     }
   };
 
+  const funForRefreshingDataAfterApproval = () => {
+    postCellToGetLineList(selectedCell, "AfterApproval");
+    // postLineToGetMachineList(selectedLine || lineDropdown?.[0]?._id);
+    setRefKeyForPostLineToGetMachineDataApi(
+      (refKeyForPostLineToGetMachineDataApi) =>
+        refKeyForPostLineToGetMachineDataApi + 1
+    );
+  };
+
   // context?.tm_department === "MTD" && context?.tm_grade === "TL" ?
   // console.log(lineDropdown?.[indexOfSelectedLine]?.annualPmScheduleApproval);
 
   useEffect(() => {
-    // console.log("================ 295");
+    // console.log(
+    //   "================ 295",
+    //   lineDropdown?.[indexOfSelectedLine]?.annualPmScheduleApproval
+    // );
     if (lineDropdown?.length > 0) {
       if (
         lineDropdown?.[indexOfSelectedLine]?.annualPmScheduleApproval?.length >
@@ -327,6 +358,7 @@ const AnnualPMSchedule = () => {
         lineDropdown?.[indexOfSelectedLine]?.annualPmScheduleApproval?.map(
           (item) => {
             if (item?.current_year === selectedYear) {
+              // console.log("&&&&&&&&&&&&&&&&&&", item);
               setObjOfAnnualPmScheduleApproval(item);
             }
           }
@@ -340,13 +372,79 @@ const AnnualPMSchedule = () => {
     selectedYear,
   ]);
 
-  // console.log(objOfAnnualPmScheduleApproval);
+  useEffect(() => {
+    if (
+      objOfAnnualPmScheduleApproval?.mtdHos?.mtdHosApprovalStatus ===
+        "Accepted" &&
+      objOfAnnualPmScheduleApproval?.mtdHod?.mtdHodApprovalStatus ===
+        "Accepted" &&
+      objOfAnnualPmScheduleApproval?.prdHos?.prdHosApprovalStatus === "Accepted"
+    ) {
+      setStateForMonthlyApprovalComponent(
+        <MonthlyApprovalComponentAfterAllApproval
+          loggedUserDetails={context}
+          lineInfo={lineDropdown?.[indexOfSelectedLine]}
+          objOfAnnualPmScheduleApproval={objOfAnnualPmScheduleApproval}
+          selectedYear={selectedYear}
+          funForRefreshingDataAfterApproval={funForRefreshingDataAfterApproval}
+        />
+      );
+
+      if (
+        context?.user_type === "TL/HOSS" &&
+        context?.tm_department === "MTD" &&
+        objOfAnnualPmScheduleApproval?.prdHos?.prdHosApprovalStatus ===
+          "Accepted"
+      ) {
+        setStateForSendingApprovalDashboard(
+          <SendApprovalComponent
+            loggedUserDetails={context}
+            lineInfo={lineDropdown?.[indexOfSelectedLine]}
+            objOfAnnualPmScheduleApproval={objOfAnnualPmScheduleApproval}
+            selectedYear={selectedYear}
+            allUserDropdownList={allUserDropdownList}
+            funForRefreshingDataAfterApproval={
+              funForRefreshingDataAfterApproval
+            }
+          />
+        );
+      }
+    } else {
+      setStateForMonthlyApprovalComponent(<DefaultMonthlyApprovalComponent />);
+      setStateForSendingApprovalDashboard();
+    }
+
+    console.log(
+      "411",
+      objOfAnnualPmScheduleApproval?.prdHos?.prdHosApprovalStatus
+    );
+
+    // console.log(
+    //   "------------------------------------->",
+    //   objOfAnnualPmScheduleApproval?.mtdHos?.mtdHosApprovalStatus ===
+    //     "Accepted" &&
+    //     objOfAnnualPmScheduleApproval?.mtdHod?.mtdHodApprovalStatus ===
+    //       "Accepted" &&
+    //     objOfAnnualPmScheduleApproval?.prdHos?.prdHosApprovalStatus ===
+    //       "Accepted"
+    // );
+
+    //     <MonthlyApprovalComponentAfterAllApproval />
+    // <MonthlyApprovalDefaultComponent />
+  }, [objOfAnnualPmScheduleApproval]);
+
+  // console.log(
+  //   "421 @@@@@@@@@@@@@@@@@@@@@@@@@@@@",
+  //   objOfAnnualPmScheduleApproval
+  // );
 
   // console.log(allUserDropdownList);
   return (
     <>
       <div>
         <div className="pt-4">
+          {/* <PopupForAnnualPmScheduleReport /> */}
+
           <Container className="cell p-2">
             <Row>
               <Col sm={12} lg={4}>
@@ -358,7 +456,9 @@ const AnnualPMSchedule = () => {
               <Col>
                 <Row className="p-2 ">
                   <Col sm={12} lg={2}>
-                    <span><b>Cell:</b></span>
+                    <span>
+                      <b>Cell:</b>
+                    </span>
                   </Col>
                   <Col>
                     <div>
@@ -402,7 +502,9 @@ const AnnualPMSchedule = () => {
               <Col>
                 <Row className="p-2 ">
                   <Col sm={12} lg={2}>
-                    <span><b>Line:</b></span>
+                    <span>
+                      <b>Line:</b>
+                    </span>
                   </Col>
                   <Col>
                     <div>
@@ -421,6 +523,8 @@ const AnnualPMSchedule = () => {
                         className="textField"
                         onChange={(e) => {
                           // setSelectedLine(e.target.value);
+                          setObjOfAnnualPmScheduleApproval({});
+
                           setIndexOfSelectedLine(e.target.value);
                           setSelectedLine(lineDropdown?.[e.target.value]?._id);
                           postLineToGetMachineList(
@@ -467,10 +571,10 @@ const AnnualPMSchedule = () => {
                         <td className={"td-padding"}>
                           {selectedCell
                             ? allDataSectionWise?.cellData?.map((option) =>
-                              option._id === selectedCell
-                                ? option.cell_name
-                                : ""
-                            )
+                                option._id === selectedCell
+                                  ? option.cell_name
+                                  : ""
+                              )
                             : allDataSectionWise?.cellData?.[0].cell_name}
                         </td>
                         <td className={"td-padding"}>{selectedYear}</td>
@@ -478,6 +582,7 @@ const AnnualPMSchedule = () => {
                     </thead>
                   </table>
                 </Col>
+
                 <Col>
                   <table className="ar-table td-padding pmSheetApprovalTableCol1">
                     <thead className="mt-5">
@@ -489,7 +594,8 @@ const AnnualPMSchedule = () => {
                       {tableData?.length > 0 ? (
                         lineDropdown?.length > 0 ? (
                           lineDropdown?.[indexOfSelectedLine]
-                            ?.annualPmScheduleApproval?.length > 0 ? (
+                            ?.annualPmScheduleApproval?.length > 0 &&
+                          objOfAnnualPmScheduleApproval?.mtdTlId ? (
                             selectedYear === currentYear ? (
                               <tr>
                                 <td className={"td-padding"}>
@@ -533,6 +639,9 @@ const AnnualPMSchedule = () => {
                                         }
                                         <br />
                                         Status:{" "}
+                                        {console.log(
+                                          objOfAnnualPmScheduleApproval?.prdHos
+                                        )}
                                         {
                                           objOfAnnualPmScheduleApproval?.prdHos
                                             ?.prdHosApprovalStatus
@@ -730,7 +839,7 @@ const AnnualPMSchedule = () => {
                                       <option selected disabled value="">
                                         Please select
                                       </option>
-                                      {allUserDropdownList?.map(
+                                      {allUserDropdownList?.allUser?.map(
                                         (option, index) =>
                                           option?.tm_department === "PRD" &&
                                           option?.tm_grade === "HOS" &&
@@ -779,12 +888,12 @@ const AnnualPMSchedule = () => {
                                       <option selected disabled value="">
                                         Please select
                                       </option>
-                                      {allUserDropdownList?.map(
+                                      {allUserDropdownList?.HODList?.map(
                                         (option, index) =>
                                           option?.tm_department === "MTD" &&
                                           option?.tm_grade === "HOD" &&
                                           option?.user_type ===
-                                            "Section-Admin" ? (
+                                            "Plant-Admin" ? (
                                             <option value={option?._id}>
                                               {option.tm_name}
                                             </option>
@@ -828,7 +937,7 @@ const AnnualPMSchedule = () => {
                                       <option selected disabled value="">
                                         Please select
                                       </option>
-                                      {allUserDropdownList?.map(
+                                      {allUserDropdownList?.allUser?.map(
                                         (option, index) =>
                                           option?.tm_department === "MTD" &&
                                           option?.tm_grade === "HOS" &&
@@ -969,21 +1078,21 @@ const AnnualPMSchedule = () => {
                                 </td>
                                 {item?.checkSheet_data?.PMStatus
                                   ? Object.values(
-                                    item?.checkSheet_data?.PMStatus
-                                  ).map((item1) => (
-                                    <td className="td-padding">
-                                      {item1 === "Completed" ? (
-                                        <CircleIcon />
-                                      ) : item1 === "Current Plan" ? (
-                                        <PanoramaFishEyeIcon />
-                                      ) : (
-                                        ""
-                                      )}
-                                    </td>
-                                  ))
+                                      item?.checkSheet_data?.PMStatus
+                                    ).map((item1) => (
+                                      <td className="td-padding">
+                                        {item1 === "Completed" ? (
+                                          <CircleIcon />
+                                        ) : item1 === "Current Plan" ? (
+                                          <PanoramaFishEyeIcon />
+                                        ) : (
+                                          ""
+                                        )}
+                                      </td>
+                                    ))
                                   : refArrayForTDMapping.map((index) => (
-                                    <td className="td-padding"></td>
-                                  ))}
+                                      <td className="td-padding"></td>
+                                    ))}
                               </tr>
                             ) : (
                               <tr className="td-padding">
@@ -996,21 +1105,21 @@ const AnnualPMSchedule = () => {
                                 </td>
                                 {item?.checkSheet_data?.PMStatus
                                   ? Object.values(
-                                    item?.checkSheet_data?.PMStatus
-                                  ).map((item1) => (
-                                    <td className="td-padding">
-                                      {item1 === "Completed" ? (
-                                        <CircleIcon />
-                                      ) : item1 === "Current Plan" ? (
-                                        <PanoramaFishEyeIcon />
-                                      ) : (
-                                        ""
-                                      )}
-                                    </td>
-                                  ))
+                                      item?.checkSheet_data?.PMStatus
+                                    ).map((item1) => (
+                                      <td className="td-padding">
+                                        {item1 === "Completed" ? (
+                                          <CircleIcon />
+                                        ) : item1 === "Current Plan" ? (
+                                          <PanoramaFishEyeIcon />
+                                        ) : (
+                                          ""
+                                        )}
+                                      </td>
+                                    ))
                                   : refArrayForTDMapping.map((index) => (
-                                    <td className="td-padding"></td>
-                                  ))}
+                                      <td className="td-padding"></td>
+                                    ))}
                                 {/* <td className="td-padding"></td> */}
                               </tr>
                             )
@@ -1034,52 +1143,46 @@ const AnnualPMSchedule = () => {
                       <tr>
                         <td></td>
                       </tr>
-                      <tr>
-                        <td className="td-padding">Plan</td>
-                        <td className="td-padding">
-                          <CircleIcon />
-                        </td>
-                        <td></td>
-                        <th className="td-padding">Checked By (TL)</th>
-                        {refArrayForTDMapping.map((index) => (
-                          <td className="td-padding"></td>
-                        ))}
-                      </tr>
-                      <tr>
-                        <td className="td-padding">Actual</td>
-                        <td className="td-padding">
-                          <PanoramaFishEyeIcon />
-                        </td>
-                        <td></td>
 
-                        <th className="td-padding">Approved By (HOS)</th>
-                        {refArrayForTDMapping.map((index) => (
-                          <td className="td-padding"></td>
-                        ))}
-                      </tr>
-                      <tr>
-                        {refArrayForTDSpacing.map((item) => (
-                          <td></td>
-                        ))}
-                        <th className="td-padding">
-                          Approved By (HOD)
-                          <br />
-                          (Only in case of delay)
-                        </th>
+                      {/* {lineDropdown?.[indexOfSelectedLine] ? (
+                        <MonthlyApprovalComponentAfterAllApproval
+                          loggedUserDetails={context}
+                          lineInfo={lineDropdown?.[indexOfSelectedLine]}
+                          objOfAnnualPmScheduleApproval={
+                            objOfAnnualPmScheduleApproval
+                          }
+                        />
+                      ) : (
+                        ""
+                      )} */}
 
-                        {refArrayForTDMapping.map((index) => (
-                          <td className="td-padding"></td>
-                        ))}
-                      </tr>
-                      <tr>
-                        {refArrayForTDSpacing.map((item) => (
-                          <td></td>
-                        ))}
-                        <th className="td-padding">Remarks (If Delay)</th>
-                        {refArrayForTDMapping.map((index) => (
-                          <td className="td-padding"></td>
-                        ))}
-                      </tr>
+                      {stateForMonthlyApprovalComponent}
+
+                      {/* {objOfAnnualPmScheduleApproval?.mtdHos
+                        ?.mtdHosApprovalStatus === "Accepted" &&
+                      objOfAnnualPmScheduleApproval?.mtdHod
+                        ?.mtdHodApprovalStatus === "Accepted" &&
+                      objOfAnnualPmScheduleApproval?.prdHos
+                        ?.prdHosApprovalStatus === "Accepted" ? (
+                        <MonthlyApprovalComponentAfterAllApproval
+                          loggedUserDetails={context}
+                          lineInfo={lineDropdown?.[indexOfSelectedLine]}
+                          objOfAnnualPmScheduleApproval={
+                            objOfAnnualPmScheduleApproval
+                          }
+                        />
+                      ) : (
+                        <MonthlyApprovalDefaultComponent
+                          loggedUserDetails={context}
+                          lineInfo={lineDropdown?.[indexOfSelectedLine]}
+                          objOfAnnualPmScheduleApproval={
+                            objOfAnnualPmScheduleApproval
+                          }
+                        />
+                      )} */}
+                      <tr></tr>
+
+                      {stateForSendingApprovalDashboard}
                     </thead>
                   </table>
                 </Col>

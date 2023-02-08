@@ -178,6 +178,11 @@ const GraphsInMainDashboard = ({
 
   let TableData = [
     {
+      name: "Pending(Previous Month)",
+      // colorClass: "table-danger",
+      value: currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending,
+    },
+    {
       name: "Completed",
       bgColor: "table-success",
       // colorClass: "#789c50",
@@ -190,18 +195,14 @@ const GraphsInMainDashboard = ({
       value: currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
     },
     {
-      name: "Pending(Current Month)",
+      name: "Remaining(Current Month)",
       // colorClass: "table-danger",
       value:
         currentMonthGraphAndTableData?.sumVariableForTotalSchedule -
         currentMonthGraphAndTableData?.sumVariableForTotalCompleted -
         currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
     },
-    {
-      name: "Pending(Previous Month)",
-      // colorClass: "table-danger",
-      value: currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending,
-    },
+    
   ];
 
   let TableDataOfCharts = [
@@ -246,12 +247,12 @@ const GraphsInMainDashboard = ({
         <div className="cell">
           <Row>
             <Col className="d-flex justify-content-center align-items-center">
-              <div style={{ width: "20rem" }}>
+              <div style={{ width: "14rem" }}>
                 {currentMonthGraphAndTableData?.sumVariableForTotalSchedule ? (
                   <CurrentMonthStatusGraph TableData={TableDataOfCharts} />
                 ) : (
                   // <div className="p-3">{loadingAnimation}</div>
-                  <div className="m-3">
+                  <div className="m-3 d-flex justify-content-center align-items-center">
                     <NotFound />
                     {/* <h2>No PM schedule</h2> */}
                   </div>
@@ -303,101 +304,107 @@ const GraphsInMainDashboard = ({
         ) : (
           ""
         )}
-        {allDataSectionWise?.sectionInfo?.[0].dashboardLevel === "Yes" ? (
-          <div className="cell">
-            <Col className="pwd-container2">
-              <div className=" d-flex justify-content-center align-items-center ">
-                Remarks:{" "}
-              </div>
-              <TextField
-                style={{ paddingLeft: "0.6rem" }}
-                //   InputProps={{ disableUnderline: true }}
-                fullWidth
-                id="remarks"
-                name="remarks"
-                //   label="remarks"
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
-              />
-            </Col>
 
-            <Col>
-              <Button
-                variant="contained"
-                fullWidth
-                type="submit"
-                className="btn-primary mt-2"
-                style={{ fontSize: "12px" }}
-                onClick={() => {
-                  postRemarksSectionWise(context.section_data);
-                }}
-              >
-                Submit
-              </Button>
-            </Col>
-          </div>
-        ) : context?.subSection_data?.includes(subSection) ? (
-          <div className="cell">
-            <Col className="pwd-container2">
-              <div className=" d-flex justify-content-center align-items-center mt-2">
-                Remarks:{" "}
-              </div>
-              <TextField
-                style={{ paddingLeft: "0.6rem" }}
-                //   InputProps={{ disableUnderline: true }}
-                fullWidth
-                id="remarks"
-                name="remarks"
-                //   label="remarks"
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
-              />
-            </Col>
-            <Col>
-              <Button
-                variant="contained"
-                fullWidth
-                type="submit"
-                className="btn-primary mt-2"
-                onClick={() => {
-                  postRemarksSubSectionWise(subSection);
-                }}
-              >
-                Submit
-              </Button>
-            </Col>
-          </div>
-        ) : sections === undefined && subSection === "" ? (
-          <div className="cell">
-            <Col className="pwd-container2">
-              <div className=" d-flex justify-content-center align-items-center mt-2">
-                Remarks:{" "}
-              </div>
-              <TextField
-                style={{ paddingLeft: "0.6rem" }}
-                //   InputProps={{ disableUnderline: true }}
-                fullWidth
-                id="remarks"
-                name="remarks"
-                //   label="remarks"
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
-              />
-            </Col>
-            <Col>
-              <Button
-                variant="contained"
-                fullWidth
-                type="submit"
-                className="btn-primary mt-2"
-                onClick={() => {
-                  postRemarksSubSectionWise(subSection);
-                }}
-              >
-                Submit
-              </Button>
-            </Col>
-          </div>
+        {context?.user_type === "TL/HOSS" &&
+        context?.tm_department === "MTD" ? (
+          allDataSectionWise?.sectionInfo?.[0].dashboardLevel === "Yes" ? (
+            <div className="cell">
+              <Col className="pwd-container2">
+                <div className=" d-flex justify-content-center align-items-center ">
+                  Remarks:{" "}
+                </div>
+                <TextField
+                  style={{ paddingLeft: "0.6rem" }}
+                  //   InputProps={{ disableUnderline: true }}
+                  fullWidth
+                  id="remarks"
+                  name="remarks"
+                  //   label="remarks"
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                />
+              </Col>
+
+              <Col>
+                <button
+                  variant="contained"
+                  fullWidth
+                  type="submit"
+                  className="btn-primary1 mt-2"
+                  style={{ fontSize: "12px" }}
+                  onClick={() => {
+                    postRemarksSectionWise(context.section_data);
+                  }}
+                >
+                  Submit
+                </button>
+              </Col>
+            </div>
+          ) : context?.subSection_data?.includes(subSection) ? (
+            <div className="cell">
+              <Col className="pwd-container2">
+                <div className=" d-flex justify-content-center align-items-center mt-2">
+                  Remarks:{" "}
+                </div>
+                <TextField
+                  style={{ paddingLeft: "0.6rem" }}
+                  //   InputProps={{ disableUnderline: true }}
+                  fullWidth
+                  id="remarks"
+                  name="remarks"
+                  //   label="remarks"
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                />
+              </Col>
+              <Col>
+                <button
+                  variant="contained"
+                  fullWidth
+                  type="submit"
+                  className="btn-primary1 mt-2"
+                  onClick={() => {
+                    postRemarksSubSectionWise(subSection);
+                  }}
+                >
+                  Submit
+                </button>
+              </Col>
+            </div>
+          ) : sections === undefined && subSection === "" ? (
+            <div className="cell">
+              <Col className="pwd-container2">
+                <div className=" d-flex justify-content-center align-items-center mt-2">
+                  Remarks:{" "}
+                </div>
+                <TextField
+                  style={{ paddingLeft: "0.6rem" }}
+                  //   InputProps={{ disableUnderline: true }}
+                  fullWidth
+                  id="remarks"
+                  name="remarks"
+                  //   label="remarks"
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                />
+              </Col>
+              <Col>
+                <button
+                  variant="contained"
+                  fullWidth
+                  type="submit"
+                  className="btn-primary1 mt-2"
+                  onClick={() => {
+                    postRemarksSubSectionWise(subSection);
+                  }}
+                >
+                  Submit
+                </button>
+              </Col>
+            </div>
+          ) : (
+            ""
+          )
         ) : (
           ""
         )}

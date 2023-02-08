@@ -18,6 +18,8 @@ import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
 import axios from "axios";
 import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 import FileDownload from "js-file-download";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function CheckSheetForm() {
   const context = useContext(RoutingContext);
@@ -34,6 +36,8 @@ function CheckSheetForm() {
     useState("");
 
   const [dataSheetName, setDataSheetName] = useState([]);
+
+  const [downloadingDataSheet, setDownloadingDataSheet] = useState();
 
   const navigate = useNavigate();
 
@@ -176,7 +180,7 @@ function CheckSheetForm() {
       sort: "true",
     },
     {
-      header: "Fab",
+      header: "Feb",
       sort: "true",
     },
     {
@@ -625,6 +629,20 @@ function CheckSheetForm() {
     }
   };
 
+  const notifyForUploadDatasheet = () => {
+    toast.success("Data-sheet uploaded successfully", {
+      position: "top-center",
+      autoClose: false,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      // onClose: ()=> window.location.reload()
+    });
+  };
+
   //upload tag name XLS and XLSX file
   const uploadDataSheet = async (e) => {
     e.preventDefault();
@@ -645,7 +663,11 @@ function CheckSheetForm() {
         if (res.status === 422) {
           window.alert("Please select file");
         }
-        window.location.reload();
+        // window.alert("Uploaded successfully");
+        // console.log(res)
+        // window.location.reload();
+        notifyForUploadDatasheet();
+        setDownloadingDataSheet(res?.data?.machineLastData);
       })
       .catch((err) => {
         window.alert("Only .xls, .xlsx, .csv format allowed!");
@@ -655,7 +677,9 @@ function CheckSheetForm() {
 
   const downloadUploadedDataSheet = async () => {
     try {
-      let selectedFileName = machineAllData?.checkSheet_data?.dataSheet;
+      let selectedFileName = machineAllData?.checkSheet_data?.dataSheet
+        ? machineAllData?.checkSheet_data?.dataSheet
+        : downloadingDataSheet?.checkSheet_data?.dataSheet;
       const res = await fetch("/postDataSheetFileName", {
         method: "POST",
         headers: {
@@ -719,6 +743,8 @@ function CheckSheetForm() {
   // );
   return (
     <>
+      <ToastContainer style={{ width: "30rem" }} />
+
       {stateForOpeningSummeryPopups}
       <div className="checkSheetForImplementation1">
         <Container fluid>
@@ -739,7 +765,7 @@ function CheckSheetForm() {
               {/* </a> */}
             </Col>
             {tableData?.length > 0 ? (
-              <Col lg={6} md={6} sm={6}>
+              <Col lg={6} md={6} sm={6} className="d-flex">
                 <Col>
                   <span style={{ fontWeight: "bold" }}>
                     Upload Data-sheet XLSx/CSV:
@@ -754,7 +780,7 @@ function CheckSheetForm() {
                       type="file"
                       name="data_sheet"
                       accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                      // value={userPhoto}
+                      // value={dataSheetName}
                       onChange={(e) => setDataSheetName(e.target.files[0])}
                     />
                     &nbsp;
@@ -764,7 +790,8 @@ function CheckSheetForm() {
                   </form>
                 </Col>
                 <Col>
-                  {machineAllData?.checkSheet_data?.dataSheet ? (
+                  {downloadingDataSheet?.checkSheet_data?.dataSheet ||
+                  machineAllData?.checkSheet_data?.dataSheet ? (
                     <div>
                       <button
                         className="btn-reset mt-4"
@@ -1597,7 +1624,7 @@ function CheckSheetForm() {
                 <thead>
                   <tr>
                     <th
-                      className="ar-table-thead-header1"
+                      className="ar-table-thead-header1 text-center"
                       // colSpan={2}
                       //  rowSpan={5}
                     >
@@ -1606,7 +1633,7 @@ function CheckSheetForm() {
                       (By PRD TL)
                     </th>
                     <th
-                      className="ar-table-thead-header1"
+                      className="ar-table-thead-header1 text-center"
                       // colSpan={2}
                       //  rowSpan={5}
                     >

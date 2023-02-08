@@ -34,6 +34,10 @@ function ChecksheetFormApprovalForHOSAndHOD() {
   let machineAllData =
     selectedMachineCheckSheetData.state?.selectedRowForViewForm;
 
+  let senderApprovalMonth =
+    selectedMachineCheckSheetData.state?.selectedRowForViewForm
+      ?.senderApprovalMonth;
+
   let columns = [
     {
       header: "SN",
@@ -116,7 +120,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
       sort: "true",
     },
     {
-      header: "Fab",
+      header: "Feb",
       sort: "true",
     },
     {
@@ -498,6 +502,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
               preparation_HOS_date: timeStamp(),
               implementation_approved_by_MTD_HOS: context.tm_name,
               implementation_approved_MTD_HOS_date: timeStamp(),
+              senderApprovalMonth,
             };
 
       // console.log("________");
@@ -587,22 +592,25 @@ function ChecksheetFormApprovalForHOSAndHOD() {
           <Row>
             <Col lg={6} md={6} sm={6}>
               <div className="col-1">
-                <a
-                  className="mb-2"
-                  style={{ color: "Black" }}
-                  href="/approvalDashboard"
+                <button
+                  onClick={() =>
+                    machineAllData?.checkSheet_data?.checksheet_status ===
+                    "Preparation"
+                      ? navigate("/preparationApproval")
+                      : machineAllData?.checkSheet_data?.checksheet_status ===
+                        "Planning"
+                      ? navigate("/planningApproval")
+                      : navigate("/implementationApproval")
+                  }
+                  style={{
+                    border: "none",
+                    background: "white",
+                    borderRadius: 5,
+                    marginTop: "1rem",
+                  }}
                 >
-                  <button
-                    style={{
-                      border: "none",
-                      background: "white",
-                      borderRadius: 5,
-                      marginTop: "1rem",
-                    }}
-                  >
-                    <ArrowBackIcon />
-                  </button>
-                </a>
+                  <ArrowBackIcon />
+                </button>
               </div>
               <div>
                 {context?.user_type === "Section-Admin" &&
@@ -773,7 +781,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                 <thead>
                   <tr>
                     <th
-                      className="ar-table-thead-header1"
+                      className="ar-table-thead-header1 text-center"
                       // colSpan={2}
                       //  rowSpan={5}
                     >
@@ -782,7 +790,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       (By PRD TL)
                     </th>
                     <th
-                      className="ar-table-thead-header1"
+                      className="ar-table-thead-header1 text-center"
                       // colSpan={2}
                       //  rowSpan={5}
                     >

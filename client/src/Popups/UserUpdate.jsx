@@ -313,6 +313,8 @@ const UserUpdate = ({ selectedRow }) => {
         </span>
         <br />
         <div>
+        <h3 style={{ textAlign: "left", color:"#dc3545"}}>Edit User</h3>
+
           <form onSubmit={formik.handleSubmit}>
             <div className="pwd-container">
               <span>TM Name: </span>

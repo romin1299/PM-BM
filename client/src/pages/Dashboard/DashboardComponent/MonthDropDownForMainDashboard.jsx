@@ -20,31 +20,31 @@ const MonthDropDownForMainDashboard = ({ selectedMonth, setSelectedMonth }) => {
   return (
     <Row className="p-1 ">
       <span>
-        <b>Month:</b>
-      </span>
-      <div>
+        <b>Month: &nbsp;</b>
         <select
-          class="form-select form-select-sm"
-          aria-label=".form-select-sm example"
-          style={{ width: "100%" }}
-          id="standard-select-currency"
-          name="selectedPlant"
-          className="textField"
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-          // fullWidth
-          select // label="Select"
-          autoComplete="off"
-          variant="standard"
-        >
-          <option selected disabled value="">
-            Please select
-          </option>
-          {monthKeyArray?.map((option) => {
-            return <option value={option}>{option}</option>;
-          })}
-        </select>
-      </div>
+        class="form-select form-select-sm"
+        aria-label=".form-select-sm example"
+        style={{ width: "70%" }}
+        id="standard-select-currency"
+        name="selectedPlant"
+        className="textField"
+        value={selectedMonth}
+        onChange={(e) => setSelectedMonth(e.target.value)}
+        // fullWidth
+        select // label="Select"
+        autoComplete="off"
+        variant="standard"
+      >
+        <option selected disabled value="">
+          Please select
+        </option>
+        {monthKeyArray?.map((option) => {
+          return <option value={option}>{option}</option>;
+        })}
+      </select>
+      </span>
+
+      
     </Row>
   );
 };

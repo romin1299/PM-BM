@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Select } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import axios from "axios";
+import { Col, Row } from "react-bootstrap";
 
 function WorkOnImplementationPM({
   close,
@@ -15,7 +16,11 @@ function WorkOnImplementationPM({
   monthForCompareSystemMonth,
   previousMonth,
   functionToSetRefKey,
+  inceptionValueForLogHistory,
+  machineAllData,
+  refKeyForScheduleMonthInLogHistory,
 }) {
+
   const [workedData, setWorkedData] = useState([]);
   const [userPhoto, setUserPhoto] = useState([]);
 
@@ -156,7 +161,8 @@ function WorkOnImplementationPM({
           if (res.status === 400 || res.status === 422) {
             window.alert("Invalid !");
           } else {
-            console.log("Submitted sucessfully...");
+            console.log("Submitted Successfully...");
+            postNewLogHistory();
             // disabledButtonAfterPM(tableRowId, true);
             close();
             functionToSetRefKey();
@@ -170,6 +176,29 @@ function WorkOnImplementationPM({
         });
     },
   });
+
+  const postNewLogHistory = async () => {
+    const res = await fetch("/submitLogHistory", {
+      method: "Post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        yearOfCheckSheet,
+        values: formik?.values,
+
+        inceptionValueForLogHistory,
+        completionDateOfInspection: timeStamp(),
+        refKeyForScheduleMonthInLogHistory,
+        machineAllData,
+      }),
+    });
+    const data = res.json();
+    // console.log(data);
+    if (res.status === 400 || res.status === 422 || !data) {
+      window.alert("Invalid credentials !");
+    } else {
+      console.log("Log Added Successfully...");
+    }
+  };
 
   const clearState = () => {
     formik.values.remarksOfImplementation = "";
@@ -186,7 +215,11 @@ function WorkOnImplementationPM({
         <span onClick={close} className="close">
           &times;
         </span>
+
+        {/* <button onClick={postNewLogHistory}>functionCall</button> */}
         <div>
+        <h4 style={{ textAlign: "left", color:"#dc3545"}}>Work on Implementation</h4>
+        <br />
           <form
             onSubmit={formik.handleSubmit}
             style={{ textAlign: "left" }}
@@ -204,8 +237,8 @@ function WorkOnImplementationPM({
               </div>
               <br />
             </div> */}
-            <div className="row flex justify-content-center">
-              <div className="mb-2 d-flex col-4 justify-content-center">
+            <Row className="row flex justify-content-center">
+              <Col sm={12} md={6} lg={4} className="mb-2 d-flex col-4">
                 <input
                   type="radio"
                   name="workedOnPM"
@@ -217,8 +250,8 @@ function WorkOnImplementationPM({
                   // onClick={(e) => showTextBox(rData[0].value, e)}
                 />{" "}
                 &nbsp; &#x2713; OK{" "}
-              </div>
-              <div className="mb-2 d-flex col-4 justify-content-center">
+              </Col>
+              <Col sm={12} md={6} lg={4} className="mb-2 d-flex col-4">
                 <input
                   type="radio"
                   name="workedOnPM"
@@ -230,9 +263,9 @@ function WorkOnImplementationPM({
                   // onClick={(e) => showTextBox(rData[0].value, e)}
                 />{" "}
                 &nbsp; &#x2713; Rectify{" "}
-              </div>
+              </Col>
 
-              <div className="col-4 mb-2 d-flex justify-content-center">
+              <Col sm={12} md={6} lg={4} className="col-4 mb-2 d-flex">
                 <input
                   type="radio"
                   name="workedOnPM"
@@ -244,7 +277,7 @@ function WorkOnImplementationPM({
                   // onClick={(e) => hideTextBox(rData[0].value, e)}
                 />{" "}
                 &nbsp; &#x2715; NG ( Not Good ) <br />{" "}
-              </div>
+              </Col>
 
               <p
                 style={{
@@ -256,7 +289,7 @@ function WorkOnImplementationPM({
               >
                 {formik.touched.workedOnPM && formik.errors.workedOnPM}
               </p>
-            </div>
+            </Row>
 
             {formik.values.workedOnPM === "Yes" ? (
               <div>
@@ -428,20 +461,21 @@ function WorkOnImplementationPM({
                         })}
                       </select>
                       <div>
-                      <p
-                        style={{
-                          color: "#F44336",
-                          fontWeight: "normal",
-                          fontSize: "0.80rem",
-                          float: "left",
-                          paddingTop: "0.5rem",
-                        }}
-                      >
-                        {formik.touched.spareParts && formik.errors.spareParts}
-                      </p>
+                        <p
+                          style={{
+                            color: "#F44336",
+                            fontWeight: "normal",
+                            fontSize: "0.80rem",
+                            float: "left",
+                            paddingTop: "0.5rem",
+                          }}
+                        >
+                          {formik.touched.spareParts &&
+                            formik.errors.spareParts}
+                        </p>
+                      </div>
                     </div>
-                    </div>
-                    
+
                     {formik.values.spareParts === "Yes" ? (
                       <div>
                         <div className="mb-2 row">
@@ -515,8 +549,8 @@ function WorkOnImplementationPM({
             ) : (
               ""
             )}
-            <div className="row pt-2">
-              <button type="submit" className="btn-primary1">
+            <div className="row pt-2 d-flex justify-content-center align-items-center">
+              <button type="submit" className="btn-primary1 w-25">
                 Save
               </button>
             </div>

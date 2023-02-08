@@ -1,12 +1,30 @@
 const mongoose = require('mongoose')
 
+const commonVarForTypeString = {
+    type: String
+}
+const commonVarForObjectIdOfUser = {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Users'
+}
+
+const commonVarForMonthlyApproval = {
+    checkedByTL: commonVarForObjectIdOfUser,
+
+    assignHOS: commonVarForObjectIdOfUser,
+    approvedByHOS: commonVarForTypeString,
+
+    assignHOD: commonVarForObjectIdOfUser,
+    approvedByHODIfDelay: commonVarForTypeString,
+    remarksIfDelay: commonVarForTypeString,
+}
+
 const lineSchema = new mongoose.Schema({
-    line_id: {
-        type: String
-    },
-    line_name: {
-        type: String
-    },
+
+    line_id: commonVarForTypeString,
+
+    line_name: commonVarForTypeString,
+
     cell_names: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Cells'
@@ -17,42 +35,50 @@ const lineSchema = new mongoose.Schema({
 
     annualPmScheduleApproval: [{
 
-        current_year: { type: String },
+        current_year: commonVarForTypeString,
 
-        mtdTlId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Users'
-        },
+        mtdTlId: commonVarForObjectIdOfUser,
 
         mtdHos: {
-            mtdHosId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Users'
-            },
-            mtdHosApprovalStatus: {
-                type: String
-            }
+            mtdHosId: commonVarForObjectIdOfUser,
+            mtdHosApprovalStatus: commonVarForTypeString
         },
 
         mtdHod: {
-            mtdHodId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Users'
-            },
-            mtdHodApprovalStatus: {
-                type: String
-            }
+            mtdHodId: commonVarForObjectIdOfUser,
+            mtdHodApprovalStatus: commonVarForTypeString
         },
 
         prdHos: {
-            prdHosId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Users'
-            },
-            prdHosApprovalStatus: {
-                type: String
-            }
+            prdHosId: commonVarForObjectIdOfUser,
+            prdHosApprovalStatus: commonVarForTypeString
         },
+        monthlyApprovalData: {
+            Apr: commonVarForMonthlyApproval,
+
+            May: commonVarForMonthlyApproval,
+
+            June: commonVarForMonthlyApproval,
+
+            July: commonVarForMonthlyApproval,
+
+            Aug: commonVarForMonthlyApproval,
+
+            Sep: commonVarForMonthlyApproval,
+
+            Oct: commonVarForMonthlyApproval,
+
+            Nov: commonVarForMonthlyApproval,
+
+            Dec: commonVarForMonthlyApproval,
+
+            Jan: commonVarForMonthlyApproval,
+
+            Feb: commonVarForMonthlyApproval,
+
+            Mar: commonVarForMonthlyApproval,
+        },
+
     }]
 })
 
