@@ -879,7 +879,7 @@ const MachineWisePmMonthlyReport = () => {
                         context?.user_type === "Operator" ||
                         (context?.user_type === "TL/HOSS" &&
                           context?.tm_department === "PRD") ||
-                          rowData?.flagForPreviousMonthData === true,
+                        rowData?.flagForPreviousMonthData === true,
                       onRowUpdate: (updatedRow, oldRow) =>
                         new Promise((resolve, reject) => {
                           //call the update user function and pass the user data
