@@ -10,6 +10,7 @@ import {
 import UserUpdate from "../../Popups/UserUpdate";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import "../../SCSS/MaterialTable.scss";
+import Footer from "../../components/Footer/Footer";
 
 import { CSVLink, CSVDownload } from "react-csv";
 import { jsPDF } from "jspdf";
@@ -447,6 +448,7 @@ function UserAssigns() {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 }

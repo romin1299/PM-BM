@@ -69,10 +69,10 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
           ["Total"].concat(
             data?.totalMonthlyPMSpareConsumption?.map((key, idx) => {
               return key + data?.totalMonthlyBMSpareConsumption[idx] +
-               data?.totalMonthlyCorrectiveSpareConsumption[idx] + 
-               data?.totalMonthlyPridictiveSpareConsumption[idx] + 
-               data?.totalMonthlyKaizenSpareConsumption[idx]
-          })
+                data?.totalMonthlyCorrectiveSpareConsumption[idx] +
+                data?.totalMonthlyPridictiveSpareConsumption[idx] +
+                data?.totalMonthlyKaizenSpareConsumption[idx]
+            })
           )
 
         );
@@ -119,15 +119,15 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
           ["Total"].concat(
             data?.totalMonthlyPMSpareConsumption?.map((key, idx) => {
               return key + data?.totalMonthlyBMSpareConsumption[idx] +
-               data?.totalMonthlyCorrectiveSpareConsumption[idx] + 
-               data?.totalMonthlyPridictiveSpareConsumption[idx] + 
-               data?.totalMonthlyKaizenSpareConsumption[idx]
-          })
+                data?.totalMonthlyCorrectiveSpareConsumption[idx] +
+                data?.totalMonthlyPridictiveSpareConsumption[idx] +
+                data?.totalMonthlyKaizenSpareConsumption[idx]
+            })
           )
 
         );
         setCsvData(downloadData);
-        
+
       }
     } catch (error) {
       console.log(error);
@@ -155,7 +155,7 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
 
     autoTable(doc, {
       head: [csvData[0]],
-      body: [csvData[1],csvData[2], csvData[3],csvData[4],csvData[5],csvData[6]],
+      body: [csvData[1], csvData[2], csvData[3], csvData[4], csvData[5], csvData[6]],
     });
     // doc.autoTable(columns, csvData);
     doc.save(`${selectedYear}_Monthly_Spare_Consumption_Trend_${timeStamp()}`);
@@ -176,96 +176,87 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
 
   return (
     <div className="pt-3 ">
-      <Container fluid>
-        <Row className="pt-2 cell">
-          <Row>
-            <Col
-            // className="cell"
-            // style={{ backgroundColor: "white" }}
-            >
-              <h4>Monthly Spare Consumption Trend</h4>
-            </Col>
-          </Row>
-          <Row>
-            <Col sm={12} lg={5}>
-              <YearDropDown
-                selectedYear={selectedYear}
-                setSelectedYear={setSelectedYear}
-              />
-            </Col>
-          </Row>
-          <Row className="p-2">
-            <Col>
-              <div>
-                <select
-                  style={{ width: "100%" }}
-                  name="selectedLine"
-                  fullWidth
-                  select // label="Select"
-                  autoComplete="off"
-                  variant="standard"
-                  value={selectedLine}
-                  onChange={(e) => {
-                    setSelectedLine(e.target.value);
-                    postPerticularLineToGetDataForMonthlySpareConsumption(
-                      e.target.value
-                    );
-                    setLoadingAnimationState(<LoadingAnimation />);
-                  }}
-                >
-                  <option selected disabled value="">
-                    Please select Line
-                  </option>
 
-                  {lineData?.map((option) => {
-                    return (
-                      <option value={option._id}>{option.line_name}</option>
-                    );
-                  })}
-                </select>
-              </div>
-            </Col>
-            <Col>
-              <button
-                className="btn-reset"
-                onClick={functionForTotalDataForSpareParts}
+
+      <Container fluid>
+        <h4 className="mb-3">Monthly Spare Consumption Trend</h4>
+        <Row className="pt-2 cell gy-2">
+          <Col sm={12} lg={6} md={12}>
+            <YearDropDown
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+            />
+          </Col>
+          <Col sm={12} lg={6} md={12}>
+            <select
+              
+              style={{ width: "75%" }}
+              name="selectedLine"
+              fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+              value={selectedLine}
+              onChange={(e) => {
+                setSelectedLine(e.target.value);
+                postPerticularLineToGetDataForMonthlySpareConsumption(
+                  e.target.value
+                );
+                setLoadingAnimationState(<LoadingAnimation />);
+              }}
+            >
+              <option selected disabled value="">
+                Please select Line
+              </option>
+
+              {lineData?.map((option) => {
+                return (
+                  <option value={option._id}>{option.line_name}</option>
+                );
+              })}
+            </select>&nbsp;&nbsp;
+            <button
+              className="btn-reset"
+              onClick={functionForTotalDataForSpareParts}
+            >
+              Total
+            </button>
+          </Col>
+
+
+          <Row className="p-2">
+
+            <Col className="d-flex justify-content-start">
+              <CSVLink
+                data={csvData}
+                filename={`${selectedYear}_Monthly_Spare_Consumption_Trend_${timeStamp()}`}
+                className="downloadCSV text-decoration-none"
+                target="_blank"
               >
-                Total
+                CSV
+              </CSVLink>
+              &nbsp;
+              <button
+                className="downloadPDF"
+                onClick={pdfDownloadForMonthlySpareConsumption}
+              >
+                PDF
               </button>
             </Col>
-            <Col className="d-flex ">
-              <Col className="d-flex justify-content-end">
-                <CSVLink
-                  data={csvData}
-                  filename={`${selectedYear}_Monthly_Spare_Consumption_Trend_${timeStamp()}`}
-                  className="downloadCSV text-decoration-none"
-                  target="_blank"
-                >
-                  CSV
-                </CSVLink>
-                &nbsp;
-                <button
-                  className="downloadPDF"
-                  onClick={pdfDownloadForMonthlySpareConsumption}
-                >
-                  PDF
-                </button>
-              </Col>
-            </Col>
           </Row>
-        </Row>
-      </Container>
-      <Container className="cell" fluid>
-        <Row>
-          <Col>
-            {graphData?.totalMonthlyPMSpareConsumption?.length > 0 ? (
+          <Row className="mt-3">
+          {graphData?.totalMonthlyPMSpareConsumption?.length > 0 ? (
               <MonthlySpareConsumptionTrendGraph graphData={graphData} />
             ) : (
               loadingAnimationState
             )}
-          </Col>
+          </Row>
         </Row>
       </Container>
+
+
+
+      
     </div>
   );
 };

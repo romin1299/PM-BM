@@ -251,29 +251,19 @@ const TotalTimeTMWise = ({ context }) => {
   return (
     <>
       <div>
-        <Container>
-          <Row className="pt-2 cell">
-            <Row>
-              <Col
-              // className="cell"
-              // style={{ backgroundColor: "white" }}
-              >
-                <h4>Actual time taken TM wise</h4>
-              </Col>
-            </Row>
-            <Row>
-              <Col sm={12} lg={5}>
-                <YearDropDown
+      <Container fluid>
+        <h4 className="mb-3">Actual time taken TM wise</h4>
+        <Row className="pt-2 cell gy-2">
+          <Col sm={12} lg={6} md={12}>
+          <YearDropDown
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
                 />
-              </Col>
-            </Row>
-            <Row className="p-2">
-              <Col>
-                <div>
-                  <select
-                    style={{ width: "100%" }}
+          </Col>
+          <Col sm={12} lg={6} md={12}>
+              <select
+                 
+                    style={{ width: "75%" }}
                     name="selectedCell"
                     fullWidth
                     select // label="Select"
@@ -296,17 +286,17 @@ const TotalTimeTMWise = ({ context }) => {
                         <option value={option.tm_no}>{option.tm_name}</option>
                       );
                     })}
-                  </select>
-                </div>
-              </Col>
-              <Col>
-                <button className="btn-reset" onClick={functionForTotalData}>
+                  </select>&nbsp;&nbsp;
+                  <button className="btn-reset" onClick={functionForTotalData}>
                   Total
                 </button>
-              </Col>
-              <Col className="d-flex">
-                <Col className="d-flex justify-content-end">
-                  <CSVLink
+          </Col>
+
+
+          <Row className="p-2">
+
+            <Col className="d-flex justify-content-start">
+            <CSVLink
                     data={csvData}
                     filename={`${selectedYear}_Actual_time_taken_TM_wise${timeStamp()}`}
                     className="downloadCSV text-decoration-none"
@@ -321,11 +311,25 @@ const TotalTimeTMWise = ({ context }) => {
                   >
                     PDF
                   </button>
-                </Col>
-              </Col>
+            </Col>
             </Row>
+
+            <Row>
+            {graphData?.length > 0 ? (
+              <TmWiseGraph xValue={x1} yValue={y1} />
+            ) : (
+              loadingAnimationState
+            )}
+            </Row>
+            
+            
           </Row>
-        </Container>
+          
+      </Container>
+        
+
+
+       
 
         <div>
           {/* <Plot
@@ -335,13 +339,7 @@ const TotalTimeTMWise = ({ context }) => {
             style={{ width: "100%", height: "100%" }}
           /> */}
 
-          <Card className="d-flex justify-content-center align-items-center">
-            {graphData?.length > 0 ? (
-              <TmWiseGraph xValue={x1} yValue={y1} />
-            ) : (
-              loadingAnimationState
-            )}
-          </Card>
+         
         </div>
       </div>
     </>

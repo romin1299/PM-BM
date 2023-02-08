@@ -11,6 +11,7 @@ import "../../../SCSS/MaterialTable.scss";
 import RoutingContext from "../../../context/routing/RoutingContext";
 //   import ChecksheetCreationDashboard from "./Checksheet/ChecksheetCreationDashboard";
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
+import Footer from "../../../components/Footer/Footer";
 
 import { CSVLink, CSVDownload } from "react-csv";
 import { jsPDF } from "jspdf";
@@ -286,6 +287,7 @@ const BackupDataOfCheckSheet = () => {
           </div>
         )}
       </div>
+      <Footer/>
     </>
   );
 };

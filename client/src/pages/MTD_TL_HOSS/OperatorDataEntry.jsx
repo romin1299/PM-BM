@@ -9,6 +9,7 @@ import { Container, Row, Col } from "react-bootstrap";
 
 import RoutingContext from "../../context/routing/RoutingContext";
 import currentYear from "../Dashboard/DashboardComponent/currentYear";
+import Footer from "../../components/Footer/Footer";
 
 function OperatorDataEntry() {
   const context = useContext(RoutingContext);
@@ -146,7 +147,7 @@ function OperatorDataEntry() {
     <>
       <div className="p-3">
         <Container
-          // fluid
+          fluid
           className="p-3 bg-light"
           style={{ borderRadius: "10px" }}
         >
@@ -157,7 +158,7 @@ function OperatorDataEntry() {
             <form onSubmit={formik.handleSubmit}>
               <Container>
                 <Row className="pt-3">
-                  <Col sm={6}>
+                  <Col sm={6} md={12} lg={6}>
                     <div>Select:</div>
                     <select
                       // class="form-select form-select-sm"
@@ -196,7 +197,7 @@ function OperatorDataEntry() {
                       </p>
                     </div>
                   </Col>
-                  <Col>
+                  <Col sm={6} md={12} lg={6}>
                     <div>Date:</div>
                     <TextField
                       id="outlined-number"
@@ -230,7 +231,7 @@ function OperatorDataEntry() {
                 </Row>
 
                 <Row>
-                  <Col sm={6}>
+                  <Col sm={6}  md={12} lg={6}>
                     <div>Line:</div>
                     <select
                       // class="form-select form-select-sm"
@@ -294,7 +295,7 @@ function OperatorDataEntry() {
                 </Row>
 
                 <Row>
-                  <Col sm={6}>
+                  <Col sm={6} sm={6} md={12} lg={6}>
                     <div>Machine:</div>
                     <select
                       // class="form-select form-select-sm"
@@ -380,7 +381,7 @@ function OperatorDataEntry() {
                 </Row>
 
                 <Row>
-                  <Col sm={6}>
+                  <Col sm={6} sm={6} md={12} lg={6}>
                     <div>Part Name:</div>
                     <TextField
                       id="outlined-number"
@@ -455,7 +456,7 @@ function OperatorDataEntry() {
                 </Row>
 
                 <Row>
-                  <Col sm={6}>
+                  <Col sm={6} sm={6} md={12} lg={6}>
                     <div>Cost(INR):</div>
                     <TextField
                       id="outlined-number"
@@ -494,7 +495,7 @@ function OperatorDataEntry() {
                 </Row>
 
                 <Row>
-                  <Col sm={6}>
+                  <Col sm={6} sm={6} md={12} lg={6}>
                     <div>Abnormality Remarks:</div>
                     <TextareaAutosize
                       id="outlined-number"
@@ -569,6 +570,7 @@ function OperatorDataEntry() {
             </form>
           </div>
         </Container>
+        <Footer/>
       </div>
     </>
   );

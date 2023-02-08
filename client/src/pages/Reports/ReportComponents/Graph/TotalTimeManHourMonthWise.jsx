@@ -227,29 +227,18 @@ const TotalTimeManHourMonthWise = ({ context }) => {
   return (
     <>
       <div>
-        <Container>
-          <Row className="pt-2  cell">
-            <Row>
-              <Col
-              // className="cell"
-              // style={{ backgroundColor: "white" }}
-              >
-                <h4>Total time Man-Hour (Month Wise)</h4>
-              </Col>
-            </Row>
-            <Row>
-              <Col sm={12} lg={5}>
-                <YearDropDown
+        <Container fluid>
+          <h4 className="mb-3">Total time Man-Hour (Month Wise)</h4>
+          <Row className="pt-2 cell gy-2">
+          <Col sm={12} lg={6} md={12}>
+          <YearDropDown
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
                 />
-              </Col>
-            </Row>
-            <Row className="p-2">
-              <Col>
-                <div>
-                  <select
-                    style={{ width: "100%" }}
+          </Col>
+          <Col sm={12} lg={6} md={12}>
+              <select
+                                style={{ width: "75%" }}
                     name="selectedCell"
                     fullWidth
                     select // label="Select"
@@ -272,17 +261,17 @@ const TotalTimeManHourMonthWise = ({ context }) => {
                         <option value={option._id}>{option.line_name}</option>
                       );
                     })}
-                  </select>
-                </div>
-              </Col>
-              <Col>
-                <button className="btn-reset" onClick={functionForTotalData}>
+                  </select> &nbsp;&nbsp;
+                  <button className="btn-reset" onClick={functionForTotalData}>
                   Total
                 </button>
-              </Col>
-              <Col className="d-flex">
-                <Col className="d-flex justify-content-end">
-                  <CSVLink
+          </Col>
+
+
+          <Row className="p-2">
+
+            <Col className="d-flex justify-content-start">
+            <CSVLink
                     data={csvData}
                     filename={`${selectedYear}_Total_time_month_wise${timeStamp()}`}
                     className="downloadCSV text-decoration-none"
@@ -297,26 +286,23 @@ const TotalTimeManHourMonthWise = ({ context }) => {
                   >
                     PDF
                   </button>
-                </Col>
-              </Col>
+            </Col>
             </Row>
-          </Row>
-        </Container>
-        <div>
-          {/* <Plot
-            data={[trace1]}
-            layout={layout}
-            config={{ displayModeBar: false }}
-            style={{ width: "100%", height: "100%" }}
-          /> */}
-          <Card className="d-flex justify-content-center align-items-center">
-            {graphData?.length > 0 ? (
+            <Row>
+          {graphData?.length > 0 ? (
               <ManHourMonthWiseGraph xValue={x1} yValue={y1} />
             ) : (
               loadingAnimationState
             )}
-          </Card>
-        </div>
+          </Row>
+
+
+
+          </Row>
+          
+         
+        </Container>
+        
       </div>
     </>
   );

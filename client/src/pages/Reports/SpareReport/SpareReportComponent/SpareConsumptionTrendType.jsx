@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import currentYear from "../../../Dashboard/DashboardComponent/currentYear";
 import LoadingAnimation from "../../ReportComponents/LoadingAnimation";
 import SpareConsumptionTrendTypeGraph from "./GraphForSpareReports/SpareConsumptionTrendTypeGraph";
 
-const SpareConsumptionTrendType = ({context}) => {
+const SpareConsumptionTrendType = ({ context }) => {
   const [graphData, setGraphData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [loadingAnimationState, setLoadingAnimationState] = useState(
@@ -41,29 +41,28 @@ const SpareConsumptionTrendType = ({context}) => {
   useEffect(() => {
     postSectionToGetAllDataForLineWiseSpareConsumption();
   }, []);
-console.log(graphData)
+  console.log(graphData)
   return (
     <div className="pt-3 ">
-      <Container className="cell" fluid>
-        <Row>
-          <h5 className="d-flex justify-content-center align-items-center m-2">
-            Spare Consumption Trend Type
-          </h5>
-        </Row>
 
-        <Row>
-          <Col
+
+      <Container fluid>
+        <h4 className="mb-3">Spare Consumption Trend Type</h4>
+        <Row className="pt-2 cell gy-2" >
+        <Col
             className="d-flex justify-content-center align-items-center m-4"
             style={{ height: "20rem" }}
           >
             {graphData?.length > 0 ? (
-            <SpareConsumptionTrendTypeGraph graphData={graphData} />
+              <SpareConsumptionTrendTypeGraph graphData={graphData} />
             ) : (
               loadingAnimationState
             )}
           </Col>
         </Row>
       </Container>
+
+      
     </div>
   );
 };

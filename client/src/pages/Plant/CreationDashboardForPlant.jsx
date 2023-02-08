@@ -24,6 +24,7 @@ import {
 import "../../SCSS/MaterialTable.scss";
 import { RadioGroup } from "@mui/material";
 import RoutingContext from "../../context/routing/RoutingContext";
+import Footer from "../../components/Footer/Footer";
 
 import { CSVLink, CSVDownload } from "react-csv";
 import { jsPDF } from "jspdf";
@@ -596,6 +597,7 @@ const CreationDashboardForPlant = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

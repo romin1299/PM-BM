@@ -18,6 +18,7 @@ import { Multiselect } from "multiselect-react-dropdown";
 import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 import axios from "axios";
 import FileDownload from "js-file-download";
+import Footer from "../../components/Footer/Footer";
 // import 'reactjs-popup/dist/index.css';
 const CheckSheet = ({
   show,
@@ -2704,6 +2705,7 @@ const CheckSheet = ({
           </Modal.Footer> */}
         </Modal>
       </div>
+      <Footer/>
     </>
   );
 };

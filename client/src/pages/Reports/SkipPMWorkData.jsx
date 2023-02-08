@@ -13,6 +13,7 @@ import RoutingContext from "../../context/routing/RoutingContext";
 //   import ChecksheetCreationDashboard from "./Checksheet/ChecksheetCreationDashboard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import WorkOnSkipPM from "../../Popups/WorkOnSkipPM";
+import Footer from "../../components/Footer/Footer";
 
 const SkipPMWorkData = () => {
   const context = useContext(RoutingContext);
@@ -363,6 +364,7 @@ const SkipPMWorkData = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

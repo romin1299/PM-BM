@@ -13,6 +13,7 @@ import "./Login.scss";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "react-router-dom";
 import { Row } from 'react-bootstrap'
+import Footer from "../components/Footer/Footer";
 
 export const LoginPage = () => {
   const [isRevealPwd, setIsRevealPwd] = useState(false);
@@ -177,6 +178,7 @@ export const LoginPage = () => {
           </div>
         </div>
       </main>
+      <Footer/>
     </>
   );
 };

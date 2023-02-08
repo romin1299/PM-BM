@@ -82,7 +82,7 @@ const MonthlySpareConsumptionTrendGraph = ({ graphData }) => {
             {
                 type: 'bar',
                 label: 'PM',
-                backgroundColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgb(255, 99, 132)',
                 data: graphData?.totalMonthlyPMSpareConsumption,
                 // borderColor: 'white',
                 // borderWidth: 2,
@@ -96,7 +96,7 @@ const MonthlySpareConsumptionTrendGraph = ({ graphData }) => {
             {
                 type: 'bar',
                 label: 'Corrective',
-                backgroundColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgb(75, 192, 192)',
                 data: graphData?.totalMonthlyCorrectiveSpareConsumption,
             },
             {

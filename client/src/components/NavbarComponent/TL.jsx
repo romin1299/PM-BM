@@ -414,54 +414,6 @@ const TL = ({ userData, userDepartment }) => {
               Pending PM Log History
             </MenuItem>
           </SubMenu>
-          {userDepartment === "MTD" ? (
-            <Menuitem
-              className="text-white"
-              icon={<AddToPhotosIcon className="text-white" />}
-              data-toggle="tooltip"
-              data-placement="right"
-              title="Spare Entry"
-            >
-              <NavLink to="/operatorDataEntry"></NavLink>
-              Spare Entry
-            </Menuitem>
-          ) : (
-            ""
-          )}
-          <Menuitem
-            className="text-white"
-            icon={<BackupTableIcon className="text-white" />}
-            data-toggle="tooltip"
-            data-placement="right"
-            title="Spare Log"
-          >
-            <NavLink to="/sparePartUsageHistory"></NavLink>
-            Spare Log
-          </Menuitem>
-          <Menuitem
-            className="text-white"
-            icon={<SummarizeIcon className="text-white" />}
-            data-toggle="tooltip"
-            data-placement="right"
-            title="Spare Report"
-          >
-            <NavLink to="/spareReportDashboard"></NavLink>
-            Spare Report
-          </Menuitem>
-          {userDepartment === "MTD" ? (
-            <Menuitem
-              className="text-white"
-              icon={<CloudDownloadIcon className="text-white" />}
-              data-toggle="tooltip"
-              data-placement="right"
-              title="Back-end Data"
-            >
-              <NavLink to="/backupDataOfCheckSheet"></NavLink>
-              Back-end Data
-            </Menuitem>
-          ) : (
-            ""
-          )}
           <SubMenu
             className="text-white"
             title="PM Report"
@@ -550,6 +502,22 @@ const TL = ({ userData, userDepartment }) => {
               PM Time Monitoring
             </MenuItem>
           </SubMenu>
+          
+          {userDepartment === "MTD" ? (
+            <Menuitem
+              className="text-white"
+              icon={<CloudDownloadIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Back-end Data"
+            >
+              <NavLink to="/backupDataOfCheckSheet"></NavLink>
+              Back-end Data
+            </Menuitem>
+          ) : (
+            ""
+          )}
+          
           <Menuitem
             className="text-white"
             icon={<PendingActionsIcon className="text-white" />}
@@ -559,6 +527,40 @@ const TL = ({ userData, userDepartment }) => {
           >
             <NavLink to="/openAbnormalityTrack"></NavLink>
             Open Abnormality Tracking
+          </Menuitem>
+          {userDepartment === "MTD" ? (
+            <Menuitem
+              className="text-white"
+              icon={<AddToPhotosIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Spare Entry"
+            >
+              <NavLink to="/operatorDataEntry"></NavLink>
+              Spare Entry
+            </Menuitem>
+          ) : (
+            ""
+          )}
+          <Menuitem
+            className="text-white"
+            icon={<BackupTableIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Spare Log"
+          >
+            <NavLink to="/sparePartUsageHistory"></NavLink>
+            Spare Log
+          </Menuitem>
+          <Menuitem
+            className="text-white"
+            icon={<SummarizeIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Spare Report"
+          >
+            <NavLink to="/spareReportDashboard"></NavLink>
+            Spare Report
           </Menuitem>
         </Menu>
       </SidebarContent>

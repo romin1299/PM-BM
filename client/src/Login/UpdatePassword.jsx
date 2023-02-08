@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import $ from "jquery";
 import "../Login/Login.scss";
 import OSLLogo from "../images/OSL_Logo.png";
+import Footer from "../components/Footer/Footer";
 
 function UpdatePassword() {
   const [isRevealOldPwd, setIsRevealOldPwd] = useState(false);
@@ -190,6 +191,7 @@ function UpdatePassword() {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 }

@@ -5,42 +5,19 @@ import {
   MaterialTable,
   tableIcons,
   useContext,
-} from "../../../modules/PageModules";
+} from "../../modules/PageModules";
 import { Navigate, useNavigate } from "react-router-dom";
-import "../../../SCSS/MaterialTable.scss";
-import RoutingContext from "../../../context/routing/RoutingContext";
-//   import ChecksheetCreationDashboard from "./Checksheet/ChecksheetCreationDashboard";
+import "../../SCSS/MaterialTable.scss";
+import RoutingContext from "../../context/routing/RoutingContext";
+import Footer from "../../components/Footer/Footer";
 
-const CheckSheetApprovalDashboardForHOS = () => {
-  const context = useContext(RoutingContext);
-  const [tableData, setTableData] = useState([]);
+
+const SixMonthApprovalDashboard = () => {
+  //----------------------------------------------------------------
   const navigate = useNavigate();
 
-  const getApprovalRequestData = async () => {
-    try {
-      const res = await fetch("/getApprovalRequestData", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      const data = await res.json();
-      
-      // console.log("============>",data);
-
-
-      setTableData(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getApprovalRequestData();
-  }, []);
+  //----------------------------------------------------------------
+  const [tableData, setTableData] = useState([]);
 
   const machineHeader = [
     {
@@ -48,17 +25,6 @@ const CheckSheetApprovalDashboardForHOS = () => {
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
       width: "5%",
-
-    },
-    {
-      title: "Status",
-      field: "checkSheet_data.checksheet_status",
-      align: "center",
-    },
-    {
-      title: "Month",
-      field: "senderApprovalMonth",
-      align: "center",
     },
     {
       title: "Cell Name",
@@ -81,93 +47,61 @@ const CheckSheetApprovalDashboardForHOS = () => {
       field: "machine_name",
       align: "center",
     },
-
-    // {
-    //   title: "Machine Nick-Name",
-    //   field: "machine_nickname",
-    //   align: "center",
-    // },
-    // {
-    //   title: "Machine Sequence",
-    //   field: "machine_sequence",
-    //   align: "center",
-    // },
-    // {
-    //   title: "Installation Date",
-    //   field: "installation_date",
-    //   editable: "false",
-    //   align: "center",
-    // },
-    // {
-    //   title: "Manufacturing Date",
-    //   field: "manufacturingDate",
-    //   editable: "false",
-    //   align: "center",
-    // },
-    // {
-    //   title: "Maker Name",
-    //   field: "maker_name",
-    //   align: "center",
-    // },
-    // {
-    //   title: "Maker Sr.No.",
-    //   field: "maker_sr_no",
-    //   align: "center",
-    // },
-
-    // {
-    //   title: "Maker Sr.No.",
-    //   render: (client) => {
-    //     return `${client.machine_code} ${client.machine_name}`;
-    //   },
-    //   align: "center",
-    // },
   ];
 
-  const actions = [
-    (rowData) => {
-      return {
-        hidden:
-          rowData.checkSheet_data != null
-            ? rowData.checkSheet_data.checksheet_status === "Implementation" ||
-              rowData.checkSheet_data.checksheet_status === "Planning"
-            : "",
+  const getSixMonthApprovalRequestData = async () => {
+    try {
+      const res = await fetch("/getSixMonthApprovalRequestData", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
 
-        icon: () => <button className="btn-reset">Preparation</button>,
-        // tooltip: <h1>I am a tooltip</h1>,
-        onClick: (event, selectedRow) => {
-          navigate("/checksheetCreationDashboardForMTDTLandHOS", {
-            state: { selectedRow: selectedRow },
-          });
-        },
-        disabled: false, // Set disabled to false by default for all actions
-        position: "row",
-      };
+      const data = await res.json();
+
+      //   console.log(data);
+      setTableData(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getSixMonthApprovalRequestData();
+  }, []);
+
+  const actions = [
+    {
+      icon: () => <button className="btn-reset">Implementation</button>,
+      // tooltip: <h1>I am a tooltip</h1>,
+      onClick: (event, selectedRow) => {
+
+        console.log(selectedRow)
+        navigate("/checksheetFormApproval", {
+          state: {
+            selectedRowForViewForm: selectedRow,
+            dashboardID: "FromSixMonthApprovalDashboard",
+          },
+        });
+      },
+      disabled: false, // Set disabled to false by default for all actions
+      position: "row",
     },
-    (rowData) => {
-      return {
-        hidden:
-          rowData.checkSheet_data != null
-            ? rowData.checkSheet_data.checksheet_status === "Preparation" ||
-              rowData.checkSheet_data.checksheet_status === "Planning"
-            : "",
-        icon: () => <button className="btn-reset">Implementation</button>,
-        // tooltip: <h1>I am a tooltip</h1>,
-        onClick: (event, selectedRow) => {
-          navigate("/checksheetFormApproval", {
-            state: { selectedRowForViewForm: selectedRow },
-          });
-        },
-        disabled: false, // Set disabled to false by default for all actions
-        position: "row",
-      };
-    },
+
     {
       icon: () => <button className="btn-primary1">View</button>,
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
+        // console.log(selectedRow);
+
         navigate("/viewCheckSheet", {
-          state: { selectedRowForViewForm: selectedRow },
+          state: {
+            selectedRowForViewForm: selectedRow,
+            dashboardID: "FromSixMonthApprovalDashboard",
+          },
         });
       },
       disabled: false, // Set disabled to false by default for all actions
@@ -179,6 +113,10 @@ const CheckSheetApprovalDashboardForHOS = () => {
     <>
       <div className="pageCard">
         <div className="creationDashboard">
+          <h4 style={{ padding: "1rem 0 0 1rem" }}>
+            Six-Month Approval Dashboard
+          </h4>
+
           <div style={{ padding: "1rem" }}>
             <MaterialTable
               localization={{
@@ -277,7 +215,7 @@ const CheckSheetApprovalDashboardForHOS = () => {
                   // fontSize: "12px",
                 },
                 headerStyle: {
-                  fontSize: "13px",
+                  fontSize: "14px",
                   fontWeight: "bold",
                 },
               }}
@@ -285,8 +223,9 @@ const CheckSheetApprovalDashboardForHOS = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };
 
-export default CheckSheetApprovalDashboardForHOS;
+export default SixMonthApprovalDashboard;

@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
+import Footer from "../../../components/Footer/Footer";
 
 function ViewChecksheet() {
   const context = useContext(RoutingContext);
@@ -653,6 +654,9 @@ function ViewChecksheet() {
                             "FromPreparationApprovalDashboard"
                           ? navigate("/preparationApproval")
                           : selectedMachineCheckSheetData?.state
+                              ?.dashboardID === "FromSixMonthApprovalDashboard"
+                          ? navigate("/sixMonthApprovalDashboard")
+                          : selectedMachineCheckSheetData?.state
                               ?.dashboardID ===
                             "FromMachineWisePMReportDashboard"
                           ? navigate("/machineWisePmMonthlyReport")
@@ -1195,6 +1199,9 @@ function ViewChecksheet() {
           </Row>
         </Container>
       </div>
+
+
+      <Footer/>
     </>
   );
 }

@@ -112,7 +112,7 @@ const Operator = ({ userData }) => {
               <p className="d-flex align-items-center justify-content-center m-2 sticky-top">
                 {menuCollapse ? (
                   <img
-                    src={halflogo}
+                    src={denso_logo}
                     alt=""
                     style={{ width: "50%", padding: "5px" }}
                     className="bg-white"
@@ -274,50 +274,6 @@ const Operator = ({ userData }) => {
               Pending PM Log History
             </MenuItem>
           </SubMenu>
-         
-            <Menuitem
-              className="text-white"
-              icon={<AddToPhotosIcon className="text-white" />}
-              data-toggle="tooltip"
-              data-placement="right"
-              title="Spare Entry"
-            >
-              <NavLink to="/operatorDataEntry"></NavLink>
-              Spare Entry
-            </Menuitem>
-         
-          <Menuitem
-            className="text-white"
-            icon={<BackupTableIcon className="text-white" />}
-            data-toggle="tooltip"
-            data-placement="right"
-            title="Spare Log"
-          >
-            <NavLink to="/sparePartUsageHistory"></NavLink>
-            Spare Log
-          </Menuitem>
-          <Menuitem
-            className="text-white"
-            icon={<SummarizeIcon className="text-white" />}
-            data-toggle="tooltip"
-            data-placement="right"
-            title="Spare Report"
-          >
-            <NavLink to="/spareReportDashboard"></NavLink>
-            Spare Report
-          </Menuitem>
-          
-            <Menuitem
-              className="text-white"
-              icon={<CloudDownloadIcon className="text-white" />}
-              data-toggle="tooltip"
-              data-placement="right"
-              title="Back-end Data"
-            >
-              <NavLink to="/backupDataOfCheckSheet"></NavLink>
-              Back-end Data
-            </Menuitem>
-          
           <SubMenu
             className="text-white"
             title="PM Report"
@@ -406,6 +362,21 @@ const Operator = ({ userData }) => {
               PM Time Monitoring
             </MenuItem>
           </SubMenu>
+         
+          
+          
+            <Menuitem
+              className="text-white"
+              icon={<CloudDownloadIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Back-end Data"
+            >
+              <NavLink to="/backupDataOfCheckSheet"></NavLink>
+              Back-end Data
+            </Menuitem>
+          
+          
           <Menuitem
             className="text-white"
             icon={<PendingActionsIcon className="text-white" />}
@@ -416,7 +387,37 @@ const Operator = ({ userData }) => {
             <NavLink to="/openAbnormalityTrack"></NavLink>
             Open Abnormality Tracking
           </Menuitem>
-        
+          <Menuitem
+              className="text-white"
+              icon={<AddToPhotosIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Spare Entry"
+            >
+              <NavLink to="/operatorDataEntry"></NavLink>
+              Spare Entry
+            </Menuitem>
+         
+          <Menuitem
+            className="text-white"
+            icon={<BackupTableIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Spare Log"
+          >
+            <NavLink to="/sparePartUsageHistory"></NavLink>
+            Spare Log
+          </Menuitem>
+          <Menuitem
+            className="text-white"
+            icon={<SummarizeIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Spare Report"
+          >
+            <NavLink to="/spareReportDashboard"></NavLink>
+            Spare Report
+          </Menuitem>
 
         </Menu>
       </SidebarContent>

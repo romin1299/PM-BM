@@ -28,6 +28,7 @@ import { CSVLink, CSVDownload } from "react-csv";
 import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
+import Footer from "../../components/Footer/Footer";
 
 const AdminCreationDashboard = () => {
   const [plants, setplants] = useState();
@@ -839,6 +840,7 @@ const AdminCreationDashboard = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

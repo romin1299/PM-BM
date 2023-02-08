@@ -15,6 +15,7 @@ import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
 
+import Footer from "../../components/Footer/Footer";
 const UserAssignTLHOSS = () => {
   const [tableData, setTableData] = useState([]);
   const [selectedRow, setSelectedRow] = useState([]);
@@ -430,6 +431,7 @@ const UserAssignTLHOSS = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

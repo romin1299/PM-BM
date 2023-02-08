@@ -20,6 +20,7 @@ import PlantCreation from "./pages/Plant/PlantCreation";
 import SectionPage from "./pages/Plant/SectionPage";
 import CreationDashboardForPlant from "./pages/Plant/CreationDashboardForPlant";
 import UserAssign from "./pages/Plant/UserAssign";
+import SixMonthApprovalDashboard from "./pages/Plant/SixMonthApprovalDashboard";
 
 //Section Dashboard
 import SectionDashboard from "./pages/Section/SectionDashboard";
@@ -29,8 +30,8 @@ import CreationDashboardForSection from "./pages/Section/CreationDashboardForSec
 import CheckSheetDashboard from "./pages/Section/CheckSheetDashboard";
 import ChecksheetCreationDashboard from "./pages/Section/Checksheet/ChecksheetCreationDashboard";
 import CheckSheetForm from "./pages/Section/Checksheet/ChecksheetForm";
-import CheckSheetApprovalDashboardForTL from "./pages/Section/Checksheet/ChecksheetApprovalDashboardForTL";
-import CheckSheetApprovalDashboardForHOS from "./pages/Section/Checksheet/ChecksheetApprovalDashboardForHOS";
+// import CheckSheetApprovalDashboardForTL from "./pages/Section/Checksheet/ChecksheetApprovalDashboardForTL";
+// import CheckSheetApprovalDashboardForHOS from "./pages/Section/Checksheet/ChecksheetApprovalDashboardForHOS";
 import ChecksheetFormApprovalForHOSAndHOD from "./pages/Section/Checksheet/ChecksheetFormApprovalForHOSAndHOD";
 import ChecksheetFormApprovalForTL from "./pages/Section/Checksheet/ChecksheetFormApprovalForTL";
 import BackupDataOfCheckSheet from "./pages/Section/Checksheet/BackupDataOfCheckSheet";
@@ -68,7 +69,7 @@ import PendingPMLogHistory from "./pages/Reports/PendingPMLogHistory";
 
 import SpareReportMainDashboard from "./pages/Reports/SpareReport/SpareReportMainDashboard";
 
-import Footer from "./components/Footer/Footer";
+
 
 //for all reports routing 
 
@@ -84,6 +85,7 @@ import PmTimeMonitoringReport from "./pages/Reports/ReportComponents/PmTimeMonit
 import PreparationApprovalDashboard from "./pages/Section/Checksheet/PreparationApprovalDashboard";
 import PlanningApprovalDashboard from "./pages/Section/Checksheet/PlanningApprovalDashboard";
 import ImplementationApprovalDashboard from "./pages/Section/Checksheet/ImplementationApprovalDashboard";
+import Footer from './components/Footer/Footer'
 
 function App() {
 
@@ -111,7 +113,9 @@ function App() {
               </Routes>
             }
           />
+
         </NavContext.Provider>
+
       </div>
     );
   } else if (context.user_type === "Plant-Admin") {
@@ -156,7 +160,9 @@ function App() {
                 <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
 
                 <Route path="/backupDataOfCheckSheet" element={<BackupDataOfCheckSheet />} />
-                <Route path="/spareReportDashboard" element={<SpareReportMainDashboard />} />
+
+                <Route path="/sixMonthApprovalDashboard" element={<SixMonthApprovalDashboard />} />
+                <Route path="/checksheetFormApproval" element={<ChecksheetFormApprovalForHOSAndHOD />} />
               </Routes>
             }
           />
@@ -176,7 +182,7 @@ function App() {
                 <Route path="/creationDashboard" element={<CreationDashboardForSection />} />
                 <Route path="/userAssign" element={<UserAssignSection />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/approvalDashboard" element={<CheckSheetApprovalDashboardForHOS />} />
+                {/* <Route path="/approvalDashboard" element={<CheckSheetApprovalDashboardForHOS />} /> */}
                 <Route path="/checksheetFormApproval" element={<ChecksheetFormApprovalForHOSAndHOD />} />
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
                 <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
@@ -291,7 +297,7 @@ function App() {
 
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
                 <Route path="/checkSheetForm" element={<CheckSheetForm />} />
-                <Route path="/approvalDashboard" element={<CheckSheetApprovalDashboardForTL />} />
+                {/* <Route path="/approvalDashboard" element={<CheckSheetApprovalDashboardForTL />} /> */}
                 <Route path="/checksheetFormApproval" element={<ChecksheetFormApprovalForTL />} />
                 <Route path="/planningPhaseTable" element={<PlanningPhaseTable />} />
                 <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
@@ -330,6 +336,8 @@ function App() {
       </div>
     );
   }
+
+  // <Footer/>
 
 }
 

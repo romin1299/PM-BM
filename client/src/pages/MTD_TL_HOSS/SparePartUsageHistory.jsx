@@ -13,6 +13,7 @@ import NotFound from "../Reports/ReportComponents/NotFound";
 
 import RoutingContext from "../../context/routing/RoutingContext";
 import { fetchFinancialYears } from "../../Integration/APIExports";
+import Footer from "../../components/Footer/Footer";
 
 import {
   postSectionToGetAllDataForMainDashboard,
@@ -241,16 +242,16 @@ const SparePartUsageHistory = () => {
     <>
       <ToastContainer style={{ width: "30rem" }} />
       <Container fluid className="pt-3 sparePartUsageHistory">
-        <Row className="m-3 cell p-3">
-          <Col>
-            <div>Year:</div>
+        <Row className="m-3 cell p-3 gy-2">
+          <Col sm={12} md={6} lg={2}>
+            <span><b>Year:</b></span>
             <select
               class="form-select form-select-sm"
               aria-label=".form-select-sm example"
               style={{ borderRadius: "5px" }}
               id="standard-select-currency"
               name="selectedPlant"
-              className="textField"
+              className="textField w-75"
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
               // fullWidth
@@ -267,8 +268,8 @@ const SparePartUsageHistory = () => {
             </select>
           </Col>
 
-          <Col>
-            <div>Category:</div>
+          <Col sm={12} md={6} lg={2}>
+            <span><b>Category:</b></span>
             <select
               // class="form-select form-select-sm"
               // aria-label=".form-select-sm example"
@@ -276,7 +277,7 @@ const SparePartUsageHistory = () => {
               // id="standard-select-currency"
               id="outlined-number"
               name="selectedType"
-              className="textField mt-1"
+              className="textField w-50"
               fullWidth
               select // label="Select"
               autoComplete="off"
@@ -306,16 +307,16 @@ const SparePartUsageHistory = () => {
             </div> */}
           </Col>
 
-          <Col>
-            <div>Month:</div>
+          <Col sm={12} md={6} lg={2}>
+            <span><b>Month:</b></span>
             <select
               class="form-select form-select-sm"
               aria-label=".form-select-sm example"
               style={{ borderRadius: "5px" }}
               id="standard-select-currency"
               name="selectedPlant"
-              className="textField"
-              value={selectedMonth}
+              className="textField w-50"
+    w-75           value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
               // fullWidth
               select // label="Select"
@@ -331,8 +332,8 @@ const SparePartUsageHistory = () => {
             </select>
           </Col>
 
-          <Col>
-            <div>Line:</div>
+          <Col sm={12} md={6} lg={2}>
+            <span><b>Line:</b></span>
             <select
               // class="form-select form-select-sm"
               // aria-label=".form-select-sm example"
@@ -340,7 +341,7 @@ const SparePartUsageHistory = () => {
               // id="standard-select-currency"
               id="outlined-number"
               name="selectedLine"
-              className="textField mt-1"
+              className="textField w-50"
               fullWidth
               select // label="Select"
               autoComplete="off"
@@ -377,8 +378,8 @@ const SparePartUsageHistory = () => {
             </div> */}
           </Col>
 
-          <Col>
-            <div>Machine:</div>
+          <Col sm={12} md={6} lg={2}>
+            <span><b>Machine:</b></span>
             <select
               // class="form-select form-select-sm"
               // aria-label=".form-select-sm example"
@@ -386,7 +387,7 @@ const SparePartUsageHistory = () => {
               // id="standard-select-currency"
               id="outlined-number"
               name="selectedMachine"
-              className="textField mt-1"
+              className="textField w-50"
               fullWidth
               select // label="Select"
               autoComplete="off"
@@ -424,9 +425,9 @@ const SparePartUsageHistory = () => {
             </div> */}
           </Col>
 
-          <Col className="d-flex justify-content-center align-items-center">
+          <Col sm={12} md={6} lg={2}>
             <button
-              class="btn-primary1 w-75 "
+              class="btn-primary1 w-50 "
               onClick={() => {
                 setSelectedMonth();
                 setSelectedCategory();
@@ -566,6 +567,7 @@ const SparePartUsageHistory = () => {
           )}
         </Row>
       </Container>
+      <Footer/>
     </>
   );
 };

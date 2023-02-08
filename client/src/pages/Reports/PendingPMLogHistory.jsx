@@ -14,6 +14,7 @@ import { postLineToGetAllMachineData } from "../../Integration/APIExports";
 
 import axios from "axios";
 import FileDownload from "js-file-download";
+import Footer from "../../components/Footer/Footer";
 
 const PendingPMLogHistory = () => {
   let columns = [
@@ -261,19 +262,19 @@ const PendingPMLogHistory = () => {
     <>
       <Container fluid>
         <Row>
-          <Col>
+          <Col sm={12} md={6} lg={2}>
             <YearDropDown
               selectedYear={selectedYear}
               setSelectedYear={setSelectedYear}
             />
           </Col>
-          <Col>
+          <Col sm={12} md={6} lg={2}>
             <MonthDropDown
               selectedMonth={selectedMonth ? selectedMonth : ""}
               setSelectedMonth={setSelectedMonth}
             />
           </Col>
-          <Col>
+          <Col sm={12} md={6} lg={2}>
             <Row className="p-2 ">
               <Col sm={12} lg={3}>
                 <span>
@@ -321,7 +322,7 @@ const PendingPMLogHistory = () => {
               </Col>
             </Row>
           </Col>
-          <Col>
+          <Col sm={12} md={6} lg={2}>
             <Row className="p-2 ">
               <Col sm={12} lg={3}>
                 <span>
@@ -368,12 +369,12 @@ const PendingPMLogHistory = () => {
               </Col>
             </Row>
           </Col>
-          <Col>
+          <Col sm={12} md={6} lg={2}>
             <Row className="p-2 ">
               <Col>
                 <div>
                   <button
-                    class="btn-primary1 w-75"
+                    class="btn-primary1 w-50"
                     onClick={() => {
                       setSelectedCell("");
                       setSelectedLine("");
@@ -395,7 +396,7 @@ const PendingPMLogHistory = () => {
         </Row>
 
         <Row>
-          <Col>
+          <Col sm={12} md={6} lg={3}>
             <Row className="p-2 ">
               <Col>
                 <span>
@@ -437,7 +438,7 @@ const PendingPMLogHistory = () => {
           </Col>
           {/* {console.log(abnormalityYesOrNo)} */}
 
-          <Col>
+          <Col sm={12} md={6} lg={3}>
             <Row className="p-2 ">
               <Col sm={12} lg="auto">
                 <span>
@@ -474,7 +475,7 @@ const PendingPMLogHistory = () => {
             </Row>
           </Col>
 
-          <Col>
+          <Col sm={12} md={6} lg={3}>
             <Row className="p-2 ">
               <Col sm={12} lg="auto">
                 <span>
@@ -511,7 +512,7 @@ const PendingPMLogHistory = () => {
             </Row>
           </Col>
 
-          <Col>
+          <Col sm={12} md={6} lg={3}>
             <Row className="p-2 ">
               <Col sm={12} lg="auto">
                 <span>
@@ -656,6 +657,7 @@ const PendingPMLogHistory = () => {
           {loadingAnimationState}
         </div>
       )}
+      <Footer/>
     </>
   );
 };

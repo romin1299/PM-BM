@@ -20,6 +20,7 @@ import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 import FileDownload from "js-file-download";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Footer from "../../../components/Footer/Footer";
 
 function CheckSheetForm() {
   const context = useContext(RoutingContext);
@@ -2117,6 +2118,8 @@ function CheckSheetForm() {
           </Row>
         </Container>
       </div>
+
+      <Footer/>
     </>
   );
 }

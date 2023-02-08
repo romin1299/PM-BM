@@ -326,102 +326,80 @@ const TotalMonthWiseGraph = ({ context }) => {
 
   return (
     <>
-      <div
-      //   style={{ backgroundColor: "white" }}
-      >
-        <Container>
-          <Row className="pt-2 cell">
-            <Row>
-              <Col
-              // className="cell"
-              // style={{ backgroundColor: "white" }}
+      <Container fluid>
+        <h4 className="mb-3">Total time month wise</h4>
+        <Row className="pt-2 cell gy-2">
+          <Col sm={12} lg={6} md={12}>
+            <YearDropDown
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+            />
+          </Col>
+          <Col sm={12} lg={6} md={12}>
+            <select
+              
+              style={{ width: "75%" }}
+              name="selectedLine"
+              fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+              value={selectedLine}
+              onChange={(e) => {
+                setSelectedLine(e.target.value);
+                postPerticularLineToGetDataForTotalTimeMonthWiseReport(
+                  e.target.value
+                );
+                setLoadingAnimationState(<LoadingAnimation />);
+              }}
+            >
+              <option selected disabled value="">
+                Please select Line
+              </option>
+
+              {allDataSectionWise?.lineData?.map((option) => {
+                return (
+                  <option value={option._id}>{option.line_name}</option>
+                );
+              })}
+            </select>&nbsp;&nbsp;
+            <button className="btn-reset" onClick={functionForTotalData}>
+              Total
+            </button>
+          </Col>
+          
+
+
+          <Row className="p-2">
+
+            <Col className="d-flex justify-content-start">
+              <CSVLink
+                data={csvData}
+                filename={`${selectedYear}_Total_time_month_wise${timeStamp()}`}
+                className="downloadCSV text-decoration-none"
+                target="_blank"
               >
-                <h4>Total time month wise</h4>
-              </Col>
-            </Row>
-            <Row>
-              <Col sm={12} lg={5}>
-                <YearDropDown
-                  selectedYear={selectedYear}
-                  setSelectedYear={setSelectedYear}
-                />
-              </Col>
-            </Row>
-            <Row className="p-2">
-              <Col>
-                <div>
-                  <select
-                    style={{ width: "100%" }}
-                    name="selectedLine"
-                    fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                    value={selectedLine}
-                    onChange={(e) => {
-                      setSelectedLine(e.target.value);
-                      postPerticularLineToGetDataForTotalTimeMonthWiseReport(
-                        e.target.value
-                      );
-                      setLoadingAnimationState(<LoadingAnimation />);
-                    }}
-                  >
-                    <option selected disabled value="">
-                      Please select Line
-                    </option>
-
-                    {allDataSectionWise?.lineData?.map((option) => {
-                      return (
-                        <option value={option._id}>{option.line_name}</option>
-                      );
-                    })}
-                  </select>
-                </div>
-              </Col>
-              <Col>
-                <button className="btn-reset" onClick={functionForTotalData}>
-                  Total
-                </button>
-              </Col>
-              <Col className="d-flex ">
-                <Col className="d-flex justify-content-end">
-                  <CSVLink
-                    data={csvData}
-                    filename={`${selectedYear}_Total_time_month_wise${timeStamp()}`}
-                    className="downloadCSV text-decoration-none"
-                    target="_blank"
-                  >
-                    CSV
-                  </CSVLink>
-                  &nbsp;
-                  <button
-                    className="downloadPDF"
-                    onClick={pdfDownloadForTotalTimeMonthWise}
-                  >
-                    PDF
-                  </button>
-                </Col>
-              </Col>
-            </Row>
+                CSV
+              </CSVLink>
+              &nbsp;
+              <button
+                className="downloadPDF"
+                onClick={pdfDownloadForTotalTimeMonthWise}
+              >
+                PDF
+              </button>
+            </Col>
           </Row>
-        </Container>
-        <div>
-          {/* <Plot
-            data={data}
-            layout={layout}
-            config={{ displayModeBar: false }}
-            style={{ width: "100%", height: "100%" }}
-          /> */}
-
-          <Card className="d-flex justify-content-center align-items-center">
-            {graphData?.length > 0 ? (
-              <MonthWiseGraph xValue={x1} yValue={y1} />
-            ) : (
-              loadingAnimationState
-            )}
-          </Card>
-        </div>
-      </div>
+          <Row>
+          {graphData?.length > 0 ? (
+            <MonthWiseGraph xValue={x1} yValue={y1} />
+          ) : (
+            loadingAnimationState
+          )}
+          </Row>
+        </Row>
+      </Container>
+     
     </>
   );
 };

@@ -10,6 +10,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import "../../../SCSS/MaterialTable.scss";
 import RoutingContext from "../../../context/routing/RoutingContext";
 //   import ChecksheetCreationDashboard from "./Checksheet/ChecksheetCreationDashboard";
+import Footer from "../../../components/Footer/Footer";
 
 import { CSVLink, CSVDownload } from "react-csv";
 import { jsPDF } from "jspdf";
@@ -343,6 +344,7 @@ const ImplementationApprovalDashboard = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

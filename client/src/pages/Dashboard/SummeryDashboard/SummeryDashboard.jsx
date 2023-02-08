@@ -17,6 +17,7 @@ import YearDropDown from "../DashboardComponent/YearDropDown";
 import MonthDropDown from "../DashboardComponent/MonthDropDown";
 import currentMonth from "../DashboardComponent/currentMonth";
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
+import Footer from "../../../components/Footer/Footer";
 
 const SummeryDashboard = () => {
   const [plantInfo, setPlantInfo] = useState([]);
@@ -25,6 +26,9 @@ const SummeryDashboard = () => {
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+
+
+
   const navigate = useNavigate();
 
 
@@ -56,16 +60,16 @@ const SummeryDashboard = () => {
     <div className="container-fluid">
       <Row className=" gy-4"></Row>
       <div>
-        <div class=" card4 ">
+        {/* <div class=" card4 ">
           <Button onClick={backAtMainDashboard}>Back</Button>
-        </div>
+        </div> */}
 
         <div class="shadow-sm cardCssForTitle card1 text-danger">
           <h4>Denso PM Planning System</h4>
         </div>
         <Row
           className="mx-2 mt-4 p-2 cell"
-          // style={{ background: "#cee4ee", border: "1px solid" }}
+        // style={{ background: "#cee4ee", border: "1px solid" }}
         >
           <Col sm>
             <YearDropDown
@@ -79,13 +83,12 @@ const SummeryDashboard = () => {
               setSelectedMonth={setSelectedMonth}
             />
           </Col>
-          <Col sm></Col>
-          <Col sm></Col>
+          
         </Row>
         {plantInfo?.map((item) => (
           <div>
             <div class="shadow-sm cardCssForSubtitle card1 text-danger d-flex align-items-center">
-              <h4 style={{marginBottom:"0rem"}}>{item.plant_name}</h4>
+              <h4 style={{ marginBottom: "0rem", color: "rgb(220, 53, 69)" }}>{item.plant_name}</h4>
             </div>
             <Row className=" gy-4">
               {sectionInfo?.length > 0 ? (
@@ -125,6 +128,8 @@ const SummeryDashboard = () => {
           </div>
         ))}
       </div>
+      <br/><br/>
+      <Footer />
     </div>
   );
 };
