@@ -24,6 +24,7 @@ import "react-toastify/dist/ReactToastify.css";
 const CheckSheetDashboard = () => {
   const context = useContext(RoutingContext);
   const [tableData, setTableData] = useState([]);
+  const [tableData1, setTableData1] = useState([]);
   const [lineData, setLineData] = useState([]);
 
   const [refKey, setRefKey] = useState(0);
@@ -41,6 +42,12 @@ const CheckSheetDashboard = () => {
   const [loadingAnimationState, setLoadingAnimationState] = useState(
     <LoadingAnimation />
   );
+
+  const [selectedStatus, setSelectedStatus] = useState(
+    localStorage.getItem("selectedStatus")
+  );
+
+  console.log(tableData1);
 
   const postSectionToGetAllData = async (keyRef) => {
     // setSubSection(undefined);
@@ -62,10 +69,20 @@ const CheckSheetDashboard = () => {
       } else {
         setAllDataSectionWise(data);
         setLineData(data.lineData);
-        setTableData(data.machineLastData);
-        setLoadingAnimationState(<NotFound />);
-        if (!keyRef) {
+
+        // console.log("69     ------------------------->", data.machineLastData);
+
+        if (selectedCell) {
           postCellToGetLineList(selectedCell);
+        } else {
+          setTableData(data.machineLastData);
+        }
+
+        if (selectedStatus) {
+          // setTableData([]);
+          filterDataBasedOnSelectedStatus(selectedStatus, data.machineLastData);
+        } else {
+          setLoadingAnimationState(<NotFound />);
         }
       }
     } catch (error) {
@@ -76,7 +93,6 @@ const CheckSheetDashboard = () => {
   // console.log(selectedCell);
 
   const postCellToGetLineList = async (selectedCell) => {
-    setSelectedLine("");
     try {
       const res = await fetch("/postCellToGetLineListForReport", {
         method: "POST",
@@ -94,16 +110,23 @@ const CheckSheetDashboard = () => {
       } else {
         // window.alert(data.abcd);
         setLineDropdown(data.lineInfo);
-        setLoadingAnimationState(<NotFound />);
-        if (selectedLine !== null) {
-          postLineToGetMachineList(localStorage.getItem("selectedLine"));
-        }
+
+        // console.log(selectedLine);
+        // if (selectedLine !== null) {
+        postLineToGetMachineList(
+          localStorage.getItem("selectedLine")
+            ? localStorage.getItem("selectedLine")
+            : data?.lineInfo?.[0]?._id
+        );
+
+        // }
       }
     } catch (error) {
       console.log(error);
     }
   };
 
+  // console.log(localStorage.getItem("selectedLine"));
   const postLineToGetMachineList = async (selectedLine) => {
     // console.log(selectedLine);
     try {
@@ -122,12 +145,46 @@ const CheckSheetDashboard = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        setTableData(data.machineInfo);
+        await setTableData(data.machineInfo);
+
+        // console.log("131     ******************", data.machineInfo);
+        if (selectedStatus) {
+          // setTableData([]);
+          filterDataBasedOnSelectedStatus(selectedStatus, data.machineInfo);
+        }
+
         setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const filterDataBasedOnSelectedStatus = (selectedStatus, data) => {
+    let filterData = [];
+    console.log(data);
+    for (let i = 0; i < (data ? data : tableData).length; i++) {
+      if (selectedStatus === "Preparation") {
+        if (
+          (data ? data : tableData)?.[i]?.checkSheet_data?.checksheet_status ===
+            selectedStatus ||
+          (data ? data : tableData)?.[i]?.checkSheet_data?.checksheet_status ===
+            undefined
+        ) {
+          filterData.push((data ? data : tableData)?.[i]);
+        }
+      } else {
+        if (
+          (data ? data : tableData)?.[i]?.checkSheet_data?.checksheet_status ===
+          selectedStatus
+        ) {
+          filterData.push((data ? data : tableData)?.[i]);
+        }
+      }
+    }
+
+    // console.log(filterData);
+    setTableData1(filterData);
   };
 
   const notifyForDeleteChecksheet = () => {
@@ -298,8 +355,10 @@ const CheckSheetDashboard = () => {
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
               navigate("/viewCheckSheet", {
-                state: { selectedRowForViewForm: selectedRow, dashboardID: "FromChecksheetDashboard", },
-                
+                state: {
+                  selectedRowForViewForm: selectedRow,
+                  dashboardID: "FromChecksheetDashboard",
+                },
               });
             },
             disabled: false, // Set disabled to false by default for all actions
@@ -355,8 +414,10 @@ const CheckSheetDashboard = () => {
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
               navigate("/viewCheckSheet", {
-                state: { selectedRowForViewForm: selectedRow , dashboardID: "FromChecksheetDashboard",},
-               
+                state: {
+                  selectedRowForViewForm: selectedRow,
+                  dashboardID: "FromChecksheetDashboard",
+                },
               });
             },
             disabled: false, // Set disabled to false by default for all actions
@@ -368,6 +429,85 @@ const CheckSheetDashboard = () => {
     setLoadingAnimationState(<LoadingAnimation />);
   }, [selectedYear]);
 
+  // let preparationDataArray = [],
+  //   underPreparationDataArray = [],
+  //   preparationUnderApprovalDataArray = [];
+
+  // let planningDataArray = [],
+  //   underPlanningDataArray = [],
+  //   planningUnderApprovalDataArray = [];
+
+  // let variableForPlanning;
+
+  // // useEffect(() => {
+  // tableData?.map(
+  //   (rowData) => {
+  //     rowData.checkSheet_data != null
+  //       ? rowData.checkSheet_data.checkSheet.length > 0
+  //         ? rowData.checkSheet_data.checkSheet.length < 1
+  //           ? preparationDataArray?.push(rowData)
+  //           : rowData.checkSheet_data.assign_TL.length !==
+  //               rowData.checkSheet_data.approved_by_TL.length ||
+  //             rowData.checkSheet_data.assign_HOS.length !==
+  //               rowData.checkSheet_data.approved_by_HOS.length
+  //           ? preparationUnderApprovalDataArray?.push(rowData)
+  //           : underPreparationDataArray?.push(rowData)
+  //         : preparationDataArray?.push(rowData)
+  //       : preparationDataArray?.push(rowData);
+
+  //     variableForPlanning =
+  //       rowData.checkSheet_data != null
+  //         ? rowData.checkSheet_data.checkSheet.map((key) => {
+  //             if ("start_month" in key) {
+  //               if (
+  //                 rowData?.checkSheet_data?.approved_by_PRD_TL?.length !=
+  //                 rowData?.checkSheet_data?.assign_PRD_TL?.length
+  //               ) {
+  //                 return "Planning Under Approval";
+  //               } else {
+  //                 return "Under-Planning";
+  //               }
+  //             } else {
+  //               return "Planning";
+  //             }
+  //           })
+  //         : "";
+
+  //     // rowData.checkSheet_data != null
+  //     //   ? rowData.checkSheet_data.checkSheet.map((key) => {
+  //     //       if ("start_month" in key) {
+  //     //         if (
+  //     //           rowData?.checkSheet_data?.approved_by_PRD_TL.length !=
+  //     //           rowData?.checkSheet_data?.assign_PRD_TL.length
+  //     //         ) {
+  //     //           planningUnderApprovalDataArray?.push(rowData);
+  //     //         } else {
+  //     //           underPlanningDataArray?.push(rowData);
+  //     //         }
+  //     //       } else {
+  //     //         planningDataArray?.push(rowData);
+  //     //       }
+  //     //     })
+  //     //   : console.log("");
+  //     console.log("*********8888", variableForPlanning);
+  //   }
+
+  //   // console.log(rowData)
+  // );
+  // // }, [tableData]);
+
+  // console
+  //   .log
+  //   // preparationDataArray,
+  //   // underPreparationDataArray,
+  //   // preparationUnderApprovalDataArray,
+
+  //   //-------------------------------------
+
+  //   // planningDataArray,
+  //   // underPlanningDataArray,
+  //   // planningUnderApprovalDataArray
+  //   ();
   return (
     <>
       <ToastContainer style={{ width: "30rem" }} />
@@ -400,9 +540,11 @@ const CheckSheetDashboard = () => {
                         name="selectedCell"
                         value={selectedCell}
                         className="textField"
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           localStorage.setItem("selectedCell", e.target.value);
                           // console.log(e.target.value);
+                          localStorage.removeItem("selectedLine");
+                          setSelectedLine();
                           setSelectedCell(e.target.value);
                           postCellToGetLineList(e.target.value);
                           setLoadingAnimationState(<LoadingAnimation />);
@@ -442,9 +584,7 @@ const CheckSheetDashboard = () => {
                         // style={{ width: "100%" }}
                         id="standard-select-currency"
                         name="selectedPlant"
-                        value={
-                          selectedLine || localStorage.getItem("selectedLine")
-                        }
+                        value={selectedLine || lineDropdown?.[0]?._id}
                         className="textField"
                         onChange={(e) => {
                           localStorage.setItem("selectedLine", e.target.value);
@@ -481,13 +621,58 @@ const CheckSheetDashboard = () => {
                     localStorage.clear();
                     // setSelectedCell();
                     // setSelectedLine();
-                    
+
                     postSectionToGetAllData("Reset");
-                    window.location.reload()
+                    window.location.reload();
                   }}
                 >
                   Reset
                 </button>
+              </Col>
+            </Row>
+            <Row>
+              <Col className="col-lg-3 col-md-6 col-sm-12">
+                <Row className="p-2 ">
+                  <Col sm={12} lg={3}>
+                    <span>
+                      <b>Status:</b>
+                    </span>
+                  </Col>
+                  <Col>
+                    <div>
+                      <select
+                        class="form-select form-select-sm"
+                        aria-label=".form-select-sm example"
+                        // style={{ width: "100%" }}
+                        id="standard-select-currency"
+                        name="selectedStatus"
+                        value={selectedStatus}
+                        className="textField"
+                        onChange={(e) => {
+                          setSelectedStatus(e.target.value);
+                          filterDataBasedOnSelectedStatus(e.target.value);
+                          localStorage.setItem(
+                            "selectedStatus",
+                            e.target.value
+                          );
+                        }}
+                        // fullWidth
+                        select // label="Select"
+                        autoComplete="off"
+                        variant="standard"
+                      >
+                        <option selected disabled value="">
+                          Please select
+                        </option>
+                        {["Preparation", "Planning", "Implementation"]?.map(
+                          (option) => {
+                            return <option value={option}>{option}</option>;
+                          }
+                        )}
+                      </select>
+                    </div>
+                  </Col>
+                </Row>
               </Col>
             </Row>
           </Container>
@@ -506,7 +691,7 @@ const CheckSheetDashboard = () => {
                 actions={actions}
                 icons={tableIcons}
                 columns={machineHeader}
-                data={tableData}
+                data={selectedStatus ? tableData1 : tableData}
                 // title="User Management"
                 // tableRef={this.tableRef.current.onQueryChange()}
 

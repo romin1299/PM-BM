@@ -479,7 +479,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       let jsonBody =
-        context?.user_type === "Section-Admin" &&
+        context?.user_type === "Plant-Admin" &&
         context?.tm_department === "MTD" &&
         context?.tm_grade === "HOD"
           ? {
@@ -490,6 +490,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
 
               implementation_approved_by_MTD_HOD: context.tm_name,
               implementation_approved_MTD_HOD_date: timeStamp(),
+              senderApprovalMonth,
             }
           : {
               request: formik.values.request,
@@ -517,7 +518,15 @@ function ChecksheetFormApprovalForHOSAndHOD() {
         window.alert("Invalid credentials !");
       } else {
         console.log("User added sucessfully...");
-        navigate("/approvalDashboard");
+
+        if (
+          selectedMachineCheckSheetData?.state?.dashboardID ===
+          "FromSixMonthApprovalDashboard"
+        ) {
+          navigate("/sixMonthApprovalDashboard");
+        } else {
+          navigate("/approvalDashboard");
+        }
 
         // refreshPage();
         // if (values.email) {
@@ -600,6 +609,9 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       : machineAllData?.checkSheet_data?.checksheet_status ===
                         "Planning"
                       ? navigate("/planningApproval")
+                      : selectedMachineCheckSheetData?.state?.dashboardID ===
+                        "FromSixMonthApprovalDashboard"
+                      ? navigate("/sixMonthApprovalDashboard")
                       : navigate("/implementationApproval")
                   }
                   style={{
@@ -613,7 +625,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                 </button>
               </div>
               <div>
-                {context?.user_type === "Section-Admin" &&
+                {context?.user_type === "Plant-Admin" &&
                 context?.tm_department === "MTD" &&
                 context?.tm_grade === "HOD" ? (
                   <form onSubmit={formik.handleSubmit}>

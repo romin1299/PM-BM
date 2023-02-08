@@ -653,6 +653,9 @@ function ViewChecksheet() {
                             "FromPreparationApprovalDashboard"
                           ? navigate("/preparationApproval")
                           : selectedMachineCheckSheetData?.state
+                              ?.dashboardID === "FromSixMonthApprovalDashboard"
+                          ? navigate("/sixMonthApprovalDashboard")
+                          : selectedMachineCheckSheetData?.state
                               ?.dashboardID ===
                             "FromMachineWisePMReportDashboard"
                           ? navigate("/machineWisePmMonthlyReport")

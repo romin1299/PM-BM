@@ -602,27 +602,27 @@ const MainDashboard = () => {
   //   postSectionToGetAllDataForAnnualStatusReport();
   // }, [selectedYear, sections]);
 
-  const fetchLoggedUserDetails = async () => {
+  const funForDummyApi = async () => {
     try {
-        const res = await fetch("/dummyApi", {
-            method: "GET",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
-        });
-        const data = await res.json();
+      const res = await fetch("/dummyApi", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const data = await res.json();
 
-        if (res.status === 400 || res.status === 422 || !data) {
-            return res.status(422).send("Data not recieved !!!");
-        } else {
-            return data
-        }
+      if (res.status === 400 || res.status === 422 || !data) {
+        return res.status(422).send("Data not recieved !!!");
+      } else {
+        return data;
+      }
     } catch (error) {
-        console.log("No data found ( Unauthorized ) !!!");
+      console.log("No data found ( Unauthorized ) !!!");
     }
-};
+  };
 
   return (
     <>
@@ -630,7 +630,7 @@ const MainDashboard = () => {
 
       <ToastContainer />
 
-      <button onClick={fetchLoggedUserDetails}>dummy</button>
+      {/* <button onClick={funForDummyApi}>dummy</button> */}
       <Container fluid className="operatorDashboard">
         <Row>
           <Col sm={12} md={9} lg={9} className="left-component-main-dashboard">
