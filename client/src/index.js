@@ -5,6 +5,7 @@ import Router from './Router';
 import { BrowserRouter } from "react-router-dom";
 import RoutingState from './context/routing/RoutingState';
 import ContextAPIState from './context/ContextAPI/ContextAPIState';
+import Footer from './components/Footer/Footer';
 
 
 
@@ -19,6 +20,7 @@ root.render(
         </ContextAPIState>
       </RoutingState>
     </BrowserRouter>
+  
   </React.StrictMode>
 );
 

@@ -20,6 +20,7 @@ import currentYear from "../../Dashboard/DashboardComponent/currentYear";
 import DefaultMonthlyApprovalComponent from "./AnnualPmScheduleReportSubComponent/DefaultMonthlyApprovalComponent";
 import MonthlyApprovalComponentAfterAllApproval from "./AnnualPmScheduleReportSubComponent/MonthlyApprovalComponentAfterAllApproval";
 import SendApprovalComponent from "./AnnualPmScheduleReportSubComponent/SendApprovalComponent";
+import Footer from "../../../components/Footer/Footer";
 
 // import PopupForAnnualPmScheduleReport from "../../../Popups/PopupForAnnualPmScheduleReport";
 
@@ -1190,6 +1191,7 @@ const AnnualPMSchedule = () => {
             </Container>
           </div>
         </div>
+        <Footer/>
       </div>
     </>
   );

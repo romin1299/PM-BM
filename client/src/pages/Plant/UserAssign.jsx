@@ -10,6 +10,7 @@ import {
 import UserUpdate from "../../Popups/UserUpdate";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import "../../SCSS/MaterialTable.scss";
+import Footer from "../../components/Footer/Footer";
 
 function UserAssigns() {
   const [tableData, setTableData] = useState([]);
@@ -336,6 +337,7 @@ function UserAssigns() {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 }

@@ -15,6 +15,7 @@ import { useLocation } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import EastIcon from "@mui/icons-material/East";
 import SummeryPopups from "../Operator/PopupsForChecksheet/SummeryPopups";
+import Footer from "../../components/Footer/Footer";
 
 const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
   const context = useContext(RoutingContext);
@@ -246,24 +247,24 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
 
         key === "tableRowId"
           ? newColData.push(
-              new Object({
-                key: key,
-                value: obj[key],
-                rowspan: 1,
-                // colspan: 1,
-                print: false,
-              }),
+            new Object({
+              key: key,
+              value: obj[key],
+              rowspan: 1,
+              // colspan: 1,
+              print: false,
+            }),
 
-              new Object({
-                key: "rowId",
-                value: i + 1,
-                rowspan: 1,
-                // colspan: 1,
-                print: true,
-              })
-            )
+            new Object({
+              key: "rowId",
+              value: i + 1,
+              rowspan: 1,
+              // colspan: 1,
+              print: true,
+            })
+          )
           : key === "isDeleted"
-          ? newColData.push(
+            ? newColData.push(
               new Object({
                 key: key,
                 value: obj[key],
@@ -272,7 +273,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                 print: false,
               })
             )
-          : newColData.push(
+            : newColData.push(
               new Object({
                 key: key,
                 value: obj[key],
@@ -490,8 +491,8 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                         <tr>
                           <th
                             className="ar-table-thead-header1 text-center"
-                            // colSpan={2}
-                            //  rowSpan={5}
+                          // colSpan={2}
+                          //  rowSpan={5}
                           >
                             PLAN ACCEPTANCE
                             <br />
@@ -499,8 +500,8 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                           </th>
                           <th
                             className="ar-table-thead-header1 text-center"
-                            // colSpan={2}
-                            //  rowSpan={5}
+                          // colSpan={2}
+                          //  rowSpan={5}
                           >
                             PLAN PREPARED
                             <br />
@@ -510,40 +511,38 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                         <tr>
                           <th
                             className="approvalName"
-                            // colSpan={2}
-                            //  rowSpan={5}
+                          // colSpan={2}
+                          //  rowSpan={5}
                           >
                             {machineAllData?.checkSheet_data
                               ?.approved_by_PRD_TL?.[
                               machineAllData?.checkSheet_data
                                 ?.approved_by_PRD_TL?.length - 1
                             ]
-                              ? `${
-                                  machineAllData?.checkSheet_data
-                                    ?.approved_by_PRD_TL[
-                                    machineAllData?.checkSheet_data
-                                      ?.approved_by_PRD_TL.length - 1
-                                  ]
-                                }`
+                              ? `${machineAllData?.checkSheet_data
+                                ?.approved_by_PRD_TL[
+                              machineAllData?.checkSheet_data
+                                ?.approved_by_PRD_TL.length - 1
+                              ]
+                              }`
                               : ""}
                           </th>
                           <th
                             className="approvalName"
-                            // colSpan={2}
-                            //  rowSpan={5}
+                          // colSpan={2}
+                          //  rowSpan={5}
                           >
                             {machineAllData?.checkSheet_data
                               ?.plan_prepared_tm_name?.[
                               machineAllData?.checkSheet_data
                                 ?.plan_prepared_tm_name?.length - 1
                             ]
-                              ? `${
-                                  machineAllData?.checkSheet_data
-                                    ?.plan_prepared_tm_name[
-                                    machineAllData?.checkSheet_data
-                                      ?.plan_prepared_tm_name.length - 1
-                                  ]
-                                }`
+                              ? `${machineAllData?.checkSheet_data
+                                ?.plan_prepared_tm_name[
+                              machineAllData?.checkSheet_data
+                                ?.plan_prepared_tm_name.length - 1
+                              ]
+                              }`
                               : ""}
                           </th>
                         </tr>
@@ -555,7 +554,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
             </div>
             {machineAllData?.checkSheet_data?.checksheet_status ===
               "Planning" ||
-            machineAllData?.checkSheet_data?.checksheet_status ===
+              machineAllData?.checkSheet_data?.checksheet_status ===
               "Implementation" ? (
               <div className="row mt-3">
                 <div className="col-6"></div>
@@ -598,7 +597,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                             className="ar-table-thead-header1 headerPD  align-items-center"
                             colSpan={2}
                             style={{ textAlign: "center" }}
-                            // rowSpan={2}
+                          // rowSpan={2}
                           >
                             Approved by
                             <br />
@@ -608,7 +607,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                             className="ar-table-thead-header1 headerPD"
                             colSpan={2}
                             style={{ textAlign: "center" }}
-                            // rowSpan={2}
+                          // rowSpan={2}
                           >
                             Prepared by
                             <br />
@@ -622,16 +621,16 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                           {machineAllData?.checkSheet_data
                             ?.implementation_approved_by_MTD_TL
                             ? Object.values(
-                                machineAllData?.checkSheet_data
-                                  ?.implementation_approved_by_MTD_TL
-                              ).map((index) => (
-                                <td className="ar-table-col1">
-                                  {index[index.length - 1]}
-                                </td>
-                              ))
+                              machineAllData?.checkSheet_data
+                                ?.implementation_approved_by_MTD_TL
+                            ).map((index) => (
+                              <td className="ar-table-col1">
+                                {index[index.length - 1]}
+                              </td>
+                            ))
                             : refArrayForTDMapping.map((index) => (
-                                <td className="ar-table-col1"></td>
-                              ))}
+                              <td className="ar-table-col1"></td>
+                            ))}
                         </tr>
                         <tr>
                           <th className="approvalName" colSpan={2} rowSpan={5}>
@@ -640,10 +639,10 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                 .length - 1
                             ]
                               ? machineAllData?.checkSheet_data
-                                  ?.approved_by_HOS[
-                                  machineAllData?.checkSheet_data
-                                    ?.approved_by_HOS.length - 1
-                                ]
+                                ?.approved_by_HOS[
+                              machineAllData?.checkSheet_data
+                                ?.approved_by_HOS.length - 1
+                              ]
                               : ""}
                             <br />
 
@@ -651,13 +650,12 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                               machineAllData?.checkSheet_data?.approved_by_TL
                                 .length - 1
                             ]
-                              ? `,${
-                                  machineAllData?.checkSheet_data
-                                    ?.approved_by_TL[
-                                    machineAllData?.checkSheet_data
-                                      ?.approved_by_TL.length - 1
-                                  ]
-                                }`
+                              ? `,${machineAllData?.checkSheet_data
+                                ?.approved_by_TL[
+                              machineAllData?.checkSheet_data
+                                ?.approved_by_TL.length - 1
+                              ]
+                              }`
                               : ""}
                           </th>
                           <th className="approvalName" colSpan={2} rowSpan={5}>
@@ -666,10 +664,10 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                 ?.length - 1
                             ]
                               ? machineAllData?.checkSheet_data
-                                  ?.sender_tm_name?.[
-                                  machineAllData?.checkSheet_data
-                                    ?.sender_tm_name?.length - 1
-                                ]
+                                ?.sender_tm_name?.[
+                              machineAllData?.checkSheet_data
+                                ?.sender_tm_name?.length - 1
+                              ]
                               : ""}
                           </th>
                           <th className="ar-table-thead-header1">
@@ -680,16 +678,16 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                           {machineAllData?.checkSheet_data
                             ?.implementation_approved_by_MTD_HOS
                             ? Object.values(
-                                machineAllData?.checkSheet_data
-                                  ?.implementation_approved_by_MTD_HOS
-                              ).map((index) => (
-                                <td className="ar-table-col1">
-                                  {index[index.length - 1]}
-                                </td>
-                              ))
+                              machineAllData?.checkSheet_data
+                                ?.implementation_approved_by_MTD_HOS
+                            ).map((index) => (
+                              <td className="ar-table-col1">
+                                {index[index.length - 1]}
+                              </td>
+                            ))
                             : refArrayForTDMapping.map((index) => (
-                                <td className="ar-table-col1"></td>
-                              ))}
+                              <td className="ar-table-col1"></td>
+                            ))}
                         </tr>
                         <tr>
                           <th className="ar-table-thead-header1">
@@ -734,13 +732,13 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                   ? "ar-table-thead-header3"
                                   : "ar-table-thead-header"
                               }
-                              // colSpan={
-                              //   tColumn.header === "Inspection item"
-                              //     ? refKey === true
-                              //       ? 2
-                              //       : 0
-                              //     : 0
-                              // }
+                            // colSpan={
+                            //   tColumn.header === "Inspection item"
+                            //     ? refKey === true
+                            //       ? 2
+                            //       : 0
+                            //     : 0
+                            // }
                             >
                               {tColumn.header}
                             </th>
@@ -752,7 +750,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                           <tr
                             className={
                               rData[10]?.["key"] === "isDeleted" &&
-                              rData[10]?.["value"] === true
+                                rData[10]?.["value"] === true
                                 ? "ar-table-row table-col-mid-year-delete"
                                 : "ar-table-row"
                             }
@@ -765,26 +763,26 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                     colData.value === ""
                                       ? "ar-table-col2"
                                       : colData.key ===
-                                          "inspection_parent_name" ||
+                                        "inspection_parent_name" ||
                                         colData.key ===
-                                          "inspection_child_name" ||
+                                        "inspection_child_name" ||
                                         colData.key === "inspection_point" ||
                                         colData.key === "judgement_criteria" ||
                                         colData.key === "action"
-                                      ? "table_text_alignment"
-                                      : colData.value.length === 2 &&
-                                        colData.value[0] === "1" &&
-                                        colData.value[1] === "dummy"
-                                      ? "table-col-bg-ongoing"
-                                      : colData.value.length === 2 &&
-                                        colData.value[0] === "1" &&
-                                        colData.value[1] === "delay"
-                                      ? "table-col-bg-delay"
-                                      : colData.value.length === 2 &&
-                                        colData.value[0] === "1" &&
-                                        colData.value[1] === "skip"
-                                      ? "table-col-bg-skip"
-                                      : "ar-table-col"
+                                        ? "table_text_alignment"
+                                        : colData.value.length === 2 &&
+                                          colData.value[0] === "1" &&
+                                          colData.value[1] === "dummy"
+                                          ? "table-col-bg-ongoing"
+                                          : colData.value.length === 2 &&
+                                            colData.value[0] === "1" &&
+                                            colData.value[1] === "delay"
+                                            ? "table-col-bg-delay"
+                                            : colData.value.length === 2 &&
+                                              colData.value[0] === "1" &&
+                                              colData.value[1] === "skip"
+                                              ? "table-col-bg-skip"
+                                              : "ar-table-col"
                                     //ar-table-col
                                   }
                                   rowSpan={colData.rowspan}
@@ -792,17 +790,17 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                 >
                                   {" "}
                                   {colData.value[0] === "0" &&
-                                  colData.key !== "tableRowId" &&
-                                  colData.key !== "cycle" &&
-                                  colData.key !== "PM_time" ? (
+                                    colData.key !== "tableRowId" &&
+                                    colData.key !== "cycle" &&
+                                    colData.key !== "PM_time" ? (
                                     ""
                                   ) : (colData.value[0] === "1" ||
-                                      colData.value[0] === "2") &&
+                                    colData.value[0] === "2") &&
                                     colData.key !== "tableRowId" &&
                                     colData.key !== "cycle" &&
                                     colData.key !== "PM_time" ? (
                                     colData.value.length === 1 &&
-                                    colData.key ===
+                                      colData.key ===
                                       monthForCompareSystemMonth ? (
                                       <>
                                         {" "}
@@ -930,15 +928,15 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                           </th>
                           {machineAllData?.checkSheet_data?.PMworkedTMName
                             ? Object.values(
-                                machineAllData?.checkSheet_data?.PMworkedTMName
-                              ).map((index) => (
-                                <td className="ar-table-col1">
-                                  {index.join(" ,")}
-                                </td>
-                              ))
+                              machineAllData?.checkSheet_data?.PMworkedTMName
+                            ).map((index) => (
+                              <td className="ar-table-col1">
+                                {index.join(" ,")}
+                              </td>
+                            ))
                             : refArrayForTDMapping.map((index) => (
-                                <td className="ar-table-col1"></td>
-                              ))}
+                              <td className="ar-table-col1"></td>
+                            ))}
                         </tr>
                         <tr>
                           <th colSpan={9}></th>
@@ -950,16 +948,16 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                           {machineAllData?.checkSheet_data
                             ?.implementation_approved_by_PRD_TL
                             ? Object.values(
-                                machineAllData?.checkSheet_data
-                                  ?.implementation_approved_by_PRD_TL
-                              ).map((index) => (
-                                <td className="ar-table-col1">
-                                  {index[index.length - 1]}
-                                </td>
-                              ))
+                              machineAllData?.checkSheet_data
+                                ?.implementation_approved_by_PRD_TL
+                            ).map((index) => (
+                              <td className="ar-table-col1">
+                                {index[index.length - 1]}
+                              </td>
+                            ))
                             : refArrayForTDMapping.map((index) => (
-                                <td className="ar-table-col1"></td>
-                              ))}
+                              <td className="ar-table-col1"></td>
+                            ))}
                         </tr>
                         <tr>
                           <th colSpan={9}></th>
@@ -1160,22 +1158,22 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                     </div>
                     {machineAllData?.checkSheet_data
                       ?.implemetation_prd_tl_approval_status ||
-                    machineAllData?.checkSheet_data
-                      ?.implemetation_mtd_tl_approval_status ||
-                    machineAllData?.checkSheet_data
-                      ?.implemetation_mtd_hos_approval_status ? (
+                      machineAllData?.checkSheet_data
+                        ?.implemetation_mtd_tl_approval_status ||
+                      machineAllData?.checkSheet_data
+                        ?.implemetation_mtd_hos_approval_status ? (
                       machineAllData?.checkSheet_data
                         ?.implemetation_prd_tl_approval_status[
                         monthForCompareSystemMonth
                       ] !== "Rejected" ||
-                      machineAllData?.checkSheet_data
-                        ?.implemetation_mtd_tl_approval_status[
+                        machineAllData?.checkSheet_data
+                          ?.implemetation_mtd_tl_approval_status[
                         monthForCompareSystemMonth
-                      ] !== "Rejected" ||
-                      machineAllData?.checkSheet_data
-                        ?.implemetation_mtd_hos_approval_status[
+                        ] !== "Rejected" ||
+                        machineAllData?.checkSheet_data
+                          ?.implemetation_mtd_hos_approval_status[
                         monthForCompareSystemMonth
-                      ] !== "Rejected" ? (
+                        ] !== "Rejected" ? (
                         <>
                           <Row className=" m-2 p-3 border bg-white rounded">
                             <Col>
@@ -1202,7 +1200,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                       value={
                                         machineAllData?.checkSheet_data
                                           ?.PMDelayRemark[
-                                          monthForCompareSystemMonth
+                                        monthForCompareSystemMonth
                                         ]
                                       }
                                     />
@@ -1230,9 +1228,9 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                           monthForCompareSystemMonth
                                         ]
                                           ? machineAllData?.checkSheet_data
-                                              .PMDelayRemark[
-                                              monthForCompareSystemMonth
-                                            ]
+                                            .PMDelayRemark[
+                                          monthForCompareSystemMonth
+                                          ]
                                           : ""
                                       }
                                     />
@@ -1259,23 +1257,23 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                   value={
                                     machineAllData?.checkSheet_data?.PMStatus
                                       ? machineAllData?.checkSheet_data
-                                          ?.PMStatus[
-                                          monthForCompareSystemMonth
-                                        ] === ""
+                                        ?.PMStatus[
+                                        monthForCompareSystemMonth
+                                      ] === ""
                                         ? "Not schedule"
                                         : machineAllData?.checkSheet_data
-                                            ?.PMStatus[
-                                            monthForCompareSystemMonth
-                                          ]
+                                          ?.PMStatus[
+                                        monthForCompareSystemMonth
+                                        ]
                                       : ""
                                   }
-                                  // onChange={formik.handleChange}
-                                  // error={
-                                  //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
-                                  // }
-                                  // helperText={
-                                  //   formik.touched.pmTime && formik.errors.pmTime
-                                  // }
+                                // onChange={formik.handleChange}
+                                // error={
+                                //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
+                                // }
+                                // helperText={
+                                //   formik.touched.pmTime && formik.errors.pmTime
+                                // }
                                 />
                               </div>
                               <div className="mb-2 row">
@@ -1296,14 +1294,14 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                   value={
                                     machineAllData?.checkSheet_data?.totalPMTime
                                       ? machineAllData?.checkSheet_data
-                                          ?.totalPMTime[
-                                          monthForCompareSystemMonth
-                                        ].totalWorkedPMTime === ""
+                                        ?.totalPMTime[
+                                        monthForCompareSystemMonth
+                                      ].totalWorkedPMTime === ""
                                         ? "0"
                                         : machineAllData?.checkSheet_data
-                                            ?.totalPMTime[
-                                            monthForCompareSystemMonth
-                                          ].totalWorkedPMTime
+                                          ?.totalPMTime[
+                                          monthForCompareSystemMonth
+                                        ].totalWorkedPMTime
                                       : ""
                                   }
                                 />
@@ -1327,10 +1325,10 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                   value={
                                     machineAllData?.checkSheet_data?.totalPMTime
                                       ? machineAllData?.checkSheet_data?.totalPMTime[
-                                          monthForCompareSystemMonth
-                                        ].supportingTMData.map(
-                                          (index) => index.tm_name
-                                        )
+                                        monthForCompareSystemMonth
+                                      ].supportingTMData.map(
+                                        (index) => index.tm_name
+                                      )
                                       : ""
                                   }
                                 />
@@ -1365,7 +1363,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                       value={
                                         machineAllData?.checkSheet_data
                                           ?.PMDelayRemark[
-                                          monthForCompareSystemMonth
+                                        monthForCompareSystemMonth
                                         ]
                                       }
                                     />
@@ -1393,9 +1391,9 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                           monthForCompareSystemMonth
                                         ]
                                           ? machineAllData?.checkSheet_data
-                                              .PMDelayRemark[
-                                              monthForCompareSystemMonth
-                                            ]
+                                            .PMDelayRemark[
+                                          monthForCompareSystemMonth
+                                          ]
                                           : ""
                                       }
                                     />
@@ -1422,23 +1420,23 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                   value={
                                     machineAllData?.checkSheet_data?.PMStatus
                                       ? machineAllData?.checkSheet_data
-                                          ?.PMStatus[
-                                          monthForCompareSystemMonth
-                                        ] === ""
+                                        ?.PMStatus[
+                                        monthForCompareSystemMonth
+                                      ] === ""
                                         ? "Not schedule"
                                         : machineAllData?.checkSheet_data
-                                            ?.PMStatus[
-                                            monthForCompareSystemMonth
-                                          ]
+                                          ?.PMStatus[
+                                        monthForCompareSystemMonth
+                                        ]
                                       : ""
                                   }
-                                  // onChange={formik.handleChange}
-                                  // error={
-                                  //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
-                                  // }
-                                  // helperText={
-                                  //   formik.touched.pmTime && formik.errors.pmTime
-                                  // }
+                                // onChange={formik.handleChange}
+                                // error={
+                                //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
+                                // }
+                                // helperText={
+                                //   formik.touched.pmTime && formik.errors.pmTime
+                                // }
                                 />
                               </div>
                               <div className="mb-2 row">
@@ -1459,14 +1457,14 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                   value={
                                     machineAllData?.checkSheet_data?.totalPMTime
                                       ? machineAllData?.checkSheet_data
-                                          ?.totalPMTime[
-                                          monthForCompareSystemMonth
-                                        ].totalWorkedPMTime === ""
+                                        ?.totalPMTime[
+                                        monthForCompareSystemMonth
+                                      ].totalWorkedPMTime === ""
                                         ? "0"
                                         : machineAllData?.checkSheet_data
-                                            ?.totalPMTime[
-                                            monthForCompareSystemMonth
-                                          ].totalWorkedPMTime
+                                          ?.totalPMTime[
+                                          monthForCompareSystemMonth
+                                        ].totalWorkedPMTime
                                       : ""
                                   }
                                 />
@@ -1490,10 +1488,10 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                   value={
                                     machineAllData?.checkSheet_data?.totalPMTime
                                       ? machineAllData?.checkSheet_data?.totalPMTime[
-                                          monthForCompareSystemMonth
-                                        ].supportingTMData.map(
-                                          (index) => index.tm_name
-                                        )
+                                        monthForCompareSystemMonth
+                                      ].supportingTMData.map(
+                                        (index) => index.tm_name
+                                      )
                                       : ""
                                   }
                                 />
@@ -1514,9 +1512,9 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                     machineAllData?.checkSheet_data
                                       .implementation_rejected_remarks
                                       ? machineAllData?.checkSheet_data
-                                          .implementation_rejected_remarks[
-                                          monthForCompareSystemMonth
-                                        ]
+                                        .implementation_rejected_remarks[
+                                      monthForCompareSystemMonth
+                                      ]
                                       : ""
                                   }
                                 />
@@ -1540,6 +1538,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
           </Modal.Footer> */}
         </Modal>
       </div>
+      <Footer />
     </>
   );
 };

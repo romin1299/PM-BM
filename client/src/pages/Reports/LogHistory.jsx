@@ -16,6 +16,7 @@ import { postLineToGetAllMachineData } from "../../Integration/APIExports";
 
 import axios from "axios";
 import FileDownload from "js-file-download";
+import Footer from "../../components/Footer/Footer";
 
 const LogHistory = () => {
   let columns = [
@@ -631,6 +632,7 @@ const LogHistory = () => {
           {loadingAnimationState}
         </div>
       )}
+      <Footer/>
     </>
   );
 };

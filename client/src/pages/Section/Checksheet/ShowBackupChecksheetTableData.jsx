@@ -15,6 +15,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Footer from "../../../components/Footer/Footer";
 
 
 const ShowBackupChecksheetTableData = ({}) => {
@@ -257,6 +258,7 @@ const ShowBackupChecksheetTableData = ({}) => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

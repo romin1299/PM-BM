@@ -1,3 +1,4 @@
+import Footer from "../../components/Footer/Footer";
 import {
   React,
   useEffect,
@@ -297,7 +298,7 @@ function PlantCreation() {
       </div>
 
       <div></div>
-      {/* <Footer /> */}
+      <Footer />
     </>
   );
 }

@@ -24,6 +24,8 @@ import {
 import "../../SCSS/MaterialTable.scss";
 import { RadioGroup } from "@mui/material";
 
+import Footer from "../../components/Footer/Footer";
+
 const AdminCreationDashboard = () => {
   const [plants, setplants] = useState();
   const [sections, setsections] = useState();
@@ -641,6 +643,7 @@ const AdminCreationDashboard = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

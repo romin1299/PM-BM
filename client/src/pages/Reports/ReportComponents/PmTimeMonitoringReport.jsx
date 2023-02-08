@@ -7,6 +7,7 @@ import TotalTimeManHourMonthWise from "./Graph/TotalTimeManHourMonthWise";
 import TotalTimeTMWise from "./Graph/TotalTimeTMWise";
 
 import RoutingContext from "../../../context/routing/RoutingContext";
+import Footer from "../../../components/Footer/Footer";
 
 const PmTimeMonitoringReport = () => {
   const context = useContext(RoutingContext);
@@ -30,6 +31,7 @@ const PmTimeMonitoringReport = () => {
             {/* <Col></Col> */}
           </Row>
         </Container>
+        <Footer/>
       </div>
     </>
   );

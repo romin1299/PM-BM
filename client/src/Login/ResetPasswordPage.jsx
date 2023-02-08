@@ -10,6 +10,7 @@ import "./Login.scss";
 import OSLLogo from "../images/OSL_Logo.png";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import CloseIcon from "@mui/icons-material/Close";
+import Footer from "../components/Footer/Footer";
 
 function ResetPasswordPage() {
   const [invalid, setInvalid] = useState("");
@@ -124,6 +125,7 @@ function ResetPasswordPage() {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 }

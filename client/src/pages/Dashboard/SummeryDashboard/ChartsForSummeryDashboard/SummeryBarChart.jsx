@@ -116,7 +116,8 @@ export function SummeryBarChart({ annualChartData }) {
       {
         label: "Completion %",
         data: annualChartData,
-        backgroundColor: "red",
+        backgroundColor: "#E4FBD9",
+        border:"#ADEC71"
       },
       // {
       //   label: "Dataset 2",

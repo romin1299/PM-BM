@@ -13,6 +13,7 @@ import NotFound from "../Reports/ReportComponents/NotFound";
 
 import RoutingContext from "../../context/routing/RoutingContext";
 import { fetchFinancialYears } from "../../Integration/APIExports";
+import Footer from "../../components/Footer/Footer";
 
 import {
   postSectionToGetAllDataForMainDashboard,
@@ -566,6 +567,7 @@ const SparePartUsageHistory = () => {
           )}
         </Row>
       </Container>
+      <Footer/>
     </>
   );
 };

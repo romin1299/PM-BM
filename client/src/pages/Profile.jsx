@@ -8,6 +8,7 @@ import userImg from "../images/user.png";
 import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import RoutingContext from "../context/routing/RoutingContext";
+import Footer from "../components/Footer/Footer";
 // import Footer from "./Footer";
 
 const Profile = () => {
@@ -163,7 +164,7 @@ const Profile = () => {
           </Row>
         </Container>
       </div>
-      {/* <Footer /> */}
+      <Footer />
     </>
   );
 };

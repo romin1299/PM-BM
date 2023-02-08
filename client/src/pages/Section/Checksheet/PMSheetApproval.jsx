@@ -4,6 +4,7 @@ import "./index.css";
 
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../../Reports/ReportComponents/NotFound";
+import Footer from "../../../components/Footer/Footer";
 
 // import "./tableColor.scss"
 
@@ -120,7 +121,7 @@ function PMSheetApproval() {
               <th></th>
               <th></th>
               {columns1.map((tColumn) => (
-                <th className={"ar-table-thead-header4 td-padding bg-light-button text-light"}>
+                <th className={"ar-table-thead-header4 td-padding bg-light-button text-dark font-weight-normal"}>
                   {tColumn.header}
                 </th>
               ))}
@@ -217,6 +218,8 @@ function PMSheetApproval() {
           {/* <LoadingAnimation /> */}
         </div>
       )}
+
+      <Footer/>
     </>
   );
 }

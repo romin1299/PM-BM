@@ -7,6 +7,7 @@ import axios from "axios";
 import { Row, Col } from "react-bootstrap";
 import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "./ReportComponents/NotFound";
+import Footer from "../../components/Footer/Footer";
 
 function OpenAbnormalityTracking() {
   const context = useContext(RoutingContext);
@@ -480,6 +481,7 @@ function OpenAbnormalityTracking() {
           )}
         </div>
       </div>
+      <Footer/>
     </>
   );
 }

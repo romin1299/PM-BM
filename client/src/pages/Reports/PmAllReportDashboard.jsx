@@ -6,6 +6,7 @@ import LineWisePmMonthlyReport from "./ReportComponents/LineWisePmMonthlyReport"
 import AnnualPmStatus from "./ReportComponents/AnnualPmStatus";
 import AnnualPMSchedule from "./ReportComponents/AnnualPMSchedule";
 import PmTimeMonitoringReport from "./ReportComponents/PmTimeMonitoringReport";
+import Footer from "../../components/Footer/Footer";
 
 const PmAllReportDashboard = () => {
   const ReportType = [
@@ -73,6 +74,7 @@ const PmAllReportDashboard = () => {
           <h4>Other Report</h4>
         )}
       </div>
+      <Footer/>
     </>
   );
 };

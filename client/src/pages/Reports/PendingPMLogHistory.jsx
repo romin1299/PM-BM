@@ -14,6 +14,7 @@ import { postLineToGetAllMachineData } from "../../Integration/APIExports";
 
 import axios from "axios";
 import FileDownload from "js-file-download";
+import Footer from "../../components/Footer/Footer";
 
 const PendingPMLogHistory = () => {
   let columns = [
@@ -656,6 +657,7 @@ const PendingPMLogHistory = () => {
           {loadingAnimationState}
         </div>
       )}
+      <Footer/>
     </>
   );
 };

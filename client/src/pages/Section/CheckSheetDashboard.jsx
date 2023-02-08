@@ -20,6 +20,7 @@ import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../Reports/ReportComponents/NotFound";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Footer from "../../components/Footer/Footer";
 
 const CheckSheetDashboard = () => {
   const context = useContext(RoutingContext);
@@ -607,6 +608,7 @@ const CheckSheetDashboard = () => {
           )}
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

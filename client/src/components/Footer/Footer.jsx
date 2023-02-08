@@ -1,35 +1,21 @@
-import React from "react";
-import { Navbar, Row, Col, Container } from "react-bootstrap";
-import "./Footer.css"
+import Container from 'react-bootstrap/Container';
+import './Footer.css'
 
-
-const Footer = () => {
+function Footer() {
   return (
-    <div>
-      <Navbar className="bg-footer">
-        {" "}
-        <Container fluid className="footer-bottom ">
-          {" "}
-          <Navbar.Brand className="center">
-            {" "}
-            <Row>
-              {" "}
-              <Col sm>
-                {" "}
-                <div style={{ fontSize: "1rem" }}>
-                  <b style={{ color: "#E6232A" }}>
-                    {" "}
-                    © {new Date().getFullYear()}{" "}
-                  </b>
-                  Denso. All Rights Reserved.
-                </div>{" "}
-              </Col>{" "}
-            </Row>{" "}
-          </Navbar.Brand>{" "}
-        </Container>{" "}
-      </Navbar>
-    </div>
+    <>
+      <div className='mt-5'>
+        <div id="footer">
+          {/* <p>© 2020 <span style={{ color: "red" }}>Denso</span>. All rights reserved</p> */}
+          <p>
+            © {new Date().getFullYear()}<span style={{ color: "red" }}><b> Denso</b></span>. All rights reserved
+          </p>
+        </div>
+      </div>
+
+
+    </>
   );
-};
+}
 
 export default Footer;

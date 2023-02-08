@@ -31,6 +31,7 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 
 import MachineWisePmMonthlyGraph from "./Graph/MachineWIsePmMonthlyGraph";
+import Footer from "../../../components/Footer/Footer";
 
 require("jspdf-autotable");
 
@@ -1447,6 +1448,7 @@ const MachineWisePmMonthlyReport = () => {
           )}
         </Container>
       </div>
+      <Footer/>
     </>
   );
 };

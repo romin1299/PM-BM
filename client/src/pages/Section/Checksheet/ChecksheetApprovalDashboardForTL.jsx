@@ -9,6 +9,7 @@ import {
 import { Navigate, useNavigate } from "react-router-dom";
 import "../../../SCSS/MaterialTable.scss";
 import RoutingContext from "../../../context/routing/RoutingContext";
+import Footer from "../../../components/Footer/Footer";
 //   import ChecksheetCreationDashboard from "./Checksheet/ChecksheetCreationDashboard";
 
 const CheckSheetApprovalDashboardForTL = () => {
@@ -290,6 +291,7 @@ const CheckSheetApprovalDashboardForTL = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

@@ -24,6 +24,8 @@ import { light } from "@mui/material/styles/createPalette";
 import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 import { FormControlUnstyled } from "@mui/base";
 
+import Footer from "../../components/Footer/Footer";
+
 const MainDashboard = () => {
   const [sections, setsections] = useState();
   const [subSection, setSubSection] = useState("");
@@ -611,7 +613,7 @@ const MainDashboard = () => {
       <Container fluid className="operatorDashboard">
         <Row>
 
-          <Col sm={12} md={9} lg={9} className="left-component-main-dashboard">
+          <Col sm={12} md={12} lg={9} className="left-component-main-dashboard">
             {Object.keys(allDataSectionWise).length > 0 ? (
               <Col>
                 <Row className="mx-2 mt-4 ">
@@ -811,13 +813,13 @@ const MainDashboard = () => {
                       {context.user_type === "Section-Admin" ? (
                         <Col sm={6} className="d-flex align-items-center justify-content-center" >
                           <button
-                            className="btn text-dark" style={{background:"#D1ECF1"}}
+                            className="btn text-dark" style={{ background: "#D1ECF1" }}
                             onClick={addNewCheckSheetAfterChangeFinancialyear}
                           >
                             <AutorenewIcon style={{ fontSize: "small" }} />{" "}
                             &nbsp; <b>Update{" "}
-                            {`${new Date().getFullYear()}-${new Date().getFullYear() + 1
-                              }`}</b>
+                              {`${new Date().getFullYear()}-${new Date().getFullYear() + 1
+                                }`}</b>
                           </button>
                         </Col>
                       ) : (
@@ -858,49 +860,55 @@ const MainDashboard = () => {
                     </Row>
                   </Col>
                 </Row>
-                <Row className="d-flex align-content-center justify cell m-2 g-3" style={{background:"#E0E0E0"}}>
+                <Row className="d-flex align-content-center justify cell m-2 g-3" style={{ background: "#E0E0E0" }}>
                   <Col
-                    
-                    className=" col-lg-2 col-md-6 col-sm-6 " style={{fontWeight:"bold", fontSize:"14px"
+
+                    className=" col-lg-2 col-md-6 col-sm-6 " style={{
+                      fontWeight: "bold", fontSize: "14px"
                     }}
                   >
-                    <RectangleIcon className="bg-white" style={{  color:"#ffffff" }}/> &nbsp;Schedule
+                    <RectangleIcon className="bg-white" style={{ color: "#ffffff" }} /> &nbsp;Schedule
                   </Col>
                   <Col
-                    
-                    className="col-lg-2 col-md-6 col-sm-6 " style={{fontWeight:"bold", fontSize:"14px"
-                  }}
+
+                    className="col-lg-2 col-md-6 col-sm-6 " style={{
+                      fontWeight: "bold", fontSize: "14px"
+                    }}
                   >
-                    <RectangleIcon style={{ background: "#ffff59", color:"#ffff59" }}/> &nbsp;Ongoing
+                    <RectangleIcon style={{ background: "#ffff59", color: "#ffff59" }} /> &nbsp;Ongoing
                   </Col>
                   <Col
-                    
-                    className=" col-lg-2 col-md-6 col-sm-6 " style={{fontWeight:"bold", fontSize:"14px"
-                  }}
+
+                    className=" col-lg-2 col-md-6 col-sm-6 " style={{
+                      fontWeight: "bold", fontSize: "14px"
+                    }}
                   >
-                    <RectangleIcon style={{ background: "#5fe15f", color:"5fe15f" }}/> &nbsp;Completed
+                    <RectangleIcon style={{ background: "#5fe15f", color: "5fe15f" }} /> &nbsp;Completed
                   </Col>
                   <Col
-                    
-                    className=" col-lg-2 col-md-6 col-sm-6 " style={{fontWeight:"bold", fontSize:"14px"
-                  }}
+
+                    className=" col-lg-2 col-md-6 col-sm-6 " style={{
+                      fontWeight: "bold", fontSize: "14px"
+                    }}
                   >
-                    <RectangleIcon style={{ background: "#ababab", color: "#ababab" }}/> &nbsp;Not Schedule
+                    <RectangleIcon style={{ background: "#ababab", color: "#ababab" }} /> &nbsp;Not Schedule
                   </Col>
 
                   <Col
-                   
-                    className=" col-lg-2 col-md-6 col-sm-6 " style={{fontWeight:"bold", fontSize:"14px"
-                  }}
+
+                    className=" col-lg-2 col-md-6 col-sm-6 " style={{
+                      fontWeight: "bold", fontSize: "14px"
+                    }}
                   >
-                    <RectangleIcon  style={{ background: "#ffc356", color: "#ffc356" }}/> &nbsp;Done with delay
+                    <RectangleIcon style={{ background: "#ffc356", color: "#ffc356" }} /> &nbsp;Done with delay
                   </Col>
                   <Col
-                    
-                    className=" col-lg-2 col-md-6 col-sm-6 " style={{fontWeight:"bold", fontSize:"14px"
-                  }}
+
+                    className=" col-lg-2 col-md-6 col-sm-6 " style={{
+                      fontWeight: "bold", fontSize: "14px"
+                    }}
                   >
-                    <RectangleIcon style={{ background: "#ff8888", color: "#ff8888" }}/> &nbsp;No completion / PM Skip
+                    <RectangleIcon style={{ background: "#ff8888", color: "#ff8888" }} /> &nbsp;No completion / PM Skip
                   </Col>
                 </Row>
 
@@ -1446,7 +1454,7 @@ const MainDashboard = () => {
                                                                                                   "No Completion"
                                                                                                   ? "#ff8888"
                                                                                                   : "#ababab"
-                                                                                        : "",
+                                                                                        : "#ababab",
                                                                                   }}
                                                                                   className="machine"
                                                                                   disabled
@@ -2066,7 +2074,9 @@ const MainDashboard = () => {
             </Col>
           </Col>
         </Row>
+        <Footer />
       </Container>
+
     </>
   );
 };

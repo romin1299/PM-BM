@@ -21,6 +21,7 @@ import MonthDropDown from "../../Dashboard/DashboardComponent/MonthDropDown";
 
 import LoadingAnimation from "./LoadingAnimation";
 import NotFound from "./NotFound";
+import Footer from "../../../components/Footer/Footer";
 
 const LineWisePmMonthlyReport = () => {
   const context = useContext(RoutingContext);
@@ -540,6 +541,7 @@ const LineWisePmMonthlyReport = () => {
             </Container>
           </div>
         </div>
+        <Footer/>
       </div>
     </>
   );

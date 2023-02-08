@@ -213,6 +213,90 @@ const Plant = ({ userData }) => {
                 User Assign
               </MenuItem>
           </SubMenu>
+
+          <SubMenu
+              className="text-white"
+              title="Approval Log"
+              icon={<StorageIcon className="text-white" />}
+            >
+              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+              <MenuItem
+                className="text"
+                icon={
+                  <FactCheckIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+                href="/pmSheetApproval"
+              >
+                <NavLink to="/pmSheetApproval"></NavLink>
+                Preparation / Planning
+              </MenuItem>
+
+              <MenuItem
+                className="text"
+                icon={
+                  <AssignmentTurnedInIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/pmSheetApprovalOfImplementationPhase"></NavLink>
+                PM Plan vs Actual Approval
+              </MenuItem>
+          </SubMenu>
+          
+          <SubMenu
+              className="text-white"
+              title="PM Log"
+              icon={<LibraryBooksIcon className="text-white" />}
+            >
+              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+              <MenuItem
+                className="text"
+                icon={
+                  <LibraryBooksIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/logHistory"></NavLink>
+                PM Log
+              </MenuItem>
+
+              <MenuItem
+                className="text"
+                icon={
+                  <PendingActionsIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/pendingPMLogHistory"></NavLink>
+                Pending PM Log History
+              </MenuItem>
+            </SubMenu>
+
           <SubMenu
               className="text-white"
               title="PM Report"
@@ -302,90 +386,19 @@ const Plant = ({ userData }) => {
               </MenuItem>
             </SubMenu>
 
-            <SubMenu
-              className="text-white"
-              title="Approval Log"
-              icon={<StorageIcon className="text-white" />}
-            >
-              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
-              <MenuItem
-                className="text"
-                icon={
-                  <FactCheckIcon
-                    className="text-white"
-                    style={{
-                      background: "#004B5B",
-                      borderRadius: "3px",
-                      padding: "2px",
-                    }}
-                  />
-                }
-                href="/pmSheetApproval"
-              >
-                <NavLink to="/pmSheetApproval"></NavLink>
-                Preparation / Planning
-              </MenuItem>
-
-              <MenuItem
-                className="text"
-                icon={
-                  <AssignmentTurnedInIcon
-                    className="text-white"
-                    style={{
-                      background: "#004B5B",
-                      borderRadius: "3px",
-                      padding: "2px",
-                    }}
-                  />
-                }
-              >
-                <NavLink to="/pmSheetApprovalOfImplementationPhase"></NavLink>
-                PM Plan vs Actual Approval
-              </MenuItem>
-            </SubMenu>
-
-            <SubMenu
-              className="text-white"
-              title="PM Log"
-              icon={<LibraryBooksIcon className="text-white" />}
-            >
-              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
-              <MenuItem
-                className="text"
-                icon={
-                  <LibraryBooksIcon
-                    className="text-white"
-                    style={{
-                      background: "#004B5B",
-                      borderRadius: "3px",
-                      padding: "2px",
-                    }}
-                  />
-                }
-              >
-                <NavLink to="/logHistory"></NavLink>
-                PM Log
-              </MenuItem>
-
-              <MenuItem
-                className="text"
-                icon={
-                  <PendingActionsIcon
-                    className="text-white"
-                    style={{
-                      background: "#004B5B",
-                      borderRadius: "3px",
-                      padding: "2px",
-                    }}
-                  />
-                }
-              >
-                <NavLink to="/pendingPMLogHistory"></NavLink>
-                Pending PM Log History
-              </MenuItem>
-            </SubMenu>
-
+            
             <Menuitem
+              className="text-white"
+              icon={<PendingActionsIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Open Abnormality Tracking"
+            >
+              <NavLink to="/openAbnormalityTrack"></NavLink>
+              Open Abnormality Tracking
+          </Menuitem>
+          
+          <Menuitem
               className="text-white"
               icon={<BackupTableIcon className="text-white" />}
               data-toggle="tooltip"
@@ -395,6 +408,10 @@ const Plant = ({ userData }) => {
               <NavLink to="/sparePartUsageHistory"></NavLink>
               Spare Log
             </Menuitem>
+
+           
+
+            
             <Menuitem
               className="text-white"
               icon={<SummarizeIcon className="text-white" />}
@@ -405,16 +422,6 @@ const Plant = ({ userData }) => {
               <NavLink to="/spareReportDashboard"></NavLink>
               Spare Report
             </Menuitem>
-            <Menuitem
-              className="text-white"
-              icon={<PendingActionsIcon className="text-white" />}
-              data-toggle="tooltip"
-              data-placement="right"
-              title="Open Abnormality Tracking"
-            >
-              <NavLink to="/openAbnormalityTrack"></NavLink>
-              Open Abnormality Tracking
-            </Menuitem>
 
         </Menu>
       </SidebarContent>
@@ -422,7 +429,7 @@ const Plant = ({ userData }) => {
         <Menu iconShape="square">
           <MenuItem
             className="text"
-            icon={<LogoutIcon className="text-white" />}
+            icon={<LogoutIcon className="text-white" style={{ transform: "rotate(180deg)" }} />}
             data-toggle="tooltip"
             data-placement="right"
             title="Logout"

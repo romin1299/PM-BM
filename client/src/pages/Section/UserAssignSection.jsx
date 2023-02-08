@@ -9,6 +9,7 @@ import {
 } from "../../modules/PageModules";
 import UserUpdate from "../../Popups/UserUpdate";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import Footer from "../../components/Footer/Footer";
 const UserAssignSection = () => {
   const [tableData, setTableData] = useState([]);
   const [selectedRow, setSelectedRow] = useState([]);
@@ -323,6 +324,7 @@ const UserAssignSection = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

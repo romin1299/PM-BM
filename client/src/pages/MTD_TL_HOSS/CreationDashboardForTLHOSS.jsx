@@ -26,6 +26,7 @@ import "../../SCSS/MaterialTable.scss";
 import { RadioGroup } from "@mui/material";
 import RoutingContext from "../../context/routing/RoutingContext";
 import MachineAdd from "../../Popups/machineAdd";
+import Footer from "../../components/Footer/Footer";
 
 const CreationDashboardForTLHOSS = () => {
   const [cell, setCell] = useState();
@@ -299,7 +300,7 @@ const CreationDashboardForTLHOSS = () => {
                       : ""}
                   </select>
                 </Col>
-                
+
               </Row>
               {/* <div style={{ display: "flex", flexDirection: "column" }}>
 
@@ -535,6 +536,7 @@ const CreationDashboardForTLHOSS = () => {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     </>
   );

@@ -238,7 +238,7 @@ const GraphsInMainDashboard = ({
   return (
     <div className="m-2">
       {/* <Container className="d-flex justify-content-center align-items-center"></Container> */}
-      <Row className="d-flex justify-content-center align-items-center">
+      <Row className="d-flex justify-content-center align-items">
        
         <div className="cell">
         
@@ -289,7 +289,7 @@ const GraphsInMainDashboard = ({
         </div>
       </Row>
       <Row
-        className="d-flex justify-content-center align-items-center"
+        className="d-flex justify-content-center align-items-center mb-5"
         style={{ fontSize: "12px" }}
       >
         {fetchedRemarks ? (
@@ -310,7 +310,7 @@ const GraphsInMainDashboard = ({
         {context?.user_type === "TL/HOSS" &&
         context?.tm_department === "MTD" ? (
           allDataSectionWise?.sectionInfo?.[0].dashboardLevel === "Yes" ? (
-            <div className="cell">
+            <div className="cell  mb-5">
               <Col className="pwd-container2">
                 <div className=" d-flex justify-content-center align-items-center ">
                   Remarks:{" "}
@@ -323,23 +323,23 @@ const GraphsInMainDashboard = ({
                   name="remarks"
                   //   label="remarks"
                   value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
-                />
+                  onChange={(e) => setRemarks(e.target.value)} className="w-50"
+                /> <button
+                variant="contained"
+                fullWidth
+                type="submit"
+                className="btn-primary1 mt-2"
+                style={{ fontSize: "12px" }}
+                onClick={() => {
+                  postRemarksSectionWise(context.section_data);
+                }}
+              >
+                Submit
+              </button>
               </Col>
 
               <Col>
-                <button
-                  variant="contained"
-                  fullWidth
-                  type="submit"
-                  className="btn-primary1 mt-2"
-                  style={{ fontSize: "12px" }}
-                  onClick={() => {
-                    postRemarksSectionWise(context.section_data);
-                  }}
-                >
-                  Submit
-                </button>
+                
               </Col>
             </div>
           ) : context?.subSection_data?.includes(subSection) ? (

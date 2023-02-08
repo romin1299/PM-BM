@@ -1,3 +1,4 @@
+import Footer from "../../components/Footer/Footer";
 import {
   React,
   useEffect,
@@ -261,7 +262,7 @@ function SectionPage() {
           }}
         />
       </div>
-      {/* <Footer /> */}
+      <Footer />
     </>
   );
 }

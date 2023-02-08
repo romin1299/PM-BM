@@ -9,6 +9,7 @@ import { Container, Row, Col } from "react-bootstrap";
 
 import RoutingContext from "../../context/routing/RoutingContext";
 import currentYear from "../Dashboard/DashboardComponent/currentYear";
+import Footer from "../../components/Footer/Footer";
 
 function OperatorDataEntry() {
   const context = useContext(RoutingContext);
@@ -569,6 +570,7 @@ function OperatorDataEntry() {
             </form>
           </div>
         </Container>
+        <Footer/>
       </div>
     </>
   );
