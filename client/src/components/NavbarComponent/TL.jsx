@@ -125,7 +125,7 @@ const TL = ({ userData, userDepartment }) => {
                   <img
                     src={denso_logo}
                     alt=""
-                    style={{ width: "50%",  padding: "5px" }}
+                    style={{ width: "100%", padding: "5px" }}
                     className="bg-white"
                   />
                 ) : (
@@ -208,8 +208,9 @@ const TL = ({ userData, userDepartment }) => {
               title="Creation"
               icon={<FaThList className="text-white" />}
             >
-              <Menuitem
-                className="text-white"
+              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+              <MenuItem
+                className="text"
                 icon={
                   <NoteAddIcon
                     className="text-white"
@@ -223,9 +224,10 @@ const TL = ({ userData, userDepartment }) => {
               >
                 <NavLink to="/creationDashboard"></NavLink>
                 Creation Dashboard
-              </Menuitem>
-              <Menuitem
-                className="text-white"
+              </MenuItem>
+
+              <MenuItem
+                className="text"
                 icon={
                   <PersonAddIcon
                     className="text-white"
@@ -239,8 +241,8 @@ const TL = ({ userData, userDepartment }) => {
               >
                 <NavLink to="/userAssign"></NavLink>
                 User Assign
-              </Menuitem>
-              <Menuitem
+              </MenuItem>
+              <MenuItem
                 className="text-white"
                 icon={
                   <TaskIcon
@@ -255,71 +257,80 @@ const TL = ({ userData, userDepartment }) => {
               >
                 <NavLink to="/checkSheetDashboard"></NavLink>
                 CheckSheet Dashboard
-              </Menuitem>
+              </MenuItem>
             </SubMenu>
           ) : (
             ""
           )}
+          {userDepartment === "MTD" ? (
+            <SubMenu
+              className="text-white"
+              title="Approval"
+              icon={<AddTaskIcon className="text-white" />}
+            >
+              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+              <MenuItem
+                className="text"
+                icon={
+                  <FactCheckIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+                href="/preparationApproval"
+              >
+                <NavLink to="/preparationApproval"></NavLink>
+                Preparation Approval
+              </MenuItem>
 
-          <SubMenu
-            className="text-white"
-            title="Approval"
-            icon={<AddTaskIcon className="text-white" />}
-          >
-            {/* <Menuitem className="text">Offer Letter</Menuitem> */}
-            <MenuItem
-              className="text"
-              icon={
-                <FactCheckIcon
-                  className="text-white"
-                  style={{
-                    background: "#004B5B",
-                    borderRadius: "3px",
-                    padding: "2px",
-                  }}
-                />
-              }
-              href="/preparationApproval"
+              <MenuItem
+                className="text"
+                icon={
+                  <FactCheckIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+                href="/implementationApproval"
+              >
+                <NavLink to="/implementationApproval"></NavLink>
+                Implementation Approval
+              </MenuItem>
+            </SubMenu>
+          ) : (
+            <SubMenu
+              className="text-white"
+              title="Approval"
+              icon={<AddTaskIcon className="text-white" />}
             >
-              <NavLink to="/preparationApproval"></NavLink>
-              Preparation Approval
-            </MenuItem>
-
-            <MenuItem
-              className="text"
-              icon={
-                <FactCheckIcon
-                  className="text-white"
-                  style={{
-                    background: "#004B5B",
-                    borderRadius: "3px",
-                    padding: "2px",
-                  }}
-                />
-              }
-              href="/planningApproval"
-            >
-              <NavLink to="/planningApproval"></NavLink>
-              Planning Approval
-            </MenuItem>
-            <MenuItem
-              className="text"
-              icon={
-                <FactCheckIcon
-                  className="text-white"
-                  style={{
-                    background: "#004B5B",
-                    borderRadius: "3px",
-                    padding: "2px",
-                  }}
-                />
-              }
-              href="/implementationApproval"
-            >
-              <NavLink to="/implementationApproval"></NavLink>
-              Implementation Approval
-            </MenuItem>
-          </SubMenu>
+              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+              <MenuItem
+                className="text"
+                icon={
+                  <FactCheckIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+                href="/planningApproval"
+              >
+                <NavLink to="/planningApproval"></NavLink>
+                Planning Approval
+              </MenuItem>
+            </SubMenu>
+          )}
 
           <SubMenu
             className="text-white"
@@ -399,7 +410,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pmSheetApprovalOfImplementationPhase"></NavLink>
+              <NavLink to="/pendingPMLogHistory"></NavLink>
               Pending PM Log History
             </MenuItem>
           </SubMenu>
@@ -437,16 +448,20 @@ const TL = ({ userData, userDepartment }) => {
             <NavLink to="/spareReportDashboard"></NavLink>
             Spare Report
           </Menuitem>
-          <Menuitem
-            className="text-white"
-            icon={<CloudDownloadIcon className="text-white" />}
-            data-toggle="tooltip"
-            data-placement="right"
-            title="Back-end Data"
-          >
-            <NavLink to="/backupDataOfCheckSheet"></NavLink>
-            Back-end Data
-          </Menuitem>
+          {userDepartment === "MTD" ? (
+            <Menuitem
+              className="text-white"
+              icon={<CloudDownloadIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Back-end Data"
+            >
+              <NavLink to="/backupDataOfCheckSheet"></NavLink>
+              Back-end Data
+            </Menuitem>
+          ) : (
+            ""
+          )}
           <SubMenu
             className="text-white"
             title="PM Report"
@@ -535,13 +550,23 @@ const TL = ({ userData, userDepartment }) => {
               PM Time Monitoring
             </MenuItem>
           </SubMenu>
+          <Menuitem
+            className="text-white"
+            icon={<PendingActionsIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Open Abnormality Tracking"
+          >
+            <NavLink to="/openAbnormalityTrack"></NavLink>
+            Open Abnormality Tracking
+          </Menuitem>
         </Menu>
       </SidebarContent>
       <SidebarFooter fixed="bottom">
         <Menu iconShape="square">
           <MenuItem
             className="text"
-            icon={<LogoutIcon className="text-white" />}
+            icon={<LogoutIcon className="text-white" style={{ transform: "rotate(180deg)" }}/>}
             data-toggle="tooltip"
             data-placement="right"
             title="Logout"

@@ -243,10 +243,55 @@ const EditRemarksAfterRejectPopups = ({
         window.alert("Invalid");
       } else {
         console.log("Remarks Added Successful");
+        postNewLogHistory(updatedRow);
         functionToSetRefKey();
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const postNewLogHistory = async (updatedRow) => {
+    const res = await fetch("/submitLogHistoryAfterRejection", {
+      method: "Post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        yearOfCheckSheet: machineData?.checkSheet_data?.current_year,
+        values: updatedRow,
+        inceptionValueForLogHistory: updatedRow?.inspection_parent_name,
+        completionDateOfInspection: timeStamp(),
+
+        remarks: updatedRow?.remarks,
+        fileNameForLogHistory:
+          updatedRow?.abnormalityDetails?.[senderApprovalMonth]
+            ?.PMuploadedImage,
+
+        refKeyForScheduleMonthInLogHistory:
+          updatedRow?.planningTableAnimationArray2?.[senderApprovalMonth]?.[0],
+
+        workedOnPM:
+          updatedRow?.planningTableAnimationArray2?.[senderApprovalMonth]?.[1],
+
+        abnormalityRemarks:
+          updatedRow?.abnormalityDetails?.[senderApprovalMonth]
+            ?.abnormalityRemarks,
+
+        spareParts: updatedRow?.spareDetails?.[senderApprovalMonth]?.spareParts,
+        part_name: updatedRow?.spareDetails?.[senderApprovalMonth]?.partName,
+        part_no: updatedRow?.spareDetails?.[senderApprovalMonth]?.partNo,
+        part_cost: updatedRow?.spareDetails?.[senderApprovalMonth]?.cost,
+
+        target:
+          updatedRow?.abnormalityDetails?.[senderApprovalMonth]?.targetDate,
+        machineAllData: machineData,
+      }),
+    });
+    const data = res.json();
+    // console.log(data);
+    if (res.status === 400 || res.status === 422 || !data) {
+      window.alert("Invalid credentials !");
+    } else {
+      console.log("Log Added Successfully...");
     }
   };
 
@@ -368,9 +413,9 @@ const EditRemarksAfterRejectPopups = ({
                   //call the update user function and pass the user data
                   // updateUserInfo(updatedRow);
 
-                  // console.log(updatedRow);
+                  console.log(updatedRow);
 
-                  submitRemarksAfterTLOrHosRejection(updatedRow, oldRow);
+                  // submitRemarksAfterTLOrHosRejection(updatedRow, oldRow);
                   setTimeout(() => {
                     // setRefKey2((refKey2) => refKey2 + 1);
                     resolve();

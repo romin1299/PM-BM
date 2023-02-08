@@ -1,14 +1,10 @@
 import {
   React,
   styles,
-
   NavLink,
   denso_logo,
-
   halflogo,
-
   DashboardIcon,
-
   NoteAddIcon,
   AddTaskIcon,
   FactCheckIcon,
@@ -17,14 +13,9 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { FaThList } from "react-icons/fa";
-import {
-  FiArrowLeftCircle,
-  FiArrowRightCircle,
-} from "react-icons/fi";
-
+import { FiArrowLeftCircle, FiArrowRightCircle } from "react-icons/fi";
 
 import { useState } from "react";
-
 
 import SummarizeIcon from "@mui/icons-material/Summarize";
 
@@ -32,11 +23,11 @@ import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import BackupTableIcon from "@mui/icons-material/BackupTable";
 
-import TaskIcon from '@mui/icons-material/Task';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import StorageIcon from '@mui/icons-material/Storage';
-import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
-import ArticleIcon from '@mui/icons-material/Article';
+import TaskIcon from "@mui/icons-material/Task";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import StorageIcon from "@mui/icons-material/Storage";
+import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
+import ArticleIcon from "@mui/icons-material/Article";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 
@@ -46,7 +37,6 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import styled from "styled-components";
 
 import Logout from "../../Integration/Logout/Logout";
-
 
 import {
   Menu,
@@ -59,7 +49,6 @@ import {
 } from "react-pro-sidebar";
 import "react-pro-sidebar/dist/css/styles.css";
 
-
 const Menuitem = styled(MenuItem)`
   :hover {
     background-color: white;
@@ -70,9 +59,7 @@ const Menuitem = styled(MenuItem)`
   }
 `;
 
-const Section = ({ userData }) => {
-
-
+const Section = ({ userData, userDepartment }) => {
   const [open, setOpen] = React.useState(true);
   const [menuCollapse, setMenuCollapse] = useState(true);
   const navigate = useNavigate();
@@ -104,7 +91,6 @@ const Section = ({ userData }) => {
   };
   return (
     <>
-
       <ProSidebar style={styles.sideBarHeight} collapsed={menuCollapse}>
         <div style={styles.bg}>
           {/* <div className="d-flex align-items-center justify-content-center m-2">
@@ -114,14 +100,13 @@ const Section = ({ userData }) => {
             <SidebarHeader>
               <div className="logotext">
                 {/* small and big change using menucollapse state */}
-                <p className="d-flex align-items-center justify-content-center m-2 sticky-top">
+                <p className="d-flex align-items-center justify-content-center m-2 sticky-top bg-white">
                   {menuCollapse ? (
                     <img
                       src={denso_logo}
                       alt=""
-                      style={{ width: "50%", padding: "5px" }}
+                      style={{ width: "100%", padding: "5px" }}
                       className="bg-white"
-
                     />
                   ) : (
                     <img
@@ -153,22 +138,59 @@ const Section = ({ userData }) => {
         </div>
         <SidebarContent>
           <Menu iconShape="square" style={styles.bg}>
-            <Menuitem
+            <SubMenu
               className="text-white"
-              data-toggle="tooltip"
-              data-placement="right"
               title="Dashboard"
               icon={<DashboardIcon className="text-white" />}
             >
-              <NavLink to="/"></NavLink> Dashboard
-            </Menuitem>
+              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+              <MenuItem
+                className="text"
+                data-toggle="tooltip"
+                data-placement="right"
+                title="Dashboard"
+                icon={
+                  <DashboardIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/"></NavLink> Section Dashboard
+              </MenuItem>
+
+              <MenuItem
+                className="text"
+                data-toggle="tooltip"
+                data-placement="right"
+                title="Dashboard"
+                icon={
+                  <DashboardIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/summeryDashboard"></NavLink> Plant Dashboard
+              </MenuItem>
+            </SubMenu>
+
             <SubMenu
               className="text-white"
               title="Creation"
               icon={<FaThList className="text-white" />}
             >
-              <Menuitem
-                className="text-white"
+              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+              <MenuItem
+                className="text"
                 icon={
                   <NoteAddIcon
                     className="text-white"
@@ -182,9 +204,10 @@ const Section = ({ userData }) => {
               >
                 <NavLink to="/creationDashboard"></NavLink>
                 Creation Dashboard
-              </Menuitem>
-              <Menuitem
-                className="text-white"
+              </MenuItem>
+
+              <MenuItem
+                className="text"
                 icon={
                   <PersonAddIcon
                     className="text-white"
@@ -198,12 +221,8 @@ const Section = ({ userData }) => {
               >
                 <NavLink to="/userAssign"></NavLink>
                 User Assign
-              </Menuitem>
-              
+              </MenuItem>
             </SubMenu>
-            
-            
-
 
             <SubMenu
               className="text-white"
@@ -223,13 +242,12 @@ const Section = ({ userData }) => {
                     }}
                   />
                 }
-                href="/preparationApproval"
               >
                 <NavLink to="/preparationApproval"></NavLink>
                 Preparation Approval
               </MenuItem>
 
-              <MenuItem
+              {/* <MenuItem
                 className="text"
                 icon={
                   <FactCheckIcon
@@ -241,11 +259,10 @@ const Section = ({ userData }) => {
                     }}
                   />
                 }
-                href="/planningApproval"
               >
                 <NavLink to="/planningApproval"></NavLink>
                 Planning Approval
-              </MenuItem>
+              </MenuItem> */}
               <MenuItem
                 className="text"
                 icon={
@@ -258,15 +275,12 @@ const Section = ({ userData }) => {
                     }}
                   />
                 }
-                href="/implementationApproval"
               >
                 <NavLink to="/implementationApproval"></NavLink>
                 Implementation Approval
               </MenuItem>
             </SubMenu>
 
-           
-            
             <SubMenu
               className="text-white"
               title="PM Report"
@@ -285,8 +299,8 @@ const Section = ({ userData }) => {
                     }}
                   />
                 }
-                href="/logHistory"
               >
+                <NavLink to="/machineWisePmMonthlyReport"></NavLink>
                 Monthly Report (Machine)
               </MenuItem>
 
@@ -302,8 +316,8 @@ const Section = ({ userData }) => {
                     }}
                   />
                 }
-                href="/pmSheetApprovalOfImplementationPhase"
               >
+                <NavLink to="/lineWisePmMonthlyReport"></NavLink>
                 Monthly Report (Line)
               </MenuItem>
               <MenuItem
@@ -318,8 +332,8 @@ const Section = ({ userData }) => {
                     }}
                   />
                 }
-                href="/pmSheetApprovalOfImplementationPhase"
               >
+                <NavLink to="/annualPMSchedule"></NavLink>
                 Annual PM Schedule
               </MenuItem>
               <MenuItem
@@ -334,8 +348,8 @@ const Section = ({ userData }) => {
                     }}
                   />
                 }
-                href="/pmSheetApprovalOfImplementationPhase"
               >
+                <NavLink to="/annualPmStatus"></NavLink>
                 Annual PM PM vs Actual
               </MenuItem>
               <MenuItem
@@ -350,12 +364,11 @@ const Section = ({ userData }) => {
                     }}
                   />
                 }
-                href="/pmSheetApprovalOfImplementationPhase"
               >
+                <NavLink to="/pmTimeMonitoringReport"></NavLink>
                 PM Time Monitoring
               </MenuItem>
             </SubMenu>
-
 
             <SubMenu
               className="text-white"
@@ -435,12 +448,10 @@ const Section = ({ userData }) => {
                   />
                 }
               >
-                <NavLink to="/pmSheetApprovalOfImplementationPhase"></NavLink>
+                <NavLink to="/pendingPMLogHistory"></NavLink>
                 Pending PM Log History
               </MenuItem>
             </SubMenu>
-
-   
 
             <Menuitem
               className="text-white"
@@ -462,17 +473,30 @@ const Section = ({ userData }) => {
               <NavLink to="/spareReportDashboard"></NavLink>
               Spare Report
             </Menuitem>
+            {userDepartment === "MTD" ? (
+              <Menuitem
+                className="text-white"
+                icon={<CloudDownloadIcon className="text-white" />}
+                data-toggle="tooltip"
+                data-placement="right"
+                title="Back-end Data"
+              >
+                <NavLink to="/backupDataOfCheckSheet"></NavLink>
+                Back-end Data
+              </Menuitem>
+            ) : (
+              ""
+            )}
             <Menuitem
               className="text-white"
-              icon={<CloudDownloadIcon className="text-white" />}
+              icon={<PendingActionsIcon className="text-white" />}
               data-toggle="tooltip"
               data-placement="right"
-              title="Back-end Data"
+              title="Open Abnormality Tracking"
             >
-              <NavLink to="/backupDataOfCheckSheet"></NavLink>
-              Back-end Data
+              <NavLink to="/openAbnormalityTrack"></NavLink>
+              Open Abnormality Tracking
             </Menuitem>
-            
           </Menu>
         </SidebarContent>
         <SidebarFooter fixed="bottom">
@@ -498,7 +522,6 @@ const Section = ({ userData }) => {
         </SidebarFooter>
       </ProSidebar>
     </>
-
   );
 };
 

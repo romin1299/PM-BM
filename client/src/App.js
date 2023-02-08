@@ -145,7 +145,18 @@ function App() {
                 <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} />
                 <Route path="/openAbnormalityTrack" element={<OpenAbnormalityTrack />} />
                 <Route path="/spareReportDashboard" element={<SpareReportMainDashboard />} />
+                <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
+                <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
+                <Route path="/summeryDashboard" element={<SummeryDashboard />} />
+                <Route path="/logHistory" element={<LogHistory />} />
+                <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
+                <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} />
+                <Route path="/backupTableData" element={<ShowBackupChecksheetTableData />} />
+                <Route path="/pmSheetApprovalOfImplementationPhase" element={<PMSheetApprovalOfImplementationPhase />} />
+                <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
 
+                <Route path="/backupDataOfCheckSheet" element={<BackupDataOfCheckSheet />} />
+                <Route path="/spareReportDashboard" element={<SpareReportMainDashboard />} />
               </Routes>
             }
           />
@@ -178,8 +189,11 @@ function App() {
                 <Route path="/logHistory" element={<LogHistory />} />
                 <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
                 <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} />
+                <Route path="/backupTableData" element={<ShowBackupChecksheetTableData />} />
 
                 <Route path="/backupDataOfCheckSheet" element={<BackupDataOfCheckSheet />} />
+                <Route path="/spareReportDashboard" element={<SpareReportMainDashboard />} />
+                <Route path="/openAbnormalityTrack" element={<OpenAbnormalityTrack />} />
 
                 {/* <Route path="/checkSheet" element={<CheckSheet />} /> */}
 
@@ -222,6 +236,7 @@ function App() {
                 <Route path="/logHistory" element={<LogHistory />} />
                 <Route path="/pendingPMLogHistory" element={<PendingPMLogHistory />} />
                 <Route path="/skipedPMWorkData" element={<SkipPMWorkData />} />
+                <Route path="/spareReportDashboard" element={<SpareReportMainDashboard />} />
 
                 {/* <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
@@ -233,6 +248,11 @@ function App() {
                 <Route path="/annualPMSchedule" element={<AnnualPMSchedule />} />
                 <Route path="/annualPmStatus" element={<AnnualPmStatus />} />
                 <Route path="/pmTimeMonitoringReport" element={<PmTimeMonitoringReport />} />
+                <Route path="/operatorDataEntry" element={<OperatorDataEntry />} />
+                <Route path="/backupTableData" element={<ShowBackupChecksheetTableData />} />
+                <Route path="/backupDataOfCheckSheet" element={<BackupDataOfCheckSheet />} />
+                <Route path="/openAbnormalityTrack" element={<OpenAbnormalityTrack />} />
+
 
               </Routes>
             }

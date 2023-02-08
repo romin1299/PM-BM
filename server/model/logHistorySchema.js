@@ -8,6 +8,10 @@ const commonVarForTypeNumber = {
     type: Number
 }
 
+const commonVarForTypeArray = {
+    type: [String]
+}
+
 const logHistorySchema = new mongoose.Schema({
 
     current_year: commonVarForTypeString,
@@ -68,7 +72,7 @@ const logHistorySchema = new mongoose.Schema({
 
     abnormality_status: commonVarForTypeString,
 
-    target: commonVarForTypeString,
+    target: commonVarForTypeArray,
 
     spare_used: commonVarForTypeString,
 
@@ -81,7 +85,7 @@ const logHistorySchema = new mongoose.Schema({
     done_by: commonVarForTypeString,
 
     uploaded_file_name: commonVarForTypeString,
-    
+
     reason_for_delay: commonVarForTypeString,
 })
 

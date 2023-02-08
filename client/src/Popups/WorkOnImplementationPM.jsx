@@ -216,7 +216,7 @@ function WorkOnImplementationPM({
           &times;
         </span>
 
-        <button onClick={postNewLogHistory}>functionCall</button>
+        {/* <button onClick={postNewLogHistory}>functionCall</button> */}
         <div>
         <h4 style={{ textAlign: "left", color:"#dc3545"}}>Work on Implementation</h4>
         <br />
