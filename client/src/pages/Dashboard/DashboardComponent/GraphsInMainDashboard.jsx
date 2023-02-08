@@ -239,7 +239,9 @@ const GraphsInMainDashboard = ({
     <div className="m-2">
       {/* <Container className="d-flex justify-content-center align-items-center"></Container> */}
       <Row className="d-flex justify-content-center align-items-center">
+       
         <div className="cell">
+        
           <MonthlyTrendGraph annualGraph={annualGraph} />
         </div>
       </Row>
@@ -268,16 +270,16 @@ const GraphsInMainDashboard = ({
                     // style={{ background: Data.bgColor }}
                     className={Data.bgColor}
                   >
-                    <td>{Data.name}</td>
-                    <td>{Data.value}</td>
+                    <td><b>{Data.name}</b></td>
+                    <td><b>{Data.value}</b></td>
                   </tr>
                   {TableData.map((item) => (
                     <tr
                       // style={{ background: item.bgColor }}
                       className={item.bgColor}
                     >
-                      <td>{item.name}</td>
-                      <td>{item.value}</td>
+                      <td><b>{item.name}</b></td>
+                      <td><b>{item.value}</b></td>
                     </tr>
                   ))}
                 </tbody>

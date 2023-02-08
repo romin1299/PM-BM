@@ -18,9 +18,9 @@ const MonthDropDownForMainDashboard = ({ selectedMonth, setSelectedMonth }) => {
   ];
 
   return (
-    <Row className="p-1 ">
+    <Row className="pb-5 d-flex align-items-center justify-content-center">
       <span>
-        <b>Month: &nbsp;</b>
+        <b>Month:&nbsp;</b>
         <select
         class="form-select form-select-sm"
         aria-label=".form-select-sm example"

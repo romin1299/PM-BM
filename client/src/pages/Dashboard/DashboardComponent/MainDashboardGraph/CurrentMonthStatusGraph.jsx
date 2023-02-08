@@ -61,8 +61,22 @@
 import React from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Pie } from "react-chartjs-2";
+
+export const options = {
+  responsive: true,
+  plugins: {
+    
+    title: {
+      display: true,
+      text: 'Monthly Plan vs Actual',
+    },
+  },
+};
 const CurrentMonthStatusGraph = ({ TableData }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
+
+
+  
 
   const data = {
     labels: TableData?.map((item) => item.name),
@@ -90,7 +104,7 @@ const CurrentMonthStatusGraph = ({ TableData }) => {
       },
     ],
   };
-  return <Pie data={data} />;
+  return <Pie options={options} data={data} />;
 };
 
 export default CurrentMonthStatusGraph;

@@ -90,7 +90,7 @@ const Admin = ({ userData }) => {
               <p className="d-flex align-items-center justify-content-center m-2 sticky-top">
                 {menuCollapse ? (
                   <img
-                    src={halflogo}
+                    src={denso_logo}
                     alt=""
                     style={{ width: "50%", padding: "5px" }}
                     className="bg-white"

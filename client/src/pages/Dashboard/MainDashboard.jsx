@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Button } from "react-bootstrap";
 import CheckSheetForImplementation from "../Operator/CheckSheetForImplementation";
 import GettingMachineDataForCheckSheetImplementation from "../Operator/GettingMachineDataForCheckSheetImplementation";
+import RectangleIcon from '@mui/icons-material/Rectangle';
 
 import currentYear from "./DashboardComponent/currentYear";
 import YearDropDown from "./DashboardComponent/YearDropDown";
@@ -751,7 +752,7 @@ const MainDashboard = () => {
                         subSectionList.sectionInfo.dashboardLevel === "Yes" ? (
                           ""
                         ) : (
-                          <Col>
+                          <Col sm={6}>
                             {/* <div>
                             </div> */}
                             <span
@@ -808,15 +809,15 @@ const MainDashboard = () => {
                         ""
                       )}
                       {context.user_type === "Section-Admin" ? (
-                        <Col sm={3}>
+                        <Col sm={6} className="d-flex align-items-center justify-content-center" >
                           <button
-                            className="btn-primary1"
+                            className="btn text-dark" style={{background:"#D1ECF1"}}
                             onClick={addNewCheckSheetAfterChangeFinancialyear}
                           >
                             <AutorenewIcon style={{ fontSize: "small" }} />{" "}
-                            &nbsp; Update{" "}
+                            &nbsp; <b>Update{" "}
                             {`${new Date().getFullYear()}-${new Date().getFullYear() + 1
-                              }`}
+                              }`}</b>
                           </button>
                         </Col>
                       ) : (
@@ -827,7 +828,7 @@ const MainDashboard = () => {
 
                   <Col sm={6}>
                     <Row
-                      className="mx-1 cell p-2"
+                      className="mx-1 cell d-flex align-content-center justify-content-center pt-2 "
                     // className="mx-2 mt-4 p-2 cell"
                     // style={{ background: "#cee4ee", border: "1px solid" }}
                     >
@@ -857,43 +858,49 @@ const MainDashboard = () => {
                     </Row>
                   </Col>
                 </Row>
-                <Row className="cell m-2 g-3">
+                <Row className="d-flex align-content-center justify cell m-2 g-3" style={{background:"#E0E0E0"}}>
                   <Col
-                    style={{ background: "#ffffff" }}
-                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                    
+                    className=" col-lg-2 col-md-6 col-sm-6 " style={{fontWeight:"bold", fontSize:"14px"
+                    }}
                   >
-                    Schedule
+                    <RectangleIcon className="bg-white" style={{  color:"#ffffff" }}/> &nbsp;Schedule
                   </Col>
                   <Col
-                    style={{ background: "#ffff59" }}
-                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                    
+                    className="col-lg-2 col-md-6 col-sm-6 " style={{fontWeight:"bold", fontSize:"14px"
+                  }}
                   >
-                    Ongoing
+                    <RectangleIcon style={{ background: "#ffff59", color:"#ffff59" }}/> &nbsp;Ongoing
                   </Col>
                   <Col
-                    style={{ background: "#5fe15f" }}
-                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                    
+                    className=" col-lg-2 col-md-6 col-sm-6 " style={{fontWeight:"bold", fontSize:"14px"
+                  }}
                   >
-                    Completed
+                    <RectangleIcon style={{ background: "#5fe15f", color:"5fe15f" }}/> &nbsp;Completed
                   </Col>
                   <Col
-                    style={{ background: "#ababab", color: "white" }}
-                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                    
+                    className=" col-lg-2 col-md-6 col-sm-6 " style={{fontWeight:"bold", fontSize:"14px"
+                  }}
                   >
-                    Not Schedule
+                    <RectangleIcon style={{ background: "#ababab", color: "#ababab" }}/> &nbsp;Not Schedule
                   </Col>
 
                   <Col
-                    style={{ background: "#ffc356", color: "white" }}
-                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                   
+                    className=" col-lg-2 col-md-6 col-sm-6 " style={{fontWeight:"bold", fontSize:"14px"
+                  }}
                   >
-                    Done with delay
+                    <RectangleIcon  style={{ background: "#ffc356", color: "#ffc356" }}/> &nbsp;Done with delay
                   </Col>
                   <Col
-                    style={{ background: "#ff8888", color: "white" }}
-                    className="d-flex justify-content-center align-items-center cell col-lg-2 col-md-6 col-sm-6"
+                    
+                    className=" col-lg-2 col-md-6 col-sm-6 " style={{fontWeight:"bold", fontSize:"14px"
+                  }}
                   >
-                    No completion / PM Skip
+                    <RectangleIcon style={{ background: "#ff8888", color: "#ff8888" }}/> &nbsp;No completion / PM Skip
                   </Col>
                 </Row>
 
