@@ -865,7 +865,7 @@ const CheckSheetDashboard = () => {
       <div className='mt-5'>
         <div id="footer" style={{ marginLeft: "-10px" }}>
           {/* <p>© 2020 <span style={{ color: "red" }}>Denso</span>. All rights reserved</p> */}
-          <p style={{ marginLeft: "-70px" }}> © {new Date().getFullYear()}<span style={{ color: "#dc3545" }}><b> Denso</b></span>. All rights reserved  </p>
+          <p style={{ marginLeft: "-70px" }}> © {new Date().getFullYear()}<span style={{ color: "#dc3545" }}><b> Denso</b></span>. All rights reserved. </p>
         </div>
         </div>
     </>
