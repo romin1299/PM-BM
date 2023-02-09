@@ -261,294 +261,254 @@ const PendingPMLogHistory = () => {
   return (
     <>
       <Container fluid>
-        <Row>
-          <Col sm={12} md={6} lg={2}>
+
+        <Row className="mt-3 my-3">
+          <Col sm={12} md={6} lg={2} className="mb-2">
             <YearDropDown
               selectedYear={selectedYear}
               setSelectedYear={setSelectedYear}
             />
-          </Col>
-          <Col sm={12} md={6} lg={2}>
+          </Col >
+          <Col sm={12} md={6} lg={2} className="mb-2">
             <MonthDropDown
               selectedMonth={selectedMonth ? selectedMonth : ""}
               setSelectedMonth={setSelectedMonth}
             />
           </Col>
-          <Col sm={12} md={6} lg={2}>
-            <Row className="p-2 ">
-              <Col sm={12} lg={3}>
-                <span>
-                  <b>Cell:</b>
-                </span>
-              </Col>
-              <Col>
-                <div>
-                  <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    // style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="selectedCell"
-                    value={selectedCell}
-                    className="textField"
-                    onChange={(e) => {
-                      // console.log(e.target.value);
 
-                      // console.log(
-                      //   allDataSectionWise?.cellData?.[e.target.value]?.cell_id
-                      // );
-                      setSelectedCell(
-                        e.target.value
-                        // allDataSectionWise?.cellData?.[e.target.value]
-                      );
-                      postCellToGetLineList(
-                        allDataSectionWise?.cellData?.[e.target.value]?._id
-                      );
-                      setLoadingAnimationState(<LoadingAnimation />);
-                    }}
-                    // fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {allDataSectionWise?.cellData?.map((option, index) => {
-                      return <option value={index}>{option.cell_name}</option>;
-                    })}
-                  </select>
-                </div>
-              </Col>
-            </Row>
-          </Col>
-          <Col sm={12} md={6} lg={2}>
-            <Row className="p-2 ">
-              <Col sm={12} lg={3}>
-                <span>
-                  <b>Line:</b>
-                </span>
-              </Col>
-              <Col>
-                <div>
-                  <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    // style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="selectedPlant"
-                    value={selectedLine}
-                    className="textField"
-                    onChange={(e) => {
-                      // console.log(
-                      //   "----------->",
-                      //   lineDropdown?.[e.target.value]?._id
-                      // );
-                      setSelectedLine(e.target.value);
-                      postLineToGetAllMachineData(
-                        lineDropdown?.[e.target.value]?._id,
-                        currentYear
-                      ).then((result) =>
-                        setMachineDropdown(result?.machineInfo)
-                      );
-                      setLoadingAnimationState(<LoadingAnimation />);
-                    }}
-                    // fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {lineDropdown?.map((option, index) => {
-                      return <option value={index}>{option.line_name}</option>;
-                    })}
-                  </select>
-                </div>
-              </Col>
-            </Row>
-          </Col>
-          <Col sm={12} md={6} lg={2}>
-            <Row className="p-2 ">
-              <Col>
-                <div>
-                  <button
-                    class="btn-primary1 w-50"
-                    onClick={() => {
-                      setSelectedCell("");
-                      setSelectedLine("");
-                      setLineDropdown([]);
-                      setSelectedMonth();
-                      setSelectedMachine();
-                      setAbnormalityYesOrNo();
-                      setSpareYesOrNo();
-                      setSelectedAbnormalityStatus();
-                      setMachineDropdown([]);
-                    }}
-                  >
-                    Reset
-                  </button>
-                </div>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
+          <Col sm={12} md={6} lg={2} className="mb-2">
+            <span>
+              <b>Cell:&nbsp;&nbsp;</b>
+            </span>
+            <select
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              style={{ width: "70%" }}
+              id="standard-select-currency"
+              name="selectedCell"
+              value={selectedCell}
+              className="textField"
+              onChange={(e) => {
+                // console.log(e.target.value);
 
-        <Row>
-          <Col sm={12} md={6} lg={3}>
-            <Row className="p-2 ">
-              <Col>
-                <span>
-                  <b>Machine:</b>
-                </span>
-              </Col>
-              <Col>
-                <div>
-                  <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    // style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="selectedMachine"
-                    value={selectedMachine ? selectedMachine : ""}
-                    className="textField"
-                    onChange={(e) => {
-                      setSelectedMachine(e.target.value);
-                    }}
-                    // fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {machineDropdown?.map((option, index) => {
-                      return (
-                        <option value={option?.machine_code}>
-                          {option?.machine_name}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-              </Col>
-            </Row>
+                // console.log(
+                //   allDataSectionWise?.cellData?.[e.target.value]?.cell_id
+                // );
+                setSelectedCell(
+                  e.target.value
+                  // allDataSectionWise?.cellData?.[e.target.value]
+                );
+                postCellToGetLineList(
+                  allDataSectionWise?.cellData?.[e.target.value]?._id
+                );
+                setLoadingAnimationState(<LoadingAnimation />);
+              }}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {allDataSectionWise?.cellData?.map((option, index) => {
+                return <option value={index}>{option.cell_name}</option>;
+              })}
+            </select>
+
+          </Col>
+
+          <Col sm={12} md={6} lg={2} className="mb-2">
+            <span>
+              <b>Line:&nbsp;</b>
+            </span>
+            <select
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              style={{ width: "70%" }}
+              id="standard-select-currency"
+              name="selectedPlant"
+              value={selectedLine}
+              className="textField"
+              onChange={(e) => {
+                // console.log(
+                //   "----------->",
+                //   lineDropdown?.[e.target.value]?._id
+                // );
+                setSelectedLine(e.target.value);
+                postLineToGetAllMachineData(
+                  lineDropdown?.[e.target.value]?._id,
+                  currentYear
+                ).then((result) =>
+                  setMachineDropdown(result?.machineInfo)
+                );
+                setLoadingAnimationState(<LoadingAnimation />);
+              }}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {lineDropdown?.map((option, index) => {
+                return <option value={index}>{option.line_name}</option>;
+              })}
+            </select>
+
+          </Col>
+
+          <Col sm={12} md={6} lg={2} className="mb-2">
+            <button
+              class="btn-primary1 w-50"
+              onClick={() => {
+                setSelectedCell("");
+                setSelectedLine("");
+                setLineDropdown([]);
+                setSelectedMonth();
+                setSelectedMachine();
+                setAbnormalityYesOrNo();
+                setSpareYesOrNo();
+                setSelectedAbnormalityStatus();
+                setMachineDropdown([]);
+              }}
+            >
+              Reset
+            </button>
+          </Col>
+
+          <Col sm={12} md={6} lg={2}></Col>
+        </Row >
+
+
+
+        <Row className="mt-3">
+          <Col sm={12} md={6} lg={3} className="mb-2">
+            <span>
+              <b>Machine:</b>
+            </span>
+            <select
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              // style={{ width: "100%" }}
+              id="standard-select-currency"
+              name="selectedMachine"
+              value={selectedMachine ? selectedMachine : ""}
+              className="textField"
+              onChange={(e) => {
+                setSelectedMachine(e.target.value);
+              }}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {machineDropdown?.map((option, index) => {
+                return (
+                  <option value={option?.machine_code}>
+                    {option?.machine_name}
+                  </option>
+                );
+              })}
+            </select>
+
           </Col>
           {/* {console.log(abnormalityYesOrNo)} */}
 
-          <Col sm={12} md={6} lg={3}>
-            <Row className="p-2 ">
-              <Col sm={12} lg="auto">
-                <span>
-                  <b>Abnormality(Yes/No):</b>
-                </span>
-              </Col>
-              <Col>
-                <div>
-                  <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    // style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="abnormalityYesOrNo"
-                    value={abnormalityYesOrNo ? abnormalityYesOrNo : ""}
-                    className="textField"
-                    onChange={(e) => {
-                      setAbnormalityYesOrNo(e.target.value);
-                    }}
-                    // fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {["Yes", "No"]?.map((option, index) => {
-                      return <option value={option}>{option}</option>;
-                    })}
-                  </select>
-                </div>
-              </Col>
-            </Row>
+          <Col sm={12} md={6} lg={3} className="mb-2">
+            <span>
+              <b>Abnormality(Yes/No):</b>
+            </span>
+            <select
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              // style={{ width: "100%" }}
+              id="standard-select-currency"
+              name="abnormalityYesOrNo"
+              value={abnormalityYesOrNo ? abnormalityYesOrNo : ""}
+              className="textField"
+              onChange={(e) => {
+                setAbnormalityYesOrNo(e.target.value);
+              }}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {["Yes", "No"]?.map((option, index) => {
+                return <option value={option}>{option}</option>;
+              })}
+            </select>
+
           </Col>
 
-          <Col sm={12} md={6} lg={3}>
-            <Row className="p-2 ">
-              <Col sm={12} lg="auto">
-                <span>
-                  <b>Spare(Yes/No):</b>
-                </span>
-              </Col>
-              <Col>
-                <div>
-                  <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    // style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="spareYesOrNo"
-                    value={spareYesOrNo ? spareYesOrNo : ""}
-                    className="textField"
-                    onChange={(e) => {
-                      setSpareYesOrNo(e.target.value);
-                    }}
-                    // fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {["Yes", "No"]?.map((option, index) => {
-                      return <option value={option}>{option}</option>;
-                    })}
-                  </select>
-                </div>
-              </Col>
-            </Row>
+          <Col sm={12} md={6} lg={3} className="mb-2">
+            <span>
+              <b>Spare(Yes/No):</b>
+            </span>
+            <select
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              // style={{ width: "100%" }}
+              id="standard-select-currency"
+              name="spareYesOrNo"
+              value={spareYesOrNo ? spareYesOrNo : ""}
+              className="textField"
+              onChange={(e) => {
+                setSpareYesOrNo(e.target.value);
+              }}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {["Yes", "No"]?.map((option, index) => {
+                return <option value={option}>{option}</option>;
+              })}
+            </select>
+
           </Col>
 
-          <Col sm={12} md={6} lg={3}>
-            <Row className="p-2 ">
-              <Col sm={12} lg="auto">
-                <span>
-                  <b>Abnormality(Open/Closed):</b>
-                </span>
-              </Col>
-              <Col>
-                <div>
-                  <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    // style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="selectedAbnormalityStatus"
-                    value={
-                      selectedAbnormalityStatus ? selectedAbnormalityStatus : ""
-                    }
-                    className="textField"
-                    onChange={(e) => {
-                      setSelectedAbnormalityStatus(e.target.value);
-                    }}
-                    // fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {["Open", "Closed"]?.map((option, index) => {
-                      return <option value={option}>{option}</option>;
-                    })}
-                  </select>
-                </div>
-              </Col>
-            </Row>
+          <Col sm={12} md={6} lg={3} className="mb-2">
+            <span>
+              <b>Abnormality(Open/Closed):</b>
+            </span>
+            <select
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              // style={{ width: "100%" }}
+              id="standard-select-currency"
+              name="selectedAbnormalityStatus"
+              value={
+                selectedAbnormalityStatus ? selectedAbnormalityStatus : ""
+              }
+              className="textField"
+              onChange={(e) => {
+                setSelectedAbnormalityStatus(e.target.value);
+              }}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {["Open", "Closed"]?.map((option, index) => {
+                return <option value={option}>{option}</option>;
+              })}
+            </select>
+
           </Col>
         </Row>
       </Container>
@@ -566,8 +526,8 @@ const PendingPMLogHistory = () => {
                       tColumn.header === "Preparation"
                         ? 3
                         : tColumn.header === "Planning"
-                        ? 2
-                        : 0
+                          ? 2
+                          : 0
                     }
                   >
                     {tColumn.header}
@@ -579,27 +539,27 @@ const PendingPMLogHistory = () => {
               {logHistoryData?.map((item, index) =>
                 (selectedCell
                   ? item?.cellInfo?.cell_Id ===
-                    allDataSectionWise?.cellData?.[selectedCell]?.cell_id
+                  allDataSectionWise?.cellData?.[selectedCell]?.cell_id
                   : true) &&
-                (selectedMonth
-                  ? item?.schedule_month === selectedMonth
-                  : true) &&
-                (selectedLine
-                  ? item?.lineInfo?.line_Id ===
+                  (selectedMonth
+                    ? item?.schedule_month === selectedMonth
+                    : true) &&
+                  (selectedLine
+                    ? item?.lineInfo?.line_Id ===
                     lineDropdown?.[selectedLine]?.line_id
-                  : true) &&
-                (selectedMachine
-                  ? item?.machineInfo?.machine_Id === selectedMachine
-                  : true) &&
-                (abnormalityYesOrNo
-                  ? item?.abnormality_remarks
-                    ? abnormalityYesOrNo === "Yes"
-                    : abnormalityYesOrNo === "No"
-                  : true) &&
-                (selectedAbnormalityStatus
-                  ? item?.abnormality_status === selectedAbnormalityStatus
-                  : true) &&
-                (spareYesOrNo ? item?.spare_used === spareYesOrNo : true) ? (
+                    : true) &&
+                  (selectedMachine
+                    ? item?.machineInfo?.machine_Id === selectedMachine
+                    : true) &&
+                  (abnormalityYesOrNo
+                    ? item?.abnormality_remarks
+                      ? abnormalityYesOrNo === "Yes"
+                      : abnormalityYesOrNo === "No"
+                    : true) &&
+                  (selectedAbnormalityStatus
+                    ? item?.abnormality_status === selectedAbnormalityStatus
+                    : true) &&
+                  (spareYesOrNo ? item?.spare_used === spareYesOrNo : true) ? (
                   <tr className="ar-table-thead-header4 tableRowColor">
                     {/* {console.log(item?.lineInfo?.line_Id)} */}
                     <td className="td-padding">{index + 1}</td>
@@ -652,12 +612,15 @@ const PendingPMLogHistory = () => {
       ) : (
         <div
           className="container-fluid d-flex justify-content-center align-items-center p-5"
-          // style={{ height: "100vh" }}
+        // style={{ height: "100vh" }}
         >
           {loadingAnimationState}
         </div>
       )}
-      <Footer/>
+      <br />
+      <br />
+      <br />
+      <Footer />
     </>
   );
 };

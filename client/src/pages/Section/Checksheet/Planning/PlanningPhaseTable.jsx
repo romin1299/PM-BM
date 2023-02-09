@@ -15,6 +15,7 @@ import { CSVLink, CSVDownload } from "react-csv";
 import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
+import Footer from "../../../../components/Footer/Footer";
 
 function PlanningPhaseTable() {
   const [tableData, setTableData] = useState([]);
@@ -783,6 +784,10 @@ function PlanningPhaseTable() {
           ""
         )}
       </div>
+      <br/>
+      <br/>
+      <br />
+      <Footer/>
     </>
   );
 }

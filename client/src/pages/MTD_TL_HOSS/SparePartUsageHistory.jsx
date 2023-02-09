@@ -567,6 +567,10 @@ const SparePartUsageHistory = () => {
           )}
         </Row>
       </Container>
+      <br />
+      <br />
+      <br />
+
       <Footer/>
     </>
   );

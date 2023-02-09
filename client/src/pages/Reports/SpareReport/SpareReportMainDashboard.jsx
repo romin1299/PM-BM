@@ -69,6 +69,9 @@ const SpareReportMainDashboard = () => {
           </Col>
         </Row>
       </Container>
+      <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );

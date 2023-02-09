@@ -344,6 +344,10 @@ const ImplementationApprovalDashboard = () => {
           </div>
         </div>
       </div>
+
+      <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );

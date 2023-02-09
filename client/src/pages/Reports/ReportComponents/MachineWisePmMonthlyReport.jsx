@@ -665,7 +665,7 @@ const MachineWisePmMonthlyReport = () => {
   return (
     <>
       <Container fluid>
-        <Row className="p-2">
+        <Row className="p-2 mt-3">
           <Col sm={12} lg={3}>
             <YearDropDown
               selectedYear={selectedYear}
@@ -685,13 +685,11 @@ const MachineWisePmMonthlyReport = () => {
         <Container fluid>
           <Row
             className="gy-2 mt-2 cell"
-            style={{ marginRight: "0.2rem", marginLeft: "0.2rem" }}
+            style={{ marginRight: "0.2rem", marginLeft: "0.2rem", paddingBottom:"1rem" }}
           >
-            <div>
-              <h5>
+            <h5>
                 <b>Month Status</b>
               </h5>
-            </div>
             <Col sm>
               {" "}
               <PanoramaFishEyeIcon fontSize="small" /> <b>Completed :</b>{" "}
@@ -808,6 +806,7 @@ const MachineWisePmMonthlyReport = () => {
                       fontSize: "13px",
                       fontWeight: "bold",
                       border: "1px solid black",
+                      
                     },
                   }}
                 />
@@ -1448,6 +1447,9 @@ const MachineWisePmMonthlyReport = () => {
           )}
         </Container>
       </div>
+         <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );

@@ -606,6 +606,9 @@ function OpenAbnormalityTracking() {
           )}
         </div>
       </div>
+      <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );

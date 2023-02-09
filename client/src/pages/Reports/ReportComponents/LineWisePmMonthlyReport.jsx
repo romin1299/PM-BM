@@ -291,7 +291,7 @@ const LineWisePmMonthlyReport = () => {
 
       tooltip: "CSV",
       isFreeAction: true,
-      onClick: (event, rowData) => {},
+      onClick: (event, rowData) => { },
     },
   ];
 
@@ -394,7 +394,7 @@ const LineWisePmMonthlyReport = () => {
         {machineDetailPage}
         <div className="lineWisePmMonthlyReport">
           <Container fluid>
-            <Row className="p-2">
+            <Row className="p-2 mt-3">
               <Col sm={12} lg={4}>
                 <YearDropDown
                   selectedYear={selectedYear}
@@ -408,39 +408,39 @@ const LineWisePmMonthlyReport = () => {
                 />
               </Col>
               <Col sm={12} lg={4}>
-                    <span>
-                      <b>Line:</b>
-                    </span>
-                    <select
-                        class="form-select form-select-sm"
-                        aria-label=".form-select-sm example"
-                        style={{ width: "50%" }}
-                        id="standard-select-currency"
-                        name="selectedPlant"
-                        value={selectedLine}
-                        className="textField"
-                        onChange={(e) => {
-                          setSelectedLine(e.target.value);
-                          // postLineToGetMachineList(e.target.value);
-                        }}
-                        // fullWidth
-                        select // label="Select"
-                        autoComplete="off"
-                        variant="standard"
-                      >
-                        <option selected disabled value="">
-                          Please select
-                        </option>
-                        {lineDropdown?.map((option) => {
-                          return (
-                            <option value={option._id}>
-                              {option.line_name}
-                            </option>
-                          );
-                        })}
-                      </select>
-                  </Col>
-              
+                <span>
+                  <b>Line:&nbsp;&nbsp;</b>
+                </span>
+                <select
+                  class="form-select form-select-sm"
+                  aria-label=".form-select-sm example"
+                  style={{ width: "50%" }}
+                  id="standard-select-currency"
+                  name="selectedPlant"
+                  value={selectedLine}
+                  className="textField"
+                  onChange={(e) => {
+                    setSelectedLine(e.target.value);
+                    // postLineToGetMachineList(e.target.value);
+                  }}
+                  // fullWidth
+                  select // label="Select"
+                  autoComplete="off"
+                  variant="standard"
+                >
+                  <option selected disabled value="">
+                    Please select
+                  </option>
+                  {lineDropdown?.map((option) => {
+                    return (
+                      <option value={option._id}>
+                        {option.line_name}
+                      </option>
+                    );
+                  })}
+                </select>
+              </Col>
+
             </Row>
           </Container>
 
@@ -491,7 +491,7 @@ const LineWisePmMonthlyReport = () => {
                           // backdropFilter: "blur(5px)",
                           // fontSize: "12px",
                         },
-                        
+
                         cellStyle: {
                           border: "1px solid black",
                         },
@@ -534,7 +534,10 @@ const LineWisePmMonthlyReport = () => {
             </Container>
           </div>
         </div>
-        <Footer/>
+        <br />
+        <br />
+        <br />
+        <Footer />
       </div>
     </>
   );

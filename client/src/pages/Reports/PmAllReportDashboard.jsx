@@ -74,6 +74,9 @@ const PmAllReportDashboard = () => {
           <h4>Other Report</h4>
         )}
       </div>
+      <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );

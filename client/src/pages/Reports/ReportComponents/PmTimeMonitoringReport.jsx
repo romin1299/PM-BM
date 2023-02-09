@@ -31,6 +31,9 @@ const PmTimeMonitoringReport = () => {
             {/* <Col></Col> */}
           </Row>
         </Container>
+        <br />
+      <br />
+      <br />
         <Footer/>
       </div>
     </>

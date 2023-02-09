@@ -284,6 +284,11 @@ import {
             </div>
           </div>
         </div>
+
+        <br />
+      <br />
+      <br />
+
         <Footer/>
       </>
     );
