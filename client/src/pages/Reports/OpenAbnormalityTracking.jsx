@@ -73,10 +73,10 @@ function OpenAbnormalityTracking() {
   let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
   const tableHeader = [
     {
-      title: "Sr. no",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
-      width: "5%",
+      width: "6%",
     },
     {
       title: "Line Name",
@@ -192,51 +192,51 @@ function OpenAbnormalityTracking() {
   ];
 
   const abnormalityDataHeaderForCSV = [
-    
+
     {
       label: "Line Name",
       key: "line_name",
-      
+
     },
     {
       label: "Machine Code",
       key: "machine_code",
-      
+
     },
     {
       label: "Machine Name",
       key: "machine_name",
-      
+
     },
     {
       label: "Schedule Month",
       key: "schedule_month",
-      
+
     },
     {
       label: "Checked By",
       key: "checked_by",
-      
+
     },
     {
       label: "Abnormality Remarks",
       key: "abnormalityRemarks",
-   
+
     },
     {
       label: "Target Date",
       key: "targetDate",
-      
+
     },
     {
       label: "Action Details",
       key: "remarksOnClose",
-      
+
     },
     {
       label: "Done Date",
       key: "doneDate",
-      
+
     },
     {
       label: "Done By",
@@ -244,51 +244,51 @@ function OpenAbnormalityTracking() {
 
     },
   ];
-    //get the date and time
-    const timeStamp = () => {
-      let date = new Date();
-      let getTime = date
-        .toLocaleTimeString("en-IN", {
-          hour12: true,
-        })
-        .replace(/(.*)\D\d+/, "$1");
-      const year = date.getFullYear(); // 2019
-      const month = date.getMonth() + 1;
-      const day = date.getDate(); // 23
-  
-      return `${day}/${month}/${year} - ${getTime}`;
-    };
-  
-    const downloadPDFOfAbnormalityOpen = () => {
-      const doc = new jsPDF();
-      let rows = [];
-      tableData?.map((item, idx) => {
-        let rowArrayOfTable = [
-          ++idx,
-          item.line_name,
-          item.machine_code,
-          item.machine_name,
-          item.schedule_month,
-          item.checked_by,
-          item.abnormalityRemarks,
-          item.targetDate,
-          item.remarksOnClose,
-          item.doneDate,
-          item.doneBy
-        ];
-        rows.push(rowArrayOfTable);
-      });
-      doc.text(`Abnormality Open Data`, 15, 10);
-  
-      autoTable(doc, {
-        head: [tableHeader?.map((value) => value.title)],
-        body: rows,
-      });
-      // doc.autoTable(columns, csvData);
-      doc.save(`Abnormality_Open_Data_${timeStamp()}`);
-    };
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
 
-    console.log(tableData)
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+  const downloadPDFOfAbnormalityOpen = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    tableData?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.line_name,
+        item.machine_code,
+        item.machine_name,
+        item.schedule_month,
+        item.checked_by,
+        item.abnormalityRemarks,
+        item.targetDate,
+        item.remarksOnClose,
+        item.doneDate,
+        item.doneBy
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`Abnormality Open Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [tableHeader?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Abnormality_Open_Data_${timeStamp()}`);
+  };
+
+  console.log(tableData)
 
   const actions = [
     (rowdata) => {
@@ -492,36 +492,36 @@ function OpenAbnormalityTracking() {
           </h4>
           <Row className="mt-3">
             <Col>
-            <span style={{ padding: "1rem 0 0 1rem" }}><b>Line:</b>&nbsp;&nbsp;</span>
-            <select
-                  class="form-select form-select-sm"
-                  aria-label=".form-select-sm example"
-                  // style={{ width: "100%" }}
-                  id="standard-select-currency"
-                  name="selectedPlant"
-                  value={selectedLine}
-                  className="textField w-25"
-                  onChange={(e) => {
-                    setSelectedLine(e.target.value);
-                    setLoadingAnimationState(<LoadingAnimation />);
-                    // postLineToGetMachineList(e.target.value);
-                  }}
-                  // fullWidth
-                  select // label="Select"
-                  autoComplete="off"
-                  variant="standard"
-                >
-                  <option selected disabled value="">
-                    Please select
-                  </option>
-                  {lineDropdown?.map((option) => {
-                    return (
-                      <option value={option._id}>{option.line_name}</option>
-                    );
-                  })}
-                </select></Col>
-           
-            
+              <span style={{ padding: "1rem 0 0 1rem" }}><b>Line:</b>&nbsp;&nbsp;</span>
+              <select
+                class="form-select form-select-sm"
+                aria-label=".form-select-sm example"
+                // style={{ width: "100%" }}
+                id="standard-select-currency"
+                name="selectedPlant"
+                value={selectedLine}
+                className="textField w-25"
+                onChange={(e) => {
+                  setSelectedLine(e.target.value);
+                  setLoadingAnimationState(<LoadingAnimation />);
+                  // postLineToGetMachineList(e.target.value);
+                }}
+                // fullWidth
+                select // label="Select"
+                autoComplete="off"
+                variant="standard"
+              >
+                <option selected disabled value="">
+                  Please select
+                </option>
+                {lineDropdown?.map((option) => {
+                  return (
+                    <option value={option._id}>{option.line_name}</option>
+                  );
+                })}
+              </select></Col>
+
+
           </Row>
           {tableData?.length > 0 ? (
             <div style={{ padding: "1rem" }}>
@@ -609,7 +609,7 @@ function OpenAbnormalityTracking() {
       <br />
       <br />
       <br />
-      <Footer/>
+      <Footer />
     </>
   );
 }

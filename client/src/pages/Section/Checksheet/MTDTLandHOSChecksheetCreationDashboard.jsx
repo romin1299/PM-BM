@@ -16,7 +16,7 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import { ToastContainer, toast } from "react-toastify";
 import Footer from "../../../components/Footer/Footer";
 
-const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
+const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
   const [tableData, setTableData] = useState([]);
   const [lineArray, setLineArray] = useState([]);
   const context = useContext(RoutingContext);
@@ -45,8 +45,8 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
     let line_name_array = [];
     selectedMachineData.state.lineData
       ? selectedMachineData.state.lineData.map((name) => {
-          line_name_array.push(`${name.line_id}-${name.line_name}`);
-        })
+        line_name_array.push(`${name.line_id}-${name.line_name}`);
+      })
       : (line_name_array = "");
     setLineArray(line_name_array);
   };
@@ -100,9 +100,9 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
 
   const revisedColumns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%",
+      width: "7%",
       align: "center",
     },
     {
@@ -172,7 +172,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
 
   const columns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       width: "5%",
       align: "center",
@@ -653,12 +653,12 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
           <button
             onClick={() =>
               machineData[0]?.checkSheet_data?.checksheet_status ===
-              "Preparation"
+                "Preparation"
                 ? navigate("/preparationApproval")
                 : machineData[0]?.checkSheet_data?.checksheet_status ===
                   "Planning"
-                ? navigate("/planningApproval")
-                : navigate("/implementationApproval")
+                  ? navigate("/planningApproval")
+                  : navigate("/implementationApproval")
             }
             style={{
               border: "none",
@@ -915,7 +915,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
       <br />
       <br />
       <br />
-      <Footer/>
+      <Footer />
     </>
   );
 };

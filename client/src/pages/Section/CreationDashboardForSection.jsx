@@ -58,7 +58,7 @@ const CreationDashboardForSection = () => {
 
   const cellHeader = [
     {
-      title: "Serial no",
+      title: "Sr No",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
     },
@@ -165,7 +165,7 @@ const CreationDashboardForSection = () => {
 
   const lineHeader = [
     {
-      title: "Serial no",
+      title: "Sr No",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
     },
@@ -254,7 +254,7 @@ const CreationDashboardForSection = () => {
 
   const machineHeader = [
     {
-      title: "Serial no",
+      title: "Sr No",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
     },

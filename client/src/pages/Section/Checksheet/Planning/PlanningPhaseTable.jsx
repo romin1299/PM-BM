@@ -250,9 +250,9 @@ function PlanningPhaseTable() {
 
   const columns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%",
+      width: "7%",
       align: "center",
     },
     {
@@ -403,9 +403,9 @@ function PlanningPhaseTable() {
 
   const revisedColumns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%",
+      width: "7%",
       align: "center",
     },
     {
@@ -785,10 +785,10 @@ function PlanningPhaseTable() {
           ""
         )}
       </div>
-      <br/>
-      <br/>
       <br />
-      <Footer/>
+      <br />
+      <br />
+      <Footer />
     </>
   );
 }

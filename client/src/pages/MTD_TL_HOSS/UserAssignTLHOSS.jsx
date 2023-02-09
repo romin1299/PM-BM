@@ -161,9 +161,9 @@ const UserAssignTLHOSS = () => {
 
   const columns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%",
+      width: "7%",
       align: "center",
     },
     {
@@ -173,7 +173,7 @@ const UserAssignTLHOSS = () => {
       filtering: false,
       align: "center",
       editable: "false",
-      width: "5%",
+      width: "7%",
     },
     {
       title: "TM Name",
@@ -435,7 +435,7 @@ const UserAssignTLHOSS = () => {
       <br />
       <br />
 
-      <Footer/>
+      <Footer />
     </>
   );
 };

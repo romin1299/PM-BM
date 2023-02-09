@@ -23,7 +23,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
 
-const ShowBackupChecksheetTableData = ({}) => {
+const ShowBackupChecksheetTableData = ({ }) => {
   const [tableData, setTableData] = useState([]);
 
   const context = useContext(RoutingContext);
@@ -34,9 +34,9 @@ const ShowBackupChecksheetTableData = ({}) => {
 
   const columns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%",
+      width: "7%",
       align: "center",
     },
     {
@@ -122,17 +122,17 @@ const ShowBackupChecksheetTableData = ({}) => {
   }
 
   const showBackupChecksheetTableDataOfCSV = [
-    
+
     {
       label: "C",
       field: "category",
-      
+
     },
     {
       label: "Inspection Item",
       // editable: false,
       key: "inspection_parent_name",
-      
+
     },
     {
       label: "Inspection Point",
@@ -189,7 +189,7 @@ const ShowBackupChecksheetTableData = ({}) => {
         item.cycle,
         item.personInCharge,
         item.PM_time
-        
+
       ];
       rows.push(rowArrayOfTable);
     });
@@ -235,19 +235,19 @@ const ShowBackupChecksheetTableData = ({}) => {
     <>
       <div style={{ margin: "0.5rem" }}>
         <div className="pageCard">
-          
-            <button
-            onClick={()=> navigate('/backupDataOfCheckSheet')}
-              style={{
-                border: "none",
-                background: "white",
-                borderRadius: 5,
-              }}
-              className="mb-2"
-            >
-              <ArrowBackIcon />
-            </button>
-          
+
+          <button
+            onClick={() => navigate('/backupDataOfCheckSheet')}
+            style={{
+              border: "none",
+              background: "white",
+              borderRadius: 5,
+            }}
+            className="mb-2"
+          >
+            <ArrowBackIcon />
+          </button>
+
 
           <div class="row g-3">
             <div class="col-4">
@@ -287,7 +287,7 @@ const ShowBackupChecksheetTableData = ({}) => {
                   // }
                 }
               }
-              actions= {showBackupChecksheetTableAction}
+              actions={showBackupChecksheetTableAction}
               icons={tableIcons}
               columns={columns}
               data={tableData?.sort(compareCycle)}
@@ -370,7 +370,7 @@ const ShowBackupChecksheetTableData = ({}) => {
                 }
               }}
             />
-            
+
           </div>
         </div>
       </div>
@@ -378,7 +378,7 @@ const ShowBackupChecksheetTableData = ({}) => {
       <br />
       <br />
 
-      <Footer/>
+      <Footer />
     </>
   );
 };

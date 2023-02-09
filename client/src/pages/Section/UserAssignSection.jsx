@@ -161,9 +161,9 @@ const UserAssignSection = () => {
 
   const columns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%",
+      width: "7%",
       align: "center",
     },
     {
@@ -173,7 +173,7 @@ const UserAssignSection = () => {
       filtering: false,
       align: "center",
       editable: "false",
-      width: "5%",
+      width: "7%",
 
     },
     {
@@ -427,7 +427,7 @@ const UserAssignSection = () => {
                 headerStyle: {
                   fontSize: "13px",
                   fontWeight: "bold",
-                
+
                 }
               }}
             />
@@ -437,7 +437,7 @@ const UserAssignSection = () => {
       <br />
       <br />
       <br />
-      <Footer/>
+      <Footer />
     </>
   );
 };

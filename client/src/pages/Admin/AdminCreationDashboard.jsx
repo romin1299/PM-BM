@@ -67,7 +67,7 @@ const AdminCreationDashboard = () => {
 
   const plantHeader = [
     {
-      title: "Sr.no",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
       width: "10%",
@@ -98,7 +98,7 @@ const AdminCreationDashboard = () => {
 
   const sectionHeader = [
     {
-      title: "Serial no",
+      title: "Sr No",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
       width: "10%",
@@ -174,7 +174,7 @@ const AdminCreationDashboard = () => {
 
   const subSectionHeader = [
     {
-      title: "Serial no",
+      title: "Sr No",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
       width: "10%",
@@ -459,8 +459,8 @@ const AdminCreationDashboard = () => {
                 </option>
                 {plantList !== ""
                   ? plantList.plantArray.map((option) => {
-                      return <option value={option}>{option}</option>;
-                    })
+                    return <option value={option}>{option}</option>;
+                  })
                   : ""}
               </select>
             </div>
@@ -496,8 +496,8 @@ const AdminCreationDashboard = () => {
 
                 {sectionList !== ""
                   ? sectionList.sectionArray.map((option) => {
-                      return <option value={option}>{option}</option>;
-                    })
+                    return <option value={option}>{option}</option>;
+                  })
                   : ""}
               </select>
             </div>
@@ -844,7 +844,7 @@ const AdminCreationDashboard = () => {
       <br />
       <br />
 
-      <Footer/>
+      <Footer />
     </>
   );
 };

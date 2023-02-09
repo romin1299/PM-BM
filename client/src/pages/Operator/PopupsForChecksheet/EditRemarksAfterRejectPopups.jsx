@@ -123,10 +123,10 @@ const EditRemarksAfterRejectPopups = ({
     //   width: "5%",
     // },
     {
-      title: "Sr. No",
+      title: "Sr. No.",
       render: (rowData) => `${rowData?.tableData.id + 1}`,
       // align: "center",
-      width: "5%",
+      width: "6%",
     },
     {
       title: "Inspection Item",
@@ -146,7 +146,7 @@ const EditRemarksAfterRejectPopups = ({
       render: (rowData) =>
         rowData?.abnormalityDetails
           ? rowData?.abnormalityDetails?.[senderApprovalMonth]
-              ?.abnormalityRemarks
+            ?.abnormalityRemarks
             ? "Yes"
             : ""
           : "",
@@ -160,7 +160,7 @@ const EditRemarksAfterRejectPopups = ({
       render: (rowData) =>
         rowData?.abnormalityDetails
           ? rowData?.abnormalityDetails?.[senderApprovalMonth]
-              ?.abnormalityRemarks
+            ?.abnormalityRemarks
           : "",
       editable: "false",
     },
@@ -169,7 +169,7 @@ const EditRemarksAfterRejectPopups = ({
       render: (rowData) =>
         rowData?.abnormalityDetails
           ? rowData?.abnormalityDetails?.[senderApprovalMonth]
-              ?.abnormalityStatus
+            ?.abnormalityStatus
           : "",
       width: "5%",
 
@@ -342,13 +342,13 @@ const EditRemarksAfterRejectPopups = ({
               monthForCompareSystemMonth
             ].length - 1
           ] === "Rejected" ||
-          machineData?.checkSheet_data?.implemetation_mtd_tl_approval_status[
+            machineData?.checkSheet_data?.implemetation_mtd_tl_approval_status[
             monthForCompareSystemMonth
-          ][
+            ][
             machineData?.checkSheet_data?.implemetation_mtd_tl_approval_status[
               monthForCompareSystemMonth
             ].length - 1
-          ] === "Rejected" ? (
+            ] === "Rejected" ? (
             <div className="mb-2 row">
               <span
                 className="col-2"
@@ -367,14 +367,14 @@ const EditRemarksAfterRejectPopups = ({
                 value={
                   machineData?.checkSheet_data?.implementation_rejected_remarks
                     ? machineData?.checkSheet_data
-                        ?.implementation_rejected_remarks[
-                        monthForCompareSystemMonth
-                      ][
-                        machineData?.checkSheet_data
-                          ?.implementation_rejected_remarks[
-                          monthForCompareSystemMonth
-                        ].length - 1
-                      ]
+                      ?.implementation_rejected_remarks[
+                    monthForCompareSystemMonth
+                    ][
+                    machineData?.checkSheet_data
+                      ?.implementation_rejected_remarks[
+                      monthForCompareSystemMonth
+                    ].length - 1
+                    ]
                     : ""
                 }
               />

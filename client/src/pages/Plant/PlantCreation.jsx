@@ -134,7 +134,7 @@ function PlantCreation() {
 
   const columns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       // width: "10%",
       align: "center",
@@ -164,7 +164,7 @@ function PlantCreation() {
           </Link>
         ),
         // tooltip: <h1>I am a tooltip</h1>,
-        onClick: (event, selectedRow) => {},
+        onClick: (event, selectedRow) => { },
         disabled: false, // Set disabled to false by default for all actions
         position: "row",
       };

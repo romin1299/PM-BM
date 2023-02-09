@@ -97,10 +97,10 @@ const MachineWisePmMonthlyReport = () => {
   // console.log(selectedMonth, previousMonth);
   const tableColumn1 = [
     {
-      title: "Sr. no",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
-      width: "5%",
+      width: "6%",
     },
     {
       title: "Cell",
@@ -138,27 +138,27 @@ const MachineWisePmMonthlyReport = () => {
       width: "5%",
       render: (rowData) =>
         rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
-        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
+          rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
           "Done with delay" ? (
           <PanoramaFishEyeIcon fontSize="small" />
         ) : // : rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Current Plan" ? (
-        //   <PanoramaFishEyeIcon fontSize="small" />
-        // )
-        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing" ? (
-          <ArrowDropUpIcon />
-        ) : (
-          <CloseIcon />
-        ),
+          //   <PanoramaFishEyeIcon fontSize="small" />
+          // )
+          rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing" ? (
+            <ArrowDropUpIcon />
+          ) : (
+            <CloseIcon />
+          ),
       // console.log(rowData?.checkSheet_data?.PMStatus),
     },
   ];
 
   const tableColumn2 = [
     {
-      title: "Sr. no",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
-      width: "5%",
+      width: "6%",
       editable: "false",
     },
     {
@@ -282,7 +282,7 @@ const MachineWisePmMonthlyReport = () => {
 
       tooltip: "CSV",
       isFreeAction: true,
-      onClick: (event, rowData) => {},
+      onClick: (event, rowData) => { },
     },
   ];
 
@@ -367,11 +367,11 @@ const MachineWisePmMonthlyReport = () => {
         item.machine_name,
         item.machine_code,
         item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
-        item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
+          item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
-          ? "^"
-          : "X",
+            ? "^"
+            : "X",
       ])
     );
 
@@ -456,11 +456,11 @@ const MachineWisePmMonthlyReport = () => {
         item.machine_name,
         item.machine_code,
         item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
-        item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
+          item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
-          ? "^"
-          : "X",
+            ? "^"
+            : "X",
       ]);
     });
 
@@ -685,11 +685,11 @@ const MachineWisePmMonthlyReport = () => {
         <Container fluid>
           <Row
             className="gy-2 mt-2 cell"
-            style={{ marginRight: "0.2rem", marginLeft: "0.2rem", paddingBottom:"1rem" }}
+            style={{ marginRight: "0.2rem", marginLeft: "0.2rem", paddingBottom: "1rem" }}
           >
             <h5>
-                <b>Month Status</b>
-              </h5>
+              <b>Month Status</b>
+            </h5>
             <Col sm>
               {" "}
               <PanoramaFishEyeIcon fontSize="small" /> <b>Completed :</b>{" "}
@@ -806,7 +806,7 @@ const MachineWisePmMonthlyReport = () => {
                       fontSize: "13px",
                       fontWeight: "bold",
                       border: "1px solid black",
-                      
+
                     },
                   }}
                 />
@@ -822,7 +822,7 @@ const MachineWisePmMonthlyReport = () => {
                 lg={4}
                 md={12}
 
-                // className="profileImg"
+              // className="profileImg"
               >
                 <Row
                   className="mt-2 cell"
@@ -942,9 +942,9 @@ const MachineWisePmMonthlyReport = () => {
                 skipApprovalStatusData?.approvalStatusOfPRDHOS === "Rejected" ||
                 skipApprovalStatusData?.approvalStatusOfPRDHOD === "Rejected" ||
                 skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                  "Accepted") &&
-              context.user_type === "TL/HOSS" &&
-              context.tm_department === "MTD" ? (
+                "Accepted") &&
+                context.user_type === "TL/HOSS" &&
+                context.tm_department === "MTD" ? (
                 <div>
                   <Row
                     className="d-flex mt-2 p-3 border bg-white rounded"
@@ -1401,14 +1401,14 @@ const MachineWisePmMonthlyReport = () => {
               {context.email ===
                 skipApprovalStatusData?.assignAndApprovedHOSlist
                   ?.assignMTDHOSemail &&
-              skipApprovalStatusData?.approvalStatusOfMTDHOS === "Pending" ? (
+                skipApprovalStatusData?.approvalStatusOfMTDHOS === "Pending" ? (
                 <SkipApprovalComponent
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
                 />
               ) : context.email ===
-                  skipApprovalStatusData?.assignAndApprovedMTDHODlist
-                    ?.assignMTDHODemail &&
+                skipApprovalStatusData?.assignAndApprovedMTDHODlist
+                  ?.assignMTDHODemail &&
                 skipApprovalStatusData?.approvalStatusOfMTDHOS === "Accepted" &&
                 skipApprovalStatusData?.approvalStatusOfMTDHOD === "Pending" ? (
                 <SkipApprovalComponent
@@ -1416,8 +1416,8 @@ const MachineWisePmMonthlyReport = () => {
                   functionToSetRefKey={functionToSetRefKey}
                 />
               ) : context.email ===
-                  skipApprovalStatusData?.assignAndApprovedPRDHOSlist
-                    ?.assignPRDHOSemail &&
+                skipApprovalStatusData?.assignAndApprovedPRDHOSlist
+                  ?.assignPRDHOSemail &&
                 skipApprovalStatusData?.approvalStatusOfMTDHOS === "Accepted" &&
                 skipApprovalStatusData?.approvalStatusOfMTDHOD === "Accepted" &&
                 skipApprovalStatusData?.approvalStatusOfPRDHOS === "Pending" ? (
@@ -1426,8 +1426,8 @@ const MachineWisePmMonthlyReport = () => {
                   functionToSetRefKey={functionToSetRefKey}
                 />
               ) : context.email ===
-                  skipApprovalStatusData?.assignAndApprovedPRDHODlist
-                    ?.assignPRDHODemail &&
+                skipApprovalStatusData?.assignAndApprovedPRDHODlist
+                  ?.assignPRDHODemail &&
                 skipApprovalStatusData?.approvalStatusOfMTDHOS === "Accepted" &&
                 skipApprovalStatusData?.approvalStatusOfMTDHOD === "Accepted" &&
                 skipApprovalStatusData?.approvalStatusOfPRDHOS === "Accepted" &&
@@ -1447,10 +1447,10 @@ const MachineWisePmMonthlyReport = () => {
           )}
         </Container>
       </div>
-         <br />
       <br />
       <br />
-      <Footer/>
+      <br />
+      <Footer />
     </>
   );
 };
