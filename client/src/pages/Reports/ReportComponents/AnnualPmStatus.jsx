@@ -14,6 +14,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
 import AnnualPmStatusGraph from "./Graph/AnnualPmStatusGraph";
+import Footer from "../../../components/Footer/Footer";
 
 const AnnualPmStatus = () => {
   // console.log(tableData);
@@ -162,6 +163,10 @@ const AnnualPmStatus = () => {
             )}
           </Row>
         </Container>
+        <br/>
+        <br/>
+        <br/>
+<Footer/>
       </div>
     </>
   );

@@ -26,6 +26,11 @@ import { RadioGroup } from "@mui/material";
 import RoutingContext from "../../context/routing/RoutingContext";
 import Footer from "../../components/Footer/Footer";
 
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+
 const CreationDashboardForPlant = () => {
   const [sections, setsections] = useState();
 
@@ -104,6 +109,21 @@ const CreationDashboardForPlant = () => {
     },
   ];
 
+  const sectionHeaderForCSV = [
+    {
+      label: "Section Id",
+      key: "section_id",
+    },
+    {
+      label: "Section Name",
+      key: "section_name",
+    },
+    {
+      label: "Dashboard Level",
+      key: "dashboardLevel",
+    },
+  ]
+
   const subSectionHeader = [
     {
       title: "Serial no",
@@ -125,6 +145,126 @@ const CreationDashboardForPlant = () => {
       title: "Sequence",
       field: "subSection_sequence",
       align: "center",
+    },
+  ];
+
+  const subSectionHeaderForCSV = [
+    {
+      label: "SubSection Id",
+      key: "subSection_id",
+    },
+    {
+      label: "SubSection Name",
+      key: "subSection_name",
+    },
+    {
+      label: "Sequence",
+      key: "subSection_sequence",
+    },
+  ]
+
+    //get the date and time
+    const timeStamp = () => {
+      let date = new Date();
+      let getTime = date
+        .toLocaleTimeString("en-IN", {
+          hour12: true,
+        })
+        .replace(/(.*)\D\d+/, "$1");
+      const year = date.getFullYear(); // 2019
+      const month = date.getMonth() + 1;
+      const day = date.getDate(); // 23
+  
+      return `${day}/${month}/${year} - ${getTime}`;
+    };
+
+    const downloadPDFOfSectionData = () => {
+      const doc = new jsPDF();
+      let rows = [];
+      sectionList?.sectionsInfo?.map((item, idx) => {
+        let rowArrayOfTable = [++idx, item.section_id, item.section_name, item.dashboardLevel];
+        rows.push(rowArrayOfTable);
+      });
+      doc.text(`Section Data`, 15, 10);
+  
+      autoTable(doc, {
+        head: [sectionHeader?.map((value) => value.title)],
+        body: rows,
+      });
+      // doc.autoTable(columns, csvData);
+      doc.save(`Section_Data_${timeStamp()}`);
+    };
+
+    const downloadPDFOfSubSectionData = () => {
+      const doc = new jsPDF();
+      let rows = [];
+      subSectionList?.subSectionsInfo?.map((item, idx) => {
+        let rowArrayOfTable = [++idx, item.subSection_id, item.subSection_name, item.subSection_sequence];
+        rows.push(rowArrayOfTable);
+      });
+      doc.text(`Sub Section Data`, 15, 10);
+  
+      autoTable(doc, {
+        head: [subSectionHeader?.map((value) => value.title)],
+        body: rows,
+      });
+      // doc.autoTable(columns, csvData);
+      doc.save(`Sub_Section_Data_${timeStamp()}`);
+    };
+
+  const sectionAction = [
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFOfSectionData();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={sectionHeaderForCSV}
+          className="downloadCSV text-decoration-none"
+          data={sectionList.sectionsInfo}
+          filename={`Section_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
+    },
+  ];
+
+  const subSectionAction = [
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFOfSubSectionData();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={subSectionHeaderForCSV}
+          className="downloadCSV text-decoration-none"
+          data={subSectionList?.subSectionsInfo}
+          filename={`Sub_Section_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
     },
   ];
 
@@ -249,7 +389,7 @@ const CreationDashboardForPlant = () => {
                     //   exportPDFName: "Export as pdf!!"
                     // }
                   }}
-                  // actions={actions}
+                  actions={subSectionAction}
                   icons={tableIcons}
                   columns={subSectionHeader}
                   data={subSectionList.subSectionsInfo}
@@ -357,7 +497,7 @@ const CreationDashboardForPlant = () => {
                   //   exportPDFName: "Export as pdf!!"
                   // }
                 }}
-                // actions={actions}
+                actions={sectionAction}
                 icons={tableIcons}
                 columns={sectionHeader}
                 data={sectionList.sectionsInfo}
@@ -457,6 +597,9 @@ const CreationDashboardForPlant = () => {
           </div>
         </div>
       </div>
+      <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );

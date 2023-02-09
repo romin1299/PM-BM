@@ -184,13 +184,13 @@ function UpdatePassword() {
               </form>
             </div>
           </div>
-          <div id="footer">
-            <div>
-              Powered By OSL <img className="osl_logo" src={OSLLogo} alt="" />
-            </div>
-          </div>
+          
         </div>
       </div>
+      <br />
+      <br />
+      <br />
+
       <Footer/>
     </>
   );

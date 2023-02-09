@@ -243,7 +243,7 @@ const TL = ({ userData, userDepartment }) => {
                 User Assign
               </MenuItem>
               <MenuItem
-                className="text-white"
+                className="text"
                 icon={
                   <TaskIcon
                     className="text-white"

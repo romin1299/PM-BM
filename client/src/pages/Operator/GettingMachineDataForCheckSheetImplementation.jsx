@@ -114,7 +114,10 @@ const GettingMachineDataForCheckSheetImplementation = ({
   return (
     <>
       <div>{implementationPhaseCheckSheet}</div>
-      <Footer />
+      <br />
+      <br />
+      <br />
+      <Footer/>
     </>
   );
 };

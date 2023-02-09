@@ -22,6 +22,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "../../components/Footer/Footer";
 
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+
 const CheckSheetDashboard = () => {
   const context = useContext(RoutingContext);
   const [tableData, setTableData] = useState([]);
@@ -168,9 +173,9 @@ const CheckSheetDashboard = () => {
       if (selectedStatus === "Preparation") {
         if (
           (data ? data : tableData)?.[i]?.checkSheet_data?.checksheet_status ===
-            selectedStatus ||
+          selectedStatus ||
           (data ? data : tableData)?.[i]?.checkSheet_data?.checksheet_status ===
-            undefined
+          undefined
         ) {
           filterData.push((data ? data : tableData)?.[i]);
         }
@@ -272,159 +277,241 @@ const CheckSheetDashboard = () => {
     },
   ];
 
+  const checkSheetDashboardForCSV = [
+    {
+      label: "Cell/Product",
+      key: "line_names.cell_names.cell_name",
+    },
+    {
+      label: "Line",
+      key: "line_names.line_name",
+    },
+    {
+      label: "Machine Code",
+      key: "machine_code",
+    },
+    {
+      label: "Machine Name",
+      key: "machine_name",
+    },
+  ];
+
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+  const downloadPDFForChecksheetDashboard = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    tableData?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.line_names.cell_names.cell_name,
+        item.line_names.line_name,
+        item.machine_code,
+        item.machine_name,
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`All Checksheet Dashboard Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [machineHeader?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Checksheet_Dashboard_Data_${timeStamp()}`);
+  };
+
   const actions =
     currentYear === selectedYear
       ? [
-          (rowData) => {
-            return {
-              hidden:
-                rowData.checkSheet_data != null
-                  ? rowData.checkSheet_data.checksheet_status ===
-                      "Implementation" ||
-                    rowData.checkSheet_data.checksheet_status === "Planning"
-                  : "",
-              icon: () => (
-                <button className="btn-reset1">
-                  {rowData.checkSheet_data != null
-                    ? rowData.checkSheet_data.checkSheet.length > 0
-                      ? rowData.checkSheet_data.checkSheet.length < 1
-                        ? "Preparation"
-                        : rowData.checkSheet_data.assign_TL.length !==
-                            rowData.checkSheet_data.approved_by_TL.length ||
-                          rowData.checkSheet_data.assign_HOS.length !==
-                            rowData.checkSheet_data.approved_by_HOS.length
+        (rowData) => {
+          return {
+            hidden:
+              rowData.checkSheet_data != null
+                ? rowData.checkSheet_data.checksheet_status ===
+                "Implementation" ||
+                rowData.checkSheet_data.checksheet_status === "Planning"
+                : "",
+            icon: () => (
+              <button className="btn-reset1">
+                {rowData.checkSheet_data != null
+                  ? rowData.checkSheet_data.checkSheet.length > 0
+                    ? rowData.checkSheet_data.checkSheet.length < 1
+                      ? "Preparation"
+                      : rowData.checkSheet_data.assign_TL.length !==
+                        rowData.checkSheet_data.approved_by_TL.length ||
+                        rowData.checkSheet_data.assign_HOS.length !==
+                        rowData.checkSheet_data.approved_by_HOS.length
                         ? "Preparation Under Approval"
                         : "Under-Preparation"
-                      : "Preparation"
-                    : "Preparation"}
-                </button>
-              ),
-              // tooltip: <h1>I am a tooltip</h1>,
-              onClick: (event, selectedRow) => {
-                navigate("/checksheetCreationDashboard", {
-                  state: { selectedRow: selectedRow, lineData: lineData },
-                });
-              },
-              disabled: false, // Set disabled to false by default for all actions
-              position: "row",
-            };
-          },
-          (rowData) => {
-            return {
-              hidden:
-                rowData.checkSheet_data != null
-                  ? rowData.checkSheet_data.checksheet_status ===
-                      "Preparation" ||
-                    rowData.checkSheet_data.checksheet_status ===
-                      "Implementation" ||
-                    rowData.checkSheet_data.checksheet_status === undefined
-                  : rowData.checkSheet_data === undefined ||
-                    rowData.checkSheet_data === null,
-              icon: () => (
-                <button className="btn-warning">
-                  {rowData.checkSheet_data != null
-                    ? rowData.checkSheet_data.checkSheet.map((key) => {
-                        if ("start_month" in key) {
-                          if (
-                            rowData?.checkSheet_data?.approved_by_PRD_TL
-                              .length !=
-                            rowData?.checkSheet_data?.assign_PRD_TL.length
-                          ) {
-                            return "Planning Under Approval";
-                          } else {
-                            return "Under-Planning";
-                          }
-                        } else {
-                          return "Planning";
-                        }
-                      })[0]
-                    : ""}
-                </button>
-              ),
-              // tooltip: <h1>I am a tooltip</h1>,
-              onClick: (event, selectedRow) => {
-                navigate("/planningPhaseTable", {
-                  state: { selectedRow: selectedRow },
-                });
-              },
-              disabled: false, // Set disabled to false by default for all actions
-              position: "row",
-            };
-          },
-          {
-            icon: () => <button className="btn-primary1">View</button>,
+                    : "Preparation"
+                  : "Preparation"}
+              </button>
+            ),
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
-              navigate("/viewCheckSheet", {
-                state: {
-                  selectedRowForViewForm: selectedRow,
-                  dashboardID: "FromChecksheetDashboard",
-                },
+              navigate("/checksheetCreationDashboard", {
+                state: { selectedRow: selectedRow, lineData: lineData },
               });
             },
             disabled: false, // Set disabled to false by default for all actions
             position: "row",
-          },
-          (rowData) => {
-            return {
-              hidden:
-                rowData.checkSheet_data === undefined ||
+          };
+        },
+        (rowData) => {
+          return {
+            hidden:
+              rowData.checkSheet_data != null
+                ? rowData.checkSheet_data.checksheet_status ===
+                "Preparation" ||
+                rowData.checkSheet_data.checksheet_status ===
+                "Implementation" ||
+                rowData.checkSheet_data.checksheet_status === undefined
+                : rowData.checkSheet_data === undefined ||
                 rowData.checkSheet_data === null,
-              icon: () => (
-                <button className="btn-delete">
-                  <DeleteForeverIcon className="svg-font" />
-                </button>
-              ),
-              // tooltip: <h1>I am a tooltip</h1>,
-              onClick: (event, selectedRow) => {
-                deleteCheckSheet(selectedRow);
-              },
-              disabled: false, // Set disabled to false by default for all actions
-              position: "row",
-            };
-          },
-          (rowData) => {
-            return {
-              hidden:
-                rowData.checkSheet_data != null
-                  ? rowData.checkSheet_data.checksheet_status ===
-                      "Preparation" ||
-                    rowData.checkSheet_data.checksheet_status === "Planning" ||
-                    rowData.checkSheet_data.checksheet_status === undefined
-                  : rowData.checkSheet_data === undefined ||
-                    rowData.checkSheet_data === null,
-              icon: () => (
-                <button className="btn-warning">
-                  <EditIcon className="svg-font" />
-                </button>
-              ),
-              // tooltip: <h1>I am a tooltip</h1>,
-              onClick: (event, selectedRow) => {
-                navigate("/checksheetCreationDashboard", {
-                  state: { selectedRow: selectedRow, lineData: lineData },
-                });
-              },
-              disabled: false, // Set disabled to false by default for all actions
-              position: "row",
-            };
-          },
-        ]
-      : [
-          {
-            icon: () => <button className="btn-primary1">View</button>,
+            icon: () => (
+              <button className="btn-warning">
+                {rowData.checkSheet_data != null
+                  ? rowData.checkSheet_data.checkSheet.map((key) => {
+                    if ("start_month" in key) {
+                      if (
+                        rowData?.checkSheet_data?.approved_by_PRD_TL
+                          .length !=
+                        rowData?.checkSheet_data?.assign_PRD_TL.length
+                      ) {
+                        return "Planning Under Approval";
+                      } else {
+                        return "Under-Planning";
+                      }
+                    } else {
+                      return "Planning";
+                    }
+                  })[0]
+                  : ""}
+              </button>
+            ),
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
-              navigate("/viewCheckSheet", {
-                state: {
-                  selectedRowForViewForm: selectedRow,
-                  dashboardID: "FromChecksheetDashboard",
-                },
+              navigate("/planningPhaseTable", {
+                state: { selectedRow: selectedRow },
               });
             },
             disabled: false, // Set disabled to false by default for all actions
             position: "row",
+          };
+        },
+        {
+          icon: () => <button className="btn-primary1">View</button>,
+          // tooltip: <h1>I am a tooltip</h1>,
+          onClick: (event, selectedRow) => {
+            navigate("/viewCheckSheet", {
+              state: {
+                selectedRowForViewForm: selectedRow,
+                dashboardID: "FromChecksheetDashboard",
+              },
+            });
           },
-        ];
+          disabled: false, // Set disabled to false by default for all actions
+          position: "row",
+        },
+        (rowData) => {
+          return {
+            hidden:
+              rowData.checkSheet_data === undefined ||
+              rowData.checkSheet_data === null,
+            icon: () => (
+              <button className="btn-delete">
+                <DeleteForeverIcon className="svg-font" />
+              </button>
+            ),
+            // tooltip: <h1>I am a tooltip</h1>,
+            onClick: (event, selectedRow) => {
+              deleteCheckSheet(selectedRow);
+            },
+            disabled: false, // Set disabled to false by default for all actions
+            position: "row",
+          };
+        },
+        (rowData) => {
+          return {
+            hidden:
+              rowData.checkSheet_data != null
+                ? rowData.checkSheet_data.checksheet_status ===
+                "Preparation" ||
+                rowData.checkSheet_data.checksheet_status === "Planning" ||
+                rowData.checkSheet_data.checksheet_status === undefined
+                : rowData.checkSheet_data === undefined ||
+                rowData.checkSheet_data === null,
+            icon: () => (
+              <button className="btn-warning">
+                <EditIcon className="svg-font" />
+              </button>
+            ),
+            // tooltip: <h1>I am a tooltip</h1>,
+            onClick: (event, selectedRow) => {
+              navigate("/checksheetCreationDashboard", {
+                state: { selectedRow: selectedRow, lineData: lineData },
+              });
+            },
+            disabled: false, // Set disabled to false by default for all actions
+            position: "row",
+          };
+        },
+        {
+          icon: () => <button className="downloadPDF">PDF</button>,
+          tooltip: "PDF",
+          isFreeAction: true,
+          onClick: (event) => {
+            downloadPDFForChecksheetDashboard();
+          },
+        },
+
+        {
+          icon: () => (
+            <CSVLink
+              headers={checkSheetDashboardForCSV}
+              className="downloadCSV text-decoration-none"
+              data={tableData ? tableData : []}
+              filename={`Checksheet_Dashboard_Data_${timeStamp()}`}
+              style={{ textDecoration: "none", color: "white" }}
+            >
+              {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+              CSV
+            </CSVLink>
+          ),
+          tooltip: "PDF",
+          isFreeAction: true,
+        },
+      ]
+      : [
+        {
+          icon: () => <button className="btn-primary1">View</button>,
+          // tooltip: <h1>I am a tooltip</h1>,
+          onClick: (event, selectedRow) => {
+            navigate("/viewCheckSheet", {
+              state: {
+                selectedRowForViewForm: selectedRow,
+                dashboardID: "FromChecksheetDashboard",
+              },
+            });
+          },
+          disabled: false, // Set disabled to false by default for all actions
+          position: "row",
+        },
+      ];
 
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
@@ -517,105 +604,126 @@ const CheckSheetDashboard = () => {
           <h4 style={{ padding: "1rem 0 0 1rem" }}>Checksheet Dashboard</h4>
 
           <Container fluid>
-            <Row>
-              <Col className="col-lg-3 col-md-6 col-sm-12">
+            <Row className="d-flex justify-content-center align-items-center gy-3">
+              <Col className="col-lg-2 col-md-6 col-sm-12">
                 <YearDropDown
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
                 />
               </Col>
-              <Col className="col-lg-3 col-md-6 col-sm-12">
-                <Row className="p-2 ">
-                  <Col sm={12} lg={3}>
-                    <span>
-                      <b>Cell:</b>
-                    </span>
-                  </Col>
-                  <Col>
-                    <div>
-                      <select
-                        class="form-select form-select-sm"
-                        aria-label=".form-select-sm example"
-                        // style={{ width: "100%" }}
-                        id="standard-select-currency"
-                        name="selectedCell"
-                        value={selectedCell}
-                        className="textField"
-                        onChange={async (e) => {
-                          localStorage.setItem("selectedCell", e.target.value);
-                          // console.log(e.target.value);
-                          localStorage.removeItem("selectedLine");
-                          setSelectedLine();
-                          setSelectedCell(e.target.value);
-                          postCellToGetLineList(e.target.value);
-                          setLoadingAnimationState(<LoadingAnimation />);
-                        }}
-                        // fullWidth
-                        select // label="Select"
-                        autoComplete="off"
-                        variant="standard"
-                      >
-                        <option selected disabled value="">
-                          Please select
-                        </option>
-                        {allDataSectionWise?.cellData?.map((option) => {
-                          return (
-                            <option value={option._id}>
-                              {option.cell_name}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                  </Col>
-                </Row>
+              <Col className="col-lg-2 col-md-6 col-sm-12">
+                <span>
+                  <b>Cell:&nbsp; &nbsp;</b>
+                </span>
+                <select
+                  class="form-select form-select-sm"
+                  aria-label=".form-select-sm example"
+                  style={{ width: "70%" }}
+                  id="standard-select-currency"
+                  name="selectedCell"
+                  value={selectedCell}
+                  className="textField"
+                  onChange={async (e) => {
+                    localStorage.setItem("selectedCell", e.target.value);
+                    // console.log(e.target.value);
+                    localStorage.removeItem("selectedLine");
+                    setSelectedLine();
+                    setSelectedCell(e.target.value);
+                    postCellToGetLineList(e.target.value);
+                    setLoadingAnimationState(<LoadingAnimation />);
+                  }}
+                  // fullWidth
+                  select // label="Select"
+                  autoComplete="off"
+                  variant="standard"
+                >
+                  <option selected disabled value="">
+                    Please select
+                  </option>
+                  {allDataSectionWise?.cellData?.map((option) => {
+                    return (
+                      <option value={option._id}>
+                        {option.cell_name}
+                      </option>
+                    );
+                  })}
+                </select>
               </Col>
-              <Col className="col-lg-3 col-md-6 col-sm-12">
-                <Row className="p-2 ">
-                  <Col sm={12} lg={3}>
-                    <span>
-                      <b>Line:</b>
-                    </span>
-                  </Col>
-                  <Col>
-                    <div>
-                      <select
-                        class="form-select form-select-sm"
-                        aria-label=".form-select-sm example"
-                        // style={{ width: "100%" }}
-                        id="standard-select-currency"
-                        name="selectedPlant"
-                        value={selectedLine || lineDropdown?.[0]?._id}
-                        className="textField"
-                        onChange={(e) => {
-                          localStorage.setItem("selectedLine", e.target.value);
-                          setSelectedLine(e.target.value);
-                          postLineToGetMachineList(e.target.value);
-                          setLoadingAnimationState(<LoadingAnimation />);
-                        }}
-                        // fullWidth
-                        select // label="Select"
-                        autoComplete="off"
-                        variant="standard"
-                      >
-                        <option selected disabled value="">
-                          Please select
-                        </option>
-                        {lineDropdown?.map((option) => {
-                          return (
-                            <option value={option._id}>
-                              {option.line_name}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                  </Col>
-                </Row>
+              <Col className="col-lg-2 col-md-6 col-sm-12">
+                <span>
+                  <b>Line:&nbsp; &nbsp;</b>
+                </span>
+                <select
+                  class="form-select form-select-sm"
+                  aria-label=".form-select-sm example"
+                  style={{ width: "70%" }}
+                  id="standard-select-currency"
+                  name="selectedPlant"
+                  value={selectedLine || lineDropdown?.[0]?._id}
+                  className="textField"
+                  onChange={(e) => {
+                    localStorage.setItem("selectedLine", e.target.value);
+                    setSelectedLine(e.target.value);
+                    postLineToGetMachineList(e.target.value);
+                    setLoadingAnimationState(<LoadingAnimation />);
+                  }}
+                  // fullWidth
+                  select // label="Select"
+                  autoComplete="off"
+                  variant="standard"
+                >
+                  <option selected disabled value="">
+                    Please select
+                  </option>
+                  {lineDropdown?.map((option) => {
+                    return (
+                      <option value={option._id}>
+                        {option.line_name}
+                      </option>
+                    );
+                  })}
+                </select>
+
               </Col>
-              <Col className="col-lg-3 col-md-6 col-sm-12 mt-3">
+              <Col className="col-lg-2 col-md-6 col-sm-12">
+                <span>
+                  <b>Status:&nbsp;&nbsp;</b>
+                </span>
+                <select
+                  class="form-select form-select-sm"
+                  aria-label=".form-select-sm example"
+                  style={{ width: "70%" }}
+                  id="standard-select-currency"
+                  name="selectedStatus"
+                  value={selectedStatus}
+                  className="textField"
+                  onChange={(e) => {
+                    setSelectedStatus(e.target.value);
+                    filterDataBasedOnSelectedStatus(e.target.value);
+                    localStorage.setItem(
+                      "selectedStatus",
+                      e.target.value
+                    );
+                  }}
+                  // fullWidth
+                  select // label="Select"
+                  autoComplete="off"
+                  variant="standard"
+                >
+                  <option selected disabled value="">
+                    Please select
+                  </option>
+                  {["Preparation", "Planning", "Implementation"]?.map(
+                    (option) => {
+                      return <option value={option}>{option}</option>;
+                    }
+                  )}
+                </select>
+
+              </Col>
+              <Col className="col-lg-2 col-md-6 col-sm-12">
                 <button
-                  class="btn-primary1 w-25 "
+                  class="btn-primary1 w-50 "
                   onClick={() => {
                     // localStorage.removeItem("selectedCell");
                     // localStorage.removeItem("selectedLine");
@@ -630,52 +738,10 @@ const CheckSheetDashboard = () => {
                   Reset
                 </button>
               </Col>
+              <Col className="col-lg-2 col-md-6 col-sm-12"></Col>
+
             </Row>
-            <Row>
-              <Col className="col-lg-3 col-md-6 col-sm-12">
-                <Row className="p-2 ">
-                  <Col sm={12} lg={3}>
-                    <span>
-                      <b>Status:</b>
-                    </span>
-                  </Col>
-                  <Col>
-                    <div>
-                      <select
-                        class="form-select form-select-sm"
-                        aria-label=".form-select-sm example"
-                        // style={{ width: "100%" }}
-                        id="standard-select-currency"
-                        name="selectedStatus"
-                        value={selectedStatus}
-                        className="textField"
-                        onChange={(e) => {
-                          setSelectedStatus(e.target.value);
-                          filterDataBasedOnSelectedStatus(e.target.value);
-                          localStorage.setItem(
-                            "selectedStatus",
-                            e.target.value
-                          );
-                        }}
-                        // fullWidth
-                        select // label="Select"
-                        autoComplete="off"
-                        variant="standard"
-                      >
-                        <option selected disabled value="">
-                          Please select
-                        </option>
-                        {["Preparation", "Planning", "Implementation"]?.map(
-                          (option) => {
-                            return <option value={option}>{option}</option>;
-                          }
-                        )}
-                      </select>
-                    </div>
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
+
           </Container>
           {tableData?.length > 0 ? (
             <div style={{ padding: "1rem" }}>
@@ -786,14 +852,22 @@ const CheckSheetDashboard = () => {
           ) : (
             <div
               className="container-fluid d-flex justify-content-center align-items-center p-5"
-              // style={{ height: "100vh" }}
+            // style={{ height: "100vh" }}
             >
               {loadingAnimationState}
             </div>
           )}
         </div>
       </div>
-      <Footer/>
+      <br />
+      <br />
+      <br />
+      <div className='mt-5'>
+        <div id="footer" style={{ marginLeft: "-10px" }}>
+          {/* <p>© 2020 <span style={{ color: "red" }}>Denso</span>. All rights reserved</p> */}
+          <p style={{ marginLeft: "-70px" }}> © {new Date().getFullYear()}<span style={{ color: "#dc3545" }}><b> Denso</b></span>. All rights reserved. </p>
+        </div>
+        </div>
     </>
   );
 };

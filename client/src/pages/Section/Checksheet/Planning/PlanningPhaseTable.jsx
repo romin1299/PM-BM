@@ -11,6 +11,12 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Navigate, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+import Footer from "../../../../components/Footer/Footer";
+
 function PlanningPhaseTable() {
   const [tableData, setTableData] = useState([]);
   const selectedMachineData = useLocation();
@@ -152,7 +158,7 @@ function PlanningPhaseTable() {
         console.log("Invalid");
       } else {
         // window.alert(data.abcd);
-        console.log("Data post", data.getSelectedMachineChecksheet);
+        // console.log("Data post", data.getSelectedMachineChecksheet);
         setTableData(data.getSelectedMachineChecksheet);
         setMachineData(data.machineData);
         setYearOfCheckSheet(data.yearOfCheckSheet);
@@ -350,7 +356,47 @@ function PlanningPhaseTable() {
         </select>
       ),
       width: "5%",
-     },
+    },
+  ];
+
+  const planningPhaseDataForCSV = [
+    {
+      label: "C",
+      key: "category",
+    },
+    {
+      label: "Inspection Item",
+      key: "inspection_parent_name",
+    },
+
+    {
+      label: "Inspection Point",
+      key: "inspection_point",
+    },
+    {
+      label: "Judgement Criteria",
+      key: "judgement_criteria",
+    },
+    {
+      label: "Action",
+      key: "action",
+    },
+    {
+      label: "Cycle",
+      key: "cycle",
+    },
+    {
+      label: "Person In Charge",
+      key: "personInCharge",
+    },
+    {
+      label: "PM Time",
+      key: "PM_time",
+    },
+    {
+      label: "Start Month",
+      key: "start_month",
+    },
   ];
 
   const revisedColumns = [
@@ -390,6 +436,77 @@ function PlanningPhaseTable() {
       editable: "false",
     },
   ];
+    //get the date and time
+    const timeStamp = () => {
+      let date = new Date();
+      let getTime = date
+        .toLocaleTimeString("en-IN", {
+          hour12: true,
+        })
+        .replace(/(.*)\D\d+/, "$1");
+      const year = date.getFullYear(); // 2019
+      const month = date.getMonth() + 1;
+      const day = date.getDate(); // 23
+  
+      return `${day}/${month}/${year} - ${getTime}`;
+    };
+
+  const downloadPDFOfPlanningData = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    tableData?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.category,
+        item.inspection_parent_name,
+        item.inspection_point,
+        item.judgement_criteria,
+        item.action,
+        item.cycle,
+        item.personInCharge,
+        item.PM_time,
+        item.start_month
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`Planning Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [columns?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Planning_Phase_Data_${timeStamp()}`);
+  };
+
+  const planningPhaseDataAction =[
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFOfPlanningData();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={planningPhaseDataForCSV}
+          className="downloadCSV text-decoration-none"
+          data={tableData}
+          filename={`Planning_Phase_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
+    },
+  ]
+
 
   function compareCycle(a, b) {
     // converting to uppercase to have case-insensitive comparison
@@ -461,6 +578,7 @@ function PlanningPhaseTable() {
                   // }
                 }
               }
+              actions = {planningPhaseDataAction}
               icons={tableIcons}
               columns={columns}
               data={tableData?.sort(compareCycle)}
@@ -666,6 +784,10 @@ function PlanningPhaseTable() {
           ""
         )}
       </div>
+      <br/>
+      <br/>
+      <br />
+      <Footer/>
     </>
   );
 }

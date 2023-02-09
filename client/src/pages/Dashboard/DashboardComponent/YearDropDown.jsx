@@ -26,7 +26,7 @@ const YearDropDown = ({ selectedYear, setSelectedYear }) => {
         <select
             class="form-select form-select-sm"
             aria-label=".form-select-sm example"
-            style={{ width: "50%" }}
+            style={{ width: "63%" }}
             id="standard-select-currency"
             name="selectedPlant"
             value={selectedYear ? selectedYear : current_year}

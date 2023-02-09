@@ -18,7 +18,7 @@ const MonthDropDownForMainDashboard = ({ selectedMonth, setSelectedMonth }) => {
   ];
 
   return (
-    <Row className="pb-5 d-flex align-items-center justify-content-center">
+    <Row className="d-flex align-items-center justify-content-center">
       <span>
         <b>Month:&nbsp;</b>
         <select

@@ -178,6 +178,10 @@ export const LoginPage = () => {
           </div>
         </div>
       </main>
+      <br />
+      <br />
+      <br />
+
       <Footer/>
     </>
   );

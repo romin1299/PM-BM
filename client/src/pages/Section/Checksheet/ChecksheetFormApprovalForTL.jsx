@@ -1276,8 +1276,10 @@ function ChecksheetFormApprovalForTL() {
           </Col>
         </Row>
       </Container>
-
-      <Footer />
+      <br />
+      <br />
+      <br />
+      <Footer/>
     </>
   );
 }

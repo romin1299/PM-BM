@@ -9,6 +9,11 @@ import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "./ReportComponents/NotFound";
 import Footer from "../../components/Footer/Footer";
 
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+
 function OpenAbnormalityTracking() {
   const context = useContext(RoutingContext);
   const [tableData, setTableData] = useState([]);
@@ -42,8 +47,8 @@ function OpenAbnormalityTracking() {
         // window.alert(data.abcd);
         // console.log("Data post");
         console.log(data);
-        setTableData(data.onlyOpenAbnormalityWithAllMonths);
-        setLineDropdown(data.lineData);
+        setTableData(data?.onlyOpenAbnormalityWithAllMonths);
+        setLineDropdown(data?.lineData);
         setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
@@ -86,7 +91,6 @@ function OpenAbnormalityTracking() {
       editable: "false",
       align: "center",
       width: "5%",
-      editable: "false",
     },
     {
       title: "Machine Name",
@@ -187,6 +191,105 @@ function OpenAbnormalityTracking() {
     },
   ];
 
+  const abnormalityDataHeaderForCSV = [
+    
+    {
+      label: "Line Name",
+      key: "line_name",
+      
+    },
+    {
+      label: "Machine Code",
+      key: "machine_code",
+      
+    },
+    {
+      label: "Machine Name",
+      key: "machine_name",
+      
+    },
+    {
+      label: "Schedule Month",
+      key: "schedule_month",
+      
+    },
+    {
+      label: "Checked By",
+      key: "checked_by",
+      
+    },
+    {
+      label: "Abnormality Remarks",
+      key: "abnormalityRemarks",
+   
+    },
+    {
+      label: "Target Date",
+      key: "targetDate",
+      
+    },
+    {
+      label: "Action Details",
+      key: "remarksOnClose",
+      
+    },
+    {
+      label: "Done Date",
+      key: "doneDate",
+      
+    },
+    {
+      label: "Done By",
+      key: "doneBy",
+
+    },
+  ];
+    //get the date and time
+    const timeStamp = () => {
+      let date = new Date();
+      let getTime = date
+        .toLocaleTimeString("en-IN", {
+          hour12: true,
+        })
+        .replace(/(.*)\D\d+/, "$1");
+      const year = date.getFullYear(); // 2019
+      const month = date.getMonth() + 1;
+      const day = date.getDate(); // 23
+  
+      return `${day}/${month}/${year} - ${getTime}`;
+    };
+  
+    const downloadPDFOfAbnormalityOpen = () => {
+      const doc = new jsPDF();
+      let rows = [];
+      tableData?.map((item, idx) => {
+        let rowArrayOfTable = [
+          ++idx,
+          item.line_name,
+          item.machine_code,
+          item.machine_name,
+          item.schedule_month,
+          item.checked_by,
+          item.abnormalityRemarks,
+          item.targetDate,
+          item.remarksOnClose,
+          item.doneDate,
+          item.doneBy
+        ];
+        rows.push(rowArrayOfTable);
+      });
+      doc.text(`Abnormality Open Data`, 15, 10);
+  
+      autoTable(doc, {
+        head: [tableHeader?.map((value) => value.title)],
+        body: rows,
+      });
+      // doc.autoTable(columns, csvData);
+      doc.save(`Abnormality_Open_Data_${timeStamp()}`);
+    };
+
+    console.log(tableData)
+
   const actions = [
     (rowdata) => {
       return {
@@ -223,6 +326,31 @@ function OpenAbnormalityTracking() {
         disabled: false, // Set disabled to false by default for all actions
         position: "row",
       };
+    },
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFOfAbnormalityOpen();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={abnormalityDataHeaderForCSV}
+          className="downloadCSV text-decoration-none"
+          data={tableData}
+          filename={`Abnormality_Open_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
     },
   ];
 
@@ -478,6 +606,9 @@ function OpenAbnormalityTracking() {
           )}
         </div>
       </div>
+      <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );

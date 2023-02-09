@@ -83,7 +83,7 @@ const SummeryDashboard = () => {
               setSelectedMonth={setSelectedMonth}
             />
           </Col>
-          
+
         </Row>
         {plantInfo?.map((item) => (
           <div>
@@ -128,8 +128,14 @@ const SummeryDashboard = () => {
           </div>
         ))}
       </div>
-      <br/><br/>
-      <Footer />
+      <br /><br />
+      <div>
+        <div id="footer" style={{ marginLeft: "-10px" }}>
+          {/* <p>© 2020 <span style={{ color: "red" }}>Denso</span>. All rights reserved</p> */}
+          <p style={{ marginLeft: "-70px" }}>
+            © {new Date().getFullYear()}<span style={{ color: "#dc3545" }}><b> Denso</b></span>. All rights reserved.
+          </p>
+        </div>   </div>
     </div>
   );
 };

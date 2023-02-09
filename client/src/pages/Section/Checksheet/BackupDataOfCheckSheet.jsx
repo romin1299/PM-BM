@@ -13,6 +13,11 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 import Footer from "../../../components/Footer/Footer";
 
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+
 const BackupDataOfCheckSheet = () => {
   const context = useContext(RoutingContext);
   const [tableData, setTableData] = useState([]);
@@ -94,6 +99,62 @@ const BackupDataOfCheckSheet = () => {
     },
   ];
 
+  const backUpChecksheetDataForCSV = [
+   
+    {
+      label: "Line Name",
+      key: "line_names.line_name",
+      
+    },
+    {
+      label: "Machine Code",
+      key: "machine_code",
+      
+    },
+    {
+      label: "Machine Name",
+      key: "machine_name",
+      
+    },
+  ];
+
+    //get the date and time
+    const timeStamp = () => {
+      let date = new Date();
+      let getTime = date
+        .toLocaleTimeString("en-IN", {
+          hour12: true,
+        })
+        .replace(/(.*)\D\d+/, "$1");
+      const year = date.getFullYear(); // 2019
+      const month = date.getMonth() + 1;
+      const day = date.getDate(); // 23
+  
+      return `${day}/${month}/${year} - ${getTime}`;
+    };
+  
+    const downloadPDFOfBackupData = () => {
+      const doc = new jsPDF();
+      let rows = [];
+      tableData?.map((item, idx) => {
+        let rowArrayOfTable = [
+          ++idx,
+          item.line_names.line_name,
+          item.machine_code,
+          item.machine_name,
+        ];
+        rows.push(rowArrayOfTable);
+      });
+      doc.text(`Backup Checksheet Data`, 15, 10);
+  
+      autoTable(doc, {
+        head: [machineHeader?.map((value) => value.title)],
+        body: rows,
+      });
+      // doc.autoTable(columns, csvData);
+      doc.save(`Backup_Checksheet_Data_${timeStamp()}`);
+    };
+
   const actions = [
     {
       icon: () => <button className="btn-primary1">View</button>,
@@ -105,6 +166,31 @@ const BackupDataOfCheckSheet = () => {
       },
       disabled: false, // Set disabled to false by default for all actions
       position: "row",
+    },
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFOfBackupData();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={backUpChecksheetDataForCSV}
+          className="downloadCSV text-decoration-none"
+          data={tableData}
+          filename={`Backup_Checksheet_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
     },
   ];
 
@@ -201,6 +287,9 @@ const BackupDataOfCheckSheet = () => {
           </div>
         )}
       </div>
+      <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );

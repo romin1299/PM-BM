@@ -20,7 +20,7 @@ import {
   deleteMachine,
 } from "../../Integration/APIExports.js";
 
-import { Row, Col } from 'react-bootstrap'
+import { Row, Col } from "react-bootstrap";
 
 import "../../SCSS/MaterialTable.scss";
 import { RadioGroup } from "@mui/material";
@@ -28,11 +28,16 @@ import RoutingContext from "../../context/routing/RoutingContext";
 import MachineAdd from "../../Popups/machineAdd";
 import Footer from "../../components/Footer/Footer";
 
+import { CSVLink, CSVDownload } from "react-csv";
+import { jsPDF } from "jspdf";
+// require('jspdf-autotable');
+import autoTable from "jspdf-autotable";
+
 const CreationDashboardForTLHOSS = () => {
   const [cell, setCell] = useState();
   const [line, setLine] = useState();
 
-  const [machine, setMachine] = useState();
+  const [machine, setMachine] = useState([]);
 
   const [lineList, setLineList] = useState("");
 
@@ -67,23 +72,107 @@ const CreationDashboardForTLHOSS = () => {
     },
   ];
 
+  const lineHeaderForCSV = [
+    {
+      label: "Line Id",
+      key: "line_id",
+    },
+    {
+      label: "Line Name",
+      key: "line_name",
+    },
+    {
+      label: "Line Sequence",
+      key: "line_sequence",
+    },
+  ];
+
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+  const downloadPDFOfLineData = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    lineList?.lineInfo?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.line_id,
+        item.line_name,
+        item.line_sequence,
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`Line Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [lineHeader?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Line_Data_${timeStamp()}`);
+  };
+
+  const lineAction = [
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFOfLineData();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={lineHeaderForCSV}
+          className="downloadCSV text-decoration-none"
+          data={lineList?.lineInfo}
+          filename={`Line_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
+    },
+  ];
+
   const machineHeader = [
     {
       title: "Serial no",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
-      width: "5%"
+      width: "5%",
     },
     {
       title: "Machine Code",
       field: "machine_code",
       editable: "false",
       align: "center",
+      width: "15%",
+
     },
     {
       title: "Machine Name",
       field: "machine_name",
       align: "center",
+      width: "15%",
+
     },
     {
       title: "Machine Nick-Name",
@@ -94,7 +183,7 @@ const CreationDashboardForTLHOSS = () => {
       title: "Machine Sequence",
       field: "machine_sequence",
       align: "center",
-      width: "5%"
+      width: "5%",
     },
     {
       title: "Installation Date",
@@ -133,12 +222,76 @@ const CreationDashboardForTLHOSS = () => {
       title: "Maker Sr.No.",
       field: "maker_sr_no",
       align: "center",
+      width: "15%",
+
     },
   ];
 
+  const machineHeaderForCSV = [
+    {
+      label: "Machine Code",
+      key: "machine_code",
+    },
+    {
+      label: "Machine Name",
+      key: "machine_name",
+    },
+    {
+      label: "Machine Nick-Name",
+      key: "machine_nickname",
+    },
+    {
+      label: "Machine Sequence",
+      key: "machine_sequence",
+    },
+    {
+      label: "Installation Date",
+      key: "installation_date",
+    },
+    {
+      label: "Manufacturing Date",
+      key: "manufacturingDate",
+    },
+    {
+      label: "Maker Name",
+      key: "maker_name",
+    },
+    {
+      label: "Maker Sr.No.",
+      key: "maker_sr_no",
+    },
+  ];
+
+  const downloadPDFOfMachineData = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    lineList?.lineInfo?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.machine_code,
+        item.machine_name,
+        item.machine_nickname,
+        item.machine_sequence,
+        item.installation_date,
+        item.manufacturingDate,
+        item.maker_name,
+        item.maker_sr_no
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`Machine Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [machineHeader?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Machine_Data_${timeStamp()}`);
+  };
+
   const postCellToGetLineList = async (selectedCell) => {
     setLine(undefined);
-    setMachine(undefined);
+    setMachine([]);
     try {
       const res = await fetch("/postCellToGetLineList", {
         method: "POST",
@@ -155,7 +308,7 @@ const CreationDashboardForTLHOSS = () => {
         console.log("Invalid");
       } else {
         // window.alert(data.abcd);
-        console.log("Data post", data);
+        // console.log("Data post", data);
 
         setLineList(data);
       }
@@ -165,7 +318,7 @@ const CreationDashboardForTLHOSS = () => {
   };
 
   const postLineToGetMachineList = async (selectedLine) => {
-    setMachine(undefined);
+    setMachine([]);
     try {
       const res = await fetch("/postLineToGetMachineList", {
         method: "POST",
@@ -182,9 +335,9 @@ const CreationDashboardForTLHOSS = () => {
         console.log("Invalid");
       } else {
         // window.alert(data.abcd);
-        console.log("Data post", data);
+        // console.log("Data post", data);
 
-        setMachine(data.machineInfo);
+        setMachine(data?.machineInfo);
       }
     } catch (error) {
       console.log(error);
@@ -225,6 +378,31 @@ const CreationDashboardForTLHOSS = () => {
         document.querySelector(".App").style.pointerEvents = "none";
       },
     },
+    {
+      icon: () => <button className="downloadPDF">PDF</button>,
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event) => {
+        downloadPDFOfMachineData();
+      },
+    },
+
+    {
+      icon: () => (
+        <CSVLink
+          headers={machineHeaderForCSV}
+          className="downloadCSV text-decoration-none"
+          data={machine}
+          filename={`Machine_Data_${timeStamp()}`}
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+          CSV
+        </CSVLink>
+      ),
+      tooltip: "PDF",
+      isFreeAction: true,
+    },
   ];
 
   // console.log(
@@ -244,8 +422,10 @@ const CreationDashboardForTLHOSS = () => {
           <div className="creationDashboard">
             <div className="selection_div">
               <Row>
-                <Col sm >
-                  <span><b>Cell/Product :</b>&nbsp;</span>
+                <Col sm>
+                  <span>
+                    <b>Cell/Product :</b>&nbsp;
+                  </span>
                   <select
                     class="form-select form-select-sm"
                     aria-label=".form-select-sm example"
@@ -271,7 +451,9 @@ const CreationDashboardForTLHOSS = () => {
                   </select>
                 </Col>
                 <Col sm>
-                  <span><b>Line :</b>&nbsp;</span>
+                  <span>
+                    <b>Line :</b>&nbsp;
+                  </span>
                   <select
                     class="form-select form-select-sm"
                     aria-label=".form-select-sm example"
@@ -294,13 +476,12 @@ const CreationDashboardForTLHOSS = () => {
                       Please select
                     </option>
                     {lineList !== ""
-                      ? lineList.lineArray.map((option) => {
-                        return <option value={option}>{option}</option>;
-                      })
+                      ? lineList?.lineArray?.map((option) => {
+                          return <option value={option}>{option}</option>;
+                        })
                       : ""}
                   </select>
                 </Col>
-
               </Row>
               {/* <div style={{ display: "flex", flexDirection: "column" }}>
 
@@ -432,10 +613,10 @@ const CreationDashboardForTLHOSS = () => {
                       //   exportPDFName: "Export as pdf!!"
                       // }
                     }}
-                    // actions={actions}
+                    actions={lineAction}
                     icons={tableIcons}
                     columns={lineHeader}
-                    data={lineList.lineInfo}
+                    data={lineList?.lineInfo}
                     // title="User Management"
                     // tableRef={this.tableRef.current.onQueryChange()}
 
@@ -443,7 +624,7 @@ const CreationDashboardForTLHOSS = () => {
                       onRowAdd: (newRow) =>
                         new Promise((resolve, reject) => {
                           const updatedRows = [
-                            ...lineList.lineInfo,
+                            ...lineList?.lineInfo,
                             { user_id: "", ...newRow },
                           ];
 
@@ -476,7 +657,7 @@ const CreationDashboardForTLHOSS = () => {
                       onRowUpdate: (updatedRow, oldRow) =>
                         new Promise((resolve, reject) => {
                           const index = oldRow.tableData.id;
-                          const updatedRows = [...lineList.lineInfo];
+                          const updatedRows = [...lineList?.lineInfo];
                           updatedRows[index] = updatedRow;
                           //call the update user function and pass the user data
                           // updateUserInfo(updatedRow);
