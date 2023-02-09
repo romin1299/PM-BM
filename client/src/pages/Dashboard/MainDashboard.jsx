@@ -209,6 +209,7 @@ const MainDashboard = () => {
   };
 
   const closeCheckSheet = () => {
+    // console.log("-------------------------------------------------------  ");
     if (context.user_type === "Operator") {
       postSectionToGetAllDataForMainDashboard(context.section_data);
     } else {
@@ -350,6 +351,7 @@ const MainDashboard = () => {
             if (id.subSection_id === subSectionSplit[0]) {
               console.log("***************** 339", id._id);
               setSelectedSubSectionIdForDefaultDashboard(id._id);
+              // postSectionToGetAllDataForMainDashboardGraph(id._id, "No");
             }
           });
         }
@@ -452,6 +454,7 @@ const MainDashboard = () => {
   ) => {
     // console.log(
     //   "######################################",
+    //   selectedMonth,
     //   sectionOrSubSection,
     //   dashboardLevel
     // );
@@ -487,6 +490,7 @@ const MainDashboard = () => {
   };
 
   const postSectionToGetSectionInfo = async (sectionName) => {
+    // console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   493");
     try {
       const res = await fetch("/postSectionToGetSectionInfo", {
         method: "POST",
@@ -514,6 +518,7 @@ const MainDashboard = () => {
             data?.sectionInfo?.dashboardLevel
           );
         } else {
+          // console.log("!!!!!!!!!!!!!!!!!!!", selectedSubSectionId);
           if (refKey === 0) {
             // console.log(
             //   "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
@@ -533,7 +538,9 @@ const MainDashboard = () => {
               selectedSubSectionIdForDefaultDashboard,
               data?.sectionInfo?.dashboardLevel
             );
-            setRefKey((refKey) => refKey + 1);
+            if (selectedSubSectionId) {
+              setRefKey((refKey) => refKey + 1);
+            }
           }
         }
       }
@@ -544,7 +551,22 @@ const MainDashboard = () => {
   useEffect(() => {
     postSectionToGetAllDataForMainDashboardGraph(selectedSubSectionId, "No");
     postSectionToGetAllDataForAnnualStatusReport(selectedSubSectionId, "No");
-  }, [selectedSubSectionId]);
+  }, [selectedSubSectionId, selectedYear, selectedMonth]);
+
+  // useEffect(() => {
+  //   postSectionToGetAllDataForMainDashboardGraph(
+  //     selectedSubSectionId
+  //       ? selectedSubSectionId
+  //       : selectedSubSectionIdForDefaultDashboard,
+  //     "No"
+  //   );
+  //   postSectionToGetAllDataForAnnualStatusReport(
+  //     selectedSubSectionId
+  //       ? selectedSubSectionId
+  //       : selectedSubSectionIdForDefaultDashboard,
+  //     "No"
+  //   );
+  // }, [selectedSubSectionIdForDefaultDashboard, selectedMonth]);
 
   // console.log("========>", selectedSubSectionIdForDefaultDashboard);
 
@@ -628,7 +650,7 @@ const MainDashboard = () => {
     }
   };
 
-  console.log(selectedSubSectionIdForDefaultDashboard);
+  // console.log(selectedSubSectionIdForDefaultDashboard);
 
   return (
     <>
@@ -2060,13 +2082,7 @@ const MainDashboard = () => {
                                                                           ] ===
                                                                             "No Completion"
                                                                         ? "#ff8888"
-                                                                        : console.log(
-                                                                            "8888888888888888888888888",
-                                                                            selectedMonth,
-                                                                            machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus
-                                                                          )
+                                                                        : "#ababab"
                                                                       : "#ababab",
                                                                 }}
                                                                 className="machine"

@@ -520,14 +520,32 @@ function ChecksheetFormApprovalForHOSAndHOD() {
       } else {
         console.log("User added sucessfully...");
 
-        if (
-          selectedMachineCheckSheetData?.state?.dashboardID ===
-          "FromSixMonthApprovalDashboard"
-        ) {
-          navigate("/sixMonthApprovalDashboard");
-        } else {
-          navigate("/approvalDashboard");
-        }
+        machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
+          ? navigate("/preparationApproval")
+          : machineAllData?.checkSheet_data?.checksheet_status === "Planning"
+          ? navigate("/planningApproval")
+          : selectedMachineCheckSheetData?.state?.dashboardID ===
+            "FromSixMonthApprovalDashboard"
+          ? navigate("/sixMonthApprovalDashboard")
+          : selectedMachineCheckSheetData?.state?.dashboardID ===
+            "FromPlanningApprovalDashboard"
+          ? navigate("/planningApproval")
+          : navigate("/implementationApproval");
+
+        // if (
+        //   selectedMachineCheckSheetData?.state?.dashboardID ===
+        //   "FromSixMonthApprovalDashboard"
+        // ) {
+        //   navigate("/sixMonthApprovalDashboard");
+        // } else if (
+        //   selectedMachineCheckSheetData?.state?.dashboardID ===
+        //   "FromPlanningApprovalDashboard"
+        // ) {
+        //   navigate("/planningApproval");
+        // }
+        //  else {
+        //   navigate("/approvalDashboard");
+        // }
 
         // refreshPage();
         // if (values.email) {
@@ -603,7 +621,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
             <Col lg={6} md={6} sm={6}>
               <div className="col-1">
                 <button
-                  onClick={() =>
+                  onClick={() => {
                     machineAllData?.checkSheet_data?.checksheet_status ===
                     "Preparation"
                       ? navigate("/preparationApproval")
@@ -613,8 +631,26 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       : selectedMachineCheckSheetData?.state?.dashboardID ===
                         "FromSixMonthApprovalDashboard"
                       ? navigate("/sixMonthApprovalDashboard")
-                      : navigate("/implementationApproval")
-                  }
+                      : selectedMachineCheckSheetData?.state?.dashboardID ===
+                        "FromPlanningApprovalDashboard"
+                      ? navigate("/planningApproval")
+                      : navigate("/implementationApproval");
+
+                    // if (
+                    //   selectedMachineCheckSheetData?.state?.dashboardID ===
+                    //   "FromSixMonthApprovalDashboard"
+                    // ) {
+                    //   navigate("/sixMonthApprovalDashboard");
+                    // } else if (
+                    //   selectedMachineCheckSheetData?.state?.dashboardID ===
+                    //   "FromPlanningApprovalDashboard"
+                    // ) {
+                    //   navigate("/planningApproval");
+                    // }
+                    // else {
+                    //   navigate("/approvalDashboard");
+                    // }
+                  }}
                   style={{
                     border: "none",
                     background: "white",
@@ -1290,7 +1326,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
         </Row>
       </Container>
 
-      <Footer/>
+      <Footer />
     </>
   );
 }

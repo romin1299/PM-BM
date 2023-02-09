@@ -500,12 +500,29 @@ function ChecksheetFormApprovalForTL() {
         window.alert("Invalid credentials !");
       } else {
         console.log("User added sucessfully...");
-        machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
-          ? navigate("/preparationApproval")
-          : machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
-          ? navigate("/planningApproval")
-          : navigate("/implementationApproval");
+        // machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
+        //   ? navigate("/preparationApproval")
+        //   : machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
+        //   ? navigate("/planningApproval")
+        //   : navigate("/implementationApproval");
 
+        // selectedMachineCheckSheetData?.state?.dashboardID ===
+        // "FromPlanningApprovalDashboard"
+        //   ? navigate("/planningApproval")
+        //   : navigate("/implementationApproval");
+
+        machineAllData?.checkSheet_data?.checksheet_status === "Implementation"
+          ? navigate("/implementationApproval")
+          : machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
+          ? navigate("/preparationApproval")
+          : navigate("/planningApproval");
+
+        // if (
+        //   selectedMachineCheckSheetData?.state?.dashboardID ===
+        //   "FromPlanningApprovalDashboard"
+        // ) {
+        //   navigate("/planningApproval");
+        // }
         // refreshPage();
         // if (values.email) {
         //   newPasswordLink(values.email);
@@ -565,6 +582,7 @@ function ChecksheetFormApprovalForTL() {
   // };
 
   // console.log(selectedMachineCheckSheetData.state.selectedRowForViewForm);
+  console.log(machineAllData?.checkSheet_data?.checksheet_status);
   return (
     <>
       {stateForOpeningSummeryPopups}
@@ -575,12 +593,31 @@ function ChecksheetFormApprovalForTL() {
             <Col lg={6} md={6} sm={6}>
               <div className="col-1">
                 <button
-                  onClick={() =>
+                  onClick={() => {
                     machineAllData?.checkSheet_data?.checksheet_status ===
                     "Implementation"
                       ? navigate("/implementationApproval")
-                      : navigate("/planningApproval")
-                  }
+                      : machineAllData?.checkSheet_data?.checksheet_status ===
+                        "Preparation"
+                      ? navigate("/preparationApproval")
+                      : navigate("/planningApproval");
+
+                    // console.log(
+                    //   selectedMachineCheckSheetData?.state?.dashboardID
+                    // );
+
+                    // if (
+                    //   selectedMachineCheckSheetData?.state?.dashboardID ===
+                    //   "FromPlanningApprovalDashboard"
+                    // ) {
+                    //   navigate("/planningApproval");
+                    // } else if (
+                    //   selectedMachineCheckSheetData?.state?.dashboardID ===
+                    //   "FromPreparationApprovalDashboard"
+                    // ) {
+                    //   navigate("/checksheetCreationDashboardForMTDTLandHOS");
+                    // }
+                  }}
                   style={{
                     border: "none",
                     background: "white",
@@ -1240,7 +1277,7 @@ function ChecksheetFormApprovalForTL() {
         </Row>
       </Container>
 
-      <Footer/>
+      <Footer />
     </>
   );
 }
