@@ -53,8 +53,6 @@ const CheckSheetDashboard = () => {
     localStorage.getItem("selectedStatus")
   );
 
-  console.log(tableData1);
-
   const postSectionToGetAllData = async (keyRef) => {
     // setSubSection(undefined);
     try {
@@ -81,7 +79,11 @@ const CheckSheetDashboard = () => {
         if (selectedCell) {
           postCellToGetLineList(selectedCell);
         } else {
-          setTableData(data.machineLastData);
+          if (context?.user_type === "Operator") {
+            setTableData(data.machineDataOfImplementationApproval);
+          } else {
+            setTableData(data.machineLastData);
+          }
         }
 
         if (selectedStatus) {
@@ -151,7 +153,11 @@ const CheckSheetDashboard = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        await setTableData(data.machineInfo);
+        if (context?.user_type === "Operator") {
+          await setTableData(data.machineDataOfImplementationApproval);
+        } else {
+          await setTableData(data.machineLastData);
+        }
 
         // console.log("131     ******************", data.machineInfo);
         if (selectedStatus) {
@@ -173,9 +179,9 @@ const CheckSheetDashboard = () => {
       if (selectedStatus === "Preparation") {
         if (
           (data ? data : tableData)?.[i]?.checkSheet_data?.checksheet_status ===
-          selectedStatus ||
+            selectedStatus ||
           (data ? data : tableData)?.[i]?.checkSheet_data?.checksheet_status ===
-          undefined
+            undefined
         ) {
           filterData.push((data ? data : tableData)?.[i]);
         }
@@ -337,181 +343,183 @@ const CheckSheetDashboard = () => {
   const actions =
     currentYear === selectedYear
       ? [
-        (rowData) => {
-          return {
-            hidden:
-              rowData.checkSheet_data != null
-                ? rowData.checkSheet_data.checksheet_status ===
-                "Implementation" ||
-                rowData.checkSheet_data.checksheet_status === "Planning"
-                : "",
-            icon: () => (
-              <button className="btn-reset1">
-                {rowData.checkSheet_data != null
-                  ? rowData.checkSheet_data.checkSheet.length > 0
-                    ? rowData.checkSheet_data.checkSheet.length < 1
-                      ? "Preparation"
-                      : rowData.checkSheet_data.assign_TL.length !==
-                        rowData.checkSheet_data.approved_by_TL.length ||
-                        rowData.checkSheet_data.assign_HOS.length !==
-                        rowData.checkSheet_data.approved_by_HOS.length
+          (rowData) => {
+            return {
+              hidden:
+                rowData.checkSheet_data != null
+                  ? rowData.checkSheet_data.checksheet_status ===
+                      "Implementation" ||
+                    rowData.checkSheet_data.checksheet_status === "Planning"
+                  : "",
+              icon: () => (
+                <button className="btn-reset1">
+                  {rowData.checkSheet_data != null
+                    ? rowData.checkSheet_data.checkSheet.length > 0
+                      ? rowData.checkSheet_data.checkSheet.length < 1
+                        ? "Preparation"
+                        : rowData.checkSheet_data.assign_TL.length !==
+                            rowData.checkSheet_data.approved_by_TL.length ||
+                          rowData.checkSheet_data.assign_HOS.length !==
+                            rowData.checkSheet_data.approved_by_HOS.length
                         ? "Preparation Under Approval"
                         : "Under-Preparation"
-                    : "Preparation"
-                  : "Preparation"}
-              </button>
-            ),
-            // tooltip: <h1>I am a tooltip</h1>,
-            onClick: (event, selectedRow) => {
-              navigate("/checksheetCreationDashboard", {
-                state: { selectedRow: selectedRow, lineData: lineData },
-              });
-            },
-            disabled: false, // Set disabled to false by default for all actions
-            position: "row",
-          };
-        },
-        (rowData) => {
-          return {
-            hidden:
-              rowData.checkSheet_data != null
-                ? rowData.checkSheet_data.checksheet_status ===
-                "Preparation" ||
-                rowData.checkSheet_data.checksheet_status ===
-                "Implementation" ||
-                rowData.checkSheet_data.checksheet_status === undefined
-                : rowData.checkSheet_data === undefined ||
-                rowData.checkSheet_data === null,
-            icon: () => (
-              <button className="btn-warning">
-                {rowData.checkSheet_data != null
-                  ? rowData.checkSheet_data.checkSheet.map((key) => {
-                    if ("start_month" in key) {
-                      if (
-                        rowData?.checkSheet_data?.approved_by_PRD_TL
-                          .length !=
-                        rowData?.checkSheet_data?.assign_PRD_TL.length
-                      ) {
-                        return "Planning Under Approval";
-                      } else {
-                        return "Under-Planning";
-                      }
-                    } else {
-                      return "Planning";
-                    }
-                  })[0]
-                  : ""}
-              </button>
-            ),
-            // tooltip: <h1>I am a tooltip</h1>,
-            onClick: (event, selectedRow) => {
-              navigate("/planningPhaseTable", {
-                state: { selectedRow: selectedRow },
-              });
-            },
-            disabled: false, // Set disabled to false by default for all actions
-            position: "row",
-          };
-        },
-        {
-          icon: () => <button className="btn-primary1">View</button>,
-          // tooltip: <h1>I am a tooltip</h1>,
-          onClick: (event, selectedRow) => {
-            navigate("/viewCheckSheet", {
-              state: {
-                selectedRowForViewForm: selectedRow,
-                dashboardID: "FromChecksheetDashboard",
+                      : "Preparation"
+                    : "Preparation"}
+                </button>
+              ),
+              // tooltip: <h1>I am a tooltip</h1>,
+              onClick: (event, selectedRow) => {
+                navigate("/checksheetCreationDashboard", {
+                  state: { selectedRow: selectedRow, lineData: lineData },
+                });
               },
-            });
+              disabled: false, // Set disabled to false by default for all actions
+              position: "row",
+            };
           },
-          disabled: false, // Set disabled to false by default for all actions
-          position: "row",
-        },
-        (rowData) => {
-          return {
-            hidden:
-              rowData.checkSheet_data === undefined ||
-              rowData.checkSheet_data === null,
-            icon: () => (
-              <button className="btn-delete">
-                <DeleteForeverIcon className="svg-font" />
-              </button>
-            ),
+          (rowData) => {
+            return {
+              hidden:
+                rowData.checkSheet_data != null
+                  ? rowData.checkSheet_data.checksheet_status ===
+                      "Preparation" ||
+                    rowData.checkSheet_data.checksheet_status ===
+                      "Implementation" ||
+                    rowData.checkSheet_data.checksheet_status === undefined
+                  : rowData.checkSheet_data === undefined ||
+                    rowData.checkSheet_data === null,
+              icon: () => (
+                <button className="btn-warning">
+                  {rowData.checkSheet_data != null
+                    ? rowData.checkSheet_data.checkSheet.map((key) => {
+                        if ("start_month" in key) {
+                          if (
+                            rowData?.checkSheet_data?.approved_by_PRD_TL
+                              .length !=
+                            rowData?.checkSheet_data?.assign_PRD_TL.length
+                          ) {
+                            return "Planning Under Approval";
+                          } else {
+                            return "Under-Planning";
+                          }
+                        } else {
+                          return "Planning";
+                        }
+                      })[0]
+                    : ""}
+                </button>
+              ),
+              // tooltip: <h1>I am a tooltip</h1>,
+              onClick: (event, selectedRow) => {
+                navigate("/planningPhaseTable", {
+                  state: { selectedRow: selectedRow },
+                });
+              },
+              disabled: false, // Set disabled to false by default for all actions
+              position: "row",
+            };
+          },
+          {
+            icon: () => <button className="btn-primary1">View</button>,
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
-              deleteCheckSheet(selectedRow);
-            },
-            disabled: false, // Set disabled to false by default for all actions
-            position: "row",
-          };
-        },
-        (rowData) => {
-          return {
-            hidden:
-              rowData.checkSheet_data != null
-                ? rowData.checkSheet_data.checksheet_status ===
-                "Preparation" ||
-                rowData.checkSheet_data.checksheet_status === "Planning" ||
-                rowData.checkSheet_data.checksheet_status === undefined
-                : rowData.checkSheet_data === undefined ||
-                rowData.checkSheet_data === null,
-            icon: () => (
-              <button className="btn-warning">
-                <EditIcon className="svg-font" />
-              </button>
-            ),
-            // tooltip: <h1>I am a tooltip</h1>,
-            onClick: (event, selectedRow) => {
-              navigate("/checksheetCreationDashboard", {
-                state: { selectedRow: selectedRow, lineData: lineData },
+              navigate("/viewCheckSheet", {
+                state: {
+                  selectedRowForViewForm: selectedRow,
+                  dashboardID: "FromChecksheetDashboard",
+                },
               });
             },
             disabled: false, // Set disabled to false by default for all actions
             position: "row",
-          };
-        },
-        {
-          icon: () => <button className="downloadPDF">PDF</button>,
-          tooltip: "PDF",
-          isFreeAction: true,
-          onClick: (event) => {
-            downloadPDFForChecksheetDashboard();
           },
-        },
 
-        {
-          icon: () => (
-            <CSVLink
-              headers={checkSheetDashboardForCSV}
-              className="downloadCSV text-decoration-none"
-              data={tableData ? tableData : []}
-              filename={`Checksheet_Dashboard_Data_${timeStamp()}`}
-              style={{ textDecoration: "none", color: "white" }}
-            >
-              {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
-              CSV
-            </CSVLink>
-          ),
-          tooltip: "PDF",
-          isFreeAction: true,
-        },
-      ]
-      : [
-        {
-          icon: () => <button className="btn-primary1">View</button>,
-          // tooltip: <h1>I am a tooltip</h1>,
-          onClick: (event, selectedRow) => {
-            navigate("/viewCheckSheet", {
-              state: {
-                selectedRowForViewForm: selectedRow,
-                dashboardID: "FromChecksheetDashboard",
+          (rowData) => {
+            return {
+              hidden:
+                context?.user_type === "Operator" ? context?.user_type === "Operator" :
+                  rowData.checkSheet_data === undefined ||
+                rowData.checkSheet_data === null,
+              icon: () => (
+                <button className="btn-delete">
+                  <DeleteForeverIcon className="svg-font" />
+                </button>
+              ),
+              // tooltip: <h1>I am a tooltip</h1>,
+              onClick: (event, selectedRow) => {
+                deleteCheckSheet(selectedRow);
               },
-            });
+              disabled: false, // Set disabled to false by default for all actions
+              position: "row",
+            };
           },
-          disabled: false, // Set disabled to false by default for all actions
-          position: "row",
-        },
-      ];
+          (rowData) => {
+            return {
+              hidden:
+                rowData.checkSheet_data != null
+                  ? rowData.checkSheet_data.checksheet_status ===
+                      "Preparation" ||
+                    rowData.checkSheet_data.checksheet_status === "Planning" ||
+                    rowData.checkSheet_data.checksheet_status === undefined
+                  : rowData.checkSheet_data === undefined ||
+                    rowData.checkSheet_data === null,
+              icon: () => (
+                <button className="btn-warning">
+                  <EditIcon className="svg-font" />
+                </button>
+              ),
+              // tooltip: <h1>I am a tooltip</h1>,
+              onClick: (event, selectedRow) => {
+                navigate("/checksheetCreationDashboard", {
+                  state: { selectedRow: selectedRow, lineData: lineData },
+                });
+              },
+              disabled: false, // Set disabled to false by default for all actions
+              position: "row",
+            };
+          },
+          {
+            icon: () => <button className="downloadPDF">PDF</button>,
+            tooltip: "PDF",
+            isFreeAction: true,
+            onClick: (event) => {
+              downloadPDFForChecksheetDashboard();
+            },
+          },
+
+          {
+            icon: () => (
+              <CSVLink
+                headers={checkSheetDashboardForCSV}
+                className="downloadCSV text-decoration-none"
+                data={tableData ? tableData : []}
+                filename={`Checksheet_Dashboard_Data_${timeStamp()}`}
+                style={{ textDecoration: "none", color: "white" }}
+              >
+                {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+                CSV
+              </CSVLink>
+            ),
+            tooltip: "PDF",
+            isFreeAction: true,
+          },
+        ]
+      : [
+          {
+            icon: () => <button className="btn-primary1">View</button>,
+            // tooltip: <h1>I am a tooltip</h1>,
+            onClick: (event, selectedRow) => {
+              navigate("/viewCheckSheet", {
+                state: {
+                  selectedRowForViewForm: selectedRow,
+                  dashboardID: "FromChecksheetDashboard",
+                },
+              });
+            },
+            disabled: false, // Set disabled to false by default for all actions
+            position: "row",
+          },
+        ];
 
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
@@ -642,9 +650,7 @@ const CheckSheetDashboard = () => {
                   </option>
                   {allDataSectionWise?.cellData?.map((option) => {
                     return (
-                      <option value={option._id}>
-                        {option.cell_name}
-                      </option>
+                      <option value={option._id}>{option.cell_name}</option>
                     );
                   })}
                 </select>
@@ -677,50 +683,47 @@ const CheckSheetDashboard = () => {
                   </option>
                   {lineDropdown?.map((option) => {
                     return (
-                      <option value={option._id}>
-                        {option.line_name}
-                      </option>
+                      <option value={option._id}>{option.line_name}</option>
                     );
                   })}
                 </select>
-
               </Col>
-              <Col className="col-lg-2 col-md-6 col-sm-12">
-                <span>
-                  <b>Status:&nbsp;&nbsp;</b>
-                </span>
-                <select
-                  class="form-select form-select-sm"
-                  aria-label=".form-select-sm example"
-                  style={{ width: "70%" }}
-                  id="standard-select-currency"
-                  name="selectedStatus"
-                  value={selectedStatus}
-                  className="textField"
-                  onChange={(e) => {
-                    setSelectedStatus(e.target.value);
-                    filterDataBasedOnSelectedStatus(e.target.value);
-                    localStorage.setItem(
-                      "selectedStatus",
-                      e.target.value
-                    );
-                  }}
-                  // fullWidth
-                  select // label="Select"
-                  autoComplete="off"
-                  variant="standard"
-                >
-                  <option selected disabled value="">
-                    Please select
-                  </option>
-                  {["Preparation", "Planning", "Implementation"]?.map(
-                    (option) => {
-                      return <option value={option}>{option}</option>;
-                    }
-                  )}
-                </select>
-
-              </Col>
+              {context?.user_type === "Operator" ? (
+                ""
+              ) : (
+                <Col className="col-lg-2 col-md-6 col-sm-12">
+                  <span>
+                    <b>Status:&nbsp;&nbsp;</b>
+                  </span>
+                  <select
+                    class="form-select form-select-sm"
+                    aria-label=".form-select-sm example"
+                    style={{ width: "70%" }}
+                    id="standard-select-currency"
+                    name="selectedStatus"
+                    value={selectedStatus}
+                    className="textField"
+                    onChange={(e) => {
+                      setSelectedStatus(e.target.value);
+                      filterDataBasedOnSelectedStatus(e.target.value);
+                      localStorage.setItem("selectedStatus", e.target.value);
+                    }}
+                    // fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {["Preparation", "Planning", "Implementation"]?.map(
+                      (option) => {
+                        return <option value={option}>{option}</option>;
+                      }
+                    )}
+                  </select>
+                </Col>
+              )}
               <Col className="col-lg-2 col-md-6 col-sm-12">
                 <button
                   class="btn-primary1 w-50 "
@@ -739,9 +742,7 @@ const CheckSheetDashboard = () => {
                 </button>
               </Col>
               <Col className="col-lg-2 col-md-6 col-sm-12"></Col>
-
             </Row>
-
           </Container>
           {tableData?.length > 0 ? (
             <div style={{ padding: "1rem" }}>
@@ -852,7 +853,7 @@ const CheckSheetDashboard = () => {
           ) : (
             <div
               className="container-fluid d-flex justify-content-center align-items-center p-5"
-            // style={{ height: "100vh" }}
+              // style={{ height: "100vh" }}
             >
               {loadingAnimationState}
             </div>
@@ -862,12 +863,19 @@ const CheckSheetDashboard = () => {
       <br />
       <br />
       <br />
-      <div className='mt-5'>
+      <div className="mt-5">
         <div id="footer" style={{ marginLeft: "-10px" }}>
           {/* <p>© 2020 <span style={{ color: "red" }}>Denso</span>. All rights reserved</p> */}
-          <p style={{ marginLeft: "-70px" }}> © {new Date().getFullYear()}<span style={{ color: "#dc3545" }}><b> Denso</b></span>. All rights reserved. </p>
+          <p style={{ marginLeft: "-70px" }}>
+            {" "}
+            © {new Date().getFullYear()}
+            <span style={{ color: "#dc3545" }}>
+              <b> Denso</b>
+            </span>
+            . All rights reserved.{" "}
+          </p>
         </div>
-        </div>
+      </div>
     </>
   );
 };

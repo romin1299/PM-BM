@@ -24,6 +24,8 @@ import currentYear from "../Dashboard/DashboardComponent/currentYear";
 
 const SparePartUsageHistory = () => {
   const context = useContext(RoutingContext);
+
+  const [stateForMappedArray, setStateForMappedArray] = useState([]);
   const typeDropdownList = ["PM", "BM", "Corrective", "Predictive", "Kaizen"];
   const monthKeyArray = [
     "Apr",
@@ -167,23 +169,6 @@ const SparePartUsageHistory = () => {
     });
   }, [context?.section_data, selectedYear]);
 
-  // console.log(allMachineDataBasedOnLine?.[selectedMachine]);
-
-  const financialYearWiseMonthKeyArray = [
-    "Apr",
-    "May",
-    "June",
-    "July",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-    "Jan",
-    "Feb",
-    "Mar",
-  ];
-
   const notifyForDeletedCategoryPoint = (rowValue) => {
     toast.success(`Sr no. ${rowValue?.sr_no} is Deleted`, {
       position: "top-center",
@@ -237,6 +222,25 @@ const SparePartUsageHistory = () => {
     border: "none",
     textDecoration: "underline",
   };
+  useEffect(() => {
+    let array = [];
+    tableDataOfSpareDetails?.map((index, i) =>
+      (selectedCategory ? index?.type === selectedCategory : true) &&
+      (selectedMonth ? index?.schedule_month === selectedMonth : true) &&
+      (selectedLine ? index?.line_names._id === selectedLine : true) &&
+      (selectedMachine ? index?.machineId === selectedMachine : true)
+        ? array?.push(index)
+        : ""
+    );
+
+    setStateForMappedArray(array);
+  }, [
+    tableDataOfSpareDetails,
+    selectedCategory,
+    selectedMonth,
+    selectedLine,
+    selectedMachine,
+  ]);
 
   return (
     <>
@@ -244,7 +248,9 @@ const SparePartUsageHistory = () => {
       <Container fluid className="pt-3 sparePartUsageHistory">
         <Row className="m-3 cell p-3 gy-2">
           <Col sm={12} md={6} lg={2}>
-            <span><b>Year:</b></span>
+            <span>
+              <b>Year:</b>
+            </span>
             <select
               class="form-select form-select-sm"
               aria-label=".form-select-sm example"
@@ -269,7 +275,9 @@ const SparePartUsageHistory = () => {
           </Col>
 
           <Col sm={12} md={6} lg={2}>
-            <span><b>Category:</b></span>
+            <span>
+              <b>Category:</b>
+            </span>
             <select
               // class="form-select form-select-sm"
               // aria-label=".form-select-sm example"
@@ -308,7 +316,9 @@ const SparePartUsageHistory = () => {
           </Col>
 
           <Col sm={12} md={6} lg={2}>
-            <span><b>Month:</b></span>
+            <span>
+              <b>Month:</b>
+            </span>
             <select
               class="form-select form-select-sm"
               aria-label=".form-select-sm example"
@@ -316,7 +326,8 @@ const SparePartUsageHistory = () => {
               id="standard-select-currency"
               name="selectedPlant"
               className="textField w-50"
-    w-75           value={selectedMonth}
+              w-75
+              value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
               // fullWidth
               select // label="Select"
@@ -333,7 +344,9 @@ const SparePartUsageHistory = () => {
           </Col>
 
           <Col sm={12} md={6} lg={2}>
-            <span><b>Line:</b></span>
+            <span>
+              <b>Line:</b>
+            </span>
             <select
               // class="form-select form-select-sm"
               // aria-label=".form-select-sm example"
@@ -346,8 +359,10 @@ const SparePartUsageHistory = () => {
               select // label="Select"
               autoComplete="off"
               value={selectedLine}
-              onChange={(e) => {
+              onChange={async (e) => {
                 // formik.handleChange(e);
+                //
+
                 setSelectedMachine();
                 setSelectedLine(e.target.value);
                 postLineToGetAllMachineData(e.target.value, currentYear).then(
@@ -379,7 +394,9 @@ const SparePartUsageHistory = () => {
           </Col>
 
           <Col sm={12} md={6} lg={2}>
-            <span><b>Machine:</b></span>
+            <span>
+              <b>Machine:</b>
+            </span>
             <select
               // class="form-select form-select-sm"
               // aria-label=".form-select-sm example"
@@ -477,6 +494,41 @@ const SparePartUsageHistory = () => {
                   </tr>
                 </thead>
                 <tbody>
+                  <tr className="ar-table-thead-header4 tableRowColor">
+                    {tableColumn.map(
+                      (tColumn) =>
+                        tColumn.title === "Cost" ? (
+                          <td className="td-padding bg-light-button">
+                            {stateForMappedArray.reduce(function (sum, arr) {
+                              return sum + arr?.cost;
+                            }, 0)}
+                          </td>
+                        ) : (
+                          <td></td>
+                        )
+                      // tColumn.title === "Cost"
+                      // ? tableDataOfSpareDetails?.map((index, i) => (
+                      //     <td className="td-padding">
+                      //       {(selectedCategory
+                      //         ? index?.type === selectedCategory
+                      //         : true) &&
+                      //       (selectedMonth
+                      //         ? index?.schedule_month === selectedMonth
+                      //         : true) &&
+                      //       (selectedLine
+                      //         ? index?.line_names._id === selectedLine
+                      //         : true) &&
+                      //       (selectedMachine
+                      //         ? index?.machineId === selectedMachine
+                      //         : true)
+                      //         ? "J"
+                      //         : "A"}
+                      //     </td>
+                      //   ))
+                      // : ""
+                    )}
+                  </tr>
+
                   {tableDataOfSpareDetails?.map((index, i) =>
                     (selectedCategory
                       ? index?.type === selectedCategory
@@ -571,7 +623,7 @@ const SparePartUsageHistory = () => {
       <br />
       <br />
 
-      <Footer/>
+      <Footer />
     </>
   );
 };
