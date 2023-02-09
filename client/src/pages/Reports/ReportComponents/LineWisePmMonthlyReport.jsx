@@ -220,7 +220,7 @@ const LineWisePmMonthlyReport = () => {
   ];
 
   // console.log(tableData);
-  const postSectionToGetAllDataForMainDashboard = async () => {
+  const postSectionToGetAllDataForReport = async () => {
     // setSubSection(undefined);
     try {
       const res = await fetch("/postSectionToGetAllDataForReport", {
@@ -358,7 +358,7 @@ const LineWisePmMonthlyReport = () => {
 
   // console.log(refKey);
   useEffect(() => {
-    postSectionToGetAllDataForMainDashboard();
+    postSectionToGetAllDataForReport();
     // setRefKey((refKey) => refKey + 1);
     // console.log(refKey);
   }, [selectedYear, selectedMonth, selectedLine]);

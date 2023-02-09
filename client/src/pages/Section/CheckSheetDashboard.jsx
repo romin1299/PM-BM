@@ -431,7 +431,8 @@ const CheckSheetDashboard = () => {
             return {
               hidden:
                 rowData.checkSheet_data === undefined ||
-                rowData.checkSheet_data === null,
+                rowData.checkSheet_data === null ||
+                rowData?.checkSheet_data?.checkSheet?.length < 1,
               icon: () => (
                 <button className="btn-delete">
                   <DeleteForeverIcon className="svg-font" />
@@ -880,7 +881,7 @@ const CheckSheetDashboard = () => {
           )}
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </>
   );
 };

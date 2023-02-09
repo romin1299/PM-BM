@@ -329,6 +329,23 @@ const TL = ({ userData, userDepartment }) => {
                 <NavLink to="/planningApproval"></NavLink>
                 Planning Approval
               </MenuItem>
+              <MenuItem
+                className="text"
+                icon={
+                  <FactCheckIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+                href="/implementationApproval"
+              >
+                <NavLink to="/implementationApproval"></NavLink>
+                Implementation Approval
+              </MenuItem>
             </SubMenu>
           )}
 
@@ -502,7 +519,7 @@ const TL = ({ userData, userDepartment }) => {
               PM Time Monitoring
             </MenuItem>
           </SubMenu>
-          
+
           {userDepartment === "MTD" ? (
             <Menuitem
               className="text-white"
@@ -517,7 +534,7 @@ const TL = ({ userData, userDepartment }) => {
           ) : (
             ""
           )}
-          
+
           <Menuitem
             className="text-white"
             icon={<PendingActionsIcon className="text-white" />}
@@ -568,7 +585,12 @@ const TL = ({ userData, userDepartment }) => {
         <Menu iconShape="square">
           <MenuItem
             className="text"
-            icon={<LogoutIcon className="text-white" style={{ transform: "rotate(180deg)" }}/>}
+            icon={
+              <LogoutIcon
+                className="text-white"
+                style={{ transform: "rotate(180deg)" }}
+              />
+            }
             data-toggle="tooltip"
             data-placement="right"
             title="Logout"

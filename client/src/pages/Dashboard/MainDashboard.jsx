@@ -209,11 +209,12 @@ const MainDashboard = () => {
   };
 
   const closeCheckSheet = () => {
-    if (context.user_type === "Operator") {
-      postSectionToGetAllDataForMainDashboard(context.section_data);
-    } else {
-      postSectionToGetAllDataForMainDashboardForOtherUser(context.section_data);
-    }
+    postSectionToGetAllDataForMainDashboard(context.section_data);
+
+    // if (context.user_type === "Operator") {
+    // } else {
+    //   postSectionToGetAllDataForMainDashboardForOtherUser(context.section_data);
+    // }
     setMachineWiseCheckSheetForImplementation("");
     // document.querySelector(".operatorDashboard").style.pointerEvents = "auto";
   };

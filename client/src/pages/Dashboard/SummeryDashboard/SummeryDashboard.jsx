@@ -27,10 +27,7 @@ const SummeryDashboard = () => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
-
-
   const navigate = useNavigate();
-
 
   useEffect(() => {
     fetchPlantInfo().then((result) => {
@@ -53,8 +50,8 @@ const SummeryDashboard = () => {
   // console.log(plantInfo)
   // console.log(sectionInfo);
   const backAtMainDashboard = () => {
-    navigate('/')
-  }
+    navigate("/");
+  };
 
   return (
     <div className="container-fluid">
@@ -69,7 +66,7 @@ const SummeryDashboard = () => {
         </div>
         <Row
           className="mx-2 mt-4 p-2 cell"
-        // style={{ background: "#cee4ee", border: "1px solid" }}
+          // style={{ background: "#cee4ee", border: "1px solid" }}
         >
           <Col sm>
             <YearDropDown
@@ -83,12 +80,13 @@ const SummeryDashboard = () => {
               setSelectedMonth={setSelectedMonth}
             />
           </Col>
-          
         </Row>
         {plantInfo?.map((item) => (
           <div>
             <div class="shadow-sm cardCssForSubtitle card1 text-danger d-flex align-items-center">
-              <h4 style={{ marginBottom: "0rem", color: "rgb(220, 53, 69)" }}>{item.plant_name}</h4>
+              <h4 style={{ marginBottom: "0rem", color: "rgb(220, 53, 69)" }}>
+                {item.plant_name}
+              </h4>
             </div>
             <Row className=" gy-4">
               {sectionInfo?.length > 0 ? (
@@ -128,8 +126,23 @@ const SummeryDashboard = () => {
           </div>
         ))}
       </div>
-      <br/><br/>
-      <Footer />
+      <br />
+      <br />
+      {/* <Footer /> */}
+      <div className="mt-5">
+        {" "}
+        <div id="footer" style={{ marginLeft: "-10px" }}>
+          {" "}
+          {/* <p>© 2020 <span style={{ color: "red" }}>Denso</span>. All rights reserved</p> */}{" "}
+          <p style={{ marginLeft: "-70px" }}>
+            © {new Date().getFullYear()}
+            <span style={{ color: "#dc3545" }}>
+              <b> Denso</b>
+            </span>
+            . All rights reserved{" "}
+          </p>{" "}
+        </div>{" "}
+      </div>
     </div>
   );
 };

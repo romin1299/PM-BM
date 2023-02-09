@@ -163,7 +163,7 @@ const UserAssignSection = () => {
     {
       title: "SR. NO.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "10%",
+      width: "5%",
       align: "center",
     },
     {
@@ -173,7 +173,7 @@ const UserAssignSection = () => {
       filtering: false,
       align: "center",
       editable: "false",
-      width: "10%",
+      width: "5%",
 
     },
     {
@@ -189,14 +189,14 @@ const UserAssignSection = () => {
       field: "user_type",
       align: "center",
       editable: "false",
-      width: "10%",
+      width: "5%",
     },
     {
       title: "Department",
       field: "tm_department",
       align: "center",
       editable: "false",
-      width: "10%",
+      width: "5%",
     },
     {
       title: "Plant",
@@ -215,7 +215,7 @@ const UserAssignSection = () => {
       title: "Sub Section",
       field: "subSection_data",
       align: "center",
-      // width: "10%",
+      width: "20%",
       render: (rowData) =>
         rowData.subSection_data.length > 1
           ? rowData.subSection_data.join(", ")
@@ -225,7 +225,7 @@ const UserAssignSection = () => {
       title: "Cell/Product",
       field: "cell_data",
       align: "center",
-      // width: "10%",
+      width: "20%",
       render: (rowData) =>
         rowData.cell_data.length > 1
           ? rowData.cell_data.join(", ")
@@ -422,7 +422,7 @@ const UserAssignSection = () => {
                   WebkitBackdropFilter: "blur( 2px )",
                   background: "rgba(255,255,255,0.1)",
                   backdropFilter: "blur(5px)",
-                  fontSize: "12px",
+                  // fontSize: "12px",
                 },
                 headerStyle: {
                   fontSize: "13px",

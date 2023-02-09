@@ -267,6 +267,7 @@ function PlanningPhaseTable() {
       field: "inspection_parent_name",
       filtering: false,
       align: "center",
+      width: "10%",
       // render: (data) => {
       //     return `${data.inspection_parent_name} ${data.inspection_child_name}`;
       //   },
@@ -287,6 +288,7 @@ function PlanningPhaseTable() {
       filtering: false,
       editable: false,
       align: "center",
+      width: "10%",
     },
     {
       title: "Judgement Criteria",
@@ -435,20 +437,20 @@ function PlanningPhaseTable() {
       editable: "false",
     },
   ];
-    //get the date and time
-    const timeStamp = () => {
-      let date = new Date();
-      let getTime = date
-        .toLocaleTimeString("en-IN", {
-          hour12: true,
-        })
-        .replace(/(.*)\D\d+/, "$1");
-      const year = date.getFullYear(); // 2019
-      const month = date.getMonth() + 1;
-      const day = date.getDate(); // 23
-  
-      return `${day}/${month}/${year} - ${getTime}`;
-    };
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
 
   const downloadPDFOfPlanningData = () => {
     const doc = new jsPDF();
@@ -464,7 +466,7 @@ function PlanningPhaseTable() {
         item.cycle,
         item.personInCharge,
         item.PM_time,
-        item.start_month
+        item.start_month,
       ];
       rows.push(rowArrayOfTable);
     });
@@ -478,7 +480,7 @@ function PlanningPhaseTable() {
     doc.save(`Planning_Phase_Data_${timeStamp()}`);
   };
 
-  const planningPhaseDataAction =[
+  const planningPhaseDataAction = [
     {
       icon: () => <button className="downloadPDF">PDF</button>,
       tooltip: "PDF",
@@ -504,8 +506,7 @@ function PlanningPhaseTable() {
       tooltip: "PDF",
       isFreeAction: true,
     },
-  ]
-
+  ];
 
   function compareCycle(a, b) {
     // converting to uppercase to have case-insensitive comparison
@@ -577,7 +578,7 @@ function PlanningPhaseTable() {
                   // }
                 }
               }
-              actions = {planningPhaseDataAction}
+              actions={planningPhaseDataAction}
               icons={tableIcons}
               columns={columns}
               data={tableData?.sort(compareCycle)}

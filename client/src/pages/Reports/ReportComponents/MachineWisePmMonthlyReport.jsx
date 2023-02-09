@@ -704,7 +704,7 @@ const MachineWisePmMonthlyReport = () => {
             </Col>
             <Col sm>
               <CloseIcon />
-              <b> Pending : </b>{" "}
+              <b> Remaining ( Current Month ) : </b>{" "}
               {statusCounter.schedulePm -
                 statusCounter.completed -
                 statusCounter.onGoing}
@@ -1448,7 +1448,7 @@ const MachineWisePmMonthlyReport = () => {
           )}
         </Container>
       </div>
-      <Footer/>
+      <Footer />
     </>
   );
 };
