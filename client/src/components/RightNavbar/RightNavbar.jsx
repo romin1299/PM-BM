@@ -117,10 +117,11 @@ const RightNavbar = () => {
       </div> */}
       {/* ACTIONS */}
       <div className={styles.actions}>
-      <div><b style={{ fontSize: "12px" }}>{context.tm_name}({context.tm_no})</b> &nbsp;
-            <img className="p_img1"
-              name="userPhoto" alt="" src={context.photo == undefined ? userImg : context.photo} onClick={() => navigate('/profile')} />
-          </div>
+        <div className="mb-1">
+          <b style={{ fontSize: "12px" }}>{context.tm_name}({context.tm_no})</b> &nbsp;
+          <img className="p_img1"
+            name="userPhoto" alt="" src={context.photo == undefined ? userImg : context.photo} onClick={() => navigate('/profile')} />
+        </div>
       </div>
       {/* <div className={styles.actions}>
         <LogoutIcon onClick={logout} />
