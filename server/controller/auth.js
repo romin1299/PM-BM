@@ -4247,12 +4247,12 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                     greetings,
                     bodyTable,
                     undefined,
-                    findAssignHosName.tm_name,
-                    selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-                    selected_machine_data.machine_code,
-                    selected_machine_data.machine_name,
-                    selected_machine_data.checkSheet_data.checksheet_status,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
                     selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
                     undefined,
                     hosApproval, undefined, undefined)
@@ -4316,12 +4316,12 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                     greetings,
                     bodyTable,
                     undefined,
-                    findAssignHosName.tm_name,
-                    selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-                    selected_machine_data.machine_code,
-                    selected_machine_data.machine_name,
-                    selected_machine_data.checkSheet_data.checksheet_status,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
                     selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
                     undefined,
                     hosApproval, undefined, undefined)
@@ -5609,6 +5609,38 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
         let keyOfCost = `checkSheet_data.$[outer].checkSheet.$[inner].spareDetails.${monthForCompareSystemMonth}.cost`
 
         //mail content for abnormality open with target date
+
+        userInfo = await User.find({ section_data: loggedUserData.section_data });
+
+
+        toEmailArray = userInfo?.map((result) => {
+            if (result.user_type === "TL/HOSS") {
+                // return result
+                return result?.email ? result?.email : undefined
+            }
+        })
+
+        ccEmailArray = userInfo?.map((result) => {
+            if (
+                (
+                    (result.tm_department === "PRD" || result.tm_department === "MTD")
+                    && result.user_type === "HOS"
+                )
+                ||
+                (
+                    result.tm_department === "MTD" &&
+                    (result.user_type === "HOD")
+                )
+
+                // (result.tm_department === "PRD" || result.tm_department === "MTD")
+                // && (result.user_type === "TL/HOSS" || result.user_type === "HOS" || result.user_type === "HOD")
+            ) {
+                return result
+                // return result?.email ? result?.email : undefined
+            }
+        })
+
+
         subject = `Abnormality Opened (${machinePopulateData[0]?.line_names?.cell_names?.cell_name}/${machinePopulateData[0]?.line_names?.line_name}/${machinePopulateData[0]?.machine_code})`
         title = `Abnormality found in below Machine and will be Closed by "${targetDate}"`
         greetings = `Sir/Mam`
@@ -5864,7 +5896,7 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
                         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
                     })
 
-                    // sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+                    sendApproval(subject, title, greetings, bodyTable, ccEmailArray, undefined, undefined, undefined, undefined, undefined, undefined, toEmailArray, undefined, undefined, undefined, undefined)
 
                 } else {
                     addPmData = await Machine.updateOne({ machine_code: machineId }, {
@@ -5886,7 +5918,7 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
                     }, {
                         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
                     })
-                    // sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+                    sendApproval(subject, title, greetings, bodyTable, ccEmailArray, undefined, undefined, undefined, undefined, undefined, undefined, toEmailArray, undefined, undefined, undefined, undefined)
 
                 }
 
@@ -5924,7 +5956,7 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
                     }, {
                         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
                     })
-                    // sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+                    sendApproval(subject, title, greetings, bodyTable, ccEmailArray, undefined, undefined, undefined, undefined, undefined, undefined, toEmailArray, undefined, undefined, undefined, undefined)
 
 
                 } else {
@@ -5947,7 +5979,7 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
                     }, {
                         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
                     })
-                    // sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+                    sendApproval(subject, title, greetings, bodyTable, ccEmailArray, undefined, undefined, undefined, undefined, undefined, undefined, toEmailArray, undefined, undefined, undefined, undefined)
 
                 }
 
@@ -8828,7 +8860,14 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport/:id', authenticate, a
                             total_done_with_delay: {
                                 $sum: {
                                     $cond: [{
-                                        $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
+                                        $and: [
+                                            {
+                                                $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
+                                            },
+                                            {
+                                                $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                            }
+                                        ]
                                     },
                                         1, 0
                                     ]
@@ -9758,23 +9797,17 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
             "Mar",
         ];
 
-        let groupData, annual_completed = []
 
         let keyForSelectedMonth = `$checkSheet_data.PMStatus.${selectedMonth}`
         let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${selectedMonth}`
         let keyForCurrentMonthScheduleOrNotStatus = `$checkSheet_data.currentMonthScheduleOrNotStatus.${selectedMonth}`
 
 
-        let sumVariableForTotalSchedule = 0
-        let sumVariableForTotalCompleted = 0
-        let sumVariableForTotalOngoing = 0
-        let sumVariableForTotalPreviousPending = 0
-
-        let groupData2
         // console.log(plants.map(item => item._id))
         // const SectionInfo = await Section.find({ plant_names: { $in: plants.map(item => item._id) } }).populate({ path: "plant_names", model: "Plants" })
 
         for (let j = 0; j < plants.length; j++) {
+            let groupData, groupData2
 
             SectionInfo = await Section.find({ plant_names: plants[j]._id })
 
@@ -9784,7 +9817,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
 
                 if (SectionInfo[i].dashboardLevel === "Yes") {
                     //  console.log(plants[j].plant_name, "----" ,SectionInfo[i].section_name, "---", SectionInfo[i].dashboardLevel)
-
+                    let annual_completed = []
                     subSectionsData = await SubSection.find({ section_names: SectionInfo[i]._id }).sort({ subSection_sequence: 1 })
 
                     cellData = await Cell.find({ subSection_names: { $in: subSectionsData.map(item => item._id) } }).sort({ cell_sequence: 1 });
@@ -9792,6 +9825,10 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                     lineData = await Line.find({ cell_names: { $in: cellData.map(item => item._id) } }).sort({ line_sequence: 1 });
 
                     for (let k = 0; k < lineData.length; k++) {
+                        let sumVariableForTotalSchedule = 0
+                        let sumVariableForTotalCompleted = 0
+                        let sumVariableForTotalOngoing = 0
+                        let sumVariableForTotalPreviousPending = 0
 
                         groupData = await Machine.aggregate([
 
@@ -10069,10 +10106,8 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                 // console.log("**********", monthKeyArray[m])
                                 // console.log( groupData2)
                                 sumVariableForTotalCompletedForAnnualChart = sumVariableForTotalCompletedForAnnualChart + groupData2[0].total_completed
-                                // console.log(sumVariableForTotalCompletedForAnnualChart)
-                                // console.log((sumVariableForTotalCompletedForAnnualChart *100) / (groupData2[0].total_pmSchedule + groupData2[0].total_Previous))
                                 sumVariableForTotalCompletedForAnnualChart = ((sumVariableForTotalCompletedForAnnualChart * 100) / (groupData2[0].total_pmSchedule + groupData2[0].total_Previous)).toFixed(2)
-                                annual_completed.push(sumVariableForTotalCompletedForAnnualChart)
+                                annual_completed.push(sumVariableForTotalCompletedForAnnualChart !== NaN ? sumVariableForTotalCompletedForAnnualChart : 0)
 
                             }
                         }
@@ -10092,18 +10127,24 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
 
                 } else {
 
-                    subSectionsData = await SubSection.find({ section_names: SectionInfo[i]._id }).sort({ subSection_sequence: 1 })
+                    let groupData, groupData2
 
+                    subSectionsData = await SubSection.find({ section_names: SectionInfo[i]._id }).sort({ subSection_sequence: 1 })
 
                     for (let l = 0; l < subSectionsData.length; l++) {
                         // console.log("****************************")
                         // console.log(subSectionsData[l].subSection_name)
+                        let annual_completed = []
 
                         cellData = await Cell.find({ subSection_names: { $in: subSectionsData[l]._id } }).sort({ cell_sequence: 1 });
 
                         lineData = await Line.find({ cell_names: { $in: cellData.map(item => item._id) } }).sort({ line_sequence: 1 });
 
                         for (let k = 0; k < lineData.length; k++) {
+                            let sumVariableForTotalSchedule = 0
+                            let sumVariableForTotalCompleted = 0
+                            let sumVariableForTotalOngoing = 0
+                            let sumVariableForTotalPreviousPending = 0
 
                             groupData = await Machine.aggregate([
 
@@ -10146,7 +10187,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                                 $cond: [{
                                                     $and: [
                                                         {
-                                                            $ne: [x, ""]
+                                                            $ne: [keyForSelectedMonth, ""]
                                                         },
                                                         {
                                                             $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
@@ -10184,7 +10225,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                                     {
                                                         $and: [
                                                             {
-                                                                $ne: [x, ""]
+                                                                $ne: [keyForSelectedMonth, ""]
                                                             },
                                                             {
                                                                 $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
@@ -10216,7 +10257,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
 
                             ])
                             if (groupData.length > 0) {
-                                // console.log("---------------------------", groupData)
+                                // console.log(l, "====", subSectionsData[l]?.subSection_name, "-------", groupData?.[0]?.total_pmSchedule, "****", groupData?.[0]?.total_previous_pending)
                                 sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData?.[0]?.total_pmSchedule
                                 sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData?.[0]?.total_completed
                                 sumVariableForTotalOngoing = sumVariableForTotalOngoing + groupData?.[0]?.total_ongoing
@@ -10377,17 +10418,19 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                             _id: 0,
                                             line_names: "$_id",
                                             "total_completed": 1,
-                                            "total_done_with_delay": 1
+                                            "total_done_with_delay": 1,
+                                            "total_Previous": 1,
+                                            "total_pmSchedule": 1
                                         }
                                     },
 
 
                                 ])
                                 if (groupData2.length > 0) {
-                                    // console.log("**********", monthKeyArray[m])
-                                    // console.log( groupData2[0].total_completed)
+                                    sumVariableForTotalCompletedForAnnualChart = sumVariableForTotalCompletedForAnnualChart + groupData2[0].total_completed
                                     sumVariableForTotalCompletedForAnnualChart = ((sumVariableForTotalCompletedForAnnualChart * 100) / (groupData2[0].total_pmSchedule + groupData2[0].total_Previous)).toFixed(2)
-                                    annual_completed.push(sumVariableForTotalCompletedForAnnualChart)
+
+                                    annual_completed.push(sumVariableForTotalCompletedForAnnualChart !== NaN ? sumVariableForTotalCompletedForAnnualChart : 0)
 
                                 }
                             }

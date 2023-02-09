@@ -23,7 +23,7 @@ const sendApproval = async (subject, title, greetings, bodyTable, ccEmail, assig
     //sending an email for forgot password
     let mailOptions = {
         from: "sm_sample11@outlook.com",
-        to: [firstEmail, secondEmail],
+        to: typeof (firstEmail) === "object" ? firstEmail :  [firstEmail, secondEmail],
         cc: ccEmail,
         subject: subject,
         html: `
