@@ -69,6 +69,10 @@ export const options = {
     title: {
       display: true,
       text: 'Monthly Plan vs Actual',
+      color: "black",
+      font: {
+       size:16
+     }
     },
   },
 };

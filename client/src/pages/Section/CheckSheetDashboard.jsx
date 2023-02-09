@@ -832,7 +832,7 @@ const CheckSheetDashboard = () => {
                   overflowY: "hidden",
                   rowStyle: {
                     // fontStyle:'bold'
-
+                
                     boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
                     // color:"rgba(255,255,255,0.8)",
                     borderRadius: "5px",
@@ -840,12 +840,17 @@ const CheckSheetDashboard = () => {
                     WebkitBackdropFilter: "blur( 2px )",
                     background: "rgba(255,255,255,0.1)",
                     backdropFilter: "blur(5px)",
+                    
                     // fontSize: "12px",
                   },
                   headerStyle: {
                     fontSize: "14px",
                     fontWeight: "bold",
                   },
+                  // cellStyle: {
+                    
+                  //   float
+                  // },
                 }}
               />
             </div>
@@ -867,7 +872,7 @@ const CheckSheetDashboard = () => {
           {/* <p>© 2020 <span style={{ color: "red" }}>Denso</span>. All rights reserved</p> */}
           <p style={{ marginLeft: "-70px" }}> © {new Date().getFullYear()}<span style={{ color: "#dc3545" }}><b> Denso</b></span>. All rights reserved. </p>
         </div>
-        </div>
+      </div>
     </>
   );
 };
