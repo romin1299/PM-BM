@@ -180,7 +180,15 @@ const SummeryPopups = ({ close, machineData }) => {
       //   rowData?.inspectionCompletionBy
       //     ? rowData?.inspectionCompletionBy[monthForCompareSystemMonth]
       //     : "",
-        field: "doneBy",
+      field: "doneBy",
+    },
+    {
+      title: "Date",
+      // render: (rowData) =>
+      //   rowData?.inspectionCompletionBy
+      //     ? rowData?.inspectionCompletionBy[monthForCompareSystemMonth]
+      //     : "",
+      field: "completionDateOfInspection",
     },
   ];
 

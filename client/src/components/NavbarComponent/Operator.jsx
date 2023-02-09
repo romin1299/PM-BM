@@ -12,13 +12,11 @@ import {
   NoteAddIcon,
 } from "./ImportModules";
 
-import {
-  FiArrowLeftCircle,
-  FiArrowRightCircle,
-} from "react-icons/fi";
+import { FiArrowLeftCircle, FiArrowRightCircle } from "react-icons/fi";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Logout from "../../Integration/Logout/Logout";
 import { useNavigate } from "react-router-dom";
+import { FaCog, FaUserTie, FaColumns, FaThList } from "react-icons/fa";
 
 import { useState } from "react";
 
@@ -68,7 +66,6 @@ const Menuitem = styled(MenuItem)`
   }
 `;
 
-
 const Operator = ({ userData }) => {
   const [open, setOpen] = React.useState(true);
   const [menuCollapse, setMenuCollapse] = useState(true);
@@ -116,7 +113,6 @@ const Operator = ({ userData }) => {
                     alt=""
                     style={{ width: "50%", padding: "5px" }}
                     className="bg-white"
-                    
                   />
                 ) : (
                   <img
@@ -148,7 +144,7 @@ const Operator = ({ userData }) => {
       </div>
       <SidebarContent>
         <Menu iconShape="square" style={styles.bg}>
-        <SubMenu
+          <SubMenu
             className="text-white"
             title="Dashboard"
             icon={<DashboardIcon className="text-white" />}
@@ -192,6 +188,30 @@ const Operator = ({ userData }) => {
               <NavLink to="/summeryDashboard"></NavLink> Plant Dashboard
             </MenuItem>
           </SubMenu>
+
+          <SubMenu
+            className="text-white"
+            title="Creation"
+            icon={<FaThList className="text-white" />}
+          >
+            <MenuItem
+              className="text"
+              icon={
+                <TaskIcon
+                  className="text-white"
+                  style={{
+                    background: "#004B5B",
+                    borderRadius: "3px",
+                    padding: "2px",
+                  }}
+                />
+              }
+            >
+              <NavLink to="/checkSheetDashboard"></NavLink>
+              CheckSheet Dashboard
+            </MenuItem>
+          </SubMenu>
+
           <SubMenu
             className="text-white"
             title="Approval Log"
@@ -362,21 +382,18 @@ const Operator = ({ userData }) => {
               PM Time Monitoring
             </MenuItem>
           </SubMenu>
-         
-          
-          
-            <Menuitem
-              className="text-white"
-              icon={<CloudDownloadIcon className="text-white" />}
-              data-toggle="tooltip"
-              data-placement="right"
-              title="Back-end Data"
-            >
-              <NavLink to="/backupDataOfCheckSheet"></NavLink>
-              Back-end Data
-            </Menuitem>
-          
-          
+
+          <Menuitem
+            className="text-white"
+            icon={<CloudDownloadIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Back-end Data"
+          >
+            <NavLink to="/backupDataOfCheckSheet"></NavLink>
+            Back-end Data
+          </Menuitem>
+
           <Menuitem
             className="text-white"
             icon={<PendingActionsIcon className="text-white" />}
@@ -388,16 +405,16 @@ const Operator = ({ userData }) => {
             Open Abnormality Tracking
           </Menuitem>
           <Menuitem
-              className="text-white"
-              icon={<AddToPhotosIcon className="text-white" />}
-              data-toggle="tooltip"
-              data-placement="right"
-              title="Spare Entry"
-            >
-              <NavLink to="/operatorDataEntry"></NavLink>
-              Spare Entry
-            </Menuitem>
-         
+            className="text-white"
+            icon={<AddToPhotosIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Spare Entry"
+          >
+            <NavLink to="/operatorDataEntry"></NavLink>
+            Spare Entry
+          </Menuitem>
+
           <Menuitem
             className="text-white"
             icon={<BackupTableIcon className="text-white" />}
@@ -418,14 +435,18 @@ const Operator = ({ userData }) => {
             <NavLink to="/spareReportDashboard"></NavLink>
             Spare Report
           </Menuitem>
-
         </Menu>
       </SidebarContent>
       <SidebarFooter fixed="bottom">
         <Menu iconShape="square">
           <MenuItem
             className="text"
-            icon={<LogoutIcon className="text-white" style={{ transform: "rotate(180deg)" }} />}
+            icon={
+              <LogoutIcon
+                className="text-white"
+                style={{ transform: "rotate(180deg)" }}
+              />
+            }
             data-toggle="tooltip"
             data-placement="right"
             title="Logout"

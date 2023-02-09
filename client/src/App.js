@@ -82,6 +82,7 @@ import PlanningApprovalDashboard from "./pages/Section/Checksheet/PlanningApprov
 import ImplementationApprovalDashboard from "./pages/Section/Checksheet/ImplementationApprovalDashboard";
 import Footer from "./components/Footer/Footer";
 
+
 function App() {
   const [nav, setNav] = useState(false);
   const value = { nav, setNav };
@@ -351,6 +352,10 @@ function App() {
                 <Route
                   path="/pmMonthlyReport"
                   element={<PmAllReportDashboard />}
+                />
+                <Route
+                  path="/checkSheetDashboard"
+                  element={<CheckSheetDashboard />}
                 />
                 <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
                 <Route
