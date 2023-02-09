@@ -129,18 +129,17 @@ const SummeryDashboard = () => {
       <br />
       <br />
       {/* <Footer /> */}
-      <div className="mt-5">
-        {" "}
+      <br />
+      <div>
         <div id="footer" style={{ marginLeft: "-10px" }}>
-          {" "}
-          {/* <p>© 2020 <span style={{ color: "red" }}>Denso</span>. All rights reserved</p> */}{" "}
+          {/* <p>© 2020 <span style={{ color: "red" }}>Denso</span>. All rights reserved</p> */}
           <p style={{ marginLeft: "-70px" }}>
             © {new Date().getFullYear()}
             <span style={{ color: "#dc3545" }}>
               <b> Denso</b>
             </span>
-            . All rights reserved{" "}
-          </p>{" "}
+            . All rights reserved.
+          </p>
         </div>{" "}
       </div>
     </div>

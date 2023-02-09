@@ -597,6 +597,9 @@ const CreationDashboardForPlant = () => {
           </div>
         </div>
       </div>
+      <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );

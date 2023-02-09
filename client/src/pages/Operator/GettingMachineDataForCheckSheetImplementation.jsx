@@ -10,7 +10,7 @@ const GettingMachineDataForCheckSheetImplementation = ({
   loggedUserType,
   selectedYear,
   showCheckSheet,
-  setMachineWiseCheckSheetForImplementation
+  setMachineWiseCheckSheetForImplementation,
 }) => {
   const [implementationPhaseCheckSheet, setImplementationPhaseCheckSheet] =
     useState("");
@@ -21,7 +21,10 @@ const GettingMachineDataForCheckSheetImplementation = ({
   };
 
   // const [show, setShow] = useState(showCheckSheet);
-  const handleClose = () => setMachineWiseCheckSheetForImplementation("");
+  const handleClose = () => {
+    setMachineWiseCheckSheetForImplementation("");
+    closeCheckSheet();
+  };
   // const handleShow = () => setShow(true);
 
   // console.log(show);
@@ -41,7 +44,11 @@ const GettingMachineDataForCheckSheetImplementation = ({
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        console.log("&&&&&&&&&&&&&&&&&&&&&&&& 37", data.machineLastData);
+        console.log(
+          "&&&&&&&&&&&&&&&&&&&&&&&& 37",
+          loggedUserType,
+          data.machineLastData
+        );
 
         // setMachineDataState(data.machineData);
         loggedUserType === "Operator"
@@ -107,6 +114,9 @@ const GettingMachineDataForCheckSheetImplementation = ({
   return (
     <>
       <div>{implementationPhaseCheckSheet}</div>
+      <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );

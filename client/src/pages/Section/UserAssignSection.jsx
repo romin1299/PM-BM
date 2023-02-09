@@ -434,6 +434,9 @@ const UserAssignSection = () => {
           </div>
         </div>
       </div>
+      <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );

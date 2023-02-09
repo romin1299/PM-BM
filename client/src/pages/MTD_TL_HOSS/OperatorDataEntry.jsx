@@ -570,6 +570,10 @@ function OperatorDataEntry() {
             </form>
           </div>
         </Container>
+      <br />
+      <br />
+      <br />
+
         <Footer/>
       </div>
     </>

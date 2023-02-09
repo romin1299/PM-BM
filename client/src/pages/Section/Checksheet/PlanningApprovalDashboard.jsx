@@ -227,37 +227,15 @@ const PlanningApprovalDashboard = () => {
         //   });
         // } else {
         navigate("/checksheetFormApproval", {
-          state: { selectedRowForViewForm: selectedRow },
+          state: {
+            selectedRowForViewForm: selectedRow,
+            dashboardID: "FromPlanningApprovalDashboard",
+          },
         });
         // }
       },
       disabled: false, // Set disabled to false by default for all actions
       position: "row",
-    },
-    {
-      icon: () => <button className="downloadPDF">PDF</button>,
-      tooltip: "PDF",
-      isFreeAction: true,
-      onClick: (event) => {
-        downloadPDFForPlanningApprovalData();
-      },
-    },
-
-    {
-      icon: () => (
-        <CSVLink
-          headers={planningApprovalDataOfCSV}
-          className="downloadCSV text-decoration-none"
-          data={tableData ? tableData : []}
-          filename={`Planning_Approval_Data_${timeStamp()}`}
-          style={{ textDecoration: "none", color: "white" }}
-        >
-          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
-          CSV
-        </CSVLink>
-      ),
-      tooltip: "PDF",
-      isFreeAction: true,
     },
   ];
 

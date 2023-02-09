@@ -1950,10 +1950,10 @@ const CheckSheet = ({
                                   ] === "Done with delay" &&
                                     machineAllData?.checkSheet_data?.PMStatus[
                                       monthForCompareSystemMonth
-                                    ] === "") &&
-                                  machineAllData?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
-                                    monthForCompareSystemMonth
-                                  ]?.at(-1) !== "Rejected" ||
+                                    ] === "" &&
+                                    machineAllData?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
+                                      monthForCompareSystemMonth
+                                    ]?.at(-1) !== "Rejected") ||
                                   machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
                                     monthForCompareSystemMonth
                                   ]?.at(-1) !== "Rejected" ? (
@@ -2021,7 +2021,7 @@ const CheckSheet = ({
                                             </div>
                                           </div>
                                           <div className="col-1 d-flex align-items-center justify-content-center ">
-                                              <EastIcon/>
+                                            <EastIcon />
                                           </div>
                                           <div className="col-3">
                                             <span>
@@ -2085,7 +2085,7 @@ const CheckSheet = ({
                                             </div>
                                           </div>
                                           <div className="col-1 d-flex align-items-center justify-content-center">
-                                              <EastIcon/>
+                                            <EastIcon />
                                           </div>
                                           <div className="col-3">
                                             <span>
@@ -2705,6 +2705,9 @@ const CheckSheet = ({
           </Modal.Footer> */}
         </Modal>
       </div>
+         <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );

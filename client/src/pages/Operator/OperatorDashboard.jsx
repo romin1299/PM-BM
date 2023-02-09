@@ -6,6 +6,9 @@ const OperatorDashboard = () => {
   return (
     <>
       <MainDashboard />
+      <br />
+      <br />
+      <br />
       <Footer/>
     </>
   );
