@@ -117,17 +117,10 @@ const RightNavbar = () => {
       </div> */}
       {/* ACTIONS */}
       <div className={styles.actions}>
-      <Row className="d-flex align-items-center">
-            
-          <div className="d-flex justify-content-center">
-          <p><b style={{ fontSize: "12px" }}>{context.tm_name}({context.tm_no})</b> &nbsp;
-            <img className="p_img1 mt-2"
-                  name="userPhoto" alt="" src={context.photo == undefined ? userImg : context.photo}  onClick={() => navigate('/profile')} />
-            </p>
-            </div>
-              
-          
-      </Row>
+      <div><b style={{ fontSize: "12px" }}>{context.tm_name}({context.tm_no})</b> &nbsp;
+            <img className="p_img1"
+              name="userPhoto" alt="" src={context.photo == undefined ? userImg : context.photo} onClick={() => navigate('/profile')} />
+          </div>
       </div>
       {/* <div className={styles.actions}>
         <LogoutIcon onClick={logout} />
