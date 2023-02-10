@@ -509,14 +509,14 @@ const CheckSheet = ({
             if (key1 === "_id") {
               continue;
             }
-            if (
-              key1 === previousMonth &&
-              obj[key][key1].length < 2 &&
-              obj[key][key1][0] === "1" &&
-              cycleOfPerticularRow != "1/1M"
-            ) {
-              PMCarryOnToNextMonth(tableRowId);
-            }
+            // if (
+            //   key1 === previousMonth &&
+            //   obj[key][key1].length < 2 &&
+            //   obj[key][key1][0] === "1" &&
+            //   cycleOfPerticularRow != "1/1M"
+            // ) {
+            //   PMCarryOnToNextMonth(tableRowId);
+            // }
 
             // else if (
             //   key1 === monthKeyArray[new Date().getMonth() - 1] &&

@@ -80,7 +80,7 @@ const CurrentMonthStatusGraph = ({ TableData }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
 
 
-  
+  console.log("----------",TableData)
 
   const data = {
     labels: TableData?.map((item) => item.name),

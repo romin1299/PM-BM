@@ -729,7 +729,7 @@ const MainDashboard = () => {
                               {/* <div>
                             </div> */}
                               <span>
-                                <b>Sub Section: &nbsp;</b>
+                                <b>&nbsp;Sub Section: &nbsp;</b>
                               </span>
                               {/* <br /> */}
                               <select
@@ -809,7 +809,7 @@ const MainDashboard = () => {
                               <span
                                 style={{ fontWeight: "500", fontSize: "12px" }}
                               >
-                                Sub Section: &nbsp;
+                                &nbsp; Sub Section: &nbsp;
                               </span>
                               <br />
                               <select
@@ -918,7 +918,7 @@ const MainDashboard = () => {
                   style={{ background: "#E0E0E0" }}
                 >
                   &nbsp;&nbsp;<Col lg={7} md={12} className="mt-0">
-                    <p><b>Current Month</b></p>
+                    <h6>Current Month</h6>
                     <Row className="cell" >
                       <Col lg={3} md={3} sm={3}
 
@@ -976,7 +976,7 @@ const MainDashboard = () => {
 
 
                   <Col lg={4} md={12} sm={12} className="mt-0">
-                    <p><b>Previous Month</b></p>
+                    <h6>Previous Month</h6>
                     <Row className="cell">
                       <Col
                          lg={6} md={3} sm={3}

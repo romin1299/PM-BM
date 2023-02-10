@@ -865,7 +865,7 @@ const MachineWisePmMonthlyReport = () => {
               <Row>
                 <Col lg={12}>
                   <MaterialTable
-                    style={{ padding: "10px", marginTop: "10px" }}
+                    style={{ padding: "10px", marginTop: "35px" }}
                     localization={{}}
                     actions={actionsForPreviousMonthForOpratorAndTL}
                     columns={tableColumn2}
