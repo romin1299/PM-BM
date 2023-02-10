@@ -202,7 +202,6 @@ const GraphsInMainDashboard = ({
         currentMonthGraphAndTableData?.sumVariableForTotalCompleted -
         currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
     },
-    
   ];
 
   let TableDataOfCharts = [
@@ -239,9 +238,7 @@ const GraphsInMainDashboard = ({
     <div className="mx-2">
       {/* <Container className="d-flex justify-content-center align-items-center"></Container> */}
       <Row className="d-flex justify-content-center align-items">
-       
         <div className="cell">
-        
           <MonthlyTrendGraph annualGraph={annualGraph} />
         </div>
       </Row>
@@ -250,7 +247,8 @@ const GraphsInMainDashboard = ({
           <Row>
             <Col className="d-flex justify-content-center align-items-center">
               <div style={{ width: "14rem" }}>
-                {currentMonthGraphAndTableData?.sumVariableForTotalSchedule ? (
+                {currentMonthGraphAndTableData?.sumVariableForTotalSchedule ||
+                currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending ? (
                   <CurrentMonthStatusGraph TableData={TableDataOfCharts} />
                 ) : (
                   // <div className="p-3">{loadingAnimation}</div>
@@ -270,16 +268,24 @@ const GraphsInMainDashboard = ({
                     // style={{ background: Data.bgColor }}
                     className={Data.bgColor}
                   >
-                    <td><b>{Data.name}</b></td>
-                    <td><b>{Data.value}</b></td>
+                    <td>
+                      <b>{Data.name}</b>
+                    </td>
+                    <td>
+                      <b>{Data.value}</b>
+                    </td>
                   </tr>
                   {TableData.map((item) => (
                     <tr
                       // style={{ background: item.bgColor }}
                       className={item.bgColor}
                     >
-                      <td><b>{item.name}</b></td>
-                      <td><b>{item.value}</b></td>
+                      <td>
+                        <b>{item.name}</b>
+                      </td>
+                      <td>
+                        <b>{item.value}</b>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -295,7 +301,8 @@ const GraphsInMainDashboard = ({
         {fetchedRemarks ? (
           <div className="cell">
             <Col>
-              <b>Remarks: </b><span>{fetchedRemarks}</span>
+              <b>Remarks: </b>
+              <span>{fetchedRemarks}</span>
             </Col>
             {/* <Row>
               <Col className="col-9">
@@ -323,24 +330,24 @@ const GraphsInMainDashboard = ({
                   name="remarks"
                   //   label="remarks"
                   value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)} className="w-50"
-                /> <button
-                variant="contained"
-                fullWidth
-                type="submit"
-                className="btn-primary1 mt-2"
-                style={{ fontSize: "12px" }}
-                onClick={() => {
-                  postRemarksSectionWise(context.section_data);
-                }}
-              >
-                Submit
-              </button>
+                  onChange={(e) => setRemarks(e.target.value)}
+                  className="w-50"
+                />{" "}
+                <button
+                  variant="contained"
+                  fullWidth
+                  type="submit"
+                  className="btn-primary1 mt-2"
+                  style={{ fontSize: "12px" }}
+                  onClick={() => {
+                    postRemarksSectionWise(context.section_data);
+                  }}
+                >
+                  Submit
+                </button>
               </Col>
 
-              <Col>
-                
-              </Col>
+              <Col></Col>
             </div>
           ) : context?.subSection_data?.includes(subSection) ? (
             <div className="cell">

@@ -1931,6 +1931,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
 
             // console.log(machineLastData)
         } else {
+            console.log(loggedUserData.subSection_data)
             loggedUserData.subSection_data.map((ids) => {
                 let subsectionsId = ids.split("-")
                 subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
@@ -1998,6 +1999,50 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
             // let xyz = await Line.populate(linedataWithGroup,{path:"cell_names"})
             // console.log(xyz);
             // console.log(linedataWithGroup)
+            //machine data of preparation and planning approval
+            machineDataOfPrepAndPlanApproval = await Machine.aggregate([{
+                $match: {
+                    line_names: { $in: lineIdArray }
+                }
+            },
+            { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            {
+                $match: {
+                    $and: [
+                        // {
+                        //     "checkSheet_data.checksheet_status": { $ne: "Implementation" }
+                        // },
+                        {
+                            "checkSheet_data.checksheet_status": { $ne: "" }
+                        },
+                        {
+                            "checkSheet_data.assign_TL": { $ne: [] }
+                        },
+                        {
+                            "checkSheet_data": { $ne: undefined }
+                        },
+                    ]
+
+                }
+            },
+            {
+                $project: {
+                    machine_code: 1,
+                    machine_name: 1,
+                    machine_nickname: 1,
+                    machine_sequence: 1,
+                    installation_date: 1,
+                    maker_name: 1,
+                    maker_sr_no: 1,
+                    manufacturingDate: 1,
+                    isPM: 1,
+                    line_names: 1,
+                    checkSheet_data: 1
+                }
+            },
+            ])
+            // console.log(machineData)
+            machineDataOfPrepAndPlanApproval = await Machine.populate(machineDataOfPrepAndPlanApproval, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
 
             // machineData = await Machine.find({ line_names: { $in: lineIdArray }, checksheet_status: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
@@ -2316,28 +2361,58 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
             }
         }
 
+        let carryData
+        let arrayForPMData = []
+        arrayForPMData.push(1, "dummy")
+        let keyOfMonth = `checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2.${monthForCompareSystemMonth}`
+
+        //for carry forward data at once
+        const carryForwardOtherCycleData = async (machine_code, tableRowId, yearOfCheckSheet) => {
+            updatePreviousMonth = await Machine.updateOne({ machine_code: machine_code },
+                {
+                    $set: {
+                        [keyOfPreviousMonth]: arrayForPMData
+                    }
+                },
+                {
+                    arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
+                }
+            )
+
+            carryData = await Machine.updateOne({ machine_code: machine_code },
+                {
+                    $set: {
+                        [keyOfMonth]: "2"
+                    }
+                },
+                {
+                    arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tableRowId': tableRowId }],
+                }
+            )
+        }
+
         let updateCurrentMonthScheduleOrNotStatus
 
-        const updateStatusOfCurrentMonthPMScheduleOrNot = async (machine_code, yearOfCheckSheet, currentMonthPMScheduleOrNot) => {
-            // console.log(carriedPMStatusExistsOrNot)
-            if (currentMonthPMScheduleOrNot === 0) {
-                CurrentMonthPMScheduleOrNotStatusArray[monthForCompareSystemMonth] = "Scheduled"
-                updateCurrentMonthScheduleOrNotStatus = await Machine.updateOne({ machine_code: machine_code }, {
-                    $set: { "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus": CurrentMonthPMScheduleOrNotStatusArray }
-                }, {
-                    arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
-                })
-            } else {
-                let keyOfCurrentMonthScheduleOrNotStatus = `checkSheet_data.$[outer].currentMonthScheduleOrNotStatus.${monthForCompareSystemMonth}`
-                updateCurrentMonthScheduleOrNotStatus = await Machine.updateOne({ machine_code: machine_code }, {
-                    $set: {
-                        [keyOfCurrentMonthScheduleOrNotStatus]: "Scheduled"
-                    }
-                }, {
-                    arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
-                })
-            }
-        }
+        // const updateStatusOfCurrentMonthPMScheduleOrNot = async (machine_code, yearOfCheckSheet, currentMonthPMScheduleOrNot) => {
+        //     // console.log(carriedPMStatusExistsOrNot)
+        //     if (currentMonthPMScheduleOrNot === 0) {
+        //         CurrentMonthPMScheduleOrNotStatusArray[monthForCompareSystemMonth] = "Scheduled"
+        //         updateCurrentMonthScheduleOrNotStatus = await Machine.updateOne({ machine_code: machine_code }, {
+        //             $set: { "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus": CurrentMonthPMScheduleOrNotStatusArray }
+        //         }, {
+        //             arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
+        //         })
+        //     } else {
+        //         let keyOfCurrentMonthScheduleOrNotStatus = `checkSheet_data.$[outer].currentMonthScheduleOrNotStatus.${monthForCompareSystemMonth}`
+        //         updateCurrentMonthScheduleOrNotStatus = await Machine.updateOne({ machine_code: machine_code }, {
+        //             $set: {
+        //                 [keyOfCurrentMonthScheduleOrNotStatus]: "Scheduled"
+        //             }
+        //         }, {
+        //             arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
+        //         })
+        //     }
+        // }
 
         let updatePreviousMonth, carriedPMStatusExistsOrNot, currentMonthPMScheduleOrNot
         if (previousMonth != "Mar") {
@@ -2359,7 +2434,6 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
 
                         if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "2" &&
                             key1.cycle !== "1/1M") {
-                            // console.log(key?.checkSheet_data?.carriedPMStatus)
                             if (key?.checkSheet_data?.carriedPMStatus != undefined) {
                                 carriedPMStatusExistsOrNot = 1
                             } else {
@@ -2367,17 +2441,27 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
                             }
                             updateStatusOfLastMonthPendingForCount(key.machine_code, key.checkSheet_data.current_year, carriedPMStatusExistsOrNot)
                         }
-
-                        if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "1" &&
-                            key1.cycle !== "1/1M") {
-                            // console.log(key?.checkSheet_data?.carriedPMStatus)
-                            if (key?.checkSheet_data?.currentMonthScheduleOrNotStatus != undefined) {
-                                currentMonthPMScheduleOrNot = 1
-                            } else {
-                                currentMonthPMScheduleOrNot = 0
-                            }
-                            updateStatusOfCurrentMonthPMScheduleOrNot(key.machine_code, key.checkSheet_data.current_year, currentMonthPMScheduleOrNot)
+                        if ((key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
+                            key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
+                            key1.cycle !== "1/1M") &&
+                            (key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.[0] != "1" &&
+                                key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.length < 2 &&
+                                key1.cycle !== "1/1M")) {
+                            // console.log(key.machine_code, "next month 1 occure -----> ", key1.tableRowId)
+                            carryForwardOtherCycleData(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
+                            //add dummy key word 1,dummy
                         }
+
+                        // if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "1" &&
+                        //     key1.cycle !== "1/1M") {
+                        //     console.log(key?.checkSheet_data?.currentMonthScheduleOrNotStatus)
+                        //     if (key?.checkSheet_data?.currentMonthScheduleOrNotStatus != undefined) {
+                        //         currentMonthPMScheduleOrNot = 1
+                        //     } else {
+                        //         currentMonthPMScheduleOrNot = 0
+                        //     }
+                        //     updateStatusOfCurrentMonthPMScheduleOrNot(key.machine_code, key.checkSheet_data.current_year, currentMonthPMScheduleOrNot)
+                        // }
                     }
 
 
@@ -4073,6 +4157,31 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
 
             Mar: "",
         }
+        let CurrentMonthPMScheduleOrNotStatusArray = {
+            Apr: "",
+
+            May: "",
+
+            June: "",
+
+            July: "",
+
+            Aug: "",
+
+            Sep: "",
+
+            Oct: "",
+
+            Nov: "",
+
+            Dec: "",
+
+            Jan: "",
+
+            Feb: "",
+
+            Mar: "",
+        }
 
         let keyOfImplemetation_prd_tl_approval_status = `checkSheet_data.$[outer].implemetation_prd_tl_approval_status.${senderApprovalMonth}`
         let keyOfImplemetation_mtd_tl_approval_status = `checkSheet_data.$[outer].implemetation_mtd_tl_approval_status.${senderApprovalMonth}`
@@ -4331,6 +4440,7 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                         let month = financialYearWiseMonthKeyArray[j]
                         if (selected_machine_data.checkSheet_data.checkSheet[i].planningTableAnimationArray2[month][0] === "1") {
                             PMStatusArray[financialYearWiseMonthKeyArray[j]] = "Current Plan"
+                            CurrentMonthPMScheduleOrNotStatusArray[financialYearWiseMonthKeyArray[j]] = "Scheduled"
                         }
                     }
                 }
@@ -4339,7 +4449,9 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 // console.log(selected_machine_data.checkSheet_data.prd_tl_approval_status)
                 const PRDTLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                     $set: {
-                        "checkSheet_data.$[outer].prd_tl_approval_status": selected_machine_data.checkSheet_data.prd_tl_approval_status, "checkSheet_data.$[outer].checksheet_status": "Implementation", "checkSheet_data.$[outer].PMStatus": PMStatusArray,
+                        "checkSheet_data.$[outer].prd_tl_approval_status": selected_machine_data.checkSheet_data.prd_tl_approval_status,
+                        "checkSheet_data.$[outer].checksheet_status": "Implementation", "checkSheet_data.$[outer].PMStatus": PMStatusArray,
+                        "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus": CurrentMonthPMScheduleOrNotStatusArray,
                         "checkSheet_data.$[outer].flagForRevisionContent": false,
 
                         "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false
@@ -7837,7 +7949,7 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
                 {
                     $group: {
                         _id: "$line_names",
-                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", machineStatus: x, previousStatus: keyForPreviousMonth } },
+                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", machineStatus: x, previousStatus: keyForPreviousMonthCarriedPM } },
                         total_pmSchedule: {
                             $sum: {
                                 $cond: [{
@@ -7887,17 +7999,12 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
                                     $and: [{
                                         $eq: [keyForPreviousMonthCarriedPM, "CarriedPM"]
                                     },
+                                    // {
+                                    //     $eq: [x, "No Completion"]
+                                    // },
                                     {
-                                        $and: [
-                                            {
-                                                $eq: [x, ""]
-                                            },
-                                            {
-                                                $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                            }
-
-                                        ]
-                                    },
+                                        $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                    }
                                     ]
                                 },
                                     1, 0
@@ -7984,7 +8091,7 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
             {
                 $group: {
                     _id: "$line_names",
-                    machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", machineStatus: x, previousStatus: keyForPreviousMonth } },
+                    machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name", machineStatus: x, previousStatus: keyForPreviousMonthCarriedPM } },
                     total_pmSchedule: {
                         $sum: {
                             $cond: [{
@@ -8034,15 +8141,11 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
                                 $and: [{
                                     $eq: [keyForPreviousMonthCarriedPM, "CarriedPM"]
                                 },
+                                // {
+                                //     $eq: [x, "No Completion"]
+                                // },
                                 {
-                                    $and: [
-                                        {
-                                            $ne: [x, ""]
-                                        },
-                                        {
-                                            $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                        }
-                                    ]
+                                    $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
                                 }
                                 ]
                             },
@@ -8687,7 +8790,8 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport/:id', authenticate, a
 
         let subSectionsData,
             cellData,
-            lineData
+            lineData,
+            subsectionSplitIdArrayForChecksheet = []
 
         if (req.params.id === "AnnualReport") {
             const sectionInfo = await Section.findOne({ section_id: sectionOrSubSection.split("-")[0] })
@@ -8879,16 +8983,12 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport/:id', authenticate, a
                                         $and: [{
                                             $eq: [keyForPreviousMonth, "CarriedPM"]
                                         },
+                                        // {
+                                        //     $eq: [x, "No Completion"]
+                                        // },
                                         {
-                                            $and: [
-                                                {
-                                                    $ne: [x, ""]
-                                                },
-                                                {
-                                                    $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                }
-                                            ]
-                                        },
+                                            $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                        }
                                         ]
                                     },
                                         1, 0
@@ -9024,6 +9124,11 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
 
             ]
 
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+        // console.log(financialYearWiseMonthKeyArray[financialYearWiseMonthKeyArray.indexOf('Apr') - 1])
+        let previousMonth = financialYearWiseMonthKeyArray[financialYearWiseMonthKeyArray.indexOf(selectedMonth) - 1] === undefined ?
+            financialYearWiseMonthKeyArray.splice(-1)[0] :
+            financialYearWiseMonthKeyArray[financialYearWiseMonthKeyArray.indexOf(selectedMonth) - 1];
 
         let groupData
 
@@ -9116,17 +9221,12 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
                                     $and: [{
                                         $eq: [keyForPreviousMonth, "CarriedPM"]
                                     },
+                                    // {
+                                    //     $eq: [keyForSelectedMonth, "No Completion"]
+                                    // },
                                     {
-                                        $and: [
-                                            {
-                                                $eq: [keyForSelectedMonth, ""]
-                                            },
-                                            {
-                                                $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                            }
-
-                                        ]
-                                    },
+                                        $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                    }
                                     ]
                                 },
                                     1, 0
@@ -9152,7 +9252,6 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
 
             ])
             if (groupData.length > 0) {
-                // console.log("---------------------------", groupData)
                 sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData[0].total_pmSchedule
                 sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData[0].total_completed
                 sumVariableForTotalOngoing = sumVariableForTotalOngoing + groupData[0].total_ongoing
@@ -9906,14 +10005,10 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                                     $eq: [keyForPreviousMonth, "CarriedPM"]
                                                 },
                                                 {
-                                                    $and: [
-                                                        {
-                                                            $ne: [keyForSelectedMonth, ""]
-                                                        },
-                                                        {
-                                                            $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                        }
-                                                    ]
+                                                    $eq: [keyForSelectedMonth, "No Completion"]
+                                                },
+                                                {
+                                                    $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
                                                 }
                                                 ]
                                             },
@@ -10070,14 +10165,10 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                                         $eq: [keyForPreviousMonth, "CarriedPM"]
                                                     },
                                                     {
-                                                        $and: [
-                                                            {
-                                                                $ne: [x, ""]
-                                                            },
-                                                            {
-                                                                $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                            }
-                                                        ]
+                                                        $eq: [x, "No Completion"]
+                                                    },
+                                                    {
+                                                        $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
                                                     }
                                                     ]
                                                 },
@@ -10223,14 +10314,10 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                                         $eq: [keyForPreviousMonth, "CarriedPM"]
                                                     },
                                                     {
-                                                        $and: [
-                                                            {
-                                                                $ne: [keyForSelectedMonth, ""]
-                                                            },
-                                                            {
-                                                                $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                            }
-                                                        ]
+                                                        $eq: [keyForSelectedMonth, "No Completion"]
+                                                    },
+                                                    {
+                                                        $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
                                                     }
                                                     ]
                                                 },
@@ -10394,14 +10481,10 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                                             $eq: [keyForPreviousMonth, "CarriedPM"]
                                                         },
                                                         {
-                                                            $and: [
-                                                                {
-                                                                    $ne: [x, ""]
-                                                                },
-                                                                {
-                                                                    $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                                }
-                                                            ]
+                                                            $eq: [keyForSelectedMonth, "No Completion"]
+                                                        },
+                                                        {
+                                                            $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
                                                         }
                                                         ]
                                                     },

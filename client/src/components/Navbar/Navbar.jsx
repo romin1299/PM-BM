@@ -13,7 +13,7 @@ const Navbar = () => {
   if (context.user_type === "Admin") {
     return <Admin userData={context} />;
   } else if (context.user_type === "Plant-Admin") {
-    return <Plant userData={context} />;
+    return <Plant userData={context} userDepartment={context.tm_department} />;
   } else if (context.user_type === "Section-Admin") {
     return (
       <Section userData={context} userDepartment={context.tm_department} />

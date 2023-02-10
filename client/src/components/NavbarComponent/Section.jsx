@@ -183,105 +183,164 @@ const Section = ({ userData, userDepartment }) => {
               </MenuItem>
             </SubMenu>
 
-            <SubMenu
-              className="text-white"
-              title="Creation"
-              icon={<FaThList className="text-white" />}
-            >
-              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
-              <MenuItem
-                className="text"
-                icon={
-                  <NoteAddIcon
-                    className="text-white"
-                    style={{
-                      background: "#004B5B",
-                      borderRadius: "3px",
-                      padding: "2px",
-                    }}
-                  />
-                }
+            {userDepartment === "MTD" ? (
+              <SubMenu
+                className="text-white"
+                title="Creation"
+                icon={<FaThList className="text-white" />}
               >
-                <NavLink to="/creationDashboard"></NavLink>
-                Creation Dashboard
-              </MenuItem>
+                {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+                <MenuItem
+                  className="text"
+                  icon={
+                    <NoteAddIcon
+                      className="text-white"
+                      style={{
+                        background: "#004B5B",
+                        borderRadius: "3px",
+                        padding: "2px",
+                      }}
+                    />
+                  }
+                >
+                  <NavLink to="/creationDashboard"></NavLink>
+                  Creation Dashboard
+                </MenuItem>
 
-              <MenuItem
-                className="text"
-                icon={
-                  <PersonAddIcon
-                    className="text-white"
-                    style={{
-                      background: "#004B5B",
-                      borderRadius: "3px",
-                      padding: "2px",
-                    }}
-                  />
-                }
-              >
-                <NavLink to="/userAssign"></NavLink>
-                User Assign
-              </MenuItem>
-            </SubMenu>
+                <MenuItem
+                  className="text"
+                  icon={
+                    <PersonAddIcon
+                      className="text-white"
+                      style={{
+                        background: "#004B5B",
+                        borderRadius: "3px",
+                        padding: "2px",
+                      }}
+                    />
+                  }
+                >
+                  <NavLink to="/userAssign"></NavLink>
+                  User Assign
+                </MenuItem>
+              </SubMenu>
+            ) : (
+              ""
+            )}
 
             <SubMenu
               className="text-white"
               title="Approval"
               icon={<AddTaskIcon className="text-white" />}
             >
-              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
-              <MenuItem
-                className="text"
-                icon={
-                  <FactCheckIcon
-                    className="text-white"
-                    style={{
-                      background: "#004B5B",
-                      borderRadius: "3px",
-                      padding: "2px",
-                    }}
-                  />
-                }
-              >
-                <NavLink to="/preparationApproval"></NavLink>
-                Preparation Approval
-              </MenuItem>
+              {userDepartment === "MTD" ? (
+                <>
+                  <MenuItem
+                    className="text"
+                    icon={
+                      <FactCheckIcon
+                        className="text-white"
+                        style={{
+                          background: "#004B5B",
+                          borderRadius: "3px",
+                          padding: "2px",
+                        }}
+                      />
+                    }
+                  >
+                    <NavLink to="/preparationApproval"></NavLink>
+                    Preparation Approval
+                  </MenuItem>
 
-              {/* <MenuItem
-                className="text"
-                icon={
-                  <FactCheckIcon
-                    className="text-white"
-                    style={{
-                      background: "#004B5B",
-                      borderRadius: "3px",
-                      padding: "2px",
-                    }}
-                  />
-                }
-              >
-                <NavLink to="/planningApproval"></NavLink>
-                Planning Approval
-              </MenuItem> */}
-              <MenuItem
-                className="text"
-                icon={
-                  <FactCheckIcon
-                    className="text-white"
-                    style={{
-                      background: "#004B5B",
-                      borderRadius: "3px",
-                      padding: "2px",
-                    }}
-                  />
-                }
-              >
-                <NavLink to="/implementationApproval"></NavLink>
-                Implementation Approval
-              </MenuItem>
+                  <MenuItem
+                    className="text"
+                    icon={
+                      <FactCheckIcon
+                        className="text-white"
+                        style={{
+                          background: "#004B5B",
+                          borderRadius: "3px",
+                          padding: "2px",
+                        }}
+                      />
+                    }
+                  >
+                    <NavLink to="/implementationApproval"></NavLink>
+                    Implementation Approval
+                  </MenuItem>
+
+                  <MenuItem
+                    className="text"
+                    icon={
+                      <FactCheckIcon
+                        className="text-white"
+                        style={{
+                          background: "#004B5B",
+                          borderRadius: "3px",
+                          padding: "2px",
+                        }}
+                      />
+                    }
+                  >
+                    <NavLink to="/annualPMSchedule"></NavLink>
+                    Annual PM Schedule
+                  </MenuItem>
+
+                  <MenuItem
+                    className="text"
+                    icon={
+                      <FactCheckIcon
+                        className="text-white"
+                        style={{
+                          background: "#004B5B",
+                          borderRadius: "3px",
+                          padding: "2px",
+                        }}
+                      />
+                    }
+                  >
+                    <NavLink to="/machineWisePmMonthlyReport"></NavLink>
+                    Monthly Report (Machine)
+                  </MenuItem>
+                </>
+              ) : (
+                <>
+                  <MenuItem
+                    className="text"
+                    icon={
+                      <FactCheckIcon
+                        className="text-white"
+                        style={{
+                          background: "#004B5B",
+                          borderRadius: "3px",
+                          padding: "2px",
+                        }}
+                      />
+                    }
+                  >
+                    <NavLink to="/annualPMSchedule"></NavLink>
+                    Annual PM Schedule
+                  </MenuItem>
+
+                  <MenuItem
+                    className="text"
+                    icon={
+                      <FactCheckIcon
+                        className="text-white"
+                        style={{
+                          background: "#004B5B",
+                          borderRadius: "3px",
+                          padding: "2px",
+                        }}
+                      />
+                    }
+                  >
+                    <NavLink to="/machineWisePmMonthlyReport"></NavLink>
+                    Monthly Report (Machine)
+                  </MenuItem>
+                </>
+              )}
             </SubMenu>
-
-            
 
             <SubMenu
               className="text-white"
@@ -455,7 +514,6 @@ const Section = ({ userData, userDepartment }) => {
               </MenuItem>
             </SubMenu>
 
-            
             {userDepartment === "MTD" ? (
               <Menuitem
                 className="text-white"
@@ -506,7 +564,12 @@ const Section = ({ userData, userDepartment }) => {
           <Menu iconShape="square">
             <MenuItem
               className="text"
-              icon={<LogoutIcon className="text-white" style={{ transform: "rotate(180deg)" }} />}
+              icon={
+                <LogoutIcon
+                  className="text-white"
+                  style={{ transform: "rotate(180deg)" }}
+                />
+              }
               data-toggle="tooltip"
               data-placement="right"
               title="Logout"

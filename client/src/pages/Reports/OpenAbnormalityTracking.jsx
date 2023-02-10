@@ -192,56 +192,45 @@ function OpenAbnormalityTracking() {
   ];
 
   const abnormalityDataHeaderForCSV = [
-
     {
       label: "Line Name",
       key: "line_name",
-
     },
     {
       label: "Machine Code",
       key: "machine_code",
-
     },
     {
       label: "Machine Name",
       key: "machine_name",
-
     },
     {
       label: "Schedule Month",
       key: "schedule_month",
-
     },
     {
       label: "Checked By",
       key: "checked_by",
-
     },
     {
       label: "Abnormality Remarks",
       key: "abnormalityRemarks",
-
     },
     {
       label: "Target Date",
       key: "targetDate",
-
     },
     {
       label: "Action Details",
       key: "remarksOnClose",
-
     },
     {
       label: "Done Date",
       key: "doneDate",
-
     },
     {
       label: "Done By",
       key: "doneBy",
-
     },
   ];
   //get the date and time
@@ -274,7 +263,7 @@ function OpenAbnormalityTracking() {
         item.targetDate,
         item.remarksOnClose,
         item.doneDate,
-        item.doneBy
+        item.doneBy,
       ];
       rows.push(rowArrayOfTable);
     });
@@ -288,14 +277,16 @@ function OpenAbnormalityTracking() {
     doc.save(`Abnormality_Open_Data_${timeStamp()}`);
   };
 
-  console.log(tableData)
+  // console.log(tableData);
 
   const actions = [
     (rowdata) => {
       return {
         hidden:
-          rowdata.PMuploadedImage === "" ||
-          rowdata.PMuploadedImage === undefined,
+          (context.user_type !== "TL/HOSS" ||
+          context.grade !== "MTD") &&
+          (rowdata.PMuploadedImage === "" ||
+            rowdata.PMuploadedImage === undefined),
         name: "download", // Added custom name property so we know which action to check for
         icon: () => (
           <button className="btn-reset">
@@ -314,6 +305,8 @@ function OpenAbnormalityTracking() {
     (rowdata) => {
       return {
         hidden:
+        (context.user_type !== "TL/HOSS" ||
+        context.grade !== "MTD") &&
           rowdata.remarksOnClose === undefined &&
           rowdata.doneDate === undefined &&
           rowdata.doneBy === undefined,
@@ -492,7 +485,9 @@ function OpenAbnormalityTracking() {
           </h4>
           <Row className="mt-3">
             <Col>
-              <span style={{ padding: "1rem 0 0 1rem" }}><b>Line:</b>&nbsp;&nbsp;</span>
+              <span style={{ padding: "1rem 0 0 1rem" }}>
+                <b>Line:</b>&nbsp;&nbsp;
+              </span>
               <select
                 class="form-select form-select-sm"
                 aria-label=".form-select-sm example"
@@ -515,13 +510,10 @@ function OpenAbnormalityTracking() {
                   Please select
                 </option>
                 {lineDropdown?.map((option) => {
-                  return (
-                    <option value={option._id}>{option.line_name}</option>
-                  );
+                  return <option value={option._id}>{option.line_name}</option>;
                 })}
-              </select></Col>
-
-
+              </select>
+            </Col>
           </Row>
           {tableData?.length > 0 ? (
             <div style={{ padding: "1rem" }}>
@@ -542,6 +534,9 @@ function OpenAbnormalityTracking() {
                 // tableRef={this.tableRef.current.onQueryChange()}
 
                 editable={{
+                  isEditHidden: (rowData) =>
+                  (context.user_type !== "TL/HOSS" ||
+                  context.grade !== "MTD"),
                   onRowUpdate: (updatedRow, oldRow) =>
                     new Promise((resolve, reject) => {
                       const index = oldRow.tableData.id;
@@ -594,8 +589,8 @@ function OpenAbnormalityTracking() {
                   },
                   headerStyle: {
                     fontSize: "14px",
-                    fontWeight: "bold"
-                  }
+                    fontWeight: "bold",
+                  },
                 }}
               />
             </div>

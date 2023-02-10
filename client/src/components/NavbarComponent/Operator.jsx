@@ -106,12 +106,12 @@ const Operator = ({ userData }) => {
           <SidebarHeader>
             <div className="logotext">
               {/* small and big change using menucollapse state */}
-              <p className="d-flex align-items-center justify-content-center m-2 sticky-top">
+              <p className="d-flex align-items-center justify-content-center m-2 sticky-top bg-white">
                 {menuCollapse ? (
                   <img
                     src={denso_logo}
                     alt=""
-                    style={{ width: "50%", padding: "5px" }}
+                    style={{ width: "100%", padding: "5px" }}
                     className="bg-white"
                   />
                 ) : (

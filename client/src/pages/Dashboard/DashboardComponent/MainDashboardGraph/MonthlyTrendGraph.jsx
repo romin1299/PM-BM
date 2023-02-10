@@ -51,9 +51,7 @@ export const options = {
         maxRotation: 90,
         minRotation: 90,
 
-        min: 0,
-        stepSize: 1,
-        max: 4,
+        
       },
     },
     y: {
@@ -62,6 +60,11 @@ export const options = {
         display: true,
         text: "No. of Machine",
       },
+      ticks:{
+        min: 0,
+        stepSize: 1,
+        // max: 4,
+      }
     },
   },
 };

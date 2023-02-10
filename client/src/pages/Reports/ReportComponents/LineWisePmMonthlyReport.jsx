@@ -122,7 +122,7 @@ const LineWisePmMonthlyReport = () => {
             }}
             onClick={() => {
               let data = rowData.machine?.map((item) =>
-                item.machineStatus === "" ? item : undefined
+                item.previousStatus === "CarriedPM" ? item : undefined
               );
               setMachineDetailPage(
                 <LineWiseMachineDetailDashboard
