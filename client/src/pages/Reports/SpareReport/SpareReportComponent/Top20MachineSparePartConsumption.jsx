@@ -26,7 +26,6 @@ const Top20MachineSparePartConsumption = ({ context }) => {
   ];
 
   const postSectionToGetAllDataForTop20MachineSparePartsReport = async () => {
-
     try {
       const res = await fetch(
         "/postSectionToGetAllDataForTop20MachineSparePartsReport",
@@ -47,6 +46,7 @@ const Top20MachineSparePartConsumption = ({ context }) => {
         console.log("Invalid");
       } else {
         setTableData(data?.top20MachineSparePartConsumption);
+        setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
       console.log(error);
@@ -76,7 +76,7 @@ const Top20MachineSparePartConsumption = ({ context }) => {
     doc.save(
       `${selectedYear}_top20_Machine_SparePart_Consumption_Trend_${timeStamp()}`
     );
-  }
+  };
 
   //get the date and time
   const timeStamp = () => {
@@ -103,68 +103,63 @@ const Top20MachineSparePartConsumption = ({ context }) => {
   let srNo = 0;
   return (
     <div className="pt-3 ">
-
-
-<Container fluid>
+      <Container fluid>
         <h4 className="mb-3">Top 20 Machine (Spare Part Consumption)</h4>
         <Row className="pt-2 cell gy-2">
           <Col sm={12} lg={6} md={12}>
-          <YearDropDown
-                selectedYear={selectedYear}
-                setSelectedYear={setSelectedYear}
-              />
+            <YearDropDown
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+            />
           </Col>
           <Col sm={12} lg={6} md={12} className="d-flex justify-content-end">
-          <CSVLink
-                  headers={label}
-                  data={tableData}
-                  filename={`${selectedYear}_top20_Machine_SparePart_Consumption_Trend_${timeStamp()}`}
-                  className="downloadCSV text-decoration-none"
-                  target="_blank"
-                >
-                  CSV
-                </CSVLink>
-                &nbsp;
-                <button
-                  className="downloadPDF"
-                  onClick={pdfDownloadForTop20MachinePartsConsumption}
-                >
-                  PDF
-                </button>
+            <CSVLink
+              headers={label}
+              data={tableData}
+              filename={`${selectedYear}_top20_Machine_SparePart_Consumption_Trend_${timeStamp()}`}
+              className="downloadCSV text-decoration-none"
+              target="_blank"
+            >
+              CSV
+            </CSVLink>
+            &nbsp;
+            <button
+              className="downloadPDF"
+              onClick={pdfDownloadForTop20MachinePartsConsumption}
+            >
+              PDF
+            </button>
           </Col>
 
+          <Row className="mt-3 ">
+            {tableData?.length > 0 ? (
+              <Row className="m-2">
+                <table>
+                  <tr>
+                    {tableColumn?.map((item) => (
+                      <td className="td-padding">{item}</td>
+                    ))}
+                  </tr>
 
-          
-          <Row className="mt-3">
-          {tableData?.length > 0 ? (
-          <Row className="m-2">
-            <table>
-              <tr>
-                {tableColumn?.map((item) => (
-                  <td className="td-padding">{item}</td>
-                ))}
-              </tr>
-
-              {tableData?.map((item) => (
-                <tr>
-                  <td className="td-padding">{++srNo}</td>
-                  <td className="td-padding">{item?.line_names?.line_name}</td>
-                  <td className="td-padding">{item?.machine_name}</td>
-                  <td className="td-padding">{item?.machine_code}</td>
-                  <td className="td-padding">{item?.cost}</td>
-                </tr>
-              ))}
-            </table>
-          </Row>
-        ) : (
-          loadingAnimationState
-        )}
+                  {tableData?.map((item) => (
+                    <tr>
+                      <td className="td-padding">{++srNo}</td>
+                      <td className="td-padding">
+                        {item?.line_names?.line_name}
+                      </td>
+                      <td className="td-padding">{item?.machine_name}</td>
+                      <td className="td-padding">{item?.machine_code}</td>
+                      <td className="td-padding">{item?.cost}</td>
+                    </tr>
+                  ))}
+                </table>
+              </Row>
+            ) : (
+              <Col className="d-flex justify-content-center align-items-center" style={{marginBottom: "2rem"}}>{loadingAnimationState}</Col>
+            )}
           </Row>
         </Row>
       </Container>
-
-
-      
     </div>
   );
 };

@@ -41,7 +41,7 @@ const SpareConsumptionTrendType = ({ context }) => {
   useEffect(() => {
     postSectionToGetAllDataForLineWiseSpareConsumption();
   }, []);
-  console.log(graphData)
+  // console.log(graphData)
   return (
     <div className="pt-3 ">
 
@@ -56,7 +56,8 @@ const SpareConsumptionTrendType = ({ context }) => {
             {graphData?.length > 0 ? (
               <SpareConsumptionTrendTypeGraph graphData={graphData} />
             ) : (
-              loadingAnimationState
+              <Col className="d-flex justify-content-center align-items-center mb-2">{loadingAnimationState}</Col>
+
             )}
           </Col>
         </Row>

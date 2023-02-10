@@ -59,7 +59,9 @@ const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
         let downloadData = [];
         downloadData.push(
           // keyOfCsvData,
-          ["Lines"].concat(data?.lineWiseSpareCost?.map((item) => item?.line_name)),
+          ["Lines"].concat(
+            data?.lineWiseSpareCost?.map((item) => item?.line_name)
+          ),
           ["Total cost of PM"].concat(
             data?.lineWiseSpareCost?.map((item) => item?.sumOfTotalPMSpareCost)
           ),
@@ -135,46 +137,43 @@ const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
         <h4 className="mb-3">Line Wise Spare Consumption Trend</h4>
         <Row className="pt-2 cell gy-2">
           <Col sm={12} lg={6} md={12}>
-          <YearDropDown
-                selectedYear={selectedYear}
-                setSelectedYear={setSelectedYear}
-              />
+            <YearDropDown
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+            />
           </Col>
           <Col sm={12} lg={6} md={12} className="d-flex justify-content-end">
-          <CSVLink
-                  data={csvData}
-                  filename={`${selectedYear}_Line_Wise_Spare_Consumption_Trend_${timeStamp()}`}
-                  className="downloadCSV text-decoration-none"
-                  target="_blank"
-                >
-                  CSV
-                </CSVLink>
-                &nbsp;
-                <button
-                  className="downloadPDF"
-                  onClick={pdfDownloadForLineWiseSpareConsumption}
-                >
-                  PDF
-                </button>
+            <CSVLink
+              data={csvData}
+              filename={`${selectedYear}_Line_Wise_Spare_Consumption_Trend_${timeStamp()}`}
+              className="downloadCSV text-decoration-none"
+              target="_blank"
+            >
+              CSV
+            </CSVLink>
+            &nbsp;
+            <button
+              className="downloadPDF"
+              onClick={pdfDownloadForLineWiseSpareConsumption}
+            >
+              PDF
+            </button>
           </Col>
-          
 
-
-          
           <Row className="mt-3">
-          {graphData?.lineWiseSpareCost?.length > 0 ? (
+            {graphData?.lineWiseSpareCost?.length > 0 ? (
               <LineWiseSpareConsumptionTrendGraph
                 lineData={lineData}
                 graphData={graphData}
               />
             ) : (
-              loadingAnimationState
+              <Col className="d-flex justify-content-center align-items-center mb-2">
+                {loadingAnimationState}
+              </Col>
             )}
           </Row>
         </Row>
       </Container>
-
-      
     </div>
   );
 };
