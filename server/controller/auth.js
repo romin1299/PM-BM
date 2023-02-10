@@ -4221,7 +4221,7 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
             if (selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status)?.length - 1] === "Pending") {
                 let tlApproval = "Accepted"
 
-                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1) })
+                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no[(selected_machine_data?.checkSheet_data?.sender_tm_no)?.length - 1] })
 
                 // console.log(
                 //     selected_machine_data.tl_approval_status
@@ -4307,7 +4307,7 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] = "Accepted"
 
 
-                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1) })
+                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no[(selected_machine_data?.checkSheet_data?.sender_tm_no)?.length - 1] })
 
 
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
@@ -4390,8 +4390,7 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
             } else if (selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status)?.length - 1] === "Pending") {
                 let hosApproval = "Accepted"
 
-                let x =  selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1)
-                const requestSenderUserData = await User.findOne({ tm_no: x })
+                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no[(selected_machine_data?.checkSheet_data?.sender_tm_no)?.length - 1] })
 
 
 
@@ -4924,16 +4923,9 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
             }
             else
                 if
-                    (selected_machine_data?.checkSheet_data?.implemetation_mtd_hod_approval_status?.[selected_machine_data?.senderApprovalMonth]?.at(-1) === "Pending"
+                    (selected_machine_data?.checkSheet_data?.implemetation_mtd_hod_approval_status?.[selected_machine_data?.senderApprovalMonth]?.[selected_machine_data?.checkSheet_data?.implemetation_mtd_hod_approval_status?.[selected_machine_data?.senderApprovalMonth] - 1] === "Pending"
                 ) {
 
-                    // console.log(selected_machine_data.checkSheet_data.implemetation_mtd_hod_approval_status[selected_machine_data?.senderApprovalMonth].at(-1))
-
-                    // console.log(
-                    //     "4358 ===========>",
-                    //     selected_machine_data?.checkSheet_data?.implemetation_mtd_hod_approval_status[selected_machine_data?.senderApprovalMonth]?.at(-1),
-                    //     selected_machine_data?.senderApprovalMonth
-                    // )
 
 
                     // let machineLastDataForKeyexistsOrNot = await Machine.aggregate([{
@@ -5001,7 +4993,7 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1] = "Rejected"
 
 
-                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1) })
+                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no[(selected_machine_data?.checkSheet_data?.sender_tm_no)?.length - 1] })
 
 
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
@@ -5076,7 +5068,7 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 let hosApproval = "Rejected"
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] = "Rejected"
 
-                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1) })
+                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no[(selected_machine_data?.checkSheet_data?.sender_tm_no)?.length - 1] })
 
 
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
@@ -5147,7 +5139,7 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
             } else if (selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] === "Pending") {
                 let hosApproval = "Rejected"
 
-                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1) })
+                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no[(selected_machine_data?.checkSheet_data?.sender_tm_no)?.length - 1] })
 
 
 
@@ -5430,7 +5422,7 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                     })
             }
             else if (
-                selected_machine_data.checkSheet_data.implemetation_mtd_hod_approval_status[selected_machine_data?.senderApprovalMonth].at(-1) === "Pending"
+                selected_machine_data.checkSheet_data.implemetation_mtd_hod_approval_status[selected_machine_data?.senderApprovalMonth]?.[selected_machine_data.checkSheet_data.implemetation_mtd_hod_approval_status[selected_machine_data?.senderApprovalMonth] - 1] === "Pending"
             ) {
 
                 let machineLastDataForKeyexistsOrNot = await Machine.aggregate([{

@@ -260,7 +260,9 @@ function PMSheetApprovalOfImplementationPhase() {
                             {value}-
                             {
                               index?.checkSheet_data
-                                ?.implemetation_completed_date?.[monthKey]?.[idx]
+                                ?.implemetation_completed_date?.[monthKey]?.[
+                                idx
+                              ]
                             }
                           </p>
                         ))}
@@ -274,16 +276,16 @@ function PMSheetApprovalOfImplementationPhase() {
                             <b>{value}</b>-
                             {
                               index?.checkSheet_data
-                                ?.implementation_assign_PRD_TL_name?.[monthKey]?.[
-                                idx
-                              ]
+                                ?.implementation_assign_PRD_TL_name?.[
+                                monthKey
+                              ]?.[idx]
                             }
                             -
                             {
                               index?.checkSheet_data
-                                ?.implementation_approved_PRD_TL_date?.[monthKey]?.[
-                                idx
-                              ]
+                                ?.implementation_approved_PRD_TL_date?.[
+                                monthKey
+                              ]?.[idx]
                             }
                           </p>
                         ))}
@@ -297,16 +299,16 @@ function PMSheetApprovalOfImplementationPhase() {
                             <b>{value}</b>-
                             {
                               index?.checkSheet_data
-                                ?.implementation_assign_MTD_TL_name?.[monthKey]?.[
-                                idx
-                              ]
+                                ?.implementation_assign_MTD_TL_name?.[
+                                monthKey
+                              ]?.[idx]
                             }
                             -
                             {
                               index?.checkSheet_data
-                                ?.implementation_approved_MTD_TL_date?.[monthKey]?.[
-                                idx
-                              ]
+                                ?.implementation_approved_MTD_TL_date?.[
+                                monthKey
+                              ]?.[idx]
                             }{" "}
                             -{" "}
                             {value === "Rejected"
@@ -353,18 +355,42 @@ function PMSheetApprovalOfImplementationPhase() {
                           {" "}
                           <p>
                             <b>
-                              {index?.checkSheet_data?.implemetation_mtd_hod_approval_status?.[
-                                monthKey
-                              ]?.at(-1)}
+                              {
+                                index?.checkSheet_data
+                                  ?.implemetation_mtd_hod_approval_status?.[
+                                  monthKey
+                                ]?.[
+                                  index?.checkSheet_data
+                                    ?.implemetation_mtd_hod_approval_status?.[
+                                    monthKey
+                                  ] - 1
+                                ]
+                              }
                             </b>
                             -
-                            {index?.checkSheet_data?.implementation_approved_MTD_HOD_date?.[
-                              monthKey
-                            ]?.at(-1)}
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_approved_MTD_HOD_date?.[
+                                monthKey
+                              ]?.[
+                                index?.checkSheet_data
+                                  ?.implementation_approved_MTD_HOD_date?.[
+                                  monthKey
+                                ] - 1
+                              ]
+                            }
                             -
-                            {index?.checkSheet_data?.implementation_approved_by_MTD_HOD?.[
-                              monthKey
-                            ]?.at(-1)}
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_approved_by_MTD_HOD?.[
+                                monthKey
+                              ]?.[
+                                index?.checkSheet_data
+                                  ?.implementation_approved_by_MTD_HOD?.[
+                                  monthKey
+                                ] - 1
+                              ]
+                            }
                           </p>
                         </td>
                       ) : (
@@ -388,10 +414,10 @@ function PMSheetApprovalOfImplementationPhase() {
           {/* <LoadingAnimation /> */}
         </div>
       )}
-   <br />
       <br />
       <br />
-      <Footer/>
+      <br />
+      <Footer />
     </>
   );
 }
