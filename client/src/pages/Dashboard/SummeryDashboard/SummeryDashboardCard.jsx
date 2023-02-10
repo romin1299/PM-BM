@@ -30,10 +30,7 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
   // let currentMonthCompletionData =
   //   parseInt(data._id.replace(/[^\d.]/g, "")) % 100;
 
-  // console.log(
-  //   parseInt(data._id.replace(/[^\d.]/g, "")),
-  //   parseInt(data._id.replace(/[^\d.]/g, "")) % 100
-  // );
+  console.log(data?.chartData);
 
   let TotalPlan = [
     {
@@ -118,7 +115,7 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
   //     value: 10,
   //   },
   // ];
-  // console.log(data)
+  console.log(data?.annualChartData)
 
   return (
     <Col className="col-lg-3 col-md-12 col-sm-12 d-flex justify-content-center d-flex align-items-center">
@@ -157,16 +154,20 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
                 </tr> */}
                     {TableData.map((item) => (
                       <tr className={item.bgColor}>
-                        <td style={{ fontSize: "12px", fontWeight:"bold" }}>{item.name}</td>
+                        <td style={{ fontSize: "12px", fontWeight: "bold" }}>
+                          {item.name}
+                        </td>
 
-                        <td style={{ fontSize: "12px", fontWeight:"bold" }}>{item.value}</td>
+                        <td style={{ fontSize: "12px", fontWeight: "bold" }}>
+                          {item.value}
+                        </td>
                       </tr>
                     ))}
                     <tr>
-                      <td style={{ fontSize: "12px", fontWeight:"bold" }}>
+                      <td style={{ fontSize: "12px", fontWeight: "bold" }}>
                         {PendingStatusData.name}
                       </td>
-                      <td style={{ fontSize: "12px", fontWeight:"bold" }}>
+                      <td style={{ fontSize: "12px", fontWeight: "bold" }}>
                         {PendingStatusData.value}
                       </td>
                     </tr>
@@ -197,10 +198,9 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
             </Row>
           </div>
         ) : (
-            <div className="d-flex align-items-center justify-content-center">
-<NotFound />
-            </div>
-          
+          <div className="d-flex align-items-center justify-content-center">
+            <NotFound />
+          </div>
         )}
       </Card>
     </Col>

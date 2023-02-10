@@ -182,6 +182,14 @@ const SummeryPopups = ({ close, machineData }) => {
       //     : "",
       field: "doneBy",
     },
+    {
+      title: "Date",
+      // render: (rowData) =>
+      //   rowData?.inspectionCompletionBy
+      //     ? rowData?.inspectionCompletionBy[monthForCompareSystemMonth]
+      //     : "",
+      field: "completionDateOfInspection",
+    },
   ];
 
   const submitRemarksAfterTLOrHosRejection = async (updatedRow, oldRow) => {
