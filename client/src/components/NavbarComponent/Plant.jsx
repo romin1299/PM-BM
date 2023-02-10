@@ -176,104 +176,105 @@ const Plant = ({ userData, userDepartment }) => {
           </SubMenu>
 
           {userDepartment === "MTD" ? (
-            <>
-              <SubMenu
-                className="text-white"
-                title="Creation"
-                icon={<FaThList className="text-white" />}
+            <SubMenu
+              className="text-white"
+              title="Creation"
+              icon={<FaThList className="text-white" />}
+            >
+              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+              <MenuItem
+                className="text"
+                icon={
+                  <NoteAddIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
               >
-                {/* <Menuitem className="text">Offer Letter</Menuitem> */}
-                <MenuItem
-                  className="text"
-                  icon={
-                    <NoteAddIcon
-                      className="text-white"
-                      style={{
-                        background: "#004B5B",
-                        borderRadius: "3px",
-                        padding: "2px",
-                      }}
-                    />
-                  }
-                >
-                  <NavLink to="/creationDashboard"></NavLink>
-                  Creation Dashboard
-                </MenuItem>
-                <MenuItem
-                  className="text"
-                  icon={
-                    <PersonAddIcon
-                      className="text-white"
-                      style={{
-                        background: "#004B5B",
-                        borderRadius: "3px",
-                        padding: "2px",
-                      }}
-                    />
-                  }
-                >
-                  <NavLink to="/userAssign"></NavLink>
-                  User Assign
-                </MenuItem>
-              </SubMenu>
-
-              <SubMenu
-                className="text-white"
-                title="Approval"
-                icon={<AddTaskIcon className="text-white" />}
+                <NavLink to="/creationDashboard"></NavLink>
+                Creation Dashboard
+              </MenuItem>
+              <MenuItem
+                className="text"
+                icon={
+                  <PersonAddIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
               >
-                {/* <Menuitem className="text">Offer Letter</Menuitem> */}
+                <NavLink to="/userAssign"></NavLink>
+                User Assign
+              </MenuItem>
+            </SubMenu>
+          ) : (
+            ""
+          )}
+          {userDepartment === "MTD" ? (
+            <SubMenu
+              className="text-white"
+              title="Approval"
+              icon={<AddTaskIcon className="text-white" />}
+            >
+              {/* <Menuitem className="text">Offer Letter</Menuitem> */}
 
-                <MenuItem
-                  className="text"
-                  icon={
-                    <FactCheckIcon
-                      className="text-white"
-                      style={{
-                        background: "#004B5B",
-                        borderRadius: "3px",
-                        padding: "2px",
-                      }}
-                    />
-                  }
-                >
-                  <NavLink to="/sixMonthApprovalDashboard"></NavLink>
-                  Implementation Approval
-                </MenuItem>
-                <MenuItem
-                  className="text"
-                  icon={
-                    <FactCheckIcon
-                      className="text-white"
-                      style={{
-                        background: "#004B5B",
-                        borderRadius: "3px",
-                        padding: "2px",
-                      }}
-                    />
-                  }
-                >
-                  <NavLink to="/annualPMSchedule"></NavLink>
-                  Annual PM Schedule
-                </MenuItem>
-                <MenuItem
-                  className="text"
-                  icon={
-                    <FactCheckIcon
-                      className="text-white"
-                      style={{
-                        background: "#004B5B",
-                        borderRadius: "3px",
-                        padding: "2px",
-                      }}
-                    />
-                  }
-                >
-                  <NavLink to="/machineWisePmMonthlyReport"></NavLink>
-                  Monthly Report (Machine)
-                </MenuItem>
-              </SubMenu>
-            </>
+              <MenuItem
+                className="text"
+                icon={
+                  <FactCheckIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/sixMonthApprovalDashboard"></NavLink>
+                Implementation Approval
+              </MenuItem>
+              <MenuItem
+                className="text"
+                icon={
+                  <FactCheckIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/annualPMSchedule"></NavLink>
+                Annual PM Schedule
+              </MenuItem>
+              <MenuItem
+                className="text"
+                icon={
+                  <FactCheckIcon
+                    className="text-white"
+                    style={{
+                      background: "#004B5B",
+                      borderRadius: "3px",
+                      padding: "2px",
+                    }}
+                  />
+                }
+              >
+                <NavLink to="/machineWisePmMonthlyReport"></NavLink>
+                Monthly Report (Machine)
+              </MenuItem>
+            </SubMenu>
           ) : (
             <SubMenu
               className="text-white"
