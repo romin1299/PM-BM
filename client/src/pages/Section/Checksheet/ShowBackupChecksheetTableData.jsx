@@ -32,9 +32,9 @@ const ShowBackupChecksheetTableData = ({}) => {
 
   const columns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%",
+      width: "7%",
       align: "center",
     },
     {
@@ -123,6 +123,7 @@ const ShowBackupChecksheetTableData = ({}) => {
   }
 
   const showBackupChecksheetTableDataOfCSV = [
+    
     {
       label: "C",
       key: "category",
@@ -131,6 +132,7 @@ const ShowBackupChecksheetTableData = ({}) => {
       label: "Inspection Item",
       // editable: false,
       key: "inspection_parent_name",
+      
     },
     {
       label: "Inspection Point",
@@ -374,6 +376,7 @@ const ShowBackupChecksheetTableData = ({}) => {
                 },
               }}
             />
+            
           </div>
         </div>
       </div>

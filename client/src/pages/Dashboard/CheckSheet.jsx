@@ -125,9 +125,9 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
 
   const revisedColumns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%",
+      width: "7%",
       align: "center",
     },
     {

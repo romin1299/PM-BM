@@ -52,7 +52,7 @@ const CreationDashboardForPlant = () => {
 
   const sectionHeader = [
     {
-      title: "Serial no",
+      title: "Sr No",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
     },
@@ -126,7 +126,7 @@ const CreationDashboardForPlant = () => {
 
   const subSectionHeader = [
     {
-      title: "Serial no",
+      title: "Sr No",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
     },

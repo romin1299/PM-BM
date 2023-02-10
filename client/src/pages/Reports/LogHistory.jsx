@@ -21,7 +21,7 @@ import Footer from "../../components/Footer/Footer";
 const LogHistory = () => {
   let columns = [
     {
-      header: "Sr.No",
+      header: "Sr. No.",
       sort: "true",
     },
     {
@@ -355,130 +355,130 @@ const LogHistory = () => {
         </Row >
         <Row className="mt-3 my-3">
           <Col sm={12} md={6} lg={3} className="mb-2">
-          <span>
-                  <b>Machine:</b>
+            <span>
+              <b>Machine:</b>
             </span>
             <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    // style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="selectedMachine"
-                    value={selectedMachine ? selectedMachine : ""}
-                    className="textField"
-                    onChange={(e) => {
-                      setSelectedMachine(e.target.value);
-                    }}
-                    // fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {machineDropdown?.map((option, index) => {
-                      return (
-                        <option value={option?.machine_code}>
-                          {option?.machine_name}
-                        </option>
-                      );
-                    })}
-                  </select>
-            
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              // style={{ width: "100%" }}
+              id="standard-select-currency"
+              name="selectedMachine"
+              value={selectedMachine ? selectedMachine : ""}
+              className="textField"
+              onChange={(e) => {
+                setSelectedMachine(e.target.value);
+              }}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {machineDropdown?.map((option, index) => {
+                return (
+                  <option value={option?.machine_code}>
+                    {option?.machine_name}
+                  </option>
+                );
+              })}
+            </select>
+
           </Col>
           {/* {console.log(abnormalityYesOrNo)} */}
 
           <Col sm={12} md={6} lg={3} className="mb-2">
-          <span>
-                  <b>Abnormality(Yes/No):</b>
+            <span>
+              <b>Abnormality(Yes/No):</b>
             </span>
             <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    // style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="abnormalityYesOrNo"
-                    value={abnormalityYesOrNo ? abnormalityYesOrNo : ""}
-                    className="textField"
-                    onChange={(e) => {
-                      setAbnormalityYesOrNo(e.target.value);
-                    }}
-                    // fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {["Yes", "No"]?.map((option, index) => {
-                      return <option value={option}>{option}</option>;
-                    })}
-                  </select>
-           
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              // style={{ width: "100%" }}
+              id="standard-select-currency"
+              name="abnormalityYesOrNo"
+              value={abnormalityYesOrNo ? abnormalityYesOrNo : ""}
+              className="textField"
+              onChange={(e) => {
+                setAbnormalityYesOrNo(e.target.value);
+              }}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {["Yes", "No"]?.map((option, index) => {
+                return <option value={option}>{option}</option>;
+              })}
+            </select>
+
           </Col>
 
           <Col sm={12} md={6} lg={3} className="mb-2">
-          <span>
-                  <b>Spare(Yes/No):</b>
-                </span>
-                <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    // style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="spareYesOrNo"
-                    value={spareYesOrNo ? spareYesOrNo : ""}
-                    className="textField"
-                    onChange={(e) => {
-                      setSpareYesOrNo(e.target.value);
-                    }}
-                    // fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {["Yes", "No"]?.map((option, index) => {
-                      return <option value={option}>{option}</option>;
-                    })}
-                  </select>
-            
+            <span>
+              <b>Spare(Yes/No):</b>
+            </span>
+            <select
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              // style={{ width: "100%" }}
+              id="standard-select-currency"
+              name="spareYesOrNo"
+              value={spareYesOrNo ? spareYesOrNo : ""}
+              className="textField"
+              onChange={(e) => {
+                setSpareYesOrNo(e.target.value);
+              }}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {["Yes", "No"]?.map((option, index) => {
+                return <option value={option}>{option}</option>;
+              })}
+            </select>
+
           </Col>
 
           <Col sm={12} md={6} lg={3} className="mb-2">
-          <span>
-                  <b>Abnormality(Open/Closed):</b>
+            <span>
+              <b>Abnormality(Open/Closed):</b>
             </span>
             <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    // style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="selectedAbnormalityStatus"
-                    value={
-                      selectedAbnormalityStatus ? selectedAbnormalityStatus : ""
-                    }
-                    className="textField"
-                    onChange={(e) => {
-                      setSelectedAbnormalityStatus(e.target.value);
-                    }}
-                    // fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {["Open", "Closed"]?.map((option, index) => {
-                      return <option value={option}>{option}</option>;
-                    })}
-                  </select>
-            
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              // style={{ width: "100%" }}
+              id="standard-select-currency"
+              name="selectedAbnormalityStatus"
+              value={
+                selectedAbnormalityStatus ? selectedAbnormalityStatus : ""
+              }
+              className="textField"
+              onChange={(e) => {
+                setSelectedAbnormalityStatus(e.target.value);
+              }}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {["Open", "Closed"]?.map((option, index) => {
+                return <option value={option}>{option}</option>;
+              })}
+            </select>
+
           </Col>
         </Row>
       </Container>

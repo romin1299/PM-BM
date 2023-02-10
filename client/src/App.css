@@ -165,3 +165,11 @@ body {
     /* margin-left: -23px; */
     margin-right: -10px;
 }
+
+.MuiTableCell-head, .css-1i2tz8t{
+    text-align: left !important;
+}
+
+.css-1yhpg23-MuiTableCell-root,.css-1a4b21o{
+    text-align: left !important;
+}

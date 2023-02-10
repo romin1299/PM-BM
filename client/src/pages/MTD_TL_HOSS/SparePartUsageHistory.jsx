@@ -65,10 +65,10 @@ const SparePartUsageHistory = () => {
 
   let tableColumn = [
     {
-      title: "Sr. no",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
-      width: "5%",
+      width: "6%",
     },
     {
       title: "Date",
@@ -326,8 +326,7 @@ const SparePartUsageHistory = () => {
               id="standard-select-currency"
               name="selectedPlant"
               className="textField w-50"
-              w-75
-              value={selectedMonth}
+              w-75 value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
               // fullWidth
               select // label="Select"
@@ -468,13 +467,13 @@ const SparePartUsageHistory = () => {
                     {tableColumn.map((tColumn) => (
                       <th
                         className={"ar-table-thead-header5 td-padding"}
-                        // colSpan={
-                        //   tColumn.header === "Preparation"
-                        //     ? 3
-                        //     : tColumn.header === "Planning"
-                        //     ? 2
-                        //     : 0
-                        // }
+                      // colSpan={
+                      //   tColumn.header === "Preparation"
+                      //     ? 3
+                      //     : tColumn.header === "Planning"
+                      //     ? 2
+                      //     : 0
+                      // }
                       >
                         {tColumn.title}
                         {/* {tColumn.header === "Machine Code" ||
@@ -533,15 +532,15 @@ const SparePartUsageHistory = () => {
                     (selectedCategory
                       ? index?.type === selectedCategory
                       : true) &&
-                    (selectedMonth
-                      ? index?.schedule_month === selectedMonth
-                      : true) &&
-                    (selectedLine
-                      ? index?.line_names._id === selectedLine
-                      : true) &&
-                    (selectedMachine
-                      ? index?.machineId === selectedMachine
-                      : true) ? (
+                      (selectedMonth
+                        ? index?.schedule_month === selectedMonth
+                        : true) &&
+                      (selectedLine
+                        ? index?.line_names._id === selectedLine
+                        : true) &&
+                      (selectedMachine
+                        ? index?.machineId === selectedMachine
+                        : true) ? (
                       <tr className="ar-table-thead-header4 tableRowColor">
                         {/* {console.log(index)} */}
                         <td className="td-padding">{index?.sr_no}</td>

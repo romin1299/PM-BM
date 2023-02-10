@@ -21,10 +21,10 @@ const SixMonthApprovalDashboard = () => {
 
   const machineHeader = [
     {
-      title: "Serial no",
+      title: "Sr No",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
-      width: "5%",
+      width: "6%",
     },
     {
       title: "Cell Name",

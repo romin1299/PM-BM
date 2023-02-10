@@ -236,7 +236,7 @@ const GraphsInMainDashboard = ({
     value: currentMonthGraphAndTableData?.sumVariableForTotalSchedule,
   };
   return (
-    <div className="m-2">
+    <div className="mx-2">
       {/* <Container className="d-flex justify-content-center align-items-center"></Container> */}
       <Row className="d-flex justify-content-center align-items">
        
@@ -295,7 +295,7 @@ const GraphsInMainDashboard = ({
         {fetchedRemarks ? (
           <div className="cell">
             <Col>
-              Remarks: <span>{fetchedRemarks}</span>
+              <b>Remarks: </b><span>{fetchedRemarks}</span>
             </Col>
             {/* <Row>
               <Col className="col-9">
@@ -313,7 +313,7 @@ const GraphsInMainDashboard = ({
             <div className="cell  mb-5">
               <Col className="pwd-container2">
                 <div className=" d-flex justify-content-center align-items-center ">
-                  Remarks:{" "}
+                  <b>Remarks:</b>{" "}
                 </div>
                 <TextField
                   style={{ paddingLeft: "0.6rem" }}

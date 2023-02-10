@@ -86,10 +86,10 @@ const SummeryPopups = ({ close, machineData }) => {
       width: "5%",
     },
     {
-      title: "Sr. No",
+      title: "Sr. No.",
       render: (rowData) => `${rowData?.tableData.id + 1}`,
       // align: "center",
-      width: "5%",
+      width: "6%",
     },
     {
       title: "Inspection Item",
@@ -331,7 +331,7 @@ const SummeryPopups = ({ close, machineData }) => {
           ) : (
             <div
               className="container-fluid d-flex justify-content-center align-items-center p-5"
-              // style={{ height: "100vh" }}
+            // style={{ height: "100vh" }}
             >
               {loadingAnimationState}
             </div>

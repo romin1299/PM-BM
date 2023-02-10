@@ -29,6 +29,10 @@ export const options = {
     title: {
       display: true,
       text: "Annual Plan vs Actual",
+      color:"black",
+      font: {
+        size:16
+      }
     },
   },
   // interaction: {
@@ -84,7 +88,7 @@ export function MonthlyTrendGraph({ annualGraph }) {
     labels,
     datasets: [
       {
-        label: "Current Month Schedule",
+        label: "Plan",
         data: annualGraph?.annual_total_current_schedule,
         backgroundColor: "#CFE1FD",
         borderColor: "rgba(54, 162, 235, 1)",
@@ -97,7 +101,7 @@ export function MonthlyTrendGraph({ annualGraph }) {
         stack: "Stack 0",
       },
       {
-        label: "Completed",
+        label: "Actual",
         data: annualGraph?.annual_completed,
         backgroundColor: "#bde28f",
         borderColor: "#adec71",
@@ -106,5 +110,5 @@ export function MonthlyTrendGraph({ annualGraph }) {
     ],
   };
 
-  return <Bar options={options} height={200} data={data} title={"Hello"} />;
+  return <Bar options={options} height={350} data={data}/>;
 }

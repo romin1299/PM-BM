@@ -142,9 +142,9 @@ function ChecksheetFormApprovalForTL() {
 
   const revisedColumns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%",
+      width: "7%",
       align: "center",
     },
     {
@@ -266,24 +266,24 @@ function ChecksheetFormApprovalForTL() {
 
         key === "tableRowId"
           ? newColData.push(
-              new Object({
-                key: key,
-                value: obj[key],
-                rowspan: 1,
-                // colspan: 1,
-                print: false,
-              }),
+            new Object({
+              key: key,
+              value: obj[key],
+              rowspan: 1,
+              // colspan: 1,
+              print: false,
+            }),
 
-              new Object({
-                key: "rowId",
-                value: i + 1,
-                rowspan: 1,
-                // colspan: 1,
-                print: true,
-              })
-            )
+            new Object({
+              key: "rowId",
+              value: i + 1,
+              rowspan: 1,
+              // colspan: 1,
+              print: true,
+            })
+          )
           : key === "isDeleted"
-          ? newColData.push(
+            ? newColData.push(
               new Object({
                 key: key,
                 value: obj[key],
@@ -292,7 +292,7 @@ function ChecksheetFormApprovalForTL() {
                 print: false,
               })
             )
-          : newColData.push(
+            : newColData.push(
               new Object({
                 key: key,
                 value: obj[key],
@@ -514,8 +514,8 @@ function ChecksheetFormApprovalForTL() {
         machineAllData?.checkSheet_data?.checksheet_status === "Implementation"
           ? navigate("/implementationApproval")
           : machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
-          ? navigate("/preparationApproval")
-          : navigate("/planningApproval");
+            ? navigate("/preparationApproval")
+            : navigate("/planningApproval");
 
         // if (
         //   selectedMachineCheckSheetData?.state?.dashboardID ===
@@ -595,12 +595,12 @@ function ChecksheetFormApprovalForTL() {
                 <button
                   onClick={() => {
                     machineAllData?.checkSheet_data?.checksheet_status ===
-                    "Implementation"
+                      "Implementation"
                       ? navigate("/implementationApproval")
                       : machineAllData?.checkSheet_data?.checksheet_status ===
                         "Preparation"
-                      ? navigate("/preparationApproval")
-                      : navigate("/planningApproval");
+                        ? navigate("/preparationApproval")
+                        : navigate("/planningApproval");
 
                     // console.log(
                     //   selectedMachineCheckSheetData?.state?.dashboardID
@@ -801,37 +801,35 @@ function ChecksheetFormApprovalForTL() {
                   <tr>
                     <th
                       className="approvalName"
-                      // colSpan={2}
-                      //  rowSpan={5}
+                    // colSpan={2}
+                    //  rowSpan={5}
                     >
                       {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
                         machineAllData?.checkSheet_data?.approved_by_PRD_TL
                           .length - 1
                       ]
-                        ? `${
-                            machineAllData?.checkSheet_data?.approved_by_PRD_TL[
-                              machineAllData?.checkSheet_data
-                                ?.approved_by_PRD_TL.length - 1
-                            ]
-                          }`
+                        ? `${machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                        machineAllData?.checkSheet_data
+                          ?.approved_by_PRD_TL.length - 1
+                        ]
+                        }`
                         : ""}
                     </th>
                     <th
                       className="approvalName"
-                      // colSpan={2}
-                      //  rowSpan={5}
+                    // colSpan={2}
+                    //  rowSpan={5}
                     >
                       {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
                         machineAllData?.checkSheet_data?.plan_prepared_tm_name
                           .length - 1
                       ]
-                        ? `${
-                            machineAllData?.checkSheet_data
-                              ?.plan_prepared_tm_name[
-                              machineAllData?.checkSheet_data
-                                ?.plan_prepared_tm_name.length - 1
-                            ]
-                          }`
+                        ? `${machineAllData?.checkSheet_data
+                          ?.plan_prepared_tm_name[
+                        machineAllData?.checkSheet_data
+                          ?.plan_prepared_tm_name.length - 1
+                        ]
+                        }`
                         : ""}
                     </th>
                   </tr>
@@ -842,7 +840,7 @@ function ChecksheetFormApprovalForTL() {
         </Container>
       </div>
       {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
-      machineAllData?.checkSheet_data?.checksheet_status ===
+        machineAllData?.checkSheet_data?.checksheet_status ===
         "Implementation" ? (
         <div className="row mt-3">
           <div className="col-6"></div>
@@ -884,7 +882,7 @@ function ChecksheetFormApprovalForTL() {
                     className="ar-table-thead-header1 headerPD  align-items-center"
                     colSpan={2}
                     style={{ textAlign: "center" }}
-                    // rowSpan={2}
+                  // rowSpan={2}
                   >
                     Approved by
                     <br />
@@ -894,7 +892,7 @@ function ChecksheetFormApprovalForTL() {
                     className="ar-table-thead-header1 headerPD"
                     colSpan={2}
                     style={{ textAlign: "center" }}
-                    // rowSpan={2}
+                  // rowSpan={2}
                   >
                     Prepared by
                     <br />
@@ -908,39 +906,38 @@ function ChecksheetFormApprovalForTL() {
                   {machineAllData?.checkSheet_data
                     ?.implementation_approved_by_MTD_TL
                     ? Object.values(
-                        machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_MTD_TL
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
+                      machineAllData?.checkSheet_data
+                        ?.implementation_approved_by_MTD_TL
+                    ).map((index) => (
+                      <td className="ar-table-col1">
+                        {index[index.length - 1]}
+                      </td>
+                    ))
                     : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
+                      <td className="ar-table-col1"></td>
+                    ))}
                 </tr>
                 <tr>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
                     {machineAllData?.checkSheet_data?.approved_by_HOS[
                       machineAllData?.checkSheet_data?.approved_by_HOS.length -
-                        1
+                      1
                     ]
                       ? machineAllData?.checkSheet_data?.approved_by_HOS[
-                          machineAllData?.checkSheet_data?.approved_by_HOS
-                            .length - 1
-                        ]
+                      machineAllData?.checkSheet_data?.approved_by_HOS
+                        .length - 1
+                      ]
                       : ""}
                     <br />
 
                     {machineAllData?.checkSheet_data?.approved_by_TL[
                       machineAllData?.checkSheet_data?.approved_by_TL.length - 1
                     ]
-                      ? `,${
-                          machineAllData?.checkSheet_data?.approved_by_TL[
-                            machineAllData?.checkSheet_data?.approved_by_TL
-                              .length - 1
-                          ]
-                        }`
+                      ? `,${machineAllData?.checkSheet_data?.approved_by_TL[
+                      machineAllData?.checkSheet_data?.approved_by_TL
+                        .length - 1
+                      ]
+                      }`
                       : ""}
                   </th>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
@@ -948,9 +945,9 @@ function ChecksheetFormApprovalForTL() {
                       machineAllData?.checkSheet_data?.sender_tm_name.length - 1
                     ]
                       ? machineAllData?.checkSheet_data?.sender_tm_name[
-                          machineAllData?.checkSheet_data?.sender_tm_name
-                            .length - 1
-                        ]
+                      machineAllData?.checkSheet_data?.sender_tm_name
+                        .length - 1
+                      ]
                       : ""}
                   </th>
                   <th className="ar-table-thead-header1">
@@ -961,16 +958,16 @@ function ChecksheetFormApprovalForTL() {
                   {machineAllData?.checkSheet_data
                     .implementation_approved_by_MTD_HOS
                     ? Object.values(
-                        machineAllData?.checkSheet_data
-                          .implementation_approved_by_MTD_HOS
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
+                      machineAllData?.checkSheet_data
+                        .implementation_approved_by_MTD_HOS
+                    ).map((index) => (
+                      <td className="ar-table-col1">
+                        {index[index.length - 1]}
+                      </td>
+                    ))
                     : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
+                      <td className="ar-table-col1"></td>
+                    ))}
                 </tr>
                 <tr>
                   <th className="ar-table-thead-header1">
@@ -1034,7 +1031,7 @@ function ChecksheetFormApprovalForTL() {
                     rData={rData}
                     isDeletedExists={
                       rData[10]?.["key"] === "isDeleted" &&
-                      rData[10]?.["value"] === true
+                        rData[10]?.["value"] === true
                         ? true
                         : false
                     }
@@ -1052,13 +1049,13 @@ function ChecksheetFormApprovalForTL() {
                   </th>
                   {machineAllData?.checkSheet_data?.PMworkedTMName
                     ? Object.values(
-                        machineAllData?.checkSheet_data?.PMworkedTMName
-                      ).map((index) => (
-                        <td className="ar-table-col1">{index.join(" ,")}</td>
-                      ))
+                      machineAllData?.checkSheet_data?.PMworkedTMName
+                    ).map((index) => (
+                      <td className="ar-table-col1">{index.join(" ,")}</td>
+                    ))
                     : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
+                      <td className="ar-table-col1"></td>
+                    ))}
                 </tr>
                 <tr>
                   <th colSpan={9}></th>
@@ -1070,16 +1067,16 @@ function ChecksheetFormApprovalForTL() {
                   {machineAllData?.checkSheet_data
                     .implementation_approved_by_PRD_TL
                     ? Object.values(
-                        machineAllData?.checkSheet_data
-                          .implementation_approved_by_PRD_TL
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
+                      machineAllData?.checkSheet_data
+                        .implementation_approved_by_PRD_TL
+                    ).map((index) => (
+                      <td className="ar-table-col1">
+                        {index[index.length - 1]}
+                      </td>
+                    ))
                     : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
+                      <td className="ar-table-col1"></td>
+                    ))}
                 </tr>
                 <tr>
                   <th colSpan={9}></th>
@@ -1279,7 +1276,7 @@ function ChecksheetFormApprovalForTL() {
       <br />
       <br />
       <br />
-      <Footer/>
+      <Footer />
     </>
   );
 }

@@ -174,9 +174,9 @@ function ViewChecksheet() {
 
   const revisedColumns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%",
+      width: "7%",
       align: "center",
     },
     {
@@ -299,24 +299,24 @@ function ViewChecksheet() {
 
         key === "tableRowId"
           ? newColData.push(
-              new Object({
-                key: key,
-                value: obj[key],
-                rowspan: 1,
-                // colspan: 1,
-                print: false,
-              }),
+            new Object({
+              key: key,
+              value: obj[key],
+              rowspan: 1,
+              // colspan: 1,
+              print: false,
+            }),
 
-              new Object({
-                key: "rowId",
-                value: i + 1,
-                rowspan: 1,
-                // colspan: 1,
-                print: true,
-              })
-            )
+            new Object({
+              key: "rowId",
+              value: i + 1,
+              rowspan: 1,
+              // colspan: 1,
+              print: true,
+            })
+          )
           : key === "isDeleted"
-          ? newColData.push(
+            ? newColData.push(
               new Object({
                 key: key,
                 value: obj[key],
@@ -325,7 +325,7 @@ function ViewChecksheet() {
                 print: false,
               })
             )
-          : newColData.push(
+            : newColData.push(
               new Object({
                 key: key,
                 value: obj[key],
@@ -644,26 +644,26 @@ function ViewChecksheet() {
                     onClick={
                       () =>
                         selectedMachineCheckSheetData?.state?.dashboardID ===
-                        "FromImplementationApprovalDashboard"
+                          "FromImplementationApprovalDashboard"
                           ? navigate("/implementationApproval")
                           : selectedMachineCheckSheetData?.state
-                              ?.dashboardID === "FromPlanningApprovalDashboard"
-                          ? navigate("/planningApproval")
-                          : selectedMachineCheckSheetData?.state
+                            ?.dashboardID === "FromPlanningApprovalDashboard"
+                            ? navigate("/planningApproval")
+                            : selectedMachineCheckSheetData?.state
                               ?.dashboardID ===
-                            "FromPreparationApprovalDashboard"
-                          ? navigate("/preparationApproval")
-                          : selectedMachineCheckSheetData?.state
-                              ?.dashboardID === "FromSixMonthApprovalDashboard"
-                          ? navigate("/sixMonthApprovalDashboard")
-                          : selectedMachineCheckSheetData?.state
-                              ?.dashboardID ===
-                            "FromMachineWisePMReportDashboard"
-                          ? navigate("/machineWisePmMonthlyReport")
-                          : selectedMachineCheckSheetData?.state
-                              ?.dashboardID === "FromChecksheetDashboard"
-                          ? navigate("/checkSheetDashboard")
-                          : navigate("/checkSheetDashboard")
+                              "FromPreparationApprovalDashboard"
+                              ? navigate("/preparationApproval")
+                              : selectedMachineCheckSheetData?.state
+                                ?.dashboardID === "FromSixMonthApprovalDashboard"
+                                ? navigate("/sixMonthApprovalDashboard")
+                                : selectedMachineCheckSheetData?.state
+                                  ?.dashboardID ===
+                                  "FromMachineWisePMReportDashboard"
+                                  ? navigate("/machineWisePmMonthlyReport")
+                                  : selectedMachineCheckSheetData?.state
+                                    ?.dashboardID === "FromChecksheetDashboard"
+                                    ? navigate("/checkSheetDashboard")
+                                    : navigate("/checkSheetDashboard")
 
                       // context.tm_department === "MTD" &&
                       // context.user_type === "TL/HOSS"
@@ -696,8 +696,8 @@ function ViewChecksheet() {
                   <tr>
                     <th
                       className="ar-table-thead-header1"
-                      // colSpan={2}
-                      //  rowSpan={5}
+                    // colSpan={2}
+                    //  rowSpan={5}
                     >
                       PLAN ACCEPTANCE
                       <br />
@@ -705,8 +705,8 @@ function ViewChecksheet() {
                     </th>
                     <th
                       className="ar-table-thead-header1"
-                      // colSpan={2}
-                      //  rowSpan={5}
+                    // colSpan={2}
+                    //  rowSpan={5}
                     >
                       PLAN PREPARED
                       <br />
@@ -716,37 +716,35 @@ function ViewChecksheet() {
                   <tr>
                     <th
                       className="approvalName"
-                      // colSpan={2}
-                      //  rowSpan={5}
+                    // colSpan={2}
+                    //  rowSpan={5}
                     >
                       {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
                         machineAllData?.checkSheet_data?.approved_by_PRD_TL
                           .length - 1
                       ]
-                        ? `${
-                            machineAllData?.checkSheet_data?.approved_by_PRD_TL[
-                              machineAllData?.checkSheet_data
-                                ?.approved_by_PRD_TL.length - 1
-                            ]
-                          }`
+                        ? `${machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                        machineAllData?.checkSheet_data
+                          ?.approved_by_PRD_TL.length - 1
+                        ]
+                        }`
                         : ""}
                     </th>
                     <th
                       className="approvalName"
-                      // colSpan={2}
-                      //  rowSpan={5}
+                    // colSpan={2}
+                    //  rowSpan={5}
                     >
                       {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
                         machineAllData?.checkSheet_data?.plan_prepared_tm_name
                           .length - 1
                       ]
-                        ? `${
-                            machineAllData?.checkSheet_data
-                              ?.plan_prepared_tm_name[
-                              machineAllData?.checkSheet_data
-                                ?.plan_prepared_tm_name.length - 1
-                            ]
-                          }`
+                        ? `${machineAllData?.checkSheet_data
+                          ?.plan_prepared_tm_name[
+                        machineAllData?.checkSheet_data
+                          ?.plan_prepared_tm_name.length - 1
+                        ]
+                        }`
                         : ""}
                     </th>
                   </tr>
@@ -757,7 +755,7 @@ function ViewChecksheet() {
         </Container>
       </div>
       {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
-      machineAllData?.checkSheet_data?.checksheet_status ===
+        machineAllData?.checkSheet_data?.checksheet_status ===
         "Implementation" ? (
         <div className="row mt-3">
           <div className="col-6"></div>
@@ -801,7 +799,7 @@ function ViewChecksheet() {
                       className="ar-table-thead-header1 headerPD  align-items-center"
                       colSpan={2}
                       style={{ textAlign: "center" }}
-                      // rowSpan={2}
+                    // rowSpan={2}
                     >
                       Approved by
                       <br />
@@ -811,7 +809,7 @@ function ViewChecksheet() {
                       className="ar-table-thead-header1 headerPD"
                       colSpan={2}
                       style={{ textAlign: "center" }}
-                      // rowSpan={2}
+                    // rowSpan={2}
                     >
                       Prepared by
                       <br />
@@ -825,16 +823,16 @@ function ViewChecksheet() {
                     {machineAllData?.checkSheet_data
                       ?.implementation_approved_by_MTD_TL
                       ? Object.values(
-                          machineAllData?.checkSheet_data
-                            ?.implementation_approved_by_MTD_TL
-                        ).map((index) => (
-                          <td className="ar-table-col1">
-                            {index[index.length - 1]}
-                          </td>
-                        ))
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_MTD_TL
+                      ).map((index) => (
+                        <td className="ar-table-col1">
+                          {index[index.length - 1]}
+                        </td>
+                      ))
                       : refArrayForTDMapping.map((index) => (
-                          <td className="ar-table-col1"></td>
-                        ))}
+                        <td className="ar-table-col1"></td>
+                      ))}
                   </tr>
                   <tr>
                     <th className="approvalName" colSpan={2} rowSpan={5}>
@@ -843,33 +841,32 @@ function ViewChecksheet() {
                           .length - 1
                       ]
                         ? machineAllData?.checkSheet_data?.approved_by_HOS[
-                            machineAllData?.checkSheet_data?.approved_by_HOS
-                              .length - 1
-                          ]
+                        machineAllData?.checkSheet_data?.approved_by_HOS
+                          .length - 1
+                        ]
                         : ""}
                       <br />
 
                       {machineAllData?.checkSheet_data?.approved_by_TL[
                         machineAllData?.checkSheet_data?.approved_by_TL.length -
-                          1
+                        1
                       ]
-                        ? `,${
-                            machineAllData?.checkSheet_data?.approved_by_TL[
-                              machineAllData?.checkSheet_data?.approved_by_TL
-                                .length - 1
-                            ]
-                          }`
+                        ? `,${machineAllData?.checkSheet_data?.approved_by_TL[
+                        machineAllData?.checkSheet_data?.approved_by_TL
+                          .length - 1
+                        ]
+                        }`
                         : ""}
                     </th>
                     <th className="approvalName" colSpan={2} rowSpan={5}>
                       {machineAllData?.checkSheet_data?.sender_tm_name[
                         machineAllData?.checkSheet_data?.sender_tm_name.length -
-                          1
+                        1
                       ]
                         ? machineAllData?.checkSheet_data?.sender_tm_name[
-                            machineAllData?.checkSheet_data?.sender_tm_name
-                              .length - 1
-                          ]
+                        machineAllData?.checkSheet_data?.sender_tm_name
+                          .length - 1
+                        ]
                         : ""}
                     </th>
                     <th className="ar-table-thead-header1">
@@ -880,16 +877,16 @@ function ViewChecksheet() {
                     {machineAllData?.checkSheet_data
                       ?.implementation_approved_by_MTD_HOS
                       ? Object.values(
-                          machineAllData?.checkSheet_data
-                            ?.implementation_approved_by_MTD_HOS
-                        ).map((index) => (
-                          <td className="ar-table-col1">
-                            {index[index.length - 1]}
-                          </td>
-                        ))
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_MTD_HOS
+                      ).map((index) => (
+                        <td className="ar-table-col1">
+                          {index[index.length - 1]}
+                        </td>
+                      ))
                       : refArrayForTDMapping.map((index) => (
-                          <td className="ar-table-col1"></td>
-                        ))}
+                        <td className="ar-table-col1"></td>
+                      ))}
                   </tr>
                   <tr>
                     <th className="ar-table-thead-header1">
@@ -934,13 +931,13 @@ function ViewChecksheet() {
                             ? "ar-table-thead-header3"
                             : "ar-table-thead-header"
                         }
-                        // colSpan={
-                        //   tColumn.header === "Inspection item"
-                        //     ? refKey === true
-                        //       ? 2
-                        //       : 0
-                        //     : 0
-                        // }
+                      // colSpan={
+                      //   tColumn.header === "Inspection item"
+                      //     ? refKey === true
+                      //       ? 2
+                      //       : 0
+                      //     : 0
+                      // }
                       >
                         {tColumn.header}
                       </th>
@@ -953,7 +950,7 @@ function ViewChecksheet() {
                       rData={rData}
                       isDeletedExists={
                         rData[10]?.["key"] === "isDeleted" &&
-                        rData[10]?.["value"] === true
+                          rData[10]?.["value"] === true
                           ? true
                           : false
                       }
@@ -971,13 +968,13 @@ function ViewChecksheet() {
                     </th>
                     {machineAllData?.checkSheet_data?.PMworkedTMName
                       ? Object.values(
-                          machineAllData?.checkSheet_data?.PMworkedTMName
-                        ).map((index) => (
-                          <td className="ar-table-col1">{index.join(" ,")}</td>
-                        ))
+                        machineAllData?.checkSheet_data?.PMworkedTMName
+                      ).map((index) => (
+                        <td className="ar-table-col1">{index.join(" ,")}</td>
+                      ))
                       : refArrayForTDMapping.map((index) => (
-                          <td className="ar-table-col1"></td>
-                        ))}
+                        <td className="ar-table-col1"></td>
+                      ))}
                   </tr>
                   <tr>
                     <th colSpan={9}></th>
@@ -989,16 +986,16 @@ function ViewChecksheet() {
                     {machineAllData?.checkSheet_data
                       ?.implementation_approved_by_PRD_TL
                       ? Object.values(
-                          machineAllData?.checkSheet_data
-                            ?.implementation_approved_by_PRD_TL
-                        ).map((index) => (
-                          <td className="ar-table-col1">
-                            {index[index.length - 1]}
-                          </td>
-                        ))
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_PRD_TL
+                      ).map((index) => (
+                        <td className="ar-table-col1">
+                          {index[index.length - 1]}
+                        </td>
+                      ))
                       : refArrayForTDMapping.map((index) => (
-                          <td className="ar-table-col1"></td>
-                        ))}
+                        <td className="ar-table-col1"></td>
+                      ))}
                   </tr>
                   <tr>
                     <th colSpan={9}></th>
@@ -1203,7 +1200,7 @@ function ViewChecksheet() {
       <br />
       <br />
       <br />
-      <Footer/>
+      <Footer />
     </>
   );
 }

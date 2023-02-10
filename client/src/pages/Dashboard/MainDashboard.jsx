@@ -670,7 +670,7 @@ const MainDashboard = () => {
               <Col>
                 <div class="container-fluid px-2">
                   <div class="row cell gx-0">
-                    <Col lg={3} md={12} sm={12} className="mt-3">
+                    <Col lg={3} md={12} sm={12} className="mt-1">
                       <Row className="mb-2">
                         <span>
                           <b> &nbsp;Section: &nbsp;</b>
@@ -710,13 +710,13 @@ const MainDashboard = () => {
 
                             {sectionList !== ""
                               ? sectionList.sectionArray.map((option) => {
-                                  return (
-                                    <option value={option}>{option}</option>
-                                  );
-                                })
+                                return <option value={option}>{option}</option>;
+                              })
                               : ""}
                           </select>
                         </span>
+
+
                       </Row>
 
                       <Row>
@@ -863,7 +863,9 @@ const MainDashboard = () => {
                         )}
                       </Row>
                     </Col>
-                    <Col lg={3} md={12} sm={12} className="mt-3">
+                    <Col lg={3} md={12} sm={12} className="mt-1">
+
+
                       {context.user_type === "Section-Admin" ? (
                         <Col
                           sm={6}
@@ -889,7 +891,7 @@ const MainDashboard = () => {
                         ""
                       )}
                     </Col>
-                    <Col lg={6} md={12} sm={12} className="mt-3">
+                    <Col lg={6} md={12} sm={12} className="mt-1">
                       <Row>
                         <Col sm>
                           <YearDropDownForMainDashboard
@@ -908,90 +910,110 @@ const MainDashboard = () => {
                   </div>
                 </div>
 
-                <Row
-                  className="d-flex align-content-center justify cell m-2 pb-3 g-3"
+
+
+
+                <div
+                  className=" row cell mx-2 gy-3 mt-0 pt-0"
                   style={{ background: "#E0E0E0" }}
                 >
-                  <Col
-                    className=" col-lg-2 col-md-6 col-sm-6 "
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                    }}
-                  >
-                    <RectangleIcon
-                      className="bg-white"
-                      style={{ color: "#ffffff" }}
-                    />{" "}
-                    &nbsp;Schedule
-                  </Col>
-                  <Col
-                    className="col-lg-2 col-md-6 col-sm-6 "
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                    }}
-                  >
-                    <RectangleIcon
-                      style={{ background: "#ffff59", color: "#ffff59" }}
-                    />{" "}
-                    &nbsp;Ongoing
-                  </Col>
-                  <Col
-                    className=" col-lg-2 col-md-6 col-sm-6 "
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                    }}
-                  >
-                    <RectangleIcon
-                      style={{ background: "#5fe15f", color: "5fe15f" }}
-                    />{" "}
-                    &nbsp;Completed
-                  </Col>
-                  <Col
-                    className=" col-lg-2 col-md-6 col-sm-6 "
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                    }}
-                  >
-                    <RectangleIcon
-                      style={{ background: "#ababab", color: "#ababab" }}
-                    />{" "}
-                    &nbsp;Not Schedule
+                  &nbsp;&nbsp;<Col lg={7} md={12} className="mt-0">
+                    <p><b>Current Month</b></p>
+                    <Row className="cell" >
+                      <Col lg={3} md={3} sm={3}
+
+                        style={{
+
+                          fontSize: "14px",
+                        }}
+                      >
+                        <RectangleIcon
+                          className="bg-white"
+                          style={{ color: "#ffffff", fontSize: "14px" }}
+                        />{" "}
+                        &nbsp;Schedule
+                      </Col>
+                      <Col
+                        lg={3} md={3} sm={3}
+                        style={{
+
+                          fontSize: "14px",
+                        }}
+                      >
+                        <RectangleIcon
+                          style={{ background: "#ffff59", color: "#ffff59", fontSize: "14px" }}
+                        />{" "}
+                        &nbsp;Ongoing
+                      </Col>
+                      <Col
+                        lg={3} md={3} sm={3}
+                        style={{
+
+                          fontSize: "14px",
+                        }}
+                      >
+                        <RectangleIcon
+                          style={{ background: "#5fe15f", color: "5fe15f", fontSize: "14px" }}
+                        />{" "}
+                        &nbsp;Completed
+                      </Col>
+                      <Col
+                        lg={3} md={3} sm={3}
+                        style={{
+
+                          fontSize: "14px",
+                        }}
+                      >
+                        <RectangleIcon
+                          style={{ background: "#ababab", color: "#ababab", fontSize: "14px" }}
+                        />{" "}
+                        &nbsp;Not Schedule
+                      </Col>
+
+                    </Row>
+
+                  </Col>&nbsp;&nbsp;
+
+
+                  <Col lg={4} md={12} sm={12} className="mt-0">
+                    <p><b>Previous Month</b></p>
+                    <Row className="cell">
+                      <Col
+                         lg={6} md={3} sm={3}
+                        style={{
+
+                          fontSize: "14px",
+                        }}
+                      >
+                        <RectangleIcon
+                          style={{ background: "#ffc356", color: "#ffc356", fontSize: "14px" }}
+                        />{" "}
+                        &nbsp;Done with delay
+                      </Col>
+                      <Col
+                         lg={6} md={3} sm={3}
+                        style={{
+
+                          fontSize: "14px",
+                        }}
+                      >
+                        <RectangleIcon
+                          style={{ background: "#ff8888", color: "#ff8888", fontSize: "14px" }}
+                        />{" "}
+                        &nbsp;PM Skip
+                      </Col>
+                    </Row>
+
                   </Col>
 
-                  <Col
-                    className=" col-lg-2 col-md-6 col-sm-6 "
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                    }}
-                  >
-                    <RectangleIcon
-                      style={{ background: "#ffc356", color: "#ffc356" }}
-                    />{" "}
-                    &nbsp;Done with delay
-                  </Col>
-                  <Col
-                    className=" col-lg-2 col-md-6 col-sm-6 "
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                    }}
-                  >
-                    <RectangleIcon
-                      style={{ background: "#ff8888", color: "#ff8888" }}
-                    />{" "}
-                    &nbsp;No completion / PM Skip
-                  </Col>
-                </Row>
+
+
+                </div>
 
                 {/* <div>{checkSheetState}</div> */}
                 {/* dashboardCard section */}
 
-                <div className="dashboardCard mx-2 mt-4">
+                <div className="dashboardCard mx-2">
                   {/* {allDataSectionWise !== ""
             ? console.log(allDataSectionWise.subSectionsData)
             : ""} */}
@@ -2052,29 +2074,29 @@ const MainDashboard = () => {
                                                                             ?.PMStatus[
                                                                             selectedMonth
                                                                           ] ===
-                                                                          "Completed"
-                                                                        ? "#5fe15f"
-                                                                        : machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                          "Done with delay"
-                                                                        ? "#ffc356"
-                                                                        : machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                            "PM Skip" ||
-                                                                          machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                            "No Completion"
-                                                                        ? "#ff8888"
-                                                                        : "#ababab"
+                                                                            "Completed"
+                                                                            ? "#5fe15f"
+                                                                            : machine
+                                                                              .checkSheet_data
+                                                                              ?.PMStatus[
+                                                                              selectedMonth
+                                                                            ] ===
+                                                                              "Done with delay"
+                                                                              ? "#ffc356"
+                                                                              : machine
+                                                                                .checkSheet_data
+                                                                                ?.PMStatus[
+                                                                                selectedMonth
+                                                                              ] ===
+                                                                                "PM Skip" ||
+                                                                                machine
+                                                                                  .checkSheet_data
+                                                                                  ?.PMStatus[
+                                                                                selectedMonth
+                                                                                ] ===
+                                                                                "No Completion"
+                                                                                ? "#ff8888"
+                                                                                : "#ababab"
                                                                       : "#ababab",
                                                                 }}
                                                                 className="machine"

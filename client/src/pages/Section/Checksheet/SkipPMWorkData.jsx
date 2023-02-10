@@ -53,9 +53,9 @@ const SkipPMWorkData = () => {
 
   const machineHeader = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%",
+      width: "7%",
       align: "center",
     },
     {
@@ -367,7 +367,7 @@ const SkipPMWorkData = () => {
       <br />
       <br />
 
-      <Footer/>
+      <Footer />
     </>
   );
 };

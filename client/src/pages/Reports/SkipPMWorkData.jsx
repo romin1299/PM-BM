@@ -56,7 +56,7 @@ const SkipPMWorkData = () => {
     {
       title: "SR. NO.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%",
+      width: "7%",
       align: "center",
     },
     {
@@ -367,7 +367,7 @@ const SkipPMWorkData = () => {
       <br />
       <br />
       <br />
-      <Footer/>
+      <Footer />
     </>
   );
 };

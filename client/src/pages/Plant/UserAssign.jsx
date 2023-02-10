@@ -26,7 +26,7 @@ function UserAssigns() {
 
   const columns = [
     {
-      title: "SR. NO.",
+      title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       width: "10%",
       align: "center",
@@ -451,7 +451,7 @@ function UserAssigns() {
       <br />
       <br />
       <br />
-      <Footer/>
+      <Footer />
     </>
   );
 }

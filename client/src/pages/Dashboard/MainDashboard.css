@@ -103,7 +103,7 @@ select {
     background-color: white;
     text-align: left;
     color: #E71E25;
-    padding: 0.1rem 1rem;
+    /* padding: 0.1rem 1rem; */
 
 }
 
@@ -148,7 +148,7 @@ select {
     /* border: 2px solid; */
     /* background-color: white; */
     text-align: center;
-    padding: 0.5rem;
+    /* padding: 0.5rem; */
     /* overflow: hidden; */
 
     /* margin: auto; */
@@ -168,9 +168,9 @@ select {
 }
 
 .machine {
-    padding: 0.2rem;
+    padding: 0.1rem;
     /* width: 3rem; */
-    height: 2rem;
+    height: 1.5rem;
     /* flex: 0.1; */
     display: flex;
     white-space: nowrap;
