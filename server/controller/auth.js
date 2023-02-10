@@ -4390,8 +4390,8 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
             } else if (selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status)?.length - 1] === "Pending") {
                 let hosApproval = "Accepted"
 
-
-                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1) })
+                let x =  selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1)
+                const requestSenderUserData = await User.findOne({ tm_no: x })
 
 
 
