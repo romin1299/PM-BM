@@ -174,7 +174,7 @@ const CheckSheetDashboard = () => {
 
   const filterDataBasedOnSelectedStatus = (selectedStatus, data) => {
     let filterData = [];
-    console.log(data);
+    // console.log(data);
     for (let i = 0; i < (data ? data : tableData).length; i++) {
       if (selectedStatus === "Preparation") {
         if (
@@ -197,6 +197,7 @@ const CheckSheetDashboard = () => {
 
     // console.log(filterData);
     setTableData1(filterData);
+    setLoadingAnimationState(<NotFound />);
   };
 
   const notifyForDeleteChecksheet = () => {
@@ -437,9 +438,10 @@ const CheckSheetDashboard = () => {
           (rowData) => {
             return {
               hidden:
-                context?.user_type === "Operator" ? context?.user_type === "Operator" :
-                  rowData.checkSheet_data === undefined ||
-                rowData.checkSheet_data === null,
+                context?.user_type === "Operator"
+                  ? context?.user_type === "Operator"
+                  : rowData.checkSheet_data === undefined ||
+                    rowData.checkSheet_data === null,
               icon: () => (
                 <button className="btn-delete">
                   <DeleteForeverIcon className="svg-font" />
@@ -470,6 +472,8 @@ const CheckSheetDashboard = () => {
               ),
               // tooltip: <h1>I am a tooltip</h1>,
               onClick: (event, selectedRow) => {
+                // console.log(selectedRow, lineData);
+
                 navigate("/checksheetCreationDashboard", {
                   state: { selectedRow: selectedRow, lineData: lineData },
                 });
@@ -524,6 +528,8 @@ const CheckSheetDashboard = () => {
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
   }, [selectedYear]);
+
+  console.log(tableData);
 
   // let preparationDataArray = [],
   //   underPreparationDataArray = [],

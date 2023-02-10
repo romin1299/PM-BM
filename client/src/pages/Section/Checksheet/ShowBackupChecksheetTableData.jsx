@@ -22,7 +22,6 @@ import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
 
-
 const ShowBackupChecksheetTableData = ({}) => {
   const [tableData, setTableData] = useState([]);
 
@@ -30,7 +29,6 @@ const ShowBackupChecksheetTableData = ({}) => {
 
   const selectedMachineData = useLocation();
   const navigate = useNavigate();
-
 
   const columns = [
     {
@@ -103,7 +101,10 @@ const ShowBackupChecksheetTableData = ({}) => {
   ];
 
   useEffect(() => {
-    setTableData(selectedMachineData.state.selectedRowForViewForm.checkSheet_data[0].checkSheet)
+    setTableData(
+      selectedMachineData.state.selectedRowForViewForm.checkSheet_data[0]
+        .checkSheet
+    );
   }, []);
 
   function compareCycle(a, b) {
@@ -122,17 +123,14 @@ const ShowBackupChecksheetTableData = ({}) => {
   }
 
   const showBackupChecksheetTableDataOfCSV = [
-    
     {
       label: "C",
-      field: "category",
-      
+      key: "category",
     },
     {
       label: "Inspection Item",
       // editable: false,
       key: "inspection_parent_name",
-      
     },
     {
       label: "Inspection Point",
@@ -188,8 +186,7 @@ const ShowBackupChecksheetTableData = ({}) => {
         item.action,
         item.cycle,
         item.personInCharge,
-        item.PM_time
-        
+        item.PM_time,
       ];
       rows.push(rowArrayOfTable);
     });
@@ -218,7 +215,7 @@ const ShowBackupChecksheetTableData = ({}) => {
         <CSVLink
           headers={showBackupChecksheetTableDataOfCSV}
           className="downloadCSV text-decoration-none"
-          data={tableData ? tableData : []}
+          data={tableData?.length > 0 ? tableData : []}
           filename={`Backup_Checksheet_Inception_Data_${timeStamp()}`}
           style={{ textDecoration: "none", color: "white" }}
         >
@@ -229,48 +226,55 @@ const ShowBackupChecksheetTableData = ({}) => {
       tooltip: "PDF",
       isFreeAction: true,
     },
-  ]
+  ];
 
   return (
     <>
       <div style={{ margin: "0.5rem" }}>
         <div className="pageCard">
-          
-            <button
-            onClick={()=> navigate('/backupDataOfCheckSheet')}
-              style={{
-                border: "none",
-                background: "white",
-                borderRadius: 5,
-              }}
-              className="mb-2"
-            >
-              <ArrowBackIcon />
-            </button>
-          
+          <button
+            onClick={() => navigate("/backupDataOfCheckSheet")}
+            style={{
+              border: "none",
+              background: "white",
+              borderRadius: 5,
+            }}
+            className="mb-2"
+          >
+            <ArrowBackIcon />
+          </button>
 
           <div class="row g-3">
             <div class="col-4">
               <div class="p-2 border bg-white rounded">
-                <span >
-                  <b>Line Name:{" "}</b>
-                  {selectedMachineData.state.selectedRowForViewForm.line_names.line_name}
+                <span>
+                  <b>Line Name: </b>
+                  {
+                    selectedMachineData.state.selectedRowForViewForm.line_names
+                      .line_name
+                  }
                 </span>
               </div>
             </div>
             <div class="col-4">
               <div class="p-2 border bg-white rounded">
-                <span >
-                  <b>Machine Name:{" "}</b>
-                  {selectedMachineData.state.selectedRowForViewForm.machine_name}
+                <span>
+                  <b>Machine Name: </b>
+                  {
+                    selectedMachineData.state.selectedRowForViewForm
+                      .machine_name
+                  }
                 </span>
               </div>
             </div>
             <div class="col-4">
               <div class="p-2 border bg-white rounded">
-                <span >
-                  <b>Machine No:{" "}</b>
-                  {selectedMachineData.state.selectedRowForViewForm.machine_code}
+                <span>
+                  <b>Machine No: </b>
+                  {
+                    selectedMachineData.state.selectedRowForViewForm
+                      .machine_code
+                  }
                 </span>
               </div>
             </div>
@@ -287,7 +291,7 @@ const ShowBackupChecksheetTableData = ({}) => {
                   // }
                 }
               }
-              actions= {showBackupChecksheetTableAction}
+              actions={showBackupChecksheetTableAction}
               icons={tableIcons}
               columns={columns}
               data={tableData?.sort(compareCycle)}
@@ -366,11 +370,10 @@ const ShowBackupChecksheetTableData = ({}) => {
                 },
                 headerStyle: {
                   fontSize: "14px",
-                  fontWeight: "bold"
-                }
+                  fontWeight: "bold",
+                },
               }}
             />
-            
           </div>
         </div>
       </div>
@@ -378,7 +381,7 @@ const ShowBackupChecksheetTableData = ({}) => {
       <br />
       <br />
 
-      <Footer/>
+      <Footer />
     </>
   );
 };

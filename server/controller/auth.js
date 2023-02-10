@@ -4107,11 +4107,16 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
         // console.log(
         //     senderApprovalMonth, selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status
         // )
+
         if (request === "Yes") {
             if (selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status)?.length - 1] === "Pending") {
                 let tlApproval = "Accepted"
 
-                // selected_machine_data.tl_approval_status[(selected_machine_data.tl_approval_status).length - 1] = "Accepted"
+                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1) })
+
+                // console.log(
+                //     selected_machine_data.tl_approval_status
+                // )
                 selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1] = "Accepted"
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                     $set: {
@@ -4131,17 +4136,16 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 const findAssignHosName = await User.findOne({ email: selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.assign_HOS).length - 1] })
 
 
-
                 subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
                 title = `Checksheet is Approved`
                 greetings = `Sir\\Ma'am`
                 bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
-      
+
                         <tr>
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
                         </tr>
-                        
+
                         <tr style="background-color: #dddddd;">
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
@@ -4151,22 +4155,22 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
                         </tr>
-                        
+
                         <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
                         </tr>
-                        
+
                         <tr>
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved by</td>
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
                         </tr>   
-                        
+
                         <tr style="background-color: #dddddd;">
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">${preparation_TL_HOSS_date}</td>
                         </tr>
-                        
+
                     </table>`
 
 
@@ -4183,13 +4187,20 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                     selected_machine_data.machine_code,
                     selected_machine_data.machine_name,
                     selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                    requestSenderUserData?.user_type === "Operator"
+                        ? undefined
+                        : selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1] || undefined,
                     selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
                     tlApproval, undefined, undefined)
             } else if (selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status)?.length - 1] === "Accepted" &&
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] === "Pending") {
                 let hosApproval = "Accepted"
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] = "Accepted"
+
+
+                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1) })
+
+
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                     $set: {
                         "checkSheet_data.$[outer].hos_approval_status": selected_machine_data.checkSheet_data.hos_approval_status, "checkSheet_data.$[outer].checksheet_status": "Planning",
@@ -4201,64 +4212,80 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 }, {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
-                //  console.log(TLApprovalStatusUpdate)
-                subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
-                title = `Checksheet is Approved`
-                greetings = `Sir\\Ma'am`
-                bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
-      
-                        <tr>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
-                        </tr>
-                        
-                        <tr style="background-color: #dddddd;">
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
-                        </tr>
 
-                        <tr>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
-                        </tr>
-                        
-                        <tr style="background-color: #dddddd;">
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
-                        </tr>
-                        
-                        <tr>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved by</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
-                        </tr>   
-                        
-                        <tr style="background-color: #dddddd;">
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${preparation_HOS_date}</td>
-                        </tr>
-                        
-                    </table>`
+                if (
+                    requestSenderUserData?.user_type !== "Operator"
+
+                ) {
+
+                    //  console.log(TLApprovalStatusUpdate)
+                    subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+                    title = `Checksheet is Approved`
+                    greetings = `Sir\\Ma'am`
+                    bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+
+                            <tr>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                            </tr>
+                            
+                            <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                            </tr>
+
+                            <tr>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                            </tr>
+                            
+                            <tr style="background-color: #dddddd;">
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                            </tr>
+                            
+                            <tr>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved by</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+                            </tr>   
+                            
+                            <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${preparation_HOS_date}</td>
+                            </tr>
+                            
+                        </table>`
 
 
 
-                sendApproval(
-                    subject,
-                    title,
-                    greetings,
-                    bodyTable,
-                    undefined,
-                    undefined,
-                    undefined,
-                    undefined,
-                    undefined,
-                    undefined,
-                    undefined,
-                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                    undefined,
-                    hosApproval, undefined, undefined)
+                    sendApproval(
+                        subject,
+                        title,
+                        greetings,
+                        bodyTable,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                        undefined,
+                        hosApproval, undefined, undefined)
+                }
+
+
+
 
             } else if (selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status)?.length - 1] === "Pending") {
                 let hosApproval = "Accepted"
+
+
+                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1) })
+
+
+
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] = "Accepted"
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                     $set: {
@@ -4271,60 +4298,64 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 }, {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
-                subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
-                title = `Checksheet is Approved`
-                greetings = `Sir\\Ma'am`
-                bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
-      
-                        <tr>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
-                        </tr>
-                        
-                        <tr style="background-color: #dddddd;">
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
-                        </tr>
 
-                        <tr>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
-                        </tr>
-                        
-                        <tr style="background-color: #dddddd;">
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
-                        </tr>
-                        
-                        <tr>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved by</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
-                        </tr>   
-                        
-                        <tr style="background-color: #dddddd;">
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${preparation_HOS_date}</td>
-                        </tr>
-                        
-                    </table>`
+                if (requestSenderUserData?.user_type !== "Operator") {
+
+                    subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+                    title = `Checksheet is Approved`
+                    greetings = `Sir\\Ma'am`
+                    bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+          
+                            <tr>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                            </tr>
+                            
+                            <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                            </tr>
+    
+                            <tr>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                            </tr>
+                            
+                            <tr style="background-color: #dddddd;">
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                            </tr>
+                            
+                            <tr>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved by</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+                            </tr>   
+                            
+                            <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${preparation_HOS_date}</td>
+                            </tr>
+                            
+                        </table>`
 
 
 
-                sendApproval(
-                    subject,
-                    title,
-                    greetings,
-                    bodyTable,
-                    undefined,
-                    undefined,
-                    undefined,
-                    undefined,
-                    undefined,
-                    undefined,
-                    undefined,
-                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                    undefined,
-                    hosApproval, undefined, undefined)
+                    sendApproval(
+                        subject,
+                        title,
+                        greetings,
+                        bodyTable,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                        undefined,
+                        hosApproval, undefined, undefined)
+                }
             } else if (selected_machine_data.checkSheet_data.prd_tl_approval_status[(selected_machine_data.checkSheet_data.prd_tl_approval_status)?.length - 1] === "Pending") {
                 for (let i = 0; i < selected_machine_data.checkSheet_data.checkSheet.length; i++) {
                     for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
@@ -4857,6 +4888,10 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 let tlApproval = "Rejected"
                 selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1] = "Rejected"
 
+
+                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1) })
+
+
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                     $set: { "checkSheet_data.$[outer].tl_approval_status": selected_machine_data.checkSheet_data.tl_approval_status, },
                     $push: { "checkSheet_data.$[outer].preparation_TL_HOSS_date": preparation_TL_HOSS_date, "checkSheet_data.$[outer].approved_by_TL": "", "checkSheet_data.$[outer].approved_by_HOS": "", "checkSheet_data.$[outer].preparation_HOS_date": "", "checkSheet_data.$[outer].rejected_remarks": rejected_remarks }
@@ -4919,13 +4954,19 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                     selected_machine_data.machine_code,
                     selected_machine_data.machine_name,
                     selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                    requestSenderUserData?.user_type === "Operator"
+                        ? undefined
+                        : selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1] || undefined,
                     selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
                     tlApproval, undefined, undefined,
                     rejected_remarks)
             } else if (selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1] === "Accepted" && selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] === "Pending") {
                 let hosApproval = "Rejected"
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] = "Rejected"
+
+                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1) })
+
+
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                     $set: { "checkSheet_data.$[outer].hos_approval_status": selected_machine_data.checkSheet_data.hos_approval_status, },
                     $push: { "checkSheet_data.$[outer].preparation_HOS_date": preparation_HOS_date, "checkSheet_data.$[outer].rejected_remarks": rejected_remarks }
@@ -4933,42 +4974,44 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
 
+
+
                 subject = `Checksheet Preparation Rejected (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
                 title = `Checksheet is rejected for Below reason`
                 greetings = `TM`
                 bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
-
-                        <tr>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Reason Detail</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${rejected_remarks}</td>
-                        </tr>
-
-                        <tr style="background-color: #dddddd;">
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
-                        </tr>
+    
+                            <tr>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">Reason Detail</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${rejected_remarks}</td>
+                            </tr>
+    
+                            <tr style="background-color: #dddddd;">
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                            </tr>
+                            
+                            <tr >
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                            </tr>
+    
+                            <tr style="background-color: #dddddd;">
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                            </tr>
                         
-                        <tr >
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
-                        </tr>
-
-                        <tr style="background-color: #dddddd;">
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
-                        </tr>
-                    
-                        <tr >
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Rejected by</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
-                        </tr>   
-                        
-                        <tr style="background-color: #dddddd;">
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${preparation_HOS_date}</td>
-                        </tr>
-                        
-                    </table>`
+                            <tr >
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">Rejected by</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${loggedUserData?.tm_name}</td>
+                            </tr>   
+                            
+                            <tr style="background-color: #dddddd;">
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">Date and Time</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${preparation_HOS_date}</td>
+                            </tr>
+                            
+                        </table>`
 
 
                 sendApproval(
@@ -4982,12 +5025,20 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                     selected_machine_data.machine_code,
                     selected_machine_data.machine_name,
                     selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                    requestSenderUserData?.user_type === "Operator"
+                        ? undefined
+                        : selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1] || undefined,
                     undefined,
                     selected_machine_data.checkSheet_data.tl_approval_status[(selected_machine_data.checkSheet_data.tl_approval_status).length - 1],
                     hosApproval, undefined, rejected_remarks)
+
             } else if (selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] === "Pending") {
                 let hosApproval = "Rejected"
+
+                const requestSenderUserData = await User.findOne({ tm_no: selected_machine_data?.checkSheet_data?.sender_tm_no?.at(-1) })
+
+
+
                 selected_machine_data.checkSheet_data.hos_approval_status[(selected_machine_data.checkSheet_data.hos_approval_status).length - 1] = "Rejected"
                 const TLApprovalStatusUpdate = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                     $set: { "checkSheet_data.$[outer].hos_approval_status": selected_machine_data.checkSheet_data.hos_approval_status, },
@@ -4996,10 +5047,12 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
 
-                subject = `Checksheet Preparation Rejected (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
-                title = `Checksheet is rejected for Below reason`
-                greetings = `TM`
-                bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+                if (requestSenderUserData?.user_type !== "Operator") {
+
+                    subject = `Checksheet Preparation Rejected (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
+                    title = `Checksheet is rejected for Below reason`
+                    greetings = `TM`
+                    bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
 
                         <tr>
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Reason Detail</td>
@@ -5034,22 +5087,23 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                     </table>`
 
 
-                sendApproval(
-                    subject,
-                    title,
-                    greetings,
-                    bodyTable,
-                    undefined,
-                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1], selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-                    selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-                    selected_machine_data.machine_code,
-                    selected_machine_data.machine_name,
-                    selected_machine_data.checkSheet_data.checksheet_status,
-                    selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
-                    undefined,
-                    undefined,
-                    hosApproval,
-                    "No", rejected_remarks)
+                    sendApproval(
+                        subject,
+                        title,
+                        greetings,
+                        bodyTable,
+                        undefined,
+                        selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1], selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
+                        selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
+                        selected_machine_data.machine_code,
+                        selected_machine_data.machine_name,
+                        selected_machine_data.checkSheet_data.checksheet_status,
+                        selected_machine_data.checkSheet_data.checkSheetSendingUser[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+                        undefined,
+                        undefined,
+                        hosApproval,
+                        "No", rejected_remarks)
+                }
             } else if (selected_machine_data.checkSheet_data.prd_tl_approval_status[(selected_machine_data.checkSheet_data.prd_tl_approval_status).length - 1] === "Pending") {
                 let prdTlApproval = "Rejected"
                 selected_machine_data.checkSheet_data.prd_tl_approval_status[(selected_machine_data.checkSheet_data.prd_tl_approval_status).length - 1] = "Rejected"

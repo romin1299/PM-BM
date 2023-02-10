@@ -378,6 +378,13 @@ function App() {
                   element={<SpareReportMainDashboard />}
                 />
 
+                <Route
+                  path="/checksheetCreationDashboard"
+                  element={<ChecksheetCreationDashboard />}
+                />
+
+                <Route path="/checkSheetForm" element={<CheckSheetForm />} />
+
                 {/* <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
                 <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
                 <Route path="/checkSheetForm" element={<CheckSheetForm />} /> */}
