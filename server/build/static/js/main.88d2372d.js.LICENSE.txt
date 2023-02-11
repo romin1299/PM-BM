@@ -86,16 +86,16 @@
  */
 
 /*!
- * @kurkle/color v0.3.1
+ * @kurkle/color v0.3.2
  * https://github.com/kurkle/color#readme
- * (c) 2022 Jukka Kurkela
+ * (c) 2023 Jukka Kurkela
  * Released under the MIT License
  */
 
 /*!
- * Chart.js v4.1.1
+ * Chart.js v4.2.0
  * https://www.chartjs.org
- * (c) 2022 Chart.js Contributors
+ * (c) 2023 Chart.js Contributors
  * Released under the MIT License
  */
 
@@ -525,7 +525,7 @@
  */
 
 /**
- * @remix-run/router v1.2.1
+ * @remix-run/router v1.3.2
  *
  * Copyright (c) Remix Software Inc.
  *
@@ -551,7 +551,7 @@
  */
 
 /**
- * React Router DOM v6.6.1
+ * React Router DOM v6.8.1
  *
  * Copyright (c) Remix Software Inc.
  *
@@ -562,7 +562,7 @@
  */
 
 /**
- * React Router v6.6.1
+ * React Router v6.8.1
  *
  * Copyright (c) Remix Software Inc.
  *
