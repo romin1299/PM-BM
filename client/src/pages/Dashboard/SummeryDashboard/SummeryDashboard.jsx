@@ -38,7 +38,7 @@ const SummeryDashboard = () => {
         selectedMonth
       ).then((result1) => {
         setSectionInfo(result1?.monthlyChartDataOfSummery);
-        // console.log(result1);
+        console.log(result1);
         // postSectionToGetSubSectionInfo(result1?.SectionInfo).then((result3) => {
         //   console.log(result3);
         //   setSubSectionInfo(result3.subSectionInfo);

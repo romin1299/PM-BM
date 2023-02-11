@@ -789,6 +789,40 @@ const CheckSheet = ({
     }
   };
 
+  if (
+    // (machineAllData?.checkSheet_data?.PMStatus[
+    //   monthForCompareSystemMonth
+    // ] === "Completed") ||
+    // (machineAllData?.checkSheet_data?.PMStatus[
+    //   previousMonth
+    // ] === "Done with delay" &&
+    //   machineAllData?.checkSheet_data?.PMStatus[
+    //     monthForCompareSystemMonth
+    //   ] === "")
+
+    machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
+      monthForCompareSystemMonth
+    ]?.[
+      machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
+        monthForCompareSystemMonth
+      ]?.length - 1
+    ] !== "Rejected"
+  ) {
+    console.log(
+      "true",
+
+      machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
+        monthForCompareSystemMonth
+      ]?.[
+        machineAllData?.checkSheet_data
+          ?.implemetation_mtd_hos_approval_status?.[monthForCompareSystemMonth]
+          ?.length - 1
+      ]
+    );
+  } else {
+    console.log("False");
+  }
+
   return (
     <>
       {workOnImplementationPM}
@@ -1131,7 +1165,7 @@ const CheckSheet = ({
                                 machineAllData?.checkSheet_data
                                   ?.implemetation_mtd_tl_approval_status?.[
                                   tColumn?.header
-                                ] - 1
+                                ]?.length - 1
                               ] === "Rejected" ||
                               machineAllData?.checkSheet_data
                                 ?.implemetation_mtd_hos_approval_status?.[
@@ -1140,7 +1174,7 @@ const CheckSheet = ({
                                 machineAllData?.checkSheet_data
                                   ?.implemetation_mtd_hos_approval_status?.[
                                   tColumn?.header
-                                ] - 1
+                                ]?.length - 1
                               ] === "Rejected" ? (
                                 <button
                                   style={{
@@ -1660,19 +1694,6 @@ const CheckSheet = ({
                       machineAllData?.checkSheet_data
                         ?.implemetation_mtd_hos_approval_status ? (
                         machineAllData?.checkSheet_data
-                          ?.implemetation_prd_tl_approval_status[
-                          monthForCompareSystemMonth
-                        ][
-                          machineAllData?.checkSheet_data
-                            ?.implemetation_prd_tl_approval_status?.[
-                            monthForCompareSystemMonth
-                          ]?.length - 1
-                        ] === "Rejected" ||
-                        machineAllData?.checkSheet_data
-                          ?.implemetation_prd_tl_approval_status?.[
-                          monthForCompareSystemMonth
-                        ]?.length === 0 ||
-                        machineAllData?.checkSheet_data
                           ?.implemetation_mtd_tl_approval_status?.[
                           monthForCompareSystemMonth
                         ][
@@ -1962,7 +1983,16 @@ const CheckSheet = ({
                                   ] === "Done with delay" &&
                                     machineAllData?.checkSheet_data?.PMStatus[
                                       monthForCompareSystemMonth
-                                    ] === "" &&
+                                    ] === "") &&
+                                    (machineAllData?.checkSheet_data
+                                    ?.implemetation_mtd_hos_approval_status?.[
+                                    monthForCompareSystemMonth
+                                  ]?.[
+                                    machineAllData?.checkSheet_data
+                                      ?.implemetation_mtd_hos_approval_status?.[
+                                      monthForCompareSystemMonth
+                                    ]?.length - 1
+                                  ] == "Pending") ? 
                                     machineAllData?.checkSheet_data
                                       ?.implemetation_mtd_tl_approval_status?.[
                                       monthForCompareSystemMonth
@@ -1970,8 +2000,8 @@ const CheckSheet = ({
                                       machineAllData?.checkSheet_data
                                         ?.implemetation_mtd_tl_approval_status?.[
                                         monthForCompareSystemMonth
-                                      ] - 1
-                                    ] !== "Rejected") ||
+                                      ]?.length - 1
+                                    ] !== "Rejected" :
                                   machineAllData?.checkSheet_data
                                     ?.implemetation_mtd_hos_approval_status?.[
                                     monthForCompareSystemMonth
@@ -1979,7 +2009,7 @@ const CheckSheet = ({
                                     machineAllData?.checkSheet_data
                                       ?.implemetation_mtd_hos_approval_status?.[
                                       monthForCompareSystemMonth
-                                    ] - 1
+                                    ]?.length - 1
                                   ] !== "Rejected" ? (
                                     <form onSubmit={formik1.handleSubmit}>
                                       <div className="m-2 p-3 border bg-white rounded">
@@ -2175,7 +2205,7 @@ const CheckSheet = ({
                                             className="btn-approval"
                                             type="submit"
                                           >
-                                            Send for Approval
+                                            Send for Approval 123
                                           </button>
                                         </div>
                                       </div>

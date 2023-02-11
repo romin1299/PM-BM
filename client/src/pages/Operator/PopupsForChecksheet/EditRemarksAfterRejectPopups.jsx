@@ -413,9 +413,9 @@ const EditRemarksAfterRejectPopups = ({
                   //call the update user function and pass the user data
                   // updateUserInfo(updatedRow);
 
-                  console.log(updatedRow);
+                  // console.log(updatedRow);
 
-                  // submitRemarksAfterTLOrHosRejection(updatedRow, oldRow);
+                  submitRemarksAfterTLOrHosRejection(updatedRow, oldRow);
                   setTimeout(() => {
                     // setRefKey2((refKey2) => refKey2 + 1);
                     resolve();
