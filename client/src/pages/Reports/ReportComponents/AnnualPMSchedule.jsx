@@ -65,7 +65,9 @@ const AnnualPMSchedule = () => {
 
   let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
-  const postSectionToGetAllDataForMainDashboard = async () => {
+  // console.log(context?.user_type, context?.?.tm_grade);
+
+  const postSectionToGetCellDataForMainDashboard = async () => {
     // setSubSection(undefined);
     try {
       const res = await fetch("/postSectionToGetAllData", {
@@ -99,9 +101,43 @@ const AnnualPMSchedule = () => {
     }
   };
 
+  const postPlantToGetAllDataForMainDashboard = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch("/postPlantToGetCellData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          plant: context.plant_data,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log(data?.lineData?.[0]._id);
+        setAllDataSectionWise(data);
+
+        // console.log("***************", data);
+
+        postCellToGetLineList(data?.cellData?.[0]._id);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     setSelectedCell("");
-    postSectionToGetAllDataForMainDashboard();
+
+    if (context?.user_type === "Plant-Admin" && context?.tm_grade === "HOD") {
+      postPlantToGetAllDataForMainDashboard();
+    } else {
+      postSectionToGetCellDataForMainDashboard();
+    }
   }, [selectedYear]);
 
   const postCellToGetLineList = async (selectedCell, refKey) => {
@@ -467,7 +503,7 @@ const AnnualPMSchedule = () => {
                   name="selectedCell"
                   value={
                     selectedCell === ""
-                      ? allDataSectionWise?.cellData?.[0].cell_name
+                      ? allDataSectionWise?.cellData?.[0]?.cell_name
                       : selectedCell
                   }
                   className="textField w-50"
@@ -486,7 +522,7 @@ const AnnualPMSchedule = () => {
                   </option>
                   {allDataSectionWise?.cellData?.map((option) => {
                     return (
-                      <option value={option._id}>{option.cell_name}</option>
+                      <option value={option?._id}>{option?.cell_name}</option>
                     );
                   })}
                 </select>
@@ -527,7 +563,7 @@ const AnnualPMSchedule = () => {
                     Please select
                   </option>
                   {lineDropdown?.map((option, index) => {
-                    return <option value={index}>{option.line_name}</option>;
+                    return <option value={index}>{option?.line_name}</option>;
                   })}
                 </select>
               </Col>
@@ -550,11 +586,11 @@ const AnnualPMSchedule = () => {
                       <td className={"td-padding"}>
                         {selectedCell
                           ? allDataSectionWise?.cellData?.map((option) =>
-                              option._id === selectedCell
-                                ? option.cell_name
+                              option?._id === selectedCell
+                                ? option?.cell_name
                                 : ""
                             )
-                          : allDataSectionWise?.cellData?.[0].cell_name}
+                          : allDataSectionWise?.cellData?.[0]?.cell_name}
                       </td>
                       <td className={"td-padding"}>{selectedYear}</td>
                     </tr>
@@ -1163,10 +1199,10 @@ const AnnualPMSchedule = () => {
           </Container>
         </div>
       </div>
-      <br/>
-      <br/>
-      <br/>
-      
+      <br />
+      <br />
+      <br />
+
       <Footer />
     </>
   );

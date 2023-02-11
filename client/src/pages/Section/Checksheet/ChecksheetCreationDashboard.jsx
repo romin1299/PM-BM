@@ -790,11 +790,11 @@ const ChecksheetCreationDashboard = ({ }) => {
               background: "white",
               borderRadius: 5,
             }}
-            className="mb-2"
+            className="mb-2" 
           >
             <ArrowBackIcon />
           </button>
-          {tableData === undefined ? (
+          {!tableData?.length > 0 ? (
             <div class="row g-3">
               <div class="col-lg-2 col-md-12 col-sm-12">
                 <div class="p-3 border bg-white rounded">
@@ -905,6 +905,10 @@ const ChecksheetCreationDashboard = ({ }) => {
                               value={line === undefined ? "" : line}
                               onChange={(e) => {
                                 setLine(e.target.value);
+                                setselectedMachine()
+                                if(formik.values.request){
+                                  postLineToGetMachineList(e.target.value, formik.values.request)
+                                }
                               }}
                               variant="standard"
                             >

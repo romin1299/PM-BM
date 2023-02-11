@@ -17,11 +17,16 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
 import Footer from "../../../components/Footer/Footer";
 
+import { jsPDF } from "jspdf";
+
 function ViewChecksheet() {
   const context = useContext(RoutingContext);
   const selectedMachineCheckSheetData = useLocation();
   const [newTableData, setNewTableData] = useState([]);
   const [refKey, setRefKey] = useState("");
+
+  const [stateForPdfDownload, setStateForPdfDownload] =
+    useState("table-scrolling");
 
   const [TLList, setTLList] = useState([]);
   const [HOSList, setHOSList] = useState([]);
@@ -172,33 +177,35 @@ function ViewChecksheet() {
     },
   ];
 
-  const revisedColumns = [
-    {
-      title: "Sr. No.",
-      render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "7%",
-      align: "center",
-    },
-    {
-      title: "Revision contents",
-      field: "revisionContent",
-      filtering: false,
-      align: "center",
-    },
-    {
-      title: "Date",
-      field: "revisionContentDate",
-      filtering: false,
-      align: "center",
-    },
-    {
-      title: "Revised by",
-      field: "revisedBy",
-      filtering: false,
-      align: "center",
-      editable: "false",
-    },
-  ];
+  // const revisedColumns = [
+  //   {
+  //     title: "Sr. No.",
+  //     render: (rowData) => `${rowData.tableData.id + 1}`,
+  //     width: "7%",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Revision contents",
+  //     field: "revisionContent",
+  //     filtering: false,
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Date",
+  //     field: "revisionContentDate",
+  //     filtering: false,
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Revised by",
+  //     field: "revisedBy",
+  //     filtering: false,
+  //     align: "center",
+  //     editable: "false",
+  //   },
+  // ];
+
+  const revisedColumns = ["Sr. No.", "Revision contents", "Date", "Revised by"];
 
   const monthKeyArray = [
     "Jan",
@@ -299,24 +306,24 @@ function ViewChecksheet() {
 
         key === "tableRowId"
           ? newColData.push(
-            new Object({
-              key: key,
-              value: obj[key],
-              rowspan: 1,
-              // colspan: 1,
-              print: false,
-            }),
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: false,
+              }),
 
-            new Object({
-              key: "rowId",
-              value: i + 1,
-              rowspan: 1,
-              // colspan: 1,
-              print: true,
-            })
-          )
+              new Object({
+                key: "rowId",
+                value: i + 1,
+                rowspan: 1,
+                // colspan: 1,
+                print: true,
+              })
+            )
           : key === "isDeleted"
-            ? newColData.push(
+          ? newColData.push(
               new Object({
                 key: key,
                 value: obj[key],
@@ -325,7 +332,7 @@ function ViewChecksheet() {
                 print: false,
               })
             )
-            : newColData.push(
+          : newColData.push(
               new Object({
                 key: key,
                 value: obj[key],
@@ -624,6 +631,46 @@ function ViewChecksheet() {
     ).style.pointerEvents = "none";
   };
 
+  const handleDownload = () => {
+    //   const content = pdfRef.current;
+
+    //   const doc = new jsPDF("landscape");
+    //   doc.html(content, {
+    //     callback: function (doc) {
+    //       doc.save("sample.pdf");
+    //     },
+    //     x: 10,
+    //     y: 10,
+    //   });
+    // let jsPdf = new jsPDF("p", "pt", "letter");
+    setStateForPdfDownload("");
+
+    var jsPdf = new jsPDF("l", "pt", "a1");
+    var htmlElement = document.getElementById("doc-target");
+    // document.querySelector("table-scrolling").style.
+    // you need to load html2canvas (and dompurify if you pass a string to html)
+    const opt = {
+      callback: function (jsPdf) {
+        jsPdf.save("Test.pdf");
+        // to open the generated PDF in browser window
+        // window.open(jsPdf.output('bloburl'));
+      },
+      // margin: [70, 200, 70, 200],
+      autoPaging: "text",
+      html2canvas: {
+        allowTaint: true,
+        dpi: 300,
+        letterRendering: true,
+        logging: false,
+        scale: 0.8,
+      },
+    };
+
+    jsPdf
+      .html(htmlElement, opt)
+      .then(() => setStateForPdfDownload("table-scrolling"));
+  };
+
   // console.log(sendPlanningApproval)
   // console.log(
   //   selectedMachineCheckSheetData.state.selectedRowForViewForm
@@ -633,280 +680,297 @@ function ViewChecksheet() {
   return (
     <>
       {stateForOpeningSummeryPopups}
-      <div className="checkSheetForImplementation1">
-        <Container fluid>
-          <Row>
-            <Col lg={6} md={6} sm={6}>
-              {" "}
-              <div>
-                <div className="col-2 mt-2">
-                  <button
-                    onClick={
-                      () =>
-                        selectedMachineCheckSheetData?.state?.dashboardID ===
-                          "FromImplementationApprovalDashboard"
-                          ? navigate("/implementationApproval")
-                          : selectedMachineCheckSheetData?.state
-                            ?.dashboardID === "FromPlanningApprovalDashboard"
-                            ? navigate("/planningApproval")
-                            : selectedMachineCheckSheetData?.state
+
+      <div id="doc-target">
+        <div className="checkSheetForImplementation1">
+          <Container fluid>
+            <Row>
+              <Col lg={6} md={6} sm={6}>
+                {" "}
+                {stateForPdfDownload !== "" ? (
+                  <div>
+                    <div className="col-5 mt-2">
+                      <button
+                        onClick={
+                          () =>
+                            selectedMachineCheckSheetData?.state
                               ?.dashboardID ===
-                              "FromPreparationApprovalDashboard"
+                            "FromImplementationApprovalDashboard"
+                              ? navigate("/implementationApproval")
+                              : selectedMachineCheckSheetData?.state
+                                  ?.dashboardID ===
+                                "FromPlanningApprovalDashboard"
+                              ? navigate("/planningApproval")
+                              : selectedMachineCheckSheetData?.state
+                                  ?.dashboardID ===
+                                "FromPreparationApprovalDashboard"
                               ? navigate("/preparationApproval")
                               : selectedMachineCheckSheetData?.state
-                                ?.dashboardID === "FromSixMonthApprovalDashboard"
-                                ? navigate("/sixMonthApprovalDashboard")
-                                : selectedMachineCheckSheetData?.state
                                   ?.dashboardID ===
-                                  "FromMachineWisePMReportDashboard"
-                                  ? navigate("/machineWisePmMonthlyReport")
-                                  : selectedMachineCheckSheetData?.state
-                                    ?.dashboardID === "FromChecksheetDashboard"
-                                    ? navigate("/checkSheetDashboard")
-                                    : navigate("/checkSheetDashboard")
+                                "FromSixMonthApprovalDashboard"
+                              ? navigate("/sixMonthApprovalDashboard")
+                              : selectedMachineCheckSheetData?.state
+                                  ?.dashboardID ===
+                                "FromMachineWisePMReportDashboard"
+                              ? navigate("/machineWisePmMonthlyReport")
+                              : selectedMachineCheckSheetData?.state
+                                  ?.dashboardID === "FromChecksheetDashboard"
+                              ? navigate("/checkSheetDashboard")
+                              : navigate("/checkSheetDashboard")
 
-                      // context.tm_department === "MTD" &&
-                      // context.user_type === "TL/HOSS"
-                      //   ? selectedMachineCheckSheetData?.state?.dashboardID ===
-                      //     "FromApprovalDashboard"
-                      //     ? navigate("/approvalDashboard")
-                      //     : navigate("/checkSheetDashboard")
-                      //   : (context.tm_department === "PRD" &&
-                      //       context.user_type === "TL/HOSS") ||
-                      //     context.user_type === "Section-Admin"
-                      //   ? navigate("/approvalDashboard")
-                      //   : context.user_type === "Operator"
-                      //   ? navigate("/pmMonthlyReport")
-                      //   : navigate("/checkSheetDashboard")
-                    }
-                    style={{
-                      border: "none",
-                      background: "white",
-                      borderRadius: 5,
-                    }}
-                  >
-                    <ArrowBackIcon />
-                  </button>
+                          // context.tm_department === "MTD" &&
+                          // context.user_type === "TL/HOSS"
+                          //   ? selectedMachineCheckSheetData?.state?.dashboardID ===
+                          //     "FromApprovalDashboard"
+                          //     ? navigate("/approvalDashboard")
+                          //     : navigate("/checkSheetDashboard")
+                          //   : (context.tm_department === "PRD" &&
+                          //       context.user_type === "TL/HOSS") ||
+                          //     context.user_type === "Section-Admin"
+                          //   ? navigate("/approvalDashboard")
+                          //   : context.user_type === "Operator"
+                          //   ? navigate("/pmMonthlyReport")
+                          //   : navigate("/checkSheetDashboard")
+                        }
+                        style={{
+                          border: "none",
+                          background: "white",
+                          borderRadius: 5,
+                        }}
+                      >
+                        <ArrowBackIcon />
+                      </button>
+                      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                      <button className="btn-reset" onClick={handleDownload}>
+                        Download
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  ""
+                )}
+              </Col>
+              <Col lg={6} md={6} sm={6}>
+                <table className="ar-table tableCol1">
+                  <thead>
+                    <tr>
+                      <th
+                        className="ar-table-thead-header1"
+                        // colSpan={2}
+                        //  rowSpan={5}
+                      >
+                        PLAN ACCEPTANCE
+                        <br />
+                        (By PRD TL)
+                      </th>
+                      <th
+                        className="ar-table-thead-header1"
+                        // colSpan={2}
+                        //  rowSpan={5}
+                      >
+                        PLAN PREPARED
+                        <br />
+                        (By MTD TL)
+                      </th>
+                    </tr>
+                    <tr>
+                      <th
+                        className="approvalName"
+                        // colSpan={2}
+                        //  rowSpan={5}
+                      >
+                        {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                          machineAllData?.checkSheet_data?.approved_by_PRD_TL
+                            .length - 1
+                        ]
+                          ? `${
+                              machineAllData?.checkSheet_data
+                                ?.approved_by_PRD_TL[
+                                machineAllData?.checkSheet_data
+                                  ?.approved_by_PRD_TL.length - 1
+                              ]
+                            }`
+                          : ""}
+                      </th>
+                      <th
+                        className="approvalName"
+                        // colSpan={2}
+                        //  rowSpan={5}
+                      >
+                        {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
+                          machineAllData?.checkSheet_data?.plan_prepared_tm_name
+                            .length - 1
+                        ]
+                          ? `${
+                              machineAllData?.checkSheet_data
+                                ?.plan_prepared_tm_name[
+                                machineAllData?.checkSheet_data
+                                  ?.plan_prepared_tm_name.length - 1
+                              ]
+                            }`
+                          : ""}
+                      </th>
+                    </tr>
+                  </thead>
+                </table>
+              </Col>
+            </Row>
+          </Container>
+        </div>
+        {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
+        machineAllData?.checkSheet_data?.checksheet_status ===
+          "Implementation" ? (
+          <div className="row mt-3">
+            <div className="col-6"></div>
+            <span className="col-6">
+              <div className="row">
+                <div className="col-6"></div>
+                <div className="col-6" style={{ fontWeight: "bold" }}>
+                  Year: {machineAllData?.checkSheet_data?.current_year}{" "}
                 </div>
               </div>
-            </Col>
-            <Col lg={6} md={6} sm={6}>
-              <table className="ar-table tableCol1">
-                <thead>
-                  <tr>
-                    <th
-                      className="ar-table-thead-header1"
-                    // colSpan={2}
-                    //  rowSpan={5}
-                    >
-                      PLAN ACCEPTANCE
-                      <br />
-                      (By PRD TL)
-                    </th>
-                    <th
-                      className="ar-table-thead-header1"
-                    // colSpan={2}
-                    //  rowSpan={5}
-                    >
-                      PLAN PREPARED
-                      <br />
-                      (By MTD TL)
-                    </th>
-                  </tr>
-                  <tr>
-                    <th
-                      className="approvalName"
-                    // colSpan={2}
-                    //  rowSpan={5}
-                    >
-                      {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
-                        machineAllData?.checkSheet_data?.approved_by_PRD_TL
-                          .length - 1
-                      ]
-                        ? `${machineAllData?.checkSheet_data?.approved_by_PRD_TL[
-                        machineAllData?.checkSheet_data
-                          ?.approved_by_PRD_TL.length - 1
-                        ]
-                        }`
-                        : ""}
-                    </th>
-                    <th
-                      className="approvalName"
-                    // colSpan={2}
-                    //  rowSpan={5}
-                    >
-                      {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
-                        machineAllData?.checkSheet_data?.plan_prepared_tm_name
-                          .length - 1
-                      ]
-                        ? `${machineAllData?.checkSheet_data
-                          ?.plan_prepared_tm_name[
-                        machineAllData?.checkSheet_data
-                          ?.plan_prepared_tm_name.length - 1
-                        ]
-                        }`
-                        : ""}
-                    </th>
-                  </tr>
-                </thead>
-              </table>
-            </Col>
-          </Row>
-        </Container>
-      </div>
-      {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
-        machineAllData?.checkSheet_data?.checksheet_status ===
-        "Implementation" ? (
-        <div className="row mt-3">
-          <div className="col-6"></div>
-          <span className="col-6">
-            <div className="row">
-              <div className="col-6"></div>
-              <div className="col-6" style={{ fontWeight: "bold" }}>
-                Year: {machineAllData?.checkSheet_data?.current_year}{" "}
-              </div>
-            </div>
-          </span>
-        </div>
-      ) : (
-        ""
-      )}
+            </span>
+          </div>
+        ) : (
+          ""
+        )}
 
-      <div>
-        <Container fluid>
-          <Row>
-            <Col className="table-scrolling">
-              <table className="ar-table tableCol">
-                <thead>
-                  <tr style={{ height: "2rem" }}>
-                    <th
-                      className="ar-table-thead-header2 headerPD"
-                      colSpan={3}
-                      rowSpan={5}
-                    >
-                      Line:- {machineAllData?.line_names?.line_name}
-                      <br />
-                      M/c No : {machineAllData?.machine_code}
-                    </th>
-                    <th
-                      className="ar-table-thead-header2 headerPD"
-                      colSpan={2}
-                      rowSpan={5}
-                    >
-                      Machine Name: {machineAllData?.machine_name}
-                    </th>
-                    <th
-                      className="ar-table-thead-header1 headerPD  align-items-center"
-                      colSpan={2}
-                      style={{ textAlign: "center" }}
-                    // rowSpan={2}
-                    >
-                      Approved by
-                      <br />
-                      (MTD HOS)
-                    </th>
-                    <th
-                      className="ar-table-thead-header1 headerPD"
-                      colSpan={2}
-                      style={{ textAlign: "center" }}
-                    // rowSpan={2}
-                    >
-                      Prepared by
-                      <br />
-                      (MTD TL)
-                    </th>
-                    <th className="ar-table-thead-header1">
-                      Checked & Verify by
-                      <br />
-                      (MTD TL)
-                    </th>
-                    {machineAllData?.checkSheet_data
-                      ?.implementation_approved_by_MTD_TL
-                      ? Object.values(
-                        machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_MTD_TL
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
-                      : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
-                  </tr>
-                  <tr>
-                    <th className="approvalName" colSpan={2} rowSpan={5}>
-                      {machineAllData?.checkSheet_data?.approved_by_HOS[
-                        machineAllData?.checkSheet_data?.approved_by_HOS
-                          .length - 1
-                      ]
-                        ? machineAllData?.checkSheet_data?.approved_by_HOS[
-                        machineAllData?.checkSheet_data?.approved_by_HOS
-                          .length - 1
+        <div>
+          <Container fluid>
+            <Row>
+              <Col className={stateForPdfDownload}>
+                <table className="ar-table tableCol">
+                  <thead>
+                    <tr style={{ height: "2rem" }}>
+                      <th
+                        className="ar-table-thead-header2 headerPD"
+                        colSpan={3}
+                        rowSpan={5}
+                      >
+                        Line:- {machineAllData?.line_names?.line_name}
+                        <br />
+                        M/c No : {machineAllData?.machine_code}
+                      </th>
+                      <th
+                        className="ar-table-thead-header2 headerPD"
+                        colSpan={2}
+                        rowSpan={5}
+                      >
+                        Machine Name: {machineAllData?.machine_name}
+                      </th>
+                      <th
+                        className="ar-table-thead-header1 headerPD  align-items-center"
+                        colSpan={2}
+                        style={{ textAlign: "center" }}
+                        // rowSpan={2}
+                      >
+                        Approved by
+                        <br />
+                        (MTD HOS)
+                      </th>
+                      <th
+                        className="ar-table-thead-header1 headerPD"
+                        colSpan={2}
+                        style={{ textAlign: "center" }}
+                        // rowSpan={2}
+                      >
+                        Prepared by
+                        <br />
+                        (MTD TL)
+                      </th>
+                      <th className="ar-table-thead-header1">
+                        Checked & Verify by
+                        <br />
+                        (MTD TL)
+                      </th>
+                      {machineAllData?.checkSheet_data
+                        ?.implementation_approved_by_MTD_TL
+                        ? Object.values(
+                            machineAllData?.checkSheet_data
+                              ?.implementation_approved_by_MTD_TL
+                          ).map((index) => (
+                            <td className="ar-table-col1">
+                              {index[index.length - 1]}
+                            </td>
+                          ))
+                        : refArrayForTDMapping.map((index) => (
+                            <td className="ar-table-col1"></td>
+                          ))}
+                    </tr>
+                    <tr>
+                      <th className="approvalName" colSpan={2} rowSpan={5}>
+                        {machineAllData?.checkSheet_data?.approved_by_HOS[
+                          machineAllData?.checkSheet_data?.approved_by_HOS
+                            .length - 1
                         ]
-                        : ""}
-                      <br />
+                          ? machineAllData?.checkSheet_data?.approved_by_HOS[
+                              machineAllData?.checkSheet_data?.approved_by_HOS
+                                .length - 1
+                            ]
+                          : ""}
+                        <br />
 
-                      {machineAllData?.checkSheet_data?.approved_by_TL[
-                        machineAllData?.checkSheet_data?.approved_by_TL.length -
-                        1
-                      ]
-                        ? `,${machineAllData?.checkSheet_data?.approved_by_TL[
-                        machineAllData?.checkSheet_data?.approved_by_TL
-                          .length - 1
+                        {machineAllData?.checkSheet_data?.approved_by_TL[
+                          machineAllData?.checkSheet_data?.approved_by_TL
+                            .length - 1
                         ]
-                        }`
-                        : ""}
-                    </th>
-                    <th className="approvalName" colSpan={2} rowSpan={5}>
-                      {machineAllData?.checkSheet_data?.sender_tm_name[
-                        machineAllData?.checkSheet_data?.sender_tm_name.length -
-                        1
-                      ]
-                        ? machineAllData?.checkSheet_data?.sender_tm_name[
-                        machineAllData?.checkSheet_data?.sender_tm_name
-                          .length - 1
+                          ? `,${
+                              machineAllData?.checkSheet_data?.approved_by_TL[
+                                machineAllData?.checkSheet_data?.approved_by_TL
+                                  .length - 1
+                              ]
+                            }`
+                          : ""}
+                      </th>
+                      <th className="approvalName" colSpan={2} rowSpan={5}>
+                        {machineAllData?.checkSheet_data?.sender_tm_name[
+                          machineAllData?.checkSheet_data?.sender_tm_name
+                            .length - 1
                         ]
-                        : ""}
-                    </th>
-                    <th className="ar-table-thead-header1">
-                      Approved by
-                      <br />
-                      (MTD HOS)
-                    </th>
-                    {machineAllData?.checkSheet_data
-                      ?.implementation_approved_by_MTD_HOS
-                      ? Object.values(
-                        machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_MTD_HOS
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
-                      : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
-                  </tr>
-                  <tr>
-                    <th className="ar-table-thead-header1">
-                      Approved by
-                      <br />
-                      (MTD HOD)
-                    </th>
-                    <td className="ar-table-col1" colSpan={6}>
-                      {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
-                        -1
-                      )}
-                    </td>
-                    <td className="ar-table-col1" colSpan={6}>
-                      {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
-                        -1
-                      )}
-                    </td>
-                  </tr>
-                </thead>
-                {/* <thead className="ar-table-thead1">
+                          ? machineAllData?.checkSheet_data?.sender_tm_name[
+                              machineAllData?.checkSheet_data?.sender_tm_name
+                                .length - 1
+                            ]
+                          : ""}
+                      </th>
+                      <th className="ar-table-thead-header1">
+                        Approved by
+                        <br />
+                        (MTD HOS)
+                      </th>
+                      {machineAllData?.checkSheet_data
+                        ?.implementation_approved_by_MTD_HOS
+                        ? Object.values(
+                            machineAllData?.checkSheet_data
+                              ?.implementation_approved_by_MTD_HOS
+                          ).map((index) => (
+                            <td className="ar-table-col1">
+                              {index[index.length - 1]}
+                            </td>
+                          ))
+                        : refArrayForTDMapping.map((index) => (
+                            <td className="ar-table-col1"></td>
+                          ))}
+                    </tr>
+                    <tr>
+                      <th className="ar-table-thead-header1">
+                        Approved by
+                        <br />
+                        (MTD HOD)
+                      </th>
+                      <td className="ar-table-col1" colSpan={6}>
+                        {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
+                          -1
+                        )}
+                      </td>
+                      <td className="ar-table-col1" colSpan={6}>
+                        {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
+                          -1
+                        )}
+                      </td>
+                    </tr>
+                  </thead>
+                  {/* <thead className="ar-table-thead1">
                   <tr>
                     {refArrayForTDMapping.map((index) => (
                       <td className="ar-table-col1"></td>
@@ -922,96 +986,98 @@ function ViewChecksheet() {
                     <td className="ar-table-col1" colSpan={6}></td>
                   </tr>
                 </thead> */}
-                <thead className="mt-5">
-                  <tr>
-                    {columns.map((tColumn) => (
-                      <th
-                        className={
-                          tColumn.header === ""
-                            ? "ar-table-thead-header3"
-                            : "ar-table-thead-header"
-                        }
-                      // colSpan={
-                      //   tColumn.header === "Inspection item"
-                      //     ? refKey === true
-                      //       ? 2
-                      //       : 0
-                      //     : 0
-                      // }
-                      >
-                        {tColumn.header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {newTableData.map((rData) => (
-                    <Rows
-                      rData={rData}
-                      isDeletedExists={
-                        rData[10]?.["key"] === "isDeleted" &&
+                  <thead className="mt-5">
+                    <tr>
+                      {columns.map((tColumn) => (
+                        <th
+                          className={
+                            tColumn.header === ""
+                              ? "ar-table-thead-header3"
+                              : "ar-table-thead-header"
+                          }
+                          // colSpan={
+                          //   tColumn.header === "Inspection item"
+                          //     ? refKey === true
+                          //       ? 2
+                          //       : 0
+                          //     : 0
+                          // }
+                        >
+                          {tColumn.header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {newTableData.map((rData) => (
+                      <Rows
+                        rData={rData}
+                        isDeletedExists={
+                          rData[10]?.["key"] === "isDeleted" &&
                           rData[10]?.["value"] === true
-                          ? true
-                          : false
-                      }
-                      checkSheet_status={
-                        machineAllData?.checkSheet_data?.checksheet_status
-                      }
-                    />
-                  ))}
-                  <tr>
-                    <th colSpan={9}></th>
-                    <th className="ar-table-thead-header1">
-                      Done By
-                      <br />
-                      (MTD TM's)
-                    </th>
-                    {machineAllData?.checkSheet_data?.PMworkedTMName
-                      ? Object.values(
-                        machineAllData?.checkSheet_data?.PMworkedTMName
-                      ).map((index) => (
-                        <td className="ar-table-col1">{index.join(" ,")}</td>
-                      ))
-                      : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
-                  </tr>
-                  <tr>
-                    <th colSpan={9}></th>
-                    <th className="ar-table-thead-header1">
-                      Quality Check
-                      <br />
-                      (By PRD TL)
-                    </th>
-                    {machineAllData?.checkSheet_data
-                      ?.implementation_approved_by_PRD_TL
-                      ? Object.values(
-                        machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_PRD_TL
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
-                      : refArrayForTDMapping.map((index) => (
-                        <td className="ar-table-col1"></td>
-                      ))}
-                  </tr>
-                  <tr>
-                    <th colSpan={9}></th>
-                    <th className="ar-table-thead-header1">
-                      Revised Plan
-                      <br />
-                      Approved(MTD HOS)
-                    </th>
-                    {refArrayForTDMapping.map((index) => (
-                      <td className="ar-table-col1"></td>
+                            ? true
+                            : false
+                        }
+                        checkSheet_status={
+                          machineAllData?.checkSheet_data?.checksheet_status
+                        }
+                      />
                     ))}
-                  </tr>
-                </tbody>
-              </table>
-            </Col>
-            {/* <Col lg={6} md={6} sm={6}>
+                    <tr>
+                      <th colSpan={9}></th>
+                      <th className="ar-table-thead-header1">
+                        Done By
+                        <br />
+                        (MTD TM's)
+                      </th>
+                      {machineAllData?.checkSheet_data?.PMworkedTMName
+                        ? Object.values(
+                            machineAllData?.checkSheet_data?.PMworkedTMName
+                          ).map((index) => (
+                            <td className="ar-table-col1">
+                              {index.join(" ,")}
+                            </td>
+                          ))
+                        : refArrayForTDMapping.map((index) => (
+                            <td className="ar-table-col1"></td>
+                          ))}
+                    </tr>
+                    <tr>
+                      <th colSpan={9}></th>
+                      <th className="ar-table-thead-header1">
+                        Quality Check
+                        <br />
+                        (By PRD TL)
+                      </th>
+                      {machineAllData?.checkSheet_data
+                        ?.implementation_approved_by_PRD_TL
+                        ? Object.values(
+                            machineAllData?.checkSheet_data
+                              ?.implementation_approved_by_PRD_TL
+                          ).map((index) => (
+                            <td className="ar-table-col1">
+                              {index[index.length - 1]}
+                            </td>
+                          ))
+                        : refArrayForTDMapping.map((index) => (
+                            <td className="ar-table-col1"></td>
+                          ))}
+                    </tr>
+                    <tr>
+                      <th colSpan={9}></th>
+                      <th className="ar-table-thead-header1">
+                        Revised Plan
+                        <br />
+                        Approved(MTD HOS)
+                      </th>
+                      {refArrayForTDMapping.map((index) => (
+                        <td className="ar-table-col1"></td>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              </Col>
+              {/* <Col lg={6} md={6} sm={6}>
               {phaseStatus === "Planning" ? (
                 <div>
                   <div>
@@ -1118,83 +1184,497 @@ function ViewChecksheet() {
                 console.log("not plannig")
               )}
             </Col> */}
-          </Row>
-          <Row>
-            <Col>
-              <div className="m-2 p-3 border bg-white rounded">
-                <div>
-                  <MaterialTable
-                    style={{ boxShadow: "none" }}
-                    localization={
-                      {
-                        // toolbar: {
-                        //   exportCSVName: "Export some Excel format",
-                        //   exportPDFName: "Export as pdf!!"
-                        // }
-                      }
-                    }
-                    icons={tableIcons}
-                    columns={revisedColumns}
-                    data={machineAllData?.checkSheet_data?.revisionContentData}
-                    // title="User Management"
-                    // tableRef={this.tableRef.current.onQueryChange()}
+            </Row>
+            <Row>
+              <Col>
+                <div className="m-2 p-3 d-flex align-items-center justify-content-center  border bg-white rounded">
+                  {/* <div>
+                           <MaterialTable
+                            style={{ boxShadow: "none" }}
+                            localization={
+                              {
+                                // toolbar: {
+                                //   exportCSVName: "Export some Excel format",
+                                //   exportPDFName: "Export as pdf!!"
+                                // }
+                              }
+                            }
+                            icons={tableIcons}
+                            columns={revisedColumns}
+                            data={
+                              machineAllData?.checkSheet_data
+                                ?.revisionContentData
+                            }
+                            // title="User Management"
+                            // tableRef={this.tableRef.current.onQueryChange()}
 
-                    editable={{}}
-                    options={{
-                      showTitle: false,
-                      paging: false,
-                      sorting: true,
-                      search: true,
-                      filtering: false,
-                      exportButton: true,
-                      exportAllData: true,
-                      draggable: false,
-                      actionsColumnIndex: -1,
-                      pageSize: 10,
-                      pageSizeOptions: false,
-                      paginationType: "stepped",
-                      addRowPosition: "first",
-                      headerStyle: {
-                        position: "sticky",
-                        top: "0",
-                        fontWeight: "bold",
-                      },
-                      maxBodyHeight: "70vh",
-                      rowStyle: {
-                        // fontStyle:'bold'
+                            editable={{}}
+                            options={{
+                              showTitle: false,
+                              paging: false,
+                              sorting: true,
+                              search: true,
+                              filtering: false,
+                              exportButton: true,
+                              exportAllData: true,
+                              draggable: false,
+                              actionsColumnIndex: -1,
+                              pageSize: 10,
+                              pageSizeOptions: false,
+                              paginationType: "stepped",
+                              addRowPosition: "first",
+                              headerStyle: {
+                                position: "sticky",
+                                top: "0",
+                                fontWeight: "bold",
+                              },
+                              maxBodyHeight: "70vh",
+                              rowStyle: {
+                                // fontStyle:'bold'
 
-                        // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                        // color:"rgba(255,255,255,0.8)",
-                        borderRadius: "5px",
-                        border: "1px solid black",
-                        // WebkitBackdropFilter: "blur( 2px )",
-                        background: "rgba(255,255,255,0.1)",
-                        // backdropFilter: "blur(5px)",
-                      },
-                      cellStyle: {
-                        border: "1px solid black",
-                      },
-                      headerStyle: {
-                        border: "1px solid black",
-                        fontWeight: "bold",
-                      },
-                    }}
-                  />
+                                // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                                // color:"rgba(255,255,255,0.8)",
+                                borderRadius: "5px",
+                                border: "1px solid black",
+                                // WebkitBackdropFilter: "blur( 2px )",
+                                background: "rgba(255,255,255,0.1)",
+                                // backdropFilter: "blur(5px)",
+                              },
+                              cellStyle: {
+                                border: "1px solid black",
+                              },
+                              headerStyle: {
+                                border: "1px solid black",
+                                fontWeight: "bold",
+                              },
+                            }}
+                          /> 
+                        </div> */}
+                  <table>
+                    {revisedColumns?.map((item) => (
+                      <th className="td-padding">{item}</th>
+                    ))}
+
+                    {machineAllData?.checkSheet_data?.revisionContentData?.map(
+                      (item, index) => (
+                        <tr>
+                          <td className="td-padding">{index + 1}</td>
+                          <td className="td-padding">
+                            {item?.revisionContent}
+                          </td>
+                          <td className="td-padding">
+                            {item?.revisionContentDate}
+                          </td>
+                          <td className="td-padding">{item?.revisedBy}</td>
+                        </tr>
+                      )
+                    )}
+                  </table>
                 </div>
-              </div>
-            </Col>
-            <Col>
-              <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-                <button
-                  className="btn-danger"
-                  onClick={funForOpeningSummeryPopups}
-                >
-                  Summary
-                </button>
-              </div>
-            </Col>
-          </Row>
-        </Container>
+              </Col>
+              <Col>
+                {stateForPdfDownload !== "" ? (
+                  <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                    <button
+                      className="btn-danger"
+                      onClick={funForOpeningSummeryPopups}
+                    >
+                      Summary
+                    </button>
+                  </div>
+                ) : (
+                  ""
+                )}
+
+                <>
+                  <Row className=" m-2 p-3 border bg-white rounded">
+                    <Col>
+                      <div className="mb-2 row">
+                        <span
+                          className="col-3"
+                          style={{
+                            textAlign: "left",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Delay reason:{" "}
+                        </span>
+                        <div className="col-8">
+                          {
+                            machineAllData?.checkSheet_data?.PMDelayRemark?.[
+                              monthForCompareSystemMonth
+                            ]
+                          }
+                        </div>
+                      </div>
+                      <div className="mb-2 row">
+                        <span
+                          className="col-3"
+                          style={{
+                            textAlign: "left",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          PM Status:{" "}
+                        </span>
+                        <div className="col-8">
+                          {machineAllData?.checkSheet_data?.PMStatus
+                            ? machineAllData?.checkSheet_data?.PMStatus?.[
+                                monthForCompareSystemMonth
+                              ] === ""
+                              ? "Not schedule"
+                              : machineAllData?.checkSheet_data?.PMStatus?.[
+                                  monthForCompareSystemMonth
+                                ]
+                            : ""}
+                        </div>
+                      </div>
+                      <div className="mb-2 row">
+                        <span
+                          className="col-3"
+                          style={{
+                            textAlign: "left",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          PM Time:{" "}
+                        </span>
+
+                        <div className="col-8">
+                          {machineAllData?.checkSheet_data?.totalPMTime
+                            ? machineAllData?.checkSheet_data?.totalPMTime?.[
+                                monthForCompareSystemMonth
+                              ].totalWorkedPMTime === ""
+                              ? "0"
+                              : machineAllData?.checkSheet_data?.totalPMTime?.[
+                                  monthForCompareSystemMonth
+                                ].totalWorkedPMTime
+                            : ""}
+                        </div>
+                      </div>
+                      <div className="mb-2 row">
+                        <span
+                          className="col-3"
+                          style={{
+                            textAlign: "left",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Supporting TM:{" "}
+                        </span>
+
+                        <div className="col-8">
+                          {machineAllData?.checkSheet_data?.totalPMTime
+                            ? machineAllData?.checkSheet_data?.totalPMTime?.[
+                                monthForCompareSystemMonth
+                              ].supportingTMData
+                                .map((index) => index.tm_name)
+                                ?.join(",")
+                            : ""}
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+                </>
+                {/* {machineAllData?.checkSheet_data
+                  ?.implemetation_prd_tl_approval_status ||
+                machineAllData?.checkSheet_data
+                  ?.implemetation_mtd_tl_approval_status ||
+                machineAllData?.checkSheet_data
+                  ?.implemetation_mtd_hos_approval_status ? (
+                  machineAllData?.checkSheet_data
+                    ?.implemetation_prd_tl_approval_status[
+                    monthForCompareSystemMonth
+                  ] !== "Rejected" ||
+                  machineAllData?.checkSheet_data
+                    ?.implemetation_mtd_tl_approval_status[
+                    monthForCompareSystemMonth
+                  ] !== "Rejected" ||
+                  machineAllData?.checkSheet_data
+                    ?.implemetation_mtd_hos_approval_status[
+                    monthForCompareSystemMonth
+                  ] !== "Rejected" ? (
+                    <>
+                      <Row className=" m-2 p-3 border bg-white rounded">
+                        <Col>
+                          <div className="mb-2 row">
+                            <span
+                              className="col-3"
+                              style={{
+                                textAlign: "left",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              Delay reason:{" "}
+                            </span>
+                            <div className="col-8">
+                              {
+                                machineAllData?.checkSheet_data
+                                  ?.PMDelayRemark?.[monthForCompareSystemMonth]
+                              }
+                            </div>
+                          </div>
+                          <div className="mb-2 row">
+                            <span
+                              className="col-3"
+                              style={{
+                                textAlign: "left",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              PM Status:{" "}
+                            </span>
+                            <div className="col-8">
+                              {machineAllData?.checkSheet_data?.PMStatus
+                                ? machineAllData?.checkSheet_data?.PMStatus?.[
+                                    monthForCompareSystemMonth
+                                  ] === ""
+                                  ? "Not schedule"
+                                  : machineAllData?.checkSheet_data?.PMStatus?.[
+                                      monthForCompareSystemMonth
+                                    ]
+                                : ""}
+                            </div>
+                          </div>
+                          <div className="mb-2 row">
+                            <span
+                              className="col-3"
+                              style={{
+                                textAlign: "left",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              PM Time:{" "}
+                            </span>
+
+                            <div className="col-8">
+                              {machineAllData?.checkSheet_data?.totalPMTime
+                                ? machineAllData?.checkSheet_data
+                                    ?.totalPMTime?.[monthForCompareSystemMonth]
+                                    .totalWorkedPMTime === ""
+                                  ? "0"
+                                  : machineAllData?.checkSheet_data
+                                      ?.totalPMTime?.[
+                                      monthForCompareSystemMonth
+                                    ].totalWorkedPMTime
+                                : ""}
+                            </div>
+                          </div>
+                          <div className="mb-2 row">
+                            <span
+                              className="col-3"
+                              style={{
+                                textAlign: "left",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              Supporting TM:{" "}
+                            </span>
+
+                            <div className="col-8">
+                              {machineAllData?.checkSheet_data?.totalPMTime
+                                ? machineAllData?.checkSheet_data?.totalPMTime?.[
+                                    monthForCompareSystemMonth
+                                  ].supportingTMData
+                                    .map((index) => index.tm_name)
+                                    ?.join(",")
+                                : ""}
+                            </div>
+                          </div>
+                        </Col>
+                      </Row>
+                    </>
+                  ) : (
+                    <>
+                      <Row className=" m-2 p-3 border bg-white rounded">
+                        <Col>
+                          {machineAllData?.checkSheet_data?.PMDelayRemark ? (
+                            machineAllData?.checkSheet_data?.PMDelayRemark[
+                              monthForCompareSystemMonth
+                            ] ? (
+                              <div className="mb-2 row">
+                                <span
+                                  className="col-3"
+                                  style={{
+                                    textAlign: "left",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Delay reason:{" "}
+                                </span>
+                                <TextField
+                                  type="text"
+                                  className="col-8"
+                                  name="delayRemarks"
+                                  autoComplete="off"
+                                  value={
+                                    machineAllData?.checkSheet_data
+                                      ?.PMDelayRemark[
+                                      monthForCompareSystemMonth
+                                    ]
+                                  }
+                                />
+                              </div>
+                            ) : (
+                              <div className="mb-2 row">
+                                <span
+                                  className="col-3"
+                                  style={{
+                                    textAlign: "left",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Delay reason:{" "}
+                                </span>
+                                <TextField
+                                  type="text"
+                                  className="col-8"
+                                  name="delayRemarks"
+                                  autoComplete="off"
+                                  // value={formik.values.delayRemarks}
+                                  placeholder={
+                                    machineAllData?.checkSheet_data
+                                      ?.PMDelayRemark[
+                                      monthForCompareSystemMonth
+                                    ]
+                                      ? machineAllData?.checkSheet_data
+                                          .PMDelayRemark[
+                                          monthForCompareSystemMonth
+                                        ]
+                                      : ""
+                                  }
+                                />
+                              </div>
+                            )
+                          ) : (
+                            ""
+                          )}
+                          <div className="mb-2 row">
+                            <span
+                              className="col-3"
+                              style={{
+                                textAlign: "left",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              PM Status:{" "}
+                            </span>
+                            <TextField
+                              type="text"
+                              className="col-8"
+                              name="pmStatus"
+                              autoComplete="off"
+                              value={
+                                machineAllData?.checkSheet_data?.PMStatus
+                                  ? machineAllData?.checkSheet_data?.PMStatus[
+                                      monthForCompareSystemMonth
+                                    ] === ""
+                                    ? "Not schedule"
+                                    : machineAllData?.checkSheet_data?.PMStatus[
+                                        monthForCompareSystemMonth
+                                      ]
+                                  : ""
+                              }
+                              // onChange={formik.handleChange}
+                              // error={
+                              //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
+                              // }
+                              // helperText={
+                              //   formik.touched.pmTime && formik.errors.pmTime
+                              // }
+                            />
+                          </div>
+                          <div className="mb-2 row">
+                            <span
+                              className="col-3"
+                              style={{
+                                textAlign: "left",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              PM Time:{" "}
+                            </span>
+                            <TextField
+                              type="text"
+                              className="col-8"
+                              name="pmTime"
+                              autoComplete="off"
+                              value={
+                                machineAllData?.checkSheet_data?.totalPMTime
+                                  ? machineAllData?.checkSheet_data
+                                      ?.totalPMTime?.[
+                                      monthForCompareSystemMonth
+                                    ].totalWorkedPMTime === ""
+                                    ? "0"
+                                    : machineAllData?.checkSheet_data
+                                        ?.totalPMTime[
+                                        monthForCompareSystemMonth
+                                      ].totalWorkedPMTime
+                                  : ""
+                              }
+                            />
+                          </div>
+                          <div className="mb-2 row">
+                            <span
+                              className="col-3"
+                              style={{
+                                textAlign: "left",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              Supporting TM:{" "}
+                            </span>
+                            <TextField
+                              type="text"
+                              className="col-8"
+                              name="supportingOperator"
+                              multiline
+                              autoComplete="off"
+                              value={
+                                machineAllData?.checkSheet_data?.totalPMTime
+                                  ? machineAllData?.checkSheet_data?.totalPMTime?.[
+                                      monthForCompareSystemMonth
+                                    ].supportingTMData.map(
+                                      (index) => index.tm_name
+                                    )
+                                  : ""
+                              }
+                            />
+                          </div>
+                          <div className="mb-2 row">
+                            <span
+                              className="col-3"
+                              style={{ textAlign: "left" }}
+                            >
+                              Rejected remarks:{" "}
+                            </span>
+                            <TextField
+                              type="text"
+                              className="col-8"
+                              name="implementation_rejected_remarks"
+                              autoComplete="off"
+                              value={
+                                machineAllData?.checkSheet_data
+                                  .implementation_rejected_remarks
+                                  ? machineAllData?.checkSheet_data
+                                      .implementation_rejected_remarks[
+                                      monthForCompareSystemMonth
+                                    ]
+                                  : ""
+                              }
+                            />
+                          </div>
+                        </Col>
+                      </Row>
+                    </>
+                  )
+                ) : (
+                  ""
+                )} */}
+              </Col>
+            </Row>
+          </Container>
+        </div>
       </div>
 
       <br />

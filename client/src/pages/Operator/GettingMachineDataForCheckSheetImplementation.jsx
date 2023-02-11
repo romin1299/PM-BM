@@ -44,11 +44,6 @@ const GettingMachineDataForCheckSheetImplementation = ({
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        console.log(
-          "&&&&&&&&&&&&&&&&&&&&&&&& 37",
-          loggedUserType,
-          data.machineLastData
-        );
 
         // setMachineDataState(data.machineData);
         loggedUserType === "Operator"

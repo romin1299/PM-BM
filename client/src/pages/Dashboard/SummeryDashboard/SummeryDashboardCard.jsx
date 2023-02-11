@@ -30,7 +30,7 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
   // let currentMonthCompletionData =
   //   parseInt(data._id.replace(/[^\d.]/g, "")) % 100;
 
-  console.log(data?.chartData);
+  // console.log(data?.chartData);
 
   let TotalPlan = [
     {
@@ -115,7 +115,6 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
   //     value: 10,
   //   },
   // ];
-  console.log(data?.annualChartData)
 
   return (
     <Col className="col-lg-3 col-md-12 col-sm-12 d-flex justify-content-center d-flex align-items-center">
@@ -132,11 +131,11 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
                   <DoughnutChart TableData={TotalPlan} />
                   <div class="centered">
                     <h5 className="text-dark">
-                      {(
+                      {data?.chartData?.sumVariableForTotalCompleted ?((
                         (data?.chartData?.sumVariableForTotalCompleted * 100) /
                         (data?.chartData?.sumVariableForTotalSchedule +
                           data?.chartData?.sumVariableForTotalPreviousPending)
-                      ).toFixed(2)}
+                      ).toFixed(2)) : 0}
                       %
                     </h5>
                   </div>
