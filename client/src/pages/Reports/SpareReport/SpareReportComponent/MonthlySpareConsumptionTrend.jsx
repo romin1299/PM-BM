@@ -248,7 +248,8 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
           {graphData?.totalMonthlyPMSpareConsumption?.length > 0 ? (
               <MonthlySpareConsumptionTrendGraph graphData={graphData} />
             ) : (
-              loadingAnimationState
+              <Col className="d-flex justify-content-center align-items-center mb-2">{loadingAnimationState}</Col>
+
             )}
           </Row>
         </Row>

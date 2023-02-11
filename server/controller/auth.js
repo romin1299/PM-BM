@@ -9220,8 +9220,7 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
 
         const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
         // console.log(financialYearWiseMonthKeyArray[financialYearWiseMonthKeyArray.indexOf('Apr') - 1])
-        let previousMonth = financialYearWiseMonthKeyArray[financialYearWiseMonthKeyArray.indexOf(selectedMonth) - 1] === undefined ?
-            financialYearWiseMonthKeyArray.splice(-1)[0] :
+        let previousMonth =
             financialYearWiseMonthKeyArray[financialYearWiseMonthKeyArray.indexOf(selectedMonth) - 1];
 
         let groupData
@@ -9235,6 +9234,141 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
         let sumVariableForTotalCompleted = 0
         let sumVariableForTotalOngoing = 0
         let sumVariableForTotalPreviousPending = 0
+        let sumVariableForTotalDoneWithDelay = 0
+
+
+        let keyOfTotalDoneWithDelay = `$checkSheet_data.PMStatus.${previousMonth}`
+
+        let groupCondition = previousMonth ? {
+            _id: "$line_names",
+            machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+            total_pmSchedule: {
+                $sum: {
+                    $cond: [{
+                        $and: [
+                            {
+                                $ne: [keyForSelectedMonth, ""]
+                            },
+                            {
+                                $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                            }
+                        ]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+            total_completed: {
+                $sum: {
+                    $cond: [{
+                        $eq: [keyForSelectedMonth, "Completed"]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+            total_done_with_delay: {
+                $sum: {
+                    $cond: [{
+                        $and: [
+                            {
+                                $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
+                            },
+                            {
+                                $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                            }
+                        ]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+            total_ongoing: {
+                $sum: {
+                    $cond: [{
+                        $eq: [keyForSelectedMonth, "Ongoing"]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+            total_previous_pending: {
+                $sum: {
+                    $cond: [{
+                        $and: [{
+                            $eq: [keyForPreviousMonth, "CarriedPM"]
+                        },
+                        // {
+                        //     $eq: [keyForSelectedMonth, "No Completion"]
+                        // },
+                        {
+                            $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                        }
+                        ]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+
+        } :
+            {
+                _id: "$line_names",
+                machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                total_pmSchedule: {
+                    $sum: {
+                        $cond: [{
+                            $and: [
+                                {
+                                    $ne: [keyForSelectedMonth, ""]
+                                },
+                                {
+                                    $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                }
+                            ]
+                        },
+                            1, 0
+                        ]
+                    }
+                },
+                total_completed: {
+                    $sum: {
+                        $cond: [{
+                            $eq: [keyForSelectedMonth, "Completed"]
+                        },
+                            1, 0
+                        ]
+                    }
+                },
+                total_ongoing: {
+                    $sum: {
+                        $cond: [{
+                            $eq: [keyForSelectedMonth, "Ongoing"]
+                        },
+                            1, 0
+                        ]
+                    }
+                },
+                total_previous_pending: {
+                    $sum: {
+                        $cond: [{
+                            $and: [{
+                                $eq: [keyForPreviousMonth, "CarriedPM"]
+                            },
+                            // {
+                            //     $eq: [keyForSelectedMonth, "No Completion"]
+                            // },
+                            {
+                                $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                            }
+                            ]
+                        },
+                            1, 0
+                        ]
+                    }
+                },
+
+            }
 
 
 
@@ -9272,63 +9406,7 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
                     }
                 },
                 {
-                    $group: {
-                        _id: "$line_names",
-                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
-                        total_pmSchedule: {
-                            $sum: {
-                                $cond: [{
-                                    $and: [
-                                        {
-                                            $ne: [keyForSelectedMonth, ""]
-                                        },
-                                        {
-                                            $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                        }
-                                    ]
-                                },
-                                    1, 0
-                                ]
-                            }
-                        },
-                        total_completed: {
-                            $sum: {
-                                $cond: [{
-                                    $eq: [keyForSelectedMonth, "Completed"]
-                                },
-                                    1, 0
-                                ]
-                            }
-                        },
-                        total_ongoing: {
-                            $sum: {
-                                $cond: [{
-                                    $eq: [keyForSelectedMonth, "Ongoing"]
-                                },
-                                    1, 0
-                                ]
-                            }
-                        },
-                        total_previous_pending: {
-                            $sum: {
-                                $cond: [{
-                                    $and: [{
-                                        $eq: [keyForPreviousMonth, "CarriedPM"]
-                                    },
-                                    // {
-                                    //     $eq: [keyForSelectedMonth, "No Completion"]
-                                    // },
-                                    {
-                                        $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                    }
-                                    ]
-                                },
-                                    1, 0
-                                ]
-                            }
-                        },
-
-                    },
+                    $group: groupCondition,
                 },
 
                 {
@@ -9339,7 +9417,8 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
                         "total_pmSchedule": 1,
                         "total_completed": 1,
                         "total_ongoing": 1,
-                        "total_previous_pending": 1
+                        "total_previous_pending": 1,
+                        "total_done_with_delay": 1
                     }
                 },
 
@@ -9350,6 +9429,7 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
                 sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData[0].total_completed
                 sumVariableForTotalOngoing = sumVariableForTotalOngoing + groupData[0].total_ongoing
                 sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData[0].total_previous_pending
+                sumVariableForTotalDoneWithDelay = sumVariableForTotalDoneWithDelay + (groupData[0].total_done_with_delay ? groupData[0].total_done_with_delay : 0)
             }
         }
 
@@ -9358,14 +9438,14 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
         // console.log("***************************")
         // console.log(sumVariableForTotalCompleted)
         // console.log("***************************")
-        // console.log(sumVariableForTotalPreviousPending)
-
+        sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
 
         res.json({
             sumVariableForTotalSchedule,
             sumVariableForTotalCompleted,
             sumVariableForTotalOngoing,
-            sumVariableForTotalPreviousPending
+            sumVariableForTotalPreviousPending,
+            
         })
     } catch (error) {
         console.log(error)
@@ -9990,10 +10070,151 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
             "Mar",
         ];
 
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+        // console.log(financialYearWiseMonthKeyArray[financialYearWiseMonthKeyArray.indexOf('Apr') - 1])
+        let previousMonth =
+            financialYearWiseMonthKeyArray[financialYearWiseMonthKeyArray.indexOf(selectedMonth) - 1];
 
         let keyForSelectedMonth = `$checkSheet_data.PMStatus.${selectedMonth}`
         let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${selectedMonth}`
         let keyForCurrentMonthScheduleOrNotStatus = `$checkSheet_data.currentMonthScheduleOrNotStatus.${selectedMonth}`
+        let keyOfTotalDoneWithDelay = `$checkSheet_data.PMStatus.${previousMonth}`
+
+        let groupCondition = previousMonth ? 
+        {
+            _id: "$line_names",
+            machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+            total_pmSchedule: {
+                $sum: {
+                    $cond: [{
+                        $and: [
+                            {
+                                $ne: [keyForSelectedMonth, ""]
+                            },
+                            {
+                                $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                            }
+                        ]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+            total_completed: {
+                $sum: {
+                    $cond: [{
+                        $eq: [keyForSelectedMonth, "Completed"]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+            total_ongoing: {
+                $sum: {
+                    $cond: [{
+                        $eq: [keyForSelectedMonth, "Ongoing"]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+            total_done_with_delay: {
+                $sum: {
+                    $cond: [{
+                        $and: [
+                            {
+                                $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
+                            },
+                            {
+                                $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                            },
+                            {
+                                $eq: [keyForPreviousMonth, "CarriedPM"]
+                            },
+                        ]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+            total_previous_pending: {
+                $sum: {
+                    $cond: [{
+                        $and: [{
+                            $eq: [keyForPreviousMonth, "CarriedPM"]
+                        },
+                        // {
+                        //     $eq: [keyForSelectedMonth, "No Completion"]
+                        // },
+                        {
+                            $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                        }
+                        ]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+
+        } :  {
+            _id: "$line_names",
+            machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+            total_pmSchedule: {
+                $sum: {
+                    $cond: [{
+                        $and: [
+                            {
+                                $ne: [keyForSelectedMonth, ""]
+                            },
+                            {
+                                $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                            },
+                            
+                        ]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+            total_completed: {
+                $sum: {
+                    $cond: [{
+                        $eq: [keyForSelectedMonth, "Completed"]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+            total_ongoing: {
+                $sum: {
+                    $cond: [{
+                        $eq: [keyForSelectedMonth, "Ongoing"]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+            total_previous_pending: {
+                $sum: {
+                    $cond: [{
+                        $and: [
+                            {
+                            $eq: [keyForPreviousMonth, "CarriedPM"]
+                        },
+                        // {
+                        //     $eq: [keyForSelectedMonth, "No Completion"]
+                        // },
+                        {
+                            $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                        }
+                        ]
+                    },
+                        1, 0
+                    ]
+                }
+            },
+
+        }
 
 
         // console.log(plants.map(item => item._id))
@@ -10022,6 +10243,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                         let sumVariableForTotalCompleted = 0
                         let sumVariableForTotalOngoing = 0
                         let sumVariableForTotalPreviousPending = 0
+                        let sumVariableForTotalDoneWithDelay = 0
 
                         groupData = await Machine.aggregate([
 
@@ -10055,63 +10277,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                 }
                             },
                             {
-                                $group: {
-                                    _id: "$line_names",
-                                    machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
-                                    total_pmSchedule: {
-                                        $sum: {
-                                            $cond: [{
-                                                $and: [
-                                                    {
-                                                        $ne: [keyForSelectedMonth, ""]
-                                                    },
-                                                    {
-                                                        $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                    }
-                                                ]
-                                            },
-                                                1, 0
-                                            ]
-                                        }
-                                    },
-                                    total_completed: {
-                                        $sum: {
-                                            $cond: [{
-                                                $eq: [keyForSelectedMonth, "Completed"]
-                                            },
-                                                1, 0
-                                            ]
-                                        }
-                                    },
-                                    total_ongoing: {
-                                        $sum: {
-                                            $cond: [{
-                                                $eq: [keyForSelectedMonth, "Ongoing"]
-                                            },
-                                                1, 0
-                                            ]
-                                        }
-                                    },
-                                    total_previous_pending: {
-                                        $sum: {
-                                            $cond: [{
-                                                $and: [{
-                                                    $eq: [keyForPreviousMonth, "CarriedPM"]
-                                                },
-                                                {
-                                                    $eq: [keyForSelectedMonth, "No Completion"]
-                                                },
-                                                {
-                                                    $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                }
-                                                ]
-                                            },
-                                                1, 0
-                                            ]
-                                        }
-                                    },
-
-                                },
+                                $group: groupCondition
                             },
 
                             {
@@ -10122,7 +10288,9 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                     "total_pmSchedule": 1,
                                     "total_completed": 1,
                                     "total_ongoing": 1,
-                                    "total_previous_pending": 1
+                                    "total_previous_pending": 1,
+                                    "total_done_with_delay": 1
+
                                 }
                             },
 
@@ -10137,7 +10305,9 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                             sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData?.[0]?.total_completed
                             sumVariableForTotalOngoing = sumVariableForTotalOngoing + groupData?.[0]?.total_ongoing
                             sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData?.[0]?.total_previous_pending
+                            sumVariableForTotalDoneWithDelay = sumVariableForTotalDoneWithDelay + (groupData?.[0]?.total_done_with_delay ? groupData?.[0]?.total_done_with_delay : 0)
 
+                            sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
                             monthlyChartDataOfSummery.push(
                                 new Object({
                                     chartData: {
@@ -10258,9 +10428,9 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                                     $and: [{
                                                         $eq: [keyForPreviousMonth, "CarriedPM"]
                                                     },
-                                                    {
-                                                        $eq: [x, "No Completion"]
-                                                    },
+                                                    // {
+                                                    //     $eq: [x, "No Completion"]
+                                                    // },
                                                     {
                                                         $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
                                                     }
@@ -10330,6 +10500,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                             let sumVariableForTotalCompleted = 0
                             let sumVariableForTotalOngoing = 0
                             let sumVariableForTotalPreviousPending = 0
+                            let sumVariableForTotalDoneWithDelay = 0
 
                             groupData = await Machine.aggregate([
 
@@ -10364,63 +10535,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                     }
                                 },
                                 {
-                                    $group: {
-                                        _id: "$line_names",
-                                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
-                                        total_pmSchedule: {
-                                            $sum: {
-                                                $cond: [{
-                                                    $and: [
-                                                        {
-                                                            $ne: [keyForSelectedMonth, ""]
-                                                        },
-                                                        {
-                                                            $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                        }
-                                                    ]
-                                                },
-                                                    1, 0
-                                                ]
-                                            }
-                                        },
-                                        total_completed: {
-                                            $sum: {
-                                                $cond: [{
-                                                    $eq: [keyForSelectedMonth, "Completed"]
-                                                },
-                                                    1, 0
-                                                ]
-                                            }
-                                        },
-                                        total_ongoing: {
-                                            $sum: {
-                                                $cond: [{
-                                                    $eq: [keyForSelectedMonth, "Ongoing"]
-                                                },
-                                                    1, 0
-                                                ]
-                                            }
-                                        },
-                                        total_previous_pending: {
-                                            $sum: {
-                                                $cond: [{
-                                                    $and: [{
-                                                        $eq: [keyForPreviousMonth, "CarriedPM"]
-                                                    },
-                                                    {
-                                                        $eq: [keyForSelectedMonth, "No Completion"]
-                                                    },
-                                                    {
-                                                        $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                    }
-                                                    ]
-                                                },
-                                                    1, 0
-                                                ]
-                                            }
-                                        },
-
-                                    },
+                                    $group:  groupCondition
                                 },
 
                                 {
@@ -10431,7 +10546,9 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                         "total_pmSchedule": 1,
                                         "total_completed": 1,
                                         "total_ongoing": 1,
-                                        "total_previous_pending": 1
+                                        "total_previous_pending": 1,
+                                        "total_done_with_delay": 1
+
                                     }
                                 },
 
@@ -10443,6 +10560,8 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                 sumVariableForTotalCompleted = sumVariableForTotalCompleted + groupData?.[0]?.total_completed
                                 sumVariableForTotalOngoing = sumVariableForTotalOngoing + groupData?.[0]?.total_ongoing
                                 sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData?.[0]?.total_previous_pending
+                                sumVariableForTotalDoneWithDelay = sumVariableForTotalDoneWithDelay + (groupData[0].total_done_with_delay ? groupData[0].total_done_with_delay : 0)
+                                sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
 
                                 monthlyChartDataOfSummery.push(
                                     new Object({
@@ -10574,9 +10693,9 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                                         $and: [{
                                                             $eq: [keyForPreviousMonth, "CarriedPM"]
                                                         },
-                                                        {
-                                                            $eq: [keyForSelectedMonth, "No Completion"]
-                                                        },
+                                                        // {
+                                                        //     $eq: [keyForSelectedMonth, "No Completion"]
+                                                        // },
                                                         {
                                                             $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
                                                         }
