@@ -210,7 +210,7 @@ const MainDashboard = () => {
 
   const closeCheckSheet = () => {
     postSectionToGetAllDataForMainDashboard(context.section_data);
-    postSectionToGetSectionInfo(sections || context.section_data)
+    postSectionToGetSectionInfo(sections || context.section_data);
     // if (context.user_type === "Operator") {
     // } else {
     //   postSectionToGetAllDataForMainDashboardForOtherUser(context.section_data);
@@ -634,27 +634,27 @@ const MainDashboard = () => {
   //   postSectionToGetAllDataForAnnualStatusReport();
   // }, [selectedYear, sections]);
 
-  const funForDummyApi = async () => {
-    try {
-      const res = await fetch("/dummyApi", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-      const data = await res.json();
+  // const funForDummyApi = async () => {
+  //   try {
+  //     const res = await fetch("/dummyApi", {
+  //       method: "GET",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
+  //       credentials: "include",
+  //     });
+  //     const data = await res.json();
 
-      if (res.status === 400 || res.status === 422 || !data) {
-        return res.status(422).send("Data not recieved !!!");
-      } else {
-        return data;
-      }
-    } catch (error) {
-      console.log("No data found ( Unauthorized ) !!!");
-    }
-  };
+  //     if (res.status === 400 || res.status === 422 || !data) {
+  //       return res.status(422).send("Data not recieved !!!");
+  //     } else {
+  //       return data;
+  //     }
+  //   } catch (error) {
+  //     console.log("No data found ( Unauthorized ) !!!");
+  //   }
+  // };
 
   // console.log(selectedSubSectionIdForDefaultDashboard);
 
@@ -712,13 +712,13 @@ const MainDashboard = () => {
 
                             {sectionList !== ""
                               ? sectionList.sectionArray.map((option) => {
-                                return <option value={option}>{option}</option>;
-                              })
+                                  return (
+                                    <option value={option}>{option}</option>
+                                  );
+                                })
                               : ""}
                           </select>
                         </span>
-
-
                       </Row>
 
                       <Row>
@@ -866,8 +866,6 @@ const MainDashboard = () => {
                       </Row>
                     </Col>
                     <Col lg={3} md={12} sm={12} className="mt-1">
-
-
                       {context.user_type === "Section-Admin" ? (
                         <Col
                           sm={6}
@@ -912,20 +910,19 @@ const MainDashboard = () => {
                   </div>
                 </div>
 
-
-
-
                 <div
                   className=" row cell mx-2 gy-3 mt-0 pt-0"
                   style={{ background: "#E0E0E0" }}
                 >
-                  &nbsp;&nbsp;<Col lg={7} md={12} className="mt-0">
+                  &nbsp;&nbsp;
+                  <Col lg={7} md={12} className="mt-0">
                     <h6>Current Month</h6>
-                    <Row className="cell" >
-                      <Col lg={3} md={3} sm={3}
-
+                    <Row className="cell">
+                      <Col
+                        lg={3}
+                        md={3}
+                        sm={3}
                         style={{
-
                           fontSize: "14px",
                         }}
                       >
@@ -936,80 +933,98 @@ const MainDashboard = () => {
                         &nbsp;Schedule
                       </Col>
                       <Col
-                        lg={3} md={3} sm={3}
+                        lg={3}
+                        md={3}
+                        sm={3}
                         style={{
-
                           fontSize: "14px",
                         }}
                       >
                         <RectangleIcon
-                          style={{ background: "#ffff59", color: "#ffff59", fontSize: "14px" }}
+                          style={{
+                            background: "#ffff59",
+                            color: "#ffff59",
+                            fontSize: "14px",
+                          }}
                         />{" "}
                         &nbsp;Ongoing
                       </Col>
                       <Col
-                        lg={3} md={3} sm={3}
+                        lg={3}
+                        md={3}
+                        sm={3}
                         style={{
-
                           fontSize: "14px",
                         }}
                       >
                         <RectangleIcon
-                          style={{ background: "#5fe15f", color: "5fe15f", fontSize: "14px" }}
+                          style={{
+                            background: "#5fe15f",
+                            color: "5fe15f",
+                            fontSize: "14px",
+                          }}
                         />{" "}
                         &nbsp;Completed
                       </Col>
                       <Col
-                        lg={3} md={3} sm={3}
+                        lg={3}
+                        md={3}
+                        sm={3}
                         style={{
-
                           fontSize: "14px",
                         }}
                       >
                         <RectangleIcon
-                          style={{ background: "#ababab", color: "#ababab", fontSize: "14px" }}
+                          style={{
+                            background: "#ababab",
+                            color: "#ababab",
+                            fontSize: "14px",
+                          }}
                         />{" "}
                         &nbsp;Not Schedule
                       </Col>
-
                     </Row>
-
-                  </Col>&nbsp;&nbsp;
-
-
+                  </Col>
+                  &nbsp;&nbsp;
                   <Col lg={4} md={12} sm={12} className="mt-0">
                     <h6>Previous Month</h6>
                     <Row className="cell">
                       <Col
-                         lg={6} md={3} sm={3}
+                        lg={6}
+                        md={3}
+                        sm={3}
                         style={{
-
                           fontSize: "14px",
                         }}
                       >
                         <RectangleIcon
-                          style={{ background: "#ffc356", color: "#ffc356", fontSize: "14px" }}
+                          style={{
+                            background: "#ffc356",
+                            color: "#ffc356",
+                            fontSize: "14px",
+                          }}
                         />{" "}
                         &nbsp;Done with delay
                       </Col>
                       <Col
-                         lg={6} md={3} sm={3}
+                        lg={6}
+                        md={3}
+                        sm={3}
                         style={{
-
                           fontSize: "14px",
                         }}
                       >
                         <RectangleIcon
-                          style={{ background: "#ff8888", color: "#ff8888", fontSize: "14px" }}
+                          style={{
+                            background: "#ff8888",
+                            color: "#ff8888",
+                            fontSize: "14px",
+                          }}
                         />{" "}
                         &nbsp;PM Skip
                       </Col>
                     </Row>
-
                   </Col>
-
-
-
                 </div>
 
                 {/* <div>{checkSheetState}</div> */}
@@ -2076,29 +2091,29 @@ const MainDashboard = () => {
                                                                             ?.PMStatus[
                                                                             selectedMonth
                                                                           ] ===
-                                                                            "Completed"
-                                                                            ? "#5fe15f"
-                                                                            : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "Done with delay"
-                                                                              ? "#ffc356"
-                                                                              : machine
-                                                                                .checkSheet_data
-                                                                                ?.PMStatus[
-                                                                                selectedMonth
-                                                                              ] ===
-                                                                                "PM Skip" ||
-                                                                                machine
-                                                                                  .checkSheet_data
-                                                                                  ?.PMStatus[
-                                                                                selectedMonth
-                                                                                ] ===
-                                                                                "No Completion"
-                                                                                ? "#ff8888"
-                                                                                : "#ababab"
+                                                                          "Completed"
+                                                                        ? "#5fe15f"
+                                                                        : machine
+                                                                            .checkSheet_data
+                                                                            ?.PMStatus[
+                                                                            selectedMonth
+                                                                          ] ===
+                                                                          "Done with delay"
+                                                                        ? "#ffc356"
+                                                                        : machine
+                                                                            .checkSheet_data
+                                                                            ?.PMStatus[
+                                                                            selectedMonth
+                                                                          ] ===
+                                                                            "PM Skip" ||
+                                                                          machine
+                                                                            .checkSheet_data
+                                                                            ?.PMStatus[
+                                                                            selectedMonth
+                                                                          ] ===
+                                                                            "No Completion"
+                                                                        ? "#ff8888"
+                                                                        : "#ababab"
                                                                       : "#ababab",
                                                                 }}
                                                                 className="machine"

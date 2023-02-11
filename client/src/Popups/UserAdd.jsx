@@ -181,6 +181,8 @@ const UserAdd = () => {
             formik.values.tm_department === "PRD" &&
             formik.values.user_type === "Section-Admin"
               ? "HOS"
+              : context?.user_type === "Plant-Admin"
+              ? "HOS"
               : values.tm_grade,
           tm_department: values.tm_department
             ? values.tm_department
@@ -379,7 +381,7 @@ const UserAdd = () => {
         </span>
         <br />
         <div>
-        <h3 style={{ textAlign: "left", color:"#dc3545"}}>Add User</h3>
+          <h3 style={{ textAlign: "left", color: "#dc3545" }}>Add User</h3>
 
           <form onSubmit={formik.handleSubmit}>
             <div className="pwd-container">
@@ -690,42 +692,66 @@ const UserAdd = () => {
                   </div>
                 </div>
 
-                <div className="pwd-container">
-                  <span>TM Grade:</span>
-                  <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                    <select
-                      class="form-select form-select-sm"
-                      aria-label=".form-select-sm example"
-                      style={{ width: "100%" }}
-                      id="standard-select-currency"
-                      name="tm_grade"
-                      className="textField"
-                      fullWidth
-                      select // label="Select"
-                      autoComplete="off"
-                      value={formik.values.tm_grade}
-                      onChange={(e) => {
-                        setGrade(e.target.value);
-                        formik.handleChange(e);
-                      }}
-                      variant="standard"
-                    >
-                      <option selected disabled value="">
-                        Please select
-                      </option>
-                      {tmGrade.map((option) => {
-                        return (
-                          <option value={option.label}>{option.value}</option>
-                        );
-                      })}
-                    </select>
-                    <div>
-                      {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
-                  {formik.touched.emp_group && formik.errors.emp_group} 
-                </p> */}
+                {context?.user_type === "Plant-Admin" ? (
+                  <div className="pwd-container">
+                    <span>TM Grade:</span>
+                    <div style={{ width: "100%", marginTop: "0.5rem" }}>
+                      <TextField
+                        id="outlined-number"
+                        name="tm_grade"
+                        className="textField"
+                        autoComplete="off"
+                        value="HOS"
+                        fullWidth
+                        // onChange={formik.handleChange}
+                        // label="Number"
+                        type="text"
+                      />
+                      <div>
+                        {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
+{formik.touched.emp_group && formik.errors.emp_group} 
+</p> */}
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="pwd-container">
+                    <span>TM Grade:</span>
+                    <div style={{ width: "100%", marginTop: "0.5rem" }}>
+                      <select
+                        class="form-select form-select-sm"
+                        aria-label=".form-select-sm example"
+                        style={{ width: "100%" }}
+                        id="standard-select-currency"
+                        name="tm_grade"
+                        className="textField"
+                        fullWidth
+                        select // label="Select"
+                        autoComplete="off"
+                        value={formik.values.tm_grade}
+                        onChange={(e) => {
+                          setGrade(e.target.value);
+                          formik.handleChange(e);
+                        }}
+                        variant="standard"
+                      >
+                        <option selected disabled value="">
+                          Please select
+                        </option>
+                        {tmGrade.map((option) => {
+                          return (
+                            <option value={option.label}>{option.value}</option>
+                          );
+                        })}
+                      </select>
+                      <div>
+                        {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
+                  {formik.touched.emp_group && formik.errors.emp_group} 
+                </p> */}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

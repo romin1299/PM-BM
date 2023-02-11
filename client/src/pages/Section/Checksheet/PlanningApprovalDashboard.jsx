@@ -17,10 +17,17 @@ import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
 
+import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
+import NotFound from "../../Reports/ReportComponents/NotFound";
+
 const PlanningApprovalDashboard = () => {
   const context = useContext(RoutingContext);
   const [tableData, setTableData] = useState([]);
   const navigate = useNavigate();
+
+  const [refKeyForAnimation, setRefKeyForAnimation] = useState(
+    <LoadingAnimation />
+  );
 
   const getApprovalRequestDataForPlanningPhase = async () => {
     try {
@@ -34,8 +41,10 @@ const PlanningApprovalDashboard = () => {
       });
 
       const data = await res.json();
-      console.log(data);
+      // console.log(data);
       setTableData(data);
+
+      setRefKeyForAnimation(<NotFound />);
     } catch (error) {
       console.log(error);
     }
@@ -248,108 +257,114 @@ const PlanningApprovalDashboard = () => {
           </h4>
 
           <div style={{ padding: "1rem" }}>
-            <MaterialTable
-              localization={{
-                header: {
-                  actions: "Actions",
-                },
-                // toolbar: {
-                //   exportCSVName: "Export some Excel format",
-                //   exportPDFName: "Export as pdf!!"
-                // }
-              }}
-              actions={actions}
-              icons={tableIcons}
-              columns={machineHeader}
-              data={tableData}
-              // title="User Management"
-              // tableRef={this.tableRef.current.onQueryChange()}
+            {tableData?.length > 0 ? (
+              <MaterialTable
+                localization={{
+                  header: {
+                    actions: "Actions",
+                  },
+                  // toolbar: {
+                  //   exportCSVName: "Export some Excel format",
+                  //   exportPDFName: "Export as pdf!!"
+                  // }
+                }}
+                actions={actions}
+                icons={tableIcons}
+                columns={machineHeader}
+                data={tableData}
+                // title="User Management"
+                // tableRef={this.tableRef.current.onQueryChange()}
 
-              editable={
-                {
-                  // onRowAdd: (newRow) =>
-                  //   new Promise((resolve, reject) => {
-                  //     const updatedRows = [
-                  //       ...tableData,
-                  //       { user_id: "", ...newRow },
-                  //     ];
-                  //     // postNewPlantData(newRow);
-                  //     // newSection(newRow, context.plant_data);
-                  //     // setTimeout(() => {
-                  //     //   // settableData(updatedRows);
-                  //     //   setRefKey((refKey) => refKey + 1);
-                  //     //   resolve();
-                  //     // }, 500);
-                  //     //refreshPage();
-                  //   }),
-                  // onRowDelete: (selectedRow) =>
-                  //   new Promise((resolve, reject) => {
-                  //     const index = selectedRow.tableData.id;
-                  //     console.log(index);
-                  //     const updatedRows = [...tableData];
-                  //     updatedRows.splice(index, 1);
-                  //     //call the delete user function and pass the user data
-                  //     // // deleteUserInfo(selectedRow);
-                  //     // deleteSection(selectedRow);
-                  //     // setTimeout(() => {
-                  //     //   setRefKey((refKey) => refKey + 1);
-                  //     //   resolve();
-                  //     // }, 500);
-                  //   }),
-                  // onRowUpdate: (updatedRow, oldRow) =>
-                  //   new Promise((resolve, reject) => {
-                  //     const index = oldRow.tableData.id;
-                  //     const updatedRows = [...tableData];
-                  //     updatedRows[index] = updatedRow;
-                  //     //call the update user function and pass the user data
-                  //     // updateUserInfo(updatedRow);
-                  //     // updateSection(updatedRow, oldRow);
-                  //     // setTimeout(() => {
-                  //     //   setRefKey((refKey) => refKey + 1);
-                  //     //   resolve();
-                  //     // }, 500);
-                  //     //refreshPage();
-                  //   }),
+                editable={
+                  {
+                    // onRowAdd: (newRow) =>
+                    //   new Promise((resolve, reject) => {
+                    //     const updatedRows = [
+                    //       ...tableData,
+                    //       { user_id: "", ...newRow },
+                    //     ];
+                    //     // postNewPlantData(newRow);
+                    //     // newSection(newRow, context.plant_data);
+                    //     // setTimeout(() => {
+                    //     //   // settableData(updatedRows);
+                    //     //   setRefKey((refKey) => refKey + 1);
+                    //     //   resolve();
+                    //     // }, 500);
+                    //     //refreshPage();
+                    //   }),
+                    // onRowDelete: (selectedRow) =>
+                    //   new Promise((resolve, reject) => {
+                    //     const index = selectedRow.tableData.id;
+                    //     console.log(index);
+                    //     const updatedRows = [...tableData];
+                    //     updatedRows.splice(index, 1);
+                    //     //call the delete user function and pass the user data
+                    //     // // deleteUserInfo(selectedRow);
+                    //     // deleteSection(selectedRow);
+                    //     // setTimeout(() => {
+                    //     //   setRefKey((refKey) => refKey + 1);
+                    //     //   resolve();
+                    //     // }, 500);
+                    //   }),
+                    // onRowUpdate: (updatedRow, oldRow) =>
+                    //   new Promise((resolve, reject) => {
+                    //     const index = oldRow.tableData.id;
+                    //     const updatedRows = [...tableData];
+                    //     updatedRows[index] = updatedRow;
+                    //     //call the update user function and pass the user data
+                    //     // updateUserInfo(updatedRow);
+                    //     // updateSection(updatedRow, oldRow);
+                    //     // setTimeout(() => {
+                    //     //   setRefKey((refKey) => refKey + 1);
+                    //     //   resolve();
+                    //     // }, 500);
+                    //     //refreshPage();
+                    //   }),
+                  }
                 }
-              }
-              options={{
-                showTitle: false,
-                paging: false,
-                sorting: true,
-                search: true,
-                filtering: false,
-                exportButton: true,
-                exportAllData: true,
-                draggable: false,
-                actionsColumnIndex: -1,
-                pageSize: 10,
-                pageSizeOptions: false,
-                paginationType: "stepped",
-                addRowPosition: "first",
-                headerStyle: {
-                  position: "sticky",
-                  top: "0",
-                  fontWeight: "bold",
-                },
-                maxBodyHeight: "70vh",
-                rowStyle: {
-                  // fontStyle:'bold'
+                options={{
+                  showTitle: false,
+                  paging: false,
+                  sorting: true,
+                  search: true,
+                  filtering: false,
+                  exportButton: true,
+                  exportAllData: true,
+                  draggable: false,
+                  actionsColumnIndex: -1,
+                  pageSize: 10,
+                  pageSizeOptions: false,
+                  paginationType: "stepped",
+                  addRowPosition: "first",
+                  headerStyle: {
+                    position: "sticky",
+                    top: "0",
+                    fontWeight: "bold",
+                  },
+                  maxBodyHeight: "70vh",
+                  rowStyle: {
+                    // fontStyle:'bold'
 
-                  boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                  // color:"rgba(255,255,255,0.8)",
-                  borderRadius: "5px",
-                  border: "1px solid rgba(255,255,255)",
-                  WebkitBackdropFilter: "blur( 2px )",
-                  background: "rgba(255,255,255,0.1)",
-                  backdropFilter: "blur(5px)",
-                  // fontSize: "12px",
-                },
-                headerStyle: {
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                },
-              }}
-            />
+                    boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+                    // color:"rgba(255,255,255,0.8)",
+                    borderRadius: "5px",
+                    border: "1px solid rgba(255,255,255)",
+                    WebkitBackdropFilter: "blur( 2px )",
+                    background: "rgba(255,255,255,0.1)",
+                    backdropFilter: "blur(5px)",
+                    // fontSize: "12px",
+                  },
+                  headerStyle: {
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                  },
+                }}
+              />
+            ) : (
+              <div className="d-flex align-items-center justify-content-center m-2">
+                {refKeyForAnimation}
+              </div>
+            )}
           </div>
         </div>
       </div>
