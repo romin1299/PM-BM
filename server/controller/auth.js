@@ -9445,7 +9445,7 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
             sumVariableForTotalCompleted,
             sumVariableForTotalOngoing,
             sumVariableForTotalPreviousPending,
-            
+
         })
     } catch (error) {
         console.log(error)
@@ -10080,141 +10080,141 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
         let keyForCurrentMonthScheduleOrNotStatus = `$checkSheet_data.currentMonthScheduleOrNotStatus.${selectedMonth}`
         let keyOfTotalDoneWithDelay = `$checkSheet_data.PMStatus.${previousMonth}`
 
-        let groupCondition = previousMonth ? 
-        {
-            _id: "$line_names",
-            machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
-            total_pmSchedule: {
-                $sum: {
-                    $cond: [{
-                        $and: [
-                            {
-                                $ne: [keyForSelectedMonth, ""]
-                            },
-                            {
-                                $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                            }
+        let groupCondition = previousMonth ?
+            {
+                _id: "$line_names",
+                machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                total_pmSchedule: {
+                    $sum: {
+                        $cond: [{
+                            $and: [
+                                {
+                                    $ne: [keyForSelectedMonth, ""]
+                                },
+                                {
+                                    $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                }
+                            ]
+                        },
+                            1, 0
                         ]
-                    },
-                        1, 0
-                    ]
-                }
-            },
-            total_completed: {
-                $sum: {
-                    $cond: [{
-                        $eq: [keyForSelectedMonth, "Completed"]
-                    },
-                        1, 0
-                    ]
-                }
-            },
-            total_ongoing: {
-                $sum: {
-                    $cond: [{
-                        $eq: [keyForSelectedMonth, "Ongoing"]
-                    },
-                        1, 0
-                    ]
-                }
-            },
-            total_done_with_delay: {
-                $sum: {
-                    $cond: [{
-                        $and: [
-                            {
-                                $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
-                            },
-                            {
-                                $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                            },
-                            {
+                    }
+                },
+                total_completed: {
+                    $sum: {
+                        $cond: [{
+                            $eq: [keyForSelectedMonth, "Completed"]
+                        },
+                            1, 0
+                        ]
+                    }
+                },
+                total_ongoing: {
+                    $sum: {
+                        $cond: [{
+                            $eq: [keyForSelectedMonth, "Ongoing"]
+                        },
+                            1, 0
+                        ]
+                    }
+                },
+                total_done_with_delay: {
+                    $sum: {
+                        $cond: [{
+                            $and: [
+                                {
+                                    $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
+                                },
+                                {
+                                    $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                },
+                                {
+                                    $eq: [keyForPreviousMonth, "CarriedPM"]
+                                },
+                            ]
+                        },
+                            1, 0
+                        ]
+                    }
+                },
+                total_previous_pending: {
+                    $sum: {
+                        $cond: [{
+                            $and: [{
                                 $eq: [keyForPreviousMonth, "CarriedPM"]
                             },
-                        ]
-                    },
-                        1, 0
-                    ]
-                }
-            },
-            total_previous_pending: {
-                $sum: {
-                    $cond: [{
-                        $and: [{
-                            $eq: [keyForPreviousMonth, "CarriedPM"]
+                            // {
+                            //     $eq: [keyForSelectedMonth, "No Completion"]
+                            // },
+                            {
+                                $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                            }
+                            ]
                         },
-                        // {
-                        //     $eq: [keyForSelectedMonth, "No Completion"]
-                        // },
-                        {
-                            $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                        }
+                            1, 0
                         ]
-                    },
-                        1, 0
-                    ]
-                }
-            },
+                    }
+                },
 
-        } :  {
-            _id: "$line_names",
-            machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
-            total_pmSchedule: {
-                $sum: {
-                    $cond: [{
-                        $and: [
-                            {
-                                $ne: [keyForSelectedMonth, ""]
-                            },
-                            {
-                                $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                            },
-                            
-                        ]
-                    },
-                        1, 0
-                    ]
-                }
-            },
-            total_completed: {
-                $sum: {
-                    $cond: [{
-                        $eq: [keyForSelectedMonth, "Completed"]
-                    },
-                        1, 0
-                    ]
-                }
-            },
-            total_ongoing: {
-                $sum: {
-                    $cond: [{
-                        $eq: [keyForSelectedMonth, "Ongoing"]
-                    },
-                        1, 0
-                    ]
-                }
-            },
-            total_previous_pending: {
-                $sum: {
-                    $cond: [{
-                        $and: [
-                            {
-                            $eq: [keyForPreviousMonth, "CarriedPM"]
+            } : {
+                _id: "$line_names",
+                machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                total_pmSchedule: {
+                    $sum: {
+                        $cond: [{
+                            $and: [
+                                {
+                                    $ne: [keyForSelectedMonth, ""]
+                                },
+                                {
+                                    $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                },
+
+                            ]
                         },
-                        // {
-                        //     $eq: [keyForSelectedMonth, "No Completion"]
-                        // },
-                        {
-                            $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                        }
+                            1, 0
                         ]
-                    },
-                        1, 0
-                    ]
-                }
-            },
+                    }
+                },
+                total_completed: {
+                    $sum: {
+                        $cond: [{
+                            $eq: [keyForSelectedMonth, "Completed"]
+                        },
+                            1, 0
+                        ]
+                    }
+                },
+                total_ongoing: {
+                    $sum: {
+                        $cond: [{
+                            $eq: [keyForSelectedMonth, "Ongoing"]
+                        },
+                            1, 0
+                        ]
+                    }
+                },
+                total_previous_pending: {
+                    $sum: {
+                        $cond: [{
+                            $and: [
+                                {
+                                    $eq: [keyForPreviousMonth, "CarriedPM"]
+                                },
+                                // {
+                                //     $eq: [keyForSelectedMonth, "No Completion"]
+                                // },
+                                {
+                                    $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                }
+                            ]
+                        },
+                            1, 0
+                        ]
+                    }
+                },
 
-        }
+            }
 
 
         // console.log(plants.map(item => item._id))
@@ -10230,6 +10230,12 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                 // console.log("----------------------------")
 
                 if (SectionInfo[i].dashboardLevel === "Yes") {
+                    let sumVariableForTotalSchedule = 0
+                    let sumVariableForTotalCompleted = 0
+                    let sumVariableForTotalOngoing = 0
+                    let sumVariableForTotalPreviousPending = 0
+                    let sumVariableForTotalDoneWithDelay = 0
+
                     //  console.log(plants[j].plant_name, "----" ,SectionInfo[i].section_name, "---", SectionInfo[i].dashboardLevel)
                     let annual_completed = []
                     subSectionsData = await SubSection.find({ section_names: SectionInfo[i]._id }).sort({ subSection_sequence: 1 })
@@ -10239,11 +10245,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                     lineData = await Line.find({ cell_names: { $in: cellData.map(item => item._id) } }).sort({ line_sequence: 1 });
 
                     for (let k = 0; k < lineData.length; k++) {
-                        let sumVariableForTotalSchedule = 0
-                        let sumVariableForTotalCompleted = 0
-                        let sumVariableForTotalOngoing = 0
-                        let sumVariableForTotalPreviousPending = 0
-                        let sumVariableForTotalDoneWithDelay = 0
+
 
                         groupData = await Machine.aggregate([
 
@@ -10307,24 +10309,26 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                             sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData?.[0]?.total_previous_pending
                             sumVariableForTotalDoneWithDelay = sumVariableForTotalDoneWithDelay + (groupData?.[0]?.total_done_with_delay ? groupData?.[0]?.total_done_with_delay : 0)
 
-                            sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
-                            monthlyChartDataOfSummery.push(
-                                new Object({
-                                    chartData: {
-                                        sumVariableForTotalSchedule: sumVariableForTotalSchedule,
-                                        sumVariableForTotalCompleted: sumVariableForTotalCompleted,
-                                        sumVariableForTotalOngoing: sumVariableForTotalOngoing,
-                                        sumVariableForTotalPreviousPending: sumVariableForTotalPreviousPending,
-                                    },
-                                    plant_name: plants[j]?._id,
-                                    section_name: SectionInfo[i]?.section_name,
-                                    section_id: SectionInfo[i]?._id
 
-                                })
-                            )
                             // console.log(groupData)
                         }
                     }
+
+                    sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
+                    monthlyChartDataOfSummery.push(
+                        new Object({
+                            chartData: {
+                                sumVariableForTotalSchedule: sumVariableForTotalSchedule,
+                                sumVariableForTotalCompleted: sumVariableForTotalCompleted,
+                                sumVariableForTotalOngoing: sumVariableForTotalOngoing,
+                                sumVariableForTotalPreviousPending: sumVariableForTotalPreviousPending,
+                            },
+                            plant_name: plants[j]?._id,
+                            section_name: SectionInfo[i]?.section_name,
+                            section_id: SectionInfo[i]?._id
+
+                        })
+                    )
 
                     if (!monthlyChartDataOfSummery.some(e => e?.section_id === SectionInfo[i]?._id)) {
                         SectionInfo[i]?._id ?
@@ -10341,7 +10345,12 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                     // for annual chart
                     for (let m = 0; m < monthKeyArray.length; m++) {
 
+
                         let sumVariableForTotalCompletedForAnnualChart = 0
+                        let sumVariableForTotalSchedule = 0
+                        let sumVariableForTotalPreviousPending = 0
+
+
                         let x = `$checkSheet_data.PMStatus.${monthKeyArray[m]}`
                         // let previousMonth = monthKeyArray[m - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[m - 1]
                         let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthKeyArray[m]}`
@@ -10461,13 +10470,19 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                 // console.log("**********", monthKeyArray[m])
                                 // console.log( groupData2)
                                 sumVariableForTotalCompletedForAnnualChart = sumVariableForTotalCompletedForAnnualChart + groupData2[0].total_completed
-                                sumVariableForTotalCompletedForAnnualChart = ((sumVariableForTotalCompletedForAnnualChart * 100) / (groupData2[0].total_pmSchedule + groupData2[0].total_Previous)).toFixed(2)
-                                annual_completed.push(sumVariableForTotalCompletedForAnnualChart !== NaN ? sumVariableForTotalCompletedForAnnualChart : 0)
+                                sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData2[0].total_pmSchedule
+                                sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData2[0].total_Previous
+
 
                             }
                         }
+                        sumVariableForTotalCompletedForAnnualChart = ((sumVariableForTotalCompletedForAnnualChart * 100) / (sumVariableForTotalSchedule + sumVariableForTotalPreviousPending)).toFixed(2)
+
+                        annual_completed.push(sumVariableForTotalCompletedForAnnualChart !== NaN ? sumVariableForTotalCompletedForAnnualChart : 0)
+
 
                     }
+
 
                     if (monthlyChartDataOfSummery.some(e => e?.section_id === SectionInfo[i]?._id)) {
 
@@ -10487,6 +10502,13 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                     subSectionsData = await SubSection.find({ section_names: SectionInfo[i]._id }).sort({ subSection_sequence: 1 })
 
                     for (let l = 0; l < subSectionsData.length; l++) {
+
+                        let sumVariableForTotalSchedule = 0
+                        let sumVariableForTotalCompleted = 0
+                        let sumVariableForTotalOngoing = 0
+                        let sumVariableForTotalPreviousPending = 0
+                        let sumVariableForTotalDoneWithDelay = 0
+
                         // console.log("****************************")
                         // console.log(subSectionsData[l].subSection_name)
                         let annual_completed = []
@@ -10496,11 +10518,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                         lineData = await Line.find({ cell_names: { $in: cellData.map(item => item._id) } }).sort({ line_sequence: 1 });
 
                         for (let k = 0; k < lineData.length; k++) {
-                            let sumVariableForTotalSchedule = 0
-                            let sumVariableForTotalCompleted = 0
-                            let sumVariableForTotalOngoing = 0
-                            let sumVariableForTotalPreviousPending = 0
-                            let sumVariableForTotalDoneWithDelay = 0
+
 
                             groupData = await Machine.aggregate([
 
@@ -10535,7 +10553,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                     }
                                 },
                                 {
-                                    $group:  groupCondition
+                                    $group: groupCondition
                                 },
 
                                 {
@@ -10561,21 +10579,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                 sumVariableForTotalOngoing = sumVariableForTotalOngoing + groupData?.[0]?.total_ongoing
                                 sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData?.[0]?.total_previous_pending
                                 sumVariableForTotalDoneWithDelay = sumVariableForTotalDoneWithDelay + (groupData[0].total_done_with_delay ? groupData[0].total_done_with_delay : 0)
-                                sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
 
-                                monthlyChartDataOfSummery.push(
-                                    new Object({
-                                        chartData: {
-                                            sumVariableForTotalSchedule: sumVariableForTotalSchedule,
-                                            sumVariableForTotalCompleted: sumVariableForTotalCompleted,
-                                            sumVariableForTotalOngoing: sumVariableForTotalOngoing,
-                                            sumVariableForTotalPreviousPending: sumVariableForTotalPreviousPending,
-                                        },
-                                        plant_name: plants[j]._id,
-                                        section_name: subSectionsData[l]?.subSection_name,
-                                        section_id: subSectionsData[l]?._id
-                                    })
-                                )
                                 // console.log(groupData)
 
                             }
@@ -10590,6 +10594,22 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                             //         ) : ""
                             // }
                         }
+
+                        sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
+
+                        monthlyChartDataOfSummery.push(
+                            new Object({
+                                chartData: {
+                                    sumVariableForTotalSchedule: sumVariableForTotalSchedule,
+                                    sumVariableForTotalCompleted: sumVariableForTotalCompleted,
+                                    sumVariableForTotalOngoing: sumVariableForTotalOngoing,
+                                    sumVariableForTotalPreviousPending: sumVariableForTotalPreviousPending,
+                                },
+                                plant_name: plants[j]._id,
+                                section_name: subSectionsData[l]?.subSection_name,
+                                section_id: subSectionsData[l]?._id
+                            })
+                        )
                         if (!monthlyChartDataOfSummery.some(e => e?.section_id === subSectionsData[l]?._id)) {
                             subSectionsData[j]?.subSection_name ?
                                 monthlyChartDataOfSummery.push(
@@ -10606,6 +10626,8 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                         for (let o = 0; o < monthKeyArray.length; o++) {
 
                             let sumVariableForTotalCompletedForAnnualChart = 0
+                            let sumVariableForTotalSchedule = 0
+                            let sumVariableForTotalPreviousPending = 0
                             let x = `$checkSheet_data.PMStatus.${monthKeyArray[o]}`
                             let keyForCurrentMonthScheduleOrNotStatus = `$checkSheet_data.currentMonthScheduleOrNotStatus.${monthKeyArray[o]}`
 
@@ -10724,12 +10746,19 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                 ])
                                 if (groupData2.length > 0) {
                                     sumVariableForTotalCompletedForAnnualChart = sumVariableForTotalCompletedForAnnualChart + groupData2[0].total_completed
-                                    sumVariableForTotalCompletedForAnnualChart = ((sumVariableForTotalCompletedForAnnualChart * 100) / (groupData2[0].total_pmSchedule + groupData2[0].total_Previous)).toFixed(2)
+                                    sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData2[0].total_pmSchedule
+                                    sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData2[0].total_Previous
 
-                                    annual_completed.push(sumVariableForTotalCompletedForAnnualChart !== NaN ? sumVariableForTotalCompletedForAnnualChart : 0)
 
                                 }
                             }
+
+
+
+                            sumVariableForTotalCompletedForAnnualChart = ((sumVariableForTotalCompletedForAnnualChart * 100) / (sumVariableForTotalSchedule + sumVariableForTotalPreviousPending)).toFixed(2)
+
+                            annual_completed.push(sumVariableForTotalCompletedForAnnualChart !== NaN ? sumVariableForTotalCompletedForAnnualChart : 0)
+
 
                         }
                         // console.log(annual_completed)
