@@ -2118,7 +2118,7 @@ function CheckSheetForm() {
             </Col>
             <Col>
               <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-                <button className="btn" onClick={funForOpeningSummeryPopups}>
+                <button className="btn-danger" onClick={funForOpeningSummeryPopups}>
                   Summary
                 </button>
               </div>
