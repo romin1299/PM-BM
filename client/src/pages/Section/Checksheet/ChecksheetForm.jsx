@@ -191,33 +191,7 @@ function CheckSheetForm() {
     },
   ];
 
-  const revisedColumns = [
-    {
-      title: "Sr. No.",
-      render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "7%",
-      align: "center",
-    },
-    {
-      title: "Revision contents",
-      field: "revisionContent",
-      filtering: false,
-      align: "center",
-    },
-    {
-      title: "Date",
-      field: "revisionContentDate",
-      filtering: false,
-      align: "center",
-    },
-    {
-      title: "Revised by",
-      field: "revisedBy",
-      filtering: false,
-      align: "center",
-      editable: "false",
-    },
-  ];
+  const revisedColumns = ["Sr. No.", "Revision contents", "Date", "Revised by"];
 
   const monthKeyArray = [
     "Jan",
