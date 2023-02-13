@@ -667,7 +667,7 @@ const MainDashboard = () => {
       {/* <button onClick={funForDummyApi}>dummy</button> */}
       <Container fluid className="operatorDashboard">
         <Row className="mt-3">
-          <Col xs={12} sm={12} md={12} lg={9}>
+          <Col xs={12} sm={12} md={12} lg={9} className="leftComponent">
             {Object.keys(allDataSectionWise).length > 0 ? (
               <Col>
                 <div class="container-fluid px-2">
@@ -2172,7 +2172,9 @@ const MainDashboard = () => {
             )}
           </Col>
 
-          <Col xs={12} sm={12} md={12} lg={3}>
+          <Col xs={12} sm={12} md={12} lg={3} className="right-component-main-dashboard">
+            <br />
+            <br />
             <GraphsInMainDashboard
               sections={sections}
               subSection={subSection}

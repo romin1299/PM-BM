@@ -430,6 +430,21 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
       "none";
   };
 
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
   const handleDownload = () => {
     //   const content = pdfRef.current;
 
@@ -444,13 +459,17 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
     // let jsPdf = new jsPDF("p", "pt", "letter");
     setStateForPdfDownload("");
 
-    var jsPdf = new jsPDF("l", "pt", "a1");
+    var jsPdf = new jsPDF("l", "pt", "a2");
     var htmlElement = document.getElementById("doc-target");
     // document.querySelector("table-scrolling").style.
     // you need to load html2canvas (and dompurify if you pass a string to html)
     const opt = {
       callback: function (jsPdf) {
-        jsPdf.save("Test.pdf");
+        jsPdf.save(
+          `${machineAllData?.machine_code}_${
+            machineAllData?.machine_name
+          }_${timeStamp()}`
+        );
         // to open the generated PDF in browser window
         // window.open(jsPdf.output('bloburl'));
       },
@@ -495,7 +514,9 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
             <div className="row">
               <div className="col-11"></div>
             </div>
-            <button className="btn-reset" onClick={handleDownload}>Download</button>
+            <button className="btn-reset" onClick={handleDownload}>
+              Download
+            </button>
 
             <br />
 
@@ -542,9 +563,9 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                               ]
                                 ? `${
                                     machineAllData?.checkSheet_data
-                                      ?.approved_by_PRD_TL[
+                                      ?.approved_by_PRD_TL?.[
                                       machineAllData?.checkSheet_data
-                                        ?.approved_by_PRD_TL.length - 1
+                                        ?.approved_by_PRD_TL?.length - 1
                                     ]
                                   }`
                                 : ""}
@@ -561,9 +582,9 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                               ]
                                 ? `${
                                     machineAllData?.checkSheet_data
-                                      ?.plan_prepared_tm_name[
+                                      ?.plan_prepared_tm_name?.[
                                       machineAllData?.checkSheet_data
-                                        ?.plan_prepared_tm_name.length - 1
+                                        ?.plan_prepared_tm_name?.length - 1
                                     ]
                                   }`
                                 : ""}
@@ -661,27 +682,29 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                               colSpan={2}
                               rowSpan={5}
                             >
-                              {machineAllData?.checkSheet_data?.approved_by_HOS[
+                              {machineAllData?.checkSheet_data
+                                ?.approved_by_HOS?.[
                                 machineAllData?.checkSheet_data?.approved_by_HOS
-                                  .length - 1
+                                  ?.length - 1
                               ]
                                 ? machineAllData?.checkSheet_data
-                                    ?.approved_by_HOS[
+                                    ?.approved_by_HOS?.[
                                     machineAllData?.checkSheet_data
-                                      ?.approved_by_HOS.length - 1
+                                      ?.approved_by_HOS?.length - 1
                                   ]
                                 : ""}
                               <br />
 
-                              {machineAllData?.checkSheet_data?.approved_by_TL[
+                              {machineAllData?.checkSheet_data
+                                ?.approved_by_TL?.[
                                 machineAllData?.checkSheet_data?.approved_by_TL
-                                  .length - 1
+                                  ?.length - 1
                               ]
                                 ? `,${
                                     machineAllData?.checkSheet_data
-                                      ?.approved_by_TL[
+                                      ?.approved_by_TL?.[
                                       machineAllData?.checkSheet_data
-                                        ?.approved_by_TL.length - 1
+                                        ?.approved_by_TL?.length - 1
                                     ]
                                   }`
                                 : ""}
@@ -729,14 +752,10 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                               (MTD HOD)
                             </th>
                             <td className="ar-table-col1" colSpan={6}>
-                              {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
-                                -1
-                              )}
+                              {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.[machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.length -1]}
                             </td>
                             <td className="ar-table-col1" colSpan={6}>
-                              {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
-                                -1
-                              )}
+                              {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.[machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.length - 1]}
                             </td>
                           </tr>
                         </thead>
@@ -779,7 +798,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                           </tr>
                         </thead>
                         <tbody>
-                          {newTableData.map((rData, rIndex) => (
+                          {newTableData?.map((rData, rIndex) => (
                             <tr
                               className={
                                 rData[10]?.["key"] === "isDeleted" &&
@@ -789,7 +808,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                               }
                             >
                               {" "}
-                              {rData.map((colData) =>
+                              {rData?.map((colData) =>
                                 colData.print == true ? (
                                   <td
                                     className={
@@ -1182,7 +1201,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                             }}
                           /> 
                         </div> */}
-                        <table>
+                        <table style={{ width: "40vw" }}>
                           {revisedColumns?.map((item) => (
                             <th className="td-padding">{item}</th>
                           ))}
@@ -1205,7 +1224,87 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                           )}
                         </table>
                       </div>
+                      <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                        <table>
+                          <tr>
+                            <td>
+                              <table>
+                                <tr>
+                                  [Notes of filing out checklist] (Category)
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <span style={{ fontWeight: "bold" }}>
+                                      B
+                                    </span>
+                                    reakdown: Directly relates to failure aspect
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <span style={{ fontWeight: "bold" }}>
+                                      S
+                                    </span>
+                                    afety: Directly relates to safety aspect
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    {" "}
+                                    <span style={{ fontWeight: "bold" }}>
+                                      Q
+                                    </span>
+                                    uality: Directly relates to quality aspect
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <span style={{ fontWeight: "bold" }}>
+                                      P
+                                    </span>
+                                    ollution: Directly relates to pollution
+                                    aspect
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                            <td style={{ borderLeft: "2px solid black" }}></td>
+                            <td>
+                              <table>
+                                <tr>(Person in charge)</tr>
+                                <tr>
+                                  <td>M: Maintenance personnel</td>
+                                </tr>
+                                <tr>
+                                  <td>O : Production personnel</td>
+                                </tr>
+                                <tr>
+                                  {" "}
+                                  <td>
+                                    <br />
+                                  </td>{" "}
+                                </tr>
+                                <tr>
+                                  {" "}
+                                  <td>
+                                    <br />
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      </Row>
+                      <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                        <Col>--> Planned</Col>
+                        <Col><EastIcon fontSize="small" /> Normal Condition</Col>
+                        <Col>--> * Abnormality</Col>
+                      </Row>
+                      <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                        <div style={{float: "left"}}>FO/MTD/02/04/04</div>
+                      </Row>
                     </Col>
+
                     <Col>
                       {stateForPdfDownload !== "" ? (
                         <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
@@ -1233,9 +1332,8 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                             </span>
                             <div className="col-8">
                               {
-                                machineAllData?.checkSheet_data?.PMDelayRemark[
-                                  monthForCompareSystemMonth
-                                ]
+                                machineAllData?.checkSheet_data
+                                  ?.PMDelayRemark?.[monthForCompareSystemMonth]
                               }
                             </div>
                           </div>
@@ -1251,11 +1349,11 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                             </span>
                             <div className="col-8">
                               {machineAllData?.checkSheet_data?.PMStatus
-                                ? machineAllData?.checkSheet_data?.PMStatus[
+                                ? machineAllData?.checkSheet_data?.PMStatus?.[
                                     monthForCompareSystemMonth
                                   ] === ""
                                   ? "Not schedule"
-                                  : machineAllData?.checkSheet_data?.PMStatus[
+                                  : machineAllData?.checkSheet_data?.PMStatus?.[
                                       monthForCompareSystemMonth
                                     ]
                                 : ""}
@@ -1274,13 +1372,14 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
 
                             <div className="col-8">
                               {machineAllData?.checkSheet_data?.totalPMTime
-                                ? machineAllData?.checkSheet_data?.totalPMTime[
-                                    monthForCompareSystemMonth
-                                  ].totalWorkedPMTime === ""
+                                ? machineAllData?.checkSheet_data
+                                    ?.totalPMTime?.[monthForCompareSystemMonth]
+                                    ?.totalWorkedPMTime === ""
                                   ? "0"
                                   : machineAllData?.checkSheet_data
-                                      ?.totalPMTime[monthForCompareSystemMonth]
-                                      .totalWorkedPMTime
+                                      ?.totalPMTime?.[
+                                      monthForCompareSystemMonth
+                                    ]?.totalWorkedPMTime
                                 : ""}
                             </div>
                           </div>
@@ -1299,8 +1398,8 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                               {machineAllData?.checkSheet_data?.totalPMTime
                                 ? machineAllData?.checkSheet_data?.totalPMTime[
                                     monthForCompareSystemMonth
-                                  ].supportingTMData
-                                    .map((index) => index.tm_name)
+                                  ]?.supportingTMData
+                                    ?.map((index) => index?.tm_name)
                                     ?.join(",")
                                 : ""}
                             </div>

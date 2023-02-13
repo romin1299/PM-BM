@@ -286,7 +286,7 @@ function PMSheetApprovalOfImplementationPhase() {
                                 ?.implementation_approved_PRD_TL_date?.[
                                 monthKey
                               ]?.[idx]
-                            }
+                            }-{" "}{`Remarks: ${index?.checkSheet_data?.implemetation_quality_remarks?.[monthKey]?.[idx]}`}
                           </p>
                         ))}
                       </td>

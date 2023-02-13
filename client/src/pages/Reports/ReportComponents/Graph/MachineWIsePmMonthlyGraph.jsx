@@ -117,7 +117,7 @@ const MachineWIsePmMonthlyGraph = ({ statusCounter, selectedMonth }) => {
     plugins: {
       title: {
         display: true,
-        text: "Chart.js Bar Chart - Stacked",
+        text: "Plan vs Actual",
       },
     },
     responsive: true,
@@ -234,6 +234,8 @@ const MachineWIsePmMonthlyGraph = ({ statusCounter, selectedMonth }) => {
         backgroundColor: "#CFE1FD",
         borderColor: "rgba(54, 162, 235, 1)",
         stack: "Stack 0",
+        barThickness: "25",
+
       },
       {
         label: "Completed",
@@ -241,6 +243,8 @@ const MachineWIsePmMonthlyGraph = ({ statusCounter, selectedMonth }) => {
         backgroundColor: "#bde28f",
         borderColor: "#adec71",
         stack: "Stack 1",
+        barThickness: "25",
+
       },
     ],
   };

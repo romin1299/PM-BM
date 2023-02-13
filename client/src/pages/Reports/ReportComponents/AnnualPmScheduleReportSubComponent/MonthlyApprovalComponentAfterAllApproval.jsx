@@ -45,7 +45,7 @@ const MonthlyApprovalComponentAfterAllApproval = ({
     index,
     keyRefForHosOrHod
   ) => {
-    console.log("*******************", refArrayForUserApprovalKeys?.[index]);
+    // console.log("*******************", refArrayForUserApprovalKeys?.[index]);
 
     const res = await fetch("/approveMonthlyRequestForAnnualPmSchedule", {
       method: "POST",
@@ -68,7 +68,7 @@ const MonthlyApprovalComponentAfterAllApproval = ({
     }
   };
 
-  console.log(refArrayForUserApproval);
+  // console.log(refArrayForUserApproval);
   // console.log(
   //   loggedUserDetails?.user_type === "Section-Admin" &&
   //     loggedUserDetails?.tm_grade === "HOS" &&
@@ -201,9 +201,8 @@ const MonthlyApprovalComponentAfterAllApproval = ({
       </tr>
 
       <tr>
-        {refArrayForTDSpacing.map((item) => (
-          <td></td>
-        ))}
+        <td colSpan={2}>FO/MTD/02/18/00</td>
+        <td></td>
         <th className="td-padding">Remarks (If Delay)</th>
         {refArrayForUserApproval?.map((item, index) => (
           <td className="td-padding">
