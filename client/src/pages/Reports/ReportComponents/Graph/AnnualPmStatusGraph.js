@@ -88,7 +88,7 @@ const AnnualPmStatusGraph = ({ graphData }) => {
         labels: monthKeyArray,
         datasets: [
             {
-                label: "Current Month Schedule",
+                label: "Plan",
                 data: graphData?.annual_total_current_schedule,
                 backgroundColor: "#CFE1FD",
                 borderColor: "rgba(54, 162, 235, 1)",
@@ -101,7 +101,7 @@ const AnnualPmStatusGraph = ({ graphData }) => {
                 stack: "Stack 0",
             },
             {
-                label: "Completed",
+                label: "Actual",
                 data: graphData?.annual_completed,
                 backgroundColor: "#bde28f",
                 borderColor: "#adec71",

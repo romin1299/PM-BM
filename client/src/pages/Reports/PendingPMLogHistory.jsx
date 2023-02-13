@@ -95,7 +95,7 @@ const PendingPMLogHistory = () => {
       sort: "true",
     },
     {
-      header: "File",
+      header: "Photo",
       sort: "true",
     },
   ];

@@ -4221,7 +4221,6 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
             senderApprovalMonth
         } = req.body
         let loggedUserData = req.rootUser;
-
         // console.log(selected_machine_data.checkSheetSendingUser[(selected_machine_data.checkSheetSendingUser).length - 1])
         const monthKeyArray = [
             "Jan",
@@ -5439,6 +5438,7 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
             else if (selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[senderApprovalMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[senderApprovalMonth]).length - 1] === "Accepted" &&
                 selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[senderApprovalMonth][(selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[senderApprovalMonth]).length - 1] === "Pending") {
                 let mtd_tl_approval_status = "Rejected"
+                console.log(implementation_approved_MTD_TL_date)
 
                 let machineLastDataForKeyexistsOrNot = await Machine.aggregate([{
                     $match: {
@@ -5488,7 +5488,6 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                         [keyOfImplementation_approved_MTD_TL_date]: implementation_approved_MTD_TL_date,
                         [keyOfImplementation_rejected_remarks]: rejected_remarks,
                         [keyOfImplementation_approved_by_MTD_TL]: "",
-                        [keyOfImplementation_approved_MTD_TL_date]: "",
                         [keyOfImplementation_approved_by_MTD_HOS]: "",
                         [keyOfImplementation_approved_MTD_HOS_date]: ""
                     }
@@ -8177,7 +8176,16 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
                         total_done_with_delay: {
                             $sum: {
                                 $cond: [{
-                                    $eq: [keyForPreviousMonth, "Done with delay"]
+                                    $and: [
+                                        {
+                                            $eq: [keyForPreviousMonth, "Done with delay"]
+                                        },
+
+                                        {
+                                            $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                        }
+
+                                    ]
                                 },
                                     1, 0
                                 ]
@@ -8699,8 +8707,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                                         machine_code: keyForCheckSheet?.machine_code,
                                         yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
                                         schedule_month: month,
-                                        line_name: keyForCheckSheet?.line_names?.line_name,
-                                        cell_name: keyForCheckSheet?.line_names?.cell_names?.cell_name,
+                                        line_names: keyForCheckSheet?.line_names,
                                         PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
                                         completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[month],
                                         checkSheet_data: keyForCheckSheet?.checkSheet_data,
@@ -8723,8 +8730,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                                 machine_code: keyForCheckSheet?.machine_code,
                                 yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
                                 schedule_month: month,
-                                line_name: keyForCheckSheet?.line_names?.line_name,
-                                cell_name: keyForCheckSheet?.line_names?.cell_names?.cell_name,
+                                line_names: keyForCheckSheet?.line_names,
                                 PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
                                 checkSheet_data: keyForCheckSheet?.checkSheet_data,
                                 completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[month]
@@ -8742,8 +8748,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                                 machine_name: keyForCheckSheet?.machine_name,
                                 machine_code: keyForCheckSheet?.machine_code,
                                 yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-                                line_name: keyForCheckSheet?.line_names?.line_name,
-                                cell_name: keyForCheckSheet?.line_names?.cell_names?.cell_name,
+                                line_names: keyForCheckSheet?.line_names,
                                 schedule_month: previousMonth,
                                 PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[previousMonth],
                                 checkSheet_data: keyForCheckSheet?.checkSheet_data,
@@ -8756,6 +8761,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
             })
 
             machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            skipMachineDataWithEveryMonth = await Machine.populate(skipMachineDataWithEveryMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
             // console.log("========>", machineDataForCurrentMonth)
             // console.log("========>", machineDataForPreviousMonth)
@@ -8900,8 +8906,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                                         machine_code: keyForCheckSheet?.machine_code,
                                         yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
                                         schedule_month: month,
-                                        line_name: keyForCheckSheet?.line_names?.line_name,
-                                        cell_name: keyForCheckSheet?.line_names?.cell_names?.cell_name,
+                                        line_names: keyForCheckSheet?.line_names,
                                         PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
                                         completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[month],
                                         checkSheet_data: keyForCheckSheet?.checkSheet_data,
@@ -8924,8 +8929,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                                 machine_code: keyForCheckSheet?.machine_code,
                                 yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
                                 schedule_month: month,
-                                line_name: keyForCheckSheet?.line_names?.line_name,
-                                cell_name: keyForCheckSheet?.line_names?.cell_names?.cell_name,
+                                line_names: keyForCheckSheet?.line_names,
                                 PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
                                 checkSheet_data: keyForCheckSheet?.checkSheet_data,
                                 completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[month]
@@ -8943,8 +8947,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                                 machine_name: keyForCheckSheet?.machine_name,
                                 machine_code: keyForCheckSheet?.machine_code,
                                 yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-                                line_name: keyForCheckSheet?.line_names?.line_name,
-                                cell_name: keyForCheckSheet?.line_names?.cell_names?.cell_name,
+                                line_names: keyForCheckSheet?.line_names,
                                 schedule_month: previousMonth,
                                 PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[previousMonth],
                                 checkSheet_data: keyForCheckSheet?.checkSheet_data,
@@ -8957,6 +8960,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
             })
 
             machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            skipMachineDataWithEveryMonth = await Machine.populate(skipMachineDataWithEveryMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
             // machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
         }
@@ -9744,6 +9748,20 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
                         $unset: {
                             "checkSheet_data.$[outer].checkSheet.$[].abnormalityDetails": "",
                             "checkSheet_data.$[outer].checkSheet.$[].spareDetails": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].PMOkImage": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].reasonForDelayWhenSkip": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].isAdded": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].isEdited": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].isDeleted": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].inspectionCompletionBy": "",
+
+                            "checkSheet_data.$[outer].flagOfDoneWithDelayForOneMonth": "",
+                            "checkSheet_data.$[outer].completionTargetDate": "",
+                            "checkSheet_data.$[outer].dataSheet": "",
+                            "checkSheet_data.$[outer].totalPMTime": "",
+                            "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus": "",
+
                             "checkSheet_data.$[outer].supportingOperatorList": "",
                             "checkSheet_data.$[outer].PMworkedTMName": "",
                             "checkSheet_data.$[outer].PMStatus": "",
@@ -9755,15 +9773,40 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
                             "checkSheet_data.$[outer].implementation_assign_PRD_TL": "",
                             "checkSheet_data.$[outer].implementation_assign_MTD_TL": "",
                             "checkSheet_data.$[outer].implementation_assign_MTD_HOS": "",
+                            "checkSheet_data.$[outer].implementation_approval_month_of_hod": "",
+                            "checkSheet_data.$[outer].implementation_approval_hod_remarks": "",
+                            "checkSheet_data.$[outer].implementation_assign_MTD_HOD": "",
+
+                            "checkSheet_data.$[outer].implementation_assign_PRD_TL_name": "",
+                            "checkSheet_data.$[outer].implementation_assign_MTD_TL_name": "",
+                            "checkSheet_data.$[outer].implementation_assign_MTD_HOS_name": "",
+                            "checkSheet_data.$[outer].implementation_assign_MTD_HOD_name": "",
+                            "checkSheet_data.$[outer].implemetation_quality_remarks": "",
+
+
                             "checkSheet_data.$[outer].implementation_rejected_remarks": "",
                             "checkSheet_data.$[outer].implementation_approved_by_PRD_TL": "",
                             "checkSheet_data.$[outer].implementation_approved_by_MTD_TL": "",
                             "checkSheet_data.$[outer].implementation_approved_by_MTD_HOS": "",
+                            "checkSheet_data.$[outer].implementation_approved_by_MTD_HOD": "",
+
                             "checkSheet_data.$[outer].implementation_approved_PRD_TL_date": "",
+                            "checkSheet_data.$[outer].implementation_approved_MTD_TL_date": "",
                             "checkSheet_data.$[outer].implementation_approved_MTD_HOS_date": "",
+
+                            "checkSheet_data.$[outer].implementation_approved_MTD_HOD_date": "",
+
+
                             "checkSheet_data.$[outer].implemetation_prd_tl_approval_status": "",
                             "checkSheet_data.$[outer].implemetation_mtd_tl_approval_status": "",
                             "checkSheet_data.$[outer].implemetation_mtd_hos_approval_status": "",
+                            "checkSheet_data.$[outer].implemetation_mtd_hod_approval_status": "",
+
+                            "checkSheet_data.$[outer].revisionContentData": "",
+                            "checkSheet_data.$[outer].flagForRevisionContent": "",
+                            "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": "",
+                            "checkSheet_data.$[outer].extraSpareDetails": "",
+
                         }
                     }, {
                         arrayFilters: [{ 'outer.current_year': current_year }],
@@ -9773,7 +9816,7 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
                 }
                 let addNewFinancialYears
                 const yearAvailableOrNot = await HandlingOtherActions.findOne({ yearId: "FY01" });
-                console.log(yearAvailableOrNot)
+                // console.log(yearAvailableOrNot)
                 if (yearAvailableOrNot) {
                     if (!yearAvailableOrNot.financialYears.includes(current_year)) {
                         addNewFinancialYears = await HandlingOtherActions.updateOne({ yearId: "FY01" }, {
@@ -9826,6 +9869,11 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
 
 
                 // machineData = await Machine.find({ line_names: { $in: lineIdArray }, checksheet_status: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+                let deleteMidYearDeletedInceptionItem = await Machine.updateMany(
+                    { line_names: { $in: lineIdArray } },
+                    { $pull: { "checkSheet_data.$[outer].checkSheet": { isDeleted: true } } }, {
+                    arrayFilters: [{ 'outer.current_year': previous_year }],
+                })
 
                 let previousYearCheckCheetDataOfPeraticularSection
                 previousYearCheckCheetDataOfPeraticularSection = await Machine.aggregate([{
@@ -9892,6 +9940,20 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
                         $unset: {
                             "checkSheet_data.$[outer].checkSheet.$[].abnormalityDetails": "",
                             "checkSheet_data.$[outer].checkSheet.$[].spareDetails": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].PMOkImage": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].reasonForDelayWhenSkip": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].isAdded": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].isEdited": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].isDeleted": "",
+                            "checkSheet_data.$[outer].checkSheet.$[].inspectionCompletionBy": "",
+
+                            "checkSheet_data.$[outer].flagOfDoneWithDelayForOneMonth": "",
+                            "checkSheet_data.$[outer].completionTargetDate": "",
+                            "checkSheet_data.$[outer].dataSheet": "",
+                            "checkSheet_data.$[outer].totalPMTime": "",
+                            "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus": "",
+
                             "checkSheet_data.$[outer].supportingOperatorList": "",
                             "checkSheet_data.$[outer].PMworkedTMName": "",
                             "checkSheet_data.$[outer].PMStatus": "",
@@ -9903,15 +9965,40 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
                             "checkSheet_data.$[outer].implementation_assign_PRD_TL": "",
                             "checkSheet_data.$[outer].implementation_assign_MTD_TL": "",
                             "checkSheet_data.$[outer].implementation_assign_MTD_HOS": "",
+                            "checkSheet_data.$[outer].implementation_approval_month_of_hod": "",
+                            "checkSheet_data.$[outer].implementation_approval_hod_remarks": "",
+                            "checkSheet_data.$[outer].implementation_assign_MTD_HOD": "",
+
+                            "checkSheet_data.$[outer].implementation_assign_PRD_TL_name": "",
+                            "checkSheet_data.$[outer].implementation_assign_MTD_TL_name": "",
+                            "checkSheet_data.$[outer].implementation_assign_MTD_HOS_name": "",
+                            "checkSheet_data.$[outer].implementation_assign_MTD_HOD_name": "",
+                            "checkSheet_data.$[outer].implemetation_quality_remarks": "",
+
+
                             "checkSheet_data.$[outer].implementation_rejected_remarks": "",
                             "checkSheet_data.$[outer].implementation_approved_by_PRD_TL": "",
                             "checkSheet_data.$[outer].implementation_approved_by_MTD_TL": "",
                             "checkSheet_data.$[outer].implementation_approved_by_MTD_HOS": "",
+                            "checkSheet_data.$[outer].implementation_approved_by_MTD_HOD": "",
+
                             "checkSheet_data.$[outer].implementation_approved_PRD_TL_date": "",
+                            "checkSheet_data.$[outer].implementation_approved_MTD_TL_date": "",
                             "checkSheet_data.$[outer].implementation_approved_MTD_HOS_date": "",
+
+                            "checkSheet_data.$[outer].implementation_approved_MTD_HOD_date": "",
+
+
                             "checkSheet_data.$[outer].implemetation_prd_tl_approval_status": "",
                             "checkSheet_data.$[outer].implemetation_mtd_tl_approval_status": "",
                             "checkSheet_data.$[outer].implemetation_mtd_hos_approval_status": "",
+                            "checkSheet_data.$[outer].implemetation_mtd_hod_approval_status": "",
+
+                            "checkSheet_data.$[outer].revisionContentData": "",
+                            "checkSheet_data.$[outer].flagForRevisionContent": "",
+                            "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": "",
+                            "checkSheet_data.$[outer].extraSpareDetails": "",
+
                         }
                     }, {
                         arrayFilters: [{ 'outer.current_year': current_year }],

@@ -68,7 +68,7 @@ const LineWiseSpareConsumptionTrendGraph = ({ lineData, graphData }) => {
             {
                 type: 'bar',
                 label: 'PM',
-                backgroundColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgb(53, 162, 235)',
                 data: graphData?.lineWiseSpareCost?.map((item) => item?.sumOfTotalPMSpareCost),
                 // borderColor: 'white',
                 // borderWidth: 2,
@@ -76,7 +76,7 @@ const LineWiseSpareConsumptionTrendGraph = ({ lineData, graphData }) => {
             {
                 type: 'bar',
                 label: 'BM',
-                backgroundColor: 'rgb(53, 162, 235)',
+                backgroundColor: 'rgb(255, 99, 132)',
                 data: graphData?.lineWiseSpareCost?.map((item) => item?.sumOfTotalBMSpareCost),
             },
             {

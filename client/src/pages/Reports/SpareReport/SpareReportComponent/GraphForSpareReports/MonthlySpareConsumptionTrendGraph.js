@@ -74,15 +74,15 @@ const MonthlySpareConsumptionTrendGraph = ({ graphData }) => {
                 // backgroundColor: "red",
                 data: graphData?.totalMonthlyPMSpareConsumption?.map((key, idx) => {
                     return key + graphData?.totalMonthlyBMSpareConsumption[idx] +
-                     graphData?.totalMonthlyCorrectiveSpareConsumption[idx] + 
-                     graphData?.totalMonthlyPridictiveSpareConsumption[idx] + 
-                     graphData?.totalMonthlyKaizenSpareConsumption[idx]
+                        graphData?.totalMonthlyCorrectiveSpareConsumption[idx] +
+                        graphData?.totalMonthlyPridictiveSpareConsumption[idx] +
+                        graphData?.totalMonthlyKaizenSpareConsumption[idx]
                 }),
             },
             {
                 type: 'bar',
                 label: 'PM',
-                backgroundColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgb(53, 162, 235)',
                 data: graphData?.totalMonthlyPMSpareConsumption,
                 // borderColor: 'white',
                 // borderWidth: 2,
@@ -90,7 +90,7 @@ const MonthlySpareConsumptionTrendGraph = ({ graphData }) => {
             {
                 type: 'bar',
                 label: 'BM',
-                backgroundColor: 'rgb(53, 162, 235)',
+                backgroundColor: 'rgb(255, 99, 132)',
                 data: graphData?.totalMonthlyBMSpareConsumption,
             },
             {

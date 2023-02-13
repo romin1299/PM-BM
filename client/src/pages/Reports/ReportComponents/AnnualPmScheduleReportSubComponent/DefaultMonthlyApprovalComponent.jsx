@@ -59,9 +59,8 @@ const DefaultMonthlyApprovalComponent = ({
       </tr>
 
       <tr>
-        {refArrayForTDSpacing.map((item) => (
-          <td></td>
-        ))}
+        <td colSpan={2}>FO/MTD/02/18/00</td>
+        <td></td>
         <th className="td-padding">Remarks (If Delay)</th>
         {refArrayForTDMapping?.map((item, index) => (
           <td className="td-padding"></td>

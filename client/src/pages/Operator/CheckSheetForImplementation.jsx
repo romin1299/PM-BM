@@ -144,10 +144,10 @@ const CheckSheet = ({
           totalPMTime: values.pmTime,
           yearOfCheckSheet: machineAllData?.checkSheet_data?.current_year,
           delayRemarks: machineAllData?.checkSheet_data?.PMDelayRemark
-            ? machineAllData?.checkSheet_data?.PMDelayRemark[
+            ? machineAllData?.checkSheet_data?.PMDelayRemark?.[
                 monthForCompareSystemMonth
               ]
-              ? machineAllData?.checkSheet_data?.PMDelayRemark[
+              ? machineAllData?.checkSheet_data?.PMDelayRemark?.[
                   monthForCompareSystemMonth
                 ]
               : values.delayRemarks
@@ -376,33 +376,7 @@ const CheckSheet = ({
     },
   ];
 
-  const revisedColumns = [
-    {
-      title: "Sr. No.",
-      render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "7%",
-      align: "center",
-    },
-    {
-      title: "Revision contents",
-      field: "revisionContent",
-      filtering: false,
-      align: "center",
-    },
-    {
-      title: "Date",
-      field: "revisionContentDate",
-      filtering: false,
-      align: "center",
-    },
-    {
-      title: "Revised by",
-      field: "revisedBy",
-      filtering: false,
-      align: "center",
-      editable: "false",
-    },
-  ];
+  const revisedColumns = ["Sr. No.", "Revision contents", "Date", "Revised by"];
 
   // const postMachineIdToGetAllDetailsOfMachine = () => {};
 
@@ -789,40 +763,6 @@ const CheckSheet = ({
     }
   };
 
-  if (
-    // (machineAllData?.checkSheet_data?.PMStatus[
-    //   monthForCompareSystemMonth
-    // ] === "Completed") ||
-    // (machineAllData?.checkSheet_data?.PMStatus[
-    //   previousMonth
-    // ] === "Done with delay" &&
-    //   machineAllData?.checkSheet_data?.PMStatus[
-    //     monthForCompareSystemMonth
-    //   ] === "")
-
-    machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
-      monthForCompareSystemMonth
-    ]?.[
-      machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
-        monthForCompareSystemMonth
-      ]?.length - 1
-    ] !== "Rejected"
-  ) {
-    console.log(
-      "true",
-
-      machineAllData?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
-        monthForCompareSystemMonth
-      ]?.[
-        machineAllData?.checkSheet_data
-          ?.implemetation_mtd_hos_approval_status?.[monthForCompareSystemMonth]
-          ?.length - 1
-      ]
-    );
-  } else {
-    console.log("False");
-  }
-
   return (
     <>
       {workOnImplementationPM}
@@ -1114,14 +1054,24 @@ const CheckSheet = ({
                             (MTD HOD)
                           </th>
                           <td className="ar-table-col1" colSpan={6}>
-                            {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
-                              -1
-                            )}
+                            {
+                              machineAllData?.checkSheet_data
+                                ?.implementation_approved_by_MTD_HOD?.Sep?.[
+                                machineAllData?.checkSheet_data
+                                  ?.implementation_approved_by_MTD_HOD?.Sep
+                                  ?.length - 1
+                              ]
+                            }
                           </td>
                           <td className="ar-table-col1" colSpan={6}>
-                            {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
-                              -1
-                            )}
+                            {
+                              machineAllData?.checkSheet_data
+                                ?.implementation_approved_by_MTD_HOD?.Mar?.[
+                                machineAllData?.checkSheet_data
+                                  ?.implementation_approved_by_MTD_HOD?.Mar
+                                  ?.length - 1
+                              ]
+                            }
                           </td>
                         </tr>
                       </thead>
@@ -1613,7 +1563,7 @@ const CheckSheet = ({
                 <Row>
                   <Col>
                     <div className="m-2 p-3 border bg-white rounded">
-                      <div>
+                      {/* <div>
                         <MaterialTable
                           style={{ boxShadow: "none" }}
                           localization={
@@ -1673,8 +1623,100 @@ const CheckSheet = ({
                             },
                           }}
                         />
-                      </div>
+                      </div> */}
+                      <table style={{ width: "40vw" }}>
+                        {revisedColumns?.map((item) => (
+                          <th className="td-padding">{item}</th>
+                        ))}
+
+                        {machineAllData?.checkSheet_data?.revisionContentData?.map(
+                          (item, index) => (
+                            <tr>
+                              <td className="td-padding">{index + 1}</td>
+                              <td className="td-padding">
+                                {item?.revisionContent}
+                              </td>
+                              <td className="td-padding">
+                                {item?.revisionContentDate}
+                              </td>
+                              <td className="td-padding">{item?.revisedBy}</td>
+                            </tr>
+                          )
+                        )}
+                      </table>
                     </div>
+                    <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                      <table>
+                        <tr>
+                          <td>
+                            <table>
+                              <tr>
+                                [Notes of filing out checklist] (Category)
+                              </tr>
+                              <tr>
+                                <td>
+                                  <span style={{ fontWeight: "bold" }}>B</span>
+                                  reakdown: Directly relates to failure aspect
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <span style={{ fontWeight: "bold" }}>S</span>
+                                  afety: Directly relates to safety aspect
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  {" "}
+                                  <span style={{ fontWeight: "bold" }}>Q</span>
+                                  uality: Directly relates to quality aspect
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <span style={{ fontWeight: "bold" }}>P</span>
+                                  ollution: Directly relates to pollution aspect
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                          <td style={{ borderLeft: "2px solid black" }}></td>
+                          <td>
+                            <table>
+                              <tr>(Person in charge)</tr>
+                              <tr>
+                                <td>M: Maintenance personnel</td>
+                              </tr>
+                              <tr>
+                                <td>O : Production personnel</td>
+                              </tr>
+                              <tr>
+                                {" "}
+                                <td>
+                                  <br />
+                                </td>{" "}
+                              </tr>
+                              <tr>
+                                {" "}
+                                <td>
+                                  <br />
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </Row>
+                    <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                      <Col>--> Planned</Col>
+                      <Col>
+                        <EastIcon fontSize="small" /> Normal Condition
+                      </Col>
+                      <Col>--> * Abnormality</Col>
+                    </Row>
+                    <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                      <div style={{ float: "left" }}>FO/MTD/02/04/04</div>
+                    </Row>
                   </Col>
                   <Col>
                     <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
@@ -1688,114 +1730,51 @@ const CheckSheet = ({
                     {machineAllData?.checkSheet_data?.checksheet_status ===
                       "Implementation" && context.user_type === "Operator" ? (
                       machineAllData?.checkSheet_data
-                        ?.implemetation_prd_tl_approval_status ||
+                        ?.implemetation_prd_tl_approval_status?.[
+                        monthForCompareSystemMonth
+                      ]?.length > 0 ||
                       machineAllData?.checkSheet_data
-                        ?.implemetation_mtd_tl_approval_status ||
+                        ?.implemetation_mtd_tl_approval_status?.[
+                        monthForCompareSystemMonth
+                      ]?.length > 0 ||
                       machineAllData?.checkSheet_data
-                        ?.implemetation_mtd_hos_approval_status ? (
-                        machineAllData?.checkSheet_data
-                          ?.implemetation_mtd_tl_approval_status?.[
-                          monthForCompareSystemMonth
-                        ][
-                          machineAllData?.checkSheet_data
-                            ?.implemetation_mtd_tl_approval_status?.[
-                            monthForCompareSystemMonth
-                          ]?.length - 1
-                        ] === "Rejected" ||
-                        machineAllData?.checkSheet_data
-                          ?.implemetation_mtd_tl_approval_status?.[
-                          monthForCompareSystemMonth
-                        ]?.length === 0 ||
-                        machineAllData?.checkSheet_data
-                          ?.implemetation_mtd_hos_approval_status?.[
-                          monthForCompareSystemMonth
-                        ][
-                          machineAllData?.checkSheet_data
-                            ?.implemetation_mtd_hos_approval_status?.[
-                            monthForCompareSystemMonth
-                          ]?.length - 1
-                        ] === "Rejected" ||
-                        machineAllData?.checkSheet_data
-                          ?.implemetation_mtd_hos_approval_status?.[
-                          monthForCompareSystemMonth
-                        ]?.length === 0 ? (
-                          <>
-                            <Row className="m-2 p-3 border bg-white rounded">
-                              <Col>
-                                <form onSubmit={formik.handleSubmit}>
-                                  {delayRemarks === 1 ? (
+                        ?.implemetation_mtd_hos_approval_status?.[
+                        monthForCompareSystemMonth
+                      ]?.length > 0 ? (
+                        <>
+                          <Row className="m-2 p-3 border bg-white rounded">
+                            <Col>
+                              <form onSubmit={formik.handleSubmit}>
+                                {delayRemarks === 1 ? (
+                                  machineAllData?.checkSheet_data
+                                    ?.PMDelayRemark ? (
                                     machineAllData?.checkSheet_data
-                                      ?.PMDelayRemark ? (
-                                      machineAllData?.checkSheet_data
-                                        ?.PMDelayRemark?.[
-                                        monthForCompareSystemMonth
-                                      ] ? (
-                                        <div className="mb-2 row">
-                                          <span
-                                            className="col-3"
-                                            style={{
-                                              textAlign: "left",
-                                              fontWeight: "bold",
-                                            }}
-                                          >
-                                            Delay reason:{" "}
-                                          </span>
-                                          <TextField
-                                            type="text"
-                                            className="col-8"
-                                            name="delayRemarks"
-                                            autoComplete="off"
-                                            value={
-                                              machineAllData?.checkSheet_data
-                                                ?.PMDelayRemark?.[
-                                                monthForCompareSystemMonth
-                                              ]
-                                            }
-                                          />
-                                        </div>
-                                      ) : (
-                                        <div className="mb-2 row">
-                                          <span
-                                            className="col-3"
-                                            style={{
-                                              textAlign: "left",
-                                              fontWeight: "bold",
-                                            }}
-                                          >
-                                            Delay reason:{" "}
-                                          </span>
-                                          <TextField
-                                            type="text"
-                                            className="col-8"
-                                            name="delayRemarks"
-                                            autoComplete="off"
-                                            value={formik.values.delayRemarks}
-                                            placeholder={
-                                              machineAllData?.checkSheet_data
-                                                ?.PMDelayRemark?.[
-                                                monthForCompareSystemMonth
-                                              ]
-                                                ? machineAllData
-                                                    ?.checkSheet_data
-                                                    ?.PMDelayRemark?.[
-                                                    monthForCompareSystemMonth
-                                                  ]
-                                                : ""
-                                            }
-                                            onChange={formik.handleChange}
-                                            error={
-                                              formik.touched.delayRemarks &&
-                                              Boolean(
-                                                formik.errors.delayRemarks
-                                              )
-                                            }
-                                            helperText={
-                                              formik.touched.delayRemarks &&
-                                              formik.errors.delayRemarks
-                                            }
-                                          />
-                                        </div>
-                                      )
+                                      ?.PMDelayRemark?.[
+                                      monthForCompareSystemMonth
+                                    ] ? (
+                                      <div className="mb-2 row">
+                                        <span
+                                          className="col-3"
+                                          style={{
+                                            textAlign: "left",
+                                            fontWeight: "bold",
+                                          }}
+                                        >
+                                          Delay reason:{" "}
+                                        </span>
+                                        <TextField
+                                          type="text"
+                                          className="col-8"
+                                          name="delayRemarks"
+                                          autoComplete="off"
+                                          value={
+                                            machineAllData?.checkSheet_data
+                                              ?.PMDelayRemark?.[
+                                              monthForCompareSystemMonth
+                                            ]
+                                          }
+                                        />
+                                      </div>
                                     ) : (
                                       <div className="mb-2 row">
                                         <span
@@ -1837,171 +1816,189 @@ const CheckSheet = ({
                                       </div>
                                     )
                                   ) : (
-                                    ""
-                                  )}
-                                  <div className="mb-2 row">
-                                    <span
-                                      className="col-3"
-                                      style={{
-                                        textAlign: "left",
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      PM Status:{" "}
-                                    </span>
-                                    <TextField
-                                      type="text"
-                                      className="col-8"
-                                      name="pmStatus"
-                                      autoComplete="off"
-                                      value={
-                                        machineAllData?.checkSheet_data
-                                          ?.PMStatus
-                                          ? machineAllData?.checkSheet_data
-                                              ?.PMStatus?.[
-                                              monthForCompareSystemMonth
-                                            ] === ""
-                                            ? "Not schedule"
-                                            : machineAllData?.checkSheet_data
-                                                ?.PMStatus?.[
+                                    <div className="mb-2 row">
+                                      <span
+                                        className="col-3"
+                                        style={{
+                                          textAlign: "left",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        Delay reason:{" "}
+                                      </span>
+                                      <TextField
+                                        type="text"
+                                        className="col-8"
+                                        name="delayRemarks"
+                                        autoComplete="off"
+                                        value={formik.values.delayRemarks}
+                                        placeholder={
+                                          machineAllData?.checkSheet_data
+                                            ?.PMDelayRemark?.[
+                                            monthForCompareSystemMonth
+                                          ]
+                                            ? machineAllData?.checkSheet_data
+                                                ?.PMDelayRemark?.[
                                                 monthForCompareSystemMonth
                                               ]
-                                          : ""
-                                      }
-                                      // onChange={formik.handleChange}
-                                      // error={
-                                      //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
-                                      // }
-                                      // helperText={
-                                      //   formik.touched.pmTime && formik.errors.pmTime
-                                      // }
-                                    />
-                                  </div>
-                                  <div className="mb-2 row">
-                                    <span
-                                      className="col-3"
-                                      style={{
-                                        textAlign: "left",
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      PM Time(min):{" "}
-                                    </span>
-                                    <TextField
-                                      type="text"
-                                      className="col-8"
-                                      name="pmTime"
-                                      autoComplete="off"
-                                      value={formik.values.pmTime}
-                                      onChange={formik.handleChange}
-                                      error={
-                                        formik.touched.pmTime &&
-                                        Boolean(formik.errors.pmTime)
-                                      }
-                                      helperText={
-                                        formik.touched.pmTime &&
-                                        formik.errors.pmTime
-                                      }
-                                    />
-                                  </div>
-                                  <div className="mb-2 row">
-                                    <span
-                                      className="col-3"
-                                      style={{
-                                        textAlign: "left",
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      Previous PM Time(min):{" "}
-                                    </span>
-                                    <span
-                                      className="col-8"
-                                      style={{ textAlign: "left" }}
-                                    >
-                                      {machineAllData?.checkSheet_data
-                                        ?.totalPMTime?.[
-                                        monthForCompareSystemMonth
-                                      ]?.totalWorkedPMTime
-                                        ? machineAllData?.checkSheet_data
-                                            ?.totalPMTime?.[
-                                            monthForCompareSystemMonth
-                                          ]?.totalWorkedPMTime
-                                        : "0"}
-                                    </span>
-                                  </div>
-                                  <div className="mb-2 d-flex align-items-center">
-                                    <span
-                                      className="col-3"
-                                      style={{
-                                        textAlign: "left",
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      Supporting TM:{" "}
-                                    </span>
-
-                                    <Multiselect
-                                      displayValue="tm_name"
-                                      className="col-9 "
-                                      options={supportingTMList} // Options to display in the dropdown
-                                      // selectedValues={departmentList} // Preselected value to persist in dropdown
-                                      onSelect={async (selectedList) => {
-                                        await setSelectedSupportedTM(
-                                          selectedList
-                                        );
-                                      }} // Function will trigger on select event
-                                      onRemove={async (selectedList) => {
-                                        await setSelectedSupportedTM(
-                                          selectedList
-                                        );
-                                      }} // Function will trigger on remove event
-                                      style={{
-                                        multiselectContainer: {
-                                          width: "15rem",
-                                        },
-                                      }}
-                                    />
-                                  </div>
-
-                                  <button
-                                    className="btn-primary1"
-                                    type="submit"
+                                            : ""
+                                        }
+                                        onChange={formik.handleChange}
+                                        error={
+                                          formik.touched.delayRemarks &&
+                                          Boolean(formik.errors.delayRemarks)
+                                        }
+                                        helperText={
+                                          formik.touched.delayRemarks &&
+                                          formik.errors.delayRemarks
+                                        }
+                                      />
+                                    </div>
+                                  )
+                                ) : (
+                                  ""
+                                )}
+                                <div className="mb-2 row">
+                                  <span
+                                    className="col-3"
+                                    style={{
+                                      textAlign: "left",
+                                      fontWeight: "bold",
+                                    }}
                                   >
-                                    Save
-                                  </button>
-                                </form>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <Col>
-                                {machineAllData?.checkSheet_data?.PMStatus ? (
+                                    PM Status:{" "}
+                                  </span>
+                                  <TextField
+                                    type="text"
+                                    className="col-8"
+                                    name="pmStatus"
+                                    autoComplete="off"
+                                    value={
+                                      machineAllData?.checkSheet_data?.PMStatus
+                                        ? machineAllData?.checkSheet_data
+                                            ?.PMStatus?.[
+                                            monthForCompareSystemMonth
+                                          ] === ""
+                                          ? "Not schedule"
+                                          : machineAllData?.checkSheet_data
+                                              ?.PMStatus?.[
+                                              monthForCompareSystemMonth
+                                            ]
+                                        : ""
+                                    }
+                                    // onChange={formik.handleChange}
+                                    // error={
+                                    //   formik.touched.pmTime && Boolean(formik.errors.pmTime)
+                                    // }
+                                    // helperText={
+                                    //   formik.touched.pmTime && formik.errors.pmTime
+                                    // }
+                                  />
+                                </div>
+                                <div className="mb-2 row">
+                                  <span
+                                    className="col-3"
+                                    style={{
+                                      textAlign: "left",
+                                      fontWeight: "bold",
+                                    }}
+                                  >
+                                    PM Time(min):{" "}
+                                  </span>
+                                  <TextField
+                                    type="text"
+                                    className="col-8"
+                                    name="pmTime"
+                                    autoComplete="off"
+                                    value={formik.values.pmTime}
+                                    onChange={formik.handleChange}
+                                    error={
+                                      formik.touched.pmTime &&
+                                      Boolean(formik.errors.pmTime)
+                                    }
+                                    helperText={
+                                      formik.touched.pmTime &&
+                                      formik.errors.pmTime
+                                    }
+                                  />
+                                </div>
+                                <div className="mb-2 row">
+                                  <span
+                                    className="col-3"
+                                    style={{
+                                      textAlign: "left",
+                                      fontWeight: "bold",
+                                    }}
+                                  >
+                                    Previous PM Time(min):{" "}
+                                  </span>
+                                  <span
+                                    className="col-8"
+                                    style={{ textAlign: "left" }}
+                                  >
+                                    {machineAllData?.checkSheet_data
+                                      ?.totalPMTime?.[
+                                      monthForCompareSystemMonth
+                                    ]?.totalWorkedPMTime
+                                      ? machineAllData?.checkSheet_data
+                                          ?.totalPMTime?.[
+                                          monthForCompareSystemMonth
+                                        ]?.totalWorkedPMTime
+                                      : "0"}
+                                  </span>
+                                </div>
+                                <div className="mb-2 d-flex align-items-center">
+                                  <span
+                                    className="col-3"
+                                    style={{
+                                      textAlign: "left",
+                                      fontWeight: "bold",
+                                    }}
+                                  >
+                                    Supporting TM:{" "}
+                                  </span>
+
+                                  <Multiselect
+                                    displayValue="tm_name"
+                                    className="col-9 "
+                                    options={supportingTMList} // Options to display in the dropdown
+                                    // selectedValues={departmentList} // Preselected value to persist in dropdown
+                                    onSelect={async (selectedList) => {
+                                      await setSelectedSupportedTM(
+                                        selectedList
+                                      );
+                                    }} // Function will trigger on select event
+                                    onRemove={async (selectedList) => {
+                                      await setSelectedSupportedTM(
+                                        selectedList
+                                      );
+                                    }} // Function will trigger on remove event
+                                    style={{
+                                      multiselectContainer: {
+                                        width: "15rem",
+                                      },
+                                    }}
+                                  />
+                                </div>
+
+                                <button className="btn-primary1" type="submit">
+                                  Save
+                                </button>
+                              </form>
+                            </Col>
+                          </Row>
+                          <Row>
+                            <Col>
+                              {machineAllData?.checkSheet_data?.PMStatus ? (
+                                machineAllData?.checkSheet_data?.PMStatus[
+                                  monthForCompareSystemMonth
+                                ] === "Completed" ||
+                                (machineAllData?.checkSheet_data?.PMStatus[
+                                  previousMonth
+                                ] === "Done with delay" &&
                                   machineAllData?.checkSheet_data?.PMStatus[
                                     monthForCompareSystemMonth
-                                  ] === "Completed" ||
-                                  (machineAllData?.checkSheet_data?.PMStatus[
-                                    previousMonth
-                                  ] === "Done with delay" &&
-                                    machineAllData?.checkSheet_data?.PMStatus[
-                                      monthForCompareSystemMonth
-                                    ] === "") &&
-                                    (machineAllData?.checkSheet_data
-                                    ?.implemetation_mtd_hos_approval_status?.[
-                                    monthForCompareSystemMonth
-                                  ]?.[
-                                    machineAllData?.checkSheet_data
-                                      ?.implemetation_mtd_hos_approval_status?.[
-                                      monthForCompareSystemMonth
-                                    ]?.length - 1
-                                  ] == "Pending") ? 
-                                    machineAllData?.checkSheet_data
-                                      ?.implemetation_mtd_tl_approval_status?.[
-                                      monthForCompareSystemMonth
-                                    ]?.[
-                                      machineAllData?.checkSheet_data
-                                        ?.implemetation_mtd_tl_approval_status?.[
-                                        monthForCompareSystemMonth
-                                      ]?.length - 1
-                                    ] !== "Rejected" :
+                                  ] === "" &&
                                   machineAllData?.checkSheet_data
                                     ?.implemetation_mtd_hos_approval_status?.[
                                     monthForCompareSystemMonth
@@ -2010,218 +2007,216 @@ const CheckSheet = ({
                                       ?.implemetation_mtd_hos_approval_status?.[
                                       monthForCompareSystemMonth
                                     ]?.length - 1
+                                  ] === "Pending") ? (
+                                  machineAllData?.checkSheet_data
+                                    ?.implemetation_mtd_tl_approval_status?.[
+                                    monthForCompareSystemMonth
+                                  ]?.[
+                                    machineAllData?.checkSheet_data
+                                      ?.implemetation_mtd_tl_approval_status?.[
+                                      monthForCompareSystemMonth
+                                    ]?.length - 1
+                                  ] !== "Rejected"
+                                ) : machineAllData?.checkSheet_data
+                                    ?.implemetation_mtd_hos_approval_status?.[
+                                    monthForCompareSystemMonth
+                                  ]?.[
+                                    machineAllData?.checkSheet_data
+                                      ?.implemetation_mtd_hos_approval_status?.[
+                                      monthForCompareSystemMonth
+                                    ]?.length - 1
                                   ] !== "Rejected" ? (
-                                    <form onSubmit={formik1.handleSubmit}>
-                                      <div className="m-2 p-3 border bg-white rounded">
-                                        <div className="d-flex">
-                                          <div className="col-3">
-                                            <span>
-                                              PRD TL List <br /> (Quality Check)
-                                            </span>
-                                            <div
-                                              style={{ marginTop: "0.5rem" }}
+                                  <form onSubmit={formik1.handleSubmit}>
+                                    <div className="m-2 p-3 border bg-white rounded">
+                                      <div className="d-flex">
+                                        <div className="col-3">
+                                          <span>
+                                            PRD TL List <br /> (Quality Check)
+                                          </span>
+                                          <div style={{ marginTop: "0.5rem" }}>
+                                            <select
+                                              // class="form-select form-select-sm"
+                                              // aria-label=".form-select-sm example"
+                                              // style={{ width: "100%" }}
+                                              id="standard-select-currency"
+                                              name="prd_tl_list"
+                                              // className="textField"
+                                              // fullWidth
+                                              select // label="Select"
+                                              autoComplete="off"
+                                              value={formik1.values.prd_tl_list}
+                                              onChange={(e) => {
+                                                // setUsertype(e.target.value);
+                                                formik1.handleChange(e);
+                                              }}
+                                              variant="standard"
                                             >
-                                              <select
-                                                // class="form-select form-select-sm"
-                                                // aria-label=".form-select-sm example"
-                                                // style={{ width: "100%" }}
-                                                id="standard-select-currency"
-                                                name="prd_tl_list"
-                                                // className="textField"
-                                                // fullWidth
-                                                select // label="Select"
-                                                autoComplete="off"
-                                                value={
-                                                  formik1.values.prd_tl_list
-                                                }
-                                                onChange={(e) => {
-                                                  // setUsertype(e.target.value);
-                                                  formik1.handleChange(e);
-                                                }}
-                                                variant="standard"
+                                              <option
+                                                selected
+                                                disabled
+                                                value=""
                                               >
-                                                <option
-                                                  selected
-                                                  disabled
-                                                  value=""
-                                                >
-                                                  Please select
-                                                </option>
-                                                {PRDTLlist?.map(
-                                                  (index, idx) => {
-                                                    return (
-                                                      <option value={idx}>
-                                                        {index.tm_name}
-                                                      </option>
-                                                    );
-                                                  }
-                                                )}
-                                              </select>
-                                              <div>
-                                                <p
-                                                  style={{
-                                                    color: "#F44336",
-                                                    fontWeight: "normal",
-                                                    fontSize: "0.80rem",
-                                                    // float: "left",
-                                                    paddingTop: "0.5rem",
-                                                  }}
-                                                >
-                                                  {formik1.touched
-                                                    .prd_tl_list &&
-                                                    formik1.errors.prd_tl_list}
-                                                </p>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div className="col-1 d-flex align-items-center justify-content-center ">
-                                            <EastIcon />
-                                          </div>
-                                          <div className="col-3">
-                                            <span>
-                                              MTD TL List <br /> (Checked &
-                                              Verify by)
-                                            </span>
-                                            <div
-                                              style={{ marginTop: "0.5rem" }}
-                                            >
-                                              <select
-                                                // class="form-select form-select-sm"
-                                                // aria-label=".form-select-sm example"
-                                                // style={{ width: "100%" }}
-                                                id="standard-select-currency"
-                                                name="mtd_tl_list"
-                                                // className="textField"
-                                                // fullWidth
-                                                select // label="Select"
-                                                autoComplete="off"
-                                                value={
-                                                  formik1.values.mtd_tl_list
-                                                }
-                                                onChange={(e) => {
-                                                  // setUsertype(e.target.value);
-                                                  formik1.handleChange(e);
+                                                Please select
+                                              </option>
+                                              {PRDTLlist?.map((index, idx) => {
+                                                return (
+                                                  <option value={idx}>
+                                                    {index.tm_name}
+                                                  </option>
+                                                );
+                                              })}
+                                            </select>
+                                            <div>
+                                              <p
+                                                style={{
+                                                  color: "#F44336",
+                                                  fontWeight: "normal",
+                                                  fontSize: "0.80rem",
+                                                  // float: "left",
+                                                  paddingTop: "0.5rem",
                                                 }}
-                                                variant="standard"
                                               >
-                                                <option
-                                                  selected
-                                                  disabled
-                                                  value=""
-                                                >
-                                                  Please select
-                                                </option>
-                                                {MTDTLlist?.map(
-                                                  (index, idx) => {
-                                                    return (
-                                                      <option value={idx}>
-                                                        {index.tm_name}
-                                                      </option>
-                                                    );
-                                                  }
-                                                )}
-                                              </select>
-                                              <div>
-                                                <p
-                                                  style={{
-                                                    color: "#F44336",
-                                                    fontWeight: "normal",
-                                                    fontSize: "0.80rem",
-                                                    // float: "left",
-                                                    paddingTop: "0.5rem",
-                                                  }}
-                                                >
-                                                  {formik1.touched
-                                                    .mtd_tl_list &&
-                                                    formik1.errors.mtd_tl_list}
-                                                </p>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div className="col-1 d-flex align-items-center justify-content-center">
-                                            <EastIcon />
-                                          </div>
-                                          <div className="col-3">
-                                            <span>
-                                              MTD HOS List <br /> (Approved by)
-                                            </span>
-                                            <div
-                                              style={{ marginTop: "0.5rem" }}
-                                            >
-                                              <select
-                                                // class="form-select form-select-sm"
-                                                // aria-label=".form-select-sm example"
-                                                // style={{ width: "100%" }}
-                                                id="standard-select-currency"
-                                                name="mtd_hos_list"
-                                                // className="textField"
-                                                // fullWidth
-                                                select // label="Select"
-                                                autoComplete="off"
-                                                value={
-                                                  formik1.values.mtd_hos_list
-                                                }
-                                                onChange={(e) => {
-                                                  // setUsertype(e.target.value);
-                                                  formik1.handleChange(e);
-                                                }}
-                                                variant="standard"
-                                              >
-                                                <option
-                                                  selected
-                                                  disabled
-                                                  value=""
-                                                >
-                                                  Please select
-                                                </option>
-                                                {HOSList?.map((index, idx) => {
-                                                  return (
-                                                    <option value={idx}>
-                                                      {index.tm_name}
-                                                    </option>
-                                                  );
-                                                })}
-                                              </select>
-                                              <div>
-                                                <p
-                                                  style={{
-                                                    color: "#F44336",
-                                                    fontWeight: "normal",
-                                                    fontSize: "0.80rem",
-                                                    // float: "left",
-                                                    paddingTop: "0.5rem",
-                                                  }}
-                                                >
-                                                  {formik1.touched
-                                                    .mtd_hos_list &&
-                                                    formik1.errors.mtd_hos_list}
-                                                </p>
-                                              </div>
+                                                {formik1.touched.prd_tl_list &&
+                                                  formik1.errors.prd_tl_list}
+                                              </p>
                                             </div>
                                           </div>
                                         </div>
-                                        <div>
-                                          <button
-                                            className="btn-approval"
-                                            type="submit"
-                                          >
-                                            Send for Approval 123
-                                          </button>
+                                        <div className="col-1 d-flex align-items-center justify-content-center ">
+                                          <EastIcon />
+                                        </div>
+                                        <div className="col-3">
+                                          <span>
+                                            MTD TL List <br /> (Checked & Verify
+                                            by)
+                                          </span>
+                                          <div style={{ marginTop: "0.5rem" }}>
+                                            <select
+                                              // class="form-select form-select-sm"
+                                              // aria-label=".form-select-sm example"
+                                              // style={{ width: "100%" }}
+                                              id="standard-select-currency"
+                                              name="mtd_tl_list"
+                                              // className="textField"
+                                              // fullWidth
+                                              select // label="Select"
+                                              autoComplete="off"
+                                              value={formik1.values.mtd_tl_list}
+                                              onChange={(e) => {
+                                                // setUsertype(e.target.value);
+                                                formik1.handleChange(e);
+                                              }}
+                                              variant="standard"
+                                            >
+                                              <option
+                                                selected
+                                                disabled
+                                                value=""
+                                              >
+                                                Please select
+                                              </option>
+                                              {MTDTLlist?.map((index, idx) => {
+                                                return (
+                                                  <option value={idx}>
+                                                    {index.tm_name}
+                                                  </option>
+                                                );
+                                              })}
+                                            </select>
+                                            <div>
+                                              <p
+                                                style={{
+                                                  color: "#F44336",
+                                                  fontWeight: "normal",
+                                                  fontSize: "0.80rem",
+                                                  // float: "left",
+                                                  paddingTop: "0.5rem",
+                                                }}
+                                              >
+                                                {formik1.touched.mtd_tl_list &&
+                                                  formik1.errors.mtd_tl_list}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="col-1 d-flex align-items-center justify-content-center">
+                                          <EastIcon />
+                                        </div>
+                                        <div className="col-3">
+                                          <span>
+                                            MTD HOS List <br /> (Approved by)
+                                          </span>
+                                          <div style={{ marginTop: "0.5rem" }}>
+                                            <select
+                                              // class="form-select form-select-sm"
+                                              // aria-label=".form-select-sm example"
+                                              // style={{ width: "100%" }}
+                                              id="standard-select-currency"
+                                              name="mtd_hos_list"
+                                              // className="textField"
+                                              // fullWidth
+                                              select // label="Select"
+                                              autoComplete="off"
+                                              value={
+                                                formik1.values.mtd_hos_list
+                                              }
+                                              onChange={(e) => {
+                                                // setUsertype(e.target.value);
+                                                formik1.handleChange(e);
+                                              }}
+                                              variant="standard"
+                                            >
+                                              <option
+                                                selected
+                                                disabled
+                                                value=""
+                                              >
+                                                Please select
+                                              </option>
+                                              {HOSList?.map((index, idx) => {
+                                                return (
+                                                  <option value={idx}>
+                                                    {index.tm_name}
+                                                  </option>
+                                                );
+                                              })}
+                                            </select>
+                                            <div>
+                                              <p
+                                                style={{
+                                                  color: "#F44336",
+                                                  fontWeight: "normal",
+                                                  fontSize: "0.80rem",
+                                                  // float: "left",
+                                                  paddingTop: "0.5rem",
+                                                }}
+                                              >
+                                                {formik1.touched.mtd_hos_list &&
+                                                  formik1.errors.mtd_hos_list}
+                                              </p>
+                                            </div>
+                                          </div>
                                         </div>
                                       </div>
-                                    </form>
-                                  ) : (
-                                    ""
-                                  )
+                                      <div>
+                                        <button
+                                          className="btn-approval"
+                                          type="submit"
+                                        >
+                                          Send for Approval
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </form>
                                 ) : (
                                   ""
-                                )}
-                              </Col>
-                            </Row>
-                          </>
-                        ) : (
-                          ""
-                        )
+                                )
+                              ) : (
+                                ""
+                              )}
+                            </Col>
+                          </Row>
+                        </>
                       ) : (
                         <>
                           <Row className="m-2 p-3 border bg-white rounded">
