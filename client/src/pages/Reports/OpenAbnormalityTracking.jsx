@@ -284,7 +284,7 @@ function OpenAbnormalityTracking() {
       return {
         hidden:
           (context.user_type !== "TL/HOSS" ||
-          context.grade !== "MTD") &&
+          context.tm_department !== "MTD") &&
           (rowdata.PMuploadedImage === "" ||
             rowdata.PMuploadedImage === undefined),
         name: "download", // Added custom name property so we know which action to check for
@@ -306,7 +306,7 @@ function OpenAbnormalityTracking() {
       return {
         hidden:
         (context.user_type !== "TL/HOSS" ||
-        context.grade !== "MTD") &&
+        context.tm_department !== "MTD") &&
           rowdata.remarksOnClose === undefined &&
           rowdata.doneDate === undefined &&
           rowdata.doneBy === undefined,
@@ -536,7 +536,7 @@ function OpenAbnormalityTracking() {
                 editable={{
                   isEditHidden: (rowData) =>
                   (context.user_type !== "TL/HOSS" ||
-                  context.grade !== "MTD"),
+                  context.tm_department !== "MTD"),
                   onRowUpdate: (updatedRow, oldRow) =>
                     new Promise((resolve, reject) => {
                       const index = oldRow.tableData.id;

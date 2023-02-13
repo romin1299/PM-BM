@@ -26,15 +26,15 @@ const SpareConsumptionTrendTypeGraph = ({ graphData }) => {
 
                 ,
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
                     'rgba(53, 162, 235, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
                     'rgba(75, 192, 192, 0.2)',
                     'rgba(153, 102, 255, 0.2)',
                     'rgba(179,183,69, 0.2)',
                 ],
                 borderColor: [
-                    'rgba(255, 99, 132, 1)',
                     'rgba(53, 162, 235, 1)',
+                    'rgba(255, 99, 132, 1)',
                     'rgba(75, 192, 192, 1)',
                     'rgba(153, 102, 255, 1)',
                     'rgba(179,183,69, 1)',

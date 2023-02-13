@@ -16,6 +16,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
 import Footer from "../../../components/Footer/Footer";
+import EastIcon from "@mui/icons-material/East";
 
 function ChecksheetFormApprovalForHOSAndHOD() {
   const context = useContext(RoutingContext);
@@ -256,24 +257,24 @@ function ChecksheetFormApprovalForHOSAndHOD() {
 
         key === "tableRowId"
           ? newColData.push(
-            new Object({
-              key: key,
-              value: obj[key],
-              rowspan: 1,
-              // colspan: 1,
-              print: false,
-            }),
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: false,
+              }),
 
-            new Object({
-              key: "rowId",
-              value: i + 1,
-              rowspan: 1,
-              // colspan: 1,
-              print: true,
-            })
-          )
+              new Object({
+                key: "rowId",
+                value: i + 1,
+                rowspan: 1,
+                // colspan: 1,
+                print: true,
+              })
+            )
           : key === "isDeleted"
-            ? newColData.push(
+          ? newColData.push(
               new Object({
                 key: key,
                 value: obj[key],
@@ -282,7 +283,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                 print: false,
               })
             )
-            : newColData.push(
+          : newColData.push(
               new Object({
                 key: key,
                 value: obj[key],
@@ -458,8 +459,8 @@ function ChecksheetFormApprovalForHOSAndHOD() {
 
   let validationString =
     context?.user_type === "Section-Admin" &&
-      context?.tm_department === "MTD" &&
-      context?.tm_grade === "HOD"
+    context?.tm_department === "MTD" &&
+    context?.tm_grade === "HOD"
       ? "Please Approve"
       : "Please select one";
 
@@ -482,31 +483,31 @@ function ChecksheetFormApprovalForHOSAndHOD() {
       // console.log("482----------checksheet form HOS",values)
       let jsonBody =
         context?.user_type === "Plant-Admin" &&
-          context?.tm_department === "MTD" &&
-          context?.tm_grade === "HOD"
+        context?.tm_department === "MTD" &&
+        context?.tm_grade === "HOD"
           ? {
-            request: formik.values.request,
-            approval_remarks: formik.values.approval_remarks,
-            selected_machine_data:
-              selectedMachineCheckSheetData.state?.selectedRowForViewForm,
+              request: formik.values.request,
+              approval_remarks: formik.values.approval_remarks,
+              selected_machine_data:
+                selectedMachineCheckSheetData.state?.selectedRowForViewForm,
 
-            implementation_approved_by_MTD_HOD: context.tm_name,
-            implementation_approved_MTD_HOD_date: timeStamp(),
-            senderApprovalMonth,
-          }
+              implementation_approved_by_MTD_HOD: context.tm_name,
+              implementation_approved_MTD_HOD_date: timeStamp(),
+              senderApprovalMonth,
+            }
           : {
-            request: formik.values.request,
-            rejected_remarks: formik.values.rejected_remarks,
-            selected_machine_data:
-              selectedMachineCheckSheetData.state?.selectedRowForViewForm,
-            // approved_by_TL: context.tm_name,
-            approved_by_HOS: context.tm_name,
-            // approved_by_PRD_TL: context.tm_name,
-            preparation_HOS_date: timeStamp(),
-            implementation_approved_by_MTD_HOS: context.tm_name,
-            implementation_approved_MTD_HOS_date: timeStamp(),
-            senderApprovalMonth,
-          };
+              request: formik.values.request,
+              rejected_remarks: formik.values.rejected_remarks,
+              selected_machine_data:
+                selectedMachineCheckSheetData.state?.selectedRowForViewForm,
+              // approved_by_TL: context.tm_name,
+              approved_by_HOS: context.tm_name,
+              // approved_by_PRD_TL: context.tm_name,
+              preparation_HOS_date: timeStamp(),
+              implementation_approved_by_MTD_HOS: context.tm_name,
+              implementation_approved_MTD_HOS_date: timeStamp(),
+              senderApprovalMonth,
+            };
 
       // console.log("________");
       const res = await fetch("/approveRequestFromTL_HOS_HOD", {
@@ -524,14 +525,14 @@ function ChecksheetFormApprovalForHOSAndHOD() {
         machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
           ? navigate("/preparationApproval")
           : machineAllData?.checkSheet_data?.checksheet_status === "Planning"
-            ? navigate("/planningApproval")
-            : selectedMachineCheckSheetData?.state?.dashboardID ===
-              "FromSixMonthApprovalDashboard"
-              ? navigate("/sixMonthApprovalDashboard")
-              : selectedMachineCheckSheetData?.state?.dashboardID ===
-                "FromPlanningApprovalDashboard"
-                ? navigate("/planningApproval")
-                : navigate("/implementationApproval");
+          ? navigate("/planningApproval")
+          : selectedMachineCheckSheetData?.state?.dashboardID ===
+            "FromSixMonthApprovalDashboard"
+          ? navigate("/sixMonthApprovalDashboard")
+          : selectedMachineCheckSheetData?.state?.dashboardID ===
+            "FromPlanningApprovalDashboard"
+          ? navigate("/planningApproval")
+          : navigate("/implementationApproval");
 
         // if (
         //   selectedMachineCheckSheetData?.state?.dashboardID ===
@@ -624,18 +625,18 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                 <button
                   onClick={() => {
                     machineAllData?.checkSheet_data?.checksheet_status ===
-                      "Preparation"
+                    "Preparation"
                       ? navigate("/preparationApproval")
                       : machineAllData?.checkSheet_data?.checksheet_status ===
                         "Planning"
-                        ? navigate("/planningApproval")
-                        : selectedMachineCheckSheetData?.state?.dashboardID ===
-                          "FromSixMonthApprovalDashboard"
-                          ? navigate("/sixMonthApprovalDashboard")
-                          : selectedMachineCheckSheetData?.state?.dashboardID ===
-                            "FromPlanningApprovalDashboard"
-                            ? navigate("/planningApproval")
-                            : navigate("/implementationApproval");
+                      ? navigate("/planningApproval")
+                      : selectedMachineCheckSheetData?.state?.dashboardID ===
+                        "FromSixMonthApprovalDashboard"
+                      ? navigate("/sixMonthApprovalDashboard")
+                      : selectedMachineCheckSheetData?.state?.dashboardID ===
+                        "FromPlanningApprovalDashboard"
+                      ? navigate("/planningApproval")
+                      : navigate("/implementationApproval");
 
                     // if (
                     //   selectedMachineCheckSheetData?.state?.dashboardID ===
@@ -664,8 +665,8 @@ function ChecksheetFormApprovalForHOSAndHOD() {
               </div>
               <div>
                 {context?.user_type === "Plant-Admin" &&
-                  context?.tm_department === "MTD" &&
-                  context?.tm_grade === "HOD" ? (
+                context?.tm_department === "MTD" &&
+                context?.tm_grade === "HOD" ? (
                   <form onSubmit={formik.handleSubmit}>
                     <div className="row">
                       <div className="row mb-3 mt-3">
@@ -832,8 +833,8 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                   <tr>
                     <th
                       className="ar-table-thead-header1 text-center"
-                    // colSpan={2}
-                    //  rowSpan={5}
+                      // colSpan={2}
+                      //  rowSpan={5}
                     >
                       PLAN ACCEPTANCE
                       <br />
@@ -841,8 +842,8 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                     </th>
                     <th
                       className="ar-table-thead-header1 text-center"
-                    // colSpan={2}
-                    //  rowSpan={5}
+                      // colSpan={2}
+                      //  rowSpan={5}
                     >
                       PLAN PREPARED
                       <br />
@@ -852,35 +853,37 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                   <tr>
                     <th
                       className="approvalName"
-                    // colSpan={2}
-                    //  rowSpan={5}
+                      // colSpan={2}
+                      //  rowSpan={5}
                     >
                       {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
                         machineAllData?.checkSheet_data?.approved_by_PRD_TL
                           .length - 1
                       ]
-                        ? `${machineAllData?.checkSheet_data?.approved_by_PRD_TL[
-                        machineAllData?.checkSheet_data
-                          ?.approved_by_PRD_TL.length - 1
-                        ]
-                        }`
+                        ? `${
+                            machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                              machineAllData?.checkSheet_data
+                                ?.approved_by_PRD_TL.length - 1
+                            ]
+                          }`
                         : ""}
                     </th>
                     <th
                       className="approvalName"
-                    // colSpan={2}
-                    //  rowSpan={5}
+                      // colSpan={2}
+                      //  rowSpan={5}
                     >
                       {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
                         machineAllData?.checkSheet_data?.plan_prepared_tm_name
                           .length - 1
                       ]
-                        ? `${machineAllData?.checkSheet_data
-                          ?.plan_prepared_tm_name[
-                        machineAllData?.checkSheet_data
-                          ?.plan_prepared_tm_name.length - 1
-                        ]
-                        }`
+                        ? `${
+                            machineAllData?.checkSheet_data
+                              ?.plan_prepared_tm_name[
+                              machineAllData?.checkSheet_data
+                                ?.plan_prepared_tm_name.length - 1
+                            ]
+                          }`
                         : ""}
                     </th>
                   </tr>
@@ -891,7 +894,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
         </Container>
       </div>
       {machineAllData.checksheet_status === "Planning" ||
-        machineAllData.checksheet_status === "Implementation" ? (
+      machineAllData.checksheet_status === "Implementation" ? (
         <div className="row mt-3">
           <div className="col-6"></div>
           <span className="col-6">
@@ -932,7 +935,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                     className="ar-table-thead-header1 headerPD  align-items-center"
                     colSpan={2}
                     style={{ textAlign: "center" }}
-                  // rowSpan={2}
+                    // rowSpan={2}
                   >
                     Approved by
                     <br />
@@ -942,7 +945,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                     className="ar-table-thead-header1 headerPD"
                     colSpan={2}
                     style={{ textAlign: "center" }}
-                  // rowSpan={2}
+                    // rowSpan={2}
                   >
                     Prepared by
                     <br />
@@ -956,38 +959,39 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                   {machineAllData?.checkSheet_data
                     ?.implementation_approved_by_MTD_TL
                     ? Object.values(
-                      machineAllData?.checkSheet_data
-                        ?.implementation_approved_by_MTD_TL
-                    ).map((index) => (
-                      <td className="ar-table-col1">
-                        {index[index.length - 1]}
-                      </td>
-                    ))
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_MTD_TL
+                      ).map((index) => (
+                        <td className="ar-table-col1">
+                          {index[index.length - 1]}
+                        </td>
+                      ))
                     : refArrayForTDMapping.map((index) => (
-                      <td className="ar-table-col1"></td>
-                    ))}
+                        <td className="ar-table-col1"></td>
+                      ))}
                 </tr>
                 <tr>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
                     {machineAllData?.checkSheet_data?.approved_by_HOS[
                       machineAllData?.checkSheet_data?.approved_by_HOS.length -
-                      1
+                        1
                     ]
                       ? machineAllData?.checkSheet_data?.approved_by_HOS[
-                      machineAllData?.checkSheet_data?.approved_by_HOS
-                        .length - 1
-                      ]
+                          machineAllData?.checkSheet_data?.approved_by_HOS
+                            .length - 1
+                        ]
                       : ""}
                     <br />
 
                     {machineAllData?.checkSheet_data?.approved_by_TL[
                       machineAllData?.checkSheet_data?.approved_by_TL.length - 1
                     ]
-                      ? `,${machineAllData?.checkSheet_data?.approved_by_TL[
-                      machineAllData?.checkSheet_data?.approved_by_TL
-                        .length - 1
-                      ]
-                      }`
+                      ? `,${
+                          machineAllData?.checkSheet_data?.approved_by_TL[
+                            machineAllData?.checkSheet_data?.approved_by_TL
+                              .length - 1
+                          ]
+                        }`
                       : ""}
                   </th>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
@@ -995,9 +999,9 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       machineAllData?.checkSheet_data?.sender_tm_name.length - 1
                     ]
                       ? machineAllData?.checkSheet_data?.sender_tm_name[
-                      machineAllData?.checkSheet_data?.sender_tm_name
-                        .length - 1
-                      ]
+                          machineAllData?.checkSheet_data?.sender_tm_name
+                            .length - 1
+                        ]
                       : ""}
                   </th>
                   <th className="ar-table-thead-header1">
@@ -1008,16 +1012,16 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                   {machineAllData?.checkSheet_data
                     ?.implementation_approved_by_MTD_HOS
                     ? Object.values(
-                      machineAllData?.checkSheet_data
-                        ?.implementation_approved_by_MTD_HOS
-                    ).map((index) => (
-                      <td className="ar-table-col1">
-                        {index[index.length - 1]}
-                      </td>
-                    ))
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_MTD_HOS
+                      ).map((index) => (
+                        <td className="ar-table-col1">
+                          {index[index.length - 1]}
+                        </td>
+                      ))
                     : refArrayForTDMapping.map((index) => (
-                      <td className="ar-table-col1"></td>
-                    ))}
+                        <td className="ar-table-col1"></td>
+                      ))}
                 </tr>
                 <tr>
                   <th className="ar-table-thead-header1">
@@ -1026,14 +1030,12 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                     (MTD HOD)
                   </th>
                   <td className="ar-table-col1" colSpan={6}>
-                    {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.at(
-                      -1
-                    )}
+                  {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.[machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.length - 1]}
+
                   </td>
                   <td className="ar-table-col1" colSpan={6}>
-                    {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.at(
-                      -1
-                    )}
+                  {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.[machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.length -1]}
+
                   </td>
                 </tr>
               </thead>
@@ -1081,7 +1083,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                     rData={rData}
                     isDeletedExists={
                       rData[10]?.["key"] === "isDeleted" &&
-                        rData[10]?.["value"] === true
+                      rData[10]?.["value"] === true
                         ? true
                         : false
                     }
@@ -1099,13 +1101,13 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                   </th>
                   {machineAllData?.checkSheet_data?.PMworkedTMName
                     ? Object.values(
-                      machineAllData?.checkSheet_data?.PMworkedTMName
-                    ).map((index) => (
-                      <td className="ar-table-col1">{index.join(" ,")}</td>
-                    ))
+                        machineAllData?.checkSheet_data?.PMworkedTMName
+                      ).map((index) => (
+                        <td className="ar-table-col1">{index.join(" ,")}</td>
+                      ))
                     : refArrayForTDMapping.map((index) => (
-                      <td className="ar-table-col1"></td>
-                    ))}
+                        <td className="ar-table-col1"></td>
+                      ))}
                 </tr>
                 <tr>
                   <th colSpan={9}></th>
@@ -1117,16 +1119,16 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                   {machineAllData?.checkSheet_data
                     ?.implementation_approved_by_PRD_TL
                     ? Object.values(
-                      machineAllData?.checkSheet_data
-                        ?.implementation_approved_by_PRD_TL
-                    ).map((index) => (
-                      <td className="ar-table-col1">
-                        {index[index.length - 1]}
-                      </td>
-                    ))
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_PRD_TL
+                      ).map((index) => (
+                        <td className="ar-table-col1">
+                          {index[index.length - 1]}
+                        </td>
+                      ))
                     : refArrayForTDMapping.map((index) => (
-                      <td className="ar-table-col1"></td>
-                    ))}
+                        <td className="ar-table-col1"></td>
+                      ))}
                 </tr>
                 <tr>
                   <th colSpan={9}></th>
@@ -1253,66 +1255,95 @@ function ChecksheetFormApprovalForHOSAndHOD() {
         <Row>
           <Col>
             <div className="m-2 p-3 border bg-white rounded">
-              <div>
-                <MaterialTable
-                  style={{ boxShadow: "none" }}
-                  localization={
-                    {
-                      // toolbar: {
-                      //   exportCSVName: "Export some Excel format",
-                      //   exportPDFName: "Export as pdf!!"
-                      // }
-                    }
-                  }
-                  icons={tableIcons}
-                  columns={revisedColumns}
-                  data={machineAllData?.checkSheet_data?.revisionContentData}
-                  // title="User Management"
-                  // tableRef={this.tableRef.current.onQueryChange()}
+              <table style={{ width: "40vw" }}>
+                {revisedColumns?.map((item) => (
+                  <th className="td-padding">{item}</th>
+                ))}
 
-                  editable={{}}
-                  options={{
-                    showTitle: false,
-                    paging: false,
-                    sorting: true,
-                    search: true,
-                    filtering: false,
-                    exportButton: true,
-                    exportAllData: true,
-                    draggable: false,
-                    actionsColumnIndex: -1,
-                    pageSize: 10,
-                    pageSizeOptions: false,
-                    paginationType: "stepped",
-                    addRowPosition: "first",
-                    headerStyle: {
-                      position: "sticky",
-                      top: "0",
-                      fontWeight: "bold",
-                    },
-                    maxBodyHeight: "70vh",
-                    rowStyle: {
-                      // fontStyle:'bold'
-
-                      // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                      // color:"rgba(255,255,255,0.8)",
-                      borderRadius: "5px",
-                      border: "1px solid black",
-                      // WebkitBackdropFilter: "blur( 2px )",
-                      background: "rgba(255,255,255,0.1)",
-                      // backdropFilter: "blur(5px)",
-                    },
-                    cellStyle: {
-                      border: "1px solid black",
-                    },
-                    headerStyle: {
-                      border: "1px solid black",
-                      fontWeight: "bold",
-                    },
-                  }}
-                />
-              </div>
+                {machineAllData?.checkSheet_data?.revisionContentData?.map(
+                  (item, index) => (
+                    <tr>
+                      <td className="td-padding">{index + 1}</td>
+                      <td className="td-padding">{item?.revisionContent}</td>
+                      <td className="td-padding">
+                        {item?.revisionContentDate}
+                      </td>
+                      <td className="td-padding">{item?.revisedBy}</td>
+                    </tr>
+                  )
+                )}
+              </table>
             </div>
+            <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+              <table>
+                <tr>
+                  <td>
+                    <table>
+                      <tr>[Notes of filing out checklist] (Category)</tr>
+                      <tr>
+                        <td>
+                          <span style={{ fontWeight: "bold" }}>B</span>
+                          reakdown: Directly relates to failure aspect
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span style={{ fontWeight: "bold" }}>S</span>
+                          afety: Directly relates to safety aspect
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          {" "}
+                          <span style={{ fontWeight: "bold" }}>Q</span>
+                          uality: Directly relates to quality aspect
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span style={{ fontWeight: "bold" }}>P</span>
+                          ollution: Directly relates to pollution aspect
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td style={{ borderLeft: "2px solid black" }}></td>
+                  <td>
+                    <table>
+                      <tr>(Person in charge)</tr>
+                      <tr>
+                        <td>M: Maintenance personnel</td>
+                      </tr>
+                      <tr>
+                        <td>O : Production personnel</td>
+                      </tr>
+                      <tr>
+                        {" "}
+                        <td>
+                          <br />
+                        </td>{" "}
+                      </tr>
+                      <tr>
+                        {" "}
+                        <td>
+                          <br />
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </Row>
+            <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+              <Col>--> Planned</Col>
+              <Col>
+                <EastIcon fontSize="small" /> Normal Condition
+              </Col>
+              <Col>--> * Abnormality</Col>
+            </Row>
+            <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+              <div style={{ float: "left" }}>FO/MTD/02/04/04</div>
+            </Row>
           </Col>
           <Col>
             <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
