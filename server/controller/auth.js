@@ -1749,6 +1749,91 @@ router.post('/postPlantToGetCellData', authenticate, async (req, res) => {
     }
 })
 
+router.post('/postPlantToGetSectionDataBasedOnDashboardLevel', authenticate, async (req, res) => {
+    try {
+        let { plant } = req.body
+
+
+        const plantInfo = await Plant.findOne({ plant_id: plant?.split("-")?.[0] })
+
+        const sectionInfo = await Section.find({ plant_names: plantInfo?._id })
+
+        // console.log("1761 -------->", sectionInfo)
+
+        let subSectionsData, sectionDataArray = []
+
+        for (let i = 0; i < sectionInfo?.length; i++) {
+
+            if (sectionInfo[i]?.dashboardLevel === "Yes") {
+
+                sectionDataArray?.push(sectionInfo[i]);
+            } else {
+                // console.log("1771 -------->", sectionInfo[i])
+
+                subSectionsData = await SubSection
+                    .find(
+                        {
+                            section_names: sectionInfo[i]?._id
+
+                        }).sort({ subSection_sequence: 1 })
+
+                for (let j = 0; j < subSectionsData?.length; j++) {
+
+                    sectionDataArray?.push(
+
+                        new Object({
+                            _id: subSectionsData[j]?._id,
+                            section_name: subSectionsData[j]?.subSection_name,
+                            dashboardLevel: 'No',
+                        })
+                    );
+
+                }
+
+            }
+
+        }
+
+        // console.log("---------------", sectionDataArray)
+
+
+        res.json({ sectionDataArray })
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
+router.post('/postAssignSubSectionToGetAllDataOfSubSection', authenticate, async (req, res) => {
+    try {
+
+
+
+        let subSectionsData
+
+
+        // console.log("++++++++++", req?.rootUser?.subSection_data?.map((item) => item?.split("-")?.[0]))
+
+        subSectionsData = await SubSection
+            .find(
+                {
+                    subSection_id:
+                    {
+                        $in:
+                            req?.rootUser?.subSection_data?.map((item) => item?.split("-")?.[0])
+                    }
+                })
+
+        console.log("~~~~~~~~~~~~~~~~~~", subSectionsData)
+
+
+
+        res.json({ subSectionsData })
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
 
 router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
     try {
@@ -8485,16 +8570,15 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
         // console.log(monthKeyArray[monthKeyArray.indexOf(currentMonth) - 1], monthKeyArray.splice(-1)[0])
 
         // console.log(section);
-        let sectionSplit = section.split("-")
-        const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+
         // console.log("____________", sectionInfo)
         let subSectionsData, subSectionIdArray = [],
             cellData, cellIdArray = [],
             lineData, lineIdArray = [],
             machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
         let machineDataForPreviousMonth, machineDataForCurrentMonth
-        if (sectionInfo.dashboardLevel === "Yes") {
-            subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+        if (section?.dashboardLevel === "Yes") {
+            subSectionsData = await SubSection.find({ section_names: section?._id }).sort({ subSection_sequence: 1 })
 
 
             for (let i = 0; i < subSectionsData.length; i++) {
@@ -8686,18 +8770,31 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
             // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
         } else {
-            loggedUserData.subSection_data.map((ids) => {
-                let subsectionsId = ids.split("-")
-                subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
-            })
-            subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+            // console.log("*******", section?._id)
+
+            // subSectionIdArray?.push(section?._id)
+            // if (req.rootUser?.user_type === "Plant-Admin" && req.rootUser?.tm_grade === "HOD") {
+            // } else {
+
+            //     loggedUserData.subSection_data.map((ids) => {
+            //         let subsectionsId = ids.split("-")
+            //         subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            //     })
+            //     subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+            //     for (let i = 0; i < subSectionsData.length; i++) {
+            //         subSectionIdArray.push(subSectionsData[i]._id);
+            //     }
+            // }
+            // cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
 
 
-            for (let i = 0; i < subSectionsData.length; i++) {
-                subSectionIdArray.push(subSectionsData[i]._id);
-            }
+            // console.log("8754 ===================>", subSectionIdArray)
 
-            cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
+
+
+            cellData = await Cell.find({ subSection_names: section?._id }).sort({ cell_sequence: 1 });
 
             for (let i = 0; i < cellData.length; i++) {
                 cellIdArray.push(cellData[i]._id);
@@ -9182,6 +9279,28 @@ router.post('/postSectionToGetSectionInfo', authenticate, async (req, res) => {
 
         res.json({
             sectionInfo
+        })
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+
+})
+
+
+router.post('/postSubSectionToGetSubSectionInfo', authenticate, async (req, res) => {
+    try {
+        let { subSection } = req.body
+
+        // console.log(subSection)
+
+        let subSectionSplit = subSection.split("-")
+
+        const subSectionInfo = await SubSection.findOne({ subSection_id: subSectionSplit[0] })
+
+
+        res.json({
+            subSectionInfo
         })
     } catch (error) {
         console.log(error)
@@ -12497,10 +12616,14 @@ router.post('/updateCompletionTargetDateForSkipPM', authenticate, async (req, re
 router.post('/sendRequestForApprovalOfSkipPMDataWork', authenticate, async (req, res) => {
 
     try {
-        const { mtd_hod_list, mtd_hos_list, prd_hod_list, prd_hos_list, reasonForDelayOfTL } = req.body
+        const { mtd_hod_list, mtd_hos_list, prd_hod_list, prd_hos_list, reasonForDelayOfTL, skipApprovalStatusData } = req.body
         // console.log(mtd_hod_list, mtd_hos_list, prd_hod_list, prd_hos_list, reasonForDelayOfTL)
         const loggedUserData = req.rootUser
         // console.log(updatedRow)
+
+        // console.log(
+        //     mtd_hod_list, mtd_hos_list, prd_hod_list, prd_hos_list, reasonForDelayOfTL
+        // )
         if (!mtd_hod_list || !mtd_hos_list || !prd_hod_list || !prd_hos_list || !reasonForDelayOfTL) {
             return res.status(422).send("Employee number is not valid!!!");
         }
@@ -12508,52 +12631,22 @@ router.post('/sendRequestForApprovalOfSkipPMDataWork', authenticate, async (req,
         const approvalStatusOfMTDHOD = "Pending"
         const approvalStatusOfPRDHOS = "Pending"
         const approvalStatusOfPRDHOD = "Pending"
-
-        const findApprovalRequestID = await ApprovalOfSkipPM.findOne({ approvalID: "Approval1" });
         let newApprovalOfSkipPM, updateStatusOfSkippedPM
 
-        if (!findApprovalRequestID) {
-            newApprovalOfSkipPM = await new ApprovalOfSkipPM({
-                approvalID: "Approval1",
-                reasonForDelayOfTL,
-                skippedDataApprovalSender: {
-                    senderTLNo: loggedUserData.tm_no,
-                    senderTLName: loggedUserData.tm_name,
-                    senderTLEmail: loggedUserData.email
-                },
-                assignAndApprovedHOSlist: {
-                    assignMTDHOSemail: mtd_hos_list.email,
-                    assignMTDHOSname: mtd_hos_list.tm_name
-                },
-                assignAndApprovedMTDHODlist: {
-                    assignMTDHODname: mtd_hod_list.tm_name,
-                    assignMTDHODemail: mtd_hod_list.email
-                },
-                assignAndApprovedPRDHOSlist: {
-                    assignPRDHOSname: prd_hos_list.tm_name,
-                    assignPRDHOSemail: prd_hos_list.email
-                },
-                assignAndApprovedPRDHODlist: {
-                    assignPRDHODname: prd_hod_list.tm_name,
-                    assignPRDHODemail: prd_hod_list.email
-                },
-                approvalStatusOfMTDHOS: "Pending",
-                approvalStatusOfMTDHOD: "Pending",
-                approvalStatusOfPRDHOS: "Pending",
-                approvalStatusOfPRDHOD: "Pending"
+        const sectionInfo = await Section.findOne({ section_id: req?.rootUser?.section_data?.split("-")?.[0] })
+        // console.log("----------", sectionInfo)
 
-            })
-            await newApprovalOfSkipPM.save()
-        }
+        console.log(skipApprovalStatusData)
 
-        else {
+        if (skipApprovalStatusData) {
             updateStatusOfSkippedPM = await ApprovalOfSkipPM.updateOne(
                 {
-                    approvalID: "Approval1"
+                    _id: skipApprovalStatusData?._id
                 },
                 {
                     $set: {
                         reasonForDelayOfTL,
+                        rejectedRemarksOfSkipPMMachines: "",
                         skippedDataApprovalSender: {
                             senderTLNo: loggedUserData.tm_no,
                             senderTLName: loggedUserData.tm_name,
@@ -12583,10 +12676,95 @@ router.post('/sendRequestForApprovalOfSkipPMDataWork', authenticate, async (req,
                     }
                 }
             )
+        } else if (sectionInfo?.dashboardLevel === "Yes") {
+
+            newApprovalOfSkipPM = await new ApprovalOfSkipPM({
+                section_id: sectionInfo?._id,
+                reasonForDelayOfTL,
+                skippedDataApprovalSender: {
+                    senderTLNo: loggedUserData.tm_no,
+                    senderTLName: loggedUserData.tm_name,
+                    senderTLEmail: loggedUserData.email
+                },
+                assignAndApprovedHOSlist: {
+                    assignMTDHOSemail: mtd_hos_list.email,
+                    assignMTDHOSname: mtd_hos_list.tm_name
+                },
+                assignAndApprovedMTDHODlist: {
+                    assignMTDHODname: mtd_hod_list.tm_name,
+                    assignMTDHODemail: mtd_hod_list.email
+                },
+                assignAndApprovedPRDHOSlist: {
+                    assignPRDHOSname: prd_hos_list.tm_name,
+                    assignPRDHOSemail: prd_hos_list.email
+                },
+                assignAndApprovedPRDHODlist: {
+                    assignPRDHODname: prd_hod_list.tm_name,
+                    assignPRDHODemail: prd_hod_list.email
+                },
+                approvalStatusOfMTDHOS: "Pending",
+                approvalStatusOfMTDHOD: "Pending",
+                approvalStatusOfPRDHOS: "Pending",
+                approvalStatusOfPRDHOD: "Pending"
+
+            })
+            await newApprovalOfSkipPM.save()
+
+
+        } else {
+
+            subSectionsData = await
+                SubSection
+                    .findOne
+                    ({
+                        subSection_id: req?.rootUser?.subSection_data?.[0]?.split("-")?.[0]
+                    })
+                    .sort({ subSection_sequence: 1 })
+
+            // console.log("****", subSectionsData)
+
+
+            newApprovalOfSkipPM = await new ApprovalOfSkipPM({
+                subSection_id: subSectionsData?._id,
+                reasonForDelayOfTL,
+                skippedDataApprovalSender: {
+                    senderTLNo: loggedUserData.tm_no,
+                    senderTLName: loggedUserData.tm_name,
+                    senderTLEmail: loggedUserData.email
+                },
+                assignAndApprovedHOSlist: {
+                    assignMTDHOSemail: mtd_hos_list.email,
+                    assignMTDHOSname: mtd_hos_list.tm_name
+                },
+                assignAndApprovedMTDHODlist: {
+                    assignMTDHODname: mtd_hod_list.tm_name,
+                    assignMTDHODemail: mtd_hod_list.email
+                },
+                assignAndApprovedPRDHOSlist: {
+                    assignPRDHOSname: prd_hos_list.tm_name,
+                    assignPRDHOSemail: prd_hos_list.email
+                },
+                assignAndApprovedPRDHODlist: {
+                    assignPRDHODname: prd_hod_list.tm_name,
+                    assignPRDHODemail: prd_hod_list.email
+                },
+                approvalStatusOfMTDHOS: "Pending",
+                approvalStatusOfMTDHOD: "Pending",
+                approvalStatusOfPRDHOS: "Pending",
+                approvalStatusOfPRDHOD: "Pending"
+
+            })
+            await newApprovalOfSkipPM.save()
+
+
         }
-        sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
-            mtd_hos_list.email, mtd_hod_list.email, prd_hos_list.email, prd_hod_list.email,
-            approvalStatusOfMTDHOS, approvalStatusOfMTDHOD, approvalStatusOfPRDHOS, approvalStatusOfPRDHOD, undefined, reasonForDelayOfTL)
+
+        s
+
+
+        // sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
+        //     mtd_hos_list.email, mtd_hod_list.email, prd_hos_list.email, prd_hod_list.email,
+        //     approvalStatusOfMTDHOS, approvalStatusOfMTDHOD, approvalStatusOfPRDHOS, approvalStatusOfPRDHOD, undefined, reasonForDelayOfTL)
 
 
         res.status(201).json({ message: "Completion date added" });
@@ -12596,9 +12774,25 @@ router.post('/sendRequestForApprovalOfSkipPMDataWork', authenticate, async (req,
     }
 })
 
-router.get('/getDataOfSkippedApprovalStatus', authenticate, async (req, res) => {
+router.post('/getDataOfSkippedApprovalStatus', authenticate, async (req, res) => {
     try {
-        let getApprovalDataOfSkipPM = await ApprovalOfSkipPM.findOne({ approvalID: "Approval1" })
+
+        const { sectionOrSubSectionData } = req.body
+
+        let getApprovalDataOfSkipPM
+
+        if (!sectionOrSubSectionData?.dashboardLevel) {
+
+            getApprovalDataOfSkipPM = await ApprovalOfSkipPM.findOne({ subSection_id: sectionOrSubSectionData?._id })
+        } else if (sectionOrSubSectionData?.dashboardLevel === "No") {
+
+            getApprovalDataOfSkipPM = await ApprovalOfSkipPM.findOne({ subSection_id: sectionOrSubSectionData?._id })
+        } else {
+
+            getApprovalDataOfSkipPM = await ApprovalOfSkipPM.findOne({ section_id: sectionOrSubSectionData?._id })
+        }
+
+        // console.log(sectionOrSubSectionData)
 
         res.json({ getApprovalDataOfSkipPM: getApprovalDataOfSkipPM })
     } catch (error) {
@@ -12609,18 +12803,26 @@ router.get('/getDataOfSkippedApprovalStatus', authenticate, async (req, res) => 
 //all skip machines data approved by different deparment and grade Section Admin 
 router.post('/approvedSkipMachinesBySectionAdmins', authenticate, async (req, res) => {
     try {
-        const { request, rejectedRemarksOfSkipPMMachines, skipApprovalStatusData } = req.body
+        const { request, rejectedRemarksOfSkipPMMachines, skipApprovalStatusData, selectedSectionOrSubSection } = req.body
         // console.log(skipApprovalStatusData)
         const loggedUserData = req.rootUser
+
+        console.log(selectedSectionOrSubSection)
+
+        const refObjectForFindingAndUpdatingDocumentInDB = !selectedSectionOrSubSection?.dashboardLevel ? {
+            subSection_id: selectedSectionOrSubSection?._id
+        } : selectedSectionOrSubSection?.dashboardLevel === "No" ? {
+            subSection_id: selectedSectionOrSubSection?._id
+        } : {
+            section_id: selectedSectionOrSubSection?._id
+        }
 
         let updateStatusOfSkipPM
         if (request === "Yes") {
             if (skipApprovalStatusData.approvalStatusOfMTDHOS === "Pending") {
                 let approvalStatusOfMTDHOS = "Accepted"
                 updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
-                    {
-                        approvalID: "Approval1",
-                    },
+                    refObjectForFindingAndUpdatingDocumentInDB,
                     {
                         $set: {
                             approvalStatusOfMTDHOS
@@ -12635,9 +12837,7 @@ router.post('/approvedSkipMachinesBySectionAdmins', authenticate, async (req, re
                 skipApprovalStatusData.approvalStatusOfMTDHOD === "Pending") {
                 let approvalStatusOfMTDHOD = "Accepted"
                 updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
-                    {
-                        approvalID: "Approval1",
-                    },
+                    refObjectForFindingAndUpdatingDocumentInDB,
                     {
                         $set: {
                             approvalStatusOfMTDHOD
@@ -12653,9 +12853,7 @@ router.post('/approvedSkipMachinesBySectionAdmins', authenticate, async (req, re
                 skipApprovalStatusData.approvalStatusOfPRDHOS === "Pending") {
                 let approvalStatusOfPRDHOS = "Accepted"
                 updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
-                    {
-                        approvalID: "Approval1",
-                    },
+                    refObjectForFindingAndUpdatingDocumentInDB,
                     {
                         $set: {
                             approvalStatusOfPRDHOS
@@ -12672,9 +12870,7 @@ router.post('/approvedSkipMachinesBySectionAdmins', authenticate, async (req, re
                 skipApprovalStatusData.approvalStatusOfPRDHOD === "Pending") {
                 let approvalStatusOfPRDHOD = "Accepted"
                 updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
-                    {
-                        approvalID: "Approval1",
-                    },
+                    refObjectForFindingAndUpdatingDocumentInDB,
                     {
                         $set: {
                             approvalStatusOfPRDHOD
@@ -12690,9 +12886,7 @@ router.post('/approvedSkipMachinesBySectionAdmins', authenticate, async (req, re
             if (skipApprovalStatusData.approvalStatusOfMTDHOS === "Pending") {
                 let approvalStatusOfMTDHOS = "Rejected"
                 updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
-                    {
-                        approvalID: "Approval1",
-                    },
+                    refObjectForFindingAndUpdatingDocumentInDB,
                     {
                         $set: {
                             approvalStatusOfMTDHOS,
@@ -12708,9 +12902,7 @@ router.post('/approvedSkipMachinesBySectionAdmins', authenticate, async (req, re
                 skipApprovalStatusData.approvalStatusOfMTDHOD === "Pending") {
                 let approvalStatusOfMTDHOD = "Rejected"
                 updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
-                    {
-                        approvalID: "Approval1",
-                    },
+                    refObjectForFindingAndUpdatingDocumentInDB,
                     {
                         $set: {
                             approvalStatusOfMTDHOD,
@@ -12727,9 +12919,7 @@ router.post('/approvedSkipMachinesBySectionAdmins', authenticate, async (req, re
                 skipApprovalStatusData.approvalStatusOfPRDHOS === "Pending") {
                 let approvalStatusOfPRDHOS = "Rejected"
                 updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
-                    {
-                        approvalID: "Approval1",
-                    },
+                    refObjectForFindingAndUpdatingDocumentInDB,
                     {
                         $set: {
                             approvalStatusOfPRDHOS,
@@ -12747,9 +12937,7 @@ router.post('/approvedSkipMachinesBySectionAdmins', authenticate, async (req, re
                 skipApprovalStatusData.approvalStatusOfPRDHOD === "Pending") {
                 let approvalStatusOfPRDHOD = "Rejected"
                 updateStatusOfSkipPM = await ApprovalOfSkipPM.updateOne(
-                    {
-                        approvalID: "Approval1",
-                    },
+                    refObjectForFindingAndUpdatingDocumentInDB,
                     {
                         $set: {
                             approvalStatusOfPRDHOD,

@@ -1,66 +1,75 @@
 const mongoose = require('mongoose')
 
 const approvalSchemaOfSkipData = new mongoose.Schema({
-    approvalID:{
+
+    section_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Sections'
+    },
+    subSection_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'SubSections'
+    },
+    approvalID: {
         type: String
     },
-    reasonForDelayOfTL:{
+    reasonForDelayOfTL: {
         type: String
     },
-    skippedDataApprovalSender:{
-        senderTLNo:{
+    skippedDataApprovalSender: {
+        senderTLNo: {
             type: Number
         },
-        senderTLName:{
+        senderTLName: {
             type: String
         },
-        senderTLEmail:{
+        senderTLEmail: {
             type: String
         },
 
     },
-    assignAndApprovedHOSlist:{
-        assignMTDHOSname:{
+    assignAndApprovedHOSlist: {
+        assignMTDHOSname: {
             type: String
         },
-        assignMTDHOSemail:{
-            type: String
-        },
-    },
-    assignAndApprovedMTDHODlist:{
-        assignMTDHODname:{
-            type: String
-        },
-        assignMTDHODemail:{
+        assignMTDHOSemail: {
             type: String
         },
     },
-    assignAndApprovedPRDHOSlist:{
-        assignPRDHOSname:{
+    assignAndApprovedMTDHODlist: {
+        assignMTDHODname: {
             type: String
         },
-        assignPRDHOSemail:{
-            type: String
-        },
-    },
-    assignAndApprovedPRDHODlist:{
-        assignPRDHODname:{
-            type: String
-        },
-        assignPRDHODemail:{
+        assignMTDHODemail: {
             type: String
         },
     },
-    approvalStatusOfMTDHOS:{
+    assignAndApprovedPRDHOSlist: {
+        assignPRDHOSname: {
+            type: String
+        },
+        assignPRDHOSemail: {
+            type: String
+        },
+    },
+    assignAndApprovedPRDHODlist: {
+        assignPRDHODname: {
+            type: String
+        },
+        assignPRDHODemail: {
+            type: String
+        },
+    },
+    approvalStatusOfMTDHOS: {
         type: String
     },
-    approvalStatusOfMTDHOD:{
+    approvalStatusOfMTDHOD: {
         type: String
     },
-    approvalStatusOfPRDHOS:{
+    approvalStatusOfPRDHOS: {
         type: String
     },
-    approvalStatusOfPRDHOD:{
+    approvalStatusOfPRDHOD: {
         type: String
     },
     rejectedRemarksOfSkipPMMachines: {

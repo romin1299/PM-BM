@@ -38,8 +38,15 @@ require("jspdf-autotable");
 const MachineWisePmMonthlyReport = () => {
   const context = useContext(RoutingContext);
 
-  const [tableData1, setTableData1] = useState();
   const navigate = useNavigate();
+
+  const [tableData1, setTableData1] = useState();
+
+  const [sectionOrSubSectionDropdownList, setSectionOrSubSectionDropdownList] =
+    useState([]);
+
+  const [selectedSectionOrSubSection, setSelectedSectionOrSubSection] =
+    useState(0);
 
   // console.log(currentYear);
 
@@ -138,17 +145,17 @@ const MachineWisePmMonthlyReport = () => {
       width: "5%",
       render: (rowData) =>
         rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
-          rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
+        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
           "Done with delay" ? (
           <PanoramaFishEyeIcon fontSize="small" />
         ) : // : rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Current Plan" ? (
-          //   <PanoramaFishEyeIcon fontSize="small" />
-          // )
-          rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing" ? (
-            <ArrowDropUpIcon />
-          ) : (
-            <CloseIcon />
-          ),
+        //   <PanoramaFishEyeIcon fontSize="small" />
+        // )
+        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing" ? (
+          <ArrowDropUpIcon />
+        ) : (
+          <CloseIcon />
+        ),
       // console.log(rowData?.checkSheet_data?.PMStatus),
     },
   ];
@@ -218,6 +225,16 @@ const MachineWisePmMonthlyReport = () => {
       field: "PMStatus",
       editable: "false",
       width: "5%",
+      render: (rowData) =>
+        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
+        "Done with delay" ? (
+          <PanoramaFishEyeIcon fontSize="small" />
+        ) : rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
+          "Ongoing" ? (
+          <ArrowDropUpIcon />
+        ) : (
+          <CloseIcon />
+        ),
     },
   ];
 
@@ -282,7 +299,7 @@ const MachineWisePmMonthlyReport = () => {
 
       tooltip: "CSV",
       isFreeAction: true,
-      onClick: (event, rowData) => { },
+      onClick: (event, rowData) => {},
     },
   ];
 
@@ -367,11 +384,11 @@ const MachineWisePmMonthlyReport = () => {
         item.machine_name,
         item.machine_code,
         item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
-          item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
+        item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
-            ? "^"
-            : "X",
+          ? "^"
+          : "X",
       ])
     );
 
@@ -383,29 +400,6 @@ const MachineWisePmMonthlyReport = () => {
     doc.autoTable(columns, rows);
     doc.save(`${selectedMonth}_PM_Status(Machine)${timeStamp()}`);
   };
-  // const pdfDownloadForPreviousMonth = () => {
-  //   const doc = new jsPDF();
-  //   doc.text(`${previousMonth}. PM Status(Machine)`, 15, 10);
-  //   const columns = tableColumn2.map((index) => index.title);
-  //   const rows = [];
-  //   tableData1?.skipMachineDataWithEveryMonth.map((item, index) =>
-  //     rows.push([
-  //       index + 1,
-  //       item.line_names.line_name,
-  //       item.machine_name,
-  //       item.machine_code,
-  //       item.checkSheet_data?.PMStatus?.[previousMonth] === "Done with delay"
-  //         ? "O"
-  //         : item.checkSheet_data?.PMStatus?.[previousMonth] === "Ongoing"
-  //         ? "^"
-  //         : // : item.checkSheet_data?.PMStatus?.[previousMonth],
-  //           "X",
-  //     ])
-  //   );
-
-  //   doc.autoTable(columns, rows);
-  //   doc.save(`${previousMonth}_PM_Status(Machine)${timeStamp()}`);
-  // };
 
   const filterCSVDataToDownloadCSV = () => {
     const columns = tableColumn1.map((index) => index.title);
@@ -456,11 +450,11 @@ const MachineWisePmMonthlyReport = () => {
         item.machine_name,
         item.machine_code,
         item.checkSheet_data?.PMStatus?.[selectedMonth] === "Completed" ||
-          item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
+        item?.checkSheet_data?.PMStatus?.[selectedMonth] === "Done with delay"
           ? "O"
           : item.checkSheet_data?.PMStatus?.[selectedMonth] === "Ongoing"
-            ? "^"
-            : "X",
+          ? "^"
+          : "X",
       ]);
     });
 
@@ -481,10 +475,10 @@ const MachineWisePmMonthlyReport = () => {
     // setCsvDataForPreviousMonth(previousMonthRows);
   };
 
-  const postSectionAndMonthToGetAllDataForReport = async () => {
+  const postSectionAndMonthToGetAllDataForReport = async (sectionData) => {
     setLoadingAnimationState(<LoadingAnimation />);
 
-    // console.log(previousMonthForCompareSystemMonth);
+    // console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
     try {
       const res = await fetch("/postSectionAndMonthToGetAllDataForReport", {
         method: "POST",
@@ -492,7 +486,7 @@ const MachineWisePmMonthlyReport = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          section: context.section_data,
+          section: sectionData,
           currentMonth: selectedMonth,
           previousMonth: previousMonth,
           selectedYear,
@@ -571,13 +565,14 @@ const MachineWisePmMonthlyReport = () => {
     reasonForDelayOfTL: yup.string().required("Please enter reason for delay"),
   });
 
+  // console.log(context);
   const formik1 = useFormik({
     initialValues: {
-      mtd_hod_list: {},
-      mtd_hos_list: {},
-      prd_hod_list: {},
-      prd_hos_list: {},
-      reasonForDelayOfTL: {},
+      mtd_hod_list: "",
+      mtd_hos_list: "",
+      prd_hod_list: "",
+      prd_hos_list: "",
+      reasonForDelayOfTL: "",
     },
     validationSchema: validationSchema1,
     onSubmit: async (values) => {
@@ -590,6 +585,7 @@ const MachineWisePmMonthlyReport = () => {
           prd_hod_list: PRDHODlist[values.prd_hod_list],
           prd_hos_list: PRDHOSlist[values.prd_hos_list],
           reasonForDelayOfTL: values.reasonForDelayOfTL,
+          skipApprovalStatusData,
         }),
       });
       const data = await res.json();
@@ -601,6 +597,9 @@ const MachineWisePmMonthlyReport = () => {
       } else {
         console.log("PM worked data save sucessfully...");
         setRefKey2((refKey2) => refKey2 + 1);
+
+        window?.location?.reload();
+
         // closeCheckSheet();
         // navigate("/");
         // clearState();
@@ -608,29 +607,189 @@ const MachineWisePmMonthlyReport = () => {
     },
   });
 
-  const getDataOfSkippedApprovalStatus = async () => {
+  // console.log("<<<<<<<<<<>>>>>>>>>>", skipApprovalStatusData);
+
+  // const getDataOfSkippedApprovalStatus = async (sectionOrSubSectionData) => {
+  //   try {
+  //     const res = await fetch(
+  //       `/getDataOfSkippedApprovalStatus/${sectionOrSubSectionData}`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           Accept: "application/json",
+  //           "Content-Type": "application/json",
+  //         },
+  //         credentials: "include",
+  //       }
+  //     );
+
+  //     const data = await res.json();
+  //     // console.log(data);
+
+  //     setSkipApprovalStatusData(data.getApprovalDataOfSkipPM);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  const getDataOfSkippedApprovalStatus = async (sectionOrSubSectionData) => {
+    // setSubSection(undefined);
     try {
       const res = await fetch("/getDataOfSkippedApprovalStatus", {
-        method: "GET",
+        method: "POST",
         headers: {
-          Accept: "application/json",
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        body: JSON.stringify({
+          sectionOrSubSectionData,
+        }),
       });
-
       const data = await res.json();
-      // console.log(data);
 
-      setSkipApprovalStatusData(data.getApprovalDataOfSkipPM);
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log("--------------->", data);
+
+        setSkipApprovalStatusData(data.getApprovalDataOfSkipPM);
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
+  const postPlantToGetSectionDataBasedOnDashboardLevel = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch(
+        "/postPlantToGetSectionDataBasedOnDashboardLevel",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            plant: context.plant_data,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log("-------------$$$$$$$$$$$$-->", data);
+        setSectionOrSubSectionDropdownList(data?.sectionDataArray);
+
+        getDataOfSkippedApprovalStatus(data?.sectionDataArray?.[0]);
+
+        postSectionAndMonthToGetAllDataForReport(data?.sectionDataArray?.[0]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const postAssignSubSectionToGetAllDataOfSubSection = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch("/postAssignSubSectionToGetAllDataOfSubSection", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log("<<<<<<<<<<--------------->", data?.subSectionsData?.[0]);
+        setSectionOrSubSectionDropdownList(data?.subSectionsData);
+
+        getDataOfSkippedApprovalStatus(data?.subSectionsData?.[0]);
+
+        postSectionAndMonthToGetAllDataForReport(data?.subSectionsData?.[0]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // console.log(
+  //   "!!!!!!!!!!!!!!!!!!!!!!!",
+  //   sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
+  // );
+
+  const postSectionToGetSectionInfo = async (sectionName) => {
+    // console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   493", sectionName);
+    try {
+      const res = await fetch("/postSectionToGetSectionInfo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          section: sectionName,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        console.log("-------------->", data?.sectionInfo);
+
+        if (data?.sectionInfo?.dashboardLevel === "Yes") {
+          postSectionAndMonthToGetAllDataForReport(data?.sectionInfo);
+          getDataOfSkippedApprovalStatus(data?.sectionInfo);
+        } else {
+          // console.log(
+          //   "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
+          //   context?.subSection_data?.[0]
+          // );
+          // postSectionAndMonthToGetAllDataForReport(data?.sectionInfo);
+          // getDataOfSkippedApprovalStatus(data?.sectionInfo);
+
+          postAssignSubSectionToGetAllDataOfSubSection();
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // console.log(context);
+
   useEffect(() => {
-    postSectionAndMonthToGetAllDataForReport();
-  }, [selectedYear, selectedMonth, refKey]);
+    if (
+      context?.user_type !== "Plant-Admin" &&
+      context?.tm_grade !== "HOD"
+      // ||
+      // (context?.user_type !== "Section-Admin" && context?.tm_grade !== "HOS")
+    ) {
+      postSectionToGetSectionInfo(context?.section_data);
+    }
+  }, [context?.section_data]);
+
+  useEffect(() => {
+    if (context?.user_type === "Plant-Admin" && context?.tm_grade === "HOD") {
+      postPlantToGetSectionDataBasedOnDashboardLevel();
+    }
+    // else if (
+    //   context?.user_type === "Section-Admin" &&
+    //   context?.tm_grade === "HOS"
+    // ) {
+    //   postAssignSubSectionToGetAllDataOfSubSection();
+    // }
+  }, []);
+
+  useEffect(() => {
+    postSectionAndMonthToGetAllDataForReport(
+      sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
+    );
+  }, [selectedSectionOrSubSection, selectedYear, selectedMonth, refKey]);
 
   useEffect(() => {
     getListForApproval();
@@ -678,6 +837,106 @@ const MachineWisePmMonthlyReport = () => {
               setSelectedMonth={setSelectedMonth}
             />
           </Col>
+
+          {context?.user_type === "Plant-Admin" &&
+          context?.tm_grade === "HOD" ? (
+            <Col sm={12} lg={3}>
+              <span>
+                <b>Section:&nbsp; &nbsp;</b>
+              </span>
+              <select
+                class="form-select form-select-sm"
+                aria-label=".form-select-sm example"
+                style={{ width: "63%" }}
+                id="standard-select-currency"
+                name="selectedSectionOrSubSection"
+                className="textField"
+                value={selectedSectionOrSubSection}
+                onChange={(e) => {
+                  setStatusCounter({
+                    ...statusCounter,
+                    schedulePm: 0,
+                    completed: 0,
+                    pending: 0,
+                    onGoing: 0,
+                  });
+                  setSelectedSectionOrSubSection(e.target.value);
+
+                  getDataOfSkippedApprovalStatus(
+                    sectionOrSubSectionDropdownList?.[e.target.value]
+                  );
+                }}
+                // fullWidth
+                select // label="Select"
+                autoComplete="off"
+                variant="standard"
+              >
+                <option selected disabled value="">
+                  Please select
+                </option>
+                {sectionOrSubSectionDropdownList?.map((option, index) => {
+                  return <option value={index}>{option?.section_name}</option>;
+                })}
+              </select>
+            </Col>
+          ) : (
+            ""
+          )}
+
+          {/* {console.log(
+            "@@@@@@@@@@@@@@@@@@@@@@@@@@",
+            sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
+              ?.dashboardLevel,
+            selectedSectionOrSubSection
+          )} */}
+
+          {context?.user_type === "Section-Admin" &&
+          context?.tm_grade === "HOS" &&
+          sectionOrSubSectionDropdownList?.length > 0 ? (
+            // (!sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
+            //   ?.dashboardLevel ||
+            //   !sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
+            //     ?.dashboardLevel === "No")
+            <Col sm={12} lg={3}>
+              <span>
+                <b>Sub Section:&nbsp; &nbsp;</b>
+              </span>
+              <select
+                class="form-select form-select-sm"
+                aria-label=".form-select-sm example"
+                style={{ width: "63%" }}
+                id="standard-select-currency"
+                name="selectedSectionOrSubSection"
+                className="textField"
+                value={selectedSectionOrSubSection}
+                onChange={(e) => {
+                  setStatusCounter({
+                    ...statusCounter,
+                    schedulePm: 0,
+                    completed: 0,
+                    pending: 0,
+                    onGoing: 0,
+                  });
+                  setSelectedSectionOrSubSection(e.target.value);
+                }}
+                // fullWidth
+                select // label="Select"
+                autoComplete="off"
+                variant="standard"
+              >
+                <option selected disabled value="">
+                  Please select
+                </option>
+                {sectionOrSubSectionDropdownList?.map((option, index) => {
+                  return (
+                    <option value={index}>{option?.subSection_name}</option>
+                  );
+                })}
+              </select>
+            </Col>
+          ) : (
+            ""
+          )}
         </Row>
       </Container>
 
@@ -685,7 +944,11 @@ const MachineWisePmMonthlyReport = () => {
         <Container fluid>
           <Row
             className="gy-2 mt-2 cell"
-            style={{ marginRight: "0.2rem", marginLeft: "0.2rem", paddingBottom: "1rem" }}
+            style={{
+              marginRight: "0.2rem",
+              marginLeft: "0.2rem",
+              paddingBottom: "1rem",
+            }}
           >
             <h5>
               <b>Month Status</b>
@@ -806,7 +1069,6 @@ const MachineWisePmMonthlyReport = () => {
                       fontSize: "13px",
                       fontWeight: "bold",
                       border: "1px solid black",
-
                     },
                   }}
                 />
@@ -822,7 +1084,7 @@ const MachineWisePmMonthlyReport = () => {
                 lg={4}
                 md={12}
 
-              // className="profileImg"
+                // className="profileImg"
               >
                 <Row
                   className="mt-2 cell"
@@ -942,9 +1204,9 @@ const MachineWisePmMonthlyReport = () => {
                 skipApprovalStatusData?.approvalStatusOfPRDHOS === "Rejected" ||
                 skipApprovalStatusData?.approvalStatusOfPRDHOD === "Rejected" ||
                 skipApprovalStatusData?.approvalStatusOfPRDHOD ===
-                "Accepted") &&
-                context.user_type === "TL/HOSS" &&
-                context.tm_department === "MTD" ? (
+                  "Accepted") &&
+              context.user_type === "TL/HOSS" &&
+              context.tm_department === "MTD" ? (
                 <div>
                   <Row
                     className="d-flex mt-2 p-3 border bg-white rounded"
@@ -1401,38 +1663,58 @@ const MachineWisePmMonthlyReport = () => {
               {context.email ===
                 skipApprovalStatusData?.assignAndApprovedHOSlist
                   ?.assignMTDHOSemail &&
-                skipApprovalStatusData?.approvalStatusOfMTDHOS === "Pending" ? (
+              skipApprovalStatusData?.approvalStatusOfMTDHOS === "Pending" ? (
                 <SkipApprovalComponent
+                  selectedSectionOrSubSection={
+                    sectionOrSubSectionDropdownList?.[
+                      selectedSectionOrSubSection
+                    ]
+                  }
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
                 />
               ) : context.email ===
-                skipApprovalStatusData?.assignAndApprovedMTDHODlist
-                  ?.assignMTDHODemail &&
+                  skipApprovalStatusData?.assignAndApprovedMTDHODlist
+                    ?.assignMTDHODemail &&
                 skipApprovalStatusData?.approvalStatusOfMTDHOS === "Accepted" &&
                 skipApprovalStatusData?.approvalStatusOfMTDHOD === "Pending" ? (
                 <SkipApprovalComponent
+                  selectedSectionOrSubSection={
+                    sectionOrSubSectionDropdownList?.[
+                      selectedSectionOrSubSection
+                    ]
+                  }
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
                 />
               ) : context.email ===
-                skipApprovalStatusData?.assignAndApprovedPRDHOSlist
-                  ?.assignPRDHOSemail &&
+                  skipApprovalStatusData?.assignAndApprovedPRDHOSlist
+                    ?.assignPRDHOSemail &&
                 skipApprovalStatusData?.approvalStatusOfMTDHOS === "Accepted" &&
                 skipApprovalStatusData?.approvalStatusOfMTDHOD === "Accepted" &&
                 skipApprovalStatusData?.approvalStatusOfPRDHOS === "Pending" ? (
                 <SkipApprovalComponent
+                  selectedSectionOrSubSection={
+                    sectionOrSubSectionDropdownList?.[
+                      selectedSectionOrSubSection
+                    ]
+                  }
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
                 />
               ) : context.email ===
-                skipApprovalStatusData?.assignAndApprovedPRDHODlist
-                  ?.assignPRDHODemail &&
+                  skipApprovalStatusData?.assignAndApprovedPRDHODlist
+                    ?.assignPRDHODemail &&
                 skipApprovalStatusData?.approvalStatusOfMTDHOS === "Accepted" &&
                 skipApprovalStatusData?.approvalStatusOfMTDHOD === "Accepted" &&
                 skipApprovalStatusData?.approvalStatusOfPRDHOS === "Accepted" &&
                 skipApprovalStatusData?.approvalStatusOfPRDHOD === "Pending" ? (
                 <SkipApprovalComponent
+                  selectedSectionOrSubSection={
+                    sectionOrSubSectionDropdownList?.[
+                      selectedSectionOrSubSection
+                    ]
+                  }
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
                 />
