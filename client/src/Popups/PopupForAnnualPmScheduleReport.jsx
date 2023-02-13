@@ -72,7 +72,7 @@ const PopupForAnnualPmScheduleReport = ({
     },
   });
 
-  console.log(allUserDropdownList);
+  // console.log(allUserDropdownList);
   return (
     <>
       <div id="main_div_reg4">
@@ -181,7 +181,7 @@ const PopupForAnnualPmScheduleReport = ({
                     {allUserDropdownList?.allUser?.map((option, index) =>
                       option?.user_type === "Section-Admin" &&
                       option?.tm_grade === "HOS" &&
-                      option?.tm_department ? (
+                      option?.tm_department === "MTD" ? (
                         <option value={index}>{option?.tm_name}</option>
                       ) : (
                         ""
@@ -242,7 +242,7 @@ const PopupForAnnualPmScheduleReport = ({
                         {allUserDropdownList?.HODList?.map((option, index) =>
                           option?.user_type === "Plant-Admin" &&
                           option?.tm_grade === "HOD" &&
-                          option?.tm_department ? (
+                          option?.tm_department === "MTD" ? (
                             <option value={index}>{option?.tm_name}</option>
                           ) : (
                             ""

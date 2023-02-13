@@ -7,7 +7,11 @@ import { Row, Col, Container } from "react-bootstrap";
 import TextField from "@material-ui/core/TextField";
 import Footer from "../../components/Footer/Footer";
 
-const SkipApprovalComponent = ({skipApprovalStatusData, functionToSetRefKey}) => {
+const SkipApprovalComponent = ({
+  skipApprovalStatusData,
+  functionToSetRefKey,
+  selectedSectionOrSubSection,
+}) => {
   const context = useContext(RoutingContext);
 
   const formik = useFormik({
@@ -22,9 +26,10 @@ const SkipApprovalComponent = ({skipApprovalStatusData, functionToSetRefKey}) =>
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          selectedSectionOrSubSection,
           request: values.request,
           rejectedRemarksOfSkipPMMachines: values.rejected_remarks,
-          skipApprovalStatusData
+          skipApprovalStatusData,
         }),
       });
       const data = res.json();
@@ -34,6 +39,9 @@ const SkipApprovalComponent = ({skipApprovalStatusData, functionToSetRefKey}) =>
       } else {
         console.log("Approved done...");
         functionToSetRefKey();
+
+        window?.location?.reload();
+
         // navigate("/approvalDashboard");
 
         // refreshPage();
@@ -137,7 +145,6 @@ const SkipApprovalComponent = ({skipApprovalStatusData, functionToSetRefKey}) =>
         </div>
       </form>
     </Col>
-    
   );
 };
 
