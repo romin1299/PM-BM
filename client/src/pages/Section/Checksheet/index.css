@@ -35,7 +35,16 @@
 .right-component-main-dashboard {
     position: fixed;
     right: 12px;
+    top: 3rem;
+}
+
+@media screen and (min-width: 200px) and (max-width: 1024px){
+    
+.right-component-main-dashboard {
+    position: fixed;
+    right: 12px;
     top: 0px;
+}
 }
 
 .summeryPopupsCss {

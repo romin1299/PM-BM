@@ -338,7 +338,17 @@ input {
 }
 
 .leftComponent {
+    margin-right: 12rem;
+}
+
+.marginRightForMainDashboard {
     margin-right: 3rem;
+}
+
+@media screen and  (min-width: 200px) and (max-width: 990px){
+    .marginRightForMainDashboard {
+        margin-right: 0rem !important;
+    }
 }
 
 .showDetailsBtn {

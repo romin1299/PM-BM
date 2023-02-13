@@ -131,7 +131,8 @@ const LineWIsePmMonthlyGraph = ({ statusSum, selectedMonth }) => {
         backgroundColor: "#CFE1FD",
         borderColor: "rgba(54, 162, 235, 1)",
         stack: "Stack 0",
-        barThickness: "25",
+        barPercentage: 0.7,
+        categoryPercentage: 0.4,
         
       },
       {
@@ -140,7 +141,8 @@ const LineWIsePmMonthlyGraph = ({ statusSum, selectedMonth }) => {
         data: [statusSum?.lastMonthPendingStatusSum],
         backgroundColor: "rgb(250, 178, 178)",
         stack: "Stack 0",
-        barThickness: "25",
+        barPercentage: 0.7,
+        categoryPercentage: 0.4,
       },
       {
         label: "Completed",
@@ -148,7 +150,8 @@ const LineWIsePmMonthlyGraph = ({ statusSum, selectedMonth }) => {
         backgroundColor: "#bde28f",
         borderColor: "#adec71",
         stack: "Stack 1",
-        barThickness: "25",
+        barPercentage: 0.7,
+        categoryPercentage: 0.4,
       },
     ],
   };

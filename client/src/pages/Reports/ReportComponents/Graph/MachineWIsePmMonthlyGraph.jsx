@@ -234,8 +234,9 @@ const MachineWIsePmMonthlyGraph = ({ statusCounter, selectedMonth }) => {
         backgroundColor: "#CFE1FD",
         borderColor: "rgba(54, 162, 235, 1)",
         stack: "Stack 0",
-        barThickness: "25",
-
+        // barThickness: "25",
+        barPercentage: 0.7,
+        categoryPercentage: 0.4,
       },
       {
         label: "Completed",
@@ -243,8 +244,9 @@ const MachineWIsePmMonthlyGraph = ({ statusCounter, selectedMonth }) => {
         backgroundColor: "#bde28f",
         borderColor: "#adec71",
         stack: "Stack 1",
-        barThickness: "25",
-
+        // barThickness: "25",
+        barPercentage: 0.7,
+        categoryPercentage: 0.4,
       },
     ],
   };
