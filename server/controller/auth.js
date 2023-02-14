@@ -2047,9 +2047,17 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                     isPM: 1,
                     line_names: 1,
                     // checkSheet_data: 1
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    checkSheet_data: 1
                 }
-            }
+            },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
+                }
+            },
             ])
 
             machineLastData = await Machine.populate(machineLastData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
@@ -2228,9 +2236,17 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                     manufacturingDate: 1,
                     isPM: 1,
                     line_names: 1,
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    checkSheet_data: 1
                 }
-            }
+            },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
+                }
+            },
             ])
 
             machineLastData = await Machine.populate(machineLastData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
@@ -2249,7 +2265,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
 router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req, res) => {
     try {
         let { section, selectedYear } = req.body
-        // console.log("1755==>",selectedYear);
+        console.log("1755==>", selectedYear);
 
 
         let currentYear =
@@ -2402,7 +2418,6 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
             $match: {
                 line_names: { $in: lineIdArray },
                 $or: selectedYearOfCheckSheet
-
             }
         },
         {
@@ -2417,7 +2432,15 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
                 manufacturingDate: 1,
                 isPM: 1,
                 line_names: 1,
-                checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                checkSheet_data: 1
+            }
+        },
+        {
+            $unwind: "$checkSheet_data"
+        },
+        {
+            $match: {
+                "checkSheet_data.current_year": selectedYear
             }
         },
         {
@@ -2686,7 +2709,15 @@ router.post('/postSectionToGetAllDataForMainDashboardForOtherUser', authenticate
                 manufacturingDate: 1,
                 isPM: 1,
                 line_names: 1,
-                checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                checkSheet_data: 1
+            }
+        },
+        {
+            $unwind: "$checkSheet_data"
+        },
+        {
+            $match: {
+                "checkSheet_data.current_year": selectedYear
             }
         },
         {
@@ -3153,6 +3184,7 @@ router.post('/deleteSelectedMachineChecksheetTableRowData', async (req, res) => 
         const { rowData, machineId, yearOfCheckSheet, isDeleted } = req.body
         let deleteChecksheetRow, addFlagForDelete
         // console.log(rowData, machineId, yearOfCheckSheet)
+        
         if (isDeleted === true) {
             if (rowData.isAdded === true) {
                 deleteChecksheetRow = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": yearOfCheckSheet, }, { $pull: { "checkSheet_data.$[outer].checkSheet": { tableRowId: rowData.tableRowId } } }, {
@@ -7615,9 +7647,17 @@ router.post('/postMachineIdToGetAllDetailsOfMachine', authenticate, async (req, 
                 manufacturingDate: 1,
                 isPM: 1,
                 line_names: 1,
-                checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                checkSheet_data: 1
             }
-        }
+        },
+        {
+            $unwind: "$checkSheet_data"
+        },
+        {
+            $match: {
+                "checkSheet_data.current_year": selectedYear
+            }
+        },
         ])
 
         machineLastData = await Machine.populate(machineLastData,
@@ -7966,9 +8006,17 @@ router.post('/postLineToGetMachineListForReportDashboard', authenticate, async (
                 isPM: 1,
                 line_names: 1,
                 // checkSheet_data: 1
-                checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                checkSheet_data: 1
             }
-        }
+        },
+        {
+            $unwind: "$checkSheet_data"
+        },
+        {
+            $match: {
+                "checkSheet_data.current_year": selectedYear
+            }
+        },
         ])
         // const machineInfo = await Machine.find({ line_names: line }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
         machineInfo = await
@@ -8116,7 +8164,15 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
                         manufacturingDate: 1,
                         isPM: 1,
                         line_names: 1,
-                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                        checkSheet_data: 1
+                    }
+                },
+                {
+                    $unwind: "$checkSheet_data"
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": selectedYear
                     }
                 },
                 {
@@ -8277,7 +8333,15 @@ router.post('/postSectionToGetAllDataForReport', authenticate, async (req, res) 
                     manufacturingDate: 1,
                     isPM: 1,
                     line_names: 1,
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    checkSheet_data: 1
+                }
+            },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
                 }
             },
             {
@@ -8624,7 +8688,15 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                     manufacturingDate: 1,
                     isPM: 1,
                     line_names: 1,
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    checkSheet_data: 1
+                }
+            },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
                 }
             },
             {
@@ -8665,7 +8737,15 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                     manufacturingDate: 1,
                     isPM: 1,
                     line_names: 1,
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    checkSheet_data: 1
+                }
+            },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
                 }
             },
             {
@@ -8825,7 +8905,15 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                     manufacturingDate: 1,
                     isPM: 1,
                     line_names: 1,
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    checkSheet_data: 1
+                }
+            },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
                 }
             },
             {
@@ -8865,7 +8953,15 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                     manufacturingDate: 1,
                     isPM: 1,
                     line_names: 1,
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    checkSheet_data: 1
+                }
+            },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
                 }
             },
             {
@@ -9128,7 +9224,14 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport/:id', authenticate, a
                             manufacturingDate: 1,
                             isPM: 1,
                             line_names: 1,
-                            checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                            checkSheet_data: 1
+                        }
+                    },{
+                        $unwind: "$checkSheet_data"
+                    },
+                    {
+                        $match: {
+                            "checkSheet_data.current_year": selectedYear
                         }
                     },
                     {
@@ -9530,7 +9633,15 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
                         manufacturingDate: 1,
                         isPM: 1,
                         line_names: 1,
-                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                        checkSheet_data: 1
+                    }
+                },
+                {
+                    $unwind: "$checkSheet_data"
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": selectedYear
                     }
                 },
                 {
@@ -10131,34 +10242,37 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
             // const openAbnormality = await Machine.find({ line_names: { $in: lineIdArray }, "checkSheet.abnormalityDetails": { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
             const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
 
-            openAbnormality.map((keyForCheckSheet) => {
+            openAbnormality?.map((keyForCheckSheet) => {
                 keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
-                    for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
-                        let month = financialYearWiseMonthKeyArray[i]
-                        if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus != undefined) {
-                            if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus === "Open") {
-                                onlyOpenAbnormalityWithAllMonths.push(
-                                    new Object({
-                                        line_name: keyForCheckSheet.line_names.line_name,
-                                        machine_name: keyForCheckSheet.machine_name,
-                                        machine_code: keyForCheckSheet.machine_code,
-                                        yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-                                        schedule_month: month,
-                                        table_id: keyForAbnormality.tableRowId,
-                                        checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
-                                        abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
-                                        targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
-                                        PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
-                                        remarksOnClose: keyForAbnormality?.abnormalityDetails[month]?.remarksOnClose,
-                                        doneDate: keyForAbnormality?.abnormalityDetails[month]?.doneDate,
-                                        doneBy: keyForAbnormality?.abnormalityDetails[month]?.doneBy,
-                                    })
-                                );
+                    if(keyForAbnormality?.abnormalityDetails){
+
+                        for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
+                            let month = financialYearWiseMonthKeyArray[i]
+                            if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus != undefined) {
+                                if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus === "Open") {
+                                    onlyOpenAbnormalityWithAllMonths.push(
+                                        new Object({
+                                            line_name: keyForCheckSheet.line_names.line_name,
+                                            machine_name: keyForCheckSheet.machine_name,
+                                            machine_code: keyForCheckSheet.machine_code,
+                                            yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
+                                            schedule_month: month,
+                                            table_id: keyForAbnormality.tableRowId,
+                                            checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
+                                            abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
+                                            targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
+                                            PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
+                                            remarksOnClose: keyForAbnormality?.abnormalityDetails[month]?.remarksOnClose,
+                                            doneDate: keyForAbnormality?.abnormalityDetails[month]?.doneDate,
+                                            doneBy: keyForAbnormality?.abnormalityDetails[month]?.doneBy,
+                                        })
+                                    );
+                                }
                             }
+    
+    
+    
                         }
-
-
-
                     }
                 })
             })
@@ -10199,32 +10313,35 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
 
             openAbnormality.map((keyForCheckSheet) => {
                 keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
-                    for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
-                        let month = financialYearWiseMonthKeyArray[i]
-                        if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus != undefined) {
-                            if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus === "Open") {
-                                onlyOpenAbnormalityWithAllMonths.push(
-                                    new Object({
-                                        line_name: keyForCheckSheet.line_names.line_name,
-                                        machine_name: keyForCheckSheet.machine_name,
-                                        machine_code: keyForCheckSheet.machine_code,
-                                        yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-                                        schedule_month: month,
-                                        table_id: keyForAbnormality.tableRowId,
-                                        checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
-                                        abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
-                                        targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
-                                        PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
-                                        remarksOnClose: keyForAbnormality?.abnormalityDetails[month]?.remarksOnClose,
-                                        doneDate: keyForAbnormality?.abnormalityDetails[month]?.doneDate,
-                                        doneBy: keyForAbnormality?.abnormalityDetails[month]?.doneBy,
-                                    })
-                                );
+                    if(keyForAbnormality?.abnormalityDetails){
+
+                        for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
+                            let month = financialYearWiseMonthKeyArray[i]
+                            if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus != undefined) {
+                                if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus === "Open") {
+                                    onlyOpenAbnormalityWithAllMonths.push(
+                                        new Object({
+                                            line_name: keyForCheckSheet.line_names.line_name,
+                                            machine_name: keyForCheckSheet.machine_name,
+                                            machine_code: keyForCheckSheet.machine_code,
+                                            yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
+                                            schedule_month: month,
+                                            table_id: keyForAbnormality.tableRowId,
+                                            checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
+                                            abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
+                                            targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
+                                            PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
+                                            remarksOnClose: keyForAbnormality?.abnormalityDetails[month]?.remarksOnClose,
+                                            doneDate: keyForAbnormality?.abnormalityDetails[month]?.doneDate,
+                                            doneBy: keyForAbnormality?.abnormalityDetails[month]?.doneBy,
+                                        })
+                                    );
+                                }
                             }
+    
+    
+    
                         }
-
-
-
                     }
                 })
             })
@@ -10486,7 +10603,15 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                     manufacturingDate: 1,
                                     isPM: 1,
                                     line_names: 1,
-                                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                                    checkSheet_data: 1
+                                }
+                            },
+                            {
+                                $unwind: "$checkSheet_data"
+                            },
+                            {
+                                $match: {
+                                    "checkSheet_data.current_year": selectedYear
                                 }
                             },
                             {
@@ -10598,7 +10723,15 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                         manufacturingDate: 1,
                                         isPM: 1,
                                         line_names: 1,
-                                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                                        checkSheet_data: 1
+                                    }
+                                },
+                                {
+                                    $unwind: "$checkSheet_data"
+                                },
+                                {
+                                    $match: {
+                                        "checkSheet_data.current_year": selectedYear
                                     }
                                 },
                                 {
@@ -10760,7 +10893,15 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                         manufacturingDate: 1,
                                         isPM: 1,
                                         line_names: 1,
-                                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                                        checkSheet_data: 1
+                                    }
+                                },
+                                {
+                                    $unwind: "$checkSheet_data"
+                                },
+                                {
+                                    $match: {
+                                        "checkSheet_data.current_year": selectedYear
                                     }
                                 },
                                 {
@@ -10876,7 +11017,15 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                             manufacturingDate: 1,
                                             isPM: 1,
                                             line_names: 1,
-                                            checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                                            checkSheet_data: 1
+                                        }
+                                    },
+                                    {
+                                        $unwind: "$checkSheet_data"
+                                    },
+                                    {
+                                        $match: {
+                                            "checkSheet_data.current_year": selectedYear
                                         }
                                     },
                                     {
@@ -11331,7 +11480,15 @@ router.post('/postSectionToGetAllDataForTotalTimeMonthWiseReport', authenticate,
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+                {
+                    $unwind: "$checkSheet_data"
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": selectedYear
+                    }
+                },
+                // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         [x]: { $ne: undefined },
@@ -11440,7 +11597,15 @@ router.post('/postPerticularLineToGetDataForTotalTimeMonthWiseReport', authentic
                     $or: selectedYearOfCheckSheet,
                 }
             },
-            { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
+                }
+            },
+            // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
             {
                 $match: {
                     [x]: { $ne: undefined },
@@ -11583,7 +11748,15 @@ router.post('/postSectionToGetAllDataForTotalTimeManHoursMonthWise', authenticat
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+                {
+                    $unwind: "$checkSheet_data"
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": selectedYear
+                    }
+                },
+                // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         [keyOfTotalPMTime]: { $ne: undefined },
@@ -11701,7 +11874,15 @@ router.post('/postPerticularLineToGetDataForTotalTimeManHours', authenticate, as
                     $or: selectedYearOfCheckSheet,
                 }
             },
-            { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
+                }
+            },
+            // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
             {
                 $match: {
                     [keyOfTotalPMTime]: { $ne: undefined },
@@ -11851,7 +12032,15 @@ router.post('/postPerticularOperatorToGetDataForActualTimeTakenTMWise', authenti
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+                {
+                    $unwind: "$checkSheet_data"
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": selectedYear
+                    }
+                },
+                // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 {
                     $match: {
                         [keyOfTotalPMTime]: { $ne: undefined },
@@ -13050,7 +13239,15 @@ router.post('/postSectionToGetAllDataForLogHistory', authenticate, async (req, r
                 manufacturingDate: 1,
                 isPM: 1,
                 line_names: 1,
-                checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                checkSheet_data: 1
+            }
+        },
+        {
+            $unwind: "$checkSheet_data"
+        },
+        {
+            $match: {
+                "checkSheet_data.current_year": selectedYear
             }
         },
         {
@@ -13204,7 +13401,15 @@ router.post('/postSectionToGetAllPendingPMLogHistory', authenticate, async (req,
                 manufacturingDate: 1,
                 isPM: 1,
                 line_names: 1,
-                checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                checkSheet_data: 1
+            }
+        },
+        {
+            $unwind: "$checkSheet_data"
+        },
+        {
+            $match: {
+                "checkSheet_data.current_year": selectedYear
             }
         },
         {
@@ -13390,7 +13595,15 @@ router.post('/postSectionToGetLineData', authenticate, async (req, res) => {
                 manufacturingDate: 1,
                 isPM: 1,
                 line_names: 1,
-                checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                checkSheet_data: 1
+            }
+        },
+        {
+            $unwind: "$checkSheet_data"
+        },
+        {
+            $match: {
+                "checkSheet_data.current_year": selectedYear
             }
         },
         {
@@ -13950,7 +14163,15 @@ router.post('/postSectionToGetAllDataForSparePartsReport', authenticate, async (
                     $or: selectedYearOfCheckSheet,
                 }
             },
-            { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
+                }
+            },
+            // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
             { $unwind: '$checkSheet_data.checkSheet' },
             {
                 $match: {
@@ -14014,7 +14235,15 @@ router.post('/postSectionToGetAllDataForSparePartsReport', authenticate, async (
                     $or: selectedYearOfCheckSheet,
                 }
             },
-            { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
+                }
+            },
+            // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
             { $unwind: keyForTotalCostOfExtraSpareDetailsUnwind },
             {
                 $group: {
@@ -14203,7 +14432,15 @@ router.post('/postPerticularLineToGetDataForMonthlySpareConsumption', authentica
                     $or: selectedYearOfCheckSheet,
                 }
             },
-            { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
+                }
+            },
+            // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
             { $unwind: '$checkSheet_data.checkSheet' },
             {
                 $match: {
@@ -14267,7 +14504,15 @@ router.post('/postPerticularLineToGetDataForMonthlySpareConsumption', authentica
                     $or: selectedYearOfCheckSheet,
                 }
             },
-            { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
+                }
+            },
+            // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
             { $unwind: keyForTotalCostOfExtraSpareDetailsUnwind },
             {
                 $group: {
@@ -14464,7 +14709,15 @@ router.post('/postSectionToGetAllDataForLineWiseSpareConsumption', authenticate,
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+                {
+                    $unwind: "$checkSheet_data"
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": selectedYear
+                    }
+                },
+                // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 { $unwind: '$checkSheet_data.checkSheet' },
                 {
                     $match: {
@@ -14498,7 +14751,15 @@ router.post('/postSectionToGetAllDataForLineWiseSpareConsumption', authenticate,
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+                {
+                    $unwind: "$checkSheet_data"
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": selectedYear
+                    }
+                },
+                // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 { $unwind: keyForTotalCostOfExtraSpareDetailsUnwind },
                 {
                     $group: {
@@ -14734,7 +14995,15 @@ router.post('/postSectionToGetAllDataForTop20MachineSparePartsReport', authentic
                 manufacturingDate: 1,
                 isPM: 1,
                 line_names: 1,
-                checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                checkSheet_data: 1
+            }
+        },
+        {
+            $unwind: "$checkSheet_data"
+        },
+        {
+            $match: {
+                "checkSheet_data.current_year": selectedYear
             }
         },
         {
@@ -14779,7 +15048,15 @@ router.post('/postSectionToGetAllDataForTop20MachineSparePartsReport', authentic
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+                {
+                    $unwind: "$checkSheet_data"
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": selectedYear
+                    }
+                },
+                // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 { $unwind: '$checkSheet_data.checkSheet' },
                 {
                     $match: {
@@ -14814,7 +15091,15 @@ router.post('/postSectionToGetAllDataForTop20MachineSparePartsReport', authentic
                         $or: selectedYearOfCheckSheet,
                     }
                 },
-                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+                {
+                    $unwind: "$checkSheet_data"
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": selectedYear
+                    }
+                },
+                // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
                 { $unwind: keyForTotalCostOfExtraSpareDetailsUnwind },
                 {
                     $group: {

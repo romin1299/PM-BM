@@ -1208,16 +1208,16 @@ const MachineWisePmMonthlyReport = () => {
               context.user_type === "TL/HOSS" &&
               context.tm_department === "MTD" ? (
                 <div>
-                  <Row
-                    className="d-flex mt-2 p-3 border bg-white rounded"
-                    style={{ margin: "0px" }}
-                  >
+                  
                     <form
-                      className="d-flex"
+                      className="d-flex mt-2 p-3 border bg-white rounded"
                       onSubmit={formik1.handleSubmit}
                       style={{ margin: "0px" }}
                     >
-                      <Col sm className="mb-3">
+                      <Row className="w-100">
+
+                      
+                      <Col lg={2} md={6} sm={12} className="mb-3">
                         <span>
                           <b>MTD HOS :</b>
                         </span>
@@ -1265,7 +1265,7 @@ const MachineWisePmMonthlyReport = () => {
                           </div>
                         </div>
                       </Col>
-                      <Col sm className="mb-3">
+                      <Col lg={2} md={6} sm={12} className="mb-3">
                         <span>
                           <b>MTD HOD :</b>
                         </span>
@@ -1313,7 +1313,7 @@ const MachineWisePmMonthlyReport = () => {
                         </div>
                       </Col>
 
-                      <Col sm className="mb-3">
+                      <Col lg={2} md={6} sm={12} className="mb-3">
                         <span>
                           <b>PRD HOS :</b>
                         </span>
@@ -1360,7 +1360,7 @@ const MachineWisePmMonthlyReport = () => {
                           </div>
                         </div>
                       </Col>
-                      <Col sm className="mb-3">
+                      <Col lg={2} md={6} sm={12} className="mb-3">
                         <span>
                           <b>PRD HOD :</b>
                         </span>
@@ -1407,7 +1407,7 @@ const MachineWisePmMonthlyReport = () => {
                           </div>
                         </div>
                       </Col>
-                      <Col sm>
+                      <Col lg={2} md={6} sm={12}>
                         <span>
                           <b>Reason for delay :</b>
                         </span>
@@ -1436,18 +1436,20 @@ const MachineWisePmMonthlyReport = () => {
                           </p>
                         </div>
                       </Col>
-                      <Col className="d-flex justify-content-center align-items-center">
+                      <Col lg={2} md={6} sm={12} className="d-flex justify-content-start align-items-center">
                         <button className="btn-approval" type="submit">
                           Send for Approval
                         </button>
                       </Col>
+                      </Row>
                     </form>
-                  </Row>
+                  
+
                   <Row
                     className="d-flex mt-2 p-3 border bg-white rounded"
                     style={{ margin: "0px" }}
                   >
-                    <Col sm className="mb-3">
+                    <Col lg={2} md={6} sm={12} className="mb-3">
                       <span>
                         <b>MTD HOS :</b>
                       </span>
@@ -1464,7 +1466,7 @@ const MachineWisePmMonthlyReport = () => {
                         </div>
                       </div>
                     </Col>
-                    <Col sm className="mb-3">
+                    <Col lg={2} md={6} sm={12} className="mb-3">
                       <span>
                         <b>MTD HOD :</b>
                       </span>
@@ -1482,7 +1484,7 @@ const MachineWisePmMonthlyReport = () => {
                       </div>
                     </Col>
 
-                    <Col sm className="mb-3">
+                    <Col lg={2} md={6} sm={12} className="mb-3">
                       <span>
                         <b>PRD HOS :</b>
                       </span>
@@ -1499,7 +1501,7 @@ const MachineWisePmMonthlyReport = () => {
                         </div>
                       </div>
                     </Col>
-                    <Col sm className="mb-3">
+                    <Col lg={2} md={6} sm={12} className="mb-3">
                       <span>
                         <b>PRD HOD :</b>
                       </span>
@@ -1516,7 +1518,7 @@ const MachineWisePmMonthlyReport = () => {
                         </div>
                       </div>
                     </Col>
-                    <Col>
+                    <Col lg={2} md={6} sm={12}>
                       <div style={{ marginTop: "0.5rem" }}>
                         <span>
                           {" "}
@@ -1552,7 +1554,7 @@ const MachineWisePmMonthlyReport = () => {
                     className="d-flex mt-2 p-3 mb-3 border bg-white rounded"
                     style={{ padding: "10px", margin: "0px" }}
                   >
-                    <Col sm className="mb-3">
+                    <Col lg={2} md={6} sm={12} className="mb-3">
                       <span>
                         <b>MTD HOS :</b>
                       </span>
@@ -1571,7 +1573,7 @@ const MachineWisePmMonthlyReport = () => {
                         </div>
                       </div>
                     </Col>
-                    <Col sm className="mb-3">
+                    <Col lg={2} md={6} sm={12} className="mb-3">
                       <span>
                         <b>MTD HOD :</b>
                       </span>
@@ -1592,7 +1594,7 @@ const MachineWisePmMonthlyReport = () => {
                       </div>
                     </Col>
 
-                    <Col sm className="mb-3">
+                    <Col lg={2} md={6} sm={12} className="mb-3">
                       <span>
                         <b>PRD HOS :</b>
                       </span>
@@ -1611,7 +1613,7 @@ const MachineWisePmMonthlyReport = () => {
                         </div>
                       </div>
                     </Col>
-                    <Col sm className="mb-3">
+                    <Col lg={2} md={6} sm={12} className="mb-3">
                       <span>
                         <b>PRD HOD :</b>
                       </span>
@@ -1630,7 +1632,7 @@ const MachineWisePmMonthlyReport = () => {
                         </div>
                       </div>
                     </Col>
-                    <Col>
+                    <Col lg={2} md={6} sm={12}>
                       <div>
                         <span>
                           <b>Reason for delay :</b>
