@@ -914,7 +914,7 @@ const MainDashboard = () => {
                     </Col>
                     <Col lg={3} md={12} sm={12} className="mt-1">
                       {context.user_type === "Section-Admin" &&
-                      new Date().getMonth() === 1 ? (
+                      new Date().getMonth() === 3 ? (
                         refFinancialYear?.financialYears?.includes(
                           `${new Date().getFullYear()}-${
                             new Date().getFullYear() + 3
