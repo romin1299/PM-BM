@@ -696,15 +696,7 @@ const MainDashboard = () => {
     }
   }, [refKeyForFinancialYear]);
 
-  // console.log(
-  //   ">>>>>>>>>>>>>>>>>>>>>",
-  //   context.user_type === "Section-Admin" && new Date().getMonth() === 1,
-  //   refFinancialYear?.financialYears
-
-  //   // ?.includes(
-  //   //   `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`
-  //   // )
-  // );
+  console.log(">>>>>>>>>>>>>>>>>>>>>", refFinancialYear?.financialYears);
   return (
     <>
       {machineWiseCheckSheetForImplementation}
@@ -917,7 +909,7 @@ const MainDashboard = () => {
                       new Date().getMonth() === 3 ? (
                         refFinancialYear?.financialYears?.includes(
                           `${new Date().getFullYear()}-${
-                            new Date().getFullYear() + 3
+                            new Date().getFullYear() + 1
                           }`
                         ) ? (
                           ""
