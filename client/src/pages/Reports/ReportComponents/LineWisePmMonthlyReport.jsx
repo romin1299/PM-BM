@@ -395,19 +395,19 @@ const LineWisePmMonthlyReport = () => {
         <div className="lineWisePmMonthlyReport">
           <Container fluid>
             <Row className="p-2 mt-3">
-              <Col sm={12} lg={4}>
+              <Col sm={12} lg={4} md={6} className="mb-2">
                 <YearDropDown
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
                 />
               </Col>
-              <Col sm={12} lg={4}>
+              <Col sm={12} lg={4} md={6} className="mb-2">
                 <MonthDropDown
                   selectedMonth={selectedMonth}
                   setSelectedMonth={setSelectedMonth}
                 />
               </Col>
-              <Col sm={12} lg={4}>
+              <Col sm={12} lg={4} md={6} className="mb-2">
                 <span>
                   <b>Line:&nbsp;&nbsp;</b>
                 </span>

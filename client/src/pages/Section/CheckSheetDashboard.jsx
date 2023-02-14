@@ -529,7 +529,7 @@ const CheckSheetDashboard = () => {
     setLoadingAnimationState(<LoadingAnimation />);
   }, [selectedYear]);
 
-  console.log(tableData);
+  // console.log(tableData);
 
   // let preparationDataArray = [],
   //   underPreparationDataArray = [],

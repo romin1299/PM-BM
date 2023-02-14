@@ -261,14 +261,13 @@ const PendingPMLogHistory = () => {
   return (
     <>
       <Container fluid>
-
         <Row className="mt-3 my-3">
           <Col sm={12} md={6} lg={2} className="mb-2">
             <YearDropDown
               selectedYear={selectedYear}
               setSelectedYear={setSelectedYear}
             />
-          </Col >
+          </Col>
           <Col sm={12} md={6} lg={2} className="mb-2">
             <MonthDropDown
               selectedMonth={selectedMonth ? selectedMonth : ""}
@@ -315,7 +314,6 @@ const PendingPMLogHistory = () => {
                 return <option value={index}>{option.cell_name}</option>;
               })}
             </select>
-
           </Col>
 
           <Col sm={12} md={6} lg={2} className="mb-2">
@@ -339,9 +337,7 @@ const PendingPMLogHistory = () => {
                 postLineToGetAllMachineData(
                   lineDropdown?.[e.target.value]?._id,
                   currentYear
-                ).then((result) =>
-                  setMachineDropdown(result?.machineInfo)
-                );
+                ).then((result) => setMachineDropdown(result?.machineInfo));
                 setLoadingAnimationState(<LoadingAnimation />);
               }}
               // fullWidth
@@ -356,7 +352,6 @@ const PendingPMLogHistory = () => {
                 return <option value={index}>{option.line_name}</option>;
               })}
             </select>
-
           </Col>
 
           <Col sm={12} md={6} lg={2} className="mb-2">
@@ -379,9 +374,7 @@ const PendingPMLogHistory = () => {
           </Col>
 
           <Col sm={12} md={6} lg={2}></Col>
-        </Row >
-
-
+        </Row>
 
         <Row className="mt-3">
           <Col sm={12} md={6} lg={3} className="mb-2">
@@ -415,7 +408,6 @@ const PendingPMLogHistory = () => {
                 );
               })}
             </select>
-
           </Col>
           {/* {console.log(abnormalityYesOrNo)} */}
 
@@ -446,7 +438,6 @@ const PendingPMLogHistory = () => {
                 return <option value={option}>{option}</option>;
               })}
             </select>
-
           </Col>
 
           <Col sm={12} md={6} lg={3} className="mb-2">
@@ -476,7 +467,6 @@ const PendingPMLogHistory = () => {
                 return <option value={option}>{option}</option>;
               })}
             </select>
-
           </Col>
 
           <Col sm={12} md={6} lg={3} className="mb-2">
@@ -489,9 +479,7 @@ const PendingPMLogHistory = () => {
               // style={{ width: "100%" }}
               id="standard-select-currency"
               name="selectedAbnormalityStatus"
-              value={
-                selectedAbnormalityStatus ? selectedAbnormalityStatus : ""
-              }
+              value={selectedAbnormalityStatus ? selectedAbnormalityStatus : ""}
               className="textField"
               onChange={(e) => {
                 setSelectedAbnormalityStatus(e.target.value);
@@ -508,45 +496,44 @@ const PendingPMLogHistory = () => {
                 return <option value={option}>{option}</option>;
               })}
             </select>
-
           </Col>
         </Row>
       </Container>
       {logHistoryData?.length > 0 ? (
-        <div className="container-fluid" style={{ overflow: "auto" }}>
-          <h4 style={{ padding: "1rem 0 0 0" }}>Pending Log History</h4>
-
-          <table className="ar-table pmSheetApprovalTableCol">
-            <thead className="mt-5">
-              <tr className="bg-button">
-                {columns.map((tColumn) => (
-                  <th
-                    className={"ar-table-thead-header5 td-padding text-white"}
-                    colSpan={
-                      tColumn.header === "Preparation"
-                        ? 3
-                        : tColumn.header === "Planning"
+        <div>
+          <h4 style={{ padding: "1rem 0 0 1rem" }}>Pending Log History</h4>
+          <div className="container-fluid" style={{ overflow: "auto" }}>
+            <table className="ar-table pmSheetApprovalTableCol">
+              <thead className="mt-5">
+                <tr className="bg-button">
+                  {columns.map((tColumn) => (
+                    <th
+                      className={"ar-table-thead-header5 td-padding text-white"}
+                      colSpan={
+                        tColumn.header === "Preparation"
+                          ? 3
+                          : tColumn.header === "Planning"
                           ? 2
                           : 0
-                    }
-                  >
-                    {tColumn.header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {logHistoryData?.map((item, index) =>
-                (selectedCell
-                  ? item?.cellInfo?.cell_Id ===
-                  allDataSectionWise?.cellData?.[selectedCell]?.cell_id
-                  : true) &&
+                      }
+                    >
+                      {tColumn.header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {logHistoryData?.map((item, index) =>
+                  (selectedCell
+                    ? item?.cellInfo?.cell_Id ===
+                      allDataSectionWise?.cellData?.[selectedCell]?.cell_id
+                    : true) &&
                   (selectedMonth
                     ? item?.schedule_month === selectedMonth
                     : true) &&
                   (selectedLine
                     ? item?.lineInfo?.line_Id ===
-                    lineDropdown?.[selectedLine]?.line_id
+                      lineDropdown?.[selectedLine]?.line_id
                     : true) &&
                   (selectedMachine
                     ? item?.machineInfo?.machine_Id === selectedMachine
@@ -560,59 +547,66 @@ const PendingPMLogHistory = () => {
                     ? item?.abnormality_status === selectedAbnormalityStatus
                     : true) &&
                   (spareYesOrNo ? item?.spare_used === spareYesOrNo : true) ? (
-                  <tr className="ar-table-thead-header4 tableRowColor">
-                    {/* {console.log(item?.lineInfo?.line_Id)} */}
-                    <td className="td-padding">{index + 1}</td>
-                    <td className="td-padding">{item?.schedule_month}</td>
-                    <td className="td-padding">{item?.cellInfo?.cell_name}</td>
-                    <td className="td-padding">{item?.lineInfo?.line_name}</td>
-                    <td className="td-padding">
-                      {item?.machineInfo?.machine_name}
-                    </td>
-                    <td className="td-padding">
-                      {item?.machineInfo?.machine_Id}
-                    </td>
-                    <td className="td-padding">{item?.reason_for_delay}</td>
-                    <td className="td-padding">{item?.inception_point}</td>
-                    <td className="td-padding">{item?.date}</td>
-                    <td className="td-padding">{item?.remarks}</td>
-                    <td className="td-padding">
-                      {item?.abnormality_remarks ? "Yes" : "No"}
-                    </td>
-                    <td className="td-padding">{item?.abnormality_remarks}</td>
-                    <td className="td-padding">{item?.abnormality_status}</td>
-                    <td className="td-padding">{item?.target}</td>
-                    <td className="td-padding">{item?.spare_used}</td>
-                    <td className="td-padding">{item?.part_name}</td>
-                    <td className="td-padding">{item?.part_no}</td>
-                    <td className="td-padding">{item?.part_cost}</td>
-                    <td className="td-padding">{item?.done_by}</td>
-                    <td className="td-padding">
-                      {item?.uploaded_file_name ? (
-                        <button
-                          style={styleForDownloadFileButton}
-                          onClick={() =>
-                            downloadUploadedImage(item?.uploaded_file_name)
-                          }
-                        >
-                          {item?.uploaded_file_name}
-                        </button>
-                      ) : (
-                        ""
-                      )}
-                    </td>
-                  </tr>
-                ) : (
-                  ""
-                )
-              )}
-            </tbody>
-          </table>
+                    <tr className="ar-table-thead-header4 tableRowColor">
+                      {/* {console.log(item?.lineInfo?.line_Id)} */}
+                      <td className="td-padding">{index + 1}</td>
+                      <td className="td-padding">{item?.schedule_month}</td>
+                      <td className="td-padding">
+                        {item?.cellInfo?.cell_name}
+                      </td>
+                      <td className="td-padding">
+                        {item?.lineInfo?.line_name}
+                      </td>
+                      <td className="td-padding">
+                        {item?.machineInfo?.machine_name}
+                      </td>
+                      <td className="td-padding">
+                        {item?.machineInfo?.machine_Id}
+                      </td>
+                      <td className="td-padding">{item?.reason_for_delay}</td>
+                      <td className="td-padding">{item?.inception_point}</td>
+                      <td className="td-padding">{item?.date}</td>
+                      <td className="td-padding">{item?.remarks}</td>
+                      <td className="td-padding">
+                        {item?.abnormality_remarks ? "Yes" : "No"}
+                      </td>
+                      <td className="td-padding">
+                        {item?.abnormality_remarks}
+                      </td>
+                      <td className="td-padding">{item?.abnormality_status}</td>
+                      <td className="td-padding">{item?.target}</td>
+                      <td className="td-padding">{item?.spare_used}</td>
+                      <td className="td-padding">{item?.part_name}</td>
+                      <td className="td-padding">{item?.part_no}</td>
+                      <td className="td-padding">{item?.part_cost}</td>
+                      <td className="td-padding">{item?.done_by}</td>
+                      <td className="td-padding">
+                        {item?.uploaded_file_name ? (
+                          <button
+                            style={styleForDownloadFileButton}
+                            onClick={() =>
+                              downloadUploadedImage(item?.uploaded_file_name)
+                            }
+                          >
+                            {item?.uploaded_file_name}
+                          </button>
+                        ) : (
+                          ""
+                        )}
+                      </td>
+                    </tr>
+                  ) : (
+                    ""
+                  )
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : (
         <div
           className="container-fluid d-flex justify-content-center align-items-center p-5"
-        // style={{ height: "100vh" }}
+          // style={{ height: "100vh" }}
         >
           {loadingAnimationState}
         </div>
