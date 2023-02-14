@@ -3184,7 +3184,7 @@ router.post('/deleteSelectedMachineChecksheetTableRowData', async (req, res) => 
         const { rowData, machineId, yearOfCheckSheet, isDeleted } = req.body
         let deleteChecksheetRow, addFlagForDelete
         // console.log(rowData, machineId, yearOfCheckSheet)
-        
+
         if (isDeleted === true) {
             if (rowData.isAdded === true) {
                 deleteChecksheetRow = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": yearOfCheckSheet, }, { $pull: { "checkSheet_data.$[outer].checkSheet": { tableRowId: rowData.tableRowId } } }, {
@@ -9226,7 +9226,7 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport/:id', authenticate, a
                             line_names: 1,
                             checkSheet_data: 1
                         }
-                    },{
+                    }, {
                         $unwind: "$checkSheet_data"
                     },
                     {
@@ -9725,6 +9725,7 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
         //2022-23
         let current_year = `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`
 
+
         //2023-2024
         // let current_year = `${new Date().getFullYear() + 1}-${new Date().getFullYear() + 2}`
 
@@ -9761,392 +9762,391 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
             cellData, cellIdArray = [],
             lineData, lineIdArray = [],
             machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
-        let copyCheckSheetData, removeFieldsFromPreviousYear
-        if (monthForCompareSystemMonth === "Apr") {
-            // console.log(section);
-            let sectionSplit = section.split("-")
-            const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
-            if (sectionInfo.dashboardLevel === "Yes") {
-                subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+        let copyCheckSheetData, removeFieldsFromPreviousYear, addNewFinancialYears
+        if (monthForCompareSystemMonth !== "Apr") {
+            // let sectionSplit = section.split("-")
+            // const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
+            // if (sectionInfo.dashboardLevel === "Yes") {
+            //     subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
 
 
-                for (let i = 0; i < subSectionsData.length; i++) {
-                    subSectionIdArray.push(subSectionsData[i]._id);
-                }
+            //     for (let i = 0; i < subSectionsData.length; i++) {
+            //         subSectionIdArray.push(subSectionsData[i]._id);
+            //     }
 
-                cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
+            //     cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
 
-                for (let i = 0; i < cellData.length; i++) {
-                    cellIdArray.push(cellData[i]._id);
-                }
+            //     for (let i = 0; i < cellData.length; i++) {
+            //         cellIdArray.push(cellData[i]._id);
+            //     }
 
-                lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
-                for (let i = 0; i < lineData.length; i++) {
-                    lineIdArray.push(lineData[i]._id);
-                }
-                // console.log(lineIdArray)
+            //     lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
+            //     for (let i = 0; i < lineData.length; i++) {
+            //         lineIdArray.push(lineData[i]._id);
+            //     }
+            //     // console.log(lineIdArray)
 
-                // machineData = await Machine.find({ line_names: { $in: lineIdArray }, checkSheet_data:{$exists:true}}).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            //     // machineData = await Machine.find({ line_names: { $in: lineIdArray }, checkSheet_data:{$exists:true}}).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
-                let deleteMidYearDeletedInceptionItem = await Machine.updateMany(
-                    { line_names: { $in: lineIdArray } },
-                    { $pull: { "checkSheet_data.$[outer].checkSheet": { isDeleted: true } } }, {
-                    arrayFilters: [{ 'outer.current_year': previous_year }],
-                })
-
-
-                let previousYearCheckCheetDataOfPeraticularSection
-                previousYearCheckCheetDataOfPeraticularSection = await Machine.aggregate([{
-                    $match: { line_names: { $in: lineIdArray }, "checkSheet_data.current_year": previous_year }
-                },
-                { $unwind: '$checkSheet_data' },
-                {
-                    $match: { "checkSheet_data.current_year": previous_year }
-                },
-                    // { $unwind: '$checkSheet_data.checkSheet' },
-
-                    // { $project: { "checkSheet_data.checkSheet": 1, "checkSheet_data.current_year": 1 } },
-                ]);
-
-                for (let i = 0; i < previousYearCheckCheetDataOfPeraticularSection.length; i++) {
-                    // console.log(previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.current_year)
-                    previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checksheet_status = "Planning"
-                    previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.current_year = current_year
-                    for (let k = 0; k < previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet.length; k++) {
-                        // for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
-                        //     let month = financialYearWiseMonthKeyArray[j];
-                        //     if (previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0] == "2") {
-                        //         previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0] = "0"
-                        //     }
-                        //     if (previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0]) {
-                        //         newFinancialCheckSheetPlanningData[month][0] = previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[0].planningTableAnimationArray2[month][0]
-
-                        //     } else {
-                        //         continue
-                        //     }
-
-                        // }
-
-                        let cycleValue = (previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/1M" ? 1 :
-                            previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/2M" ? 2 :
-                                previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/3M" ? 3 :
-                                    previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/4M" ? 4 :
-                                        previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/6M" ? 6 :
-                                            12)
-
-                        let Cycle = cycleValue
-
-                        for (let i = 0;
-                            (i < (12 / Cycle)) && (previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.start_month < 12); i++) {
-                            let monthOfkey = financialYearWiseMonthKeyArray[previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.start_month]
+            //     let deleteMidYearDeletedInceptionItem = await Machine.updateMany(
+            //         { line_names: { $in: lineIdArray } },
+            //         { $pull: { "checkSheet_data.$[outer].checkSheet": { isDeleted: true } } }, {
+            //         arrayFilters: [{ 'outer.current_year': previous_year }],
+            //     })
 
 
-                            newFinancialCheckSheetPlanningData[monthOfkey][0] = "1"
+            //     let previousYearCheckCheetDataOfPeraticularSection
+            //     previousYearCheckCheetDataOfPeraticularSection = await Machine.aggregate([{
+            //         $match: { line_names: { $in: lineIdArray }, "checkSheet_data.current_year": previous_year }
+            //     },
+            //     { $unwind: '$checkSheet_data' },
+            //     {
+            //         $match: { "checkSheet_data.current_year": previous_year }
+            //     },
+            //         // { $unwind: '$checkSheet_data.checkSheet' },
 
-                            previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].start_month = parseInt(previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.start_month) + Cycle
-                        }
-                        previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2 = newFinancialCheckSheetPlanningData
-                    }
+            //         // { $project: { "checkSheet_data.checkSheet": 1, "checkSheet_data.current_year": 1 } },
+            //     ]);
 
-                    // console.log(previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[0].planningTableAnimationArray2)
-                    copyCheckSheetData = await Machine.updateOne({ machine_code: previousYearCheckCheetDataOfPeraticularSection[i].machine_code }, {
+            //     for (let i = 0; i < previousYearCheckCheetDataOfPeraticularSection.length; i++) {
+            //         // console.log(previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.current_year)
+            //         previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checksheet_status = "Planning"
+            //         previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.current_year = current_year
+            //         for (let k = 0; k < previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet.length; k++) {
+            //             // for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
+            //             //     let month = financialYearWiseMonthKeyArray[j];
+            //             //     if (previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0] == "2") {
+            //             //         previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0] = "0"
+            //             //     }
+            //             //     if (previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0]) {
+            //             //         newFinancialCheckSheetPlanningData[month][0] = previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[0].planningTableAnimationArray2[month][0]
+
+            //             //     } else {
+            //             //         continue
+            //             //     }
+
+            //             // }
+
+            //             let cycleValue = (previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/1M" ? 1 :
+            //                 previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/2M" ? 2 :
+            //                     previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/3M" ? 3 :
+            //                         previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/4M" ? 4 :
+            //                             previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/6M" ? 6 :
+            //                                 12)
+
+            //             let Cycle = cycleValue
+
+            //             for (let i = 0;
+            //                 (i < (12 / Cycle)) && (previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.start_month < 12); i++) {
+            //                 let monthOfkey = financialYearWiseMonthKeyArray[previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.start_month]
+
+
+            //                 newFinancialCheckSheetPlanningData[monthOfkey][0] = "1"
+
+            //                 previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].start_month = parseInt(previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.start_month) + Cycle
+            //             }
+            //             previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2 = newFinancialCheckSheetPlanningData
+            //         }
+
+            //         // console.log(previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[0].planningTableAnimationArray2)
+            //         copyCheckSheetData = await Machine.updateOne({ machine_code: previousYearCheckCheetDataOfPeraticularSection[i].machine_code }, {
+            //             $push: {
+            //                 checkSheet_data: previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data
+            //             }
+            //         })
+
+            //         removeFieldsFromPreviousYear = await Machine.updateOne({ machine_code: previousYearCheckCheetDataOfPeraticularSection[i].machine_code }, {
+            //             $unset: {
+            //                 "checkSheet_data.$[outer].checkSheet.$[].abnormalityDetails": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].spareDetails": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].PMOkImage": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].reasonForDelayWhenSkip": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].isAdded": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].isEdited": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].isDeleted": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].inspectionCompletionBy": "",
+
+            //                 "checkSheet_data.$[outer].flagOfDoneWithDelayForOneMonth": "",
+            //                 "checkSheet_data.$[outer].completionTargetDate": "",
+            //                 "checkSheet_data.$[outer].dataSheet": "",
+            //                 "checkSheet_data.$[outer].totalPMTime": "",
+            //                 "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus": "",
+
+            //                 "checkSheet_data.$[outer].supportingOperatorList": "",
+            //                 "checkSheet_data.$[outer].PMworkedTMName": "",
+            //                 "checkSheet_data.$[outer].PMStatus": "",
+            //                 "checkSheet_data.$[outer].carriedPMStatus": "",
+            //                 "checkSheet_data.$[outer].PMDelayRemark": "",
+            //                 "checkSheet_data.$[outer].implemetation_completed_date": "",
+            //                 "checkSheet_data.$[outer].implemetation_completed_tm_no": "",
+            //                 "checkSheet_data.$[outer].implemetation_completed_tm_name": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_PRD_TL": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_MTD_TL": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_MTD_HOS": "",
+            //                 "checkSheet_data.$[outer].implementation_approval_month_of_hod": "",
+            //                 "checkSheet_data.$[outer].implementation_approval_hod_remarks": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_MTD_HOD": "",
+
+            //                 "checkSheet_data.$[outer].implementation_assign_PRD_TL_name": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_MTD_TL_name": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_MTD_HOS_name": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_MTD_HOD_name": "",
+            //                 "checkSheet_data.$[outer].implemetation_quality_remarks": "",
+
+
+            //                 "checkSheet_data.$[outer].implementation_rejected_remarks": "",
+            //                 "checkSheet_data.$[outer].implementation_approved_by_PRD_TL": "",
+            //                 "checkSheet_data.$[outer].implementation_approved_by_MTD_TL": "",
+            //                 "checkSheet_data.$[outer].implementation_approved_by_MTD_HOS": "",
+            //                 "checkSheet_data.$[outer].implementation_approved_by_MTD_HOD": "",
+
+            //                 "checkSheet_data.$[outer].implementation_approved_PRD_TL_date": "",
+            //                 "checkSheet_data.$[outer].implementation_approved_MTD_TL_date": "",
+            //                 "checkSheet_data.$[outer].implementation_approved_MTD_HOS_date": "",
+
+            //                 "checkSheet_data.$[outer].implementation_approved_MTD_HOD_date": "",
+
+
+            //                 "checkSheet_data.$[outer].implemetation_prd_tl_approval_status": "",
+            //                 "checkSheet_data.$[outer].implemetation_mtd_tl_approval_status": "",
+            //                 "checkSheet_data.$[outer].implemetation_mtd_hos_approval_status": "",
+            //                 "checkSheet_data.$[outer].implemetation_mtd_hod_approval_status": "",
+
+            //                 "checkSheet_data.$[outer].revisionContentData": "",
+            //                 "checkSheet_data.$[outer].flagForRevisionContent": "",
+            //                 "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": "",
+            //                 "checkSheet_data.$[outer].extraSpareDetails": "",
+
+            //             }
+            //         }, {
+            //             arrayFilters: [{ 'outer.current_year': current_year }],
+            //         })
+            //         // console.log(removeFieldsFromPreviousYear)
+
+            //     }
+
+            //     // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+
+            // } else {
+            //     loggedUserData.subSection_data.map((ids) => {
+            //         let subsectionsId = ids.split("-")
+            //         subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+            //     })
+            //     subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
+
+
+            //     for (let i = 0; i < subSectionsData.length; i++) {
+            //         subSectionIdArray.push(subSectionsData[i]._id);
+            //     }
+
+            //     cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
+
+            //     for (let i = 0; i < cellData.length; i++) {
+            //         cellIdArray.push(cellData[i]._id);
+            //     }
+
+            //     lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
+
+            //     for (let i = 0; i < lineData.length; i++) {
+            //         lineIdArray.push(lineData[i]._id);
+            //     }
+
+
+            //     // machineData = await Machine.find({ line_names: { $in: lineIdArray }, checksheet_status: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            //     let deleteMidYearDeletedInceptionItem = await Machine.updateMany(
+            //         { line_names: { $in: lineIdArray } },
+            //         { $pull: { "checkSheet_data.$[outer].checkSheet": { isDeleted: true } } }, {
+            //         arrayFilters: [{ 'outer.current_year': previous_year }],
+            //     })
+
+            //     let previousYearCheckCheetDataOfPeraticularSection
+            //     previousYearCheckCheetDataOfPeraticularSection = await Machine.aggregate([{
+            //         $match: { line_names: { $in: lineIdArray }, "checkSheet_data.current_year": previous_year }
+            //     },
+            //     { $unwind: '$checkSheet_data' },
+            //     {
+            //         $match: { "checkSheet_data.current_year": previous_year }
+            //     },
+            //         // { $unwind: '$checkSheet_data.checkSheet' },
+
+            //         // { $project: { "checkSheet_data.checkSheet": 1, "checkSheet_data.current_year": 1 } },
+            //     ]);
+
+            //     for (let i = 0; i < previousYearCheckCheetDataOfPeraticularSection.length; i++) {
+            //         // console.log(previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.current_year)
+            //         previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checksheet_status = "Planning"
+            //         previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.current_year = current_year
+            //         for (let k = 0; k < previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet.length; k++) {
+            //             // for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
+            //             //     let month = financialYearWiseMonthKeyArray[j];
+            //             //     if (previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0] == "2") {
+            //             //         previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0] = "0"
+            //             //     }
+            //             //     if (previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0]) {
+            //             //         newFinancialCheckSheetPlanningData[month][0] = previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[0].planningTableAnimationArray2[month][0]
+
+            //             //     } else {
+            //             //         continue
+            //             //     }
+
+            //             // }
+
+            //             let cycleValue = (previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/1M" ? 1 :
+            //                 previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/2M" ? 2 :
+            //                     previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/3M" ? 3 :
+            //                         previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/4M" ? 4 :
+            //                             previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/6M" ? 6 :
+            //                                 12)
+
+            //             let Cycle = cycleValue
+
+            //             for (let i = 0;
+            //                 (i < (12 / Cycle)) && (previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.start_month < 12); i++) {
+            //                 let monthOfkey = financialYearWiseMonthKeyArray[previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.start_month]
+
+
+            //                 newFinancialCheckSheetPlanningData[monthOfkey][0] = "1"
+
+            //                 previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].start_month = parseInt(previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.start_month) + Cycle
+            //             }
+            //             previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2 = newFinancialCheckSheetPlanningData
+
+            //         }
+
+            //         // console.log(previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[0].planningTableAnimationArray2)
+            //         copyCheckSheetData = await Machine.updateOne({ machine_code: previousYearCheckCheetDataOfPeraticularSection[i].machine_code }, {
+            //             $push: {
+            //                 checkSheet_data: previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data
+            //             }
+            //         })
+
+            //         removeFieldsFromPreviousYear = await Machine.updateOne({ machine_code: previousYearCheckCheetDataOfPeraticularSection[i].machine_code }, {
+            //             $unset: {
+            //                 "checkSheet_data.$[outer].checkSheet.$[].abnormalityDetails": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].spareDetails": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].PMOkImage": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].reasonForDelayWhenSkip": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].isAdded": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].isEdited": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].isDeleted": "",
+            //                 "checkSheet_data.$[outer].checkSheet.$[].inspectionCompletionBy": "",
+
+            //                 "checkSheet_data.$[outer].flagOfDoneWithDelayForOneMonth": "",
+            //                 "checkSheet_data.$[outer].completionTargetDate": "",
+            //                 "checkSheet_data.$[outer].dataSheet": "",
+            //                 "checkSheet_data.$[outer].totalPMTime": "",
+            //                 "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus": "",
+
+            //                 "checkSheet_data.$[outer].supportingOperatorList": "",
+            //                 "checkSheet_data.$[outer].PMworkedTMName": "",
+            //                 "checkSheet_data.$[outer].PMStatus": "",
+            //                 "checkSheet_data.$[outer].carriedPMStatus": "",
+            //                 "checkSheet_data.$[outer].PMDelayRemark": "",
+            //                 "checkSheet_data.$[outer].implemetation_completed_date": "",
+            //                 "checkSheet_data.$[outer].implemetation_completed_tm_no": "",
+            //                 "checkSheet_data.$[outer].implemetation_completed_tm_name": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_PRD_TL": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_MTD_TL": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_MTD_HOS": "",
+            //                 "checkSheet_data.$[outer].implementation_approval_month_of_hod": "",
+            //                 "checkSheet_data.$[outer].implementation_approval_hod_remarks": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_MTD_HOD": "",
+
+            //                 "checkSheet_data.$[outer].implementation_assign_PRD_TL_name": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_MTD_TL_name": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_MTD_HOS_name": "",
+            //                 "checkSheet_data.$[outer].implementation_assign_MTD_HOD_name": "",
+            //                 "checkSheet_data.$[outer].implemetation_quality_remarks": "",
+
+
+            //                 "checkSheet_data.$[outer].implementation_rejected_remarks": "",
+            //                 "checkSheet_data.$[outer].implementation_approved_by_PRD_TL": "",
+            //                 "checkSheet_data.$[outer].implementation_approved_by_MTD_TL": "",
+            //                 "checkSheet_data.$[outer].implementation_approved_by_MTD_HOS": "",
+            //                 "checkSheet_data.$[outer].implementation_approved_by_MTD_HOD": "",
+
+            //                 "checkSheet_data.$[outer].implementation_approved_PRD_TL_date": "",
+            //                 "checkSheet_data.$[outer].implementation_approved_MTD_TL_date": "",
+            //                 "checkSheet_data.$[outer].implementation_approved_MTD_HOS_date": "",
+
+            //                 "checkSheet_data.$[outer].implementation_approved_MTD_HOD_date": "",
+
+
+            //                 "checkSheet_data.$[outer].implemetation_prd_tl_approval_status": "",
+            //                 "checkSheet_data.$[outer].implemetation_mtd_tl_approval_status": "",
+            //                 "checkSheet_data.$[outer].implemetation_mtd_hos_approval_status": "",
+            //                 "checkSheet_data.$[outer].implemetation_mtd_hod_approval_status": "",
+
+            //                 "checkSheet_data.$[outer].revisionContentData": "",
+            //                 "checkSheet_data.$[outer].flagForRevisionContent": "",
+            //                 "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": "",
+            //                 "checkSheet_data.$[outer].extraSpareDetails": "",
+
+            //             }
+            //         }, {
+            //             arrayFilters: [{ 'outer.current_year': current_year }],
+            //         })
+            //         // console.log(removeFieldsFromPreviousYear)
+
+            //     }
+            //     // let addNewFinancialYears
+            //     // const yearAvailableOrNot = await HandlingOtherActions.findOne({ yearId: "FY01" });
+            //     // console.log(yearAvailableOrNot)
+            //     // if (yearAvailableOrNot) {
+            //     //     if (!yearAvailableOrNot.financialYears.includes(current_year)) {
+            //     //         addNewFinancialYears = await HandlingOtherActions.updateOne({ yearId: "FY01" }, {
+            //     //             $push: {
+            //     //                 financialYears: current_year
+            //     //             }
+            //     //         })
+            //     //     }
+
+            //     // } else {
+            //     //     addNewFinancialYears = await new HandlingOtherActions({
+            //     //         yearId: "FY01",
+            //     //         financialYears: current_year
+            //     //     })
+            //     //     addNewFinancialYears.save()
+            //     // }
+
+
+
+            //     // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            // }
+
+            const yearAvailableOrNot = await HandlingOtherActions.findOne({ userId: loggedUserData?._id });
+            // console.log(yearAvailableOrNot)
+            if (yearAvailableOrNot) {
+                if (!yearAvailableOrNot.financialYears.includes(current_year)) {
+                    addNewFinancialYears = await HandlingOtherActions.updateOne({ userId: loggedUserData?._id }, {
                         $push: {
-                            checkSheet_data: previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data
+                            financialYears: current_year
                         }
                     })
-
-                    removeFieldsFromPreviousYear = await Machine.updateOne({ machine_code: previousYearCheckCheetDataOfPeraticularSection[i].machine_code }, {
-                        $unset: {
-                            "checkSheet_data.$[outer].checkSheet.$[].abnormalityDetails": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].spareDetails": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].PMOkImage": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].reasonForDelayWhenSkip": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].isAdded": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].isEdited": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].isDeleted": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].inspectionCompletionBy": "",
-
-                            "checkSheet_data.$[outer].flagOfDoneWithDelayForOneMonth": "",
-                            "checkSheet_data.$[outer].completionTargetDate": "",
-                            "checkSheet_data.$[outer].dataSheet": "",
-                            "checkSheet_data.$[outer].totalPMTime": "",
-                            "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus": "",
-
-                            "checkSheet_data.$[outer].supportingOperatorList": "",
-                            "checkSheet_data.$[outer].PMworkedTMName": "",
-                            "checkSheet_data.$[outer].PMStatus": "",
-                            "checkSheet_data.$[outer].carriedPMStatus": "",
-                            "checkSheet_data.$[outer].PMDelayRemark": "",
-                            "checkSheet_data.$[outer].implemetation_completed_date": "",
-                            "checkSheet_data.$[outer].implemetation_completed_tm_no": "",
-                            "checkSheet_data.$[outer].implemetation_completed_tm_name": "",
-                            "checkSheet_data.$[outer].implementation_assign_PRD_TL": "",
-                            "checkSheet_data.$[outer].implementation_assign_MTD_TL": "",
-                            "checkSheet_data.$[outer].implementation_assign_MTD_HOS": "",
-                            "checkSheet_data.$[outer].implementation_approval_month_of_hod": "",
-                            "checkSheet_data.$[outer].implementation_approval_hod_remarks": "",
-                            "checkSheet_data.$[outer].implementation_assign_MTD_HOD": "",
-
-                            "checkSheet_data.$[outer].implementation_assign_PRD_TL_name": "",
-                            "checkSheet_data.$[outer].implementation_assign_MTD_TL_name": "",
-                            "checkSheet_data.$[outer].implementation_assign_MTD_HOS_name": "",
-                            "checkSheet_data.$[outer].implementation_assign_MTD_HOD_name": "",
-                            "checkSheet_data.$[outer].implemetation_quality_remarks": "",
-
-
-                            "checkSheet_data.$[outer].implementation_rejected_remarks": "",
-                            "checkSheet_data.$[outer].implementation_approved_by_PRD_TL": "",
-                            "checkSheet_data.$[outer].implementation_approved_by_MTD_TL": "",
-                            "checkSheet_data.$[outer].implementation_approved_by_MTD_HOS": "",
-                            "checkSheet_data.$[outer].implementation_approved_by_MTD_HOD": "",
-
-                            "checkSheet_data.$[outer].implementation_approved_PRD_TL_date": "",
-                            "checkSheet_data.$[outer].implementation_approved_MTD_TL_date": "",
-                            "checkSheet_data.$[outer].implementation_approved_MTD_HOS_date": "",
-
-                            "checkSheet_data.$[outer].implementation_approved_MTD_HOD_date": "",
-
-
-                            "checkSheet_data.$[outer].implemetation_prd_tl_approval_status": "",
-                            "checkSheet_data.$[outer].implemetation_mtd_tl_approval_status": "",
-                            "checkSheet_data.$[outer].implemetation_mtd_hos_approval_status": "",
-                            "checkSheet_data.$[outer].implemetation_mtd_hod_approval_status": "",
-
-                            "checkSheet_data.$[outer].revisionContentData": "",
-                            "checkSheet_data.$[outer].flagForRevisionContent": "",
-                            "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": "",
-                            "checkSheet_data.$[outer].extraSpareDetails": "",
-
-                        }
-                    }, {
-                        arrayFilters: [{ 'outer.current_year': current_year }],
-                    })
-                    // console.log(removeFieldsFromPreviousYear)
-
-                }
-                let addNewFinancialYears
-                const yearAvailableOrNot = await HandlingOtherActions.findOne({ yearId: "FY01" });
-                // console.log(yearAvailableOrNot)
-                if (yearAvailableOrNot) {
-                    if (!yearAvailableOrNot.financialYears.includes(current_year)) {
-                        addNewFinancialYears = await HandlingOtherActions.updateOne({ yearId: "FY01" }, {
-                            $push: {
-                                financialYears: current_year
-                            }
-                        })
-                    }
-
-
-                } else {
-                    addNewFinancialYears = await new HandlingOtherActions({
-                        yearId: "FY01",
-                        financialYears: current_year
-                    })
-                    addNewFinancialYears.save()
                 }
 
-                if ((removeFieldsFromPreviousYear && copyCheckSheetData) || addNewFinancialYears) {
-                    return res.status(201).json("Checksheet copied!!!");
-                } else {
-                    return res.status(400).json("Checksheet not copied!!!");
-                }
-
-                // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
             } else {
-                loggedUserData.subSection_data.map((ids) => {
-                    let subsectionsId = ids.split("-")
-                    subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
+                addNewFinancialYears = await new HandlingOtherActions({
+                    userId: loggedUserData?._id,
+                    financialYears: current_year
                 })
-                subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
-
-
-                for (let i = 0; i < subSectionsData.length; i++) {
-                    subSectionIdArray.push(subSectionsData[i]._id);
-                }
-
-                cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
-
-                for (let i = 0; i < cellData.length; i++) {
-                    cellIdArray.push(cellData[i]._id);
-                }
-
-                lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
-
-                for (let i = 0; i < lineData.length; i++) {
-                    lineIdArray.push(lineData[i]._id);
-                }
-
-
-                // machineData = await Machine.find({ line_names: { $in: lineIdArray }, checksheet_status: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-                let deleteMidYearDeletedInceptionItem = await Machine.updateMany(
-                    { line_names: { $in: lineIdArray } },
-                    { $pull: { "checkSheet_data.$[outer].checkSheet": { isDeleted: true } } }, {
-                    arrayFilters: [{ 'outer.current_year': previous_year }],
-                })
-
-                let previousYearCheckCheetDataOfPeraticularSection
-                previousYearCheckCheetDataOfPeraticularSection = await Machine.aggregate([{
-                    $match: { line_names: { $in: lineIdArray }, "checkSheet_data.current_year": previous_year }
-                },
-                { $unwind: '$checkSheet_data' },
-                {
-                    $match: { "checkSheet_data.current_year": previous_year }
-                },
-                    // { $unwind: '$checkSheet_data.checkSheet' },
-
-                    // { $project: { "checkSheet_data.checkSheet": 1, "checkSheet_data.current_year": 1 } },
-                ]);
-
-                for (let i = 0; i < previousYearCheckCheetDataOfPeraticularSection.length; i++) {
-                    // console.log(previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.current_year)
-                    previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checksheet_status = "Planning"
-                    previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.current_year = current_year
-                    for (let k = 0; k < previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet.length; k++) {
-                        // for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
-                        //     let month = financialYearWiseMonthKeyArray[j];
-                        //     if (previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0] == "2") {
-                        //         previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0] = "0"
-                        //     }
-                        //     if (previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0]) {
-                        //         newFinancialCheckSheetPlanningData[month][0] = previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[0].planningTableAnimationArray2[month][0]
-
-                        //     } else {
-                        //         continue
-                        //     }
-
-                        // }
-
-                        let cycleValue = (previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/1M" ? 1 :
-                            previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/2M" ? 2 :
-                                previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/3M" ? 3 :
-                                    previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/4M" ? 4 :
-                                        previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.cycle === "1/6M" ? 6 :
-                                            12)
-
-                        let Cycle = cycleValue
-
-                        for (let i = 0;
-                            (i < (12 / Cycle)) && (previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.start_month < 12); i++) {
-                            let monthOfkey = financialYearWiseMonthKeyArray[previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.start_month]
-
-
-                            newFinancialCheckSheetPlanningData[monthOfkey][0] = "1"
-
-                            previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].start_month = parseInt(previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data?.checkSheet[k]?.start_month) + Cycle
-                        }
-                        previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2 = newFinancialCheckSheetPlanningData
-
-                    }
-
-                    // console.log(previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[0].planningTableAnimationArray2)
-                    copyCheckSheetData = await Machine.updateOne({ machine_code: previousYearCheckCheetDataOfPeraticularSection[i].machine_code }, {
-                        $push: {
-                            checkSheet_data: previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data
-                        }
-                    })
-
-                    removeFieldsFromPreviousYear = await Machine.updateOne({ machine_code: previousYearCheckCheetDataOfPeraticularSection[i].machine_code }, {
-                        $unset: {
-                            "checkSheet_data.$[outer].checkSheet.$[].abnormalityDetails": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].spareDetails": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].PMOkImage": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].reasonForDelayWhenSkip": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].isAdded": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].isEdited": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].isDeleted": "",
-                            "checkSheet_data.$[outer].checkSheet.$[].inspectionCompletionBy": "",
-
-                            "checkSheet_data.$[outer].flagOfDoneWithDelayForOneMonth": "",
-                            "checkSheet_data.$[outer].completionTargetDate": "",
-                            "checkSheet_data.$[outer].dataSheet": "",
-                            "checkSheet_data.$[outer].totalPMTime": "",
-                            "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus": "",
-
-                            "checkSheet_data.$[outer].supportingOperatorList": "",
-                            "checkSheet_data.$[outer].PMworkedTMName": "",
-                            "checkSheet_data.$[outer].PMStatus": "",
-                            "checkSheet_data.$[outer].carriedPMStatus": "",
-                            "checkSheet_data.$[outer].PMDelayRemark": "",
-                            "checkSheet_data.$[outer].implemetation_completed_date": "",
-                            "checkSheet_data.$[outer].implemetation_completed_tm_no": "",
-                            "checkSheet_data.$[outer].implemetation_completed_tm_name": "",
-                            "checkSheet_data.$[outer].implementation_assign_PRD_TL": "",
-                            "checkSheet_data.$[outer].implementation_assign_MTD_TL": "",
-                            "checkSheet_data.$[outer].implementation_assign_MTD_HOS": "",
-                            "checkSheet_data.$[outer].implementation_approval_month_of_hod": "",
-                            "checkSheet_data.$[outer].implementation_approval_hod_remarks": "",
-                            "checkSheet_data.$[outer].implementation_assign_MTD_HOD": "",
-
-                            "checkSheet_data.$[outer].implementation_assign_PRD_TL_name": "",
-                            "checkSheet_data.$[outer].implementation_assign_MTD_TL_name": "",
-                            "checkSheet_data.$[outer].implementation_assign_MTD_HOS_name": "",
-                            "checkSheet_data.$[outer].implementation_assign_MTD_HOD_name": "",
-                            "checkSheet_data.$[outer].implemetation_quality_remarks": "",
-
-
-                            "checkSheet_data.$[outer].implementation_rejected_remarks": "",
-                            "checkSheet_data.$[outer].implementation_approved_by_PRD_TL": "",
-                            "checkSheet_data.$[outer].implementation_approved_by_MTD_TL": "",
-                            "checkSheet_data.$[outer].implementation_approved_by_MTD_HOS": "",
-                            "checkSheet_data.$[outer].implementation_approved_by_MTD_HOD": "",
-
-                            "checkSheet_data.$[outer].implementation_approved_PRD_TL_date": "",
-                            "checkSheet_data.$[outer].implementation_approved_MTD_TL_date": "",
-                            "checkSheet_data.$[outer].implementation_approved_MTD_HOS_date": "",
-
-                            "checkSheet_data.$[outer].implementation_approved_MTD_HOD_date": "",
-
-
-                            "checkSheet_data.$[outer].implemetation_prd_tl_approval_status": "",
-                            "checkSheet_data.$[outer].implemetation_mtd_tl_approval_status": "",
-                            "checkSheet_data.$[outer].implemetation_mtd_hos_approval_status": "",
-                            "checkSheet_data.$[outer].implemetation_mtd_hod_approval_status": "",
-
-                            "checkSheet_data.$[outer].revisionContentData": "",
-                            "checkSheet_data.$[outer].flagForRevisionContent": "",
-                            "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": "",
-                            "checkSheet_data.$[outer].extraSpareDetails": "",
-
-                        }
-                    }, {
-                        arrayFilters: [{ 'outer.current_year': current_year }],
-                    })
-                    // console.log(removeFieldsFromPreviousYear)
-
-                }
-                let addNewFinancialYears
-                const yearAvailableOrNot = await HandlingOtherActions.findOne({ yearId: "FY01" });
-                console.log(yearAvailableOrNot)
-                if (yearAvailableOrNot) {
-                    if (!yearAvailableOrNot.financialYears.includes(current_year)) {
-                        addNewFinancialYears = await HandlingOtherActions.updateOne({ yearId: "FY01" }, {
-                            $push: {
-                                financialYears: current_year
-                            }
-                        })
-                    }
-
-                } else {
-                    addNewFinancialYears = await new HandlingOtherActions({
-                        yearId: "FY01",
-                        financialYears: current_year
-                    })
-                    addNewFinancialYears.save()
-                }
-                if ((removeFieldsFromPreviousYear && copyCheckSheetData) || addNewFinancialYears) {
-                    return res.status(201).json("Checksheet copied!!!");
-                } else {
-                    return res.status(400).json("Checksheet not copied!!!");
-                }
-
-                // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+                addNewFinancialYears.save()
             }
+
+            if ((removeFieldsFromPreviousYear && copyCheckSheetData) || addNewFinancialYears) {
+                return res.status(201).json("Checksheet copied!!!");
+            } else {
+                return res.status(400).json("Checksheet not copied!!!");
+            }
+
         } else {
             return res.status(409).json({ error: 'Current month is not financial year start month' })
         }
+
+
 
     } catch (error) {
         console.log(error)
@@ -10156,8 +10156,8 @@ router.post('/postSectionForAddNewCheckSheetAfterChangeFinancialYear', authentic
 
 router.get('/getFinancialYears', authenticate, async (req, res) => {
     try {
-        const getFinancialYearsArray = await HandlingOtherActions.findOne({ yearId: "FY01" })
-        // console.log(getFinancialYearsArray)
+        const getFinancialYearsArray = await HandlingOtherActions.findOne({ userId: req?.rootUser?._id })
+        // console.log("?????????????????", getFinancialYearsArray)
         if (getFinancialYearsArray) {
             res.json({ getFinancialYearsArray });
 
@@ -10244,7 +10244,7 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
 
             openAbnormality?.map((keyForCheckSheet) => {
                 keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
-                    if(keyForAbnormality?.abnormalityDetails){
+                    if (keyForAbnormality?.abnormalityDetails) {
 
                         for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
                             let month = financialYearWiseMonthKeyArray[i]
@@ -10269,9 +10269,9 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
                                     );
                                 }
                             }
-    
-    
-    
+
+
+
                         }
                     }
                 })
@@ -10313,7 +10313,7 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
 
             openAbnormality.map((keyForCheckSheet) => {
                 keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
-                    if(keyForAbnormality?.abnormalityDetails){
+                    if (keyForAbnormality?.abnormalityDetails) {
 
                         for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
                             let month = financialYearWiseMonthKeyArray[i]
@@ -10338,9 +10338,9 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
                                     );
                                 }
                             }
-    
-    
-    
+
+
+
                         }
                     }
                 })
