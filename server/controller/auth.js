@@ -3184,6 +3184,7 @@ router.post('/deleteSelectedMachineChecksheetTableRowData', async (req, res) => 
         const { rowData, machineId, yearOfCheckSheet, isDeleted } = req.body
         let deleteChecksheetRow, addFlagForDelete
         // console.log(rowData, machineId, yearOfCheckSheet)
+        
         if (isDeleted === true) {
             if (rowData.isAdded === true) {
                 deleteChecksheetRow = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": yearOfCheckSheet, }, { $pull: { "checkSheet_data.$[outer].checkSheet": { tableRowId: rowData.tableRowId } } }, {
