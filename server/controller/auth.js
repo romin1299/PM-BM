@@ -12762,9 +12762,9 @@ router.post('/sendRequestForApprovalOfSkipPMDataWork', authenticate, async (req,
         s
 
 
-        // sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
-        //     mtd_hos_list.email, mtd_hod_list.email, prd_hos_list.email, prd_hod_list.email,
-        //     approvalStatusOfMTDHOS, approvalStatusOfMTDHOD, approvalStatusOfPRDHOS, approvalStatusOfPRDHOD, undefined, reasonForDelayOfTL)
+        sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
+            mtd_hos_list.email, mtd_hod_list.email, prd_hos_list.email, prd_hod_list.email,
+            approvalStatusOfMTDHOS, approvalStatusOfMTDHOD, approvalStatusOfPRDHOS, approvalStatusOfPRDHOD, undefined, reasonForDelayOfTL)
 
 
         res.status(201).json({ message: "Completion date added" });

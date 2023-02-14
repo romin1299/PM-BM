@@ -9,13 +9,15 @@ const Cell = require('../model/cellSchema')
 const Line = require('../model/lineSchema')
 const Machine = require('../model/machineSchema')
 
-const autoSendMail = require("../sendMail/autoSendMail")
+const autoMailSendForSixMonthApproval = require("../sendMail/autoMailSendForSixMonthApproval")
 
 
 // console.log("===================>", lastDay.getDate())
 // cron.schedule(`59 ${a},${b} * * * *`, async () => {
 cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMonth() + 1, 0)).getDate()} Sep,Mar *`, async (req, res) => {
+    // cron.schedule(`59 * * * * *`, async (req, res) => {
 
+    // console.log("Six-Month Approval")
     try {
 
         let currentYear =
@@ -203,17 +205,19 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
             }
             ])
 
-            // MachineInfo = await Machine.populate(MachineInfo, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            MachineInfo = await Machine.populate(MachineInfo, { path: "line_names", populate: { path: "cell_names", populate: { path: "subSection_names", populate: { path: "section_names", model: "Sections" } } } })
 
-            MachineInfo?.map(item => {
-                // console.log(item)
+            await MachineInfo?.map(item => {
                 if (userInfo?.length > 0) {
 
                     funForUpdateParticularMachine(sectionInfo[i], userInfo?.[0], item)
                 }
 
             })
-            // console.log("=========>  ", i, "<============", MachineInfo)
+
+
+
+            autoMailSendForSixMonthApproval(userInfo?.[0]?.email)
 
 
 
