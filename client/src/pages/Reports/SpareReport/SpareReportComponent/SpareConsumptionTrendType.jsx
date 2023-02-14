@@ -44,26 +44,23 @@ const SpareConsumptionTrendType = ({ context }) => {
   // console.log(graphData)
   return (
     <div className="pt-3 ">
-
-
       <Container fluid>
         <h4 className="mb-3">Spare Consumption Trend Type</h4>
-        <Row className="pt-2 cell gy-2" >
-        <Col
+        <Row className="pt-2 cell gy-2">
+          <Col
             className="d-flex justify-content-center align-items-center m-4"
             style={{ height: "20rem" }}
           >
             {graphData?.length > 0 ? (
               <SpareConsumptionTrendTypeGraph graphData={graphData} />
             ) : (
-              <Col className="d-flex justify-content-center align-items-center mb-2">{loadingAnimationState}</Col>
-
+              <Col className="d-flex justify-content-center align-items-center mb-2">
+                {loadingAnimationState}
+              </Col>
             )}
           </Col>
         </Row>
       </Container>
-
-      
     </div>
   );
 };

@@ -18,10 +18,15 @@ import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
 
+import NotFound from "../../Reports/ReportComponents/NotFound";
+
 const BackupDataOfCheckSheet = () => {
   const context = useContext(RoutingContext);
   const [tableData, setTableData] = useState([]);
   const [refKey, setRefKey] = useState(0);
+  const [loadingAnimationState, setLoadingAnimationState] = useState(
+    <LoadingAnimation />
+  );
 
   // console.log(context?.tm_department, context?.tm_grade, context?.user_type);
   const navigate = useNavigate();
@@ -40,6 +45,8 @@ const BackupDataOfCheckSheet = () => {
       const data = await res.json();
       // console.log(data);
       setTableData(data.getDeletedDataOfCheckSheet);
+
+      setLoadingAnimationState(<NotFound />);
     } catch (error) {
       console.log(error);
     }
@@ -100,60 +107,56 @@ const BackupDataOfCheckSheet = () => {
   ];
 
   const backUpChecksheetDataForCSV = [
-   
     {
       label: "Line Name",
       key: "line_names.line_name",
-      
     },
     {
       label: "Machine Code",
       key: "machine_code",
-      
     },
     {
       label: "Machine Name",
       key: "machine_name",
-      
     },
   ];
 
-    //get the date and time
-    const timeStamp = () => {
-      let date = new Date();
-      let getTime = date
-        .toLocaleTimeString("en-IN", {
-          hour12: true,
-        })
-        .replace(/(.*)\D\d+/, "$1");
-      const year = date.getFullYear(); // 2019
-      const month = date.getMonth() + 1;
-      const day = date.getDate(); // 23
-  
-      return `${day}/${month}/${year} - ${getTime}`;
-    };
-  
-    const downloadPDFOfBackupData = () => {
-      const doc = new jsPDF();
-      let rows = [];
-      tableData?.map((item, idx) => {
-        let rowArrayOfTable = [
-          ++idx,
-          item.line_names.line_name,
-          item.machine_code,
-          item.machine_name,
-        ];
-        rows.push(rowArrayOfTable);
-      });
-      doc.text(`Backup Checksheet Data`, 15, 10);
-  
-      autoTable(doc, {
-        head: [machineHeader?.map((value) => value.title)],
-        body: rows,
-      });
-      // doc.autoTable(columns, csvData);
-      doc.save(`Backup_Checksheet_Data_${timeStamp()}`);
-    };
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
+
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
+
+  const downloadPDFOfBackupData = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    tableData?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.line_names.line_name,
+        item.machine_code,
+        item.machine_name,
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`Backup Checksheet Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [machineHeader?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Backup_Checksheet_Data_${timeStamp()}`);
+  };
 
   const actions = [
     {
@@ -283,14 +286,14 @@ const BackupDataOfCheckSheet = () => {
             className="container-fluid d-flex justify-content-center align-items-center"
             style={{ height: "100vh" }}
           >
-            <LoadingAnimation />
+            {loadingAnimationState}
           </div>
         )}
       </div>
       <br />
       <br />
       <br />
-      <Footer/>
+      <Footer />
     </>
   );
 };

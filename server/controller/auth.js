@@ -1824,7 +1824,7 @@ router.post('/postAssignSubSectionToGetAllDataOfSubSection', authenticate, async
                     }
                 })
 
-        console.log("~~~~~~~~~~~~~~~~~~", subSectionsData)
+        // console.log("~~~~~~~~~~~~~~~~~~", subSectionsData)
 
 
 

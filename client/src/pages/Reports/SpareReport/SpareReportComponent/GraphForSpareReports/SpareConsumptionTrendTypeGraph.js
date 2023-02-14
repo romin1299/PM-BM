@@ -11,7 +11,7 @@ const SpareConsumptionTrendTypeGraph = ({ graphData }) => {
         labels: ['PM', 'BM', 'Corrective', 'Predictive', 'Kaizen'],
         datasets: [
             {
-                label: '# of Votes',
+                label: "",
                 data:
 
                     graphData?.reduce((accumulator, object) => {
