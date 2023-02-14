@@ -610,7 +610,7 @@ const SparePartUsageHistory = () => {
           ) : (
             <div
               className="container-fluid d-flex justify-content-center align-items-center"
-              style={{ height: "100vh" }}
+              
             >
               {stateForAnimationAndNotFound}
               {/* <LoadingAnimation /> */}
