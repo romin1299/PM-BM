@@ -8053,6 +8053,9 @@ router.post('/postLineToGetMachineListForReportDashboard', authenticate, async (
             },
             {
                 "checkSheet_data": []
+            },
+            {
+                "checkSheet_data": undefined
             }
             ] : [{
                 "checkSheet_data.current_year": selectedYear
@@ -8112,7 +8115,6 @@ router.post('/postLineToGetMachineListForReportDashboard', authenticate, async (
             machineInfo = await Machine.aggregate([{
                 $match: {
                     line_names: ObjectId(line),
-                    $or: selectedYearOfCheckSheet
                 }
             },
             {
@@ -8132,11 +8134,14 @@ router.post('/postLineToGetMachineListForReportDashboard', authenticate, async (
                 }
             },
             {
-                $unwind: "$checkSheet_data"
+                $unwind: {
+                    path: "$checkSheet_data",
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $match: {
-                    "checkSheet_data.current_year": selectedYear
+                    $or: selectedYearOfCheckSheet
                 }
             },
             ])

@@ -165,8 +165,10 @@ const CheckSheetDashboard = () => {
         // }
 
         // console.log("131     ******************", data.machineInfo);
+        console.log(selectedStatus)
         if (selectedStatus) {
           // setTableData([]);
+          console.log(selectedStatus)
           filterDataBasedOnSelectedStatus(selectedStatus, data.machineInfo);
         }
 
