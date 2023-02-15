@@ -29,7 +29,13 @@ import Footer from "../../components/Footer/Footer";
 const MainDashboard = () => {
   const [sections, setsections] = useState();
   const [subSection, setSubSection] = useState("");
+
+  const [stateForLoadingAnimation, setStateForLoadingAnimation] = useState();
+
   // console.log("$$$$$$$$$$$$$$$$$$$", subSection);
+
+  const [refFinancialYear, setRefFinancialYear] = useState({});
+  const [refKeyForFinancialYear, setRefKeyForFinancialYear] = useState(0);
 
   //for showing sub-section data based on it's selection
   const [selectedSubSectionId, setSelectedSubSectionId] = useState();
@@ -355,7 +361,7 @@ const MainDashboard = () => {
             let subSectionSplit = context.subSection_data[0].split("-");
             // console.log(subSectionSplit[0]);
             if (id.subSection_id === subSectionSplit[0]) {
-              console.log("***************** 339", id._id);
+              // console.log("***************** 339", id._id);
               setSelectedSubSectionIdForDefaultDashboard(id._id);
               // postSectionToGetAllDataForMainDashboardGraph(id._id, "No");
             }
@@ -381,6 +387,8 @@ const MainDashboard = () => {
     "Nov",
     "Dec",
   ];
+
+  // console.log(new Date().getMonth());
   // let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
   // let monthForCompareSystemMonth = monthKeyArray[selectedMonth];
   // console.log(selectedMonth, monthKeyArray[new Date().getMonth()]);
@@ -415,6 +423,7 @@ const MainDashboard = () => {
 
   const addNewCheckSheetAfterChangeFinancialyear = async () => {
     try {
+      setStateForLoadingAnimation(<LoadingAnimation />);
       const res = await fetch(
         "/postSectionForAddNewCheckSheetAfterChangeFinancialYear",
         {
@@ -435,6 +444,9 @@ const MainDashboard = () => {
         notifyForNotstartedYear();
       } else {
         notifyForCopiedChecksheetDataDone();
+        setRefKeyForFinancialYear(
+          (refKeyForFinancialYear) => refKeyForFinancialYear + 1
+        );
         // console.log("Data post");
         // console.log(data);
       }
@@ -658,6 +670,38 @@ const MainDashboard = () => {
 
   // console.log(selectedSubSectionIdForDefaultDashboard);
 
+  const getFinancialYears = async () => {
+    try {
+      const res = await fetch("/getFinancialYears", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const data = await res.json();
+
+      // console.log("___________", currentYear, data?.getFinancialYearsArray);
+
+      setRefFinancialYear(data?.getFinancialYearsArray);
+      setStateForLoadingAnimation();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        return res.status(422).send("Data not received !!!");
+      }
+    } catch (error) {
+      console.log("No data found ( Unauthorized ) !!!");
+    }
+  };
+
+  useEffect(() => {
+    if (context.user_type === "Plant-Admin" && new Date().getMonth() === 3) {
+      getFinancialYears();
+    }
+  }, [refKeyForFinancialYear]);
+
+  // console.log(">>>>>>>>>>>>>>>>>>>>>", allDataSectionWise?.sectionInfo?.[0]);
   return (
     <>
       {machineWiseCheckSheetForImplementation}
@@ -866,27 +910,40 @@ const MainDashboard = () => {
                       </Row>
                     </Col>
                     <Col lg={3} md={12} sm={12} className="mt-1">
-                      {context.user_type === "Section-Admin" ? (
-                        <Col
-                          sm={6}
-                          lg={12}
-                          className="d-flex align-items-center justify-content-center"
-                        >
-                          <button
-                            className="btn text-dark"
-                            style={{ background: "#D1ECF1" }}
-                            onClick={addNewCheckSheetAfterChangeFinancialyear}
+                      {context.user_type === "Plant-Admin" &&
+                      new Date().getMonth() === 3 ? (
+                        refFinancialYear?.financialYears?.includes(
+                          `${new Date().getFullYear()}-${
+                            new Date().getFullYear() + 1
+                          }`
+                        ) ? (
+                          ""
+                        ) : stateForLoadingAnimation ? (
+                          <div className="d-flex align-items-center justify-content-center">
+                            {stateForLoadingAnimation}
+                          </div>
+                        ) : (
+                          <Col
+                            sm={6}
+                            lg={12}
+                            className="d-flex align-items-center justify-content-center"
                           >
-                            <AutorenewIcon style={{ fontSize: "small" }} />{" "}
-                            &nbsp;{" "}
-                            <b>
-                              Update{" "}
-                              {`${new Date().getFullYear()}-${
-                                new Date().getFullYear() + 1
-                              }`}
-                            </b>
-                          </button>
-                        </Col>
+                            <button
+                              className="btn text-dark"
+                              style={{ background: "#D1ECF1" }}
+                              onClick={addNewCheckSheetAfterChangeFinancialyear}
+                            >
+                              <AutorenewIcon style={{ fontSize: "small" }} />{" "}
+                              &nbsp;{" "}
+                              <b>
+                                Update{" "}
+                                {`${new Date().getFullYear()}-${
+                                  new Date().getFullYear() + 1
+                                }`}
+                              </b>
+                            </button>
+                          </Col>
+                        )
                       ) : (
                         ""
                       )}
@@ -2172,7 +2229,13 @@ const MainDashboard = () => {
             )}
           </Col>
 
-          <Col xs={12} sm={12} md={12} lg={3} className="right-component-main-dashboard">
+          <Col
+            xs={12}
+            sm={12}
+            md={12}
+            lg={3}
+            className="right-component-main-dashboard"
+          >
             {/* <br />
             <br /> */}
             <GraphsInMainDashboard

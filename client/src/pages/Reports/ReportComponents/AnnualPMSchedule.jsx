@@ -1090,9 +1090,13 @@ const AnnualPMSchedule = () => {
                                     item?.checkSheet_data?.PMStatus
                                   ).map((item1) => (
                                     <td className="td-padding">
-                                      {item1 === "Completed" ? (
+                                      {item1 === "Completed" ||
+                                      item1 === "Done with delay" ? (
                                         <CircleIcon />
-                                      ) : item1 === "Current Plan" ? (
+                                      ) : item1 === "Current Plan" ||
+                                        item1 === "Ongoing" ||
+                                        item1 === "No Completion" ||
+                                        item1 === "PM Skip" ? (
                                         <PanoramaFishEyeIcon />
                                       ) : (
                                         ""
@@ -1117,9 +1121,13 @@ const AnnualPMSchedule = () => {
                                     item?.checkSheet_data?.PMStatus
                                   ).map((item1) => (
                                     <td className="td-padding">
-                                      {item1 === "Completed" ? (
+                                      {item1 === "Completed" ||
+                                      item1 === "Done with delay" ? (
                                         <CircleIcon />
-                                      ) : item1 === "Current Plan" ? (
+                                      ) : item1 === "Current Plan" ||
+                                        item1 === "Ongoing" ||
+                                        item1 === "No Completion" ||
+                                        item1 === "PM Skip" ? (
                                         <PanoramaFishEyeIcon />
                                       ) : (
                                         ""

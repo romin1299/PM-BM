@@ -1,6 +1,6 @@
 const fetchFinancialYears = async () => {
     try {
-        const res = await fetch("/getFinancialYears", {
+        const res = await fetch("/getFinancialYearsDropdownValue", {
             method: "GET",
             headers: {
                 Accept: "application/json",

@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"DENSO-PM.machinesalldatas"}],"uuid":"dc1376efa6354db191fe0809662dc438"}
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_"}],"uuid":"ca49868193da40a4a953c663f81b5fa2"}

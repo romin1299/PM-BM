@@ -1,10 +1,13 @@
 const mongoose = require('mongoose')
 
 const handlingActionsSchema = mongoose.Schema({
-    yearId: {
-        type: String
+
+    plant_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Plants'
     },
-    financialYears : {
+
+    financialYears: {
         type: [String]
     }
 })

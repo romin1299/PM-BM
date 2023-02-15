@@ -154,11 +154,15 @@ const CheckSheetDashboard = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        if (context?.user_type === "Operator") {
-          await setTableData(data.machineDataOfImplementationApproval);
-        } else {
-          await setTableData(data.machineLastData);
-        }
+        // console.log(data);
+
+        setTableData(data.machineInfo);
+
+        // if (context?.user_type === "Operator") {
+        //   setTableData(data.machineDataOfImplementationApproval);
+        // } else {
+        //   setTableData(data.machineLastData);
+        // }
 
         // console.log("131     ******************", data.machineInfo);
         if (selectedStatus) {
