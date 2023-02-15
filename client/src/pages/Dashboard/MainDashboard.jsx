@@ -29,6 +29,9 @@ import Footer from "../../components/Footer/Footer";
 const MainDashboard = () => {
   const [sections, setsections] = useState();
   const [subSection, setSubSection] = useState("");
+
+  const [stateForLoadingAnimation, setStateForLoadingAnimation] = useState();
+
   // console.log("$$$$$$$$$$$$$$$$$$$", subSection);
 
   const [refFinancialYear, setRefFinancialYear] = useState({});
@@ -358,7 +361,7 @@ const MainDashboard = () => {
             let subSectionSplit = context.subSection_data[0].split("-");
             // console.log(subSectionSplit[0]);
             if (id.subSection_id === subSectionSplit[0]) {
-              console.log("***************** 339", id._id);
+              // console.log("***************** 339", id._id);
               setSelectedSubSectionIdForDefaultDashboard(id._id);
               // postSectionToGetAllDataForMainDashboardGraph(id._id, "No");
             }
@@ -420,6 +423,7 @@ const MainDashboard = () => {
 
   const addNewCheckSheetAfterChangeFinancialyear = async () => {
     try {
+      setStateForLoadingAnimation(<LoadingAnimation />);
       const res = await fetch(
         "/postSectionForAddNewCheckSheetAfterChangeFinancialYear",
         {
@@ -681,6 +685,7 @@ const MainDashboard = () => {
       // console.log("___________", currentYear, data?.getFinancialYearsArray);
 
       setRefFinancialYear(data?.getFinancialYearsArray);
+      setStateForLoadingAnimation();
 
       if (res.status === 400 || res.status === 422 || !data) {
         return res.status(422).send("Data not received !!!");
@@ -691,12 +696,12 @@ const MainDashboard = () => {
   };
 
   useEffect(() => {
-    if (context.user_type === "Section-Admin" && new Date().getMonth() === 3) {
+    if (context.user_type === "Plant-Admin" && new Date().getMonth() === 3) {
       getFinancialYears();
     }
   }, [refKeyForFinancialYear]);
 
-  console.log(">>>>>>>>>>>>>>>>>>>>>", refFinancialYear?.financialYears);
+  // console.log(">>>>>>>>>>>>>>>>>>>>>", allDataSectionWise?.sectionInfo?.[0]);
   return (
     <>
       {machineWiseCheckSheetForImplementation}
@@ -905,7 +910,7 @@ const MainDashboard = () => {
                       </Row>
                     </Col>
                     <Col lg={3} md={12} sm={12} className="mt-1">
-                      {context.user_type === "Section-Admin" &&
+                      {context.user_type === "Plant-Admin" &&
                       new Date().getMonth() === 3 ? (
                         refFinancialYear?.financialYears?.includes(
                           `${new Date().getFullYear()}-${
@@ -913,6 +918,10 @@ const MainDashboard = () => {
                           }`
                         ) ? (
                           ""
+                        ) : stateForLoadingAnimation ? (
+                          <div className="d-flex align-items-center justify-content-center">
+                            {stateForLoadingAnimation}
+                          </div>
                         ) : (
                           <Col
                             sm={6}
