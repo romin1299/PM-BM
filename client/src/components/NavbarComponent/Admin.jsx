@@ -24,6 +24,7 @@ import {
 } from "react-pro-sidebar";
 import "react-pro-sidebar/dist/css/styles.css";
 import styled from "styled-components";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 import {
 
@@ -87,12 +88,12 @@ const Admin = ({ userData }) => {
           <SidebarHeader>
             <div className="logotext">
               {/* small and big change using menucollapse state */}
-              <p className="d-flex align-items-center justify-content-center m-2 sticky-top">
+              <p className="d-flex align-items-center justify-content-center m-2 sticky-top bg-white">
                 {menuCollapse ? (
                   <img
                     src={denso_logo}
                     alt=""
-                    style={{ width: "50%", padding: "5px" }}
+                    style={{ width: "100%", padding: "5px" }}
                     className="bg-white"
 
                   />
@@ -140,7 +141,7 @@ const Admin = ({ userData }) => {
          
           <Menuitem
             className="text-white"
-            icon={<BackupTableIcon className="text-white" />}
+            icon={<PersonAddIcon className="text-white" />}
             data-toggle="tooltip"
             data-placement="right"
             title="Admin Dashboard"

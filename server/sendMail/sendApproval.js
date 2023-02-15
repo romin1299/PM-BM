@@ -1,17 +1,25 @@
 const nodemailer = require('nodemailer');
+const EmailConfigurationController = require('../controller/emailConfigurationController')
 const sendApproval = async (subject, title, greetings, bodyTable, ccEmail, assign_member_name, tm_no, tm_name, machine_code, machine_name,
     checksheet_status, firstEmail, secondEmail, tlApproval, hosApproval, request, rejected_remarks) => {
     // console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
     // console.log("==============>", tlApproval, hosApproval)
     // console.log("==============>", request)
-
-    console.log(ccEmail, firstEmail, secondEmail)
+    let emailConfData = await EmailConfigurationController()
+    console.log(emailConfData)
 
 
     let transpoter = nodemailer.createTransport({
-        host: 'smtp-mail.outlook.com',
-        port: 587,
+        service: 'smtp-mail.outlook.com',
+        // pool: true,
+        host: '172.24.46.52',
+        port: 25,
         secureConnection: false,
+        secure: false,
+        logger: true,
+        debug: true,
+
+        // ignoreTLS: true
         tls: {
             ciphers: 'SSLv3'
         },
@@ -22,8 +30,8 @@ const sendApproval = async (subject, title, greetings, bodyTable, ccEmail, assig
     });
     //sending an email for forgot password
     let mailOptions = {
-        from: "sm_sample11@outlook.com",
-        to: typeof (firstEmail) === "object" ? firstEmail :  [firstEmail, secondEmail],
+        from: 'sm_sample11@outlook.com',
+        to: 'romin301.osl@gmail.com',
         cc: ccEmail,
         subject: subject,
         html: `
@@ -100,8 +108,9 @@ const sendApproval = async (subject, title, greetings, bodyTable, ccEmail, assig
     }
 
     transpoter.sendMail(mailOptions, function (error, info) {
+        // console.log(error)
         if (error) {
-            console.log(error);
+            console.log("------>", error);
         }
         else {
             console.log('Email sent: ' + info.response);

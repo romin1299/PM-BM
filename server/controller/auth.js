@@ -15,6 +15,7 @@ const Cell = require('../model/cellSchema')
 const Line = require('../model/lineSchema')
 const Machine = require('../model/machineSchema')
 const LogHistory = require("../model/logHistorySchema")
+const EmailConfigurations = require("../model/emailConfiguration")
 
 
 const sendMail = require('../sendMail/sendMail');
@@ -1853,6 +1854,10 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
             {
                 "checkSheet_data": []
 
+            },
+            {
+                "checkSheet_data": undefined
+
             }
             ] : [{
                 "checkSheet_data.current_year": selectedYear
@@ -2031,7 +2036,6 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                 $match: {
                     line_names: { $in: lineIdArray },
 
-                    $or: selectedYearOfCheckSheet
                 }
             },
             {
@@ -2051,11 +2055,16 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                 }
             },
             {
-                $unwind: "$checkSheet_data"
+                $unwind: {
+                    path: "$checkSheet_data",
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $match: {
-                    "checkSheet_data.current_year": selectedYear
+                    $or: selectedYearOfCheckSheet
+
+                    // "checkSheet_data.current_year": selectedYear
                 }
             },
             ])
@@ -2240,11 +2249,16 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
                 }
             },
             {
-                $unwind: "$checkSheet_data"
+                $unwind: {
+                    path: "$checkSheet_data",
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $match: {
-                    "checkSheet_data.current_year": selectedYear
+                    $or: selectedYearOfCheckSheet
+
+                    // "checkSheet_data.current_year": selectedYear
                 }
             },
             ])
@@ -2265,8 +2279,6 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
 router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req, res) => {
     try {
         let { section, selectedYear } = req.body
-        console.log("1755==>", selectedYear);
-
 
         let currentYear =
             new Date().getMonth() <= 3 ?
@@ -2279,6 +2291,10 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
             },
             {
                 "checkSheet_data": []
+
+            }, 
+            {
+                "checkSheet_data": undefined
 
             }
             ] : [{
@@ -2417,7 +2433,6 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         let machineData = await Machine.aggregate([{
             $match: {
                 line_names: { $in: lineIdArray },
-                $or: selectedYearOfCheckSheet
             }
         },
         {
@@ -2436,11 +2451,14 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
             }
         },
         {
-            $unwind: "$checkSheet_data"
+            $unwind: {
+                path: "$checkSheet_data",
+                preserveNullAndEmptyArrays: true
+            }
         },
         {
             $match: {
-                "checkSheet_data.current_year": selectedYear
+                $or: selectedYearOfCheckSheet
             }
         },
         {
@@ -3184,7 +3202,7 @@ router.post('/deleteSelectedMachineChecksheetTableRowData', async (req, res) => 
         const { rowData, machineId, yearOfCheckSheet, isDeleted } = req.body
         let deleteChecksheetRow, addFlagForDelete
         // console.log(rowData, machineId, yearOfCheckSheet)
-        
+
         if (isDeleted === true) {
             if (rowData.isAdded === true) {
                 deleteChecksheetRow = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": yearOfCheckSheet, }, { $pull: { "checkSheet_data.$[outer].checkSheet": { tableRowId: rowData.tableRowId } } }, {
@@ -7466,7 +7484,11 @@ router.post('/deleteCheckSheet', authenticate, async (req, res) => {
                     "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
                     "checkSheet_data.$[outer].checkSheet.$[].reasonForDelayWhenSkip": "",
                     "checkSheet_data.$[outer].checkSheet.$[].inspectionCompletionBy": "",
-
+                    "checkSheet_data.$[outer].checkSheet.$[].PMOkImage": "",
+                    "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
+                    "checkSheet_data.$[outer].checkSheet.$[].isAdded": "",
+                    "checkSheet_data.$[outer].checkSheet.$[].isEdited": "",
+                    "checkSheet_data.$[outer].checkSheet.$[].isDeleted": "",
                 }
             }, {
                 arrayFilters: [{ 'outer.current_year': selectedRow.checkSheet_data.current_year }],
@@ -7493,9 +7515,17 @@ router.post('/deleteCheckSheet', authenticate, async (req, res) => {
                     manufacturingDate: 1,
                     isPM: 1,
                     line_names: 1,
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    checkSheet_data: 1
                 }
-            }
+            },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedRow.checkSheet_data.current_year
+                }
+            },
             ])
 
             let backupNewMachineCode = `R${selectedRow.machine_code}`
@@ -7512,6 +7542,11 @@ router.post('/deleteCheckSheet', authenticate, async (req, res) => {
                         "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
                         "checkSheet_data.$[outer].checkSheet.$[].reasonForDelayWhenSkip": "",
                         "checkSheet_data.$[outer].checkSheet.$[].inspectionCompletionBy": "",
+                        "checkSheet_data.$[outer].checkSheet.$[].PMOkImage": "",
+                        "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
+                        "checkSheet_data.$[outer].checkSheet.$[].isAdded": "",
+                        "checkSheet_data.$[outer].checkSheet.$[].isEdited": "",
+                        "checkSheet_data.$[outer].checkSheet.$[].isDeleted": "",
                     }
                 })
                 const updateBackupPreparationMachineData = await BackupMachineData.updateOne({
@@ -9226,7 +9261,7 @@ router.post('/postSectionToGetAllDataForAnnualStatusReport/:id', authenticate, a
                             line_names: 1,
                             checkSheet_data: 1
                         }
-                    },{
+                    }, {
                         $unwind: "$checkSheet_data"
                     },
                     {
@@ -10244,7 +10279,7 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
 
             openAbnormality?.map((keyForCheckSheet) => {
                 keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
-                    if(keyForAbnormality?.abnormalityDetails){
+                    if (keyForAbnormality?.abnormalityDetails) {
 
                         for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
                             let month = financialYearWiseMonthKeyArray[i]
@@ -10269,9 +10304,9 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
                                     );
                                 }
                             }
-    
-    
-    
+
+
+
                         }
                     }
                 })
@@ -10313,7 +10348,7 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
 
             openAbnormality.map((keyForCheckSheet) => {
                 keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
-                    if(keyForAbnormality?.abnormalityDetails){
+                    if (keyForAbnormality?.abnormalityDetails) {
 
                         for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
                             let month = financialYearWiseMonthKeyArray[i]
@@ -10338,9 +10373,9 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
                                     );
                                 }
                             }
-    
-    
-    
+
+
+
                         }
                     }
                 })
@@ -15636,5 +15671,60 @@ router.get('/downloadUploadedImage/:fileName', authenticate, async (req, res) =>
 //         console.log("Filename not received");
 //     }
 // })
+
+router.post('/postEmailConfiguration', async (req, res) => {
+    try {
+        const { values } = req.body
+        // console.log(values)
+        let subject, title, greetings, bodyTable;
+        subject = `Checksheet Preparation Approval `
+        title = `Kindly Approve Check-sheet`
+        greetings = `Sir\\Ma'am`
+        bodyTable = `<table> <tr> Hello all </tr> </table>`
+        sendApproval(subject, title, greetings, bodyTable, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
+
+        const addEmailConf = await EmailConfigurations.findOne(
+            {
+                emailConfID: "EmailConf1"
+            }
+        )
+        let updateEmailConf, addNewEmailConf, result
+        // if(addEmailConf){
+        //      updateEmailConf = await EmailConfigurations.updateOne(
+        //         {
+        //             emailConfID: "EmailConf1"
+        //         },
+        //         {
+        //             $set: {
+        //                 serverIP: values.server_ip,
+        //                 emailPort: values.email_port,
+        //                 fromEmailId: values.email
+        //             }
+        //         }
+        //     )
+        // }else{
+        //      addNewEmailConf = await new EmailConfigurations(
+        //         {
+        //             emailConfID: "EmailConf1",
+        //             serverIP: values.server_ip,
+        //             emailPort: values.email_port,
+        //             fromEmailId: values.email
+        //         }
+        //     )
+        //     result = addNewEmailConf.save()
+        // }
+
+        if (addNewEmailConf || updateEmailConf) {
+            res.status(201).json({ message: 'Email configuration added !!!' })
+        } else {
+            res.status(422).json({ message: 'Email configuration not added !!!' })
+
+        }
+
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
 
 module.exports = router;
