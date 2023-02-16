@@ -1,4 +1,6 @@
 const nodemailer = require('nodemailer');
+const EmailConfigurationController = require('../controller/emailConfigurationController')
+
 const autoSendMail = async (toMailArray, ccEmailArray, sectionName, subject, title, dataTable, title1, dataTable1, title2, dataTable2, text) => {
     // console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
     // console.log("==============>", tlApproval, hosApproval)
@@ -8,24 +10,32 @@ const autoSendMail = async (toMailArray, ccEmailArray, sectionName, subject, tit
     //     checksheet_status, firstEmail, secondEmail, tlApproval, hosApproval, request, rejected_remarks)
 
 
-    console.log(toMailArray, ccEmailArray, subject, title1)
+    // console.log(toMailArray, ccEmailArray, subject, title1)
+    let emailConfData = await EmailConfigurationController()
 
 
     let transpoter = nodemailer.createTransport({
-        host: 'smtp-mail.outlook.com',
-        port: 587,
+        service: 'smtp-mail.outlook.com',
+        // pool: true,
+        host: emailConfData.serverIP,
+        port: emailConfData.emailPort,
         secureConnection: false,
+        secure: false,
+        logger: true,
+        debug: true,
+
+        // ignoreTLS: true
         tls: {
             ciphers: 'SSLv3'
         },
-        auth: {
-            user: "sm_sample11@outlook.com",
-            pass: "Sendemail@111"
-        }
+        // auth: {
+        //     user: "sm_sample11@outlook.com",
+        //     pass: "Sendemail@111"
+        // }
     });
     //sending an email for forgot password
     let mailOptions = {
-        from: "sm_sample11@outlook.com",
+        from: emailConfData.fromEmailId,
         to: toMailArray,
         cc: ccEmailArray,
         subject: subject,

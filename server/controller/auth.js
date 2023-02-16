@@ -15637,44 +15637,38 @@ router.get('/downloadUploadedImage/:fileName', authenticate, async (req, res) =>
 router.post('/postEmailConfiguration', async (req, res) => {
     try {
         const { values } = req.body
-        // console.log(values)
-        let subject, title, greetings, bodyTable;
-        subject = `Checksheet Preparation Approval `
-        title = `Kindly Approve Check-sheet`
-        greetings = `Sir\\Ma'am`
-        bodyTable = `<table> <tr> Hello all </tr> </table>`
-        sendApproval(subject, title, greetings, bodyTable, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)
-
-        const addEmailConf = await EmailConfigurations.findOne(
+       // console.log(values)
+ 
+        let addEmailConf = await EmailConfigurations.findOne(
             {
                 emailConfID: "EmailConf1"
             }
         )
         let updateEmailConf, addNewEmailConf, result
-        // if(addEmailConf){
-        //      updateEmailConf = await EmailConfigurations.updateOne(
-        //         {
-        //             emailConfID: "EmailConf1"
-        //         },
-        //         {
-        //             $set: {
-        //                 serverIP: values.server_ip,
-        //                 emailPort: values.email_port,
-        //                 fromEmailId: values.email
-        //             }
-        //         }
-        //     )
-        // }else{
-        //      addNewEmailConf = await new EmailConfigurations(
-        //         {
-        //             emailConfID: "EmailConf1",
-        //             serverIP: values.server_ip,
-        //             emailPort: values.email_port,
-        //             fromEmailId: values.email
-        //         }
-        //     )
-        //     result = addNewEmailConf.save()
-        // }
+        if(addEmailConf){
+             updateEmailConf = await EmailConfigurations.updateOne(
+                {
+                    emailConfID: "EmailConf1"
+                },
+                {
+                    $set: {
+                        serverIP: values.server_ip,
+                        emailPort: values.email_port,
+                        fromEmailId: values.email
+                    }
+                }
+            )
+        }else{
+             addNewEmailConf = await new EmailConfigurations(
+                {
+                    emailConfID: "EmailConf1",
+                    serverIP: values.server_ip,
+                    emailPort: values.email_port,
+                    fromEmailId: values.email
+                }
+            )
+            result = addNewEmailConf.save()
+        }
 
         if (addNewEmailConf || updateEmailConf) {
             res.status(201).json({ message: 'Email configuration added !!!' })
@@ -15686,6 +15680,20 @@ router.post('/postEmailConfiguration', async (req, res) => {
     } catch (error) {
         console.log(error)
         console.log("User id not received!!!");
+    }
+})
+
+//Get the data from database and show on User management table
+router.get('/fetchEmailConfigurationData', authenticate, async (req, res) => {
+    try {
+        const addEmailConf = await EmailConfigurations.findOne(
+            {
+                emailConfID: "EmailConf1"
+            }
+        )
+        res.json(addEmailConf);
+    } catch (error) {
+        console.log("Email data not send or get!!!");
     }
 })
 
