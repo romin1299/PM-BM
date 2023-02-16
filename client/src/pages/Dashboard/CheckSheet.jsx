@@ -459,7 +459,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
     // let jsPdf = new jsPDF("p", "pt", "letter");
     setStateForPdfDownload("");
 
-    var jsPdf = new jsPDF("l", "pt", "a2");
+    var jsPdf = new jsPDF("l", "pt", "a1");
     var htmlElement = document.getElementById("doc-target");
     // document.querySelector("table-scrolling").style.
     // you need to load html2canvas (and dompurify if you pass a string to html)
