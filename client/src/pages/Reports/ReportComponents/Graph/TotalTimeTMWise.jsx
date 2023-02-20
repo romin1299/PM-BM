@@ -11,7 +11,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import LoadingAnimation from "../LoadingAnimation";
 
-const TotalTimeTMWise = ({ context }) => {
+const TotalTimeTMWise = ({ context, selectedSectionOrSubSection }) => {
   const [selectedTM, setSelectedTM] = useState("");
 
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
@@ -65,7 +65,9 @@ const TotalTimeTMWise = ({ context }) => {
     doc.save(`${selectedYear}_Total_time_man_hour_wise${timeStamp()}`);
   };
 
-  const postSectionToGetAllDataForTotalTimeManHoursMonthWise = async () => {
+  const postSectionToGetAllDataForTotalTimeManHoursMonthWise = async (
+    sectionData
+  ) => {
     setSelectedTM("");
     try {
       const res = await fetch(
@@ -76,7 +78,7 @@ const TotalTimeTMWise = ({ context }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            section: context.section_data,
+            section: sectionData,
             selectedYear,
           }),
         }
@@ -211,38 +213,45 @@ const TotalTimeTMWise = ({ context }) => {
 
   const [tmList, setTmList] = useState([]);
 
-  const getListForApproval = async () => {
+  const supportingOperatorListForReportDashboard = async () => {
     try {
-      const res = await fetch("/getListForApproval", {
-        method: "GET",
+      const res = await fetch("/supportingOperatorListForReportDashboard", {
+        method: "POST",
         headers: {
-          Accept: "application/json",
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        body: JSON.stringify({
+          section:
+            context.user_type === "Plant-Admin"
+              ? selectedSectionOrSubSection
+              : context.section_data,
+        }),
       });
-
       const data = await res.json();
-      // console.log(data?.supportingOperatorListForReportDashboard);
-      setTmList(data?.supportingOperatorListForReportDashboard);
 
-      // setTableData(finalData);
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        setTmList(data?.supportingOperatorListForReportDashboard);
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
-    getListForApproval();
+    supportingOperatorListForReportDashboard();
   }, []);
 
   useEffect(() => {
-    postSectionToGetAllDataForTotalTimeManHoursMonthWise();
-  }, [selectedYear]);
+    postSectionToGetAllDataForTotalTimeManHoursMonthWise(
+      selectedSectionOrSubSection || context?.section_data
+    );
+  }, [selectedYear, selectedSectionOrSubSection]);
 
   const functionForTotalData = () => {
     setSelectedTM("");
-    postSectionToGetAllDataForTotalTimeManHoursMonthWise();
+    postSectionToGetAllDataForTotalTimeManHoursMonthWise(selectedSectionOrSubSection || context?.section_data);
   };
 
   useEffect(() => {
@@ -251,85 +260,74 @@ const TotalTimeTMWise = ({ context }) => {
   return (
     <>
       <div>
-      <Container fluid>
-        <h4 className="mb-3">Actual time taken TM wise</h4>
-        <Row className="pt-2 cell gy-2">
-          <Col sm={12} lg={6} md={12}>
-          <YearDropDown
-                  selectedYear={selectedYear}
-                  setSelectedYear={setSelectedYear}
-                />
-          </Col>
-          <Col sm={12} lg={6} md={12}>
-              <select
-                 
-                    style={{ width: "75%" }}
-                    name="selectedCell"
-                    fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                    value={selectedTM}
-                    onChange={(e) => {
-                      setSelectedTM(e.target.value);
-                      postPerticularOperatorToGetDataForActualTimeTakenTMWise(
-                        e.target.value
-                      );
-                      setLoadingAnimationState(<LoadingAnimation />);
-                    }}
-                  >
-                    <option selected disabled value="">
-                      Please select TM
-                    </option>
-                    {tmList?.map((option) => {
-                      return (
-                        <option value={option.tm_no}>{option.tm_name}</option>
-                      );
-                    })}
-                  </select>&nbsp;&nbsp;
-                  <button className="btn-reset" onClick={functionForTotalData}>
-                  Total
-                </button>
-          </Col>
-
-
-          <Row className="p-2">
-
-            <Col className="d-flex justify-content-start">
-            <CSVLink
-                    data={csvData}
-                    filename={`${selectedYear}_Actual_time_taken_TM_wise${timeStamp()}`}
-                    className="downloadCSV text-decoration-none"
-                    target="_blank"
-                  >
-                    CSV
-                  </CSVLink>
-                  &nbsp;
-                  <button
-                    className="downloadPDF"
-                    onClick={pdfDownloadForActualTimeTakenTMWise}
-                  >
-                    PDF
-                  </button>
+        <Container fluid>
+          <h4 className="mb-3">Actual time taken TM wise</h4>
+          <Row className="pt-2 cell gy-2">
+            <Col sm={12} lg={6} md={12}>
+              <YearDropDown
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+              />
             </Col>
+            <Col sm={12} lg={6} md={12}>
+              <select
+                style={{ width: "75%" }}
+                name="selectedCell"
+                fullWidth
+                select // label="Select"
+                autoComplete="off"
+                variant="standard"
+                value={selectedTM}
+                onChange={(e) => {
+                  setSelectedTM(e.target.value);
+                  postPerticularOperatorToGetDataForActualTimeTakenTMWise(
+                    e.target.value
+                  );
+                  setLoadingAnimationState(<LoadingAnimation />);
+                }}
+              >
+                <option selected disabled value="">
+                  Please select TM
+                </option>
+                {tmList?.map((option) => {
+                  return <option value={option.tm_no}>{option.tm_name}</option>;
+                })}
+              </select>
+              &nbsp;&nbsp;
+              <button className="btn-reset" onClick={functionForTotalData}>
+                Total
+              </button>
+            </Col>
+
+            <Row className="p-2">
+              <Col className="d-flex justify-content-start">
+                <CSVLink
+                  data={csvData}
+                  filename={`${selectedYear}_Actual_time_taken_TM_wise${timeStamp()}`}
+                  className="downloadCSV text-decoration-none"
+                  target="_blank"
+                >
+                  CSV
+                </CSVLink>
+                &nbsp;
+                <button
+                  className="downloadPDF"
+                  onClick={pdfDownloadForActualTimeTakenTMWise}
+                >
+                  PDF
+                </button>
+              </Col>
             </Row>
 
             <Row>
-            {graphData?.length > 0 ? (
-              <TmWiseGraph xValue={x1} yValue={y1} />
-            ) : (
-              loadingAnimationState
-            )}
+              {graphData?.length > 0 ? (
+                <TmWiseGraph xValue={x1} yValue={y1} />
+              ) : (
+                loadingAnimationState
+              )}
             </Row>
-            
-            
           </Row>
-          
-      </Container>
-        
-
-
-       
+        </Container>
 
         <div>
           {/* <Plot
@@ -338,8 +336,6 @@ const TotalTimeTMWise = ({ context }) => {
             config={{ displayModeBar: false }}
             style={{ width: "100%", height: "100%" }}
           /> */}
-
-         
         </div>
       </div>
     </>

@@ -11,13 +11,17 @@ import NotFound from "../../ReportComponents/NotFound";
 import currentYear from "../../../Dashboard/DashboardComponent/currentYear";
 import YearDropDown from "../../../Dashboard/DashboardComponent/YearDropDown";
 
-const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
+const LineWiseSpareConsumptionTrend = ({
+  context,
+  selectedSectionOrSubSection,
+}) => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [csvData, setCsvData] = useState([]);
   const [loadingAnimationState, setLoadingAnimationState] = useState(
     <LoadingAnimation />
   );
   const [graphData, setGraphData] = useState([]);
+  const [lineData, setLineData] = useState([]);
 
   //get the date and time
   const timeStamp = () => {
@@ -34,7 +38,7 @@ const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
     return `${day}/${month}/${year} - ${getTime}`;
   };
 
-  const postSectionToGetAllDataForLineWiseSpareConsumption = async () => {
+  const postSectionToGetAllDataForLineWiseSpareConsumption = async (sectionData) => {
     try {
       const res = await fetch(
         "/postSectionToGetAllDataForLineWiseSpareConsumption",
@@ -44,7 +48,7 @@ const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            section: context.section_data,
+            section: sectionData,
             selectedYear,
           }),
         }
@@ -56,6 +60,7 @@ const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
       } else {
         // console.log(data);
         setGraphData(data);
+        setLineData(data?.lineData)
         let downloadData = [];
         downloadData.push(
           // keyOfCsvData,
@@ -124,8 +129,10 @@ const LineWiseSpareConsumptionTrend = ({ lineData, context }) => {
   };
 
   useEffect(() => {
-    postSectionToGetAllDataForLineWiseSpareConsumption();
-  }, [selectedYear]);
+    postSectionToGetAllDataForLineWiseSpareConsumption(
+      selectedSectionOrSubSection || context?.section_data
+    );
+  }, [selectedYear, selectedSectionOrSubSection]);
 
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);

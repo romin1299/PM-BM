@@ -48,6 +48,12 @@ const LineWisePmMonthlyReport = () => {
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedLine, setSelectedLine] = useState("");
 
+  const [sectionOrSubSectionDropdownList, setSectionOrSubSectionDropdownList] =
+    useState([]);
+
+  const [selectedSectionOrSubSection, setSelectedSectionOrSubSection] =
+    useState(0);
+
   const closePopup = () => {
     setMachineDetailPage("");
     document.querySelector(".lineWisePmMonthlyReport").style.pointerEvents =
@@ -220,7 +226,10 @@ const LineWisePmMonthlyReport = () => {
   ];
 
   // console.log(tableData);
-  const postSectionToGetAllDataForReport = async () => {
+  const postSectionToGetAllDataForReport = async (
+    selectedSection,
+    lineData
+  ) => {
     // setSubSection(undefined);
     try {
       const res = await fetch("/postSectionToGetAllDataForReport", {
@@ -229,10 +238,10 @@ const LineWisePmMonthlyReport = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          section: context.section_data,
+          section: selectedSection,
           selectedYear,
           month: selectedMonth,
-          selectedLine,
+          selectedLine: lineData,
         }),
       });
       const data = await res.json();
@@ -244,6 +253,44 @@ const LineWisePmMonthlyReport = () => {
         // console.log(data.lineDataWithCounter);
         setTableData(data.lineDataWithCounter);
         setLineDropdown(data.lineData);
+        setLoadingAnimationState(<NotFound/>)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const postPlantToGetSectionDataBasedOnDashboardLevel = async () => {
+    // setSubSection(undefined);
+    // setSelectedLine("")
+    try {
+      const res = await fetch(
+        "/postPlantToGetSectionDataBasedOnDashboardLevel",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            plant: context.plant_data,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log("-------------$$$$$$$$$$$$-->", data);
+        setSectionOrSubSectionDropdownList(data?.sectionDataArray);
+
+        // getDataOfSkippedApprovalStatus(data?.sectionDataArray?.[0]);
+
+        postSectionToGetAllDataForReport(
+          sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection] ||
+            data?.sectionDataArray?.[0]
+        );
+
       }
     } catch (error) {
       console.log(error);
@@ -291,7 +338,7 @@ const LineWisePmMonthlyReport = () => {
 
       tooltip: "CSV",
       isFreeAction: true,
-      onClick: (event, rowData) => { },
+      onClick: (event, rowData) => {},
     },
   ];
 
@@ -352,16 +399,20 @@ const LineWisePmMonthlyReport = () => {
     });
     setCsvData(rows);
   };
-  console.log(statusSum);
+  // console.log(statusSum);
 
   // const [refKey, setRefKey] = useState(0);
 
   // console.log(refKey);
   useEffect(() => {
-    postSectionToGetAllDataForReport();
+    if (context.user_type === "Plant-Admin") {
+      postPlantToGetSectionDataBasedOnDashboardLevel();
+    } else {
+      postSectionToGetAllDataForReport(context.section_data);
+    }
     // setRefKey((refKey) => refKey + 1);
     // console.log(refKey);
-  }, [selectedYear, selectedMonth, selectedLine]);
+  }, [selectedYear, selectedMonth]);
 
   useEffect(() => {
     // setTimeout(() => {
@@ -407,6 +458,53 @@ const LineWisePmMonthlyReport = () => {
                   setSelectedMonth={setSelectedMonth}
                 />
               </Col>
+              {context?.user_type === "Plant-Admin" &&
+              context?.tm_grade === "HOD" ? (
+                <Col sm={12} lg={4} md={6} className="mb-2">
+                  <span>
+                    <b>Section:&nbsp; &nbsp;</b>
+                  </span>
+                  <select
+                    class="form-select form-select-sm"
+                    aria-label=".form-select-sm example"
+                    style={{ width: "50%" }}
+                    id="standard-select-currency"
+                    name="selectedSectionOrSubSection"
+                    className="textField"
+                    value={selectedSectionOrSubSection}
+                    onChange={(e) => {
+                      setSelectedLine("");
+                      setStatusSum({
+                        ...statusSum,
+                        totalPmSchedule: 0,
+                        lastMonthPendingStatusSum: 0,
+                        completedStatusSum: 0,
+                        pendingStatusSum: 0,
+                      });
+                      setSelectedSectionOrSubSection(e.target.value);
+                      postSectionToGetAllDataForReport(
+                        sectionOrSubSectionDropdownList?.[e.target.value]
+                      );
+                      setLoadingAnimationState(<LoadingAnimation />);
+                    }}
+                    // fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {sectionOrSubSectionDropdownList?.map((option, index) => {
+                      return (
+                        <option value={index}>{option?.section_name}</option>
+                      );
+                    })}
+                  </select>
+                </Col>
+              ) : (
+                ""
+              )}
               <Col sm={12} lg={4} md={6} className="mb-2">
                 <span>
                   <b>Line:&nbsp;&nbsp;</b>
@@ -419,9 +517,22 @@ const LineWisePmMonthlyReport = () => {
                   name="selectedPlant"
                   value={selectedLine}
                   className="textField"
-                  onChange={(e) => {
-                    setSelectedLine(e.target.value);
+                  onChange={async (e) => {
+                    await setSelectedLine(e.target.value);
+                    setStatusSum({
+                      ...statusSum,
+                      totalPmSchedule: 0,
+                      lastMonthPendingStatusSum: 0,
+                      completedStatusSum: 0,
+                      pendingStatusSum: 0,
+                    });
                     // postLineToGetMachineList(e.target.value);
+                    postSectionToGetAllDataForReport(
+                      sectionOrSubSectionDropdownList?.[
+                        selectedSectionOrSubSection
+                      ] || context.section_data,
+                      e.target.value
+                    );
                   }}
                   // fullWidth
                   select // label="Select"
@@ -433,14 +544,19 @@ const LineWisePmMonthlyReport = () => {
                   </option>
                   {lineDropdown?.map((option) => {
                     return (
-                      <option value={option._id}>
-                        {option.line_name}
-                      </option>
+                      <option value={option._id}>{option.line_name}</option>
                     );
                   })}
                 </select>
               </Col>
-
+              <Col sm={12} lg={4} md={6}>
+                <button
+                  class="btn-primary1"
+                  onClick={() => window.location.reload()}
+                >
+                  Reset
+                </button>
+              </Col>
             </Row>
           </Container>
 

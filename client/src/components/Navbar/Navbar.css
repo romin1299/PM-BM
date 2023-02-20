@@ -1,35 +1,40 @@
-  .pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item:hover{
+  .pro-sidebar .pro-menu .pro-menu-item>.pro-inner-item:hover {
     color: black;
   }
+
   /* .pro-sidebar .pro-menu .pro-menu-item  .pro-inner-item > .pro-item-content :hover{
     color: rgb(255, 0, 0);
   } */
 
 
-  .pro-sidebar .pro-menu > ul > .pro-sub-menu > .pro-inner-list-item{
+  .pro-sidebar .pro-menu>ul>.pro-sub-menu>.pro-inner-list-item {
     background-color: #004B5B;
   }
 
-  .text:hover{
+  .text:hover {
     background-color: white !important;
     color: black !important;
     /* font-size: 15px !important; */
   }
 
-  
-  .text1{
+
+  .text1 {
     background-color: white !important;
     color: black !important;
-    
+
     /* font-size: 15px !important; */
   }
 
-  .text-white:hover{
+  .text-white:hover {
     /* background-color: black !important; */
     color: white !important;
     /* font-size: 15px !important; */
   }
 
-  MenuItem .text-white:hover{
+  MenuItem .text-white:hover {
     color: white !important;
+  }
+
+  .pro-icon-wrapper {
+    transition: 0.1s
   }

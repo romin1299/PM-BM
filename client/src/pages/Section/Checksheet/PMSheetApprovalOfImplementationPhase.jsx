@@ -7,6 +7,7 @@ import SortIcon from "@mui/icons-material/Sort";
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../../Reports/ReportComponents/NotFound";
 import Footer from "../../../components/Footer/Footer";
+import { Row, Col } from "react-bootstrap";
 
 function PMSheetApprovalOfImplementationPhase() {
   const context = useContext(RoutingContext);
@@ -18,6 +19,11 @@ function PMSheetApprovalOfImplementationPhase() {
 
   const [stateForAnimationAndNotFound, setStateForAnimationAndNotFound] =
     useState(<LoadingAnimation />);
+  const [sectionOrSubSectionDropdownList, setSectionOrSubSectionDropdownList] =
+    useState([]);
+
+  const [selectedSectionOrSubSection, setSelectedSectionOrSubSection] =
+    useState(0);
 
   const monthKeyArray = [
     "Jan",
@@ -181,11 +187,126 @@ function PMSheetApprovalOfImplementationPhase() {
     }
   };
 
+  const postPlantToGetSectionDataBasedOnDashboardLevel = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch(
+        "/postPlantToGetSectionDataBasedOnDashboardLevel",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            plant: context.plant_data,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log("-------------$$$$$$$$$$$$-->", data);
+        setSectionOrSubSectionDropdownList(data?.sectionDataArray);
+
+        // getDataOfSkippedApprovalStatus(data?.sectionDataArray?.[0]);
+
+        postSectionToGetPMSheetApprovalData(data?.sectionDataArray?.[0]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const postSectionToGetPMSheetApprovalData = async (sectionData) => {
+    setStateForAnimationAndNotFound(<LoadingAnimation />);
+    try {
+      const res = await fetch("/postSectionToGetPMSheetApprovalData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          section: sectionData,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        setTableData(data.machineDataOfPrepAndPlanApproval);
+        setStateForAnimationAndNotFound(<NotFound />);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    postSectionToGetAllDataForMainDashboard();
+    if (context?.user_type !== "Plant-Admin") {
+      postSectionToGetAllDataForMainDashboard();
+    }
   }, [refKey]);
+
+  useEffect(() => {
+    if (context?.user_type === "Plant-Admin") {
+      postPlantToGetSectionDataBasedOnDashboardLevel();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (context?.user_type === "Plant-Admin") {
+      postSectionToGetPMSheetApprovalData(
+        sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
+      );
+    }
+  }, [selectedSectionOrSubSection]);
   return (
     <>
+      {context?.user_type === "Plant-Admin" && context?.tm_grade === "HOD" ? (
+        <Row className="p-2 mt-3">
+          <Col sm={12} lg={3}>
+            <span>
+              <b>Section:&nbsp; &nbsp;</b>
+            </span>
+            <select
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              style={{ width: "63%" }}
+              id="standard-select-currency"
+              name="selectedSectionOrSubSection"
+              className="textField"
+              value={selectedSectionOrSubSection}
+              onChange={(e) => {
+                setSelectedSectionOrSubSection(e.target.value);
+              }}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {sectionOrSubSectionDropdownList?.map((option, index) => {
+                return <option value={index}>{option?.section_name}</option>;
+              })}
+            </select>
+          </Col>
+          <Col sm={12} lg={3}>
+            <button
+              class="btn-primary1 w-50"
+              onClick={() => window.location.reload()}
+            >
+              Reset
+            </button>
+          </Col>
+        </Row>
+      ) : (
+        ""
+      )}
       {tableData?.length > 0 ? (
         <div className="container-fluid" style={{ overflow: "auto" }}>
           <h4 style={{ padding: "1rem 0 0 0" }}>PM Plan vs Actual Approval</h4>
@@ -286,7 +407,9 @@ function PMSheetApprovalOfImplementationPhase() {
                                 ?.implementation_approved_PRD_TL_date?.[
                                 monthKey
                               ]?.[idx]
-                            }-{" "}{`Remarks: ${index?.checkSheet_data?.implemetation_quality_remarks?.[monthKey]?.[idx]}`}
+                            }
+                            -{" "}
+                            {`Remarks: ${index?.checkSheet_data?.implemetation_quality_remarks?.[monthKey]?.[idx]}`}
                           </p>
                         ))}
                       </td>

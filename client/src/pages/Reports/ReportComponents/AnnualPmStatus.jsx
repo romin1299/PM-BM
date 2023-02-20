@@ -15,6 +15,7 @@ import autoTable from "jspdf-autotable";
 
 import AnnualPmStatusGraph from "./Graph/AnnualPmStatusGraph";
 import Footer from "../../../components/Footer/Footer";
+import NotFound from "./NotFound";
 
 const AnnualPmStatus = () => {
   // console.log(tableData);
@@ -23,6 +24,13 @@ const AnnualPmStatus = () => {
   const [graphData, setGraphData] = useState({});
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [csvData, setCsvData] = useState([]);
+  const [stateForAnimationAndNotFound, setStateForAnimationAndNotFound] =
+    useState(<LoadingAnimation />);
+  const [sectionOrSubSectionDropdownList, setSectionOrSubSectionDropdownList] =
+    useState([]);
+
+  const [selectedSectionOrSubSection, setSelectedSectionOrSubSection] =
+    useState(0);
 
   const label = [
     "",
@@ -39,7 +47,45 @@ const AnnualPmStatus = () => {
     "Feb",
     "Mar",
   ];
-  const postSectionToGetAllDataForAnnualStatusReport = async () => {
+
+  const postPlantToGetSectionDataBasedOnDashboardLevel = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch(
+        "/postPlantToGetSectionDataBasedOnDashboardLevel",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            plant: context.plant_data,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log("-------------$$$$$$$$$$$$-->", data);
+        setSectionOrSubSectionDropdownList(data?.sectionDataArray);
+        postSectionToGetAllDataForAnnualStatusReport(
+          sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection] ||
+            data?.sectionDataArray?.[0],
+          selectedYear
+        );
+        setStateForAnimationAndNotFound(<LoadingAnimation />);
+        // getDataOfSkippedApprovalStatus(data?.sectionDataArray?.[0]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const postSectionToGetAllDataForAnnualStatusReport = async (
+    selectedSection
+  ) => {
     // setSubSection(undefined);
     try {
       const res = await fetch(
@@ -50,7 +96,7 @@ const AnnualPmStatus = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            sectionOrSubSection: context.section_data,
+            sectionOrSubSection: selectedSection,
             selectedYear,
             // month: selectedMonth,
           }),
@@ -64,6 +110,7 @@ const AnnualPmStatus = () => {
         // console.log(data.machineData2[0][0].line_names.line_name);
         // console.log(data);
         setGraphData(data);
+        setStateForAnimationAndNotFound(<LoadingAnimation />);
         let downloadData = [];
         downloadData.push(
           // keyOfCsvData,
@@ -82,7 +129,11 @@ const AnnualPmStatus = () => {
   };
 
   useEffect(() => {
-    postSectionToGetAllDataForAnnualStatusReport();
+    if (context?.user_type === "Plant-Admin") {
+      postPlantToGetSectionDataBasedOnDashboardLevel();
+    } else {
+      postSectionToGetAllDataForAnnualStatusReport(context.section_data);
+    }
   }, [selectedYear]);
 
   //get the date and time
@@ -121,16 +172,66 @@ const AnnualPmStatus = () => {
         <Container fluid>
           <Container fluid>
             <Row className="mt-3">
-              <Col sm={12} lg={6} md={6}>
+              <Col sm={12} lg={4} md={6} className="mb-2">
                 <YearDropDown
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
                 />
               </Col>
-              
+              {context?.user_type === "Plant-Admin" &&
+              context?.tm_grade === "HOD" ? (
+                <Col sm={12} lg={4} md={6} className="d-flex">
+                  <div>
+                    <span>
+                      <b>Section:&nbsp; &nbsp;</b>
+                    </span>
+                    <select
+                      class="form-select form-select-sm"
+                      aria-label=".form-select-sm example"
+                      // style={{ width: "63%" }}
+                      id="standard-select-currency"
+                      name="selectedSectionOrSubSection"
+                      className="textField w-50"
+                      value={selectedSectionOrSubSection}
+                      onChange={(e) => {
+                        setSelectedSectionOrSubSection(e.target.value);
+                        postSectionToGetAllDataForAnnualStatusReport(
+                          sectionOrSubSectionDropdownList?.[e.target.value]
+                        );
+                        setStateForAnimationAndNotFound(<LoadingAnimation />);
+                      }}
+                      // fullWidth
+                      select // label="Select"
+                      autoComplete="off"
+                      variant="standard"
+                    >
+                      <option selected disabled value="">
+                        Please select
+                      </option>
+                      {sectionOrSubSectionDropdownList?.map((option, index) => {
+                        return (
+                          <option value={index}>{option?.section_name}</option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                  <div>
+                    <button
+                      class="btn-primary1"
+                      onClick={() => window.location.reload()}
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </Col>
+              ) : (
+                ""
+              )}
+
               <Col
                 sm={12}
-                lg={6} md={6}
+                lg={4}
+                md={6}
                 className="d-flex mt-1 justify-content-end"
               >
                 <CSVLink
@@ -158,15 +259,15 @@ const AnnualPmStatus = () => {
               </Col>
             ) : (
               <Col className="d-flex justify-content-around align-items-center pt-5">
-                <LoadingAnimation />
+                {stateForAnimationAndNotFound}
               </Col>
             )}
           </Row>
         </Container>
-        <br/>
-        <br/>
-        <br/>
-<Footer/>
+        <br />
+        <br />
+        <br />
+        <Footer />
       </div>
     </>
   );

@@ -3,14 +3,14 @@ import { Container, Row, Col } from "react-bootstrap";
 import currentYear from "../../../Dashboard/DashboardComponent/currentYear";
 import LoadingAnimation from "../../ReportComponents/LoadingAnimation";
 import SpareConsumptionTrendTypeGraph from "./GraphForSpareReports/SpareConsumptionTrendTypeGraph";
-
-const SpareConsumptionTrendType = ({ context }) => {
+import NotFound from "../../ReportComponents/NotFound";
+const SpareConsumptionTrendType = ({ context, selectedSectionOrSubSection }) => {
   const [graphData, setGraphData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [loadingAnimationState, setLoadingAnimationState] = useState(
     <LoadingAnimation />
   );
-  const postSectionToGetAllDataForLineWiseSpareConsumption = async () => {
+  const postSectionToGetAllDataForLineWiseSpareConsumption = async (sectionData) => {
     try {
       const res = await fetch(
         "/postSectionToGetAllDataForLineWiseSpareConsumption",
@@ -20,7 +20,7 @@ const SpareConsumptionTrendType = ({ context }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            section: context.section_data,
+            section: sectionData,
             selectedYear,
           }),
         }
@@ -30,8 +30,8 @@ const SpareConsumptionTrendType = ({ context }) => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        // console.log(data);
         setGraphData(data?.lineWiseSpareCost);
+        setLoadingAnimationState(<NotFound/>)
       }
     } catch (error) {
       console.log(error);
@@ -39,8 +39,8 @@ const SpareConsumptionTrendType = ({ context }) => {
   };
 
   useEffect(() => {
-    postSectionToGetAllDataForLineWiseSpareConsumption();
-  }, []);
+    postSectionToGetAllDataForLineWiseSpareConsumption(selectedSectionOrSubSection || context?.section_data);
+  }, [selectedSectionOrSubSection]);
   // console.log(graphData)
   return (
     <div className="pt-3 ">

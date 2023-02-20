@@ -9,7 +9,10 @@ import autoTable from "jspdf-autotable";
 import LoadingAnimation from "../../ReportComponents/LoadingAnimation";
 import NotFound from "../../ReportComponents/NotFound";
 
-const Top20MachineSparePartConsumption = ({ context }) => {
+const Top20MachineSparePartConsumption = ({
+  context,
+  selectedSectionOrSubSection,
+}) => {
   const tableColumn = ["Sr No.", "Line Name", "Machine Name", "Code", "Cost"];
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -25,7 +28,9 @@ const Top20MachineSparePartConsumption = ({ context }) => {
     { label: "Cost", key: "cost" },
   ];
 
-  const postSectionToGetAllDataForTop20MachineSparePartsReport = async () => {
+  const postSectionToGetAllDataForTop20MachineSparePartsReport = async (
+    sectionData
+  ) => {
     try {
       const res = await fetch(
         "/postSectionToGetAllDataForTop20MachineSparePartsReport",
@@ -35,7 +40,7 @@ const Top20MachineSparePartConsumption = ({ context }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            section: context.section_data,
+            section: sectionData,
             selectedYear,
           }),
         }
@@ -93,8 +98,10 @@ const Top20MachineSparePartConsumption = ({ context }) => {
     return `${day}/${month}/${year} - ${getTime}`;
   };
   useEffect(() => {
-    postSectionToGetAllDataForTop20MachineSparePartsReport();
-  }, [selectedYear]);
+    postSectionToGetAllDataForTop20MachineSparePartsReport(
+      selectedSectionOrSubSection || context?.section_data
+    );
+  }, [selectedYear, selectedSectionOrSubSection]);
 
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
@@ -155,7 +162,12 @@ const Top20MachineSparePartConsumption = ({ context }) => {
                 </table>
               </Row>
             ) : (
-              <Col className="d-flex justify-content-center align-items-center" style={{marginBottom: "2rem"}}>{loadingAnimationState}</Col>
+              <Col
+                className="d-flex justify-content-center align-items-center"
+                style={{ marginBottom: "2rem" }}
+              >
+                {loadingAnimationState}
+              </Col>
             )}
           </Row>
         </Row>
