@@ -48,6 +48,8 @@ const MachineWisePmMonthlyReport = () => {
   const [selectedSectionOrSubSection, setSelectedSectionOrSubSection] =
     useState(0);
 
+  const [defaultSectionData, setDefaultSectionData] = useState({});
+
   // console.log(currentYear);
 
   const [csvDataForCurrentMonth, setCsvDataForCurrentMonth] = useState([]);
@@ -497,7 +499,7 @@ const MachineWisePmMonthlyReport = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        // console.log(data);
+        console.log("===================>", data);
         setTableData1(data);
         setLoadingAnimationState(<NotFound />);
       }
@@ -649,7 +651,7 @@ const MachineWisePmMonthlyReport = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        // console.log("--------------->", data);
+        console.log("--------------->", data);
 
         setSkipApprovalStatusData(data.getApprovalDataOfSkipPM);
       }
@@ -742,6 +744,8 @@ const MachineWisePmMonthlyReport = () => {
         console.log("-------------->", data?.sectionInfo);
 
         if (data?.sectionInfo?.dashboardLevel === "Yes") {
+          // console.log("***************************", data?.sectionInfo);
+          setDefaultSectionData(data?.sectionInfo);
           postSectionAndMonthToGetAllDataForReport(data?.sectionInfo);
           getDataOfSkippedApprovalStatus(data?.sectionInfo);
         } else {
@@ -918,6 +922,10 @@ const MachineWisePmMonthlyReport = () => {
                     onGoing: 0,
                   });
                   setSelectedSectionOrSubSection(e.target.value);
+
+                  getDataOfSkippedApprovalStatus(
+                    sectionOrSubSectionDropdownList?.[e.target.value]
+                  );
                 }}
                 // fullWidth
                 select // label="Select"
@@ -1208,15 +1216,12 @@ const MachineWisePmMonthlyReport = () => {
               context.user_type === "TL/HOSS" &&
               context.tm_department === "MTD" ? (
                 <div>
-                  
-                    <form
-                      className="d-flex mt-2 p-3 border bg-white rounded"
-                      onSubmit={formik1.handleSubmit}
-                      style={{ margin: "0px" }}
-                    >
-                      <Row className="w-100">
-
-                      
+                  <form
+                    className="d-flex mt-2 p-3 border bg-white rounded"
+                    onSubmit={formik1.handleSubmit}
+                    style={{ margin: "0px" }}
+                  >
+                    <Row className="w-100">
                       <Col lg={2} md={6} sm={12} className="mb-3">
                         <span>
                           <b>MTD HOS :</b>
@@ -1436,14 +1441,18 @@ const MachineWisePmMonthlyReport = () => {
                           </p>
                         </div>
                       </Col>
-                      <Col lg={2} md={6} sm={12} className="d-flex justify-content-start align-items-center">
+                      <Col
+                        lg={2}
+                        md={6}
+                        sm={12}
+                        className="d-flex justify-content-start align-items-center"
+                      >
                         <button className="btn-approval" type="submit">
                           Send for Approval
                         </button>
                       </Col>
-                      </Row>
-                    </form>
-                  
+                    </Row>
+                  </form>
 
                   <Row
                     className="d-flex mt-2 p-3 border bg-white rounded"
@@ -1662,6 +1671,12 @@ const MachineWisePmMonthlyReport = () => {
                   </Row>
                 </div>
               )}
+
+              {/* {console.log(
+                "____________________>",
+                sectionOrSubSectionDropdownList,
+                sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
+              )} */}
               {context.email ===
                 skipApprovalStatusData?.assignAndApprovedHOSlist
                   ?.assignMTDHOSemail &&
@@ -1671,6 +1686,10 @@ const MachineWisePmMonthlyReport = () => {
                     sectionOrSubSectionDropdownList?.[
                       selectedSectionOrSubSection
                     ]
+                      ? sectionOrSubSectionDropdownList?.[
+                          selectedSectionOrSubSection
+                        ]
+                      : defaultSectionData
                   }
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
@@ -1685,6 +1704,10 @@ const MachineWisePmMonthlyReport = () => {
                     sectionOrSubSectionDropdownList?.[
                       selectedSectionOrSubSection
                     ]
+                      ? sectionOrSubSectionDropdownList?.[
+                          selectedSectionOrSubSection
+                        ]
+                      : defaultSectionData
                   }
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
@@ -1700,6 +1723,10 @@ const MachineWisePmMonthlyReport = () => {
                     sectionOrSubSectionDropdownList?.[
                       selectedSectionOrSubSection
                     ]
+                      ? sectionOrSubSectionDropdownList?.[
+                          selectedSectionOrSubSection
+                        ]
+                      : defaultSectionData
                   }
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
@@ -1716,6 +1743,10 @@ const MachineWisePmMonthlyReport = () => {
                     sectionOrSubSectionDropdownList?.[
                       selectedSectionOrSubSection
                     ]
+                      ? sectionOrSubSectionDropdownList?.[
+                          selectedSectionOrSubSection
+                        ]
+                      : defaultSectionData
                   }
                   skipApprovalStatusData={skipApprovalStatusData}
                   functionToSetRefKey={functionToSetRefKey}
