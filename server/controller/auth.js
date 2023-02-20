@@ -2326,7 +2326,7 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
             {
                 "checkSheet_data": []
 
-            }, 
+            },
             {
                 "checkSheet_data": undefined
 
@@ -12907,8 +12907,6 @@ router.post('/sendRequestForApprovalOfSkipPMDataWork', authenticate, async (req,
 
         }
 
-        s
-
 
         sendApprovalOfSkippedPM(loggedUserData.tm_no, loggedUserData.tm_name,
             mtd_hos_list.email, mtd_hod_list.email, prd_hos_list.email, prd_hod_list.email,
@@ -12955,15 +12953,28 @@ router.post('/approvedSkipMachinesBySectionAdmins', authenticate, async (req, re
         // console.log(skipApprovalStatusData)
         const loggedUserData = req.rootUser
 
-        console.log(selectedSectionOrSubSection)
+        // console.log(selectedSectionOrSubSection)
 
-        const refObjectForFindingAndUpdatingDocumentInDB = !selectedSectionOrSubSection?.dashboardLevel ? {
-            subSection_id: selectedSectionOrSubSection?._id
-        } : selectedSectionOrSubSection?.dashboardLevel === "No" ? {
-            subSection_id: selectedSectionOrSubSection?._id
-        } : {
-            section_id: selectedSectionOrSubSection?._id
-        }
+        const refObjectForFindingAndUpdatingDocumentInDB =
+            selectedSectionOrSubSection?.dashboardLevel === "Yes" ? {
+                section_id: selectedSectionOrSubSection?._id
+            } : {
+                subSection_id: selectedSectionOrSubSection?._id
+            }
+
+        // !selectedSectionOrSubSection?.dashboardLevel ? {
+        //     subSection_id: selectedSectionOrSubSection?._id
+        // } : selectedSectionOrSubSection?.dashboardLevel === "No" ? {
+        //     subSection_id: selectedSectionOrSubSection?._id
+        // } : {
+        //     section_id: selectedSectionOrSubSection?._id
+        // }
+
+
+
+
+        // console.log(refObjectForFindingAndUpdatingDocumentInDB)
+
 
         let updateStatusOfSkipPM
         if (request === "Yes") {
@@ -15637,16 +15648,16 @@ router.get('/downloadUploadedImage/:fileName', authenticate, async (req, res) =>
 router.post('/postEmailConfiguration', async (req, res) => {
     try {
         const { values } = req.body
-       // console.log(values)
- 
+        // console.log(values)
+
         let addEmailConf = await EmailConfigurations.findOne(
             {
                 emailConfID: "EmailConf1"
             }
         )
         let updateEmailConf, addNewEmailConf, result
-        if(addEmailConf){
-             updateEmailConf = await EmailConfigurations.updateOne(
+        if (addEmailConf) {
+            updateEmailConf = await EmailConfigurations.updateOne(
                 {
                     emailConfID: "EmailConf1"
                 },
@@ -15658,8 +15669,8 @@ router.post('/postEmailConfiguration', async (req, res) => {
                     }
                 }
             )
-        }else{
-             addNewEmailConf = await new EmailConfigurations(
+        } else {
+            addNewEmailConf = await new EmailConfigurations(
                 {
                     emailConfID: "EmailConf1",
                     serverIP: values.server_ip,

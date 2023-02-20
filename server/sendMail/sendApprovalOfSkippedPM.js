@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const EmailConfigurationController = require('../controller/emailConfigurationController')
 
-const sendApprovalOfSkippedPM = async (tm_no, tm_name, firstEmail, secondEmail, thirdEmail, fourthEmail,  approvalStatusOfMTDHOS, approvalStatusOfMTDHOD, approvalStatusOfPRDHOS,approvalStatusOfPRDHOD, rejected_remarks, reasonForDelayOfTL) => {
+const sendApprovalOfSkippedPM = async (tm_no, tm_name, firstEmail, secondEmail, thirdEmail, fourthEmail, approvalStatusOfMTDHOS, approvalStatusOfMTDHOD, approvalStatusOfPRDHOS, approvalStatusOfPRDHOD, rejected_remarks, reasonForDelayOfTL) => {
     // console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
     // console.log("==============>", prdtlApproval, mtdhosApproval)
     // console.log("==============>", request)
@@ -86,9 +86,9 @@ const sendApprovalOfSkippedPM = async (tm_no, tm_name, firstEmail, secondEmail, 
                                         <h4>PRD HOS Approval : </h4>${approvalStatusOfPRDHOS === "Accepted" ? "Accepted" : approvalStatusOfPRDHOS === "Rejected" ? "Rejected" : "Pending"}
                                         <h4>PRD HOD Approval : </h4>${approvalStatusOfPRDHOD === "Accepted" ? "Accepted" : approvalStatusOfPRDHOD === "Rejected" ? "Rejected" : "Pending"}
                 
-                                        <h4>If rejected then : </h4>${approvalStatusOfMTDHOS === "Accepted" || approvalStatusOfMTDHOD === "Accepted" || approvalStatusOfPRDHOS === "Accepted" 
-                                        || approvalStatusOfPRDHOD === "Accepted" ? "" : approvalStatusOfMTDHOS === "Rejected" || approvalStatusOfMTDHOD === "Rejected" 
-                                        || approvalStatusOfPRDHOS === "Rejected" || approvalStatusOfPRDHOD === "Rejected" ? `Rejected remarks is : ${rejected_remarks}` : ""}<br/>
+                                        <h4>If rejected then : </h4>${approvalStatusOfMTDHOS === "Accepted" || approvalStatusOfMTDHOD === "Accepted" || approvalStatusOfPRDHOS === "Accepted"
+                || approvalStatusOfPRDHOD === "Accepted" ? "" : approvalStatusOfMTDHOS === "Rejected" || approvalStatusOfMTDHOD === "Rejected"
+                    || approvalStatusOfPRDHOS === "Rejected" || approvalStatusOfPRDHOD === "Rejected" ? `Rejected remarks is : ${rejected_remarks}` : ""}<br/>
                                         
 
                                         </p>
