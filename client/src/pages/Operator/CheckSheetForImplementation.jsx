@@ -1197,13 +1197,21 @@ const CheckSheet = ({
                                     {colData.value[0] === "0" &&
                                     colData.key !== "tableRowId" &&
                                     colData.key !== "cycle" &&
-                                    colData.key !== "PM_time" ? (
+                                    colData.key !== "PM_time" && 
+                                    colData.key !== "inspection_parent_name" && 
+                                    colData.key !== "inspection_point" && 
+                                    colData.key !== "judgement_criteria" && 
+                                    colData.key !== "action" ? (
                                       ""
                                     ) : (colData.value[0] === "1" ||
                                         colData.value[0] === "2") &&
                                       colData.key !== "tableRowId" &&
                                       colData.key !== "cycle" &&
-                                      colData.key !== "PM_time" ? (
+                                      colData.key !== "PM_time" && 
+                                      colData.key !== "inspection_parent_name" && 
+                                      colData.key !== "inspection_point" && 
+                                      colData.key !== "judgement_criteria" && 
+                                      colData.key !== "action" ? (
                                       colData.value.length === 1 &&
                                       colData.key ===
                                         monthForCompareSystemMonth ? (

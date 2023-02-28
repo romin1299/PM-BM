@@ -80,7 +80,7 @@ const CurrentMonthStatusGraph = ({ TableData }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
 
 
-  console.log("----------",TableData)
+  // console.log("----------",TableData)
 
   const data = {
     labels: TableData?.map((item) => item.name),
@@ -92,14 +92,14 @@ const CurrentMonthStatusGraph = ({ TableData }) => {
         // borderColor: ["black"],
 
         backgroundColor: [
-          "#D4EDDA",
-          "#FFF3CD",
+          "#b2e476",
+          "#ffff59",
           "#FFFFFF",
           "#CCE5FF",
         ],
         borderColor: [
-          "#adec71",
-          "rgb(247, 208, 102)",
+          "#458d01",
+          "rgb(228, 224, 0)",
           "rgb(211, 223, 223)",
           "rgb(201, 203, 207)",
         ],

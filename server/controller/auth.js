@@ -2980,60 +2980,63 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         let updatePreviousMonth, carriedPMStatusExistsOrNot, currentMonthPMScheduleOrNot
         if (previousMonth != "Mar") {
             machineData?.map((key) => {
-                key?.checkSheet_data?.checkSheet?.map((key1) => {
-                    if (key1?.planningTableAnimationArray2) {
-                        if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
-                            key1.cycle === "1/1M"
-                        ) {
-                            updateOnesPerMonthStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
-                        }
+                if (key?.checkSheet_data?.checksheet_status === "Implementation") {
 
-                        if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "2" &&
-                            key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
-                            key1.cycle !== "1/1M") {
-                            updateOtherCyclesStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
-
-                        }
-
-                        if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "2" &&
-                            key1.cycle !== "1/1M") {
-                            if (key?.checkSheet_data?.carriedPMStatus != undefined) {
-                                carriedPMStatusExistsOrNot = 1
-                            } else {
-                                carriedPMStatusExistsOrNot = 0
+                    key?.checkSheet_data?.checkSheet?.map((key1) => {
+                        if (key1?.planningTableAnimationArray2) {
+                            if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
+                                key1.cycle === "1/1M"
+                            ) {
+                                updateOnesPerMonthStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
                             }
-                            updateStatusOfLastMonthPendingForCount(key.machine_code, key.checkSheet_data.current_year, carriedPMStatusExistsOrNot)
+
+                            if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "2" &&
+                                key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
+                                key1.cycle !== "1/1M") {
+                                updateOtherCyclesStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
+
+                            }
+
+                            if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "2" &&
+                                key1.cycle !== "1/1M") {
+                                if (key?.checkSheet_data?.carriedPMStatus != undefined) {
+                                    carriedPMStatusExistsOrNot = 1
+                                } else {
+                                    carriedPMStatusExistsOrNot = 0
+                                }
+                                updateStatusOfLastMonthPendingForCount(key.machine_code, key.checkSheet_data.current_year, carriedPMStatusExistsOrNot)
+                            }
+                            if ((key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
+                                key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
+                                key1.cycle !== "1/1M") &&
+                                (key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.[0] != "1" &&
+                                    key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.length < 2 &&
+                                    key1.cycle !== "1/1M")) {
+                                // console.log(key.machine_code, "next month 1 occure -----> ", key1.tableRowId)
+                                carryForwardOtherCycleData(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
+                                //add dummy key word 1,dummy
+                            }
+
+                            // if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "1" &&
+                            //     key1.cycle !== "1/1M") {
+                            //     console.log(key?.checkSheet_data?.currentMonthScheduleOrNotStatus)
+                            //     if (key?.checkSheet_data?.currentMonthScheduleOrNotStatus != undefined) {
+                            //         currentMonthPMScheduleOrNot = 1
+                            //     } else {
+                            //         currentMonthPMScheduleOrNot = 0
+                            //     }
+                            //     updateStatusOfCurrentMonthPMScheduleOrNot(key.machine_code, key.checkSheet_data.current_year, currentMonthPMScheduleOrNot)
+                            // }
                         }
-                        if ((key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
-                            key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
-                            key1.cycle !== "1/1M") &&
-                            (key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.[0] != "1" &&
-                                key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.length < 2 &&
-                                key1.cycle !== "1/1M")) {
-                            // console.log(key.machine_code, "next month 1 occure -----> ", key1.tableRowId)
-                            carryForwardOtherCycleData(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
-                            //add dummy key word 1,dummy
+
+
+                    })
+
+                    if (key?.checkSheet_data?.PMStatus) {
+                        // console.log(key?.checkSheet_data?.PMStatus)
+                        if (key?.checkSheet_data?.PMStatus[previousMonth] === "Current Plan") {
+                            updatePMStatusOfPreviousMonthForNoCompletion(key.machine_code, key.checkSheet_data.current_year)
                         }
-
-                        // if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "1" &&
-                        //     key1.cycle !== "1/1M") {
-                        //     console.log(key?.checkSheet_data?.currentMonthScheduleOrNotStatus)
-                        //     if (key?.checkSheet_data?.currentMonthScheduleOrNotStatus != undefined) {
-                        //         currentMonthPMScheduleOrNot = 1
-                        //     } else {
-                        //         currentMonthPMScheduleOrNot = 0
-                        //     }
-                        //     updateStatusOfCurrentMonthPMScheduleOrNot(key.machine_code, key.checkSheet_data.current_year, currentMonthPMScheduleOrNot)
-                        // }
-                    }
-
-
-                })
-
-                if (key?.checkSheet_data?.PMStatus) {
-                    // console.log(key?.checkSheet_data?.PMStatus)
-                    if (key?.checkSheet_data?.PMStatus[previousMonth] === "Current Plan") {
-                        updatePMStatusOfPreviousMonthForNoCompletion(key.machine_code, key.checkSheet_data.current_year)
                     }
                 }
 
@@ -3945,7 +3948,6 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
             </tr>   
             
           </table>`
-
 
 
             //send approval to TL/HOSS after his/her approval send request to HOS
@@ -6323,7 +6325,15 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
         }
         ])
 
-        let machinePopulateData = await Machine.populate(perticularMachine, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+        let machinePopulateData = await Machine.populate(perticularMachine, {
+            path: "line_names", populate: {
+                path: "cell_names",
+                populate:
+                {
+                    path: "subSection_names", model: "SubSections"
+                }
+            }
+        })
 
         // const perticularMachine = await Machine.findOne({ machine_code: machineId })
 
@@ -6357,36 +6367,66 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
         let keyOfCost = `checkSheet_data.$[outer].checkSheet.$[inner].spareDetails.${monthForCompareSystemMonth}.cost`
 
         //mail content for abnormality open with target date
+        const sectionInfo = await Section.findOne({ section_id: loggedUserData?.section_data?.split("-")?.[0] })
+        if (sectionInfo.dashboardLevel === "Yes") {
+            userInfo = await User.find({ section_data: `${sectionInfo?.section_id}-${sectionInfo?.section_name}` });
+            toEmailArray = userInfo?.map((result) => {
+                if (result.user_type === "TL/HOSS") {
+                    // return result
+                    return result?.email ? result?.email : undefined
+                }
+            })
 
-        userInfo = await User.find({ section_data: loggedUserData.section_data });
+            ccEmailArray = userInfo?.map((result) => {
+                if (
+                    (
+                        (result.tm_department === "PRD" || result.tm_department === "MTD")
+                        && result.user_type === "HOS"
+                    )
+                    ||
+                    (
+                        result.tm_department === "MTD" &&
+                        (result.user_type === "HOD")
+                    )
+
+                    // (result.tm_department === "PRD" || result.tm_department === "MTD")
+                    // && (result.user_type === "TL/HOSS" || result.user_type === "HOS" || result.user_type === "HOD")
+                ) {
+                    return result
+                    // return result?.email ? result?.email : undefined
+                }
+            })
+        } else {
+            userInfo = await User.find({ subSection_data: `${machinePopulateData[0]?.line_names?.cell_names?.subSection_names?.subSection_id}-${machinePopulateData[0]?.line_names?.cell_names?.subSection_names?.subSection_name}` });
+            toEmailArray = userInfo?.map((result) => {
+                if (result.user_type === "TL/HOSS") {
+                    // return result
+                    return result?.email ? result?.email : undefined
+                }
+            })
+
+            ccEmailArray = userInfo?.map((result) => {
+                if (
+                    (
+                        (result.tm_department === "PRD" || result.tm_department === "MTD")
+                        && result.user_type === "HOS"
+                    )
+                    ||
+                    (
+                        result.tm_department === "MTD" &&
+                        (result.user_type === "HOD")
+                    )
+
+                    // (result.tm_department === "PRD" || result.tm_department === "MTD")
+                    // && (result.user_type === "TL/HOSS" || result.user_type === "HOS" || result.user_type === "HOD")
+                ) {
+                    return result
+                    // return result?.email ? result?.email : undefined
+                }
+            })
+        }
 
 
-        toEmailArray = userInfo?.map((result) => {
-            if (result.user_type === "TL/HOSS") {
-                // return result
-                return result?.email ? result?.email : undefined
-            }
-        })
-
-        ccEmailArray = userInfo?.map((result) => {
-            if (
-                (
-                    (result.tm_department === "PRD" || result.tm_department === "MTD")
-                    && result.user_type === "HOS"
-                )
-                ||
-                (
-                    result.tm_department === "MTD" &&
-                    (result.user_type === "HOD")
-                )
-
-                // (result.tm_department === "PRD" || result.tm_department === "MTD")
-                // && (result.user_type === "TL/HOSS" || result.user_type === "HOS" || result.user_type === "HOD")
-            ) {
-                return result
-                // return result?.email ? result?.email : undefined
-            }
-        })
 
 
         subject = `Abnormality Opened (${machinePopulateData[0]?.line_names?.cell_names?.cell_name}/${machinePopulateData[0]?.line_names?.line_name}/${machinePopulateData[0]?.machine_code})`

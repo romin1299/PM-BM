@@ -39,9 +39,9 @@ class TableColumn extends Component {
           {
             " "
           } {
-            this.props.colData.value[0] === "0" && (this.props.colData.key !== "cycle" && this.props.colData.key !== "PM_time") ? (
+            this.props.colData.value[0] === "0" && (this.props.colData.key !== "cycle" && this.props.colData.key !== "PM_time" && this.props.colData.key !== "inspection_parent_name" && this.props.colData.key !== "inspection_point" && this.props.colData.key !== "judgement_criteria" && this.props.colData.key !== "action") ? (
               ""
-            ) : (this.props.colData.value[0] === "1" || this.props.colData.value[0] === "2") && (this.props.colData.key !== "cycle" && this.props.colData.key !== "PM_time") ? (
+            ) : (this.props.colData.value[0] === "1" || this.props.colData.value[0] === "2") && (this.props.colData.key !== "cycle" && this.props.colData.key !== "PM_time" && this.props.colData.key !== "inspection_parent_name" && this.props.colData.key !== "inspection_point" && this.props.colData.key !== "judgement_criteria" && this.props.colData.key !== "action") ? (
               this.props.colData.key === monthForCompareSystemMonth ? (<>
                 {
                   " "
@@ -90,13 +90,21 @@ class TableColumn extends Component {
         {this.props.colData.value[0] === "0" &&
           this.props.colData.key !== "tableRowId" &&
           this.props.colData.key !== "cycle" &&
-          this.props.colData.key !== "PM_time" ? (
+          this.props.colData.key !== "PM_time" && 
+          this.props.colData.key !== "inspection_parent_name" && 
+          this.props.colData.key !== "inspection_point" && 
+          this.props.colData.key !== "judgement_criteria" && 
+          this.props.colData.key !== "action" ? (
           ""
         ) : (this.props.colData.value[0] === "1" ||
           this.props.colData.value[0] === "2") &&
           this.props.colData.key !== "tableRowId" &&
           this.props.colData.key !== "cycle" &&
-          this.props.colData.key !== "PM_time" ? (
+          this.props.colData.key !== "PM_time"&& 
+          this.props.colData.key !== "inspection_parent_name" && 
+          this.props.colData.key !== "inspection_point" && 
+          this.props.colData.key !== "judgement_criteria" && 
+          this.props.colData.key !== "action"  ? (
           this.props.colData.value.length === 1 &&
             this.props.colData.key === monthForCompareSystemMonth ? (
             <>

@@ -126,7 +126,7 @@ const MainDashboard = () => {
   const postSectionToGetAllDataForMainDashboard = async (selectedSection) => {
     // setSubSection(undefined);
     try {
-      const res = await fetch("/postSectionToGetAllDataForMainDashboard", {
+      const res = await fetch("/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
