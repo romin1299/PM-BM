@@ -13,7 +13,7 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey, machineId }) {
   const [workedData, setWorkedData] = useState([]);
   const [userPhoto, setUserPhoto] = useState([]);
 
-  console.log("+++++++++++++++++++++++++", selectedRow);
+  // console.log("+++++++++++++++++++++++++", selectedRow);
 
   const [supportingTMList, setSupportingTMList] = useState([]);
   const [selectedSupportedTM, setSelectedSupportedTM] = useState([]);
@@ -476,7 +476,7 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey, machineId }) {
                       <input
                         type="text"
                         className="col-6"
-                        value={selectedRow.tableRowId}
+                        value={selectedRow?.tableData?.id + 1}
                         // onChange={formik.handleChange}
                       />
                     </div>

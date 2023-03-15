@@ -78,7 +78,7 @@ const CheckSheetDashboard = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        console.log(data?.machineLastData);
+        // console.log(data?.machineLastData);
         setAllDataSectionWise(data);
         setLineData(data.lineData);
 

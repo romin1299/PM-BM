@@ -519,7 +519,7 @@ function CheckSheetForm() {
         },
         body: JSON.stringify({
           phaseStatus,
-          prd_tl_list: values.prd_tl_list,
+          prd_tl_list: PRDTLlist[values.prd_tl_list],
           selected_machine_data:
             selectedMachineCheckSheetData.state.selectedRowForViewForm,
           planning_TL_date: timeStamp(),
@@ -552,8 +552,8 @@ function CheckSheetForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           request: values.request,
-          tl_list: values.tl_list,
-          hos_list: values.hos_list,
+          tl_list:  TLList[values.tl_list],
+          hos_list: HOSList[values.hos_list],
           selected_machine_data:
             selectedMachineCheckSheetData.state.selectedRowForViewForm,
           preparation_TL_date: timeStamp(),
@@ -885,9 +885,9 @@ function CheckSheetForm() {
                                 <option selected disabled value="">
                                   Please select
                                 </option>
-                                {HOSList.map((index) => {
+                                {HOSList.map((index, idx) => {
                                   return (
-                                    <option value={index.email}>
+                                    <option value={idx}>
                                       {index.tm_name}
                                     </option>
                                   );
@@ -934,9 +934,9 @@ function CheckSheetForm() {
                                     <option selected disabled value="">
                                       Please select
                                     </option>
-                                    {TLList.map((index) => {
+                                    {TLList.map((index, idx) => {
                                       return (
-                                        <option value={index.email}>
+                                        <option value={idx}>
                                           {index.tm_name}
                                         </option>
                                       );
@@ -1056,9 +1056,9 @@ function CheckSheetForm() {
                                 <option selected disabled value="">
                                   Please select
                                 </option>
-                                {HOSList.map((index) => {
+                                {HOSList.map((index, idx) => {
                                   return (
-                                    <option value={index.email}>
+                                    <option value={idx}>
                                       {index.tm_name}
                                     </option>
                                   );
@@ -1105,9 +1105,9 @@ function CheckSheetForm() {
                                     <option selected disabled value="">
                                       Please select
                                     </option>
-                                    {TLList.map((index) => {
+                                    {TLList.map((index, idx) => {
                                       return (
-                                        <option value={index.email}>
+                                        <option value={idx}>
                                           {index.tm_name}
                                         </option>
                                       );
@@ -1241,9 +1241,9 @@ function CheckSheetForm() {
                                 <option selected disabled value="">
                                   Please select
                                 </option>
-                                {HOSList.map((index) => {
+                                {HOSList.map((index, idx) => {
                                   return (
-                                    <option value={index.email}>
+                                    <option value={idx}>
                                       {index.tm_name}
                                     </option>
                                   );
@@ -1290,9 +1290,9 @@ function CheckSheetForm() {
                                     <option selected disabled value="">
                                       Please select
                                     </option>
-                                    {TLList.map((index) => {
+                                    {TLList.map((index, idx) => {
                                       return (
-                                        <option value={index.email}>
+                                        <option value={idx}>
                                           {index.tm_name}
                                         </option>
                                       );
@@ -1414,9 +1414,9 @@ function CheckSheetForm() {
                                 <option selected disabled value="">
                                   Please select
                                 </option>
-                                {HOSList.map((index) => {
+                                {HOSList.map((index, idx) => {
                                   return (
-                                    <option value={index.email}>
+                                    <option value={idx}>
                                       {index.tm_name}
                                     </option>
                                   );
@@ -1463,9 +1463,9 @@ function CheckSheetForm() {
                                     <option selected disabled value="">
                                       Please select
                                     </option>
-                                    {TLList.map((index) => {
+                                    {TLList.map((index, idx) => {
                                       return (
-                                        <option value={index.email}>
+                                        <option value={idx}>
                                           {index.tm_name}
                                         </option>
                                       );
@@ -1545,7 +1545,7 @@ function CheckSheetForm() {
                               value={formik1.values.prd_tl_list}
                               onChange={(e) => {
                                 // setUsertype(e.target.value);
-                                console.log(e.target.value);
+                                // console.log(e.target.value);
                                 formik1.handleChange(e);
                               }}
                               variant="standard"
@@ -1553,9 +1553,9 @@ function CheckSheetForm() {
                               <option selected disabled value="">
                                 Please select
                               </option>
-                              {PRDTLlist.map((index) => {
+                              {PRDTLlist.map((index, idx) => {
                                 return (
-                                  <option value={index.email}>
+                                  <option value={idx}>
                                     {index.tm_name}
                                   </option>
                                 );
@@ -1994,7 +1994,7 @@ function CheckSheetForm() {
                               <option selected disabled value="">
                                 Please select
                               </option>
-                              {PRDTLlist.map((index) => {
+                              {PRDTLlist.map((index, idx) => {
                                 return (
                                   <option value={index.email}>
                                     {index.tm_name}

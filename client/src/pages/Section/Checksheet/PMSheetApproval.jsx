@@ -6,7 +6,8 @@ import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../../Reports/ReportComponents/NotFound";
 import Footer from "../../../components/Footer/Footer";
 import { Row, Col } from "react-bootstrap";
-
+import { postLineToGetAllMachineData } from "../../../Integration/APIExports";
+import currentYear from "../../Dashboard/DashboardComponent/currentYear";
 // import "./tableColor.scss"
 
 function PMSheetApproval() {
@@ -22,6 +23,14 @@ function PMSheetApproval() {
     useState(0);
 
   const [tableData, setTableData] = useState([]);
+
+  const [allLineData, setAllLineData] = useState([]);
+  
+  const [selectedLine, setSelectedLine] = useState();
+  const [selectedMachine, setSelectedMachine] = useState();
+  const [allMachineDataBasedOnLine, setAllMachineDataBasedOnLine] = useState(
+    []
+  );
 
   let columns = [
     {
@@ -89,6 +98,7 @@ function PMSheetApproval() {
       } else {
         // console.log(data);
         setTableData(data.machineDataOfPrepAndPlanApproval);
+        setAllLineData(data?.lineData)
         setStateForAnimationAndNotFound(<NotFound />);
       }
     } catch (error) {
@@ -214,7 +224,114 @@ function PMSheetApproval() {
           </Col>
         </Row>
       ) : (
-        ""
+        <Row className="p-2 mt-3">
+          <Col sm={12} md={4} lg={4} className="mb-2">
+            <span>
+              <b>Line:</b>
+            </span> &nbsp;
+            <select
+              // class="form-select form-select-sm"
+              // aria-label=".form-select-sm example"
+              style={{ borderRadius: "5px" }}
+              // id="standard-select-currency"
+              id="outlined-number"
+              name="selectedLine"
+              className="textField w-50"
+              fullWidth
+              select // label="Select"
+              autoComplete="off"
+              value={selectedLine}
+              onChange={async (e) => {
+                setSelectedMachine("");
+                setSelectedLine(e.target.value);
+                postLineToGetAllMachineData(e.target.value, currentYear).then(
+                  (result) => setAllMachineDataBasedOnLine(result?.machineInfo)
+                );
+              }}
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {allLineData?.map((option) => {
+                return <option value={option?._id}>{option?.line_name}</option>;
+              })}
+            </select>
+            {/* <div>
+              <p
+                style={{
+                  color: "#F44336",
+                  fontWeight: "normal",
+                  fontSize: "0.80rem",
+                  float: "left",
+                  paddingTop: "0.5rem",
+                }}
+              >
+                {formik.touched.selectedLine && formik.errors.selectedLine}
+              </p>
+            </div> */}
+          </Col>
+
+          <Col sm={12} md={4} lg={4} className="mb-2">
+            <span>
+              <b>Machine:</b>
+            </span> &nbsp;
+            <select
+              // class="form-select form-select-sm"
+              // aria-label=".form-select-sm example"
+              style={{ borderRadius: "5px" }}
+              // id="standard-select-currency"
+              id="outlined-number"
+              name="selectedMachine"
+              className="textField w-50"
+              fullWidth
+              select // label="Select"
+              autoComplete="off"
+              value={
+                // allMachineDataBasedOnLine?.[selectedMachine]?.machine_name || ""
+                selectedMachine
+              }
+              onChange={(e) => {
+                setSelectedMachine(e.target.value);
+              }}
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {allMachineDataBasedOnLine?.map((option, index) => {
+                return (
+                  <option value={option?.machine_code}>{option?.machine_name}</option>
+                );
+              })}
+            </select>
+            {/* <div>
+              <p
+                style={{
+                  color: "#F44336",
+                  fontWeight: "normal",
+                  fontSize: "0.80rem",
+                  float: "left",
+                  paddingTop: "0.5rem",
+                }}
+              >
+                {formik.touched.selectedMachine &&
+                  formik.errors.selectedMachine}
+              </p>
+            </div> */}
+          </Col>
+
+          <Col sm={12} md={4} lg={4} className="mb-2">
+            <button
+              class="btn-primary1 w-25"
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              Reset
+            </button>
+          </Col>
+        </Row>
       )}
       {tableData?.length > 0 ? (
         <div className="container-fluid" style={{ overflow: "auto" }}>
@@ -255,6 +372,13 @@ function PMSheetApproval() {
             </thead>
             <tbody>
               {tableData?.map((index) => (
+                (selectedLine
+                  ? index?.line_names._id === selectedLine
+                  : true) &&
+                (selectedMachine
+                  ? index?.machine_code === selectedMachine
+                  : true) ?
+
                 <tr className="ar-table-thead-header4 tableRowColor">
                   <td className="td-padding">{index.line_names.line_name}</td>
                   <td className="td-padding">{index.machine_code}</td>
@@ -331,6 +455,7 @@ function PMSheetApproval() {
                     )}
                   </td>
                 </tr>
+                : ""
               ))}
             </tbody>
           </table>

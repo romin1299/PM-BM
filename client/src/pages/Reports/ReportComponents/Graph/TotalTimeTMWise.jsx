@@ -243,6 +243,7 @@ const TotalTimeTMWise = ({ context, selectedSectionOrSubSection }) => {
     supportingOperatorListForReportDashboard();
   }, []);
 
+
   useEffect(() => {
     postSectionToGetAllDataForTotalTimeManHoursMonthWise(
       selectedSectionOrSubSection || context?.section_data

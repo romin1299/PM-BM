@@ -186,6 +186,49 @@ const CreationDashboardForTLHOSS = () => {
       width: "5%",
     },
     {
+      title: "Proceed for PM ?",
+      field: "isPM",
+      align: "center",
+      width: "5%",
+      editComponent: ({ value, onChange }) => (
+        <>
+          <input
+            type="radio"
+            name="isPM"
+            id="outlined-number"
+            value="Yes"
+            onChange={(e) => onChange(e.target.value)}
+          />
+          <span
+            style={{
+              paddingLeft: "0.5rem",
+              fontWeight: "550",
+              color: "black",
+            }}
+          >
+            Yes
+          </span>
+          <br />
+          <input
+            type="radio"
+            name="isPM"
+            id="outlined-number"
+            value="No"
+            onChange={(e) => onChange(e.target.value)}
+          />
+          <span
+            style={{
+              paddingLeft: "0.5rem",
+              fontWeight: "550",
+              color: "black",
+            }}
+          >
+            No
+          </span>
+        </>
+      ),
+    },
+    {
       title: "Installation Date",
       field: "installation_date",
       // editable: "false",
@@ -245,6 +288,10 @@ const CreationDashboardForTLHOSS = () => {
       key: "machine_sequence",
     },
     {
+      label: "Proceed for PM ?",
+      key: "isPM",
+    },
+    {
       label: "Installation Date",
       key: "installation_date",
     },
@@ -265,17 +312,18 @@ const CreationDashboardForTLHOSS = () => {
   const downloadPDFOfMachineData = () => {
     const doc = new jsPDF();
     let rows = [];
-    lineList?.lineInfo?.map((item, idx) => {
+    machine?.map((item, idx) => {
       let rowArrayOfTable = [
         ++idx,
         item.machine_code,
         item.machine_name,
         item.machine_nickname,
         item.machine_sequence,
+        item.isPM,
         item.installation_date,
         item.manufacturingDate,
         item.maker_name,
-        item.maker_sr_no
+        item.maker_sr_no,
       ];
       rows.push(rowArrayOfTable);
     });

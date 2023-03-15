@@ -157,9 +157,10 @@ function OperatorDataEntry() {
           <div>
             <form onSubmit={formik.handleSubmit}>
               <Container>
-                <Row className="pt-3">
+                <Row className="pt-3 gy-2">
                   <Col sm={6} md={12} lg={6}>
-                    <div>Select:</div>
+                    <span>Select:</span>
+                    &nbsp; &nbsp;
                     <select
                       // class="form-select form-select-sm"
                       // aria-label=".form-select-sm example"
@@ -167,7 +168,7 @@ function OperatorDataEntry() {
                       // id="standard-select-currency"
                       id="outlined-number"
                       name="selectedType"
-                      className="textField mt-1"
+                      className="textField mt-1 w-50"
                       fullWidth
                       select // label="Select"
                       autoComplete="off"
@@ -198,11 +199,13 @@ function OperatorDataEntry() {
                     </div>
                   </Col>
                   <Col sm={6} md={12} lg={6}>
-                    <div>Date:</div>
+                    <span>Date:</span>
+                    &nbsp; &nbsp;
+                    &nbsp;
                     <TextField
                       id="outlined-number"
                       name="date"
-                      className="textField"
+                      className="textField w-50"
                       value={formik.values.date}
                       onChange={formik.handleChange}
                       autoComplete="off"
@@ -230,9 +233,10 @@ function OperatorDataEntry() {
                   </Col>
                 </Row>
 
-                <Row>
-                  <Col sm={6}  md={12} lg={6}>
-                    <div>Line:</div>
+                <Row className="gy-2">
+                  <Col sm={6} md={12} lg={6}>
+                    <span>Line:</span>
+                    &nbsp; &nbsp;
                     <select
                       // class="form-select form-select-sm"
                       // aria-label=".form-select-sm example"
@@ -240,7 +244,7 @@ function OperatorDataEntry() {
                       // id="standard-select-currency"
                       id="outlined-number"
                       name="selectedLine"
-                      className="textField mt-1"
+                      className="textField mt-1 w-50"
                       fullWidth
                       select // label="Select"
                       autoComplete="off"
@@ -279,10 +283,11 @@ function OperatorDataEntry() {
                   </Col>
 
                   <Col>
-                    <div>Used By:</div>
+                    <span>Used By:</span>
+                    &nbsp; &nbsp;
                     <TextField
                       id="outlined-number"
-                      className="textField"
+                      className="textField w-50 mb-2"
                       value={context?.tm_name}
                       autoComplete="off"
                       // label="Number"
@@ -294,17 +299,18 @@ function OperatorDataEntry() {
                   </Col>
                 </Row>
 
-                <Row>
-                  <Col sm={6} sm={6} md={12} lg={6}>
-                    <div>Machine:</div>
+                <Row className="gy-2">
+                  <Col sm={6}  md={12} lg={6}>
+                    <span>Machine:</span>
+                    &nbsp; &nbsp;
                     <select
                       // class="form-select form-select-sm"
                       // aria-label=".form-select-sm example"
                       style={{ borderRadius: "5px" }}
                       // id="standard-select-currency"
-                      id="outlined-number"
+                      id="forSize"
                       name="selectedMachine"
-                      className="textField mt-1"
+                      className="textField mt-1 w-50"
                       fullWidth
                       select // label="Select"
                       autoComplete="off"
@@ -339,11 +345,12 @@ function OperatorDataEntry() {
                     </div>
                   </Col>
                   <Col>
-                    <div>Machine No:</div>
+                    <span>Machine No:</span>
+                    &nbsp; &nbsp;
                     <TextField
                       id="outlined-number"
                       name="machine_no"
-                      className="textField"
+                      className="textField w-50"
                       value={
                         allMachineDataBasedOnLine?.[
                           formik?.values?.selectedMachine
@@ -380,13 +387,14 @@ function OperatorDataEntry() {
                   </Col>
                 </Row>
 
-                <Row>
-                  <Col sm={6} sm={6} md={12} lg={6}>
-                    <div>Part Name:</div>
+                <Row className="gy-2">
+                  <Col sm={6} md={12} lg={6}>
+                    <span>Part Name:</span>
+                    &nbsp; &nbsp;
                     <TextField
                       id="outlined-number"
                       name="part_name"
-                      className="textField"
+                      className="textField w-50"
                       value={formik.values.part_name}
                       onChange={formik.handleChange}
                       autoComplete="off"
@@ -418,11 +426,12 @@ function OperatorDataEntry() {
                     </div>
                   </Col>
                   <Col>
-                    <div>Part No:</div>
+                    <span>Part No:</span>
+                    &nbsp; &nbsp;
                     <TextField
                       id="outlined-number"
                       name="part_no"
-                      className="textField"
+                      className="textField w-50"
                       value={formik.values.part_no}
                       onChange={formik.handleChange}
                       autoComplete="off"
@@ -455,13 +464,14 @@ function OperatorDataEntry() {
                   </Col>
                 </Row>
 
-                <Row>
-                  <Col sm={6} sm={6} md={12} lg={6}>
-                    <div>Cost(INR):</div>
+                <Row className="gy-2">
+                  <Col sm={6} md={12} lg={6}>
+                    <span>Cost(INR):</span>
+                    &nbsp; &nbsp;
                     <TextField
                       id="outlined-number"
                       name="cost"
-                      className="textField"
+                      className="textField w-50"
                       value={formik.values.cost}
                       onChange={formik.handleChange}
                       autoComplete="off"
@@ -494,13 +504,14 @@ function OperatorDataEntry() {
                   </Col>
                 </Row>
 
-                <Row>
-                  <Col sm={6} sm={6} md={12} lg={6}>
-                    <div>Abnormality Remarks:</div>
+                <Row className="gy-2">
+                  <Col sm={6} md={12} lg={6} className="d-flex align-items-center">
+                    <span>Abnormality <br /> Remarks:</span>
+                    &nbsp; &nbsp;
                     <TextareaAutosize
                       id="outlined-number"
                       name="abnormalityRemarks"
-                      className="textField"
+                      className="textField w-50"
                       value={formik.values.abnormalityRemarks}
                       onChange={formik.handleChange}
                       autoComplete="off"
@@ -526,12 +537,13 @@ function OperatorDataEntry() {
                       </p>
                     </div>
                   </Col>
-                  <Col>
-                    <div>Spare Purpose:</div>
+                  <Col sm={6} md={12} lg={6} className="d-flex align-items-center">
+                    <span>Spare <br /> Purpose:</span>
+                    &nbsp; &nbsp;
                     <TextareaAutosize
                       id="outlined-number"
                       name="sparePurpose"
-                      className="textField"
+                      className="textField w-50"
                       value={formik.values.sparePurpose}
                       onChange={formik.handleChange}
                       autoComplete="off"
@@ -570,11 +582,11 @@ function OperatorDataEntry() {
             </form>
           </div>
         </Container>
-      <br />
-      <br />
-      <br />
+        <br />
+        <br />
+        <br />
 
-        <Footer/>
+        <Footer />
       </div>
     </>
   );

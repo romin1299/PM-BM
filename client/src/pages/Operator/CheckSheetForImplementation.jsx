@@ -594,7 +594,7 @@ const CheckSheet = ({
     // console.log(myProps);
     setNewTableData(myProps);
   };
-
+console.log(newTableData)
   const close = () => {
     setWorkOnImplementationPM("");
     setStateForOpeningSummeryPopups("");
@@ -1230,7 +1230,7 @@ const CheckSheet = ({
                                                   machineId={
                                                     machineAllData.machine_code
                                                   }
-                                                  tableRowId={rData[0].value}
+                                                  tableRowId={rData[1].value}
                                                   yearOfCheckSheet={
                                                     machineData?.checkSheet_data
                                                       .current_year

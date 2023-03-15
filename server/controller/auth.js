@@ -1675,6 +1675,7 @@ router.post('/updateMachine', authenticate, async (req, res) => {
             machine_name,
             machine_nickname,
             machine_sequence,
+            isPM,
             manufacturingDate,
             installation_date,
             maker_name,
@@ -1698,6 +1699,7 @@ router.post('/updateMachine', authenticate, async (req, res) => {
                 machine_name,
                 machine_nickname,
                 machine_sequence,
+                isPM,
                 installation_date,
                 manufacturingDate,
                 maker_name,
@@ -2053,7 +2055,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
             machineLastData = await Machine.aggregate([{
                 $match: {
                     line_names: { $in: lineIdArray },
-
+                    isPM: "Yes"
                 }
             },
             {
@@ -2830,6 +2832,7 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         let machineData = await Machine.aggregate([{
             $match: {
                 line_names: { $in: lineIdArray },
+                isPM: "Yes"
             }
         },
         {
@@ -2855,7 +2858,7 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         },
         {
             $match: {
-                $or: selectedYearOfCheckSheet
+                $or: selectedYearOfCheckSheet,
             }
         },
         {
@@ -3666,7 +3669,7 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
 
             TLlist = await User.find({ section_data: loggedUserData.section_data, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no } }, { tm_name: 1, email: 1, _id: 0 })
 
-            HOSlist = await User.find({ section_data: loggedUserData.section_data, tm_grade: "HOS", tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
+            HOSlist = await User.find({ section_data: loggedUserData.section_data, tm_grade: "HOS", tm_department: "MTD" })
 
             PRDHOSlist = await User.find({ section_data: loggedUserData.section_data, tm_grade: "HOS", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
@@ -3674,13 +3677,13 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
 
             PRDHODlist = await User.find({ plant_data: loggedUserData.plant_data, user_type: "Plant-Admin", tm_grade: "HOD", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
-            PRDTLlist = await User.find({ section_data: loggedUserData.section_data, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
+            PRDTLlist = await User.find({ section_data: loggedUserData.section_data, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" })
 
             supportingOperatorList = await User.find({ section_data: loggedUserData.section_data, user_type: "Operator", tm_no: { $ne: loggedUserData.tm_no } })
 
             supportingOperatorListForReportDashboard = await User.find({ section_data: loggedUserData.section_data, user_type: "Operator" })
 
-            MTDTLlist = await User.find({ section_data: loggedUserData.section_data, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
+            MTDTLlist = await User.find({ section_data: loggedUserData.section_data, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "MTD" })
 
             MTDTLandOperatorList = await User.find({
                 $or: [
@@ -3699,7 +3702,7 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
 
             TLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no } }, { tm_name: 1, email: 1, _id: 0 })
 
-            HOSlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_grade: "HOS", tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
+            HOSlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_grade: "HOS", tm_department: "MTD" })
 
             PRDHOSlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_grade: "HOS", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
@@ -3707,13 +3710,13 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
 
             // PRDHODlist = await User.find({ plant_data: loggedUserData.plant_data, user_type: "Plant-Admin", tm_grade: "HOD", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
-            PRDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
+            PRDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" })
 
             supportingOperatorList = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "Operator", tm_no: { $ne: loggedUserData.tm_no } }, { tm_name: 1, _id: 0 })
 
             supportingOperatorListForReportDashboard = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "Operator", }, { tm_name: 1, _id: 0 })
 
-            MTDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
+            MTDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "MTD" })
 
             MTDTLandOperatorList = await User.find({
                 $or: [
@@ -3724,18 +3727,18 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
 
             HOSlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_grade: "HOS", tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
 
-            PRDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
+            // PRDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
-            supportingOperatorList = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "Operator", tm_department: "MTD", tm_no: { $ne: loggedUserData.tm_no } })
+            // supportingOperatorList = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "Operator", tm_department: "MTD", tm_no: { $ne: loggedUserData.tm_no } })
 
-            MTDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
+            // MTDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
 
-            MTDTLandOperatorList = await User.find({
-                $or: [
-                    { section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "MTD" },
-                    { section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "Operator", tm_department: "MTD", tm_no: { $ne: loggedUserData.tm_no } }
-                ]
-            }, { tm_name: 1, _id: 0 })
+            // MTDTLandOperatorList = await User.find({
+            //     $or: [
+            //         { section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "MTD" },
+            //         { section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "Operator", tm_department: "MTD", tm_no: { $ne: loggedUserData.tm_no } }
+            //     ]
+            // }, { tm_name: 1, _id: 0 })
 
             allUser = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_no: { $ne: loggedUserData.tm_no } },)
 
@@ -3835,7 +3838,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
             mtd_hod_list
         } = req.body
         // console.log(prd_tl_list, monthForCompareSystemMonth, selected_machine_data)
-        // console.log(tl_list, hos_list)
+        // console.log("tl --->", tl_list, "hos ===> ", hos_list, "prd ----> ", prd_tl_list)
         let keyOfImplementation_assign_PRD_TL = `checkSheet_data.$[outer].implementation_assign_PRD_TL.${monthForCompareSystemMonth}`;
         let keyOfImplementation_assign_MTD_TL = `checkSheet_data.$[outer].implementation_assign_MTD_TL.${monthForCompareSystemMonth}`;
         let keyOfImplementation_assign_MTD_HOS = `checkSheet_data.$[outer].implementation_assign_MTD_HOS.${monthForCompareSystemMonth}`;
@@ -3888,10 +3891,10 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
         const sectionInfo = await Section.findOne({ section_id: loggedUserData?.section_data?.split("-")?.[0] })
 
 
-        if (request === "Yes" && tl_list != "") {
+        if (request === "Yes" && tl_list.email != "") {
             //for grreting of the mail
-            const findAssignTlName = await User.findOne({ email: tl_list })
-            const findAssignHosName = await User.findOne({ email: hos_list })
+            const findAssignTlName = await User.findOne({ tm_no: tl_list.tm_no, email: tl_list.email })
+            const findAssignHosName = await User.findOne({ tm_no: hos_list.tm_no, email: hos_list.email })
 
             const updateChecksheetStatus = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                 $set: {
@@ -3903,9 +3906,9 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                 $push: {
                     "checkSheet_data.$[outer].tl_approval_status": "Pending",
                     "checkSheet_data.$[outer].hos_approval_status": "Pending",
-                    "checkSheet_data.$[outer].assign_TL": tl_list,
+                    "checkSheet_data.$[outer].assign_TL": tl_list.email,
                     "checkSheet_data.$[outer].assign_TL_name": findAssignTlName.tm_name,
-                    "checkSheet_data.$[outer].assign_HOS": hos_list,
+                    "checkSheet_data.$[outer].assign_HOS": hos_list.email,
                     "checkSheet_data.$[outer].assign_HOS_name": findAssignHosName.tm_name,
                     "checkSheet_data.$[outer].sender_tm_no": loggedUserData.tm_no,
                     "checkSheet_data.$[outer].sender_tm_name": loggedUserData.tm_name,
@@ -3951,10 +3954,10 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval to TL/HOSS after his/her approval send request to HOS
-            sendApproval(subject, title, greetings, bodyTable, undefined, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, tl_list, hos_list, undefined, undefined, request)
-        } else if (prd_tl_list && phaseStatus === "Planning") {
+            sendApproval(subject, title, greetings, bodyTable, undefined, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, tl_list.email, hos_list.email, undefined, undefined, request)
+        } else if (prd_tl_list?.email && phaseStatus === "Planning") {
             //for grreting of the mail
-            const findAssignTlName = await User.findOne({ email: prd_tl_list })
+            const findAssignTlName = await User.findOne({ tm_no: prd_tl_list.tm_no, email: prd_tl_list.email })
 
 
             if (sectionInfo?.dashboardLevel === "Yes") {
@@ -3977,7 +3980,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
                     "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false
                 },
-                $push: { "checkSheet_data.$[outer].prd_tl_approval_status": "Pending", "checkSheet_data.$[outer].assign_PRD_TL": prd_tl_list, "checkSheet_data.$[outer].assign_PRD_TL_name": findAssignTlName.tm_name, "checkSheet_data.$[outer].plan_prepared_tm_no": loggedUserData.tm_no, "checkSheet_data.$[outer].plan_prepared_tm_name": loggedUserData.tm_name, "checkSheet_data.$[outer].plan_prepared_email": loggedUserData.email, "checkSheet_data.$[outer].planning_TL_date": planning_TL_date }
+                $push: { "checkSheet_data.$[outer].prd_tl_approval_status": "Pending", "checkSheet_data.$[outer].assign_PRD_TL": prd_tl_list.email, "checkSheet_data.$[outer].assign_PRD_TL_name": findAssignTlName.tm_name, "checkSheet_data.$[outer].plan_prepared_tm_no": loggedUserData.tm_no, "checkSheet_data.$[outer].plan_prepared_tm_name": loggedUserData.tm_name, "checkSheet_data.$[outer].plan_prepared_email": loggedUserData.email, "checkSheet_data.$[outer].planning_TL_date": planning_TL_date }
             }, {
                 arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
             })
@@ -4018,7 +4021,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval to TL/HOSS after his/her approval send request to HOS
-            sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list, undefined, undefined, undefined, undefined)
+            sendApproval(subject, title, greetings, bodyTable, ccMail, findAssignTlName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, selected_machine_data.checksheet_status, prd_tl_list.email, undefined, undefined, undefined, undefined)
         } else if (prd_tl_list?.email && mtd_tl_list?.email && mtd_hos_list?.email && phaseStatus === "Implementation") {
 
 
@@ -4066,7 +4069,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
             let ccMail = [mtd_tl_list.email, mtd_hos_list.email]
             // for grreting of the mail
-            const findAssignTlName = await User.findOne({ email: prd_tl_list.email })
+            const findAssignTlName = await User.findOne({ tm_no: prd_tl_list.tm_no, email: prd_tl_list.email })
 
             subject = `Checksheet Approval Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
             title = `Kindly Approve after Quality Check`
@@ -4156,7 +4159,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
         }
         else {
             //for grreting of the mail
-            const findAssignHosName = await User.findOne({ email: hos_list })
+            const findAssignHosName = await User.findOne({ tm_no: hos_list.tm_no, email: hos_list.email })
 
             const updateChecksheetStatus = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                 $set: {
@@ -4167,7 +4170,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                 },
                 $push: {
                     "checkSheet_data.$[outer].hos_approval_status": "Pending",
-                    "checkSheet_data.$[outer].assign_HOS": hos_list,
+                    "checkSheet_data.$[outer].assign_HOS": hos_list.email,
                     "checkSheet_data.$[outer].assign_HOS_name": findAssignHosName.tm_name,
                     "checkSheet_data.$[outer].sender_tm_no": loggedUserData.tm_no,
                     "checkSheet_data.$[outer].sender_tm_name": loggedUserData.tm_name,
@@ -4219,7 +4222,7 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
 
             //send approval direct MTD HOS
-            sendApproval(subject, title, greetings, bodyTable, undefined, findAssignHosName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, hos_list, undefined, undefined, undefined, undefined, request)
+            sendApproval(subject, title, greetings, bodyTable, undefined, findAssignHosName.tm_name, loggedUserData.tm_no, loggedUserData.tm_name, selected_machine_data.machine_code, selected_machine_data.machine_name, checksheet_status, hos_list.email, undefined, undefined, undefined, undefined, request)
         }
         return res.status(201).json("approval request send successfully!!!");
         //  console.log(req.body)
@@ -8468,88 +8471,92 @@ router.post('/postLineToGetMachineListForReportDashboard', authenticate, async (
         const ObjectId = mongoose.Types.ObjectId;
         // console.log(ObjectId(line))
 
-        if (req?.rootUser?.user_type === "Operator") {
+        // if (req?.rootUser?.user_type === "Operator") {
 
-            machineInfo = await Machine.aggregate([{
-                $match: {
-                    line_names: ObjectId(line),
-                }
-            },
-            {
-                $unwind: "$checkSheet_data"
-            },
-            {
-                $match: {
-                    "checkSheet_data.current_year": selectedYear
-                }
-            },
-            // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
-            {
-                $match: {
-                    $and: [{
-                        "checkSheet_data.checksheet_status": "Implementation"
-                    },
-                    {
-                        "checkSheet_data.checksheet_status": { $ne: "" }
-                    }
-                    ]
+        //     machineInfo = await Machine.aggregate([{
+        //         $match: {
+        //             line_names: ObjectId(line),
+        //         }
+        //     },
+        //     // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
 
-                }
-            },
-            {
-                $project: {
-                    machine_code: 1,
-                    machine_name: 1,
-                    machine_nickname: 1,
-                    machine_sequence: 1,
-                    installation_date: 1,
-                    maker_name: 1,
-                    maker_sr_no: 1,
-                    manufacturingDate: 1,
-                    isPM: 1,
-                    line_names: 1,
-                    checkSheet_data: 1
-                }
-            },
-            ])
+        //     {
+        //         $project: {
+        //             machine_code: 1,
+        //             machine_name: 1,
+        //             machine_nickname: 1,
+        //             machine_sequence: 1,
+        //             installation_date: 1,
+        //             maker_name: 1,
+        //             maker_sr_no: 1,
+        //             manufacturingDate: 1,
+        //             isPM: 1,
+        //             line_names: 1,
+        //             checkSheet_data: 1
+        //         }
+        //     },
 
-        } else {
+        //     {
+        //         $unwind: {
+        //             path: "$checkSheet_data",
+        //             preserveNullAndEmptyArrays: true
+        //         }
+        //     },
+        //     {
+        //         $match: {
+        //             $or: selectedYearOfCheckSheet
+        //         }
+        //     },
+        //         // {
+        //         //     $match: {
+        //         //         $and: [{
+        //         //             "checkSheet_data.checksheet_status": "Implementation"
+        //         //         },
+        //         //         {
+        //         //             "checkSheet_data.checksheet_status": { $ne: "" }
+        //         //         }
+        //         //         ]
 
-            machineInfo = await Machine.aggregate([{
-                $match: {
-                    line_names: ObjectId(line),
-                }
-            },
-            {
-                $project: {
-                    machine_code: 1,
-                    machine_name: 1,
-                    machine_nickname: 1,
-                    machine_sequence: 1,
-                    installation_date: 1,
-                    maker_name: 1,
-                    maker_sr_no: 1,
-                    manufacturingDate: 1,
-                    isPM: 1,
-                    line_names: 1,
-                    // checkSheet_data: 1
-                    checkSheet_data: 1
-                }
-            },
-            {
-                $unwind: {
-                    path: "$checkSheet_data",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $match: {
-                    $or: selectedYearOfCheckSheet
-                }
-            },
-            ])
-        }
+        //         //     }
+        //         // },
+        //     ])
 
+        // } else {
+
+        machineInfo = await Machine.aggregate([{
+            $match: {
+                line_names: ObjectId(line),
+            }
+        },
+        {
+            $project: {
+                machine_code: 1,
+                machine_name: 1,
+                machine_nickname: 1,
+                machine_sequence: 1,
+                installation_date: 1,
+                maker_name: 1,
+                maker_sr_no: 1,
+                manufacturingDate: 1,
+                isPM: 1,
+                line_names: 1,
+                // checkSheet_data: 1
+                checkSheet_data: 1
+            }
+        },
+        {
+            $unwind: {
+                path: "$checkSheet_data",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $match: {
+                $or: selectedYearOfCheckSheet
+            }
+        },
+        ])
+        // }
 
 
         // const machineInfo = await Machine.find({ line_names: line }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
@@ -9119,7 +9126,7 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
 
 
     try {
-        let { section, currentMonth, selectedYear } = req.body
+        let { section, currentMonth, selectedYear, previousMonth } = req.body
         let loggedUserData = req.rootUser;
         let skipMachineDataWithEveryMonth = []
 
@@ -9143,9 +9150,9 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
                 `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
                 `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
-        let previousMonth = monthKeyArray[new Date().getMonth() - 1] === undefined ?
-            monthKeyArray.splice(-1)[0] :
-            monthKeyArray[new Date().getMonth() - 1];
+        // let previousMonth = monthKeyArray[new Date().getMonth() - 1] === undefined ?
+        //     monthKeyArray.splice(-1)[0] :
+        //     monthKeyArray[new Date().getMonth() - 1];
 
         let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
         let currentMonthInNumber = new Date().getMonth()
@@ -10238,7 +10245,8 @@ router.post('/postSectionToGetAllDataForMainDashboardGraph', authenticate, async
         // console.log("***************************")
         // console.log(sumVariableForTotalCompleted)
         // console.log("***************************")
-        sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
+        // sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
+        sumVariableForTotalCompleted = sumVariableForTotalCompleted + sumVariableForTotalDoneWithDelay
 
         res.json({
             sumVariableForTotalSchedule,
@@ -10859,9 +10867,9 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                 {
                                     $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
                                 },
-                                {
-                                    $eq: [keyForPreviousMonth, "CarriedPM"]
-                                },
+                                // {
+                                //     $eq: [keyForPreviousMonth, "CarriedPM"]
+                                // },
                             ]
                         },
                             1, 0
@@ -10946,6 +10954,125 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                 },
 
             }
+
+
+        const functionForGroupDataOfAnnualChart = async (x, keyForPreviousMonth, keyForCurrentMonthScheduleOrNotStatus) => {
+            return (previousMonth ?
+                {
+                    _id: "$line_names",
+                    machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                    total_pmSchedule: {
+                        $sum: {
+                            $cond: [{
+                                $and: [
+                                    {
+                                        $ne: [x, ""]
+                                    },
+                                    {
+                                        $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                    }
+                                ]
+                            },
+                                1, 0
+                            ]
+                        }
+                    },
+
+                    total_completed: {
+                        $sum: {
+                            $cond: [{
+                                $eq: [x, "Completed"]
+                            },
+                                1, 0
+                            ]
+                        }
+                    },
+                    total_done_with_delay: {
+                        $sum: {
+                            $cond: [{
+                                $and: [
+                                    {
+                                        $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
+                                    },
+                                    {
+                                        $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                    }
+                                ]
+                            },
+                                1, 0
+                            ]
+                        }
+                    },
+                    total_Previous: {
+                        $sum: {
+                            $cond: [{
+                                $and: [{
+                                    $eq: [keyForPreviousMonth, "CarriedPM"]
+                                },
+                                // {
+                                //     $eq: [x, "No Completion"]
+                                // },
+                                {
+                                    $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                }
+                                ]
+                            },
+                                1, 0
+                            ]
+                        }
+                    },
+
+                } : {
+                    _id: "$line_names",
+                    machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
+                    total_pmSchedule: {
+                        $sum: {
+                            $cond: [{
+                                $and: [
+                                    {
+                                        $ne: [x, ""]
+                                    },
+                                    {
+                                        $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                    }
+                                ]
+                            },
+                                1, 0
+                            ]
+                        }
+                    },
+
+                    total_completed: {
+                        $sum: {
+                            $cond: [{
+                                $eq: [x, "Completed"]
+                            },
+                                1, 0
+                            ]
+                        }
+                    },
+                    total_Previous: {
+                        $sum: {
+                            $cond: [{
+                                $and: [{
+                                    $eq: [keyForPreviousMonth, "CarriedPM"]
+                                },
+                                // {
+                                //     $eq: [x, "No Completion"]
+                                // },
+                                {
+                                    $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                }
+                                ]
+                            },
+                                1, 0
+                            ]
+                        }
+                    },
+
+                })
+
+        }
 
 
         // console.log(plants.map(item => item._id))
@@ -11053,7 +11180,9 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                         }
                     }
 
-                    sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
+                    // sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
+                    sumVariableForTotalCompleted = sumVariableForTotalCompleted + sumVariableForTotalDoneWithDelay
+
                     monthlyChartDataOfSummery.push(
                         new Object({
                             chartData: {
@@ -11088,12 +11217,15 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                         let sumVariableForTotalCompletedForAnnualChart = 0
                         let sumVariableForTotalSchedule = 0
                         let sumVariableForTotalPreviousPending = 0
+                        let sumVariableForTotalDoneWithDelay = 0
 
 
                         let x = `$checkSheet_data.PMStatus.${monthKeyArray[m]}`
                         // let previousMonth = monthKeyArray[m - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[m - 1]
                         let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthKeyArray[m]}`
                         let keyForCurrentMonthScheduleOrNotStatus = `$checkSheet_data.currentMonthScheduleOrNotStatus.${monthKeyArray[m]}`
+
+                        let groupConditionForAnnualChart = await functionForGroupDataOfAnnualChart(x, keyForPreviousMonth, keyForCurrentMonthScheduleOrNotStatus)
 
                         for (let n = 0; n < lineData.length; n++) {
                             // console.log(lineData[n].line_name)
@@ -11139,65 +11271,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                     }
                                 },
                                 {
-                                    $group: {
-                                        _id: "$line_names",
-                                        machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
-                                        total_pmSchedule: {
-                                            $sum: {
-                                                $cond: [{
-                                                    $and: [
-                                                        {
-                                                            $ne: [x, ""]
-                                                        },
-                                                        {
-                                                            $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                        }
-                                                    ]
-                                                },
-                                                    1, 0
-                                                ]
-                                            }
-                                        },
-
-                                        total_completed: {
-                                            $sum: {
-                                                $cond: [{
-                                                    $eq: [x, "Completed"]
-                                                },
-                                                    1, 0
-                                                ]
-                                            }
-                                        },
-                                        // total_done_with_delay: {
-                                        //     $sum: {
-                                        //         $cond: [
-                                        //             {
-                                        //                 $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
-                                        //             },
-                                        //             1, 0
-                                        //         ]
-                                        //     }
-                                        // },
-                                        total_Previous: {
-                                            $sum: {
-                                                $cond: [{
-                                                    $and: [{
-                                                        $eq: [keyForPreviousMonth, "CarriedPM"]
-                                                    },
-                                                    // {
-                                                    //     $eq: [x, "No Completion"]
-                                                    // },
-                                                    {
-                                                        $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                    }
-                                                    ]
-                                                },
-                                                    1, 0
-                                                ]
-                                            }
-                                        },
-
-                                    },
+                                    $group: groupConditionForAnnualChart
                                 },
 
                                 {
@@ -11206,7 +11280,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                         line_names: "$_id",
                                         "total_pmSchedule": 1,
                                         "total_completed": 1,
-                                        // "total_done_with_delay": 1,
+                                        "total_done_with_delay": 1,
                                         "total_Previous": 1
                                     }
                                 },
@@ -11216,6 +11290,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                             if (groupData2.length > 0) {
                                 // console.log("**********", monthKeyArray[m])
                                 // console.log( groupData2)
+                                sumVariableForTotalDoneWithDelay = sumVariableForTotalDoneWithDelay + (groupData2?.[0]?.total_done_with_delay ? groupData2?.[0]?.total_done_with_delay : 0)
                                 sumVariableForTotalCompletedForAnnualChart = sumVariableForTotalCompletedForAnnualChart + groupData2[0].total_completed
                                 sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData2[0].total_pmSchedule
                                 sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData2[0].total_Previous
@@ -11223,6 +11298,9 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
 
                             }
                         }
+
+                        sumVariableForTotalCompletedForAnnualChart = sumVariableForTotalCompletedForAnnualChart + sumVariableForTotalDoneWithDelay
+
                         sumVariableForTotalCompletedForAnnualChart = ((sumVariableForTotalCompletedForAnnualChart * 100) / (sumVariableForTotalSchedule + sumVariableForTotalPreviousPending)).toFixed(2)
 
                         annual_completed.push(sumVariableForTotalCompletedForAnnualChart !== NaN ? sumVariableForTotalCompletedForAnnualChart : 0)
@@ -11350,7 +11428,9 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                             // }
                         }
 
-                        sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
+                        // sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending - sumVariableForTotalDoneWithDelay
+                        sumVariableForTotalCompleted = sumVariableForTotalCompleted + sumVariableForTotalDoneWithDelay
+
 
                         monthlyChartDataOfSummery.push(
                             new Object({
@@ -11383,11 +11463,13 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                             let sumVariableForTotalCompletedForAnnualChart = 0
                             let sumVariableForTotalSchedule = 0
                             let sumVariableForTotalPreviousPending = 0
+                            let sumVariableForTotalDoneWithDelay = 0
                             let x = `$checkSheet_data.PMStatus.${monthKeyArray[o]}`
                             let keyForCurrentMonthScheduleOrNotStatus = `$checkSheet_data.currentMonthScheduleOrNotStatus.${monthKeyArray[o]}`
 
                             // let previousMonth = monthKeyArray[m - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[m - 1]
                             let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthKeyArray[o]}`
+                            let groupConditionForAnnualChart = await functionForGroupDataOfAnnualChart(x, keyForPreviousMonth, keyForCurrentMonthScheduleOrNotStatus)
 
                             for (let p = 0; p < lineData.length; p++) {
                                 // console.log(lineData[n].line_name)
@@ -11433,65 +11515,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                                         }
                                     },
                                     {
-                                        $group: {
-                                            _id: "$line_names",
-                                            machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
-                                            total_pmSchedule: {
-                                                $sum: {
-                                                    $cond: [{
-                                                        $and: [
-                                                            {
-                                                                $ne: [x, ""]
-                                                            },
-                                                            {
-                                                                $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                            }
-                                                        ]
-                                                    },
-                                                        1, 0
-                                                    ]
-                                                }
-                                            },
-
-                                            total_completed: {
-                                                $sum: {
-                                                    $cond: [{
-                                                        $eq: [x, "Completed"]
-                                                    },
-                                                        1, 0
-                                                    ]
-                                                }
-                                            },
-                                            // total_done_with_delay: {
-                                            //     $sum: {
-                                            //         $cond: [
-                                            //             {
-                                            //                 $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
-                                            //             },
-                                            //             1, 0
-                                            //         ]
-                                            //     }
-                                            // },
-                                            total_Previous: {
-                                                $sum: {
-                                                    $cond: [{
-                                                        $and: [{
-                                                            $eq: [keyForPreviousMonth, "CarriedPM"]
-                                                        },
-                                                        // {
-                                                        //     $eq: [keyForSelectedMonth, "No Completion"]
-                                                        // },
-                                                        {
-                                                            $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
-                                                        }
-                                                        ]
-                                                    },
-                                                        1, 0
-                                                    ]
-                                                }
-                                            },
-
-                                        },
+                                        $group: groupConditionForAnnualChart
                                     },
 
                                     {
@@ -11508,6 +11532,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
 
                                 ])
                                 if (groupData2.length > 0) {
+                                    sumVariableForTotalDoneWithDelay = sumVariableForTotalDoneWithDelay + (groupData2?.[0]?.total_done_with_delay ? groupData2?.[0]?.total_done_with_delay : 0)
                                     sumVariableForTotalCompletedForAnnualChart = sumVariableForTotalCompletedForAnnualChart + groupData2[0].total_completed
                                     sumVariableForTotalSchedule = sumVariableForTotalSchedule + groupData2[0].total_pmSchedule
                                     sumVariableForTotalPreviousPending = sumVariableForTotalPreviousPending + groupData2[0].total_Previous
@@ -11517,6 +11542,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                             }
 
 
+                            sumVariableForTotalCompletedForAnnualChart = sumVariableForTotalCompletedForAnnualChart + sumVariableForTotalDoneWithDelay
 
                             sumVariableForTotalCompletedForAnnualChart = ((sumVariableForTotalCompletedForAnnualChart * 100) / (sumVariableForTotalSchedule + sumVariableForTotalPreviousPending)).toFixed(2)
 
@@ -13370,7 +13396,7 @@ router.post('/sendRequestForApprovalOfSkipPMDataWork', authenticate, async (req,
             approvalStatusOfMTDHOS, approvalStatusOfMTDHOD, approvalStatusOfPRDHOS, approvalStatusOfPRDHOD, undefined, reasonForDelayOfTL)
 
 
-        res.status(201).json({ message: "Completion date added" });
+        res.status(201).json({ message: "Approval send" });
     } catch (error) {
         console.log("2032", error)
         console.log("Filename not received");
@@ -16404,6 +16430,7 @@ router.post('/supportingOperatorListForReportDashboard', authenticate, async (re
         } else {
 
             if (section?.dashboardLevel === "Yes") {
+                // console.log(section)
                 SectionsData = await Section.findOne({ _id: section?._id }).sort({ section_sequence: 1 })
                 supportingOperatorListForReportDashboard = await User.find({ section_data: `${SectionsData.section_id}-${SectionsData.section_name}`, user_type: "Operator" })
 
@@ -16417,9 +16444,10 @@ router.post('/supportingOperatorListForReportDashboard', authenticate, async (re
 
 
         }
+        res.send({ supportingOperatorListForReportDashboard })
 
     } catch (error) {
-
+        console.log(error)
     }
 })
 
