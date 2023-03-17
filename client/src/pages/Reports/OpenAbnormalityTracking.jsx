@@ -149,13 +149,13 @@ function OpenAbnormalityTracking() {
     },
     {
       title: "Checked By",
-      // field: "checked_by",
+      field: "checked_by",
       align: "center",
       width: "5%",
-      render: (rowData) =>
-        rowData.checked_by.length > 1
-          ? rowData.checked_by.join(", ")
-          : rowData.checked_by,
+      // render: (rowData) =>
+      //   rowData.checked_by.length > 1
+      //     ? rowData.checked_by.join(", ")
+      //     : rowData.checked_by,
       editable: "false",
     },
     {

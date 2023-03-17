@@ -10567,7 +10567,7 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
         let { section, selectedLine } = req.body
         let loggedUserData = req.rootUser;
         // console.log(section, "_________", req.rootUser);
-        let onlyOpenAbnormalityWithAllMonths = [], subSectionsData, lineData;
+        let onlyOpenAbnormalityWithAllMonths = [], subSectionsData, lineData, subsectionSplitIdArrayForChecksheet = [];
         if (typeof (section) !== "object") {
 
             let sectionSplit = section.split("-")
@@ -10663,7 +10663,7 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
                                             yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
                                             schedule_month: month,
                                             table_id: keyForAbnormality.tableRowId,
-                                            checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
+                                            checked_by: keyForAbnormality?.inspectionCompletionBy?.[month],
                                             abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
                                             targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
                                             PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
@@ -10732,7 +10732,7 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
                                             yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
                                             schedule_month: month,
                                             table_id: keyForAbnormality.tableRowId,
-                                            checked_by: keyForCheckSheet?.checkSheet_data?.PMworkedTMName[month],
+                                            checked_by: keyForAbnormality?.inspectionCompletionBy?.[month],
                                             abnormalityRemarks: keyForAbnormality?.abnormalityDetails[month]?.abnormalityRemarks,
                                             targetDate: keyForAbnormality?.abnormalityDetails[month]?.targetDate,
                                             PMuploadedImage: keyForAbnormality?.abnormalityDetails[month]?.PMuploadedImage,
