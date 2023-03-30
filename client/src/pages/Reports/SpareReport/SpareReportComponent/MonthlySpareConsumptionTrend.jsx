@@ -190,7 +190,9 @@ const MonthlySpareConsumptionTrend = ({
 
   const functionForTotalDataForSpareParts = () => {
     setSelectedLine("");
-    postSectionToGetAllDataForSparePartsReport();
+    postSectionToGetAllDataForSparePartsReport(
+      selectedSectionOrSubSection || context?.section_data
+    );
   };
 
   useEffect(() => {

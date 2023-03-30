@@ -3201,6 +3201,7 @@ router.post('/addNewChecksheetData', async (req, res) => {
         let findMachine
         if (monthForCompareSystemMonth === "Jan" || monthForCompareSystemMonth === "Feb" || monthForCompareSystemMonth === "Mar") {
             let previous_year = `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+            // console.log(previous_year)
             findMachine = await Machine.aggregate([{
                 $match: { machine_code: machineId, "checkSheet_data.current_year": previous_year }
             },
@@ -3218,6 +3219,7 @@ router.post('/addNewChecksheetData', async (req, res) => {
 
             if (isAdded === true) {
                 if (findMachine[0] === undefined) {
+                    console.log("No data")
                     tableRowId = 1;
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId }, {
 
@@ -3245,7 +3247,10 @@ router.post('/addNewChecksheetData', async (req, res) => {
                         }
                     })
                 } else {
+                    console.log("data")
+
                     tableRowId = findMachine[0].checkSheet_data.checkSheet.tableRowId + 1
+                    console.log(tableRowId)
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": previous_year }, {
                         $set: {
                             "checkSheet_data.$.flagForRevisionContent": true,
@@ -3298,6 +3303,7 @@ router.post('/addNewChecksheetData', async (req, res) => {
                     })
                 } else {
                     tableRowId = findMachine[0].checkSheet_data.checkSheet.tableRowId + 1
+                    // console.log(tableRowId)
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": previous_year }, {
 
                         $push: {
@@ -3320,7 +3326,8 @@ router.post('/addNewChecksheetData', async (req, res) => {
                 }
             }
 
-        } else {
+        }
+        else {
 
             findMachine = await Machine.aggregate([{
                 $match: { machine_code: machineId, "checkSheet_data.current_year": current_year }
@@ -3724,8 +3731,6 @@ router.get('/getListForApproval', authenticate, async (req, res) => {
                     { section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "Operator", tm_no: { $ne: loggedUserData.tm_no } }
                 ]
             }, { tm_name: 1, _id: 0 })
-
-            HOSlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, tm_grade: "HOS", tm_department: "MTD" }, { tm_name: 1, email: 1, _id: 0 })
 
             // PRDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
 
@@ -4148,8 +4153,8 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                 $push: {
 
                     [keyOfImplemetation_mtd_hod_approval_status]: "Pending",
-                    [keyOfImplementation_assign_MTD_HOD]: mtd_hod_list.email,
-                    [keyOfImplementation_assign_MTD_HOD_name]: mtd_hod_list.tm_name,
+                    [keyOfImplementation_assign_MTD_HOD]: mtd_hod_list?.email,
+                    [keyOfImplementation_assign_MTD_HOD_name]: mtd_hod_list?.tm_name,
                     [keyOfImplemetation_completed_date]: implemetation_completed_date
                 }
             }, {
@@ -6164,7 +6169,8 @@ router.post('/updateSelectedMachineCheckSheetTableRowDataForStartingMonth', asyn
         }
 
 
-        // console.log(planningTableAnimationArray2)
+        console.log(planningTableAnimationArray2)
+        console.log("ROw data---> ", rowData.planningTableAnimationArray2)
         if (getSelectedMachineChecksheet[0]?.checkSheet_data?.revisionContentData?.length > 0) {
             //for mid year new inception item added and add start month
             if (rowData?.isAdded === true) {
@@ -6172,7 +6178,7 @@ router.post('/updateSelectedMachineCheckSheetTableRowDataForStartingMonth', asyn
                     $set: {
                         "checkSheet_data.$[outer].checkSheet.$[inner].start_month": startMonth,
                         "checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2": planningTableAnimationArray2,
-                        "checkSheet_data.$[outer].flagForRevisionContent": true,
+                        // "checkSheet_data.$[outer].flagForRevisionContent": true,
                     },
 
                 }, {
@@ -6183,11 +6189,12 @@ router.post('/updateSelectedMachineCheckSheetTableRowDataForStartingMonth', asyn
 
                     rowData.planningTableAnimationArray2[monthKeyArray[i]] = planningTableAnimationArray2[monthKeyArray[i]]
                 }
+                console.log("after dt --->", rowData.planningTableAnimationArray2)
                 updateChecksheetRow = await Machine.updateOne({ machine_code: machineId }, {
                     $set: {
                         "checkSheet_data.$[outer].checkSheet.$[inner].start_month": startMonth,
                         "checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2": rowData.planningTableAnimationArray2,
-                        "checkSheet_data.$[outer].flagForRevisionContent": true,
+                        // "checkSheet_data.$[outer].flagForRevisionContent": true,
 
                     },
 
@@ -6877,15 +6884,6 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
                     })
                 }
             }
-            if (totalCarriedPMCount === completedCarriedPMCount) {
-                updateStatus = await Machine.updateOne({ machine_code: machineId, "checkSheet.tableRowId": tableRowId }, {
-                    $set: {
-                        [keyOfCarriedCompletedMonthPM]: "Done with delay",
-                    }
-                }, {
-                    arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
-                })
-            }
             if (plannedPMCount) {
                 if (!completedPMCount) {
                     updateStatus = await Machine.updateOne({ machine_code: machineId }, {
@@ -6898,13 +6896,25 @@ router.post('/postImplementationWorkedData', upload1.single('photoUpload'), auth
                 }
 
             } else {
-                updateStatus = await Machine.updateOne({ machine_code: machineId }, {
-                    $set: {
-                        [keyOfCompletedMonthPM]: "",
-                    }
-                }, {
-                    arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
-                })
+                if (totalCarriedPMCount === completedCarriedPMCount) {
+                    updateStatus = await Machine.updateOne({ machine_code: machineId, "checkSheet.tableRowId": tableRowId }, {
+                        $set: {
+                            [keyOfCarriedCompletedMonthPM]: "Done with delay",
+                            [keyOfCompletedMonthPM]: "",
+                        }
+                    }, {
+                        arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
+                    })
+                } else {
+
+                    updateStatus = await Machine.updateOne({ machine_code: machineId }, {
+                        $set: {
+                            [keyOfCompletedMonthPM]: "No Completion",
+                        }
+                    }, {
+                        arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
+                    })
+                }
             }
         }
 
@@ -8162,12 +8172,41 @@ router.post('/postMachineToGetChacksheetPreparationData', authenticate, async (r
     try {
         let { selectedMachine, copyPreparationDataToSelectedMachine, request } = req.body
 
-        let getChecksheetPreparationDataOfSelectedMachine, copyPreparationData, newUpdatedPreparationDataOfSelectedmachine
+        let getChecksheetPreparationDataOfSelectedMachine, copyPreparationData, newUpdatedPreparationDataOfSelectedmachine, checkSheetExistsOrNot
         //2022-23
         let current_year =
             new Date().getMonth() <= 3 ?
                 `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
                 `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+        checkSheetExistsOrNot = await Machine.aggregate([{
+            $match: {
+                machine_code: copyPreparationDataToSelectedMachine
+            }
+        },
+        {
+            $project: {
+                machine_code: 1,
+                machine_name: 1,
+                machine_nickname: 1,
+                machine_sequence: 1,
+                installation_date: 1,
+                maker_name: 1,
+                maker_sr_no: 1,
+                manufacturingDate: 1,
+                isPM: 1,
+                line_names: 1,
+                checkSheet_data: 1
+            }
+        },
+        {
+            $unwind: "$checkSheet_data"
+        },
+        {
+            $match: {
+                "checkSheet_data.current_year": current_year
+            }
+        },
+        ])
 
         if (request === "deleted") {
             getChecksheetPreparationDataOfSelectedMachine = await BackupMachineData.findOne({
@@ -8176,22 +8215,44 @@ router.post('/postMachineToGetChacksheetPreparationData', authenticate, async (r
 
             // console.log(getChecksheetPreparationDataOfSelectedMachine)
 
-            copyPreparationData = await Machine.updateOne({
-                machine_code: copyPreparationDataToSelectedMachine
-            }, {
-                $push: {
-                    checkSheet_data: {
-                        current_year: current_year,
-                        checkSheet: getChecksheetPreparationDataOfSelectedMachine.checkSheet_data[0].checkSheet
+            if (checkSheetExistsOrNot?.[0]?.checkSheet_data?.checkSheet?.length > 0) {
+                copyPreparationData = await Machine.updateOne({
+                    machine_code: copyPreparationDataToSelectedMachine
+                }, {
+                    $set: {
+                        "checkSheet_data.$[outer].checkSheet": {
+                            current_year: current_year,
+                            checkSheet: getChecksheetPreparationDataOfSelectedMachine.checkSheet_data[0].checkSheet
+                        }
+                    }
+                },
+                    {
+                        arrayFilters: [{ 'outer.current_year': current_year }],
+                    }
+
+                )
+            } else {
+
+                copyPreparationData = await Machine.updateOne({
+                    machine_code: copyPreparationDataToSelectedMachine
+                }, {
+                    $push: {
+                        checkSheet_data: {
+                            current_year: current_year,
+                            checkSheet: getChecksheetPreparationDataOfSelectedMachine.checkSheet_data[0].checkSheet
+                        }
                     }
                 }
+
+                )
             }
 
-            )
+
             newUpdatedPreparationDataOfSelectedmachine = await Machine.findOne({ machine_code: copyPreparationDataToSelectedMachine })
 
 
-        } else {
+        }
+        else {
             getChecksheetPreparationDataOfSelectedMachine = await Machine.aggregate([{
                 $match: {
                     machine_code: selectedMachine
@@ -8209,22 +8270,88 @@ router.post('/postMachineToGetChacksheetPreparationData', authenticate, async (r
                     manufacturingDate: 1,
                     isPM: 1,
                     line_names: 1,
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    checkSheet_data: 1
                 }
-            }
+            },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": current_year
+                }
+            },
             ])
 
             // console.log(getChecksheetPreparationDataOfSelectedMachine)
             // getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.current_year = current_year
-            copyPreparationData = await Machine.updateOne({ machine_code: copyPreparationDataToSelectedMachine }, {
 
-                $push: {
-                    checkSheet_data: {
-                        current_year: getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.current_year = current_year,
-                        checkSheet: getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.checkSheet
+            if (checkSheetExistsOrNot?.[0]?.checkSheet_data?.checkSheet?.length > 0) {
+                copyPreparationData = await Machine.updateOne({ machine_code: copyPreparationDataToSelectedMachine }, {
+
+                    $push: {
+                        checkSheet_data: {
+                            current_year: getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.current_year = current_year,
+                            checkSheet: getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.checkSheet
+                        }
                     }
                 }
-            })
+                )
+                let againCopy = await Machine.aggregate([{
+                    $match: {
+                        machine_code: copyPreparationDataToSelectedMachine
+                    }
+                },
+                {
+                    $project: {
+                        machine_code: 1,
+                        machine_name: 1,
+                        machine_nickname: 1,
+                        machine_sequence: 1,
+                        installation_date: 1,
+                        maker_name: 1,
+                        maker_sr_no: 1,
+                        manufacturingDate: 1,
+                        isPM: 1,
+                        line_names: 1,
+                        checkSheet_data: 1
+                    }
+                },
+                {
+                    $unwind: "$checkSheet_data"
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": current_year
+                    }
+                },
+                ])
+                copyPreparationData = await Machine.updateOne({ machine_code: copyPreparationDataToSelectedMachine }, {
+
+                    $set: {
+                        "checkSheet_data.$[outer]": {
+                            current_year: againCopy[0].checkSheet_data.current_year = current_year,
+                            checkSheet: againCopy[0].checkSheet_data.checkSheet
+                        }
+                    }
+                }, {
+                    arrayFilters: [{ 'outer.current_year': current_year }],
+                })
+            } else {
+
+                copyPreparationData = await Machine.updateOne({ machine_code: copyPreparationDataToSelectedMachine }, {
+
+                    $set: {
+                        "checkSheet_data.$[outer].checkSheet":
+                            // current_year: getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.current_year = current_year,
+                            getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.checkSheet
+
+                    }
+                },
+                    {
+                        arrayFilters: [{ 'outer.current_year': current_year }],
+                    })
+            }
 
             let removeFields = await Machine.updateOne({ machine_code: copyPreparationDataToSelectedMachine }, {
                 $unset: {
@@ -8238,38 +8365,7 @@ router.post('/postMachineToGetChacksheetPreparationData', authenticate, async (r
                 arrayFilters: [{ 'outer.current_year': current_year }],
             })
 
-            let againCopy = await Machine.aggregate([{
-                $match: {
-                    machine_code: copyPreparationDataToSelectedMachine
-                }
-            },
-            {
-                $project: {
-                    machine_code: 1,
-                    machine_name: 1,
-                    machine_nickname: 1,
-                    machine_sequence: 1,
-                    installation_date: 1,
-                    maker_name: 1,
-                    maker_sr_no: 1,
-                    manufacturingDate: 1,
-                    isPM: 1,
-                    line_names: 1,
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
-                }
-            }
-            ])
-            copyPreparationData = await Machine.updateOne({ machine_code: copyPreparationDataToSelectedMachine }, {
 
-                $set: {
-                    "checkSheet_data.$[outer]": {
-                        current_year: againCopy[0].checkSheet_data.current_year = current_year,
-                        checkSheet: againCopy[0].checkSheet_data.checkSheet
-                    }
-                }
-            }, {
-                arrayFilters: [{ 'outer.current_year': current_year }],
-            })
         }
 
         if (copyPreparationData || removeFields) {
@@ -9372,7 +9468,10 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
 
                 }
                 if (previousMonth != "Mar") {
-                    if (keyForCheckSheet?.checkSheet_data?.carriedPMStatus?.[monthForCompareSystemMonth] != "" && keyForCheckSheet?.checkSheet_data?.carriedPMStatus != undefined) {
+                    if (keyForCheckSheet?.checkSheet_data?.carriedPMStatus?.[monthForCompareSystemMonth] != "" &&
+                        keyForCheckSheet?.checkSheet_data?.carriedPMStatus != undefined &&
+                        keyForCheckSheet?.checkSheet_data?.currentMonthScheduleOrNotStatus?.[monthForCompareSystemMonth] === ""
+                    ) {
                         skipMachineDataWithEveryMonth.push(
                             new Object({
                                 machine_id: keyForCheckSheet?._id,
@@ -9587,7 +9686,10 @@ router.post('/postSectionAndMonthToGetAllDataForReport', authenticate, async (re
 
                 }
                 if (previousMonth != "Mar") {
-                    if (keyForCheckSheet?.checkSheet_data?.carriedPMStatus?.[monthForCompareSystemMonth] != "" && keyForCheckSheet?.checkSheet_data?.carriedPMStatus != undefined) {
+                    if (keyForCheckSheet?.checkSheet_data?.carriedPMStatus?.[monthForCompareSystemMonth] != "" &&
+                        keyForCheckSheet?.checkSheet_data?.carriedPMStatus != undefined &&
+                        keyForCheckSheet?.checkSheet_data?.currentMonthScheduleOrNotStatus?.[monthForCompareSystemMonth] === ""
+                    ) {
                         skipMachineDataWithEveryMonth.push(
                             new Object({
                                 machine_id: keyForCheckSheet?._id,
@@ -10956,8 +11058,8 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
             }
 
 
-        const functionForGroupDataOfAnnualChart = async (x, keyForPreviousMonth, keyForCurrentMonthScheduleOrNotStatus) => {
-            return (previousMonth ?
+        const functionForGroupDataOfAnnualChart = async (x, keyForPreviousMonth, keyForCurrentMonthScheduleOrNotStatus, keyOfTotalDoneWithDelayForAnnualChart, previousMonthForAnnualChart) => {
+            return (previousMonthForAnnualChart ?
                 {
                     _id: "$line_names",
                     machine: { $push: { machine_code: "$machine_code", machine_name: "$machine_name" } },
@@ -10992,7 +11094,7 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                             $cond: [{
                                 $and: [
                                     {
-                                        $eq: [keyOfTotalDoneWithDelay, "Done with delay"]
+                                        $eq: [keyOfTotalDoneWithDelayForAnnualChart, "Done with delay"]
                                     },
                                     {
                                         $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
@@ -11221,11 +11323,12 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
 
 
                         let x = `$checkSheet_data.PMStatus.${monthKeyArray[m]}`
-                        // let previousMonth = monthKeyArray[m - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[m - 1]
+                        let previousMonthForAnnualChart = monthKeyArray[m - 1]
+                        let keyOfTotalDoneWithDelayForAnnualChart = `$checkSheet_data.PMStatus.${previousMonthForAnnualChart}`
                         let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthKeyArray[m]}`
                         let keyForCurrentMonthScheduleOrNotStatus = `$checkSheet_data.currentMonthScheduleOrNotStatus.${monthKeyArray[m]}`
 
-                        let groupConditionForAnnualChart = await functionForGroupDataOfAnnualChart(x, keyForPreviousMonth, keyForCurrentMonthScheduleOrNotStatus)
+                        let groupConditionForAnnualChart = await functionForGroupDataOfAnnualChart(x, keyForPreviousMonth, keyForCurrentMonthScheduleOrNotStatus, keyOfTotalDoneWithDelayForAnnualChart, previousMonthForAnnualChart)
 
                         for (let n = 0; n < lineData.length; n++) {
                             // console.log(lineData[n].line_name)
@@ -11298,7 +11401,6 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
 
                             }
                         }
-
                         sumVariableForTotalCompletedForAnnualChart = sumVariableForTotalCompletedForAnnualChart + sumVariableForTotalDoneWithDelay
 
                         sumVariableForTotalCompletedForAnnualChart = ((sumVariableForTotalCompletedForAnnualChart * 100) / (sumVariableForTotalSchedule + sumVariableForTotalPreviousPending)).toFixed(2)
@@ -11466,10 +11568,11 @@ router.post('/postPlantToGetSectionInfoForSummeryDashboard', authenticate, async
                             let sumVariableForTotalDoneWithDelay = 0
                             let x = `$checkSheet_data.PMStatus.${monthKeyArray[o]}`
                             let keyForCurrentMonthScheduleOrNotStatus = `$checkSheet_data.currentMonthScheduleOrNotStatus.${monthKeyArray[o]}`
-
+                            let previousMonthForAnnualChart = monthKeyArray[o - 1]
+                            let keyOfTotalDoneWithDelayForAnnualChart = `$checkSheet_data.PMStatus.${previousMonthForAnnualChart}`
                             // let previousMonth = monthKeyArray[m - 1] === undefined ? monthKeyArray.splice(-1)[0] : monthKeyArray[m - 1]
                             let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthKeyArray[o]}`
-                            let groupConditionForAnnualChart = await functionForGroupDataOfAnnualChart(x, keyForPreviousMonth, keyForCurrentMonthScheduleOrNotStatus)
+                            let groupConditionForAnnualChart = await functionForGroupDataOfAnnualChart(x, keyForPreviousMonth, keyForCurrentMonthScheduleOrNotStatus, keyOfTotalDoneWithDelayForAnnualChart, previousMonthForAnnualChart)
 
                             for (let p = 0; p < lineData.length; p++) {
                                 // console.log(lineData[n].line_name)
@@ -11897,8 +12000,8 @@ router.post('/postSectionToGetAllDataForTotalTimeMonthWiseReport', authenticate,
 
         let total_time_month_wise = [];
         // console.log(i, "------->")
+        let sumOfTotalTime = 0
         for (let j = 0; j < monthKeyArray.length; j++) {
-            let sumOfTotalTime
 
             for (let i = 0; i < lineData.length; i++) {
                 let x = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}`
@@ -11950,11 +12053,11 @@ router.post('/postSectionToGetAllDataForTotalTimeMonthWiseReport', authenticate,
                 ])
 
                 if (groupData.length > 0) {
-                    sumOfTotalTime = groupData[0].total_pmTime
+                    sumOfTotalTime = sumOfTotalTime + groupData[0].total_pmTime
+                    // console.log(lineData[i]?.line_name,"---------------", sumOfTotalTime)
                 }
 
             }
-            // console.log("---------------", groupData)
 
             if (sumOfTotalTime) {
                 total_time_month_wise.push(sumOfTotalTime)
@@ -12172,8 +12275,8 @@ router.post('/postSectionToGetAllDataForTotalTimeManHoursMonthWise', authenticat
 
         let totalTimeManHoursMonthWise = [];
         // console.log(i, "------->")
+        let sumOfTotalTimeManHours = 0
         for (let j = 0; j < monthKeyArray.length; j++) {
-            let sumOfTotalTimeManHours
 
             for (let i = 0; i < lineData.length; i++) {
                 let keyOfTotalPMTime = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}`
@@ -12235,7 +12338,7 @@ router.post('/postSectionToGetAllDataForTotalTimeManHoursMonthWise', authenticat
                 if (groupData.length > 0) {
                     // console.log("---------------", groupData[0].machine)
 
-                    sumOfTotalTimeManHours = groupData[0].totalTimeManHours
+                    sumOfTotalTimeManHours = sumOfTotalTimeManHours + groupData[0].totalTimeManHours
                 }
 
             }
@@ -12453,8 +12556,8 @@ router.post('/postPerticularOperatorToGetDataForActualTimeTakenTMWise', authenti
 
         let actualTotalTimeTakenOfTM = [];
         // console.log(i, "------->")
+        let sumOfActualTimeTakenTM = 0
         for (let j = 0; j < monthKeyArray.length; j++) {
-            let sumOfActualTimeTakenTM
 
             for (let i = 0; i < lineData.length; i++) {
                 let keyOfTotalPMTime = `checkSheet_data.totalPMTime.${financialYearWiseMonthKeyArray[j]}`
@@ -12524,7 +12627,7 @@ router.post('/postPerticularOperatorToGetDataForActualTimeTakenTMWise', authenti
                 // console.log(financialYearWiseMonthKeyArray[j],"---------------", groupData)
 
                 if (groupData.length > 0) {
-                    sumOfActualTimeTakenTM = groupData[0].actualTotalTimeTM
+                    sumOfActualTimeTakenTM = sumOfActualTimeTakenTM + groupData[0].actualTotalTimeTM
                 }
 
             }
@@ -14707,7 +14810,6 @@ router.post('/postSectionToGetAllDataForSparePartsReport', authenticate, async (
             cellData, cellIdArray = [],
             lineData, lineIdArray = [],
             machineData, machineDataForChecksheet, subsectionSplitIdArrayForChecksheet = []
-
         if (typeof (section) !== "object") {
             let sectionSplit = section.split("-")
             const sectionInfo = await Section.findOne({ section_id: sectionSplit[0] })
@@ -14818,9 +14920,11 @@ router.post('/postSectionToGetAllDataForSparePartsReport', authenticate, async (
 
 
             ])
-            // console.log(groupData)
             if (groupData?.length > 0) {
-                sumOfTotalPMSpareCost = groupData[0]?.totalPMSpareCost
+                groupData?.map((item) => {
+
+                    sumOfTotalPMSpareCost = sumOfTotalPMSpareCost + item?.totalPMSpareCost
+                })
             }
 
             if (sumOfTotalPMSpareCost) {

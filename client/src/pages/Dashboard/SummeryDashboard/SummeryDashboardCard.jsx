@@ -76,7 +76,8 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
   let PendingStatusData = {
     name: "Remaining(Current Month)",
     // bgColor: "table-danger",
-    value: TableData[0].value - TableData[2].value - TableData[3].value,
+    //value = planned - completed - ongoing
+    value: (TableData[0].value + TableData[1].value) - TableData[2].value - TableData[3].value,
   };
 
   // console.log(

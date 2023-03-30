@@ -71,7 +71,6 @@ function CheckSheetForm() {
       });
 
       const data = await res.json();
-      // console.log(data)
       setTLList(data.MTDTLlist);
       setHOSList(data.HOSlist);
       setPRDTLlist(data.PRDTLlist);

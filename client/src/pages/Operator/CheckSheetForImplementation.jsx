@@ -1230,7 +1230,8 @@ console.log(newTableData)
                                                   machineId={
                                                     machineAllData.machine_code
                                                   }
-                                                  tableRowId={rData[1].value}
+                                                  tableRowId={rData[0].value}
+                                                  tableRowIdForSrNo={rData[1].value}
                                                   yearOfCheckSheet={
                                                     machineData?.checkSheet_data
                                                       .current_year

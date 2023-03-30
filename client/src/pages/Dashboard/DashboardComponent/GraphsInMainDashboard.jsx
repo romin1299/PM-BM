@@ -198,7 +198,8 @@ const GraphsInMainDashboard = ({
       name: "Remaining(Current Month)",
       // colorClass: "table-danger",
       value:
-        currentMonthGraphAndTableData?.sumVariableForTotalSchedule -
+        (currentMonthGraphAndTableData?.sumVariableForTotalSchedule +
+        currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending) - 
         currentMonthGraphAndTableData?.sumVariableForTotalCompleted -
         currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
     },

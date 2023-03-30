@@ -807,7 +807,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
             </div>
           </div>
         </div>
-        {machineData[0]?.checkSheet_data?.revisionContentData === true ? (
+        {machineData[0]?.checkSheet_data?.revisionContentData?.length > 0  ? (
           <div className="row m-3 p-3 border bg-white rounded">
             <div>
               <MaterialTable

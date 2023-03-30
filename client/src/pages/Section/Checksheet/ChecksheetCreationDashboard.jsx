@@ -25,7 +25,7 @@ import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
 
-const ChecksheetCreationDashboard = ({ }) => {
+const ChecksheetCreationDashboard = ({}) => {
   const [tableData, setTableData] = useState([]);
   const [lineArray, setLineArray] = useState([]);
   const [revisionContentTableData, setRevisionContentTableData] = useState([]);
@@ -57,8 +57,8 @@ const ChecksheetCreationDashboard = ({ }) => {
     let line_name_array = [];
     selectedMachineData.state.lineData
       ? selectedMachineData.state.lineData.map((name) => {
-        line_name_array.push(`${name.line_id}-${name.line_name}`);
-      })
+          line_name_array.push(`${name.line_id}-${name.line_name}`);
+        })
       : (line_name_array = "");
     setLineArray(line_name_array);
   };
@@ -364,7 +364,7 @@ const ChecksheetCreationDashboard = ({ }) => {
         item.action,
         item.cycle,
         item.personInCharge,
-        item.PM_time
+        item.PM_time,
       ];
       rows.push(rowArrayOfTable);
     });
@@ -454,7 +454,7 @@ const ChecksheetCreationDashboard = ({ }) => {
           machineId: selectedMachineData.state.selectedRow.machine_code,
           isAdded:
             machineData[0]?.checkSheet_data?.checksheet_status ===
-              "Implementation"
+            "Implementation"
               ? true
               : false,
         }),
@@ -504,7 +504,7 @@ const ChecksheetCreationDashboard = ({ }) => {
           yearOfCheckSheet,
           isEdited:
             machineData[0]?.checkSheet_data?.checksheet_status ===
-              "Implementation"
+            "Implementation"
               ? true
               : false,
         }),
@@ -545,7 +545,7 @@ const ChecksheetCreationDashboard = ({ }) => {
           yearOfCheckSheet,
           isDeleted:
             machineData[0]?.checkSheet_data?.checksheet_status ===
-              "Implementation"
+            "Implementation"
               ? true
               : false,
         }),
@@ -790,7 +790,7 @@ const ChecksheetCreationDashboard = ({ }) => {
               background: "white",
               borderRadius: 5,
             }}
-            className="mb-2" 
+            className="mb-2"
           >
             <ArrowBackIcon />
           </button>
@@ -905,9 +905,12 @@ const ChecksheetCreationDashboard = ({ }) => {
                               value={line === undefined ? "" : line}
                               onChange={(e) => {
                                 setLine(e.target.value);
-                                setselectedMachine()
-                                if(formik.values.request){
-                                  postLineToGetMachineList(e.target.value, formik.values.request)
+                                setselectedMachine();
+                                if (formik.values.request) {
+                                  postLineToGetMachineList(
+                                    e.target.value,
+                                    formik.values.request
+                                  );
                                 }
                               }}
                               variant="standard"
@@ -953,13 +956,13 @@ const ChecksheetCreationDashboard = ({ }) => {
 
                                     {machineArray != undefined
                                       ? machineArray.map((option) => {
-                                        return (
-                                          <option value={option.machine_code}>
-                                            {option.machine_code}-
-                                            {option.machine_name}
-                                          </option>
-                                        );
-                                      })
+                                          return (
+                                            <option value={option.machine_code}>
+                                              {option.machine_code}-
+                                              {option.machine_name}
+                                            </option>
+                                          );
+                                        })
                                       : ""}
                                   </select>
                                 </div>
@@ -994,13 +997,13 @@ const ChecksheetCreationDashboard = ({ }) => {
 
                                     {machineArray != undefined
                                       ? machineArray.map((option) => {
-                                        return (
-                                          <option value={option.machine_code}>
-                                            {option.machine_code}-
-                                            {option.machine_name}
-                                          </option>
-                                        );
-                                      })
+                                          return (
+                                            <option value={option.machine_code}>
+                                              {option.machine_code}-
+                                              {option.machine_name}
+                                            </option>
+                                          );
+                                        })
                                       : ""}
                                   </select>
                                 </div>
@@ -1162,7 +1165,8 @@ const ChecksheetCreationDashboard = ({ }) => {
             </div>
           </div>
         </div>
-        {machineData[0]?.checkSheet_data?.checksheet_status ===
+        {machineData[0]?.checkSheet_data?.revisionContentData?.length > 0 ||
+        machineData[0]?.checkSheet_data?.checksheet_status ===
           "Implementation" ? (
           <div className="row m-3 p-3 border bg-white rounded">
             <div>
