@@ -11,6 +11,7 @@ function WorkOnImplementationPM({
   close,
   disabledButtonAfterPM,
   tableRowId,
+  tableRowIdForSrNo,
   yearOfCheckSheet,
   machineId,
   monthForCompareSystemMonth,
@@ -297,7 +298,7 @@ function WorkOnImplementationPM({
                   <span>Remarks: </span>
                   <input
                     type="text"
-                    maxLength={5}
+                    // maxLength={5}
                     // id={rData[0].value}
                     name="remarksOfImplementation"
                     onChange={formik.handleChange}
@@ -323,7 +324,7 @@ function WorkOnImplementationPM({
                   <span>Remarks: </span>
                   <input
                     type="text"
-                    maxLength={5}
+                    // maxLength={5}
                     // id={rData[0].value}
                     name="remarksOfImplementation"
                     onChange={formik.handleChange}
@@ -349,7 +350,7 @@ function WorkOnImplementationPM({
                       <input
                         type="text"
                         className="col-6"
-                        value={tableRowId}
+                        value={tableRowIdForSrNo}
                         // onChange={formik.handleChange}
                       />
                     </div>

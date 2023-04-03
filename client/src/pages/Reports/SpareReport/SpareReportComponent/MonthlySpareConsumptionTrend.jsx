@@ -12,7 +12,10 @@ import autoTable from "jspdf-autotable";
 import LoadingAnimation from "../../ReportComponents/LoadingAnimation";
 import NotFound from "../../ReportComponents/NotFound";
 
-const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
+const MonthlySpareConsumptionTrend = ({
+  context,
+  selectedSectionOrSubSection,
+}) => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [csvData, setCsvData] = useState([]);
   const [loadingAnimationState, setLoadingAnimationState] = useState(
@@ -20,6 +23,7 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
   );
   const [selectedLine, setSelectedLine] = useState("");
   const [graphData, setGraphData] = useState([]);
+  const [lineData, setLineData] = useState([]);
 
   const label = [
     "",
@@ -37,7 +41,7 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
     "Mar",
   ];
 
-  const postSectionToGetAllDataForSparePartsReport = async () => {
+  const postSectionToGetAllDataForSparePartsReport = async (sectionData) => {
     setSelectedLine("");
     try {
       const res = await fetch("/postSectionToGetAllDataForSparePartsReport", {
@@ -46,7 +50,7 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          section: context.section_data,
+          section: sectionData,
           selectedYear,
         }),
       });
@@ -57,24 +61,34 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
       } else {
         // console.log(data);
         setGraphData(data);
+        setLineData(data?.lineData);
+
         let downloadData = [];
         downloadData.push(
           // keyOfCsvData,
           label,
           ["Total cost of PM"].concat(data?.totalMonthlyPMSpareConsumption),
           ["Total cost of BM"].concat(data?.totalMonthlyBMSpareConsumption),
-          ["Total cost of Corrective"].concat(data?.totalMonthlyCorrectiveSpareConsumption),
-          ["Total cost of Predictive"].concat(data?.totalMonthlyPridictiveSpareConsumption),
-          ["Total cost of Kaizen"].concat(data?.totalMonthlyKaizenSpareConsumption),
+          ["Total cost of Corrective"].concat(
+            data?.totalMonthlyCorrectiveSpareConsumption
+          ),
+          ["Total cost of Predictive"].concat(
+            data?.totalMonthlyPridictiveSpareConsumption
+          ),
+          ["Total cost of Kaizen"].concat(
+            data?.totalMonthlyKaizenSpareConsumption
+          ),
           ["Total"].concat(
             data?.totalMonthlyPMSpareConsumption?.map((key, idx) => {
-              return key + data?.totalMonthlyBMSpareConsumption[idx] +
+              return (
+                key +
+                data?.totalMonthlyBMSpareConsumption[idx] +
                 data?.totalMonthlyCorrectiveSpareConsumption[idx] +
                 data?.totalMonthlyPridictiveSpareConsumption[idx] +
                 data?.totalMonthlyKaizenSpareConsumption[idx]
+              );
             })
           )
-
         );
         setCsvData(downloadData);
       }
@@ -105,7 +119,6 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-
         setGraphData(data);
         let downloadData = [];
         downloadData.push(
@@ -113,21 +126,28 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
           label,
           ["Total cost of PM"].concat(data?.totalMonthlyPMSpareConsumption),
           ["Total cost of BM"].concat(data?.totalMonthlyBMSpareConsumption),
-          ["Total cost of Corrective"].concat(data?.totalMonthlyCorrectiveSpareConsumption),
-          ["Total cost of Predictive"].concat(data?.totalMonthlyPridictiveSpareConsumption),
-          ["Total cost of Kaizen"].concat(data?.totalMonthlyKaizenSpareConsumption),
+          ["Total cost of Corrective"].concat(
+            data?.totalMonthlyCorrectiveSpareConsumption
+          ),
+          ["Total cost of Predictive"].concat(
+            data?.totalMonthlyPridictiveSpareConsumption
+          ),
+          ["Total cost of Kaizen"].concat(
+            data?.totalMonthlyKaizenSpareConsumption
+          ),
           ["Total"].concat(
             data?.totalMonthlyPMSpareConsumption?.map((key, idx) => {
-              return key + data?.totalMonthlyBMSpareConsumption[idx] +
+              return (
+                key +
+                data?.totalMonthlyBMSpareConsumption[idx] +
                 data?.totalMonthlyCorrectiveSpareConsumption[idx] +
                 data?.totalMonthlyPridictiveSpareConsumption[idx] +
                 data?.totalMonthlyKaizenSpareConsumption[idx]
+              );
             })
           )
-
         );
         setCsvData(downloadData);
-
       }
     } catch (error) {
       console.log(error);
@@ -155,7 +175,14 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
 
     autoTable(doc, {
       head: [csvData[0]],
-      body: [csvData[1], csvData[2], csvData[3], csvData[4], csvData[5], csvData[6]],
+      body: [
+        csvData[1],
+        csvData[2],
+        csvData[3],
+        csvData[4],
+        csvData[5],
+        csvData[6],
+      ],
     });
     // doc.autoTable(columns, csvData);
     doc.save(`${selectedYear}_Monthly_Spare_Consumption_Trend_${timeStamp()}`);
@@ -163,12 +190,16 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
 
   const functionForTotalDataForSpareParts = () => {
     setSelectedLine("");
-    postSectionToGetAllDataForSparePartsReport();
+    postSectionToGetAllDataForSparePartsReport(
+      selectedSectionOrSubSection || context?.section_data
+    );
   };
 
   useEffect(() => {
-    postSectionToGetAllDataForSparePartsReport();
-  }, [selectedYear]);
+    postSectionToGetAllDataForSparePartsReport(
+      selectedSectionOrSubSection || context?.section_data
+    );
+  }, [selectedYear, selectedSectionOrSubSection]);
 
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
@@ -176,8 +207,6 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
 
   return (
     <div className="pt-3 ">
-
-
       <Container fluid>
         <h4 className="mb-3">Monthly Spare Consumption Trend</h4>
         <Row className="pt-2 cell gy-2">
@@ -189,7 +218,6 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
           </Col>
           <Col sm={12} lg={6} md={12}>
             <select
-              
               style={{ width: "75%" }}
               name="selectedLine"
               fullWidth
@@ -210,11 +238,10 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
               </option>
 
               {lineData?.map((option) => {
-                return (
-                  <option value={option._id}>{option.line_name}</option>
-                );
+                return <option value={option._id}>{option.line_name}</option>;
               })}
-            </select>&nbsp;&nbsp;
+            </select>
+            &nbsp;&nbsp;
             <button
               className="btn-reset"
               onClick={functionForTotalDataForSpareParts}
@@ -223,9 +250,7 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
             </button>
           </Col>
 
-
           <Row className="p-2">
-
             <Col className="d-flex justify-content-start">
               <CSVLink
                 data={csvData}
@@ -245,19 +270,16 @@ const MonthlySpareConsumptionTrend = ({ lineData, context }) => {
             </Col>
           </Row>
           <Row className="mt-3">
-          {graphData?.totalMonthlyPMSpareConsumption?.length > 0 ? (
+            {graphData?.totalMonthlyPMSpareConsumption?.length > 0 ? (
               <MonthlySpareConsumptionTrendGraph graphData={graphData} />
             ) : (
-              <Col className="d-flex justify-content-center align-items-center mb-2">{loadingAnimationState}</Col>
-
+              <Col className="d-flex justify-content-center align-items-center mb-2">
+                {loadingAnimationState}
+              </Col>
             )}
           </Row>
         </Row>
       </Container>
-
-
-
-      
     </div>
   );
 };

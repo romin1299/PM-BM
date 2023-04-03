@@ -120,6 +120,45 @@ const LogHistory = () => {
     <LoadingAnimation />
   );
 
+  const [sectionOrSubSectionDropdownList, setSectionOrSubSectionDropdownList] =
+    useState([]);
+
+  const [selectedSectionOrSubSection, setSelectedSectionOrSubSection] =
+    useState(0);
+
+  const postPlantToGetSectionDataBasedOnDashboardLevel = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch(
+        "/postPlantToGetSectionDataBasedOnDashboardLevel",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            plant: context.plant_data,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log("-------------$$$$$$$$$$$$-->", data);
+        setSectionOrSubSectionDropdownList(data?.sectionDataArray);
+
+        // getDataOfSkippedApprovalStatus(data?.sectionDataArray?.[0]);
+
+        postSectionToGetAllDataForLogHistory(data?.sectionDataArray?.[0]);
+        fetchSectionWiseLogHistory(data?.sectionDataArray?.[0]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // console.log(selectedMonth);
 
   const postSectionToGetAllDataForLogHistory = async (selectedSection) => {
@@ -131,7 +170,7 @@ const LogHistory = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          section: context.section_data,
+          section: selectedSection,
           selectedYear,
         }),
       });
@@ -174,7 +213,7 @@ const LogHistory = () => {
     }
   };
 
-  const fetchSectionWiseLogHistory = async () => {
+  const fetchSectionWiseLogHistory = async (selectedSection) => {
     // setSubSection(undefined);
     try {
       const res = await fetch("/fetchSectionWiseLogHistory/simpleLogHistory", {
@@ -183,7 +222,7 @@ const LogHistory = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          section: context.section_data,
+          section: selectedSection ,
           selectedYear,
         }),
       });
@@ -203,10 +242,25 @@ const LogHistory = () => {
     }
   };
 
-  useEffect(() => {
-    postSectionToGetAllDataForLogHistory();
+  // useEffect(() => {
+  //   // if (context?.user_type === "Plant-Admin") {
+  //   //   postSectionToGetAllDataForLogHistory(
+  //   //     sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
+  //   //   );
+  //   // } else {
+  //     postSectionToGetAllDataForLogHistory(context.section_data);
+  //   // }
 
-    fetchSectionWiseLogHistory();
+  //   fetchSectionWiseLogHistory();
+  // }, []);
+
+  useEffect(() => {
+    if (context?.user_type === "Plant-Admin") {
+      postPlantToGetSectionDataBasedOnDashboardLevel();
+    } else {
+      postSectionToGetAllDataForLogHistory(context.section_data);
+      fetchSectionWiseLogHistory(context.section_data);
+    }
   }, []);
 
   const styleForDownloadFileButton = {
@@ -248,6 +302,45 @@ const LogHistory = () => {
               setSelectedMonth={setSelectedMonth}
             />
           </Col>
+          {context?.user_type === "Plant-Admin" &&
+          context?.tm_grade === "HOD" ? (
+            <Col sm={12} md={6} lg={2} className="mb-2">
+              <span>
+                <b>Section:&nbsp; &nbsp;</b>
+              </span>
+              <select
+                class="form-select form-select-sm"
+                aria-label=".form-select-sm example"
+                style={{ width: "60%" }}
+                id="standard-select-currency"
+                name="selectedSectionOrSubSection"
+                className="textField"
+                value={selectedSectionOrSubSection}
+                onChange={(e) => {
+                  setSelectedSectionOrSubSection(e.target.value);
+                  postSectionToGetAllDataForLogHistory(
+                    sectionOrSubSectionDropdownList?.[e.target.value]
+                  );
+                  fetchSectionWiseLogHistory(
+                    sectionOrSubSectionDropdownList?.[e.target.value]
+                  );
+                }}
+                // fullWidth
+                select // label="Select"
+                autoComplete="off"
+                variant="standard"
+              >
+                <option selected disabled value="">
+                  Please select
+                </option>
+                {sectionOrSubSectionDropdownList?.map((option, index) => {
+                  return <option value={index}>{option?.section_name}</option>;
+                })}
+              </select>
+            </Col>
+          ) : (
+            ""
+          )}
 
           <Col sm={12} md={6} lg={2} className="mb-2">
             <span>
@@ -256,7 +349,7 @@ const LogHistory = () => {
             <select
               class="form-select form-select-sm"
               aria-label=".form-select-sm example"
-              style={{ width: "70%" }}
+              style={{ width: "60%" }}
               id="standard-select-currency"
               name="selectedCell"
               value={selectedCell}
@@ -328,9 +421,9 @@ const LogHistory = () => {
             </select>
           </Col>
 
-          <Col sm={12} md={6} lg={2} className="mb-2">
+          <Col sm={12} md={6} lg={1} className="mb-2">
             <button
-              class="btn-primary1 w-50"
+              class="btn-primary1"
               onClick={() => {
                 setSelectedCell("");
                 setSelectedLine("");

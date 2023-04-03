@@ -53,6 +53,8 @@ const MachineWisePmMonthlyReport = () => {
   // console.log(currentYear);
 
   const [csvDataForCurrentMonth, setCsvDataForCurrentMonth] = useState([]);
+  const [csvDataForPendingMachine, setCsvDataForPendingMachine] = useState([]);
+
   // const [csvDataForPreviousMonth, setCsvDataForPreviousMonth] = useState([]);
 
   const [skipApprovalStatusData, setSkipApprovalStatusData] = useState([]);
@@ -227,16 +229,14 @@ const MachineWisePmMonthlyReport = () => {
       field: "PMStatus",
       editable: "false",
       width: "5%",
-      render: (rowData) =>
-        rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
-        "Done with delay" ? (
-          <PanoramaFishEyeIcon fontSize="small" />
-        ) : rowData?.checkSheet_data?.PMStatus?.[selectedMonth] ===
-          "Ongoing" ? (
-          <ArrowDropUpIcon />
-        ) : (
-          <CloseIcon />
-        ),
+      // render: (rowData) =>
+      //   rowData?.PMStatus === "Done with delay" ? (
+      //     <PanoramaFishEyeIcon fontSize="small" />
+      //   ) : rowData?.PMStatus === "Ongoing" ? (
+      //     <ArrowDropUpIcon />
+      //   ) : (
+      //     <CloseIcon />
+      //   ),
     },
   ];
 
@@ -345,6 +345,33 @@ const MachineWisePmMonthlyReport = () => {
         position: "row",
       };
     },
+    {
+      // icon: () => <button className="addbutton">Add</button>,
+      icon: () => <button className="downloadPDF">PDF</button>,
+
+      tooltip: "PDF",
+      isFreeAction: true,
+      onClick: (event, rowData) => {
+        pdfDownloadForPendingMachine();
+      },
+    },
+    {
+      // icon: () => <button className="addbutton">Add</button>,
+      icon: () => (
+        <CSVLink
+          data={csvDataForPendingMachine}
+          filename={`${selectedMonth}_Pending_PM_Machine_${timeStamp()}`}
+          className="downloadCSV text-decoration-none"
+          target="_blank"
+        >
+          CSV
+        </CSVLink>
+      ),
+
+      tooltip: "CSV",
+      isFreeAction: true,
+      onClick: (event, rowData) => {},
+    },
     // {
     //   // icon: () => <button className="addbutton">Add</button>,
     //   icon: () => <button className="downloadPDF">PDF</button>,
@@ -382,6 +409,7 @@ const MachineWisePmMonthlyReport = () => {
     tableData1?.machineDataForCurrentMonth.map((item, index) =>
       rows.push([
         index + 1,
+        item?.line_names.cell_names.cell_name,
         item.line_names.line_name,
         item.machine_name,
         item.machine_code,
@@ -397,10 +425,41 @@ const MachineWisePmMonthlyReport = () => {
     // let finalTable = [];
 
     // finalTable.push(rows);
-    console.log(rows);
+    // console.log(rows);
 
     doc.autoTable(columns, rows);
     doc.save(`${selectedMonth}_PM_Status(Machine)${timeStamp()}`);
+  };
+
+  const pdfDownloadForPendingMachine = () => {
+    const doc = new jsPDF();
+    doc.text(`${selectedMonth}. Pending PM Machine`, 15, 10);
+    const columns = tableColumn2.map((index) => index.title);
+    const rows = [];
+    tableData1?.skipMachineDataWithEveryMonth.map((item, index) =>
+      rows.push([
+        index + 1,
+        item?.schedule_month,
+        item?.line_names.cell_names.cell_name,
+        item.line_names.line_name,
+        item.machine_name,
+        item.machine_code,
+        item?.completionTargetDate,
+        item?.PMStatus === "Done with delay"
+          ? "O"
+          : item?.PMStatus === "Ongoing"
+          ? "^"
+          : "X",
+      ])
+    );
+
+    // let finalTable = [];
+
+    // finalTable.push(rows);
+    // console.log(rows);
+
+    doc.autoTable(columns, rows);
+    doc.save(`${selectedMonth}_Pending_PM_Machine_${timeStamp()}`);
   };
 
   const filterCSVDataToDownloadCSV = () => {
@@ -448,6 +507,7 @@ const MachineWisePmMonthlyReport = () => {
 
       return currentMonthRows.push([
         index + 1,
+        item?.line_names.cell_names.cell_name,
         item.line_names.line_name,
         item.machine_name,
         item.machine_code,
@@ -477,6 +537,33 @@ const MachineWisePmMonthlyReport = () => {
     // setCsvDataForPreviousMonth(previousMonthRows);
   };
 
+  const filterCSVDataToDownloadCSVOfPendingMachine = () => {
+    const columns = tableColumn2.map((index) => index.title);
+    const pendingMachineRows = [];
+    // const previousMonthRows = [];
+    pendingMachineRows.push(columns);
+
+    tableData1?.skipMachineDataWithEveryMonth.map((item, index) => {
+      return pendingMachineRows.push([
+        index + 1,
+        item?.schedule_month,
+        item?.line_names.cell_names.cell_name,
+        item.line_names.line_name,
+        item.machine_name,
+        item.machine_code,
+        item?.completionTargetDate,
+        item?.PMStatus === "Done with delay"
+          ? "O"
+          : item?.PMStatus === "Ongoing"
+          ? "^"
+          : "X",
+      ]);
+    });
+
+    setCsvDataForPendingMachine(pendingMachineRows);
+    // setCsvDataForPreviousMonth(previousMonthRows);
+  };
+
   const postSectionAndMonthToGetAllDataForReport = async (sectionData) => {
     setLoadingAnimationState(<LoadingAnimation />);
 
@@ -499,7 +586,7 @@ const MachineWisePmMonthlyReport = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        console.log("===================>", data);
+        // console.log("===================>", data);
         setTableData1(data);
         setLoadingAnimationState(<NotFound />);
       }
@@ -808,6 +895,7 @@ const MachineWisePmMonthlyReport = () => {
       tableData1?.skipMachineDataWithEveryMonth?.length > 0
     ) {
       filterCSVDataToDownloadCSV();
+      filterCSVDataToDownloadCSVOfPendingMachine();
     }
     // }, 1000);
   }, [selectedMonth, tableData1]);

@@ -63,6 +63,52 @@ const SparePartUsageHistory = () => {
 
   // console.log(allMachineDataBasedOnLine);
 
+  const [sectionOrSubSectionDropdownList, setSectionOrSubSectionDropdownList] =
+    useState([]);
+
+  const [selectedSectionOrSubSection, setSelectedSectionOrSubSection] =
+    useState(0);
+
+  const postPlantToGetSectionDataBasedOnDashboardLevel = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch(
+        "/postPlantToGetSectionDataBasedOnDashboardLevel",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            plant: context.plant_data,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log("-------------$$$$$$$$$$$$-->", data);
+        setSectionOrSubSectionDropdownList(data?.sectionDataArray);
+        postSectionToGetAllDataForMainDashboard(
+          sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection] ||
+            data?.sectionDataArray?.[0],
+          selectedYear
+        ).then((result) => {
+          setAllLineData(result?.lineData);
+          setTableDataOfSpareDetails(result?.allSpareDetailsWithCategories);
+          setStateForAnimationAndNotFound(<NotFound />);
+        });
+        setStateForAnimationAndNotFound(<NotFound />);
+
+        // getDataOfSkippedApprovalStatus(data?.sectionDataArray?.[0]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   let tableColumn = [
     {
       title: "Sr. No.",
@@ -159,14 +205,18 @@ const SparePartUsageHistory = () => {
   }, []);
 
   useEffect(() => {
-    postSectionToGetAllDataForMainDashboard(
-      context?.section_data,
-      selectedYear
-    ).then((result) => {
-      setAllLineData(result?.lineData);
-      setTableDataOfSpareDetails(result?.allSpareDetailsWithCategories);
-      setStateForAnimationAndNotFound(<NotFound />);
-    });
+    if (context?.user_type === "Plant-Admin") {
+      postPlantToGetSectionDataBasedOnDashboardLevel();
+    } else {
+      postSectionToGetAllDataForMainDashboard(
+        context?.section_data,
+        selectedYear
+      ).then((result) => {
+        setAllLineData(result?.lineData);
+        setTableDataOfSpareDetails(result?.allSpareDetailsWithCategories);
+        setStateForAnimationAndNotFound(<NotFound />);
+      });
+    }
   }, [context?.section_data, selectedYear]);
 
   const notifyForDeletedCategoryPoint = (rowValue) => {
@@ -273,6 +323,49 @@ const SparePartUsageHistory = () => {
               })}
             </select>
           </Col>
+          {context?.user_type === "Plant-Admin" &&
+          context?.tm_grade === "HOD" ? (
+            <Col sm={12} md={6} lg={2} className="mb-2">
+              <span>
+                <b>Section:&nbsp; &nbsp;</b>
+              </span>
+              <select
+                class="form-select form-select-sm"
+                aria-label=".form-select-sm example"
+                // style={{ width: "60%" }}
+                id="standard-select-currency"
+                name="selectedSectionOrSubSection"
+                className="textField w-50"
+                value={selectedSectionOrSubSection}
+                onChange={(e) => {
+                  setSelectedSectionOrSubSection(e.target.value);
+                  postSectionToGetAllDataForMainDashboard(
+                    sectionOrSubSectionDropdownList?.[e.target.value],
+                    selectedYear
+                  ).then((result) => {
+                    setAllLineData(result?.lineData);
+                    setTableDataOfSpareDetails(
+                      result?.allSpareDetailsWithCategories
+                    );
+                    setStateForAnimationAndNotFound(<NotFound />);
+                  });
+                }}
+                // fullWidth
+                select // label="Select"
+                autoComplete="off"
+                variant="standard"
+              >
+                <option selected disabled value="">
+                  Please select
+                </option>
+                {sectionOrSubSectionDropdownList?.map((option, index) => {
+                  return <option value={index}>{option?.section_name}</option>;
+                })}
+              </select>
+            </Col>
+          ) : (
+            ""
+          )}
 
           <Col sm={12} md={6} lg={2}>
             <span>
@@ -326,7 +419,8 @@ const SparePartUsageHistory = () => {
               id="standard-select-currency"
               name="selectedPlant"
               className="textField w-50"
-              w-75 value={selectedMonth}
+              w-75
+              value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
               // fullWidth
               select // label="Select"
@@ -445,10 +539,7 @@ const SparePartUsageHistory = () => {
             <button
               class="btn-primary1 w-50 "
               onClick={() => {
-                setSelectedMonth();
-                setSelectedCategory();
-                setSelectedLine();
-                setSelectedMachine();
+                window.location.reload();
               }}
             >
               Reset
@@ -467,13 +558,13 @@ const SparePartUsageHistory = () => {
                     {tableColumn.map((tColumn) => (
                       <th
                         className={"ar-table-thead-header5 td-padding"}
-                      // colSpan={
-                      //   tColumn.header === "Preparation"
-                      //     ? 3
-                      //     : tColumn.header === "Planning"
-                      //     ? 2
-                      //     : 0
-                      // }
+                        // colSpan={
+                        //   tColumn.header === "Preparation"
+                        //     ? 3
+                        //     : tColumn.header === "Planning"
+                        //     ? 2
+                        //     : 0
+                        // }
                       >
                         {tColumn.title}
                         {/* {tColumn.header === "Machine Code" ||
@@ -532,15 +623,15 @@ const SparePartUsageHistory = () => {
                     (selectedCategory
                       ? index?.type === selectedCategory
                       : true) &&
-                      (selectedMonth
-                        ? index?.schedule_month === selectedMonth
-                        : true) &&
-                      (selectedLine
-                        ? index?.line_names._id === selectedLine
-                        : true) &&
-                      (selectedMachine
-                        ? index?.machineId === selectedMachine
-                        : true) ? (
+                    (selectedMonth
+                      ? index?.schedule_month === selectedMonth
+                      : true) &&
+                    (selectedLine
+                      ? index?.line_names._id === selectedLine
+                      : true) &&
+                    (selectedMachine
+                      ? index?.machineId === selectedMachine
+                      : true) ? (
                       <tr className="ar-table-thead-header4 tableRowColor">
                         {/* {console.log(index)} */}
                         <td className="td-padding">{index?.sr_no}</td>
@@ -608,10 +699,7 @@ const SparePartUsageHistory = () => {
               </table>
             </div>
           ) : (
-            <div
-              className="container-fluid d-flex justify-content-center align-items-center"
-              
-            >
+            <div className="container-fluid d-flex justify-content-center align-items-center">
               {stateForAnimationAndNotFound}
               {/* <LoadingAnimation /> */}
             </div>

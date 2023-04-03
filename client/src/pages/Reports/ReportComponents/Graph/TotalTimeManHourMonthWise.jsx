@@ -12,7 +12,10 @@ import autoTable from "jspdf-autotable";
 import LoadingAnimation from "../LoadingAnimation";
 import NotFound from "../NotFound";
 
-const TotalTimeManHourMonthWise = ({ context }) => {
+const TotalTimeManHourMonthWise = ({
+  context,
+  selectedSectionOrSubSection,
+}) => {
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
   const [graphData, setGraphData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -64,7 +67,9 @@ const TotalTimeManHourMonthWise = ({ context }) => {
     doc.save(`${selectedYear}_Total_time_man_hour_wise${timeStamp()}`);
   };
 
-  const postSectionToGetAllDataForTotalTimeManHoursMonthWise = async () => {
+  const postSectionToGetAllDataForTotalTimeManHoursMonthWise = async (
+    sectionData
+  ) => {
     setSelectedLine("");
     try {
       const res = await fetch(
@@ -75,7 +80,7 @@ const TotalTimeManHourMonthWise = ({ context }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            section: context.section_data,
+            section: sectionData,
             selectedYear,
           }),
         }
@@ -143,14 +148,18 @@ const TotalTimeManHourMonthWise = ({ context }) => {
   };
 
   useEffect(() => {
-    postSectionToGetAllDataForTotalTimeManHoursMonthWise();
-  }, [selectedYear]);
+    postSectionToGetAllDataForTotalTimeManHoursMonthWise(
+      selectedSectionOrSubSection || context?.section_data
+    );
+  }, [selectedYear, selectedSectionOrSubSection]);
 
   const [selectedLine, setSelectedLine] = useState("");
 
   const functionForTotalData = () => {
     setSelectedLine("");
-    postSectionToGetAllDataForTotalTimeManHoursMonthWise();
+    postSectionToGetAllDataForTotalTimeManHoursMonthWise(
+      selectedSectionOrSubSection || context?.section_data
+    );
   };
 
   const y1 = graphData;
@@ -230,79 +239,70 @@ const TotalTimeManHourMonthWise = ({ context }) => {
         <Container fluid>
           <h4 className="mb-3">Total time Man-Hour (Month Wise)</h4>
           <Row className="pt-2 cell gy-2">
-          <Col sm={12} lg={6} md={12}>
-          <YearDropDown
-                  selectedYear={selectedYear}
-                  setSelectedYear={setSelectedYear}
-                />
-          </Col>
-          <Col sm={12} lg={6} md={12}>
-              <select
-                                style={{ width: "75%" }}
-                    name="selectedCell"
-                    fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    variant="standard"
-                    value={selectedLine}
-                    onChange={(e) => {
-                      setSelectedLine(e.target.value);
-                      postPerticularLineToGetDataForTotalTimeManHours(
-                        e.target.value
-                      );
-                      setLoadingAnimationState(<LoadingAnimation />);
-                    }}
-                  >
-                    <option selected disabled value="">
-                      Please select Line
-                    </option>
-                    {allDataSectionWise?.lineData?.map((option) => {
-                      return (
-                        <option value={option._id}>{option.line_name}</option>
-                      );
-                    })}
-                  </select> &nbsp;&nbsp;
-                  <button className="btn-reset" onClick={functionForTotalData}>
-                  Total
-                </button>
-          </Col>
-
-
-          <Row className="p-2">
-
-            <Col className="d-flex justify-content-start">
-            <CSVLink
-                    data={csvData}
-                    filename={`${selectedYear}_Total_time_month_wise${timeStamp()}`}
-                    className="downloadCSV text-decoration-none"
-                    target="_blank"
-                  >
-                    CSV
-                  </CSVLink>
-                  &nbsp;
-                  <button
-                    className="downloadPDF"
-                    onClick={pdfDownloadForTotalTimeManHourWise}
-                  >
-                    PDF
-                  </button>
+            <Col sm={12} lg={6} md={12}>
+              <YearDropDown
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+              />
             </Col>
+            <Col sm={12} lg={6} md={12}>
+              <select
+                style={{ width: "75%" }}
+                name="selectedCell"
+                fullWidth
+                select // label="Select"
+                autoComplete="off"
+                variant="standard"
+                value={selectedLine}
+                onChange={(e) => {
+                  setSelectedLine(e.target.value);
+                  postPerticularLineToGetDataForTotalTimeManHours(
+                    e.target.value
+                  );
+                  setLoadingAnimationState(<LoadingAnimation />);
+                }}
+              >
+                <option selected disabled value="">
+                  Please select Line
+                </option>
+                {allDataSectionWise?.lineData?.map((option) => {
+                  return <option value={option._id}>{option.line_name}</option>;
+                })}
+              </select>
+              &nbsp;&nbsp;
+              <button className="btn-reset" onClick={functionForTotalData}>
+                Total
+              </button>
+            </Col>
+
+            <Row className="p-2">
+              <Col className="d-flex justify-content-start">
+                <CSVLink
+                  data={csvData}
+                  filename={`${selectedYear}_Total_time_month_wise${timeStamp()}`}
+                  className="downloadCSV text-decoration-none"
+                  target="_blank"
+                >
+                  CSV
+                </CSVLink>
+                &nbsp;
+                <button
+                  className="downloadPDF"
+                  onClick={pdfDownloadForTotalTimeManHourWise}
+                >
+                  PDF
+                </button>
+              </Col>
             </Row>
             <Row>
-          {graphData?.length > 0 ? (
-              <ManHourMonthWiseGraph xValue={x1} yValue={y1} />
-            ) : (
-              loadingAnimationState
-            )}
+              {graphData?.length > 0 ? (
+                <ManHourMonthWiseGraph xValue={x1} yValue={y1} />
+              ) : (
+                loadingAnimationState
+              )}
+            </Row>
           </Row>
-
-
-
-          </Row>
-          
-         
         </Container>
-       
       </div>
     </>
   );

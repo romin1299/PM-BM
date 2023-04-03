@@ -5,7 +5,9 @@ import "./index.css";
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../../Reports/ReportComponents/NotFound";
 import Footer from "../../../components/Footer/Footer";
-
+import { Row, Col } from "react-bootstrap";
+import { postLineToGetAllMachineData } from "../../../Integration/APIExports";
+import currentYear from "../../Dashboard/DashboardComponent/currentYear";
 // import "./tableColor.scss"
 
 function PMSheetApproval() {
@@ -14,7 +16,21 @@ function PMSheetApproval() {
   const [stateForAnimationAndNotFound, setStateForAnimationAndNotFound] =
     useState(<LoadingAnimation />);
 
+  const [sectionOrSubSectionDropdownList, setSectionOrSubSectionDropdownList] =
+    useState([]);
+
+  const [selectedSectionOrSubSection, setSelectedSectionOrSubSection] =
+    useState(0);
+
   const [tableData, setTableData] = useState([]);
+
+  const [allLineData, setAllLineData] = useState([]);
+  
+  const [selectedLine, setSelectedLine] = useState();
+  const [selectedMachine, setSelectedMachine] = useState();
+  const [allMachineDataBasedOnLine, setAllMachineDataBasedOnLine] = useState(
+    []
+  );
 
   let columns = [
     {
@@ -80,7 +96,65 @@ function PMSheetApproval() {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        console.log(data);
+        // console.log(data);
+        setTableData(data.machineDataOfPrepAndPlanApproval);
+        setAllLineData(data?.lineData)
+        setStateForAnimationAndNotFound(<NotFound />);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const postPlantToGetSectionDataBasedOnDashboardLevel = async () => {
+    // setSubSection(undefined);
+    try {
+      const res = await fetch(
+        "/postPlantToGetSectionDataBasedOnDashboardLevel",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            plant: context.plant_data,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log("-------------$$$$$$$$$$$$-->", data);
+        setSectionOrSubSectionDropdownList(data?.sectionDataArray);
+
+        // getDataOfSkippedApprovalStatus(data?.sectionDataArray?.[0]);
+
+        postSectionToGetPMSheetApprovalData(sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection] || data?.sectionDataArray?.[0]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const postSectionToGetPMSheetApprovalData = async (sectionData) => {
+    setStateForAnimationAndNotFound(<LoadingAnimation />);
+    try {
+      const res = await fetch("/postSectionToGetPMSheetApprovalData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          section: sectionData,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
         setTableData(data.machineDataOfPrepAndPlanApproval);
         setStateForAnimationAndNotFound(<NotFound />);
       }
@@ -90,51 +164,227 @@ function PMSheetApproval() {
   };
 
   useEffect(() => {
-    postSectionToGetAllDataForMainDashboard();
+    if (context?.user_type !== "Plant-Admin") {
+      postSectionToGetAllDataForMainDashboard();
+    }
   }, []);
+
+  useEffect(() => {
+    if (context?.user_type === "Plant-Admin") {
+      postPlantToGetSectionDataBasedOnDashboardLevel();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (context?.user_type === "Plant-Admin") {
+      postSectionToGetPMSheetApprovalData(
+        sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
+      );
+    }
+  }, [selectedSectionOrSubSection]);
   return (
     <>
+      {context?.user_type === "Plant-Admin" && context?.tm_grade === "HOD" ? (
+        <Row className="p-2 mt-3">
+          <Col sm={12} lg={3}>
+            <span>
+              <b>Section:&nbsp; &nbsp;</b>
+            </span>
+            <select
+              class="form-select form-select-sm"
+              aria-label=".form-select-sm example"
+              style={{ width: "63%" }}
+              id="standard-select-currency"
+              name="selectedSectionOrSubSection"
+              className="textField"
+              value={selectedSectionOrSubSection}
+              onChange={(e) => {
+                setSelectedSectionOrSubSection(e.target.value);
+              }}
+              // fullWidth
+              select // label="Select"
+              autoComplete="off"
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {sectionOrSubSectionDropdownList?.map((option, index) => {
+                return <option value={index}>{option?.section_name}</option>;
+              })}
+            </select>
+          </Col>
+          <Col sm={12} lg={3}>
+            <button
+              class="btn-primary1 w-50"
+              onClick={() => window.location.reload()}
+            >
+              Reset
+            </button>
+          </Col>
+        </Row>
+      ) : (
+        <Row className="p-2 mt-3">
+          <Col sm={12} md={4} lg={4} className="mb-2">
+            <span>
+              <b>Line:</b>
+            </span> &nbsp;
+            <select
+              // class="form-select form-select-sm"
+              // aria-label=".form-select-sm example"
+              style={{ borderRadius: "5px" }}
+              // id="standard-select-currency"
+              id="outlined-number"
+              name="selectedLine"
+              className="textField w-50"
+              fullWidth
+              select // label="Select"
+              autoComplete="off"
+              value={selectedLine}
+              onChange={async (e) => {
+                setSelectedMachine("");
+                setSelectedLine(e.target.value);
+                postLineToGetAllMachineData(e.target.value, currentYear).then(
+                  (result) => setAllMachineDataBasedOnLine(result?.machineInfo)
+                );
+              }}
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {allLineData?.map((option) => {
+                return <option value={option?._id}>{option?.line_name}</option>;
+              })}
+            </select>
+            {/* <div>
+              <p
+                style={{
+                  color: "#F44336",
+                  fontWeight: "normal",
+                  fontSize: "0.80rem",
+                  float: "left",
+                  paddingTop: "0.5rem",
+                }}
+              >
+                {formik.touched.selectedLine && formik.errors.selectedLine}
+              </p>
+            </div> */}
+          </Col>
+
+          <Col sm={12} md={4} lg={4} className="mb-2">
+            <span>
+              <b>Machine:</b>
+            </span> &nbsp;
+            <select
+              // class="form-select form-select-sm"
+              // aria-label=".form-select-sm example"
+              style={{ borderRadius: "5px" }}
+              // id="standard-select-currency"
+              id="outlined-number"
+              name="selectedMachine"
+              className="textField w-50"
+              fullWidth
+              select // label="Select"
+              autoComplete="off"
+              value={
+                // allMachineDataBasedOnLine?.[selectedMachine]?.machine_name || ""
+                selectedMachine
+              }
+              onChange={(e) => {
+                setSelectedMachine(e.target.value);
+              }}
+              variant="standard"
+            >
+              <option selected disabled value="">
+                Please select
+              </option>
+              {allMachineDataBasedOnLine?.map((option, index) => {
+                return (
+                  <option value={option?.machine_code}>{option?.machine_name}</option>
+                );
+              })}
+            </select>
+            {/* <div>
+              <p
+                style={{
+                  color: "#F44336",
+                  fontWeight: "normal",
+                  fontSize: "0.80rem",
+                  float: "left",
+                  paddingTop: "0.5rem",
+                }}
+              >
+                {formik.touched.selectedMachine &&
+                  formik.errors.selectedMachine}
+              </p>
+            </div> */}
+          </Col>
+
+          <Col sm={12} md={4} lg={4} className="mb-2">
+            <button
+              class="btn-primary1 w-25"
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              Reset
+            </button>
+          </Col>
+        </Row>
+      )}
       {tableData?.length > 0 ? (
         <div className="container-fluid" style={{ overflow: "auto" }}>
           <h4 style={{ padding: "1rem 0 0 0" }}>PM Sheet Approval</h4>
 
-        <table className="ar-table pmSheetApprovalTableCol">
-          <thead className="mt-5">
-            <tr className="bg-button" >
-              {columns.map((tColumn) => (
-                <th
-                  className={"ar-table-thead-header5 td-padding text-white"}
-                  colSpan={
-                    tColumn.header === "Preparation"
-                      ? 3
-                      : tColumn.header === "Planning"
-                      ? 2
-                      : 0
-                  }
-                >
-                  {tColumn.header}
-                </th>
-              ))}
-            </tr>
-            <tr className="ar-table-thead-header4">
-              <th></th>
-              <th></th>
-              <th></th>
-              {columns1.map((tColumn) => (
-                <th className={"ar-table-thead-header4 td-padding bg-light-button text-dark font-weight-normal"}>
-                  {tColumn.header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tableData?.map((index) => (
-              <tr className="ar-table-thead-header4 tableRowColor">
-                <td className="td-padding">{index.line_names.line_name}</td>
-                <td className="td-padding">{index.machine_code}</td>
-                <td className="td-padding">{index.machine_name}</td>
-                <td className="td-padding">
-                  {/* {index.sender_tm_name[idx]}
+          <table className="ar-table pmSheetApprovalTableCol">
+            <thead className="mt-5">
+              <tr className="bg-button">
+                {columns.map((tColumn) => (
+                  <th
+                    className={"ar-table-thead-header5 td-padding text-white"}
+                    colSpan={
+                      tColumn.header === "Preparation"
+                        ? 3
+                        : tColumn.header === "Planning"
+                        ? 2
+                        : 0
+                    }
+                  >
+                    {tColumn.header}
+                  </th>
+                ))}
+              </tr>
+              <tr className="ar-table-thead-header4">
+                <th></th>
+                <th></th>
+                <th></th>
+                {columns1.map((tColumn) => (
+                  <th
+                    className={
+                      "ar-table-thead-header4 td-padding bg-light-button text-dark font-weight-normal"
+                    }
+                  >
+                    {tColumn.header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {tableData?.map((index) => (
+                (selectedLine
+                  ? index?.line_names._id === selectedLine
+                  : true) &&
+                (selectedMachine
+                  ? index?.machine_code === selectedMachine
+                  : true) ?
+
+                <tr className="ar-table-thead-header4 tableRowColor">
+                  <td className="td-padding">{index.line_names.line_name}</td>
+                  <td className="td-padding">{index.machine_code}</td>
+                  <td className="td-padding">{index.machine_name}</td>
+                  <td className="td-padding">
+                    {/* {index.sender_tm_name[idx]}
                   <br />
                   {index.preparation_TL_date[idx]
                     } */}
@@ -205,6 +455,7 @@ function PMSheetApproval() {
                     )}
                   </td>
                 </tr>
+                : ""
               ))}
             </tbody>
           </table>
@@ -218,10 +469,10 @@ function PMSheetApproval() {
           {/* <LoadingAnimation /> */}
         </div>
       )}
-   <br />
       <br />
       <br />
-      <Footer/>
+      <br />
+      <Footer />
     </>
   );
 }

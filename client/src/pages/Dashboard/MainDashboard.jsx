@@ -143,7 +143,7 @@ const MainDashboard = () => {
       } else {
         // window.alert(data.abcd);
         // console.log("Data post");
-        console.log(data);
+        // console.log(data);
         setallDataSectionWise(data);
         setDefaultSubSection(data.defaultSubSectionArray);
         setDeafaultDataForNoDashboard(data);

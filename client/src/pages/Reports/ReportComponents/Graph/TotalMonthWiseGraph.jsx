@@ -12,7 +12,7 @@ import autoTable from "jspdf-autotable";
 import LoadingAnimation from "../LoadingAnimation";
 import NotFound from "../NotFound";
 
-const TotalMonthWiseGraph = ({ context }) => {
+const TotalMonthWiseGraph = ({ context, selectedSectionOrSubSection }) => {
   const [allDataSectionWise, setAllDataSectionWise] = useState([]);
   const [selectedLine, setSelectedLine] = useState("");
   const [graphData, setGraphData] = useState([]);
@@ -21,7 +21,8 @@ const TotalMonthWiseGraph = ({ context }) => {
   const [loadingAnimationState, setLoadingAnimationState] = useState(
     <LoadingAnimation />
   );
-
+  console.log("by default section ---->", selectedSectionOrSubSection);
+  // console.log(context)
   const label = [
     "",
     "Apr",
@@ -38,7 +39,9 @@ const TotalMonthWiseGraph = ({ context }) => {
     "Mar",
   ];
 
-  const postSectionToGetAllDataForTotalTimeMonthWiseReport = async () => {
+  const postSectionToGetAllDataForTotalTimeMonthWiseReport = async (
+    sectionData
+  ) => {
     setSelectedLine("");
     try {
       const res = await fetch(
@@ -49,7 +52,7 @@ const TotalMonthWiseGraph = ({ context }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            section: context.section_data,
+            section: sectionData,
             selectedYear,
           }),
         }
@@ -74,7 +77,6 @@ const TotalMonthWiseGraph = ({ context }) => {
       console.log(error);
     }
   };
-  console.log(graphData);
 
   const postPerticularLineToGetDataForTotalTimeMonthWiseReport = async (
     selectedLine
@@ -145,12 +147,16 @@ const TotalMonthWiseGraph = ({ context }) => {
   };
 
   useEffect(() => {
-    postSectionToGetAllDataForTotalTimeMonthWiseReport();
-  }, [selectedYear]);
+    postSectionToGetAllDataForTotalTimeMonthWiseReport(
+      selectedSectionOrSubSection || context?.section_data
+    );
+  }, [selectedYear, selectedSectionOrSubSection]);
 
   const functionForTotalData = () => {
     setSelectedLine("");
-    postSectionToGetAllDataForTotalTimeMonthWiseReport();
+    postSectionToGetAllDataForTotalTimeMonthWiseReport(
+      selectedSectionOrSubSection || context?.section_data
+    );
   };
 
   useEffect(() => {
@@ -337,7 +343,6 @@ const TotalMonthWiseGraph = ({ context }) => {
           </Col>
           <Col sm={12} lg={6} md={12}>
             <select
-              
               style={{ width: "75%" }}
               name="selectedLine"
               fullWidth
@@ -358,20 +363,16 @@ const TotalMonthWiseGraph = ({ context }) => {
               </option>
 
               {allDataSectionWise?.lineData?.map((option) => {
-                return (
-                  <option value={option._id}>{option.line_name}</option>
-                );
+                return <option value={option._id}>{option.line_name}</option>;
               })}
-            </select>&nbsp;&nbsp;
+            </select>
+            &nbsp;&nbsp;
             <button className="btn-reset" onClick={functionForTotalData}>
               Total
             </button>
           </Col>
-          
-
 
           <Row className="p-2">
-
             <Col className="d-flex justify-content-start">
               <CSVLink
                 data={csvData}
@@ -391,15 +392,14 @@ const TotalMonthWiseGraph = ({ context }) => {
             </Col>
           </Row>
           <Row>
-          {graphData?.length > 0 ? (
-            <MonthWiseGraph xValue={x1} yValue={y1} />
-          ) : (
-            loadingAnimationState
-          )}
+            {graphData?.length > 0 ? (
+              <MonthWiseGraph xValue={x1} yValue={y1} />
+            ) : (
+              loadingAnimationState
+            )}
           </Row>
         </Row>
       </Container>
-     
     </>
   );
 };

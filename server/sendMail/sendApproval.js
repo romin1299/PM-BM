@@ -89,7 +89,14 @@ const sendApproval = async (subject, title, greetings, bodyTable, ccEmail, assig
                     </tr>
                     <tr>
                         <td style="text-align:center;">
-                            <a href="https://www.denso.com/in/en/" title="Denso" target="_blank" style="font-size:14px; color:white; line-height:18px; margin:0 0 0;">
+                            <a href=${process.env.BASE_URL} title="Denso" target="_blank" style="font-size:14px; color:black; line-height:18px; margin:0 0 0;">
+                            <strong>${process.env.BASE_URL}</strong>
+                            </a>
+                      </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;">
+                            <a href="https://www.denso.com/in/en/" title="Denso" target="_blank" style="font-size:14px; color:black; line-height:18px; margin:0 0 0;">
                             &copy; <strong>All Rights Reserved By DENSO(DNHA)</strong>
                             </a>
                       </td>

@@ -21,6 +21,7 @@ import NotFound from "../Reports/ReportComponents/NotFound";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "../../components/Footer/Footer";
+import DeleteConfirmation from "../../Popups/DeleteConfirmation";
 
 import { CSVLink, CSVDownload } from "react-csv";
 import { jsPDF } from "jspdf";
@@ -32,6 +33,8 @@ const CheckSheetDashboard = () => {
   const [tableData, setTableData] = useState([]);
   const [tableData1, setTableData1] = useState([]);
   const [lineData, setLineData] = useState([]);
+  const [selectedRow, setSelectedRow] = useState();
+  const [showCheckSheet, setShowCheckSheet] = useState(false);
 
   const [refKey, setRefKey] = useState(0);
   const navigate = useNavigate();
@@ -53,6 +56,10 @@ const CheckSheetDashboard = () => {
     localStorage.getItem("selectedStatus")
   );
 
+  const functionToSetRefKey = () => {
+    setRefKey((refKey) => refKey + 1);
+  };
+
   const postSectionToGetAllData = async (keyRef) => {
     // setSubSection(undefined);
     try {
@@ -71,7 +78,7 @@ const CheckSheetDashboard = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        console.log(data?.machineLastData)
+        // console.log(data?.machineLastData);
         setAllDataSectionWise(data);
         setLineData(data.lineData);
 
@@ -165,10 +172,10 @@ const CheckSheetDashboard = () => {
         // }
 
         // console.log("131     ******************", data.machineInfo);
-        console.log(selectedStatus)
+        // console.log(selectedStatus);
         if (selectedStatus) {
           // setTableData([]);
-          console.log(selectedStatus)
+          // console.log(selectedStatus);
           filterDataBasedOnSelectedStatus(selectedStatus, data.machineInfo);
         }
 
@@ -205,46 +212,6 @@ const CheckSheetDashboard = () => {
     // console.log(filterData);
     setTableData1(filterData);
     setLoadingAnimationState(<NotFound />);
-  };
-
-  const notifyForDeleteChecksheet = () => {
-    toast.success("CheckSheet deleted successfully", {
-      position: "top-center",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-    });
-  };
-
-  // console.log(tableData);
-  const deleteCheckSheet = async (selectedRow) => {
-    try {
-      const res = await fetch("/deleteCheckSheet", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          selectedRow,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.status === 400 || !data) {
-        window.alert("Invalid");
-      } else {
-        setRefKey((refKey) => refKey + 1);
-        notifyForDeleteChecksheet();
-        console.log("Data Deleted Successful");
-      }
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   // console.log();
@@ -346,6 +313,10 @@ const CheckSheetDashboard = () => {
     });
     // doc.autoTable(columns, csvData);
     doc.save(`Checksheet_Dashboard_Data_${timeStamp()}`);
+  };
+
+  const displayAndHide = () => {
+    setShowCheckSheet((showCheckSheet) => !showCheckSheet);
   };
 
   const actions =
@@ -456,7 +427,9 @@ const CheckSheetDashboard = () => {
               ),
               // tooltip: <h1>I am a tooltip</h1>,
               onClick: (event, selectedRow) => {
-                deleteCheckSheet(selectedRow);
+                // deleteCheckSheet(selectedRow);
+                setSelectedRow(selectedRow);
+                displayAndHide();
               },
               disabled: false, // Set disabled to false by default for all actions
               position: "row",
@@ -619,6 +592,12 @@ const CheckSheetDashboard = () => {
   //   ();
   return (
     <>
+      <DeleteConfirmation
+        showCheckSheet={showCheckSheet}
+        displayAndHide={displayAndHide}
+        selectedRow={selectedRow}
+        functionToSetRefKey={functionToSetRefKey}
+      />
       <ToastContainer style={{ width: "30rem" }} />
       <div className="pageCard">
         <div className="creationDashboard">
