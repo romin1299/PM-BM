@@ -8213,26 +8213,26 @@ router.post('/postMachineToGetChacksheetPreparationData', authenticate, async (r
                 machine_code: selectedMachine
             })
 
-            // console.log(getChecksheetPreparationDataOfSelectedMachine)
 
-            if (checkSheetExistsOrNot?.[0]?.checkSheet_data?.checkSheet?.length > 0) {
+            if (checkSheetExistsOrNot?.[0]?.checkSheet_data?.checkSheet?.length === 0) {
                 copyPreparationData = await Machine.updateOne({
                     machine_code: copyPreparationDataToSelectedMachine
                 }, {
                     $set: {
-                        "checkSheet_data.$[outer].checkSheet": {
-                            current_year: current_year,
-                            checkSheet: getChecksheetPreparationDataOfSelectedMachine.checkSheet_data[0].checkSheet
-                        }
+                        "checkSheet_data.$[outer].checkSheet": 
+                            // current_year: current_year,
+                            getChecksheetPreparationDataOfSelectedMachine.checkSheet_data[0].checkSheet
+                        
                     }
                 },
-                    {
-                        arrayFilters: [{ 'outer.current_year': current_year }],
-                    }
-
+                {
+                    arrayFilters: [{ 'outer.current_year': current_year }],
+                }
+                
                 )
-            } else {
 
+                // console.log(copyPreparationData)
+            } else {
                 copyPreparationData = await Machine.updateOne({
                     machine_code: copyPreparationDataToSelectedMachine
                 }, {
@@ -8243,8 +8243,9 @@ router.post('/postMachineToGetChacksheetPreparationData', authenticate, async (r
                         }
                     }
                 }
-
+                
                 )
+                
             }
 
 
@@ -8286,7 +8287,21 @@ router.post('/postMachineToGetChacksheetPreparationData', authenticate, async (r
             // console.log(getChecksheetPreparationDataOfSelectedMachine)
             // getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.current_year = current_year
 
-            if (checkSheetExistsOrNot?.[0]?.checkSheet_data?.checkSheet?.length > 0) {
+            if (checkSheetExistsOrNot?.[0]?.checkSheet_data?.checkSheet?.length === 0) {
+                copyPreparationData = await Machine.updateOne({ machine_code: copyPreparationDataToSelectedMachine }, {
+
+                    $set: {
+                        "checkSheet_data.$[outer].checkSheet":
+                            // current_year: getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.current_year = current_year,
+                            getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.checkSheet
+
+                    }
+                },
+                    {
+                        arrayFilters: [{ 'outer.current_year': current_year }],
+                    })
+
+                } else {
                 copyPreparationData = await Machine.updateOne({ machine_code: copyPreparationDataToSelectedMachine }, {
 
                     $push: {
@@ -8337,20 +8352,8 @@ router.post('/postMachineToGetChacksheetPreparationData', authenticate, async (r
                 }, {
                     arrayFilters: [{ 'outer.current_year': current_year }],
                 })
-            } else {
 
-                copyPreparationData = await Machine.updateOne({ machine_code: copyPreparationDataToSelectedMachine }, {
-
-                    $set: {
-                        "checkSheet_data.$[outer].checkSheet":
-                            // current_year: getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.current_year = current_year,
-                            getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.checkSheet
-
-                    }
-                },
-                    {
-                        arrayFilters: [{ 'outer.current_year': current_year }],
-                    })
+                
             }
 
             let removeFields = await Machine.updateOne({ machine_code: copyPreparationDataToSelectedMachine }, {
