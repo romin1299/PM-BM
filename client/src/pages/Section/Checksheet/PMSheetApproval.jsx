@@ -416,7 +416,7 @@ function PMSheetApproval() {
                         (value, idx) => (
                           <p>
                             {value}-
-                            {index?.checkSheet_data?.preparation_TL_date[idx]}
+                            {index?.checkSheet_data?.preparation_TL_date?.[idx]}
                           </p>
                         )
                       )}
@@ -426,7 +426,7 @@ function PMSheetApproval() {
                         (value, idx) => (
                           <p>
                             <b>{value}</b>-
-                            {index?.checkSheet_data?.assign_TL_name[idx]}-
+                            {index?.checkSheet_data?.assign_TL_name?.[idx]}-
                             {
                               index?.checkSheet_data?.preparation_TL_HOSS_date[
                                 idx
@@ -434,7 +434,7 @@ function PMSheetApproval() {
                             }
                             ,{" "}
                             {value === "Rejected"
-                              ? `Remarks: ${index?.checkSheet_data?.rejected_remarks[idx]}`
+                              ? `Remarks: ${index?.checkSheet_data?.rejected_remarks?.[idx]}`
                               : ""}
                           </p>
                         )
@@ -445,10 +445,10 @@ function PMSheetApproval() {
                         (value, idx) => (
                           <p>
                             <b>{value}</b>-
-                            {index?.checkSheet_data?.assign_HOS_name[idx]}-
-                            {index?.checkSheet_data?.preparation_HOS_date[idx]},{" "}
+                            {index?.checkSheet_data?.assign_HOS_name?.[idx]}-
+                            {index?.checkSheet_data?.preparation_HOS_date?.[idx]},{" "}
                             {value === "Rejected"
-                              ? `Remarks: ${index?.checkSheet_data?.rejected_remarks[idx]}`
+                              ? `Remarks: ${index?.checkSheet_data?.rejected_remarks?.[idx]}`
                               : ""}
                           </p>
                         )
@@ -459,7 +459,7 @@ function PMSheetApproval() {
                         (value, idx) => (
                           <p>
                             {value}-
-                            {index?.checkSheet_data?.planning_TL_date[idx]}
+                            {index?.checkSheet_data?.planning_TL_date?.[idx]}
                           </p>
                         )
                       )}
@@ -469,10 +469,10 @@ function PMSheetApproval() {
                         (value, idx) => (
                           <p>
                             <b>{value}</b>-
-                            {index?.checkSheet_data?.assign_PRD_TL_name[idx]}-
-                            {index?.checkSheet_data?.planning_PRD_TL_date[idx]},{" "}
+                            {index?.checkSheet_data?.assign_PRD_TL_name?.[idx]}-
+                            {index?.checkSheet_data?.planning_PRD_TL_date?.[idx]},{" "}
                             {value === "Rejected"
-                              ? `Remarks: ${index?.checkSheet_data?.rejected_remarks[idx]}`
+                              ? `Remarks: ${index?.checkSheet_data?.rejected_remarks?.[idx]}`
                               : ""}
                           </p>
                         )
