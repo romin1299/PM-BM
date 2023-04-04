@@ -9,6 +9,7 @@ import { Row, Col } from "react-bootstrap";
 import { postLineToGetAllMachineData } from "../../../Integration/APIExports";
 import currentYear from "../../Dashboard/DashboardComponent/currentYear";
 // import "./tableColor.scss"
+import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
 
 function PMSheetApproval() {
   const context = useContext(RoutingContext);
@@ -22,10 +23,12 @@ function PMSheetApproval() {
   const [selectedSectionOrSubSection, setSelectedSectionOrSubSection] =
     useState(0);
 
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+
   const [tableData, setTableData] = useState([]);
 
   const [allLineData, setAllLineData] = useState([]);
-  
+
   const [selectedLine, setSelectedLine] = useState();
   const [selectedMachine, setSelectedMachine] = useState();
   const [allMachineDataBasedOnLine, setAllMachineDataBasedOnLine] = useState(
@@ -81,6 +84,9 @@ function PMSheetApproval() {
   // console.log(context.section_data);
   const postSectionToGetAllDataForMainDashboard = async () => {
     // setSubSection(undefined);
+    setTableData([]);
+    setStateForAnimationAndNotFound(<LoadingAnimation />);
+
     try {
       const res = await fetch("/postSectionToGetAllData", {
         method: "POST",
@@ -89,6 +95,7 @@ function PMSheetApproval() {
         },
         body: JSON.stringify({
           section: context.section_data,
+          selectedYear,
         }),
       });
       const data = await res.json();
@@ -97,8 +104,9 @@ function PMSheetApproval() {
         console.log("Invalid");
       } else {
         // console.log(data);
+
         setTableData(data.machineDataOfPrepAndPlanApproval);
-        setAllLineData(data?.lineData)
+        setAllLineData(data?.lineData);
         setStateForAnimationAndNotFound(<NotFound />);
       }
     } catch (error) {
@@ -131,7 +139,10 @@ function PMSheetApproval() {
 
         // getDataOfSkippedApprovalStatus(data?.sectionDataArray?.[0]);
 
-        postSectionToGetPMSheetApprovalData(sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection] || data?.sectionDataArray?.[0]);
+        postSectionToGetPMSheetApprovalData(
+          sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection] ||
+            data?.sectionDataArray?.[0]
+        );
       }
     } catch (error) {
       console.log(error);
@@ -148,6 +159,7 @@ function PMSheetApproval() {
         },
         body: JSON.stringify({
           section: sectionData,
+          selectedYear,
         }),
       });
       const data = await res.json();
@@ -167,13 +179,13 @@ function PMSheetApproval() {
     if (context?.user_type !== "Plant-Admin") {
       postSectionToGetAllDataForMainDashboard();
     }
-  }, []);
+  }, [selectedYear]);
 
   useEffect(() => {
     if (context?.user_type === "Plant-Admin") {
       postPlantToGetSectionDataBasedOnDashboardLevel();
     }
-  }, []);
+  }, [selectedYear]);
 
   useEffect(() => {
     if (context?.user_type === "Plant-Admin") {
@@ -181,12 +193,21 @@ function PMSheetApproval() {
         sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
       );
     }
-  }, [selectedSectionOrSubSection]);
+  }, [selectedSectionOrSubSection, selectedYear]);
   return (
     <>
+      <Row className="p-2 mt-3">
+        <Col sm={12} md={6} lg={3}>
+          <YearDropDown
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+          />
+        </Col>
+      </Row>
+
       {context?.user_type === "Plant-Admin" && context?.tm_grade === "HOD" ? (
-        <Row className="p-2 mt-3">
-          <Col sm={12} lg={3}>
+        <Row className="p-2">
+          <Col sm={12} md={6} lg={3}>
             <span>
               <b>Section:&nbsp; &nbsp;</b>
             </span>
@@ -196,7 +217,7 @@ function PMSheetApproval() {
               style={{ width: "63%" }}
               id="standard-select-currency"
               name="selectedSectionOrSubSection"
-              className="textField"
+              className="textField mb-3"
               value={selectedSectionOrSubSection}
               onChange={(e) => {
                 setSelectedSectionOrSubSection(e.target.value);
@@ -214,7 +235,7 @@ function PMSheetApproval() {
               })}
             </select>
           </Col>
-          <Col sm={12} lg={3}>
+          <Col sm={6} md={3} lg={3}>
             <button
               class="btn-primary1 w-50"
               onClick={() => window.location.reload()}
@@ -224,11 +245,12 @@ function PMSheetApproval() {
           </Col>
         </Row>
       ) : (
-        <Row className="p-2 mt-3">
-          <Col sm={12} md={4} lg={4} className="mb-2">
+        <Row className="p-2">
+          <Col sm={12} md={4} lg={4} className="mb-3">
             <span>
               <b>Line:</b>
-            </span> &nbsp;
+            </span>{" "}
+            &nbsp;
             <select
               // class="form-select form-select-sm"
               // aria-label=".form-select-sm example"
@@ -244,7 +266,7 @@ function PMSheetApproval() {
               onChange={async (e) => {
                 setSelectedMachine("");
                 setSelectedLine(e.target.value);
-                postLineToGetAllMachineData(e.target.value, currentYear).then(
+                postLineToGetAllMachineData(e.target.value, selectedYear).then(
                   (result) => setAllMachineDataBasedOnLine(result?.machineInfo)
                 );
               }}
@@ -272,10 +294,11 @@ function PMSheetApproval() {
             </div> */}
           </Col>
 
-          <Col sm={12} md={4} lg={4} className="mb-2">
+          <Col sm={12} md={4} lg={4} className="mb-3">
             <span>
               <b>Machine:</b>
-            </span> &nbsp;
+            </span>{" "}
+            &nbsp;
             <select
               // class="form-select form-select-sm"
               // aria-label=".form-select-sm example"
@@ -301,7 +324,9 @@ function PMSheetApproval() {
               </option>
               {allMachineDataBasedOnLine?.map((option, index) => {
                 return (
-                  <option value={option?.machine_code}>{option?.machine_name}</option>
+                  <option value={option?.machine_code}>
+                    {option?.machine_name}
+                  </option>
                 );
               })}
             </select>
@@ -321,7 +346,7 @@ function PMSheetApproval() {
             </div> */}
           </Col>
 
-          <Col sm={12} md={4} lg={4} className="mb-2">
+          <Col sm={6} md={6} lg={4} className="mb-2">
             <button
               class="btn-primary1 w-25"
               onClick={() => {
@@ -371,92 +396,93 @@ function PMSheetApproval() {
               </tr>
             </thead>
             <tbody>
-              {tableData?.map((index) => (
+              {tableData?.map((index) =>
                 (selectedLine
                   ? index?.line_names._id === selectedLine
                   : true) &&
                 (selectedMachine
                   ? index?.machine_code === selectedMachine
-                  : true) ?
-
-                <tr className="ar-table-thead-header4 tableRowColor">
-                  <td className="td-padding">{index.line_names.line_name}</td>
-                  <td className="td-padding">{index.machine_code}</td>
-                  <td className="td-padding">{index.machine_name}</td>
-                  <td className="td-padding">
-                    {/* {index.sender_tm_name[idx]}
+                  : true) ? (
+                  <tr className="ar-table-thead-header4 tableRowColor">
+                    <td className="td-padding">{index.line_names.line_name}</td>
+                    <td className="td-padding">{index.machine_code}</td>
+                    <td className="td-padding">{index.machine_name}</td>
+                    <td className="td-padding">
+                      {/* {index.sender_tm_name[idx]}
                   <br />
                   {index.preparation_TL_date[idx]
                     } */}
-                    {index?.checkSheet_data?.sender_tm_name?.map(
-                      (value, idx) => (
-                        <p>
-                          {value}-
-                          {index?.checkSheet_data?.preparation_TL_date[idx]}
-                        </p>
-                      )
-                    )}
-                  </td>
-                  <td className="td-padding">
-                    {index?.checkSheet_data?.tl_approval_status?.map(
-                      (value, idx) => (
-                        <p>
-                          <b>{value}</b>-
-                          {index?.checkSheet_data?.assign_TL_name[idx]}-
-                          {
-                            index?.checkSheet_data?.preparation_TL_HOSS_date[
-                              idx
-                            ]
-                          }
-                          ,{" "}
-                          {value === "Rejected"
-                            ? `Remarks: ${index?.checkSheet_data?.rejected_remarks[idx]}`
-                            : ""}
-                        </p>
-                      )
-                    )}
-                  </td>
-                  <td className="td-padding">
-                    {index?.checkSheet_data?.hos_approval_status?.map(
-                      (value, idx) => (
-                        <p>
-                          <b>{value}</b>-
-                          {index?.checkSheet_data?.assign_HOS_name[idx]}-
-                          {index?.checkSheet_data?.preparation_HOS_date[idx]},{" "}
-                          {value === "Rejected"
-                            ? `Remarks: ${index?.checkSheet_data?.rejected_remarks[idx]}`
-                            : ""}
-                        </p>
-                      )
-                    )}
-                  </td>
-                  <td className="td-padding">
-                    {index?.checkSheet_data?.plan_prepared_tm_name?.map(
-                      (value, idx) => (
-                        <p>
-                          {value}-
-                          {index?.checkSheet_data?.planning_TL_date[idx]}
-                        </p>
-                      )
-                    )}
-                  </td>
-                  <td className="td-padding">
-                    {index?.checkSheet_data?.prd_tl_approval_status?.map(
-                      (value, idx) => (
-                        <p>
-                          <b>{value}</b>-
-                          {index?.checkSheet_data?.assign_PRD_TL_name[idx]}-
-                          {index?.checkSheet_data?.planning_PRD_TL_date[idx]},{" "}
-                          {value === "Rejected"
-                            ? `Remarks: ${index?.checkSheet_data?.rejected_remarks[idx]}`
-                            : ""}
-                        </p>
-                      )
-                    )}
-                  </td>
-                </tr>
-                : ""
-              ))}
+                      {index?.checkSheet_data?.sender_tm_name?.map(
+                        (value, idx) => (
+                          <p>
+                            {value}-
+                            {index?.checkSheet_data?.preparation_TL_date[idx]}
+                          </p>
+                        )
+                      )}
+                    </td>
+                    <td className="td-padding">
+                      {index?.checkSheet_data?.tl_approval_status?.map(
+                        (value, idx) => (
+                          <p>
+                            <b>{value}</b>-
+                            {index?.checkSheet_data?.assign_TL_name[idx]}-
+                            {
+                              index?.checkSheet_data?.preparation_TL_HOSS_date[
+                                idx
+                              ]
+                            }
+                            ,{" "}
+                            {value === "Rejected"
+                              ? `Remarks: ${index?.checkSheet_data?.rejected_remarks[idx]}`
+                              : ""}
+                          </p>
+                        )
+                      )}
+                    </td>
+                    <td className="td-padding">
+                      {index?.checkSheet_data?.hos_approval_status?.map(
+                        (value, idx) => (
+                          <p>
+                            <b>{value}</b>-
+                            {index?.checkSheet_data?.assign_HOS_name[idx]}-
+                            {index?.checkSheet_data?.preparation_HOS_date[idx]},{" "}
+                            {value === "Rejected"
+                              ? `Remarks: ${index?.checkSheet_data?.rejected_remarks[idx]}`
+                              : ""}
+                          </p>
+                        )
+                      )}
+                    </td>
+                    <td className="td-padding">
+                      {index?.checkSheet_data?.plan_prepared_tm_name?.map(
+                        (value, idx) => (
+                          <p>
+                            {value}-
+                            {index?.checkSheet_data?.planning_TL_date[idx]}
+                          </p>
+                        )
+                      )}
+                    </td>
+                    <td className="td-padding">
+                      {index?.checkSheet_data?.prd_tl_approval_status?.map(
+                        (value, idx) => (
+                          <p>
+                            <b>{value}</b>-
+                            {index?.checkSheet_data?.assign_PRD_TL_name[idx]}-
+                            {index?.checkSheet_data?.planning_PRD_TL_date[idx]},{" "}
+                            {value === "Rejected"
+                              ? `Remarks: ${index?.checkSheet_data?.rejected_remarks[idx]}`
+                              : ""}
+                          </p>
+                        )
+                      )}
+                    </td>
+                  </tr>
+                ) : (
+                  ""
+                )
+              )}
             </tbody>
           </table>
         </div>

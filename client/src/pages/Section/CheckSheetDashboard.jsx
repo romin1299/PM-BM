@@ -325,21 +325,21 @@ const CheckSheetDashboard = () => {
           (rowData) => {
             return {
               hidden:
-                rowData.checkSheet_data != null
-                  ? rowData.checkSheet_data.checksheet_status ===
+                rowData?.checkSheet_data != null
+                  ? rowData?.checkSheet_data?.checksheet_status ===
                       "Implementation" ||
-                    rowData.checkSheet_data.checksheet_status === "Planning"
+                    rowData?.checkSheet_data?.checksheet_status === "Planning"
                   : "",
               icon: () => (
                 <button className="btn-reset1">
-                  {rowData.checkSheet_data != null
-                    ? rowData.checkSheet_data.checkSheet.length > 0
-                      ? rowData.checkSheet_data.checkSheet.length < 1
+                  {rowData?.checkSheet_data !== null || rowData?.checkSheet_data !== undefined
+                    ? rowData?.checkSheet_data?.checkSheet?.length > 0
+                      ? rowData?.checkSheet_data?.checkSheet?.length < 1
                         ? "Preparation"
-                        : rowData.checkSheet_data.assign_TL.length !==
-                            rowData.checkSheet_data.approved_by_TL.length ||
-                          rowData.checkSheet_data.assign_HOS.length !==
-                            rowData.checkSheet_data.approved_by_HOS.length
+                        : rowData?.checkSheet_data.assign_TL?.length !==
+                            rowData?.checkSheet_data?.approved_by_TL?.length ||
+                          rowData?.checkSheet_data?.assign_HOS?.length !==
+                            rowData?.checkSheet_data?.approved_by_HOS?.length
                         ? "Preparation Under Approval"
                         : "Under-Preparation"
                       : "Preparation"
@@ -359,23 +359,23 @@ const CheckSheetDashboard = () => {
           (rowData) => {
             return {
               hidden:
-                rowData.checkSheet_data != null
-                  ? rowData.checkSheet_data.checksheet_status ===
+                rowData?.checkSheet_data != null
+                  ? rowData?.checkSheet_data?.checksheet_status ===
                       "Preparation" ||
-                    rowData.checkSheet_data.checksheet_status ===
+                    rowData?.checkSheet_data?.checksheet_status ===
                       "Implementation" ||
-                    rowData.checkSheet_data.checksheet_status === undefined
-                  : rowData.checkSheet_data === undefined ||
-                    rowData.checkSheet_data === null,
+                    rowData?.checkSheet_data?.checksheet_status === undefined
+                  : rowData?.checkSheet_data === undefined ||
+                    rowData?.checkSheet_data === null,
               icon: () => (
                 <button className="btn-warning">
-                  {rowData.checkSheet_data != null
-                    ? rowData.checkSheet_data.checkSheet.map((key) => {
+                  {rowData?.checkSheet_data != null
+                    ? rowData?.checkSheet_data?.checkSheet?.map((key) => {
                         if ("start_month" in key) {
                           if (
                             rowData?.checkSheet_data?.approved_by_PRD_TL
-                              .length !=
-                            rowData?.checkSheet_data?.assign_PRD_TL.length
+                              ?.length !=
+                            rowData?.checkSheet_data?.assign_PRD_TL?.length
                           ) {
                             return "Planning Under Approval";
                           } else {
@@ -418,8 +418,8 @@ const CheckSheetDashboard = () => {
               hidden:
                 context?.user_type === "Operator"
                   ? context?.user_type === "Operator"
-                  : rowData.checkSheet_data === undefined ||
-                    rowData.checkSheet_data === null,
+                  : rowData?.checkSheet_data === undefined ||
+                    rowData?.checkSheet_data === null,
               icon: () => (
                 <button className="btn-delete">
                   <DeleteForeverIcon className="svg-font" />
@@ -438,13 +438,13 @@ const CheckSheetDashboard = () => {
           (rowData) => {
             return {
               hidden:
-                rowData.checkSheet_data != null
-                  ? rowData.checkSheet_data.checksheet_status ===
+                rowData?.checkSheet_data != null
+                  ? rowData?.checkSheet_data?.checksheet_status ===
                       "Preparation" ||
-                    rowData.checkSheet_data.checksheet_status === "Planning" ||
-                    rowData.checkSheet_data.checksheet_status === undefined
-                  : rowData.checkSheet_data === undefined ||
-                    rowData.checkSheet_data === null,
+                    rowData?.checkSheet_data?.checksheet_status === "Planning" ||
+                    rowData?.checkSheet_data?.checksheet_status === undefined
+                  : rowData?.checkSheet_data === undefined ||
+                    rowData?.checkSheet_data === null,
               icon: () => (
                 <button className="btn-warning">
                   <EditIcon className="svg-font" />
@@ -507,6 +507,8 @@ const CheckSheetDashboard = () => {
 
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
+    setTableData([])
+    setTableData1([])
   }, [selectedYear]);
 
   // console.log(tableData);
@@ -524,22 +526,22 @@ const CheckSheetDashboard = () => {
   // // useEffect(() => {
   // tableData?.map(
   //   (rowData) => {
-  //     rowData.checkSheet_data != null
-  //       ? rowData.checkSheet_data.checkSheet.length > 0
-  //         ? rowData.checkSheet_data.checkSheet.length < 1
+  //     rowData?.checkSheet_data != null
+  //       ? rowData?.checkSheet_data?.checkSheet.length > 0
+  //         ? rowData?.checkSheet_data?.checkSheet.length < 1
   //           ? preparationDataArray?.push(rowData)
-  //           : rowData.checkSheet_data.assign_TL.length !==
-  //               rowData.checkSheet_data.approved_by_TL.length ||
-  //             rowData.checkSheet_data.assign_HOS.length !==
-  //               rowData.checkSheet_data.approved_by_HOS.length
+  //           : rowData?.checkSheet_data.assign_TL.length !==
+  //               rowData?.checkSheet_data.approved_by_TL.length ||
+  //             rowData?.checkSheet_data.assign_HOS.length !==
+  //               rowData?.checkSheet_data.approved_by_HOS.length
   //           ? preparationUnderApprovalDataArray?.push(rowData)
   //           : underPreparationDataArray?.push(rowData)
   //         : preparationDataArray?.push(rowData)
   //       : preparationDataArray?.push(rowData);
 
   //     variableForPlanning =
-  //       rowData.checkSheet_data != null
-  //         ? rowData.checkSheet_data.checkSheet.map((key) => {
+  //       rowData?.checkSheet_data != null
+  //         ? rowData?.checkSheet_data?.checkSheet.map((key) => {
   //             if ("start_month" in key) {
   //               if (
   //                 rowData?.checkSheet_data?.approved_by_PRD_TL?.length !=
@@ -555,8 +557,8 @@ const CheckSheetDashboard = () => {
   //           })
   //         : "";
 
-  //     // rowData.checkSheet_data != null
-  //     //   ? rowData.checkSheet_data.checkSheet.map((key) => {
+  //     // rowData?.checkSheet_data != null
+  //     //   ? rowData?.checkSheet_data?.checkSheet.map((key) => {
   //     //       if ("start_month" in key) {
   //     //         if (
   //     //           rowData?.checkSheet_data?.approved_by_PRD_TL.length !=
@@ -736,7 +738,7 @@ const CheckSheetDashboard = () => {
               <Col className="col-lg-2 col-md-6 col-sm-12"></Col>
             </Row>
           </Container>
-          {tableData?.length > 0 ? (
+          {tableData?.length > 0 || tableData1?.length > 0 ? (
             <div style={{ padding: "1rem" }}>
               <MaterialTable
                 localization={{

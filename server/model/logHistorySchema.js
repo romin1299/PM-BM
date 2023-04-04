@@ -87,6 +87,8 @@ const logHistorySchema = new mongoose.Schema({
     uploaded_file_name: commonVarForTypeString,
 
     reason_for_delay: commonVarForTypeString,
+
+    actionDetailsOfAbnormalityClose : commonVarForTypeString
 })
 
 const LogHistory = new mongoose.model('LogHistory', logHistorySchema);

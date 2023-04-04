@@ -193,7 +193,7 @@ const SparePartUsageHistory = () => {
   const [financialYear, setFinancialYear] = useState();
 
   let current_year =
-    new Date().getMonth() <= 3
+    new Date().getMonth() < 3
       ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
       : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
@@ -205,6 +205,7 @@ const SparePartUsageHistory = () => {
   }, []);
 
   useEffect(() => {
+    setStateForAnimationAndNotFound(<LoadingAnimation/>)
     if (context?.user_type === "Plant-Admin") {
       postPlantToGetSectionDataBasedOnDashboardLevel();
     } else {

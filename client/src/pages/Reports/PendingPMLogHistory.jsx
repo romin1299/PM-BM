@@ -178,7 +178,7 @@ const PendingPMLogHistory = () => {
         console.log("Invalid");
       } else {
         setAllDataSectionWise(data);
-        setLoadingAnimationState(<NotFound />);
+        // setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
       console.log(error);
@@ -260,7 +260,7 @@ const PendingPMLogHistory = () => {
 
         // setAllDataSectionWise(data);
         // setTableData(data.logHistoryAllData);
-        // setLoadingAnimationState(<NotFound />);
+        setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
       console.log(error);
@@ -268,13 +268,15 @@ const PendingPMLogHistory = () => {
   };
 
   useEffect(() => {
+    setLoadingAnimationState(<LoadingAnimation />);
+
     if (context?.user_type === "Plant-Admin") {
       postPlantToGetSectionDataBasedOnDashboardLevel();
     } else {
       postSectionToGetAllDataForLogHistory(context.section_data);
       fetchSectionWiseLogHistory(context.section_data);
     }
-  }, []);
+  }, [selectedYear]);
   const styleForDownloadFileButton = {
     backgroundColor: "transparent",
     border: "none",
@@ -436,15 +438,16 @@ const PendingPMLogHistory = () => {
             <button
               class="btn-primary1"
               onClick={() => {
-                setSelectedCell("");
-                setSelectedLine("");
-                setLineDropdown([]);
-                setSelectedMonth();
-                setSelectedMachine();
-                setAbnormalityYesOrNo();
-                setSpareYesOrNo();
-                setSelectedAbnormalityStatus();
-                setMachineDropdown([]);
+                // setSelectedCell("");
+                // setSelectedLine("");
+                // setLineDropdown([]);
+                // setSelectedMonth();
+                // setSelectedMachine();
+                // setAbnormalityYesOrNo();
+                // setSpareYesOrNo();
+                // setSelectedAbnormalityStatus();
+                // setMachineDropdown([]);
+                window.location.reload()
               }}
             >
               Reset

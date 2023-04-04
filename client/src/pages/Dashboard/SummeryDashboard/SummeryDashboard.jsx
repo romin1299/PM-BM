@@ -26,10 +26,14 @@ const SummeryDashboard = () => {
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [stateForAnimationAndNotFound, setStateForAnimationAndNotFound] =
+    useState(<LoadingAnimation />);
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    setSectionInfo([])
+    setStateForAnimationAndNotFound(<LoadingAnimation/>)
     fetchPlantInfo().then((result) => {
       setPlantInfo(result?.plantLists);
       postPlantToGetSectionInfo(
@@ -38,7 +42,7 @@ const SummeryDashboard = () => {
         selectedMonth
       ).then((result1) => {
         setSectionInfo(result1?.monthlyChartDataOfSummery);
-        console.log(result1);
+        setStateForAnimationAndNotFound(<NotFound/>)
         // postSectionToGetSubSectionInfo(result1?.SectionInfo).then((result3) => {
         //   console.log(result3);
         //   setSubSectionInfo(result3.subSectionInfo);
@@ -102,7 +106,7 @@ const SummeryDashboard = () => {
                 )
               ) : (
                 <Col className="col-lg-3 col-md-12 col-sm-12 p-5 d-flex justify-content-center d-flex align-items-center">
-                  <LoadingAnimation />
+                  {stateForAnimationAndNotFound}
                 </Col>
               )}
 

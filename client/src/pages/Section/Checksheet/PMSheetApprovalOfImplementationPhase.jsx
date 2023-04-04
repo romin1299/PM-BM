@@ -10,11 +10,14 @@ import Footer from "../../../components/Footer/Footer";
 import { Row, Col } from "react-bootstrap";
 import currentYear from "../../Dashboard/DashboardComponent/currentYear";
 import { postLineToGetAllMachineData } from "../../../Integration/APIExports";
+import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
 
 function PMSheetApprovalOfImplementationPhase() {
   const context = useContext(RoutingContext);
 
   const [tableData, setTableData] = useState([]);
+
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const [sortingType, setSortingType] = useState("ascending");
   const [refKey, setRefKey] = useState(0);
@@ -132,6 +135,9 @@ function PMSheetApprovalOfImplementationPhase() {
   // console.log(context.section_data);
   const postSectionToGetAllDataForMainDashboard = async () => {
     // setSubSection(undefined);
+    setTableData([])
+    setStateForAnimationAndNotFound(<LoadingAnimation />);
+
     try {
       const res = await fetch("/postSectionToGetAllData", {
         method: "POST",
@@ -140,6 +146,7 @@ function PMSheetApprovalOfImplementationPhase() {
         },
         body: JSON.stringify({
           section: context.section_data,
+          selectedYear
         }),
       });
       const data = await res.json();
@@ -232,6 +239,7 @@ function PMSheetApprovalOfImplementationPhase() {
   };
 
   const postSectionToGetPMSheetApprovalData = async (sectionData) => {
+    setTableData([])
     setStateForAnimationAndNotFound(<LoadingAnimation />);
     try {
       const res = await fetch("/postSectionToGetPMSheetApprovalData", {
@@ -241,6 +249,7 @@ function PMSheetApprovalOfImplementationPhase() {
         },
         body: JSON.stringify({
           section: sectionData,
+          selectedYear
         }),
       });
       const data = await res.json();
@@ -260,13 +269,13 @@ function PMSheetApprovalOfImplementationPhase() {
     if (context?.user_type !== "Plant-Admin") {
       postSectionToGetAllDataForMainDashboard();
     }
-  }, [refKey]);
+  }, [refKey, selectedYear]);
 
   useEffect(() => {
     if (context?.user_type === "Plant-Admin") {
       postPlantToGetSectionDataBasedOnDashboardLevel();
     }
-  }, []);
+  }, [selectedYear]);
 
   useEffect(() => {
     if (context?.user_type === "Plant-Admin") {
@@ -274,11 +283,19 @@ function PMSheetApprovalOfImplementationPhase() {
         sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
       );
     }
-  }, [selectedSectionOrSubSection]);
+  }, [selectedSectionOrSubSection, selectedYear]);
   return (
     <>
+      <Row className="p-2 mt-3">
+        <Col sm={12} md={6} lg={3}>
+          <YearDropDown
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+          />
+        </Col>
+      </Row>
       {context?.user_type === "Plant-Admin" && context?.tm_grade === "HOD" ? (
-        <Row className="p-2 mt-3">
+        <Row className="p-2">
           <Col sm={12} lg={3}>
             <span>
               <b>Section:&nbsp; &nbsp;</b>
@@ -317,7 +334,7 @@ function PMSheetApprovalOfImplementationPhase() {
           </Col>
         </Row>
       ) : (
-        <Row className="p-2 mt-3">
+        <Row className="p-2">
           <Col sm={12} md={6} lg={3} className="mb-2">
             <span>
               <b>Line:</b>
@@ -339,7 +356,7 @@ function PMSheetApprovalOfImplementationPhase() {
                 setSelectedMachine("");
                 setSelectedMonth("");
                 setSelectedLine(e.target.value);
-                postLineToGetAllMachineData(e.target.value, currentYear).then(
+                postLineToGetAllMachineData(e.target.value, selectedYear).then(
                   (result) => setAllMachineDataBasedOnLine(result?.machineInfo)
                 );
               }}
@@ -442,7 +459,7 @@ function PMSheetApprovalOfImplementationPhase() {
               <option selected disabled value="">
                 Please select
               </option>
-              {monthKeyArray?.map((option) => {
+              {financialYearWiseMonthKeyArray?.map((option) => {
                 return <option value={option}>{option}</option>;
               })}
             </select>
@@ -520,9 +537,7 @@ function PMSheetApprovalOfImplementationPhase() {
                     (selectedMachine
                       ? index?.machine_code === selectedMachine
                       : true) &&
-                    (selectedMonth
-                      ? monthKey === selectedMonth
-                      : true) ? (
+                    (selectedMonth ? monthKey === selectedMonth : true) ? (
                       <tr className="ar-table-thead-header4 tableRowColor">
                         <td className="td-padding">
                           {index.line_names.line_name}

@@ -38,7 +38,7 @@ cron.schedule('00 00 01 01 * *', async (req, res) => {
     // console.log(monthForCompareSystemMonth)
 
     let currentYear =
-        new Date().getMonth() <= 3 ?
+        new Date().getMonth() < 3 ?
             `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
             `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
@@ -108,8 +108,8 @@ cron.schedule('00 00 01 01 * *', async (req, res) => {
                     // (result.tm_department === "PRD" || result.tm_department === "MTD")
                     // && (result.user_type === "TL/HOSS" || result.user_type === "HOS" || result.user_type === "HOD")
                 ) {
-                    return result
-                    // return result?.email ? result?.email : undefined
+                    // return result
+                    return result?.email ? result?.email : undefined
                 }
             })
             // console.log("=====>101", ccEmailArray)
@@ -659,8 +659,8 @@ cron.schedule('00 00 01 01 * *', async (req, res) => {
                         // (result.tm_department === "PRD" || result.tm_department === "MTD")
                         // && (result.user_type === "TL/HOSS" || result.user_type === "HOS" || result.user_type === "HOD")
                     ) {
-                        return result
-                        // return result?.email ? result?.email : undefined
+                        // return result
+                        return result?.email ? result?.email : undefined
                     }
                 })
 
@@ -1141,8 +1141,8 @@ cron.schedule('00 00 01 01 * *', async (req, res) => {
 
                 autoSendMail(
 
-                toEmailArray?.length > 0 ? toEmailArray : [undefined],
-                ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
+                    toEmailArray?.length > 0 ? toEmailArray : [undefined],
+                    ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
                     subSectionsData[subIterator]?.subSection_name,
                     `Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
                     "Below Machine are Scheduled for PM",

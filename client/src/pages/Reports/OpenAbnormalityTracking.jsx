@@ -8,6 +8,8 @@ import { Row, Col } from "react-bootstrap";
 import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "./ReportComponents/NotFound";
 import Footer from "../../components/Footer/Footer";
+import YearDropDown from "../Dashboard/DashboardComponent/YearDropDown";
+import currentYear from "../Dashboard/DashboardComponent/currentYear";
 
 import { CSVLink, CSVDownload } from "react-csv";
 import { jsPDF } from "jspdf";
@@ -25,12 +27,15 @@ function OpenAbnormalityTracking() {
   const [loadingAnimationState, setLoadingAnimationState] = useState(
     <LoadingAnimation />
   );
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const getDataForOpenAbnormalityTracking = async (
     selectedSection,
     lineData
   ) => {
     // setSubSection(undefined);
+    setTableData([])
+    setLoadingAnimationState(<LoadingAnimation />)
     try {
       const res = await fetch("/getDataForOpenAbnormalityTracking", {
         method: "POST",
@@ -40,6 +45,7 @@ function OpenAbnormalityTracking() {
         body: JSON.stringify({
           section: selectedSection,
           selectedLine: lineData,
+          selectedYear
         }),
       });
       const data = await res.json();
@@ -49,7 +55,7 @@ function OpenAbnormalityTracking() {
       } else {
         // window.alert(data.abcd);
         // console.log("Data post");
-        console.log(data);
+        // console.log(data);
         setTableData(data?.onlyOpenAbnormalityWithAllMonths);
         setLineDropdown(data?.lineData);
         setLoadingAnimationState(<NotFound />);
@@ -324,8 +330,8 @@ function OpenAbnormalityTracking() {
     (rowdata) => {
       return {
         hidden:
-          (context.user_type !== "TL/HOSS" ||
-            context.tm_department !== "MTD") &&
+          // (context.user_type !== "TL/HOSS" ||
+          //   context.tm_department !== "MTD") &&
           (rowdata.PMuploadedImage === "" ||
             rowdata.PMuploadedImage === undefined),
         name: "download", // Added custom name property so we know which action to check for
@@ -455,6 +461,23 @@ function OpenAbnormalityTracking() {
     }
   };
 
+  const postLogHistoryOfAbnormalityClosed = async (selectedRow) => {
+    const res = await fetch("/submitLogHistoryOfAbnormalityClosed", {
+      method: "Post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        selectedRow,
+      }),
+    });
+    const data = res.json();
+    // console.log(data);
+    if (res.status === 400 || res.status === 422 || !data) {
+      window.alert("Invalid credentials !");
+    } else {
+      console.log("Log Added Successfully...");
+    }
+  };
+
   const updateOpenPMToClose = async (selectedRow) => {
     try {
       const res = await fetch("/updateOpenPMToClose", {
@@ -475,7 +498,7 @@ function OpenAbnormalityTracking() {
         window.alert("Please fill all the details ");
       } else {
         console.log("Data Added Successful");
-
+        postLogHistoryOfAbnormalityClosed(selectedRow)
         // countCounter();
         // const dateAndTime = timeStamp();
         // const addMessage = `${newRow.user_name} added as a new user`;
@@ -514,11 +537,13 @@ function OpenAbnormalityTracking() {
     } else {
       getDataForOpenAbnormalityTracking(context.section_data);
     }
-  }, [context.section_data, refKey1, refKey2]);
+  }, [context.section_data, refKey1, refKey2, selectedYear]);
 
   useEffect(() => {
     getListForApproval();
   }, []);
+
+  console.log(tableData)
 
   return (
     <>
@@ -528,6 +553,7 @@ function OpenAbnormalityTracking() {
           <h4 style={{ padding: "1rem 0 0 1rem" }}>
             Open Abnormality Tracking
           </h4>
+
           <Row className="mt-3">
             {context?.user_type === "Plant-Admin" &&
             context?.tm_grade === "HOD" ? (
@@ -579,8 +605,14 @@ function OpenAbnormalityTracking() {
             ) : (
               ""
             )}
+            <Col sm={12} md={6} lg={3} style={{ padding: "0 0 0 1rem" }}>
+              <YearDropDown
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+              />
+            </Col>
             <Col sm={12} lg={4} md={6}>
-              <span style={{ padding: "1rem 0 0 1rem" }}>
+              <span>
                 <b>Line:</b>&nbsp;&nbsp;
               </span>
               <select
@@ -596,7 +628,8 @@ function OpenAbnormalityTracking() {
                   getDataForOpenAbnormalityTracking(
                     sectionOrSubSectionDropdownList?.[
                       selectedSectionOrSubSection
-                    ] || context.section_data, e.target.value
+                    ] || context.section_data,
+                    e.target.value
                   );
                   setLoadingAnimationState(<LoadingAnimation />);
                   // postLineToGetMachineList(e.target.value);
