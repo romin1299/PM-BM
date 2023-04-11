@@ -402,6 +402,7 @@ const CheckSheetDashboard = () => {
             icon: () => <button className="btn-primary1">View</button>,
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
+              console.log(selectedRow?.checkSheet_data?.checkSheet)
               navigate("/viewCheckSheet", {
                 state: {
                   selectedRowForViewForm: selectedRow,
@@ -419,7 +420,9 @@ const CheckSheetDashboard = () => {
                 context?.user_type === "Operator"
                   ? context?.user_type === "Operator"
                   : rowData?.checkSheet_data === undefined ||
-                    rowData?.checkSheet_data === null,
+                    rowData?.checkSheet_data === null ||
+                    rowData?.checkSheet_data?.checkSheet?.length === 0 ||
+                    rowData?.checkSheet_data?.checkSheet === undefined,
               icon: () => (
                 <button className="btn-delete">
                   <DeleteForeverIcon className="svg-font" />

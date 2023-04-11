@@ -25,6 +25,7 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
                 `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
                 `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
+        // let currentYear = "2022-2023"
 
         let plantInfo = await Plant.find({})
 
@@ -70,9 +71,9 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
 
 
         //  ------------------------------------- For Testing --------------------------------------------
-        // let keyOfImplementation_assign_MTD_HOD = `checkSheet_data.$[outer].implementation_assign_MTD_HOD.Sep`;
-        // let keyOfImplemetation_mtd_hod_approval_status = `checkSheet_data.$[outer].implemetation_mtd_hod_approval_status.Sep`
-        // let keyOfImplementation_assign_MTD_HOD_name = `checkSheet_data.$[outer].implementation_assign_MTD_HOD_name.Sep`;
+        // let keyOfImplementation_assign_MTD_HOD = `checkSheet_data.$[outer].implementation_assign_MTD_HOD.Mar`;
+        // let keyOfImplemetation_mtd_hod_approval_status = `checkSheet_data.$[outer].implemetation_mtd_hod_approval_status.Mar`
+        // let keyOfImplementation_assign_MTD_HOD_name = `checkSheet_data.$[outer].implementation_assign_MTD_HOD_name.Mar`;
 
 
 
@@ -93,7 +94,7 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
 
 
                         //  ------------------------------------- For Testing --------------------------------------------
-                        // "checkSheet_data.$[outer].implementation_approval_month_of_hod": "Sep",
+                        // "checkSheet_data.$[outer].implementation_approval_month_of_hod": "Mar",
 
                         "checkSheet_data.$[outer].implementation_assign_MTD_HOD": KeyFor6MonthApproval,
                         "checkSheet_data.$[outer].implementation_assign_MTD_HOD_name": KeyFor6MonthApproval,
@@ -116,7 +117,7 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
 
 
                     //  ------------------------------------- For Testing --------------------------------------------
-                    // "checkSheet_data.$[outer].implementation_approval_month_of_hod": "Sep",
+                    // "checkSheet_data.$[outer].implementation_approval_month_of_hod": "Mar",
                 },
                 $push: {
 
@@ -171,53 +172,64 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
 
 
 
-            MachineInfo = await Machine.aggregate([{
-                $match: {
-                    line_names: { $in: lineData?.map((item) => item?._id) },
-                    $or: [
-                        {
-                            "checkSheet_data": { $ne: [] }
+            MachineInfo = await Machine.aggregate([
+                {
+                    $match: {
+                        line_names: { $in: lineData?.map((item) => item?._id) },
+                        "checkSheet_data": { $ne: [] }
+                    }
+                },
+                {
+                    $unwind: "$checkSheet_data"
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": currentYear,
+                        $and: [{
+                            "checkSheet_data.checkSheet": { $ne: undefined }
 
                         },
                         {
-                            "checkSheet_data.current_year": currentYear
+                            "checkSheet_data.checkSheet": { $ne: [] }
 
                         },
-
-                    ]
+                        {
+                            "checkSheet_data.checksheet_status": { $ne: undefined }
+                        }
+                        ]
+                    }
+                },
+                {
+                    $project: {
+                        machine_code: 1,
+                        machine_name: 1,
+                        machine_nickname: 1,
+                        machine_sequence: 1,
+                        // installation_date: 1,
+                        // maker_name: 1,
+                        // maker_sr_no: 1,
+                        // manufacturingDate: 1,
+                        // isPM: 1,
+                        line_names: 1,
+                        // checkSheet_data: 1
+                        checkSheet_data: 1
+                    }
                 }
-            },
-            {
-                $project: {
-                    machine_code: 1,
-                    machine_name: 1,
-                    machine_nickname: 1,
-                    machine_sequence: 1,
-                    // installation_date: 1,
-                    // maker_name: 1,
-                    // maker_sr_no: 1,
-                    // manufacturingDate: 1,
-                    // isPM: 1,
-                    line_names: 1,
-                    // checkSheet_data: 1
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
-                }
-            }
             ])
 
             MachineInfo = await Machine.populate(MachineInfo, { path: "line_names", populate: { path: "cell_names", populate: { path: "subSection_names", populate: { path: "section_names", model: "Sections" } } } })
 
-            await MachineInfo?.map(item => {
-                if (userInfo?.length > 0) {
+            // await MachineInfo?.map(item => {
+            //     if (userInfo?.length > 0) {
 
-                    funForUpdateParticularMachine(sectionInfo[i], userInfo?.[0], item)
-                }
+            //         funForUpdateParticularMachine(sectionInfo[i], userInfo?.[0], item)
+            //     }
 
-            })
+            // })
 
 
 
-            autoMailSendForSixMonthApproval(userInfo?.[0]?.email)
+            // autoMailSendForSixMonthApproval(userInfo?.[0]?.email)
 
 
 

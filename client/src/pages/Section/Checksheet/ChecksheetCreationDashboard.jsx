@@ -16,6 +16,7 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { ToastContainer, toast } from "react-toastify";
+import currentYear from "../../Dashboard/DashboardComponent/currentYear";
 
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "../../../components/Footer/Footer";
@@ -577,6 +578,7 @@ const ChecksheetCreationDashboard = ({}) => {
         body: JSON.stringify({
           line: selectedLine,
           selectedRequest,
+          yearOfCheckSheet: currentYear
         }),
       });
       const data = await res.json();

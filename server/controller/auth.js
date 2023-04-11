@@ -1115,8 +1115,7 @@ router.post('/postCellToGetLineList', authenticate, async (req, res) => {
 
 router.post('/postLineToGetMachineList', authenticate, async (req, res) => {
     try {
-        let { line, selectedRequest } = req.body
-        // console.log(line);
+        let { line, selectedRequest, yearOfCheckSheet } = req.body
         let lineSplit = line.split("-")
         const lineInfo = await Line.find({ line_id: lineSplit[0] })
         let machineInfoWithChecksheet
@@ -1124,20 +1123,32 @@ router.post('/postLineToGetMachineList', authenticate, async (req, res) => {
             //for checksheet preparation data copy to another checksheet
             machineInfoWithChecksheet = await Machine.aggregate([{
                 $match: {
-                    line_names: lineInfo[0]._id
+                    line_names: lineInfo[0]._id,
+                    "checkSheet_data": { $ne: undefined }
                 }
             },
-            { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": yearOfCheckSheet
+                }
+            },
             {
                 $match: {
                     $and: [{
-                        "checkSheet_data.checkSheet.inspection_parent_name": { $ne: "" }
+                        "checkSheet_data.checkSheet": { $ne: undefined }
 
                     },
                     {
-                        "checkSheet_data": { $ne: undefined }
+                        "checkSheet_data.checkSheet": { $ne: [] }
+
                     }
                     ]
+                    // "checkSheet_data.checkSheet": { $ne: undefined }
+
 
                 }
             },
@@ -4256,45 +4267,93 @@ router.get('/getSixMonthApprovalRequestData', authenticate, async (req, res) => 
 
         requestData1 = await Machine.aggregate([
 
+            // {
+            // {
+            //     $match: {
+            //         machine_code: "M-EN-O2-2FA-02-120-1"
+            //     }
+            // },
+
+
+            {
+                $unwind: "$checkSheet_data"
+            },
+            // {
+            //     $match: {
+            //         "checkSheet_data.current_year": "2022-2023"
+            //     }
+            // },
             {
                 $addFields:
                 {
-                    checkSheet_data:
-                    {
-                        $arrayElemAt: ["$checkSheet_data", -1]
-                    },
+                    // checkSheet_data:
+                    // {
+                    //     $arrayElemAt: ["$checkSheet_data", -1]
+                    // },
                     senderApprovalMonth: "Sep"
                 }
             },
             {
                 $match: {
 
-                    $and: [
-                        {
+                    $and: [{
 
-                            $expr: {
-                                $eq: [{ $arrayElemAt: [keyOfImplemetation_mtd_hod_approval_status_sep, -1] }, "Pending"]
-                            }
-                        },
-                        {
-                            "checkSheet_data.checksheet_status": "Implementation"
-                        }
+                        $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.implemetation_mtd_hod_approval_status.Sep", -1] }, "Pending"] }
+                    },
+                    {
+                        "checkSheet_data.checksheet_status": "Implementation"
+                    }
                     ]
 
+                    // $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.implemetation_mtd_hod_approval_status.Sep", -1] }, "Pending"] }
 
-                }
+
+                },
+                // {
+                //     $match: {
+                //         $and: [{
+                //             $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.assign_TL", -1] }, loggedUserData.email] }
+                //         },
+                //         {
+                //             $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.tl_approval_status", -1] }, "Pending"] }
+                //         },
+
+                //         ]
+                //     }
+                // }
+
+
+
             }
         ])
 
         requestData2 = await Machine.aggregate([
 
+            // {
+            //     $addFields:
+            //     {
+            //         checkSheet_data:
+            //         {
+            //             $arrayElemAt: ["$checkSheet_data", -1]
+            //         },
+            //         senderApprovalMonth: "Mar"
+            //     }
+            // },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            // {
+            //     $match: {
+            //         "checkSheet_data.current_year": "2022-2023"
+            //     }
+            // },
             {
                 $addFields:
                 {
-                    checkSheet_data:
-                    {
-                        $arrayElemAt: ["$checkSheet_data", -1]
-                    },
+                    // checkSheet_data:
+                    // {
+                    //     $arrayElemAt: ["$checkSheet_data", -1]
+                    // },
                     senderApprovalMonth: "Mar"
                 }
             },
@@ -4306,7 +4365,7 @@ router.get('/getSixMonthApprovalRequestData', authenticate, async (req, res) => 
                         {
 
                             $expr: {
-                                $eq: [{ $arrayElemAt: [keyOfImplemetation_mtd_hod_approval_status_mar, -1] }, "Pending"]
+                                $eq: [{ $arrayElemAt: ["$checkSheet_data.implemetation_mtd_hod_approval_status.Mar", -1] }, "Pending"]
                             }
 
                         },
@@ -4320,7 +4379,7 @@ router.get('/getSixMonthApprovalRequestData', authenticate, async (req, res) => 
             }
         ])
 
-        // console.log(requestData1)
+        // console.log(requestData1,)
 
         const requestData = await requestData1.concat(requestData2)
 
@@ -7976,6 +8035,7 @@ router.post('/savedWorkedPMData', async (req, res) => {
             Mar: [],
         }
         let keyOfMonth = `checkSheet_data.$[outer].PMworkedTMName.${monthForCompareSystemMonth}`
+        let keyOfMonthOfTotalWorkedPMTime = `checkSheet_data.$[outer].PMworkedTMName`
 
         let getSelectedMachineChecksheet = await Machine.aggregate([{
             $match: { machine_code: machine_code, "checkSheet_data.current_year": yearOfCheckSheet }
@@ -8103,7 +8163,7 @@ router.post('/savedWorkedPMData', async (req, res) => {
                 machine_code: machine_code
             }, {
                 $set: {
-                    PMworkedTMName: PMworkedTMNameArray,
+                    [keyOfMonthOfTotalWorkedPMTime]: PMworkedTMNameArray,
                 }
             }, {
                 arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
@@ -8225,19 +8285,141 @@ router.post('/deleteCheckSheet', authenticate, async (req, res) => {
                 const result = await backupPreparationMachineData.save();
 
             }
+            // console.log(selectedRow.checkSheet_data)
+
+            // console.log("checksheet year --->  ", selectedRow.checkSheet_data.current_year)
 
             const deleteChecksheet = await Machine.updateOne({ machine_code: selectedRow.machine_code }, {
                 $pull: {
                     checkSheet_data: {
                         current_year: selectedRow.checkSheet_data.current_year
                     }
-                }
+                },
+
+                // $unset: {
+
+                //     // "checkSheet_data.$[outer].checkSheet.$[].tableRowId": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].category": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].inspection_parent_name": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].inspection_point": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].judgement_criteria": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].action": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].cycle": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].personInCharge": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].PM_time": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].start_month": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].planningTableAnimationArray2": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].abnormalityDetails": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].spareDetails": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].PMOkImage": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].completionDateOfInspection": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].reasonForDelayWhenSkip": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].isAdded": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].isEdited": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].isDeleted": "",
+                //     // "checkSheet_data.$[outer].checkSheet.$[].inspectionCompletionBy": "",
+
+                //     // "checkSheet_data.$[outer].checkSheet.$[]": "",
+                //     "checkSheet_data.$[outer].checkSheet": [],
+
+                //     "checkSheet_data.$[outer].flagOfDoneWithDelayForOneMonth": "",
+                //     "checkSheet_data.$[outer].completionTargetDate": "",
+                //     "checkSheet_data.$[outer].dataSheet": "",
+                //     "checkSheet_data.$[outer].checksheet_status": "",
+
+                //     "checkSheet_data.$[outer].tl_approval_status": "",
+                //     "checkSheet_data.$[outer].hos_approval_status": "",
+                //     "checkSheet_data.$[outer].sender_tm_no": "",
+                //     "checkSheet_data.$[outer].sender_tm_name": "",
+                //     "checkSheet_data.$[outer].checkSheetSendingUser": "",
+                //     "checkSheet_data.$[outer].assign_TL": "",
+                //     "checkSheet_data.$[outer].assign_HOS": "",
+                //     "checkSheet_data.$[outer].assign_TL_name": "",
+                //     "checkSheet_data.$[outer].assign_HOS_name": "",
+                //     "checkSheet_data.$[outer].rejected_remarks": "",
+                //     "checkSheet_data.$[outer].approved_by_TL": "",
+                //     "checkSheet_data.$[outer].approved_by_HOS": "",
+                //     "checkSheet_data.$[outer].preparation_TL_date": "",
+                //     "checkSheet_data.$[outer].preparation_TL_HOSS_date": "",
+                //     "checkSheet_data.$[outer].preparation_HOS_date": "",
+
+
+
+                //     "checkSheet_data.$[outer].prd_tl_approval_status": "",
+                //     "checkSheet_data.$[outer].plan_prepared_tm_no": "",
+                //     "checkSheet_data.$[outer].plan_prepared_tm_name": "",
+                //     "checkSheet_data.$[outer].plan_prepared_email": "",
+                //     "checkSheet_data.$[outer].assign_PRD_TL": "",
+                //     "checkSheet_data.$[outer].assign_PRD_TL_name": "",
+                //     "checkSheet_data.$[outer].approved_by_PRD_TL": "",
+                //     "checkSheet_data.$[outer].planning_TL_date": "",
+                //     "checkSheet_data.$[outer].planning_PRD_TL_date": "",
+
+
+                //     "checkSheet_data.$[outer].totalPMTime": "",
+                //     // "checkSheet_data.$[outer].supportingOperatorList": "",
+                //     "checkSheet_data.$[outer].PMworkedTMName": "",
+                //     "checkSheet_data.$[outer].PMStatus": "",
+                //     "checkSheet_data.$[outer].carriedPMStatus": "",
+                //     "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus": "",
+                //     "checkSheet_data.$[outer].PMDelayRemark": "",
+
+
+                //     "checkSheet_data.$[outer].implemetation_completed_date": "",
+                //     "checkSheet_data.$[outer].implemetation_completed_tm_no": "",
+                //     "checkSheet_data.$[outer].implemetation_completed_tm_name": "",
+                //     "checkSheet_data.$[outer].implementation_assign_PRD_TL": "",
+                //     "checkSheet_data.$[outer].implementation_assign_MTD_TL": "",
+                //     "checkSheet_data.$[outer].implementation_assign_MTD_HOS": "",
+                //     "checkSheet_data.$[outer].implementation_approval_month_of_hod": "",
+                //     "checkSheet_data.$[outer].implementation_approval_hod_remarks": "",
+                //     "checkSheet_data.$[outer].implementation_assign_MTD_HOD": "",
+
+                //     "checkSheet_data.$[outer].implementation_assign_PRD_TL_name": "",
+                //     "checkSheet_data.$[outer].implementation_assign_MTD_TL_name": "",
+                //     "checkSheet_data.$[outer].implementation_assign_MTD_HOS_name": "",
+                //     "checkSheet_data.$[outer].implementation_assign_MTD_HOD_name": "",
+                //     "checkSheet_data.$[outer].implemetation_quality_remarks": "",
+
+
+                //     "checkSheet_data.$[outer].implementation_rejected_remarks": "",
+                //     "checkSheet_data.$[outer].implementation_approved_by_PRD_TL": "",
+                //     "checkSheet_data.$[outer].implementation_approved_by_MTD_TL": "",
+                //     "checkSheet_data.$[outer].implementation_approved_by_MTD_HOS": "",
+                //     "checkSheet_data.$[outer].implementation_approved_by_MTD_HOD": "",
+
+                //     "checkSheet_data.$[outer].implementation_approved_PRD_TL_date": "",
+                //     "checkSheet_data.$[outer].implementation_approved_MTD_TL_date": "",
+                //     "checkSheet_data.$[outer].implementation_approved_MTD_HOS_date": "",
+
+                //     "checkSheet_data.$[outer].implementation_approved_MTD_HOD_date": "",
+
+
+                //     "checkSheet_data.$[outer].implemetation_prd_tl_approval_status": "",
+                //     "checkSheet_data.$[outer].implemetation_mtd_tl_approval_status": "",
+                //     "checkSheet_data.$[outer].implemetation_mtd_hos_approval_status": "",
+                //     "checkSheet_data.$[outer].implemetation_mtd_hod_approval_status": "",
+
+                //     "checkSheet_data.$[outer].revisionContentData": "",
+                //     "checkSheet_data.$[outer].flagForRevisionContent": "",
+                //     "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": "",
+                //     "checkSheet_data.$[outer].extraSpareDetails": "",
+
+                // }
             },
                 // {
                 //     arrayFilters: [{ 'outer.current_year': selectedRow.checkSheet_data.current_year }],
                 // }
             );
-            // console.log(result);
+
+            const deleteChecksheet1 = await Machine.updateOne({ machine_code: selectedRow.machine_code }, {
+                $push: {
+                    checkSheet_data: {
+                        current_year: selectedRow.checkSheet_data.current_year
+                    }
+                }
+            })
+
             res.status(201).json({ message: 'Removed Checksheet !!!' })
         }
 
@@ -8492,7 +8674,7 @@ router.post('/postMachineToGetChacksheetPreparationData', authenticate, async (r
 
             // console.log(getChecksheetPreparationDataOfSelectedMachine)
             // getChecksheetPreparationDataOfSelectedMachine[0].checkSheet_data.current_year = current_year
-
+            // console.log(checkSheetExistsOrNot?.[0]?.checkSheet_data?.checkSheet?.length)
             if (checkSheetExistsOrNot?.[0]?.checkSheet_data?.checkSheet?.length === 0) {
                 copyPreparationData = await Machine.updateOne({ machine_code: copyPreparationDataToSelectedMachine }, {
 
@@ -13864,7 +14046,7 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
         let keyOfPartNo = `checkSheet_data.$[outer].checkSheet.$[inner].spareDetails.${schedule_month}.partNo`
         let keyOfCost = `checkSheet_data.$[outer].checkSheet.$[inner].spareDetails.${schedule_month}.cost`
 
-        let keyOfPMworkedTMName = `checkSheet_data.$[outer].PMworkedTMName.${schedule_month}`
+        let keyOfPMworkedTMName = `checkSheet_data.$[outer].PMworkedTMName`
 
 
         let currentMonth = new Date().getMonth();
@@ -14137,9 +14319,6 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
                         arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }, { 'inner.tm_no': selectedSupportedTM[i].tm_no }],
                     })
                 } else {
-                    console.log(typeof (selectedSupportedTM[i].tm_name))
-
-                    console.log(selectedSupportedTM[i].tm_name)
                     updateTotalTimeAndWorkedAndSupportingOperator = await Machine.updateOne({ machine_code: machineId }, {
                         $push: {
                             [keyOfSupportingTMData]: {
@@ -14184,7 +14363,7 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
                         [keyOfDelayRemarksMonthPM]: delayRemarks
                     },
                     $push: {
-                        [keyOfMonth]: PMworkedTMName,
+                        [keyOfMonthPMworkedTMName]: PMworkedTMName,
                     }
                 }, {
                     arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
@@ -14195,7 +14374,7 @@ router.post('/postSkipWorkedData', upload1.single('photoUpload'), async (req, re
                 machine_code: machineId
             }, {
                 $set: {
-                    PMworkedTMName: PMworkedTMNameArray,
+                    [keyOfPMworkedTMName]: PMworkedTMNameArray,
                 }
             }, {
                 arrayFilters: [{ 'outer.current_year': yearOfCheckSheet }],
