@@ -416,6 +416,7 @@ const ChecksheetCreationDashboard = ({}) => {
         },
         body: JSON.stringify({
           machineId: selectedMachineData.state.selectedRow.machine_code,
+          yearOfCheckSheet: selectedMachineData.state.selectedRow?.checkSheet_data?.current_year
         }),
       });
       const data = await res.json();
@@ -435,6 +436,7 @@ const ChecksheetCreationDashboard = ({}) => {
       console.log(error);
     }
   };
+
 
   const addNewChecksheetData = async (selectedRow) => {
     try {

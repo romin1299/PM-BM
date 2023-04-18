@@ -298,6 +298,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
         },
         body: JSON.stringify({
           machineId: selectedMachineData.state.selectedRow.machine_code,
+          yearOfCheckSheet: selectedMachineData.state.selectedRow?.checkSheet_data?.current_year
         }),
       });
       const data = await res.json();
@@ -318,6 +319,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
       console.log(error);
     }
   };
+  
 
   const addNewChecksheetData = async (selectedRow) => {
     // console.log(selectedRow);

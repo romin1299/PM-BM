@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_"}],"uuid":"09977c666b03434e90962a7e60de4ec8"}
+{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"DENSO-PM.approvalofskippms"}],"uuid":"d81d318c5ed44d6cb035a8cbf74d8415"}
