@@ -19,7 +19,7 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
     try {
 
         let currentYear =
-            new Date().getMonth() <= 3 ?
+            new Date().getMonth() < 3 ?
                 `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
                 `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 

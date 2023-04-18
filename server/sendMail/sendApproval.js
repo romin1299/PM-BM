@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 const EmailConfigurationController = require('../controller/emailConfigurationController')
 const sendApproval = async (subject, title, greetings, bodyTable, ccEmail, assign_member_name, tm_no, tm_name, machine_code, machine_name,
     checksheet_status, firstEmail, secondEmail, tlApproval, hosApproval, request, rejected_remarks) => {
-    // console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
+    console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
     // console.log("==============>", tlApproval, hosApproval)
     // console.log("==============>", request)
     let emailConfData = await EmailConfigurationController()

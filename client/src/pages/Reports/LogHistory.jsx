@@ -69,6 +69,10 @@ const LogHistory = () => {
       sort: "true",
     },
     {
+      header: "Action Details",
+      sort: "true",
+    },
+    {
       header: "Target",
       sort: "true",
     },
@@ -180,7 +184,7 @@ const LogHistory = () => {
         console.log("Invalid");
       } else {
         setAllDataSectionWise(data);
-        setLoadingAnimationState(<NotFound />);
+        // setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
       console.log(error);
@@ -235,7 +239,7 @@ const LogHistory = () => {
 
         // setAllDataSectionWise(data);
         // setTableData(data.logHistoryAllData);
-        // setLoadingAnimationState(<NotFound />);
+        setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
       console.log(error);
@@ -255,13 +259,14 @@ const LogHistory = () => {
   // }, []);
 
   useEffect(() => {
+    setLoadingAnimationState(<LoadingAnimation />)
     if (context?.user_type === "Plant-Admin") {
       postPlantToGetSectionDataBasedOnDashboardLevel();
     } else {
       postSectionToGetAllDataForLogHistory(context.section_data);
       fetchSectionWiseLogHistory(context.section_data);
     }
-  }, []);
+  }, [selectedYear]);
 
   const styleForDownloadFileButton = {
     backgroundColor: "transparent",
@@ -643,6 +648,7 @@ const LogHistory = () => {
                         {item?.abnormality_remarks}
                       </td>
                       <td className="td-padding">{item?.abnormality_status}</td>
+                      <td className="td-padding">{item?.actionDetailsOfAbnormalityClose}</td>
                       <td className="td-padding">{item?.target}</td>
                       <td className="td-padding">{item?.spare_used}</td>
                       <td className="td-padding">{item?.part_name}</td>

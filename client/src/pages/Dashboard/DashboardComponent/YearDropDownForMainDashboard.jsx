@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from "reactstrap";
 import { fetchFinancialYears } from "../../../Integration/APIExports";
 
-const YearDropDownForMainDashboard = ({ selectedYear, setSelectedYear }) => {
+const YearDropDownForMainDashboard = ({ selectedYear, setSelectedYear, refKeyForFinancialYear }) => {
   const [financialYear, setFinancialYear] = useState();
 
   let current_year =
-    new Date().getMonth() <= 3
+    new Date().getMonth() < 3
       ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
       : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
@@ -15,7 +15,7 @@ const YearDropDownForMainDashboard = ({ selectedYear, setSelectedYear }) => {
     fetchFinancialYears().then((result) =>
       setFinancialYear(result.financialYears)
     );
-  }, []);
+  }, [refKeyForFinancialYear]);
 
   return (
     <Row className="p-1 ">

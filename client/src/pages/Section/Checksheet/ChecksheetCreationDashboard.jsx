@@ -16,6 +16,7 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { ToastContainer, toast } from "react-toastify";
+import currentYear from "../../Dashboard/DashboardComponent/currentYear";
 
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "../../../components/Footer/Footer";
@@ -415,6 +416,7 @@ const ChecksheetCreationDashboard = ({}) => {
         },
         body: JSON.stringify({
           machineId: selectedMachineData.state.selectedRow.machine_code,
+          yearOfCheckSheet: selectedMachineData.state.selectedRow?.checkSheet_data?.current_year
         }),
       });
       const data = await res.json();
@@ -434,6 +436,7 @@ const ChecksheetCreationDashboard = ({}) => {
       console.log(error);
     }
   };
+
 
   const addNewChecksheetData = async (selectedRow) => {
     try {
@@ -577,6 +580,7 @@ const ChecksheetCreationDashboard = ({}) => {
         body: JSON.stringify({
           line: selectedLine,
           selectedRequest,
+          yearOfCheckSheet: currentYear
         }),
       });
       const data = await res.json();

@@ -125,6 +125,8 @@ const MainDashboard = () => {
   //for operator user
   const postSectionToGetAllDataForMainDashboard = async (selectedSection) => {
     // setSubSection(undefined);
+    setallDataSectionWise("");
+
     try {
       const res = await fetch("/postSectionToGetAllDataForMainDashboard", {
         method: "POST",
@@ -322,16 +324,14 @@ const MainDashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (sections) {
-      postSectionToGetAllDataForMainDashboard(sections);
+    postSectionToGetAllDataForMainDashboard(sections || context?.section_data);
 
-      // if (context.user_type === "Operator") {
-      //   postSectionToGetAllDataForMainDashboard(sections);
-      // } else {
-      //   postSectionToGetAllDataForMainDashboardForOtherUser(sections);
-      // }
-    }
-  }, [sections, selectedYear]);
+    // if (context.user_type === "Operator") {
+    //   postSectionToGetAllDataForMainDashboard(sections);
+    // } else {
+    //   postSectionToGetAllDataForMainDashboardForOtherUser(sections);
+    // }
+  }, [sections, selectedYear, refKeyForFinancialYear]);
 
   useEffect(() => {
     if (sections) {
@@ -339,15 +339,15 @@ const MainDashboard = () => {
     }
   }, [sections]);
 
-  useEffect(() => {
-    postSectionToGetAllDataForMainDashboard(context.section_data);
+  // useEffect(() => {
+  //   postSectionToGetAllDataForMainDashboard(context.section_data);
 
-    // if (context.user_type === "Operator") {
-    //   postSectionToGetAllDataForMainDashboard(context.section_data);
-    // } else {
-    //   postSectionToGetAllDataForMainDashboardForOtherUser(context.section_data);
-    // }
-  }, [context.section_data, selectedYear]);
+  //   // if (context.user_type === "Operator") {
+  //   //   postSectionToGetAllDataForMainDashboard(context.section_data);
+  //   // } else {
+  //   //   postSectionToGetAllDataForMainDashboardForOtherUser(context.section_data);
+  //   // }
+  // }, [context.section_data, selectedYear]);
 
   const setDeafaultDataForNoDashboard = (data) => {
     // console.log("!!!!!!!!!!!!!!!!!!!!!!!!! 328", data);
@@ -444,9 +444,11 @@ const MainDashboard = () => {
         notifyForNotstartedYear();
       } else {
         notifyForCopiedChecksheetDataDone();
+        // getFinancialYears();
         setRefKeyForFinancialYear(
           (refKeyForFinancialYear) => refKeyForFinancialYear + 1
         );
+
         // console.log("Data post");
         // console.log(data);
       }
@@ -954,6 +956,7 @@ const MainDashboard = () => {
                           <YearDropDownForMainDashboard
                             selectedYear={selectedYear}
                             setSelectedYear={setSelectedYear}
+                            refKeyForFinancialYear={refKeyForFinancialYear}
                           />
                         </Col>
                         <Col sm>

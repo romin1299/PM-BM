@@ -831,14 +831,14 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       // colSpan={2}
                       //  rowSpan={5}
                     >
-                      {machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                      {machineAllData?.checkSheet_data?.approved_by_PRD_TL?.[
                         machineAllData?.checkSheet_data?.approved_by_PRD_TL
-                          .length - 1
+                          ?.length - 1
                       ]
                         ? `${
-                            machineAllData?.checkSheet_data?.approved_by_PRD_TL[
+                            machineAllData?.checkSheet_data?.approved_by_PRD_TL?.[
                               machineAllData?.checkSheet_data
-                                ?.approved_by_PRD_TL.length - 1
+                                ?.approved_by_PRD_TL?.length - 1
                             ]
                           }`
                         : ""}
@@ -848,15 +848,15 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       // colSpan={2}
                       //  rowSpan={5}
                     >
-                      {machineAllData?.checkSheet_data?.plan_prepared_tm_name[
+                      {machineAllData?.checkSheet_data?.plan_prepared_tm_name?.[
                         machineAllData?.checkSheet_data?.plan_prepared_tm_name
-                          .length - 1
+                          ?.length - 1
                       ]
                         ? `${
                             machineAllData?.checkSheet_data
-                              ?.plan_prepared_tm_name[
+                              ?.plan_prepared_tm_name?.[
                               machineAllData?.checkSheet_data
-                                ?.plan_prepared_tm_name.length - 1
+                                ?.plan_prepared_tm_name?.length - 1
                             ]
                           }`
                         : ""}
@@ -868,8 +868,8 @@ function ChecksheetFormApprovalForHOSAndHOD() {
           </Row>
         </Container>
       </div>
-      {machineAllData.checksheet_status === "Planning" ||
-      machineAllData.checksheet_status === "Implementation" ? (
+      {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
+      machineAllData?.checkSheet_data?.checksheet_status === "Implementation" ? (
         <div className="row mt-3">
           <div className="col-6"></div>
           <span className="col-6">
@@ -947,35 +947,35 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                 </tr>
                 <tr>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
-                    {machineAllData?.checkSheet_data?.approved_by_HOS[
-                      machineAllData?.checkSheet_data?.approved_by_HOS.length -
+                    {machineAllData?.checkSheet_data?.approved_by_HOS?.[
+                      machineAllData?.checkSheet_data?.approved_by_HOS?.length -
                         1
                     ]
-                      ? machineAllData?.checkSheet_data?.approved_by_HOS[
+                      ? machineAllData?.checkSheet_data?.approved_by_HOS?.[
                           machineAllData?.checkSheet_data?.approved_by_HOS
-                            .length - 1
+                            ?.length - 1
                         ]
                       : ""}
                     <br />
 
-                    {machineAllData?.checkSheet_data?.approved_by_TL[
-                      machineAllData?.checkSheet_data?.approved_by_TL.length - 1
+                    {machineAllData?.checkSheet_data?.approved_by_TL?.[
+                      machineAllData?.checkSheet_data?.approved_by_TL?.length - 1
                     ]
                       ? `,${
-                          machineAllData?.checkSheet_data?.approved_by_TL[
+                          machineAllData?.checkSheet_data?.approved_by_TL?.[
                             machineAllData?.checkSheet_data?.approved_by_TL
-                              .length - 1
+                              ?.length - 1
                           ]
                         }`
                       : ""}
                   </th>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
-                    {machineAllData?.checkSheet_data?.sender_tm_name[
-                      machineAllData?.checkSheet_data?.sender_tm_name.length - 1
+                    {machineAllData?.checkSheet_data?.sender_tm_name?.[
+                      machineAllData?.checkSheet_data?.sender_tm_name?.length - 1
                     ]
-                      ? machineAllData?.checkSheet_data?.sender_tm_name[
+                      ? machineAllData?.checkSheet_data?.sender_tm_name?.[
                           machineAllData?.checkSheet_data?.sender_tm_name
-                            .length - 1
+                            ?.length - 1
                         ]
                       : ""}
                   </th>
@@ -989,7 +989,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                     ? Object.values(
                         machineAllData?.checkSheet_data
                           ?.implementation_approved_by_MTD_HOS
-                      ).map((index) => (
+                      )?.map((index) => (
                         <td className="ar-table-col1">
                           {index[index.length - 1]}
                         </td>
@@ -1053,7 +1053,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                 </tr>
               </thead>
               <tbody>
-                {newTableData.map((rData) => (
+                {newTableData?.map((rData) => (
                   <Rows
                     rData={rData}
                     isDeletedExists={
@@ -1077,7 +1077,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                   {machineAllData?.checkSheet_data?.PMworkedTMName
                     ? Object.values(
                         machineAllData?.checkSheet_data?.PMworkedTMName
-                      ).map((index) => (
+                      )?.map((index) => (
                         <td className="ar-table-col1">{index.join(" ,")}</td>
                       ))
                     : refArrayForTDMapping.map((index) => (

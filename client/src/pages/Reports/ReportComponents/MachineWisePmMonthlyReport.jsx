@@ -504,6 +504,7 @@ const MachineWisePmMonthlyReport = () => {
         onGoing: onGoingPM,
         // pending: pendingStatusCounter,
       });
+      setLoadingAnimationState(<NotFound />);
 
       return currentMonthRows.push([
         index + 1,
@@ -565,6 +566,7 @@ const MachineWisePmMonthlyReport = () => {
   };
 
   const postSectionAndMonthToGetAllDataForReport = async (sectionData) => {
+    setTableData1();
     setLoadingAnimationState(<LoadingAnimation />);
 
     // console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
@@ -588,7 +590,6 @@ const MachineWisePmMonthlyReport = () => {
       } else {
         // console.log("===================>", data);
         setTableData1(data);
-        setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
       console.log(error);
@@ -878,7 +879,8 @@ const MachineWisePmMonthlyReport = () => {
 
   useEffect(() => {
     postSectionAndMonthToGetAllDataForReport(
-      sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
+      sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection] ||
+        context.section_data
     );
   }, [selectedSectionOrSubSection, selectedYear, selectedMonth, refKey]);
 
@@ -889,6 +891,13 @@ const MachineWisePmMonthlyReport = () => {
 
   // console.log(statusCounter);
   useEffect(() => {
+    setStatusCounter({
+      ...statusCounter,
+      completed: 0,
+      schedulePm: 0,
+      onGoing: 0,
+      // pending: pendingStatusCounter,
+    });
     // setTimeout(() => {
     if (
       tableData1?.machineDataForCurrentMonth?.length > 0 ||

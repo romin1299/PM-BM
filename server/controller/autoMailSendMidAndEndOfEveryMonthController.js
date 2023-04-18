@@ -40,7 +40,7 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
     // console.log(monthForCompareSystemMonth)
 
     let currentYear =
-        new Date().getMonth() <= 3 ?
+        new Date().getMonth() < 3 ?
             `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
             `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
@@ -110,8 +110,8 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                     // (result.tm_department === "PRD" || result.tm_department === "MTD")
                     // && (result.user_type === "TL/HOSS" || result.user_type === "HOS" || result.user_type === "HOD")
                 ) {
-                    return result
-                    // return result?.email ? result?.email : undefined
+                    // return result
+                    return result?.email ? result?.email : undefined
                 }
             })
             // console.log("=====>101", ccEmailArray)
@@ -608,8 +608,8 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
 
             autoSendMail(
 
-            toEmailArray?.length > 0 ? toEmailArray : [undefined],
-            ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
+                toEmailArray?.length > 0 ? toEmailArray : [undefined],
+                ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
                 sectionInfo[i]?.section_name,
                 `Status of Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
                 "Status of PM Plan vs Actual",
@@ -659,8 +659,8 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                         // (result.tm_department === "PRD" || result.tm_department === "MTD")
                         // && (result.user_type === "TL/HOSS" || result.user_type === "HOS" || result.user_type === "HOD")
                     ) {
-                        return result
-                        // return result?.email ? result?.email : undefined
+                        // return result
+                        return result?.email ? result?.email : undefined
                     }
                 })
 
@@ -1141,8 +1141,8 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
 
                 autoSendMail(
 
-                toEmailArray?.length > 0 ? toEmailArray : [undefined],
-                ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
+                    toEmailArray?.length > 0 ? toEmailArray : [undefined],
+                    ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
                     subSectionsData[subIterator]?.subSection_name,
                     `Status of Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
                     "Status of PM Plan vs Actual",
