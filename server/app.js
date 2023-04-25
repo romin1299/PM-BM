@@ -26,6 +26,7 @@ require(path.join(__dirname, './controller/autoMailSendStartingOfEveryMonthContr
 require(path.join(__dirname, './controller/autoMailSendMidAndEndOfEveryMonthController'));
 require(path.join(__dirname, './controller/autoUpdateAndSendMailForSixMonthApproval'));
 require(path.join(__dirname, './controller/financialYearController'));
+// require(path.join(__dirname, './controller/everyDayAutoBackup'));
 
 
 //for logos and other image

@@ -1851,6 +1851,170 @@ router.post('/postAssignSubSectionToGetAllDataOfSubSection', authenticate, async
     }
 })
 
+router.post('/postSectionToGetAllData12', authenticate, async (req, res) => {
+    try {
+        let { selectedYear } = req.body
+
+        let years = ['2022-2023', '2023-2024'];
+        const financialYearWiseMonthKeyArray = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
+        //for prd tl
+        const keyofimaplementation = {
+            status : 'implemetation_prd_tl_approval_status',
+            no : 'implementation_assign_PRD_TL_tm_no',
+            name : 'implementation_assign_PRD_TL_name',
+            email: 'implementation_assign_PRD_TL'
+        }
+
+        //for mtd tl
+        // const keyofimaplementation = {
+        //     status : 'implemetation_mtd_tl_approval_status',
+        //     no : 'implementation_assign_MTD_TL_tm_no',
+        //     name : 'implementation_assign_MTD_TL_name',
+        //     email: 'implementation_assign_MTD_TL'
+        // }
+
+        //for hos
+        // const keyofimaplementation = {
+        //     status : 'implemetation_mtd_hos_approval_status',
+        //     no : 'implementation_assign_MTD_HOS_tm_no',
+        //     name : 'implementation_assign_MTD_HOS_name',
+        //     email: 'implementation_assign_MTD_HOS'
+        // }
+
+        for (let i = 0; i < years.length; i++) {
+            for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
+                let keyPrdTLstatus1 = `$checkSheet_data.${keyofimaplementation.status}.${financialYearWiseMonthKeyArray[j]}`
+                let keyPrdTLstatus1no = `checkSheet_data.$[outer].${keyofimaplementation.no}.${financialYearWiseMonthKeyArray[j]}`
+
+                machineDataOfImplementationApproval12 = await Machine.aggregate([
+                    {
+                        $unwind: "$checkSheet_data"
+                    },
+                    {
+                        $match: {
+                            "checkSheet_data.current_year": years[i]
+                        }
+                    },
+                    // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+                    {
+                        $match: {
+
+                            $expr: { $eq: [{ $arrayElemAt: [keyPrdTLstatus1, -1] }, "Pending"] }
+
+                        }
+                    },
+                    {
+                        $project: {
+                            machine_code: 1,
+                            machine_name: 1,
+                            machine_nickname: 1,
+                            machine_sequence: 1,
+                            installation_date: 1,
+                            maker_name: 1,
+                            maker_sr_no: 1,
+                            manufacturingDate: 1,
+                            isPM: 1,
+                            line_names: 1,
+                            checkSheet_data: 1
+                        }
+                    },
+                ])
+                if(machineDataOfImplementationApproval12?.length > 0){
+
+                    for (let k = 0; k < machineDataOfImplementationApproval12?.length; k++) {
+                        for (let l = 0; l < machineDataOfImplementationApproval12?.[k]?.checkSheet_data?.[keyofimaplementation?.status]?.[financialYearWiseMonthKeyArray?.[j]]?.length; l++) {
+                            let findTMNo = await User.findOne({
+                                tm_name: machineDataOfImplementationApproval12?.[k]?.checkSheet_data?.[keyofimaplementation?.name]?.[financialYearWiseMonthKeyArray?.[j]]?.[l],
+                                email: machineDataOfImplementationApproval12?.[k]?.checkSheet_data?.[keyofimaplementation?.email]?.[financialYearWiseMonthKeyArray?.[j]]?.[l]
+
+                            })
+                            // if(machineDataOfImplementationApproval12?.[k]?.checkSheet_data?.implementation_assign_PRD_TL_tm_no?.[financialYearWiseMonthKeyArray?.[j]]?.length > 0){
+                                const pushTmNo = await Machine.updateOne({
+                                    machine_code: machineDataOfImplementationApproval12?.[k]?.machine_code,
+            
+                                },
+                                {
+                                    $push:{
+                                        [keyPrdTLstatus1no] : findTMNo?.tm_no
+                                    }
+                                },
+                                {
+                                    arrayFilters: [{ 'outer.current_year': years[i] }],
+                                }
+                                )   
+                        }
+                    }
+                }
+                
+            }
+
+        }
+
+
+
+        //for add pending status in HOS ****************************************
+
+        machineDataOfImplementationApproval12 = await Machine.aggregate([
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": selectedYear
+                }
+            },
+            // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+            {
+                $match: {
+                    "checkSheet_data.implemetation_mtd_tl_approval_status.Apr": "Accepted",
+                    "checkSheet_data.implementation_approved_by_MTD_HOS": undefined,
+                }
+            },
+            {
+                $project: {
+                    machine_code: 1,
+                    machine_name: 1,
+                    machine_nickname: 1,
+                    machine_sequence: 1,
+                    installation_date: 1,
+                    maker_name: 1,
+                    maker_sr_no: 1,
+                    manufacturingDate: 1,
+                    isPM: 1,
+                    line_names: 1,
+                    checkSheet_data: 1
+                }
+            },
+        ])
+
+        // console.log(machineDataOfImplementationApproval12)
+
+        for (let i = 0; i < machineDataOfImplementationApproval12?.length; i++) {
+            updated = await Machine.updateOne({
+                machine_code: machineDataOfImplementationApproval12[i]?.machine_code
+            },
+                {
+                    $push: {
+                        "checkSheet_data.$[outer].implemetation_mtd_hos_approval_status.Apr": "Pending"
+                    }
+                },
+                {
+                    arrayFilters: [{ 'outer.current_year': selectedYear }],
+                }
+            )
+        }
+
+        //**************************************************************************************
+        console.log("Data updated .......... ")
+
+        // res.json({ pushTmNo })
+    } catch (error) {
+        console.log(error)
+        console.log("User id not received!!!");
+    }
+})
+
 router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
     try {
         let { section, selectedYear } = req.body
@@ -3969,8 +4133,11 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
         let keyOfImplemetation_mtd_tl_approval_status = `checkSheet_data.$[outer].implemetation_mtd_tl_approval_status.${monthForCompareSystemMonth}`
 
         let keyOfImplementation_assign_PRD_TL_name = `checkSheet_data.$[outer].implementation_assign_PRD_TL_name.${monthForCompareSystemMonth}`;
+        let keyOfImplementation_assign_PRD_TL_tm_no = `checkSheet_data.$[outer].implementation_assign_PRD_TL_tm_no.${monthForCompareSystemMonth}`;
         let keyOfImplementation_assign_MTD_TL_name = `checkSheet_data.$[outer].implementation_assign_MTD_TL_name.${monthForCompareSystemMonth}`;
+        let keyOfImplementation_assign_MTD_TL_tm_no = `checkSheet_data.$[outer].implementation_assign_MTD_TL_tm_no.${monthForCompareSystemMonth}`;
         let keyOfImplementation_assign_MTD_HOS_name = `checkSheet_data.$[outer].implementation_assign_MTD_HOS_name.${monthForCompareSystemMonth}`;
+        let keyOfImplementation_assign_MTD_HOS_tm_no = `checkSheet_data.$[outer].implementation_assign_MTD_HOS_tm_no.${monthForCompareSystemMonth}`;
 
         let keyOfImplementation_assign_MTD_HOD = `checkSheet_data.$[outer].implementation_assign_MTD_HOD.${monthForCompareSystemMonth}`;
         let keyOfImplemetation_mtd_hod_approval_status = `checkSheet_data.$[outer].implemetation_mtd_hod_approval_status.${monthForCompareSystemMonth}`
@@ -4173,8 +4340,11 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
                     [keyOfImplementation_assign_MTD_TL]: mtd_tl_list.email,
                     [keyOfImplementation_assign_MTD_HOS]: mtd_hos_list.email,
                     [keyOfImplementation_assign_PRD_TL_name]: prd_tl_list.tm_name,
+                    [keyOfImplementation_assign_PRD_TL_tm_no]: prd_tl_list?.tm_no,
                     [keyOfImplementation_assign_MTD_TL_name]: mtd_tl_list.tm_name,
+                    [keyOfImplementation_assign_MTD_TL_tm_no]: mtd_tl_list?.tm_no,
                     [keyOfImplementation_assign_MTD_HOS_name]: mtd_hos_list.tm_name,
+                    [keyOfImplementation_assign_MTD_HOS_tm_no]: mtd_hos_list?.tm_no,
                     [keyOfImplemetation_completed_tm_no]: loggedUserData.tm_no,
                     [keyOfImplemetation_completed_tm_name]: loggedUserData.tm_name,
                     [keyOfImplemetation_completed_date]: implemetation_completed_date
@@ -4674,6 +4844,8 @@ router.get('/getApprovalRequestDataForImplementationPhase', authenticate, async 
                 for (let index = 0; index < financialYearWiseMonthKeyArray.length; index++) {
 
                     let keyOfImplementation_assign_PRD_TL = `$checkSheet_data.implementation_assign_PRD_TL.${financialYearWiseMonthKeyArray[index]}`;
+                    let keyOfImplementation_assign_PRD_TL_tm_no = `$checkSheet_data.implementation_assign_PRD_TL_tm_no.${financialYearWiseMonthKeyArray[index]}`;
+
                     let keyOfImplemetation_prd_tl_approval_status = `$checkSheet_data.implemetation_prd_tl_approval_status.${financialYearWiseMonthKeyArray[index]}`
 
                     requestData = await Machine.aggregate([
@@ -4684,6 +4856,9 @@ router.get('/getApprovalRequestDataForImplementationPhase', authenticate, async 
 
                                 $and: [{
                                     $expr: { $eq: [{ $arrayElemAt: [keyOfImplementation_assign_PRD_TL, -1] }, loggedUserData.email] }
+                                },
+                                {
+                                    $expr: { $eq: [{ $arrayElemAt: [keyOfImplementation_assign_PRD_TL_tm_no, -1] }, loggedUserData.tm_no] }
                                 },
                                 {
                                     $expr: { $eq: [{ $arrayElemAt: [keyOfImplemetation_prd_tl_approval_status, -1] }, "Pending"] }
@@ -4707,6 +4882,7 @@ router.get('/getApprovalRequestDataForImplementationPhase', authenticate, async 
                 for (let index = 0; index < financialYearWiseMonthKeyArray.length; index++) {
 
                     let keyOfImplementation_assign_MTD_TL = `$checkSheet_data.implementation_assign_MTD_TL.${financialYearWiseMonthKeyArray[index]}`
+                    let keyOfImplementation_assign_MTD_TL_tm_no = `$checkSheet_data.implementation_assign_MTD_TL_tm_no.${financialYearWiseMonthKeyArray[index]}`
                     let keyOfImplemetation_mtd_tl_approval_status = `$checkSheet_data.implemetation_mtd_tl_approval_status.${financialYearWiseMonthKeyArray[index]}`
                     let keyOfImplemetation_prd_tl_approval_status = `$checkSheet_data.implemetation_prd_tl_approval_status.${financialYearWiseMonthKeyArray[index]}`
 
@@ -4720,6 +4896,9 @@ router.get('/getApprovalRequestDataForImplementationPhase', authenticate, async 
                                 $and: [
                                     {
                                         $expr: { $eq: [{ $arrayElemAt: [keyOfImplementation_assign_MTD_TL, -1] }, loggedUserData.email] }
+                                    },
+                                    {
+                                        $expr: { $eq: [{ $arrayElemAt: [keyOfImplementation_assign_MTD_TL_tm_no, -1] }, loggedUserData.tm_no] }
                                     },
                                     {
                                         $expr: { $eq: [{ $arrayElemAt: [keyOfImplemetation_prd_tl_approval_status, -1] }, "Accepted"] }
@@ -4761,6 +4940,7 @@ router.get('/getApprovalRequestDataForImplementationPhase', authenticate, async 
                 let keyOfImplemetation_mtd_tl_approval_status = `$checkSheet_data.implemetation_mtd_tl_approval_status.${financialYearWiseMonthKeyArray[index]}`
                 let keyOfImplemetation_prd_tl_approval_status = `$checkSheet_data.implemetation_prd_tl_approval_status.${financialYearWiseMonthKeyArray[index]}`
                 let keyOfImplementation_assign_MTD_HOS = `$checkSheet_data.implementation_assign_MTD_HOS.${financialYearWiseMonthKeyArray[index]}`
+                let keyOfImplementation_assign_MTD_HOS_tm_no = `$checkSheet_data.implementation_assign_MTD_HOS_tm_no.${financialYearWiseMonthKeyArray[index]}`
                 let keyOfImplemetation_mtd_hos_approval_status = `$checkSheet_data.implemetation_mtd_hos_approval_status.${financialYearWiseMonthKeyArray[index]}`
 
                 requestData = await Machine.aggregate([
@@ -4772,6 +4952,9 @@ router.get('/getApprovalRequestDataForImplementationPhase', authenticate, async 
 
                             $and: [{
                                 $expr: { $eq: [{ $arrayElemAt: [keyOfImplementation_assign_MTD_HOS, -1] }, loggedUserData.email] }
+                            },
+                            {
+                                $expr: { $eq: [{ $arrayElemAt: [keyOfImplementation_assign_MTD_HOS_tm_no, -1] }, loggedUserData.tm_no] }
                             },
                             {
                                 $expr: { $eq: [{ $arrayElemAt: [keyOfImplemetation_prd_tl_approval_status, -1] }, "Accepted"] }
@@ -5346,7 +5529,11 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
 
                 if (!machineLastDataForKeyexistsOrNot[0].checkSheet_data.implementation_approved_by_PRD_TL) {
                     const updateImplementationData = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
-                        $set: { "checkSheet_data.$[outer].implementation_approved_by_PRD_TL": creationMonthKeyArray, "checkSheet_data.$[outer].implementation_approved_PRD_TL_date": creationMonthKeyArray, "checkSheet_data.$[outer].implemetation_quality_remarks": creationMonthKeyArray }
+                        $set: {
+                            "checkSheet_data.$[outer].implementation_approved_by_PRD_TL": creationMonthKeyArray,
+                            "checkSheet_data.$[outer].implementation_approved_PRD_TL_date": creationMonthKeyArray,
+                            "checkSheet_data.$[outer].implemetation_quality_remarks": creationMonthKeyArray
+                        }
                     }, {
                         arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                     })
@@ -5478,7 +5665,10 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
 
                 if (!machineLastDataForKeyexistsOrNot[0].checkSheet_data.implementation_approved_by_MTD_TL) {
                     const updateImplementationData = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
-                        $set: { "checkSheet_data.$[outer].implementation_approved_by_MTD_TL": creationMonthKeyArray, "checkSheet_data.$[outer].implementation_approved_MTD_TL_date": creationMonthKeyArray, "checkSheet_data.$[outer].implemetation_mtd_hos_approval_status": creationMonthKeyArray }
+                        $set: {
+                            "checkSheet_data.$[outer].implementation_approved_by_MTD_TL": creationMonthKeyArray,
+                            "checkSheet_data.$[outer].implementation_approved_MTD_TL_date": creationMonthKeyArray
+                        }
                     }, {
                         arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                     })
@@ -5511,7 +5701,7 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                     arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                 })
                 const findAssignMTDHOSNameOfImplementation = await User.findOne({ email: selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[senderApprovalMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[senderApprovalMonth]).length - 1] })
-
+                console.log(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[senderApprovalMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[senderApprovalMonth]).length - 1])
 
                 subject = `Checksheet Approved by MTD TL/HoSS Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`
                 title = `Checksheet Approved Plan vs Actual`
@@ -5611,7 +5801,10 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 if (!machineLastDataForKeyexistsOrNot[0].checkSheet_data.implementation_approved_by_MTD_HOS) {
 
                     const updateImplementationData = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
-                        $set: { "checkSheet_data.$[outer].implementation_approved_by_MTD_HOS": creationMonthKeyArray, "checkSheet_data.$[outer].implementation_approved_MTD_HOS_date": creationMonthKeyArray }
+                        $set: {
+                            "checkSheet_data.$[outer].implementation_approved_by_MTD_HOS": creationMonthKeyArray,
+                            "checkSheet_data.$[outer].implementation_approved_MTD_HOS_date": creationMonthKeyArray
+                        }
                     }, {
                         arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
                     })
@@ -15700,8 +15893,8 @@ router.post('/newOperatorDataEntry', async (req, res) => {
                         type: selectedType,
                         date,
                         usedBy,
-                        partName:part_name,
-                        partNo:part_no,
+                        partName: part_name,
+                        partNo: part_no,
                         cost,
                         abnormalityRemarks,
                         sparePurpose,
@@ -15723,8 +15916,8 @@ router.post('/newOperatorDataEntry', async (req, res) => {
                                 type: selectedType,
                                 date,
                                 usedBy,
-                                partName:part_name,
-                                partNo:part_no,
+                                partName: part_name,
+                                partNo: part_no,
                                 cost,
                                 abnormalityRemarks,
                                 sparePurpose,

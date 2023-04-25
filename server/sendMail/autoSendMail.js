@@ -149,9 +149,9 @@ const autoSendMail = async (toMailArray, ccEmailArray, sectionName, subject, tit
                     </tr>
                     <tr>
                         <td style="text-align:center;">
-                            <a href="https://www.denso.com/in/en/" title="Denso" target="_blank" style="font-size:14px; color:black; line-height:18px; margin:0 0 0;">
+                            <p style="font-size:14px; color:black; line-height:18px; margin:0 0 0;">
                             &copy; <strong>All Rights Reserved By DENSO(DNHA)</strong>
-                            </a>
+                            </p>
                       </td>
                     </tr>
                     <tr>
