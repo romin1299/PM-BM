@@ -135,7 +135,7 @@ function PMSheetApprovalOfImplementationPhase() {
   // console.log(context.section_data);
   const postSectionToGetAllDataForMainDashboard = async () => {
     // setSubSection(undefined);
-    setTableData([])
+    setTableData([]);
     setStateForAnimationAndNotFound(<LoadingAnimation />);
 
     try {
@@ -146,7 +146,7 @@ function PMSheetApprovalOfImplementationPhase() {
         },
         body: JSON.stringify({
           section: context.section_data,
-          selectedYear
+          selectedYear,
         }),
       });
       const data = await res.json();
@@ -239,7 +239,7 @@ function PMSheetApprovalOfImplementationPhase() {
   };
 
   const postSectionToGetPMSheetApprovalData = async (sectionData) => {
-    setTableData([])
+    setTableData([]);
     setStateForAnimationAndNotFound(<LoadingAnimation />);
     try {
       const res = await fetch("/postSectionToGetPMSheetApprovalData", {
@@ -249,7 +249,7 @@ function PMSheetApprovalOfImplementationPhase() {
         },
         body: JSON.stringify({
           section: sectionData,
-          selectedYear
+          selectedYear,
         }),
       });
       const data = await res.json();
@@ -284,8 +284,37 @@ function PMSheetApprovalOfImplementationPhase() {
       );
     }
   }, [selectedSectionOrSubSection, selectedYear]);
+
+  // const postSectionToGetAllDataForMainDashboard12 = async () => {
+  //   // setSubSection(undefined);
+
+  //   try {
+  //     const res = await fetch("/postSectionToGetAllData12", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         section: context.section_data,
+  //         selectedYear,
+  //       }),
+  //     });
+  //     const data = await res.json();
+
+  //     if (res.status === 400 || res.status === 422 || !data) {
+  //       console.log("Invalid");
+  //     } else {
+  //       // console.log(data);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
   return (
     <>
+      {/* <button onClick={postSectionToGetAllDataForMainDashboard12}>
+        Click me
+      </button> */}
       <Row className="p-2 mt-3">
         <Col sm={12} md={6} lg={3}>
           <YearDropDown

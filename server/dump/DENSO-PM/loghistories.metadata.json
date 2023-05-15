@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"DENSO-PM.loghistories"}],"uuid":"3a9a427b2e624519814e6f93e1cac8c3"}
+{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"DENSO-PM.loghistories"}],"uuid":"73c3359534f94f6b98d6734a064803cf"}

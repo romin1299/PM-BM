@@ -90,9 +90,12 @@ const LineWisePmMonthlyReport = () => {
             }}
             // className="box-shadow"
             onClick={() => {
-              let data = rowData.machine?.map((item) =>
-                item.machineStatus !== "" ? item : undefined
-              );
+              let data = [];
+              rowData.machine?.map((item) => {
+                if (item.machineStatus !== "") {
+                  data?.push(item);
+                }
+              });
               setMachineDetailPage(
                 <LineWiseMachineDetailDashboard
                   machineData={data}
@@ -127,9 +130,12 @@ const LineWisePmMonthlyReport = () => {
               textDecoration: "underline",
             }}
             onClick={() => {
-              let data = rowData.machine?.map((item) =>
-                item.previousStatus === "CarriedPM" ? item : undefined
-              );
+              let data = [];
+              rowData.machine?.map((item) => {
+                if (item.previousStatus === "CarriedPM") {
+                  data?.push(item);
+                }
+              });
               setMachineDetailPage(
                 <LineWiseMachineDetailDashboard
                   machineData={data}
@@ -164,9 +170,12 @@ const LineWisePmMonthlyReport = () => {
               textDecoration: "underline",
             }}
             onClick={() => {
-              let data = rowData.machine?.map((item) =>
-                item.machineStatus === "Completed" ? item : undefined
-              );
+              let data = [];
+              rowData.machine?.map((item) => {
+                if (item.machineStatus === "Completed") {
+                  data?.push(item);
+                }
+              });
               // console.log(data);
               setMachineDetailPage(
                 <LineWiseMachineDetailDashboard
@@ -202,8 +211,16 @@ const LineWisePmMonthlyReport = () => {
               textDecoration: "underline",
             }}
             onClick={async () => {
-              let data = rowData.machine?.map((item) =>
-                item.machineStatus !== "Completed" ? item : undefined
+              let data = [];
+              rowData.machine?.map((item) =>
+                // item.machineStatus !== "Completed" ? item.machineStatus !== "" ? item : undefined : undefined
+                {
+                  if (item.machineStatus !== "Completed") {
+                    if (item.machineStatus !== "") {
+                      data?.push(item);
+                    }
+                  }
+                }
               );
               setMachineDetailPage(
                 <LineWiseMachineDetailDashboard
@@ -253,7 +270,7 @@ const LineWisePmMonthlyReport = () => {
         // console.log(data.lineDataWithCounter);
         setTableData(data.lineDataWithCounter);
         setLineDropdown(data.lineData);
-        setLoadingAnimationState(<NotFound/>)
+        setLoadingAnimationState(<NotFound />);
       }
     } catch (error) {
       console.log(error);
@@ -290,7 +307,6 @@ const LineWisePmMonthlyReport = () => {
           sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection] ||
             data?.sectionDataArray?.[0]
         );
-
       }
     } catch (error) {
       console.log(error);

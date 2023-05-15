@@ -3,6 +3,8 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
+const Line = require('./model/lineSchema')
+
 dotenv.config({ path: './config.env' })
 
 

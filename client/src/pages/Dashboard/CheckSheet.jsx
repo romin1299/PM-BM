@@ -752,10 +752,24 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                               (MTD HOD)
                             </th>
                             <td className="ar-table-col1" colSpan={6}>
-                              {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.[machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.length -1]}
+                              {
+                                machineAllData?.checkSheet_data
+                                  ?.implementation_approved_by_MTD_HOD?.Sep?.[
+                                  machineAllData?.checkSheet_data
+                                    ?.implementation_approved_by_MTD_HOD?.Sep
+                                    ?.length - 1
+                                ]
+                              }
                             </td>
                             <td className="ar-table-col1" colSpan={6}>
-                              {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.[machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.length - 1]}
+                              {
+                                machineAllData?.checkSheet_data
+                                  ?.implementation_approved_by_MTD_HOD?.Mar?.[
+                                  machineAllData?.checkSheet_data
+                                    ?.implementation_approved_by_MTD_HOD?.Mar
+                                    ?.length - 1
+                                ]
+                              }
                             </td>
                           </tr>
                         </thead>
@@ -845,24 +859,27 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                     {colData.value[0] === "0" &&
                                     colData.key !== "tableRowId" &&
                                     colData.key !== "cycle" &&
-                                    colData.key !== "PM_time" && 
-                                    colData.key !== "inspection_parent_name" && 
-                                    colData.key !== "inspection_point" && 
-                                    colData.key !== "judgement_criteria" && 
+                                    colData.key !== "PM_time" &&
+                                    colData.key !== "inspection_parent_name" &&
+                                    colData.key !== "inspection_point" &&
+                                    colData.key !== "judgement_criteria" &&
                                     colData.key !== "action" ? (
                                       ""
                                     ) : (colData.value[0] === "1" ||
                                         colData.value[0] === "2") &&
                                       colData.key !== "tableRowId" &&
                                       colData.key !== "cycle" &&
-                                      colData.key !== "PM_time" && 
-                                      colData.key !== "inspection_parent_name" && 
-                                      colData.key !== "inspection_point" && 
-                                      colData.key !== "judgement_criteria" && 
+                                      colData.key !== "PM_time" &&
+                                      colData.key !==
+                                        "inspection_parent_name" &&
+                                      colData.key !== "inspection_point" &&
+                                      colData.key !== "judgement_criteria" &&
                                       colData.key !== "action" ? (
                                       colData.value.length === 1 &&
                                       colData.key ===
-                                        monthForCompareSystemMonth ? (
+                                        monthForCompareSystemMonth &&
+                                        rData[10]?.["key"] !== "isDeleted" &&
+                                        rData[10]?.["value"] !== true ? (
                                         <>
                                           {" "}
                                           <div style={{ fontWeight: "900" }}>
@@ -1305,11 +1322,13 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                       </Row>
                       <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
                         <Col>--> Planned</Col>
-                        <Col><EastIcon fontSize="small" /> Normal Condition</Col>
+                        <Col>
+                          <EastIcon fontSize="small" /> Normal Condition
+                        </Col>
                         <Col>--> * Abnormality</Col>
                       </Row>
                       <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-                        <div style={{float: "left"}}>FO/MTD/02/04/04</div>
+                        <div style={{ float: "left" }}>FO/MTD/02/04/04</div>
                       </Row>
                     </Col>
 
