@@ -434,6 +434,10 @@ const machineSchema = mongoose.Schema({
                     },
                 }
             ],
+            isEditedMonth: {
+            },
+            isDeletedMonth: {
+            },
             flagOfDoneWithDelayForOneMonth: {
                 Apr: { type: Number },
 

@@ -180,19 +180,16 @@ const CheckSheet = ({
   });
 
   const notifyForNotEnteredPMTime = () => {
-    toast.warn(
-      "Please first enter PM time, after send approval !",
-      {
-        position: "top-center",
-        autoClose: true,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      }
-    );
+    toast.warn("Please first enter PM time, after send approval !", {
+      position: "top-center",
+      autoClose: true,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
   };
 
   const formik1 = useFormik({
@@ -617,7 +614,7 @@ const CheckSheet = ({
     // console.log(myProps);
     setNewTableData(myProps);
   };
-console.log(newTableData)
+  console.log(newTableData);
   const close = () => {
     setWorkOnImplementationPM("");
     setStateForOpeningSummeryPopups("");
@@ -788,7 +785,6 @@ console.log(newTableData)
 
   return (
     <>
-      <ToastContainer/>
 
       {workOnImplementationPM}
       {stateForOpeningSummeryPopups}

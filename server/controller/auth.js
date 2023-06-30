@@ -2019,7 +2019,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
     try {
         let { section, selectedYear } = req.body
         let loggedUserData = req.rootUser;
-
+        console.log(section)
 
         let currentYear =
             new Date().getMonth() < 3 ?
@@ -2055,99 +2055,6 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
             machineData, machineDataForChecksheet, machineDataOfPrepAndPlanApproval, subsectionSplitIdArrayForChecksheet = [],
             machineLastData
 
-
-        // const removeObjectFromChecksheetData1 = await Machine.find(
-        //    {
-
-        //         "checkSheet_data.$[outer].checksheet_status" : "Planning",
-        //         // $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.$[outer].tl_approval_status", -1] }, "Pending"] }
-        //    },
-        //    {
-        //     arrayFilters: [{ 'outer.current_year': "2023-2024" }],
-        // }
-        // )
-
-        // removeObjectFromChecksheetData1 = await Machine.aggregate([
-        //     // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
-        //     { $unwind: '$checkSheet_data' },
-        //     {
-        //         $match: {
-        //             "checkSheet_data.current_year": "2023-2024"
-        //         }
-        //     },
-        //     {
-        //         $match: {
-        //             $and: [
-        //                 {
-        //                     "checkSheet_data.PMStatus.Apr": "Completed"
-        //                 },
-        //                 {
-        //                     "checkSheet_data.PMworkedTMName": undefined
-        //                 },
-
-
-        //             ]
-        //         }
-        //     },
-        //     {
-        //         $project:
-        //         {
-        //             machine_code:1,
-        //             last: {
-        //                 $arrayElemAt: ["$checkSheet_data.totalPMTime.Apr.supportingTMData", -1]
-        //             }
-        //         }
-        //     }
-        // ])
-
-
-        // for (let i = 0; i < removeObjectFromChecksheetData1.length; i++) {
-        //     let CarriedPMStatusArray = {
-        //         Apr: [],
-
-        //         May: [],
-
-        //         June: [],
-
-        //         July: [],
-
-        //         Aug: [],
-
-        //         Sep: [],
-
-        //         Oct: [],
-
-        //         Nov: [],
-
-        //         Dec: [],
-
-        //         Jan: [],
-
-        //         Feb: [],
-
-        //         Mar: [],
-        //     }
-
-        //     if(removeObjectFromChecksheetData1?.[i]?.last != null){
-        //         CarriedPMStatusArray.Apr.push(removeObjectFromChecksheetData1?.[i]?.last?.tm_name) 
-        //         updatePMWorkedTM = await Machine.updateOne({
-        //             _id: removeObjectFromChecksheetData1?.[i]?._id
-        //         },
-        //         {
-        //             $set:{
-        //                 "checkSheet_data.$[outer].PMworkedTMName": CarriedPMStatusArray
-        //             }
-        //         },
-        //         {
-        //             arrayFilters: [{ 'outer.current_year': "2023-2024" }],
-        //         }
-        //         )
-        //     }
-        //     console.log(updatePMWorkedTM)
-        // }
-
-
-
         if (sectionInfo.dashboardLevel === "Yes") {
             subSectionsData = await SubSection.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
 
@@ -2167,57 +2074,7 @@ router.post('/postSectionToGetAllData', authenticate, async (req, res) => {
             for (let i = 0; i < lineData.length; i++) {
                 lineIdArray.push(lineData[i]._id);
             }
-            // console.log("==========>", lineData)
-
-
-            // console.log(cellIdArray)
-
-            // const x = "new ObjectId("63243decc42b17be9a33f982")"
-            // let groupData
-            // let linedataWithGroup = []
-            // for (let i = 0; i < cellIdArray.length; i++) {
-            //     groupData = await Line.aggregate([
-
-            //         {
-            //             $group:{
-            //                 _id:"$cell_names",
-            //                 books: { $push: "$$ROOT" }
-            //             }
-
-            //         },
-            //         {
-            //             $match:{
-            //                 "books": {
-            //                     $elemMatch:{cell_names: cellIdArray[i]}
-            //                 }
-            //             }
-            //         },
-            //         // {$match: {"books[0].cell_names":{$in: [
-            //         //     `new ObjectId("63243decc42b17be9a33f982")`
-
-            //         //   ]}}},
-            //         {
-            //             $project:{
-            //                 "_id":0
-            //             }
-            //         }
-
-            //     ])  
-            //     if(groupData.length > 0){
-            //         for (let i = 0; i < groupData[0].books.length; i++) {
-            //             linedataWithGroup.push(groupData[0].books[i])  
-            //         }
-            //     }     
-
-
-            // }
-            // let xyz = await Line.populate(linedataWithGroup,{path:"cell_names"})
-            // console.log(xyz);
-            // console.log(linedataWithGroup)
-
-
-            // machineData = await Machine.find({ line_names: { $in: lineIdArray }, checksheet_status: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
+            
             machineDataOfImplementationApproval = await Machine.aggregate([{
                 $match: {
                     line_names: { $in: lineIdArray },
@@ -2953,7 +2810,6 @@ router.post('/postSectionToGetPMSheetApprovalData', authenticate, async (req, re
 router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req, res) => {
     try {
         let { section, selectedYear } = req.body
-
         let currentYear =
             new Date().getMonth() < 3 ?
                 `${new Date().getFullYear() - 1}-${new Date().getFullYear()}` :
@@ -3182,7 +3038,7 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
         }
         let updateCarriedPMStatus
         const updateStatusOfLastMonthPendingForCount = async (machine_code, yearOfCheckSheet, carriedPMStatusExistsOrNot) => {
-            // console.log(carriedPMStatusExistsOrNot)
+            // console.log(carriedPMStatusExistupdateStatusOfLastMonthPendingForCountsOrNot)
             if (carriedPMStatusExistsOrNot === 0) {
                 CarriedPMStatusArray[monthForCompareSystemMonth] = "CarriedPM"
                 updateCarriedPMStatus = await Machine.updateOne({ machine_code: machine_code }, {
@@ -3265,20 +3121,40 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
                         // if (key1?.isDeleted) {
                         //     console.log(key.machine_code, "---->", key1.tableRowId)
                         // }
-        
+
                         if (key1?.planningTableAnimationArray2) {
                             if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
                                 key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
-                                key1.cycle === "1/1M" && !key1?.isDeleted
+                                key1.cycle === "1/1M" && (!key1?.isDeleted && !key1?.isAdded && !key1?.isEdited)
                             ) {
+                                console.log("regular....")
+                                updateOnesPerMonthStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
+                            }
+                            //for mid year added 1/M skip
+                            else if ((monthKeyArray.indexOf(monthForCompareSystemMonth) > (new Date(mongoose.Types.ObjectId(key1?._id).getTimestamp()).getMonth())
+                                || monthKeyArray.indexOf(monthForCompareSystemMonth) < 3) &&
+                                key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
+                                key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
+                                key1.cycle === "1/1M" && (key1.isAdded || key1.isEdited)) {
+                                console.log("..condition..")
+
                                 updateOnesPerMonthStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
                             }
 
                             if (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "2" &&
                                 key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
-                                key1.cycle !== "1/1M" && !key1?.isDeleted) {
+                                key1.cycle !== "1/1M" && (!key1?.isDeleted && !key1?.isAdded && !key1?.isEdited)) {
                                 updateOtherCyclesStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
 
+                            }
+                            //for mid year added excluded !== 1/M
+                            else if ((monthKeyArray.indexOf(monthForCompareSystemMonth) > (new Date(mongoose.Types.ObjectId(key1?._id).getTimestamp()).getMonth())
+                                || monthKeyArray.indexOf(monthForCompareSystemMonth) < 3) &&
+                                key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "2" &&
+                                key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
+                                key1.cycle !== "1/1M" && (key1.isAdded || key1.isEdited)
+                            ) {
+                                updateOtherCyclesStatusSkip(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
                             }
 
                             if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "2" &&
@@ -3295,33 +3171,54 @@ router.post('/postSectionToGetAllDataForMainDashboard', authenticate, async (req
                                 key1.cycle !== "1/1M") &&
                                 (key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.[0] != "1" &&
                                     key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.length < 2 &&
-                                    key1.cycle !== "1/1M") && !key1?.isDeleted) {
+                                    key1.cycle !== "1/1M") && (!key1?.isDeleted && !key1?.isAdded && !key1?.isEdited)) {
+                                // console.log(key.machine_code, "next month 1 occure -----> ", key1.tableRowId)
+                                carryForwardOtherCycleData(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
+                                //add dummy key word 1,dummy
+                            }
+                            //for mid year added carry forward after adding month
+                            else if ((monthKeyArray.indexOf(monthForCompareSystemMonth) > (new Date(mongoose.Types.ObjectId(key1?._id).getTimestamp()).getMonth())
+                                || monthKeyArray.indexOf(monthForCompareSystemMonth) < 3) &&
+                                (key1.planningTableAnimationArray2?.[previousMonth]?.[0] === "1" &&
+                                    key1.planningTableAnimationArray2?.[previousMonth]?.length < 2 &&
+                                    key1.cycle !== "1/1M") &&
+                                (key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.[0] != "1" &&
+                                    key1.planningTableAnimationArray2?.[monthForCompareSystemMonth]?.length < 2 &&
+                                    key1.cycle !== "1/1M") && (key1.isAdded || key1.isEdited)) {
                                 // console.log(key.machine_code, "next month 1 occure -----> ", key1.tableRowId)
                                 carryForwardOtherCycleData(key.machine_code, key1.tableRowId, key.checkSheet_data.current_year)
                                 //add dummy key word 1,dummy
                             }
 
-                            // if (key1.planningTableAnimationArray2[monthForCompareSystemMonth][0] === "1" &&
-                            //     key1.cycle !== "1/1M") {
-                            //     console.log(key?.checkSheet_data?.currentMonthScheduleOrNotStatus)
-                            //     if (key?.checkSheet_data?.currentMonthScheduleOrNotStatus != undefined) {
-                            //         currentMonthPMScheduleOrNot = 1
-                            //     } else {
-                            //         currentMonthPMScheduleOrNot = 0
-                            //     }
-                            //     updateStatusOfCurrentMonthPMScheduleOrNot(key.machine_code, key.checkSheet_data.current_year, currentMonthPMScheduleOrNot)
-                            // }
+                            //Handle No-Completion status
+                            if (key?.checkSheet_data?.PMStatus) {
+                                // console.log(key?.checkSheet_data?.PMStatus)
+                                if (key?.checkSheet_data?.PMStatus[previousMonth] === "Current Plan" && (!key1?.isDeleted && !key1?.isAdded && !key1?.isEdited)) {
+                                    console.log("No completion check regular........")
+
+                                    updatePMStatusOfPreviousMonthForNoCompletion(key.machine_code, key.checkSheet_data.current_year)
+                                }
+                                //for mid year No-completion status
+                                else if ((monthKeyArray.indexOf(monthForCompareSystemMonth) > (new Date(mongoose.Types.ObjectId(key1?._id).getTimestamp()).getMonth())
+                                    || monthKeyArray.indexOf(monthForCompareSystemMonth) < 3) &&
+                                    (key1.isAdded || key1.isEdited) && key?.checkSheet_data?.PMStatus[previousMonth] === "Current Plan") {
+                                    console.log("No completion check........")
+                                    updatePMStatusOfPreviousMonthForNoCompletion(key.machine_code, key.checkSheet_data.current_year)
+
+                                }
+                            }
+
                         }
 
 
                     })
 
-                    if (key?.checkSheet_data?.PMStatus) {
-                        // console.log(key?.checkSheet_data?.PMStatus)
-                        if (key?.checkSheet_data?.PMStatus[previousMonth] === "Current Plan") {
-                            updatePMStatusOfPreviousMonthForNoCompletion(key.machine_code, key.checkSheet_data.current_year)
-                        }
-                    }
+                    // if (key?.checkSheet_data?.PMStatus) {
+                    //     // console.log(key?.checkSheet_data?.PMStatus)
+                    //     if (key?.checkSheet_data?.PMStatus[previousMonth] === "Current Plan") {
+                    //         updatePMStatusOfPreviousMonthForNoCompletion(key.machine_code, key.checkSheet_data.current_year)
+                    //     }
+                    // }
                 }
 
             })
@@ -3500,7 +3397,7 @@ router.post('/addNewChecksheetData', async (req, res) => {
 
             if (isAdded === true) {
                 if (findMachine[0] === undefined) {
-                    console.log("No data")
+                    // console.log("No data")
                     tableRowId = 1;
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId }, {
 
@@ -3531,7 +3428,7 @@ router.post('/addNewChecksheetData', async (req, res) => {
                     // console.log("data")
 
                     tableRowId = findMachine[0].checkSheet_data.checkSheet.tableRowId + 1
-                    console.log(tableRowId)
+                    // console.log(tableRowId)
                     const addCheckSheetData = await Machine.updateOne({ machine_code: machineId, "checkSheet_data.current_year": previous_year }, {
                         $set: {
                             "checkSheet_data.$.flagForRevisionContent": true,
@@ -3862,6 +3759,7 @@ router.post('/updateSelectedMachineChecksheetTableRowData', async (req, res) => 
                     "checkSheet_data.$[outer].checkSheet.$[inner].personInCharge": rowData.personInCharge,
                     "checkSheet_data.$[outer].checkSheet.$[inner].PM_time": rowData.PM_time,
                     "checkSheet_data.$[outer].checkSheet.$[inner].isEdited": isEdited,
+                    "checkSheet_data.$[outer].isEditedMonth": new Date(),
                     "checkSheet_data.$[outer].flagForRevisionContent": true,
                 }
             }, {
@@ -3918,6 +3816,8 @@ router.post('/deleteSelectedMachineChecksheetTableRowData', async (req, res) => 
                         $set: {
                             "checkSheet_data.$[outer].checkSheet.$[inner].isDeleted": isDeleted,
                             "checkSheet_data.$[outer].flagForRevisionContent": true,
+                            "checkSheet_data.$[outer].isDeletedMonth": new Date(),
+
                         }
                     },
                     {
@@ -4326,11 +4226,11 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
         } else if (prd_tl_list?.email && mtd_tl_list?.email && mtd_hos_list?.email && phaseStatus === "Implementation") {
 
-            if (selected_machine_data?.checkSheet_data?.totalPMTime?.[monthForCompareSystemMonth]?.totalWorkedPMTime === "" ||
-                selected_machine_data?.checkSheet_data?.totalPMTime?.[monthForCompareSystemMonth]?.totalWorkedPMTime === undefined) {
-                return res.status(409).json("PM time & supporting TM not entering!!!");
+            // if (selected_machine_data?.checkSheet_data?.totalPMTime?.[monthForCompareSystemMonth]?.totalWorkedPMTime === "" ||
+            //     selected_machine_data?.checkSheet_data?.totalPMTime?.[monthForCompareSystemMonth]?.totalWorkedPMTime === undefined) {
+            //     return res.status(409).json("PM time & supporting TM not entering!!!");
 
-            } else {
+            // } else {
 
                 // console.log(machineLastDataForKeyexistsOrNot)
                 // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implemetation_completed_date": { $exists: true } });
@@ -4437,14 +4337,14 @@ router.post('/sendRequestForApproval', authenticate, async (req, res) => {
 
                 return res.status(201).json("approval request send successfully!!!");
 
-            }
+            // }
 
         } else if ((monthForCompareSystemMonthForHODApproval === "Sep" || monthForCompareSystemMonthForHODApproval === "Mar") &&
             selected_machine_data?.checkSheet_data?.implemetation_prd_tl_approval_status[(selected_machine_data?.checkSheet_data?.implemetation_prd_tl_approval_status)?.length - 1] === "Accepted" &&
             selected_machine_data?.checkSheet_data?.implemetation_mtd_tl_approval_status[(selected_machine_data?.checkSheet_data?.implemetation_mtd_tl_approval_status)?.length - 1] === "Accepted" &&
             selected_machine_data?.checkSheet_data?.implemetation_mtd_hos_approval_status[(selected_machine_data?.checkSheet_data?.implemetation_mtd_hos_approval_status)?.length - 1] === "Accepted"
         ) {
-            if (!machineLastDataForKeyexistsOrNot[0].checkSheet_data.implementation_assign_MTD_HOD) {
+            if (!machineLastDataForKeyexistsOrNot[0]?.checkSheet_data?.implementation_assign_MTD_HOD) {
                 const updateImplementationData = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
                     $set: {
                         "checkSheet_data.$[outer].implementation_assign_MTD_HOD": KeyFor6MonthApproval,
@@ -5439,29 +5339,100 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                 }
             } else if (selected_machine_data.checkSheet_data.prd_tl_approval_status[(selected_machine_data.checkSheet_data.prd_tl_approval_status)?.length - 1] === "Pending") {
                 let checkWhetherRevisionContentDeleted = 0;
-                let checkWhetherRevisionContentAddedOrEdited = 0;
+                let checkWhetherRevisionContentAdded = 0;
+                let checkWhetherRevisionContentEdited = 0;
 
-                for (let i = 0; i < selected_machine_data.checkSheet_data.checkSheet.length; i++) {
-                    if (selected_machine_data.checkSheet_data.checkSheet[i]?.isDeleted) {
+                for (let i = 0; i < selected_machine_data?.checkSheet_data?.checkSheet?.length; i++) {
+                    if (selected_machine_data?.checkSheet_data?.checkSheet?.[i]?.isDeleted) {
                         checkWhetherRevisionContentDeleted = 1;
                     }
-                    if (selected_machine_data.checkSheet_data.checkSheet[i]?.isAdded ||
-                        selected_machine_data.checkSheet_data.checkSheet[i]?.isEdited) {
+                    if (selected_machine_data?.checkSheet_data?.checkSheet?.[i]?.isAdded) {
+                        // console.log("is Added ---- ")
+                        checkWhetherRevisionContentAdded = 1;
+                        for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
+                            let month = financialYearWiseMonthKeyArray[j]
+                            // let previousMonthForMidYearChange = financialYearWiseMonthKeyArray[j - 1] || "Apr"
+                            // console.log("is added in loop ");
+                            if (selected_machine_data?.checkSheet_data?.checkSheet?.[i]?.planningTableAnimationArray2?.[month][0] === "1" &&
+                                (monthKeyArray.indexOf(month) >= (new Date(mongoose.Types.ObjectId(selected_machine_data?.checkSheet_data?.checkSheet?.[i]?._id).getTimestamp()).getMonth())
+                                    || monthKeyArray.indexOf(month) < 3)) {
+                                // console.log(month, "----inside if ......", new Date(mongoose.Types.ObjectId(selected_machine_data?.checkSheet_data?.checkSheet?.[i]?._id).getTimestamp()).getMonth())
+                                if (selected_machine_data?.checkSheet_data?.PMStatus?.[month] === "") {
+                                    // console.log("Current........")
 
-                        checkWhetherRevisionContentAddedOrEdited = 1;
-                        if (selected_machine_data?.checkSheet_data?.checkSheet[i]?.planningTableAnimationArray2?.[monthForCompareSystemMonth][0] === "1") {
-                            if (selected_machine_data?.checkSheet_data?.PMStatus?.[monthForCompareSystemMonth] === "") {
-                                PMStatusArray[monthForCompareSystemMonth] = "Current Plan";
-                                CurrentMonthPMScheduleOrNotStatusArray[monthForCompareSystemMonth] = "Scheduled"
+                                    selected_machine_data.checkSheet_data.PMStatus[month] = "Current Plan";
+                                    selected_machine_data.checkSheet_data.currentMonthScheduleOrNotStatus[month] = "Scheduled"
+                                }
+                                else if (selected_machine_data?.checkSheet_data?.PMStatus?.[month] === "Completed") {
+                                    // console.log("Completed........")
+                                    selected_machine_data.checkSheet_data.PMStatus[month] = "Ongoing";
+                                    selected_machine_data.checkSheet_data.currentMonthScheduleOrNotStatus[month] = "Scheduled"
+                                }
                             }
-                            else if (selected_machine_data?.checkSheet_data?.PMStatus?.[monthForCompareSystemMonth] === "Completed") {
-                                PMStatusArray[monthForCompareSystemMonth] = "Ongoing";
-                                CurrentMonthPMScheduleOrNotStatusArray[monthForCompareSystemMonth] = "Scheduled"
+
+                        }
+                    }
+                    if (selected_machine_data.checkSheet_data.checkSheet[i]?.isEdited) {
+                        checkWhetherRevisionContentEdited = 1;
+
+                    }
+
+                }
+                const changeMidYearStatusEditedOrDeleted = (keyOfMonth) => {
+                    for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
+                        let month = financialYearWiseMonthKeyArray[j]
+                        let plannedPMCount = 0, totalCarriedPMCount = 0, completedPMCount = 0
+                        if ((monthKeyArray.indexOf(month) >= (new Date(selected_machine_data?.checkSheet_data?.[keyOfMonth]).getMonth())
+                            || monthKeyArray.indexOf(month) < 3)) {
+                            for (let i = 0; i < selected_machine_data.checkSheet_data.checkSheet.length; i++) {
+                                // let previousMonthForMidYearChange = financialYearWiseMonthKeyArray[j - 1] || "Apr"
+                                // console.log("is edited in loop ");
+                                // console.log("in if condition in edited")
+                                //for completed status
+                                if (selected_machine_data.checkSheet_data.checkSheet[i]?.planningTableAnimationArray2[month][0] === "1"
+                                    && !selected_machine_data.checkSheet_data.checkSheet[i]?.isDeleted) {
+                                    plannedPMCount = plannedPMCount + 1
+                                }
+                                if (selected_machine_data.checkSheet_data.checkSheet[i]?.planningTableAnimationArray2[month].length >= 2
+                                    && selected_machine_data.checkSheet_data.checkSheet[i]?.planningTableAnimationArray2[month][0] === "1"
+                                    && !selected_machine_data.checkSheet_data.checkSheet[i]?.isDeleted) {
+                                    completedPMCount = completedPMCount + 1
+                                }
+                            }
+
+                            if (selected_machine_data.checkSheet_data.PMStatus[month] === "No Completion") {
+                                selected_machine_data.checkSheet_data.PMStatus[month] = "No Completion"
+                            }
+                            else if (plannedPMCount) {
+                                // console.log(month, "----Planned----> ", plannedPMCount, "---> Completed ---", completedPMCount)
+                                if (plannedPMCount === completedPMCount) {
+                                    selected_machine_data.checkSheet_data.PMStatus[month] = "Completed"
+                                } else if (completedPMCount === 1) {
+                                    selected_machine_data.checkSheet_data.PMStatus[month] = "Ongoing"
+                                } else if (completedPMCount === 0) {
+                                    selected_machine_data.checkSheet_data.PMStatus[month] = "Current Plan"
+                                }
+                            } else {
+                                // console.log("5570*******>>", month, "----Planned----> ", plannedPMCount, "---> Completed ---", completedPMCount)
+
+                                selected_machine_data.checkSheet_data.PMStatus[month] = ""
+                                selected_machine_data.checkSheet_data.currentMonthScheduleOrNotStatus[month] = ""
                             }
                         }
                     }
                 }
-                if (checkWhetherRevisionContentDeleted !== 1 && checkWhetherRevisionContentAddedOrEdited !== 1) {
+
+                //for mid year edited or deleted
+                if (checkWhetherRevisionContentEdited === 1 ){
+                    changeMidYearStatusEditedOrDeleted("isEditedMonth")
+                }
+                if (checkWhetherRevisionContentDeleted === 1) {
+                    changeMidYearStatusEditedOrDeleted("isDeletedMonth")
+                }
+
+
+                if (checkWhetherRevisionContentDeleted !== 1 && checkWhetherRevisionContentAdded !== 1 && checkWhetherRevisionContentEdited !== 1) {
+                    // console.log(checkWhetherRevisionContentDeleted, "-----", checkWhetherRevisionContentAdded)
                     for (let i = 0; i < selected_machine_data.checkSheet_data.checkSheet.length; i++) {
                         for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
                             let month = financialYearWiseMonthKeyArray[j]
@@ -5478,8 +5449,8 @@ router.post('/approveRequestFromTL_HOS_HOD', authenticate, async (req, res) => {
                     $set: {
                         "checkSheet_data.$[outer].prd_tl_approval_status": selected_machine_data.checkSheet_data.prd_tl_approval_status,
                         "checkSheet_data.$[outer].checksheet_status": "Implementation",
-                        "checkSheet_data.$[outer].PMStatus": PMStatusArray,
-                        "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus": CurrentMonthPMScheduleOrNotStatusArray,
+                        "checkSheet_data.$[outer].PMStatus": (checkWhetherRevisionContentDeleted !== 1 && checkWhetherRevisionContentAdded !== 1 && checkWhetherRevisionContentEdited !== 1) ? PMStatusArray : selected_machine_data?.checkSheet_data?.PMStatus,
+                        "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus": (checkWhetherRevisionContentDeleted !== 1 && checkWhetherRevisionContentAdded !== 1 && checkWhetherRevisionContentEdited !== 1) ? CurrentMonthPMScheduleOrNotStatusArray : selected_machine_data?.checkSheet_data?.currentMonthScheduleOrNotStatus,
                         "checkSheet_data.$[outer].flagForRevisionContent": false,
 
                         "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false
@@ -12219,7 +12190,8 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
 
             const machineData = await Machine.find({ line_names: { $in: lineIdArray } }).sort({ machine_sequence: 1 });
 
-            let openAbnormality = await Machine.aggregate([{
+            let openAbnormality = await Machine.aggregate([
+                {
                 $match: {
                     line_names: { $in: lineIdArray }
                 }
@@ -12261,10 +12233,11 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
                 keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
                     if (keyForAbnormality?.abnormalityDetails) {
 
-                        for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
+                        for (let i = 0; i < financialYearWiseMonthKeyArray?.length; i++) {
                             let month = financialYearWiseMonthKeyArray[i]
-                            if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus != undefined) {
-                                if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus === "Open") {
+                            if (keyForAbnormality?.abnormalityDetails?.[month]?.abnormalityStatus !== undefined) {
+                                console.log("Checking open")
+                                if (keyForAbnormality?.abnormalityDetails?.[month]?.abnormalityStatus === "Open") {
                                     onlyOpenAbnormalityWithAllMonths.push(
                                         new Object({
                                             line_name: keyForCheckSheet.line_names.line_name,
@@ -12340,7 +12313,7 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
                 keyForCheckSheet?.checkSheet_data?.checkSheet?.map((keyForAbnormality) => {
                     if (keyForAbnormality?.abnormalityDetails) {
 
-                        for (let i = 0; i < Object.keys(keyForAbnormality?.abnormalityDetails)?.length; i++) {
+                        for (let i = 0; i < financialYearWiseMonthKeyArray?.length; i++) {
                             let month = financialYearWiseMonthKeyArray[i]
                             if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus != undefined) {
                                 if (keyForAbnormality.abnormalityDetails[month]?.abnormalityStatus === "Open") {
@@ -12380,7 +12353,7 @@ router.post('/getDataForOpenAbnormalityTracking', authenticate, async (req, res)
 
 
 
-        // console.log(onlyOpenAbnormalityWithAllMonths)
+        console.log(onlyOpenAbnormalityWithAllMonths)
 
         res.json({ onlyOpenAbnormalityWithAllMonths, lineData })
     } catch (error) {
