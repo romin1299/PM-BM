@@ -19,6 +19,8 @@ import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 import axios from "axios";
 import FileDownload from "js-file-download";
 import Footer from "../../components/Footer/Footer";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // import 'reactjs-popup/dist/index.css';
 const CheckSheet = ({
   show,
@@ -128,6 +130,8 @@ const CheckSheet = ({
     return `${day}/${month}/${year} - ${getTime}`;
   };
 
+  console.log(selectedSupportedTM);
+
   const formik = useFormik({
     initialValues: {
       pmTime: "",
@@ -175,6 +179,19 @@ const CheckSheet = ({
     },
   });
 
+  const notifyForNotEnteredPMTime = () => {
+    toast.warn("Please first enter PM time, after send approval !", {
+      position: "top-center",
+      autoClose: true,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+
   const formik1 = useFormik({
     initialValues: {
       prd_tl_list: "",
@@ -202,7 +219,8 @@ const CheckSheet = ({
       if (res.status === 400 || res.status === 422 || !data) {
         window.alert("Invalid credentials !");
       } else if (res.status === 409) {
-        console.log("Machine code already exists!");
+        notifyForNotEnteredPMTime();
+        // alert("Please first enter PM time & Supporting TM after send approval !")
       } else {
         console.log("PM worked data save sucessfully...");
         closeCheckSheet();
@@ -274,6 +292,8 @@ const CheckSheet = ({
       console.log(error);
     }
   };
+
+  console.log(supportingTMList);
 
   let Data = {};
 
@@ -594,7 +614,7 @@ const CheckSheet = ({
     // console.log(myProps);
     setNewTableData(myProps);
   };
-console.log(newTableData)
+  console.log(newTableData);
   const close = () => {
     setWorkOnImplementationPM("");
     setStateForOpeningSummeryPopups("");
@@ -765,6 +785,7 @@ console.log(newTableData)
 
   return (
     <>
+
       {workOnImplementationPM}
       {stateForOpeningSummeryPopups}
       {stateForEditRemarksAfterReject}
@@ -1197,24 +1218,27 @@ console.log(newTableData)
                                     {colData.value[0] === "0" &&
                                     colData.key !== "tableRowId" &&
                                     colData.key !== "cycle" &&
-                                    colData.key !== "PM_time" && 
-                                    colData.key !== "inspection_parent_name" && 
-                                    colData.key !== "inspection_point" && 
-                                    colData.key !== "judgement_criteria" && 
+                                    colData.key !== "PM_time" &&
+                                    colData.key !== "inspection_parent_name" &&
+                                    colData.key !== "inspection_point" &&
+                                    colData.key !== "judgement_criteria" &&
                                     colData.key !== "action" ? (
                                       ""
                                     ) : (colData.value[0] === "1" ||
                                         colData.value[0] === "2") &&
                                       colData.key !== "tableRowId" &&
                                       colData.key !== "cycle" &&
-                                      colData.key !== "PM_time" && 
-                                      colData.key !== "inspection_parent_name" && 
-                                      colData.key !== "inspection_point" && 
-                                      colData.key !== "judgement_criteria" && 
+                                      colData.key !== "PM_time" &&
+                                      colData.key !==
+                                        "inspection_parent_name" &&
+                                      colData.key !== "inspection_point" &&
+                                      colData.key !== "judgement_criteria" &&
                                       colData.key !== "action" ? (
                                       colData.value.length === 1 &&
                                       colData.key ===
-                                        monthForCompareSystemMonth ? (
+                                        monthForCompareSystemMonth &&
+                                      rData[10]?.["key"] !== "isDeleted" &&
+                                      rData[10]?.["value"] !== true ? (
                                         <>
                                           {" "}
                                           <button
@@ -1231,7 +1255,9 @@ console.log(newTableData)
                                                     machineAllData.machine_code
                                                   }
                                                   tableRowId={rData[0].value}
-                                                  tableRowIdForSrNo={rData[1].value}
+                                                  tableRowIdForSrNo={
+                                                    rData[1].value
+                                                  }
                                                   yearOfCheckSheet={
                                                     machineData?.checkSheet_data
                                                       .current_year

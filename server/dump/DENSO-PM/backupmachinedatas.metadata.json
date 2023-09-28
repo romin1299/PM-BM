@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"DENSO-PM.backupmachinedatas"}],"uuid":"1ec03202d8584fbd9863c909eb8cca47"}
+{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"DENSO-PM.backupmachinedatas"}],"uuid":"68cff388d1994461acac912cb3c8d81a"}

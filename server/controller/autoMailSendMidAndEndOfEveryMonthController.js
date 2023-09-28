@@ -13,8 +13,8 @@ const autoSendMail = require("../sendMail/autoSendMail")
 
 
 // console.log("===================>", lastDay.getDate())
-// cron.schedule(`59 ${a},${b} * * * *`, async () => {
-cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).getMonth() + 1, 0)).getDate()} * *`, async (req, res) => {
+// cron.schedule(`* * * * *`, async () => {
+    cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).getMonth() + 1, 0)).getDate()} * *`, async (req, res) => {
 
     console.log("...........Send mail at 015st and End of every Month...........")
 
@@ -62,9 +62,12 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
 
     let keyForSelectedMonth = `$checkSheet_data.PMStatus.${monthForCompareSystemMonth}`
     let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${monthForCompareSystemMonth}`
+    let keyForCurrentMonthScheduleOrNotStatus = `$checkSheet_data.currentMonthScheduleOrNotStatus.${monthForCompareSystemMonth}`
+
 
 
     let keyForCurrentMonthPMStatus = `checkSheet_data.PMStatus.${monthForCompareSystemMonth}`
+    let keyForCurrentMonthScheduleOrNotStatus1 = `checkSheet_data.currentMonthScheduleOrNotStatus.${monthForCompareSystemMonth}`
 
 
     const sectionInfo = await Section.find({})
@@ -148,13 +151,24 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
 
             for (let k = 0; k < lineData.length; k++) {
 
+                sumVariableForTotalSchedule = 0
+                sumVariableForTotalCompleted = 0
+                sumVariableForTotalOngoing = 0
+                sumVariableForTotalPreviousPending = 0
+
                 groupData = await Machine.aggregate([
 
                     {
 
                         $match: {
                             line_names: lineData[k]._id,
-                            // "checkSheet_data": { $ne: undefined },
+                        }
+                    },
+                    {
+                        $unwind: "$checkSheet_data"
+                    },
+                    {
+                        $match: {
                             $or: [{
                                 "checkSheet_data.current_year": currentYear
                             },
@@ -176,7 +190,7 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                             manufacturingDate: 1,
                             isPM: 1,
                             line_names: 1,
-                            checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                            checkSheet_data: 1
                         }
                     },
                     {
@@ -192,7 +206,14 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                             total_pmSchedule: {
                                 $sum: {
                                     $cond: [{
-                                        $ne: [keyForSelectedMonth, ""]
+                                        $and: [
+                                            {
+                                                $ne: [keyForSelectedMonth, ""]
+                                            },
+                                            {
+                                                $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                            }
+                                        ]
                                     },
                                         1, 0
                                     ]
@@ -223,7 +244,7 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                                             $eq: [keyForPreviousMonth, "CarriedPM"]
                                         },
                                         {
-                                            $eq: [keyForSelectedMonth, ""]
+                                            $eq: [keyForCurrentMonthScheduleOrNotStatus, ""]
                                         }
                                         ]
                                     },
@@ -278,8 +299,21 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                 }
             }
             monthlyChartDataOfSummery = await Machine.populate(monthlyChartDataOfSummery, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            monthlyChartDataOfSummery?.sort(function (a, b) {
+                const name1 = a?.line_names?.line_name.toUpperCase();
+                const name2 = b?.line_names?.line_name?.toUpperCase();
 
+                let comparison = 0;
+
+                if (name1 > name2) {
+                    comparison = 1;
+                } else if (name1 < name2) {
+                    comparison = -1;
+                }
+                return comparison;
+            });
             // console.log("247 =============> ", monthlyChartDataOfSummery)
+
 
             const planVsActualTableBodyMappingFunction = (item, index) => {
                 return `<tr>
@@ -353,31 +387,12 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
 
                     line_names: { $in: lineData?.map((item) => item._id) },
 
-                    $or: [{
-                        "checkSheet_data.current_year": currentYear
-                    },
-                    {
-                        "checkSheet_data": []
-                    }
-                    ],
-                    "checkSheet_data": { $ne: [] },
-
                 }
 
             },
 
-            { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
-
             {
-
-                $match: {
-
-                    [keyForCurrentMonthPMStatus]: { $ne: "" },
-
-                    "checkSheet_data.PMStatus": { $ne: undefined },
-
-                }
-
+                $unwind: "$checkSheet_data"
             },
             {
 
@@ -392,19 +407,37 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                     manufacturingDate: 1,
                     isPM: 1,
                     line_names: 1,
-                    // checkSheet_data: 1,
+                    checkSheet_data: 1,
                     checkSheetPMStatus: "$checkSheet_data.PMStatus"
 
                 }
 
             },
-
-
+            {
+                $match: {
+                    "checkSheet_data.current_year": currentYear,
+                    "checkSheet_data.PMStatus": { $ne: undefined },
+                    [keyForCurrentMonthPMStatus]: { $ne: "" },
+                    [keyForCurrentMonthScheduleOrNotStatus1]: { $ne: "" }
+                }
+            },
             ])
 
 
             machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+            machineDataForCurrentMonth?.sort(function (a, b) {
+                const name1 = a?.line_names?.line_name.toUpperCase();
+                const name2 = b?.line_names?.line_name?.toUpperCase();
 
+                let comparison = 0;
+
+                if (name1 > name2) {
+                    comparison = 1;
+                } else if (name1 < name2) {
+                    comparison = -1;
+                }
+                return comparison;
+            });
             // console.log("===========>151", machineDataForCurrentMonth)
 
 
@@ -460,14 +493,16 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
             machineDataForPreviousMonth = await Machine.aggregate([{
                 $match: {
                     line_names: { $in: lineData?.map((item) => item._id) },
-                    $or: [{
-                        "checkSheet_data.current_year": currentYear
-                    },
-                    {
-                        "checkSheet_data": []
-                    }
-                    ],
-                    "checkSheet_data": { $ne: [] },
+
+                }
+            },
+            {
+                $unwind: "$checkSheet_data"
+            },
+            {
+                $match: {
+                    "checkSheet_data.current_year": currentYear,
+                    "checkSheet_data.PMStatus": { $ne: undefined },
                 }
             },
             {
@@ -482,15 +517,10 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                     manufacturingDate: 1,
                     isPM: 1,
                     line_names: 1,
-                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                    checkSheet_data: 1
                 }
             },
-            {
-                $match: {
-                    // [keyForPreviousMonthPMStatus]: { $ne: "" },
-                    "checkSheet_data.PMStatus": { $ne: undefined },
-                }
-            },
+
             ])
             machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
@@ -576,6 +606,20 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
 
             })
 
+            machineDataForPreviousMonth?.sort(function (a, b) {
+                const name1 = a?.line_names?.line_name.toUpperCase();
+                const name2 = b?.line_names?.line_name?.toUpperCase();
+
+                let comparison = 0;
+
+                if (name1 > name2) {
+                    comparison = 1;
+                } else if (name1 < name2) {
+                    comparison = -1;
+                }
+                return comparison;
+            });
+
             // console.log("318===============>", sectionInfo[i], "++++++++++++++++++=", machineDataForPreviousMonth)
 
             const previousMonthTableBodyMappingFunction = (item, index) => {
@@ -606,19 +650,19 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
 
 
 
-            autoSendMail(
+            // autoSendMail(
 
-                toEmailArray?.length > 0 ? toEmailArray : [undefined],
-                ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
-                sectionInfo[i]?.section_name,
-                `Status of Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
-                "Status of PM Plan vs Actual",
-                planVsActualTable,
-                "Current Month Scheduled",
-                currentMonthTable,
-                "Last Month Pending PM",
-                previousMonthTable
-            )
+            //     toEmailArray?.length > 0 ? toEmailArray : [undefined],
+            //     ccEmailArray?.length > 0 ? ccEmailArray : [undefined],
+            //     sectionInfo[i]?.section_name,
+            //     `Status of Monthly PM Plan (${monthForCompareSystemMonth}- Month)`,
+            //     "Status of PM Plan vs Actual",
+            //     planVsActualTable,
+            //     "Current Month Scheduled",
+            //     currentMonthTable,
+            //     "Last Month Pending PM",
+            //     previousMonthTable
+            // )
 
         } else if (sectionInfo[i].dashboardLevel === "No") {
 
@@ -690,6 +734,10 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
 
 
                 if (lineData?.length > 0) {
+                    sumVariableForTotalSchedule = 0
+                    sumVariableForTotalCompleted = 0
+                    sumVariableForTotalOngoing = 0
+                    sumVariableForTotalPreviousPending = 0
 
                     for (let k = 0; k < lineData.length; k++) {
 
@@ -700,14 +748,12 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                                 $match: {
                                     line_names: lineData[k]._id,
                                     // "checkSheet_data": { $ne: undefined },
-                                    $or: [{
-                                        "checkSheet_data.current_year": currentYear
-                                    },
-                                    {
-                                        "checkSheet_data": []
-                                    }
-                                    ],
+
                                 }
+                            },
+
+                            {
+                                $unwind: "$checkSheet_data"
                             },
                             {
                                 $project: {
@@ -721,13 +767,23 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                                     manufacturingDate: 1,
                                     isPM: 1,
                                     line_names: 1,
-                                    checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
+                                    checkSheet_data: 1
                                 }
                             },
                             {
                                 $match: {
+                                    $or: [{
+                                        "checkSheet_data.current_year": currentYear
+                                    },
+                                    {
+                                        "checkSheet_data": []
+                                    }, {
+
+                                        "checkSheet_data": { $ne: undefined }
+                                    }
+
+                                    ],
                                     "checkSheet_data.PMStatus": { $ne: undefined },
-                                    "checkSheet_data": { $ne: undefined }
                                 }
                             },
                             {
@@ -737,7 +793,14 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                                     total_pmSchedule: {
                                         $sum: {
                                             $cond: [{
-                                                $ne: [keyForSelectedMonth, ""]
+                                                $and: [
+                                                    {
+                                                        $ne: [keyForSelectedMonth, ""]
+                                                    },
+                                                    {
+                                                        $ne: [keyForCurrentMonthScheduleOrNotStatus, ""]
+                                                    }
+                                                ]
                                             },
                                                 1, 0
                                             ]
@@ -826,7 +889,19 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                 }
 
                 monthlyChartDataOfSummery = await Machine.populate(monthlyChartDataOfSummery, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
+                monthlyChartDataOfSummery?.sort(function (a, b) {
+                    const name1 = a?.line_names?.line_name.toUpperCase();
+                    const name2 = b?.line_names?.line_name?.toUpperCase();
+    
+                    let comparison = 0;
+    
+                    if (name1 > name2) {
+                        comparison = 1;
+                    } else if (name1 < name2) {
+                        comparison = -1;
+                    }
+                    return comparison;
+                });
                 // console.log("794 =============> ", monthlyChartDataOfSummery)
 
                 const planVsActualTableBodyMappingFunction = (item, index) => {
@@ -900,32 +975,12 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                     $match: {
 
                         line_names: { $in: lineData?.map((item) => item._id) },
-
-                        $or: [{
-                            "checkSheet_data.current_year": currentYear
-                        },
-                        {
-                            "checkSheet_data": []
-                        }
-                        ],
-                        "checkSheet_data": { $ne: [] },
-
                     }
 
                 },
 
-                { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
-
                 {
-
-                    $match: {
-
-                        [keyForCurrentMonthPMStatus]: { $ne: "" },
-
-                        "checkSheet_data.PMStatus": { $ne: undefined },
-
-                    }
-
+                    $unwind: "$checkSheet_data"
                 },
                 {
 
@@ -940,11 +995,19 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                         manufacturingDate: 1,
                         isPM: 1,
                         line_names: 1,
-                        // checkSheet_data: 1,
+                        checkSheet_data: 1,
                         checkSheetPMStatus: "$checkSheet_data.PMStatus"
 
                     }
 
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": currentYear,
+                        "checkSheet_data.PMStatus": { $ne: undefined },
+                        [keyForCurrentMonthPMStatus]: { $ne: "" },
+                        [keyForCurrentMonthScheduleOrNotStatus1]: { $ne: "" }
+                    }
                 },
 
 
@@ -952,7 +1015,19 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
 
 
                 machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
+                machineDataForCurrentMonth?.sort(function (a, b) {
+                    const name1 = a?.line_names?.line_name.toUpperCase();
+                    const name2 = b?.line_names?.line_name?.toUpperCase();
+    
+                    let comparison = 0;
+    
+                    if (name1 > name2) {
+                        comparison = 1;
+                    } else if (name1 < name2) {
+                        comparison = -1;
+                    }
+                    return comparison;
+                });
                 // console.log("===========>151", machineDataForCurrentMonth)
 
 
@@ -995,14 +1070,15 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                 machineDataForPreviousMonth = await Machine.aggregate([{
                     $match: {
                         line_names: { $in: lineData?.map((item) => item._id) },
-                        $or: [{
-                            "checkSheet_data.current_year": currentYear
-                        },
-                        {
-                            "checkSheet_data": []
-                        }
-                        ],
-                        "checkSheet_data": { $ne: [] },
+                    }
+                },
+                {
+                    $unwind: "$checkSheet_data"
+                },
+                {
+                    $match: {
+                        "checkSheet_data.current_year": currentYear,
+                        "checkSheet_data.PMStatus": { $ne: undefined },
                     }
                 },
                 {
@@ -1017,13 +1093,7 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                         manufacturingDate: 1,
                         isPM: 1,
                         line_names: 1,
-                        checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
-                    }
-                },
-                {
-                    $match: {
-                        // [keyForPreviousMonthPMStatus]: { $ne: "" },
-                        "checkSheet_data.PMStatus": { $ne: undefined },
+                        checkSheet_data: 1
                     }
                 },
                 ])
@@ -1110,6 +1180,20 @@ cron.schedule(`00 00 01 15,${(new Date((new Date()).getFullYear(), (new Date()).
                     }
 
                 })
+
+                machineDataForPreviousMonth?.sort(function (a, b) {
+                    const name1 = a?.line_names?.line_name.toUpperCase();
+                    const name2 = b?.line_names?.line_name?.toUpperCase();
+    
+                    let comparison = 0;
+    
+                    if (name1 > name2) {
+                        comparison = 1;
+                    } else if (name1 < name2) {
+                        comparison = -1;
+                    }
+                    return comparison;
+                });
 
                 // console.log("318===============>", sectionInfo[i], "++++++++++++++++++=", machineDataForPreviousMonth)
 

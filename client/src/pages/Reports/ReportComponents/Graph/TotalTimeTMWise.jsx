@@ -116,7 +116,10 @@ const TotalTimeTMWise = ({ context, selectedSectionOrSubSection }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            section: context.section_data,
+            section:
+              context.user_type === "Plant-Admin"
+                ? selectedSectionOrSubSection
+                : context.section_data,
             tm_no: teamMemberNo,
             selectedYear,
           }),
@@ -213,7 +216,7 @@ const TotalTimeTMWise = ({ context, selectedSectionOrSubSection }) => {
 
   const [tmList, setTmList] = useState([]);
 
-  const supportingOperatorListForReportDashboard = async () => {
+  const supportingOperatorListForReportDashboard = async (sectionInfo) => {
     try {
       const res = await fetch("/supportingOperatorListForReportDashboard", {
         method: "POST",
@@ -241,8 +244,7 @@ const TotalTimeTMWise = ({ context, selectedSectionOrSubSection }) => {
 
   useEffect(() => {
     supportingOperatorListForReportDashboard();
-  }, []);
-
+  }, [selectedSectionOrSubSection]);
 
   useEffect(() => {
     postSectionToGetAllDataForTotalTimeManHoursMonthWise(
@@ -252,7 +254,9 @@ const TotalTimeTMWise = ({ context, selectedSectionOrSubSection }) => {
 
   const functionForTotalData = () => {
     setSelectedTM("");
-    postSectionToGetAllDataForTotalTimeManHoursMonthWise(selectedSectionOrSubSection || context?.section_data);
+    postSectionToGetAllDataForTotalTimeManHoursMonthWise(
+      selectedSectionOrSubSection || context?.section_data
+    );
   };
 
   useEffect(() => {

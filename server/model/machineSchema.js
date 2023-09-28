@@ -434,6 +434,10 @@ const machineSchema = mongoose.Schema({
                     },
                 }
             ],
+            isEditedMonth: {
+            },
+            isDeletedMonth: {
+            },
             flagOfDoneWithDelayForOneMonth: {
                 Apr: { type: Number },
 
@@ -1005,6 +1009,31 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
+            implementation_assign_PRD_TL_tm_no: {
+                Apr: { type: [Number] },
+
+                May: { type: [Number] },
+
+                June: { type: [Number] },
+
+                July: { type: [Number] },
+
+                Aug: { type: [Number] },
+
+                Sep: { type: [Number] },
+
+                Oct: { type: [Number] },
+
+                Nov: { type: [Number] },
+
+                Dec: { type: [Number] },
+
+                Jan: { type: [Number] },
+
+                Feb: { type: [Number] },
+
+                Mar: { type: [Number] },
+            },
             implementation_assign_MTD_TL_name: {
                 Apr: { type: [String] },
 
@@ -1030,6 +1059,31 @@ const machineSchema = mongoose.Schema({
 
                 Mar: { type: [String] },
             },
+            implementation_assign_MTD_TL_tm_no: {
+                Apr: { type: [Number] },
+
+                May: { type: [Number] },
+
+                June: { type: [Number] },
+
+                July: { type: [Number] },
+
+                Aug: { type: [Number] },
+
+                Sep: { type: [Number] },
+
+                Oct: { type: [Number] },
+
+                Nov: { type: [Number] },
+
+                Dec: { type: [Number] },
+
+                Jan: { type: [Number] },
+
+                Feb: { type: [Number] },
+
+                Mar: { type: [Number] },
+            },
             implementation_assign_MTD_HOS_name: {
                 Apr: { type: [String] },
 
@@ -1054,6 +1108,31 @@ const machineSchema = mongoose.Schema({
                 Feb: { type: [String] },
 
                 Mar: { type: [String] },
+            },
+            implementation_assign_MTD_HOS_tm_no: {
+                Apr: { type: [Number] },
+
+                May: { type: [Number] },
+
+                June: { type: [Number] },
+
+                July: { type: [Number] },
+
+                Aug: { type: [Number] },
+
+                Sep: { type: [Number] },
+
+                Oct: { type: [Number] },
+
+                Nov: { type: [Number] },
+
+                Dec: { type: [Number] },
+
+                Jan: { type: [Number] },
+
+                Feb: { type: [Number] },
+
+                Mar: { type: [Number] },
             },
 
             implementation_assign_MTD_HOD_name: KeyFor6MonthApproval,
