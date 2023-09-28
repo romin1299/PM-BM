@@ -7,6 +7,9 @@ import {
   useContext,
 } from "../../../modules/PageModules";
 import { Navigate, useNavigate } from "react-router-dom";
+
+import { Col } from "reactstrap";
+
 import "../../../SCSS/MaterialTable.scss";
 import RoutingContext from "../../../context/routing/RoutingContext";
 //   import ChecksheetCreationDashboard from "./Checksheet/ChecksheetCreationDashboard";
@@ -17,12 +20,17 @@ import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
 
+import currentYear from "../../Dashboard/DashboardComponent/currentYear";
+import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
+
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../../Reports/ReportComponents/NotFound";
 
 const ImplementationApprovalDashboard = () => {
   const context = useContext(RoutingContext);
   const [tableData, setTableData] = useState([]);
+
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const navigate = useNavigate();
 
@@ -31,15 +39,19 @@ const ImplementationApprovalDashboard = () => {
   );
 
   const getApprovalRequestDataForImplementationPhase = async () => {
+    setRefKeyForAnimation(<LoadingAnimation />);
     try {
-      const res = await fetch("/getApprovalRequestDataForImplementationPhase", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        `/getApprovalRequestDataForImplementationPhase/${selectedYear}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
       // console.log(data);
@@ -52,7 +64,7 @@ const ImplementationApprovalDashboard = () => {
 
   useEffect(() => {
     getApprovalRequestDataForImplementationPhase();
-  }, []);
+  }, [selectedYear]);
 
   const machineHeader = [
     {
@@ -247,6 +259,12 @@ const ImplementationApprovalDashboard = () => {
           </h4>
 
           <div style={{ padding: "1rem" }}>
+            <Col className="col-4">
+              <YearDropDown
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+              />
+            </Col>
             {tableData?.length > 0 ? (
               <MaterialTable
                 localization={{
