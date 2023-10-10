@@ -5422,7 +5422,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
 
 //get approval request data for perticular user which was asssign by TL or Operator
 router.get(
-  "/getSixMonthApprovalRequestData",
+  "/getSixMonthApprovalRequestData/:selectedYear",
   authenticate,
   async (req, res) => {
     try {
@@ -5443,11 +5443,11 @@ router.get(
         {
           $unwind: "$checkSheet_data",
         },
-        // {
-        //     $match: {
-        //         "checkSheet_data.current_year": "2022-2023"
-        //     }
-        // },
+        {
+            $match: {
+                "checkSheet_data.current_year": req.params.selectedYear
+            }
+        },
         {
           $addFields: {
             // checkSheet_data:
@@ -5509,11 +5509,11 @@ router.get(
         {
           $unwind: "$checkSheet_data",
         },
-        // {
-        //     $match: {
-        //         "checkSheet_data.current_year": "2022-2023"
-        //     }
-        // },
+        {
+            $match: {
+                "checkSheet_data.current_year": req.params.selectedYear
+            }
+        },
         {
           $addFields: {
             // checkSheet_data:
@@ -5547,7 +5547,7 @@ router.get(
         },
       ]);
 
-      // console.log(requestData1,)
+      // console.log(requestData1,requestData2)
 
       const requestData = await requestData1.concat(requestData2);
 
@@ -6002,7 +6002,7 @@ router.get(
 
               {
                 $match: {
-                  "$checkSheet_data.current_year": req?.params?.selectedYear,
+                  "checkSheet_data.current_year": req?.params?.selectedYear,
                 },
               },
 
@@ -6126,7 +6126,7 @@ router.get(
 
             {
               $match: {
-                "$checkSheet_data.current_year": req?.params?.selectedYear,
+                "checkSheet_data.current_year": req?.params?.selectedYear,
               },
             },
 
