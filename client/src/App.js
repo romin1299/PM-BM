@@ -82,6 +82,7 @@ import PlanningApprovalDashboard from "./pages/Section/Checksheet/PlanningApprov
 import ImplementationApprovalDashboard from "./pages/Section/Checksheet/ImplementationApprovalDashboard";
 import Footer from "./components/Footer/Footer";
 
+import RequestSheetMainDashboard from "./pages/RequestSheet/RequestSheetMainDashboard";
 
 function App() {
   const [nav, setNav] = useState(false);
@@ -551,6 +552,11 @@ function App() {
                 <Route
                   path="/pmTimeMonitoringReport"
                   element={<PmTimeMonitoringReport />}
+                />
+
+                <Route
+                  path="/bmRequestListDashboard"
+                  element={<RequestSheetMainDashboard />}
                 />
               </Routes>
             }
