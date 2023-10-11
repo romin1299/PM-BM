@@ -133,7 +133,6 @@ function ChecksheetFormApprovalForHOSAndHOD() {
 
   const revisedColumns = ["Sr. No.", "Revision contents", "Date", "Revised by"];
 
-
   const monthKeyArray = [
     "Jan",
     "Feb",
@@ -836,7 +835,8 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                           ?.length - 1
                       ]
                         ? `${
-                            machineAllData?.checkSheet_data?.approved_by_PRD_TL?.[
+                            machineAllData?.checkSheet_data
+                              ?.approved_by_PRD_TL?.[
                               machineAllData?.checkSheet_data
                                 ?.approved_by_PRD_TL?.length - 1
                             ]
@@ -869,14 +869,17 @@ function ChecksheetFormApprovalForHOSAndHOD() {
         </Container>
       </div>
       {machineAllData?.checkSheet_data?.checksheet_status === "Planning" ||
-      machineAllData?.checkSheet_data?.checksheet_status === "Implementation" ? (
+      machineAllData?.checkSheet_data?.checksheet_status ===
+        "Implementation" ? (
         <div className="row mt-3">
           <div className="col-6"></div>
           <span className="col-6">
             <div className="row">
               <div className="col-6"></div>
               <div className="col-6" style={{ fontWeight: "bold" }}>
-                Year: {new Date().getFullYear()}-{new Date().getFullYear() + 1}{" "}
+                {/* Year: {new Date().getFullYear()}-{new Date().getFullYear() + 1}{" "}
+                 */}
+                Year: {machineAllData?.checkSheet_data?.current_year}
               </div>
             </div>
           </span>
@@ -959,7 +962,8 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                     <br />
 
                     {machineAllData?.checkSheet_data?.approved_by_TL?.[
-                      machineAllData?.checkSheet_data?.approved_by_TL?.length - 1
+                      machineAllData?.checkSheet_data?.approved_by_TL?.length -
+                        1
                     ]
                       ? `,${
                           machineAllData?.checkSheet_data?.approved_by_TL?.[
@@ -971,7 +975,8 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                   </th>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
                     {machineAllData?.checkSheet_data?.sender_tm_name?.[
-                      machineAllData?.checkSheet_data?.sender_tm_name?.length - 1
+                      machineAllData?.checkSheet_data?.sender_tm_name?.length -
+                        1
                     ]
                       ? machineAllData?.checkSheet_data?.sender_tm_name?.[
                           machineAllData?.checkSheet_data?.sender_tm_name
@@ -1005,12 +1010,22 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                     (MTD HOD)
                   </th>
                   <td className="ar-table-col1" colSpan={6}>
-                  {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.[machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.length - 1]}
-
+                    {
+                      machineAllData?.checkSheet_data
+                        ?.implementation_approved_by_MTD_HOD?.Sep?.[
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_MTD_HOD?.Sep?.length - 1
+                      ]
+                    }
                   </td>
                   <td className="ar-table-col1" colSpan={6}>
-                  {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.[machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.length -1]}
-
+                    {
+                      machineAllData?.checkSheet_data
+                        ?.implementation_approved_by_MTD_HOD?.Mar?.[
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_MTD_HOD?.Mar?.length - 1
+                      ]
+                    }
                   </td>
                 </tr>
               </thead>
@@ -1322,7 +1337,10 @@ function ChecksheetFormApprovalForHOSAndHOD() {
           </Col>
           <Col>
             <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-              <button className="btn-danger" onClick={funForOpeningSummeryPopups}>
+              <button
+                className="btn-danger"
+                onClick={funForOpeningSummeryPopups}
+              >
                 Summary
               </button>
             </div>

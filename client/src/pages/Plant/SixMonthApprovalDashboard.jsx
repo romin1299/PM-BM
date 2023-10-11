@@ -13,10 +13,14 @@ import Footer from "../../components/Footer/Footer";
 
 import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../Reports/ReportComponents/NotFound";
+import currentYear from "../Dashboard/DashboardComponent/currentYear";
+import YearDropDown from "../Dashboard/DashboardComponent/YearDropDown";
+import { Col } from "reactstrap";
 
 const SixMonthApprovalDashboard = () => {
   //----------------------------------------------------------------
   const navigate = useNavigate();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
   //----------------------------------------------------------------
   const [tableData, setTableData] = useState([]);
@@ -56,8 +60,10 @@ const SixMonthApprovalDashboard = () => {
   ];
 
   const getSixMonthApprovalRequestData = async () => {
+    setTableData([])
+    setRefKeyForAnimation(<LoadingAnimation />);
     try {
-      const res = await fetch("/getSixMonthApprovalRequestData", {
+      const res = await fetch(`/getSixMonthApprovalRequestData/${selectedYear}`, {
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -78,7 +84,7 @@ const SixMonthApprovalDashboard = () => {
 
   useEffect(() => {
     getSixMonthApprovalRequestData();
-  }, []);
+  }, [selectedYear]);
 
   const actions = [
     {
@@ -124,6 +130,12 @@ const SixMonthApprovalDashboard = () => {
           </h4>
 
           <div style={{ padding: "1rem" }}>
+            <Col className="col-4">
+              <YearDropDown
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+              />
+            </Col>
             {tableData?.length > 0 ? (
               <MaterialTable
                 localization={{

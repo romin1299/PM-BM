@@ -71,9 +71,9 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
 
 
         //  ------------------------------------- For Testing --------------------------------------------
-        // let keyOfImplementation_assign_MTD_HOD = `checkSheet_data.$[outer].implementation_assign_MTD_HOD.Mar`;
-        // let keyOfImplemetation_mtd_hod_approval_status = `checkSheet_data.$[outer].implemetation_mtd_hod_approval_status.Mar`
-        // let keyOfImplementation_assign_MTD_HOD_name = `checkSheet_data.$[outer].implementation_assign_MTD_HOD_name.Mar`;
+        // let keyOfImplementation_assign_MTD_HOD = `checkSheet_data.$[outer].implementation_assign_MTD_HOD.Sep`;
+        // let keyOfImplemetation_mtd_hod_approval_status = `checkSheet_data.$[outer].implemetation_mtd_hod_approval_status.Sep`
+        // let keyOfImplementation_assign_MTD_HOD_name = `checkSheet_data.$[outer].implementation_assign_MTD_HOD_name.Sep`;
 
 
 
@@ -94,7 +94,7 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
 
 
                         //  ------------------------------------- For Testing --------------------------------------------
-                        // "checkSheet_data.$[outer].implementation_approval_month_of_hod": "Mar",
+                        // "checkSheet_data.$[outer].implementation_approval_month_of_hod": "Sep",
 
                         "checkSheet_data.$[outer].implementation_assign_MTD_HOD": KeyFor6MonthApproval,
                         "checkSheet_data.$[outer].implementation_assign_MTD_HOD_name": KeyFor6MonthApproval,
@@ -117,7 +117,7 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
 
 
                     //  ------------------------------------- For Testing --------------------------------------------
-                    // "checkSheet_data.$[outer].implementation_approval_month_of_hod": "Mar",
+                    // "checkSheet_data.$[outer].implementation_approval_month_of_hod": "Sep",
                 },
                 $push: {
 
@@ -194,7 +194,7 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
 
                         },
                         {
-                            "checkSheet_data.checksheet_status": { $ne: undefined }
+                            "checkSheet_data.checksheet_status": { $eq: "Implementation" }
                         }
                         ]
                     }
@@ -219,17 +219,16 @@ cron.schedule(`00 01 ${(new Date((new Date()).getFullYear(), (new Date()).getMon
 
             MachineInfo = await Machine.populate(MachineInfo, { path: "line_names", populate: { path: "cell_names", populate: { path: "subSection_names", populate: { path: "section_names", model: "Sections" } } } })
 
-            // await MachineInfo?.map(item => {
-            //     if (userInfo?.length > 0) {
+            await MachineInfo?.map(item => {
+                if (userInfo?.length > 0) {
 
-            //         funForUpdateParticularMachine(sectionInfo[i], userInfo?.[0], item)
-            //     }
+                    funForUpdateParticularMachine(sectionInfo[i], userInfo?.[0], item)
+                }
 
-            // })
+            })
 
 
-
-            // autoMailSendForSixMonthApproval(userInfo?.[0]?.email)
+            autoMailSendForSixMonthApproval(userInfo?.[0]?.email)
 
 
 
