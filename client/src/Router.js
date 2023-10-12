@@ -9,7 +9,7 @@ import denso_log from './static/images/denso_logo.png'
 import ResetPasswordPage from "./Login/ResetPasswordPage"
 import UpdatePassword from './Login/UpdatePassword';
 import Footer from './components/Footer/Footer';
-
+// import Dashboard from './dashboad'
 function Router() {
     const [auth, setauth] = useState();
     const [isLoading, setIsLoading] = useState(false)
@@ -64,6 +64,7 @@ function Router() {
                     <Route path="/ResetPassword/:token" element={<CreateNewPassword />} />
                     <Route path="/resetPasswordPage" element={<ResetPasswordPage />} />
                     <Route path="/updatePassword" element={<UpdatePassword />} />
+                    {/* <Route path="/dashboard" element={<Dashboard  />} /> */}
                     
 
                 </Routes>
