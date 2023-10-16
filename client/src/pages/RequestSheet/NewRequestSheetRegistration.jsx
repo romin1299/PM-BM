@@ -13,7 +13,7 @@ const NewRequestSheetRegistration = () => {
   } = useForm();
 
   const newRequestSheetRegistration = async (requestSheetData) => {
-    const machineRef = "63b67ccda716e21c95cd447e";
+    const machineRef = "63b67ccea716e21c95cd471a";
     try {
       const res = await fetch(
         `/newRequestSheetRegistration/?machineRef=${machineRef}`,

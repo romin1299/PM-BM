@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 
 const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
 const Machine = require("../model/machineSchema");
@@ -11,6 +12,48 @@ const cookieParser = require("cookie-parser");
 
 router.use(cookieParser());
 router.use(authenticate);
+
+router.get(
+  "/getDataBasedOnScanningRequest/:sheetType/:machineCode",
+  async (req, res, next) => {
+    let sheet;
+    if (req.params?.sheetType === "BM") {
+      sheet = await RequestSheetOfBM.findOne({
+        machineRef: req.params?.machineCode,
+      }).sort({ _id: -1 });
+    } else {
+      let currentYear =
+        new Date().getMonth() < 3
+          ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+          : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+      sheet = await Machine.aggregate([
+        {
+          $match: {
+            _id: mongoose.Types.ObjectId(req.params?.machineCode),
+          },
+        },
+        {
+          $unwind: "$checkSheet_data",
+        },
+        {
+          $match: {
+            "checkSheet_data.current_year": currentYear,
+          },
+        },
+      ]);
+    }
+    if (!sheet) {
+      return res.status(400).json({
+        message: "No sheet found for the scanned QR",
+      });
+    }
+    res.status(201).json({
+      message: "Sheet data get successfully",
+      sheet,
+    });
+  }
+);
 
 router.post("/newRequestSheetRegistration", async (req, res, next) => {
   try {

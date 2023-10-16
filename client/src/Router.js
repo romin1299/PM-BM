@@ -10,6 +10,9 @@ import ResetPasswordPage from "./Login/ResetPasswordPage";
 import UpdatePassword from "./Login/UpdatePassword";
 import Footer from "./components/Footer/Footer";
 
+import Scanning from "./ScanningComponent/Scanning";
+import SheetDashboard from "./ScanningComponent/SheetDashboard";
+
 function Router() {
   const [auth, setauth] = useState();
   const [isLoading, setIsLoading] = useState(true);
@@ -65,6 +68,11 @@ function Router() {
           <Route path="/ResetPassword/:token" element={<CreateNewPassword />} />
           <Route path="/resetPasswordPage" element={<ResetPasswordPage />} />
           <Route path="/updatePassword" element={<UpdatePassword />} />
+          <Route path="/machine-scan-page" element={<Scanning />} />
+          <Route
+            path="/machine-scan/:sheetType/:machineCode"
+            element={<SheetDashboard />}
+          />
         </Routes>
       )}
     </>
