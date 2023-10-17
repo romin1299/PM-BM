@@ -31,6 +31,8 @@
     "multiselect-react-dropdown": "^2.0.25",
     "plotly.js": "^2.18.1",
     "plotly.js-dist": "^2.18.1",
+    "qrcode": "^1.5.3",
+    "qrcode.react": "^3.1.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
     "react-chartjs-2": "^4.3.1",
@@ -53,7 +55,7 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set HTTPS=true&&set SSL_CRT_FILE=D:\\Romin\\Projects\\DENSO BM\\certificate\\cert.crt&&set SSL_KEY_FILE=D:\\Romin\\Projects\\DENSO BM\\certificate\\cert.key&&react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
