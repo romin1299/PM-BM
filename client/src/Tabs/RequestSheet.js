@@ -12,7 +12,7 @@ function MyTable() {
     <Table bordered>
       <thead>
         <tr>
-          <th colSpan="4">Header with 4 Columns</th>
+          {/* <th colSpan="4">Header with 4 Columns</th> */}
         </tr>
       </thead>
       <tbody>
@@ -34,7 +34,7 @@ function MyTable() {
         </tr>
         <tr>
           <td className="mb-0 pb-0">
-            <p>MAINT. TYPE</p>
+            <p><b>MAINT. TYPE</b></p>
             <Form>
               {["radio"].map((type) => (
                 <div key={`inline-${type}`}>
@@ -69,13 +69,40 @@ function MyTable() {
             </Form>
           </td>
           <td style={{ width: "20%" }} className="mb-0 pb-0">
-            <p>PRIORITY CODE (MARK CIRCLE)</p>
-            <ol className="fs-6 fw-normal">
-              <li>EMERGENCY</li>
-              <li>IMPORTANT</li>
-              <li>DATA NEEDED</li>
-              <li>KAIZEN</li>
-            </ol>
+            <p><b>PRIORITY CODE (MARK CIRCLE)</b></p>
+            <Form>
+              {["radio"].map((type) => (
+                <div key={`inline-${type}`}>
+                  <Form.Check
+                    flex
+                    label="EMERGENCY"
+                    name="group1"
+                    type={type}
+                    id={`inline-${type}-1`}
+                  />
+                  <Form.Check
+                    flex
+                    label="IMPORTANT"
+                    name="group1"
+                    type={type}
+                    id={`inline-${type}-2`}
+                  />
+                  <Form.Check
+                    flex
+                    label="DATA NEEDED"
+                    type={type}
+                    id={`inline-${type}-3`}
+                  />
+                  <Form.Check
+                    flex
+                    label="KAIZEN"
+                    type={type}
+                    id={`inline-${type}-3`}
+                  />
+                </div>
+              ))}
+            </Form>
+            
           </td>
           <td colSpan={9} style={{ width: "50%" }} className="mb-0 pb-0">
             <div className="mb-2">
@@ -185,7 +212,7 @@ function MyTable() {
               <Col className="border"><p className="mb-0"><b>Machine No.:</b> Machine1</p></Col>
             </Row>
             <Row className="m-0">
-              <Col className="border"><p className="mb-0"><b>Problem faced: </b> 
+              <Col className="border"><p className="mb-0" style={{fontSize:"12px"}}><b>Problem faced: </b> 
               <input
                   type="text"
                   id="Dept"
@@ -198,7 +225,22 @@ function MyTable() {
               
             </Row>
             <Row className="m-0">
-              <Col className="border"><p className="mb-0"><b>PRD OBSERVATION FOR THIS PROBLEM BASED ON (5WHY-1HOW) </b> 
+              <Col className="border"><p className="mb-0" style={{fontSize:"12px"}}>
+                
+                  <b>PRD OBSERVATION FOR THIS PROBLEM BASED ON (5WHY-1HOW)</b> 
+                 <input
+                  type="text"
+                  id="Dept"
+                  name="deptname"
+                  className="m-1"
+                  style={{ width: "100px", minWidth: "100px" }}
+                />
+                </p>
+                </Col>
+              
+            </Row>
+            <Row className="m-0">
+              <Col className="border"><p className="mb-0" style={{fontSize:"12px"}}><b>WHY (5M+1E): </b> 
               <input
                   type="text"
                   id="Dept"
@@ -211,7 +253,7 @@ function MyTable() {
               
             </Row>
             <Row className="m-0">
-              <Col className="border"><p className="mb-0"><b>WHY (5M+1E): </b> 
+              <Col className="border"><p className="mb-0" style={{fontSize:"12px"}}><b>WHERE (Process): </b> 
               <input
                   type="text"
                   id="Dept"
@@ -224,7 +266,7 @@ function MyTable() {
               
             </Row>
             <Row className="m-0">
-              <Col className="border"><p className="mb-0"><b>WHERE (Process): </b> 
+              <Col className="border"><p className="mb-0" style={{fontSize:"12px"}}><b>WHEN (Frequency): </b> 
               <input
                   type="text"
                   id="Dept"
@@ -237,7 +279,7 @@ function MyTable() {
               
             </Row>
             <Row className="m-0">
-              <Col className="border"><p className="mb-0"><b>WHEN (Frequency): </b> 
+              <Col className="border"><p className="mb-0" style={{fontSize:"12px"}}><b>WHO (Person): </b> 
               <input
                   type="text"
                   id="Dept"
@@ -250,7 +292,7 @@ function MyTable() {
               
             </Row>
             <Row className="m-0">
-              <Col className="border"><p className="mb-0"><b>WHO (Person): </b> 
+              <Col className="border"><p className="mb-0" style={{fontSize:"12px"}}><b>WHICH (Defect Location): </b> 
               <input
                   type="text"
                   id="Dept"
@@ -263,20 +305,7 @@ function MyTable() {
               
             </Row>
             <Row className="m-0">
-              <Col className="border"><p className="mb-0"><b>WHICH (Defect Location): </b> 
-              <input
-                  type="text"
-                  id="Dept"
-                  name="deptname"
-                  className="m-1"
-                  style={{ width: "350px" }}
-                />
-                </p>
-                </Col>
-              
-            </Row>
-            <Row className="m-0">
-              <Col className="border"><p className="mb-0"><b>HOW (Detail/ Observation): </b> 
+              <Col className="border"><p className="mb-0" style={{fontSize:"12px"}}><b>HOW (Detail/ Observation): </b> 
               <input
                   type="text"
                   id="Dept"
@@ -291,7 +320,7 @@ function MyTable() {
             
           </td>
           
-          <td>Row 2, Cell 4</td>
+          <td>Shift</td>
         </tr>
       </tbody>
     </Table>

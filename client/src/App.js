@@ -10,7 +10,7 @@ import Checksheet from './Tabs/RequestSheet'
 function Dashboard1() {
   return (
     <div className="scrollable-tabs-container">
-      <Tabs defaultActiveKey={3} id="uncontrolled-tab-example">
+      <Tabs defaultActiveKey={2} id="uncontrolled-tab-example" className='overflow-hidden'>
         <Tab eventKey={1} title="Preventive Maintenance">
         <PMTabdashboard />
         </Tab>
