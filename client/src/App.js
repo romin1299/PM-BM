@@ -82,7 +82,8 @@ import PlanningApprovalDashboard from "./pages/Section/Checksheet/PlanningApprov
 import ImplementationApprovalDashboard from "./pages/Section/Checksheet/ImplementationApprovalDashboard";
 import Footer from "./components/Footer/Footer";
 
-import RequestSheetMainDashboard from "./pages/RequestSheet/RequestSheetMainDashboard";
+import RequestSheetMainDashboard from "./BM/RequestSheet/RequestSheetMainDashboard";
+import GenerateRequestSheetMainDashboard from "./BM/RequestSheet/GenerateRequestSheetMainDashboard";
 
 function App() {
   const [nav, setNav] = useState(false);
@@ -557,6 +558,11 @@ function App() {
                 <Route
                   path="/bmRequestListDashboard"
                   element={<RequestSheetMainDashboard />}
+                />
+
+                <Route
+                  path="/generateRequestSheetMainDashboard"
+                  element={<GenerateRequestSheetMainDashboard />}
                 />
               </Routes>
             }

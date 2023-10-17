@@ -1,0 +1,240 @@
+import React, { useEffect, useReducer } from "react";
+
+import { Container, Row, Col } from "reactstrap";
+
+const MapComponent = ({ propsArray }) => {
+  return (
+    <>
+      {propsArray?.map((cell) => (
+        <div className="cell m-2">
+          <p>{cell?.cell_name}</p>
+          <Row className="d-flex justify-content-start">
+            {cell?.lines?.map((line) => (
+              <Col
+                xs={12}
+                md={cell?.lines?.length === 1 ? 12 : 6}
+                lg={
+                  cell?.lines?.length === 1
+                    ? 12
+                    : cell?.lines?.length === 2
+                    ? 6
+                    : 3
+                }
+              >
+                <div className="line">
+                  <div className="line_name">
+                    <p>{line?.line_name}</p>
+                  </div>
+
+                  <div className="machineCard">
+                    {line?.machines?.map((machine) => (
+                      <button
+                        className="machine"
+                        onClick={() =>
+                          console.log(
+                            "Redirection to request-sheet page",
+                            machine?.machine_code
+                          )
+                        }
+                      >
+                        {machine?.machine_code}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </Col>
+            ))}
+          </Row>
+        </div>
+      ))}
+    </>
+  );
+};
+
+const GenerateRequestSheetMainDashboard = () => {
+  const initialState = {
+    dashboardLevel: "",
+    allDataBasedOnDashboardLevel: {},
+    subSectionArr: [],
+
+    message: "",
+    isLoading: true,
+    isError: false,
+
+    selectedSubSection: "",
+  };
+
+  const ACTION = {
+    GET: "get-main-dashboard-request-sheet-data",
+    SUB_SECTION_EVENT: "handle-sub-section-dropdown-change",
+    LOADING: "handle-loading-state",
+  };
+
+  const reducer = (state, action) => {
+    switch (action?.type) {
+      case ACTION?.GET:
+        return {
+          ...state,
+          isLoading: false,
+          message: action?.message,
+          allDataBasedOnDashboardLevel: action?.allDataBasedOnDashboardLevel,
+          selectedSubSection: action?.selectedSubSection,
+          dashboardLevel: action?.dashboardLevel,
+          subSectionArr: action?.subSectionArr,
+        };
+      case ACTION?.SUB_SECTION_EVENT:
+        return {
+          ...state,
+          isLoading: false,
+          selectedSubSection: action?.selectedSubSection,
+          message: action?.message,
+        };
+
+      case ACTION?.LOADING:
+        return {
+          ...state,
+          isLoading: true,
+          isError: false,
+          message: action?.message,
+        };
+      default:
+        return state;
+    }
+  };
+
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+
+  const getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel =
+    async ({ url }) => {
+      try {
+        reducerDispatch({
+          type: ACTION.LOADING,
+        });
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+
+        const {
+          allDataBasedOnDashboardLevel,
+          subSectionArr,
+          selectedSubSection,
+          dashboardLevel,
+          message,
+        } = await res.json();
+
+        reducerDispatch({
+          type: ACTION.GET,
+          message,
+          allDataBasedOnDashboardLevel,
+          selectedSubSection,
+          dashboardLevel,
+          subSectionArr,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+  useEffect(() => {
+    let url = `/getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel`;
+    if (reduceState?.selectedSubSection) {
+      url = `/getAllDataBasedOnSelectedSubSection/${reduceState?.selectedSubSection}/${reduceState?.dashboardLevel}`;
+    }
+    getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel({
+      url,
+    });
+  }, [reduceState?.selectedSubSection]);
+
+  if (reduceState?.dashboardLevel === "Yes") {
+    return (
+      <>
+        <Container fluid className="px-2 p-2">
+          <Row>
+            {reduceState?.isLoading ? (
+              <h3>Loading...</h3>
+            ) : (
+              <Col xs={12} md={12} lg={12} className="gx-0">
+                <div className="p-3">
+                  {reduceState?.allDataBasedOnDashboardLevel?.section_name}
+                </div>
+                {reduceState?.allDataBasedOnDashboardLevel?.subSections?.map(
+                  (subSection) => (
+                    <div className="subSection">
+                      <div className="subSectionText">
+                        {subSection?.subSection_name}
+                      </div>
+                      <MapComponent propsArray={subSection?.cells} />
+                    </div>
+                  )
+                )}
+              </Col>
+            )}
+          </Row>
+        </Container>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Container fluid className="px-2 p-2">
+        {reduceState?.subSectionArr?.length > 0 && (
+          <Row>
+            <div className="m-3">
+              <span>
+                <b>&nbsp;Sub Section: &nbsp;</b>
+              </span>
+              <select
+                class="form-select form-select-sm"
+                aria-label=".form-select-sm example"
+                style={{ width: "25%" }}
+                name="plant"
+                className="textField"
+                select
+                autoComplete="off"
+                value={reduceState?.selectedSubSection}
+                onChange={(e) => {
+                  reducerDispatch({
+                    type: ACTION.SUB_SECTION_EVENT,
+                    selectedSubSection: e.target.value,
+                  });
+                }}
+                variant="standard"
+              >
+                <option selected disabled value="">
+                  Please select
+                </option>
+                {reduceState?.subSectionArr?.map((option) => {
+                  return (
+                    <option className="optionStyle" value={option}>
+                      {option}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+          </Row>
+        )}
+
+        {reduceState?.isLoading ? (
+          <h3>Loading...</h3>
+        ) : (
+          <Row>
+            <Col>
+              <MapComponent
+                propsArray={reduceState?.allDataBasedOnDashboardLevel?.cells}
+              />
+            </Col>
+          </Row>
+        )}
+      </Container>
+    </>
+  );
+};
+
+export default GenerateRequestSheetMainDashboard;

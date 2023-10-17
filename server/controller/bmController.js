@@ -6,6 +6,7 @@ const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
 const Machine = require("../model/machineSchema");
 const User = require("../model/userSchema");
 const Section = require("../model/sectionSchema");
+const SubSection = require("../model/subSectionSchema");
 
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
@@ -212,6 +213,195 @@ router.get(
       res.status(500).json({ message: error?.message, error });
     }
   }
+);
+
+// -------------------------------------------------------------------------------
+//        Generate RequestSheet Dashboard APIS
+// -------------------------------------------------------------------------------
+
+const queryMiddleWareFunction = async (req, res, next) => {
+  req.pipelineQueryObj = [
+    {
+      $lookup: {
+        from: "cells",
+        localField: "_id",
+        foreignField: "subSection_names",
+        pipeline: [
+          {
+            $lookup: {
+              from: "lines",
+              localField: "_id",
+              foreignField: "cell_names",
+              pipeline: [
+                {
+                  $lookup: {
+                    from: "machines",
+                    localField: "_id",
+                    foreignField: "line_names",
+                    pipeline: [
+                      {
+                        $project: {
+                          machine_code: 1,
+                          machine_name: 1,
+                          machine_nickname: 1,
+                        },
+                      },
+                    ],
+                    as: "machines",
+                  },
+                },
+                { $project: { line_name: 1, machines: 1 } },
+              ],
+              as: "lines",
+            },
+          },
+          { $project: { cell_name: 1, lines: 1 } },
+        ],
+        as: "cells",
+      },
+    },
+    { $project: { subSection_name: 1, cells: 1 } },
+  ];
+  next();
+};
+const functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO = async (
+  req,
+  res,
+  next
+) => {
+  let subSectionArr = [];
+  const allDataBasedOnDashboardLevel = await SubSection.aggregate([
+    {
+      $match: {
+        subSection_id: req.subSection?.split("-")?.[0],
+      },
+    },
+    ...req.pipelineQueryObj,
+  ]);
+
+  if (req.rootUser?.subSection_data?.length > 1) {
+    subSectionArr = req.rootUser?.subSection_data;
+  }
+
+  return res.status(201).json({
+    message: "Main dashboard data get successfully",
+    dashboardLevel: req?.dashboardLevel,
+    selectedSubSection: req.subSection,
+    subSectionArr,
+    allDataBasedOnDashboardLevel: allDataBasedOnDashboardLevel?.[0],
+  });
+};
+
+router.get(
+  "/getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel",
+  queryMiddleWareFunction,
+  async (req, res, next) => {
+    try {
+      const section = await Section.findOne({
+        section_id: req?.rootUser?.section_data?.split("-")?.[0],
+      });
+
+      let allDataBasedOnDashboardLevel;
+
+      if (section?.dashboardLevel === "Yes") {
+        allDataBasedOnDashboardLevel = await Section.aggregate([
+          {
+            $match: {
+              _id: section?._id,
+            },
+          },
+          {
+            $lookup: {
+              from: "subsections",
+              localField: "_id",
+              foreignField: "section_names",
+              pipeline: req.pipelineQueryObj,
+              as: "subSections",
+            },
+          },
+          { $project: { section_name: 1, subSections: 1 } },
+        ]);
+
+        return res.status(201).json({
+          message: "Main dashboard data get successfully",
+          dashboardLevel: section?.dashboardLevel,
+          allDataBasedOnDashboardLevel: allDataBasedOnDashboardLevel?.[0],
+        });
+      }
+
+      req.subSection = req.rootUser?.subSection_data?.[0];
+      req.dashboardLevel = section?.dashboardLevel;
+      return next();
+
+      // allDataBasedOnDashboardLevel = await SubSection.aggregate([
+      //   {
+      //     $match: {
+      //       subSection_id:
+      //         req.rootUser?.subSection_data?.[0]?.split("-")?.[0],
+      //     },
+      //   },
+      //   ...req.pipelineQueryObj,
+      // ]);
+      // pipeline: [
+      //   {
+      //     $match: {
+      //       cell_id: {
+      //         $in: req.rootUser?.cell_data?.map(
+      //           (item) => item?.split("-")?.[0]
+      //         ),
+      //       },
+      //     },
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: "lines",
+      //       localField: "_id",
+      //       foreignField: "cell_names",
+      //       pipeline: [
+      //         {
+      //           $lookup: {
+      //             from: "machines",
+      //             localField: "_id",
+      //             foreignField: "line_names",
+      //             pipeline: [
+      //               {
+      //                 $project: {
+      //                   machine_code: 1,
+      //                   machine_name: 1,
+      //                   machine_nickname: 1,
+      //                 },
+      //               },
+      //             ],
+      //             as: "machines",
+      //           },
+      //         },
+      //         { $project: { line_name: 1, machines: 1 } },
+      //       ],
+      //       as: "lines",
+      //     },
+      //   },
+      //   { $project: { cell_name: 1, lines: 1 } },
+      // ],
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO
+);
+
+router.get(
+  "/getAllDataBasedOnSelectedSubSection/:subSection/:dashboardLevel",
+  queryMiddleWareFunction,
+  async (req, res, next) => {
+    try {
+      req.subSection = req.params?.subSection;
+      req.dashboardLevel = req.params?.dashboardLevel;
+      return next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO
 );
 
 module.exports = router;
