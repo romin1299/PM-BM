@@ -9,6 +9,8 @@ import {
   useContext,
 } from "../../modules/PageModules";
 
+import qr from "qrcode";
+
 import {
   newCell,
   deleteCell,
@@ -27,11 +29,12 @@ import { RadioGroup } from "@mui/material";
 import RoutingContext from "../../context/routing/RoutingContext";
 import MachineAdd from "../../Popups/machineAdd";
 import Footer from "../../components/Footer/Footer";
-
+import QrCodeIcon from "@mui/icons-material/QrCode";
 import { CSVLink, CSVDownload } from "react-csv";
 import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
+import ViewGeneratedQROfMachine from "../../Popups/ViewGeneratedQROfMachine";
 
 const CreationDashboardForTLHOSS = () => {
   const [cell, setCell] = useState();
@@ -43,6 +46,9 @@ const CreationDashboardForTLHOSS = () => {
 
   const [refKey2, setRefKey2] = useState(0);
   const [refKey3, setRefKey3] = useState(0);
+
+  const [showQRCode, setShowQRCode] = useState(false);
+  const [selectedRow, setSelectedRow] = useState();
 
   // console.log(lineList);
   const context = useContext(RoutingContext);
@@ -165,14 +171,12 @@ const CreationDashboardForTLHOSS = () => {
       editable: "false",
       align: "center",
       width: "15%",
-
     },
     {
       title: "Machine Name",
       field: "machine_name",
       align: "center",
       width: "15%",
-
     },
     {
       title: "Machine Nick-Name",
@@ -266,7 +270,6 @@ const CreationDashboardForTLHOSS = () => {
       field: "maker_sr_no",
       align: "center",
       width: "15%",
-
     },
   ];
 
@@ -335,6 +338,64 @@ const CreationDashboardForTLHOSS = () => {
     });
     // doc.autoTable(columns, csvData);
     doc.save(`Machine_Data_${timeStamp()}`);
+  };
+
+  const downloadQRCodeOfMachineData = async () => {
+    const doc = new jsPDF();
+
+    // Define the dimensions for the 4x3 table
+    const startX = 5;
+    const startY = 5;
+    const cellWidth = 45;
+    const cellHeight = 45;
+    const spacing = 5;
+
+    const startTextX = 14;
+    const startTextY = 5;
+    const textSpacing = 5;
+
+    // Create an async function to generate a QR code
+    const generateQRCode = async (data) => {
+      return new Promise((resolve, reject) => {
+        qr.toDataURL(
+          data,
+          { type: "image/jpeg", errorCorrectionLevel: "M" },
+          (err, url) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(url);
+            }
+          }
+        );
+      });
+    };
+
+    // Iterate through QR code data using forEach
+    for (let index = 0; index < machine.length; index++) {
+      console.log(machine?.length);
+
+      const data = machine[index]?.machine_code;
+      const col = index % 4;
+      const row = Math.floor(index / 4);
+      const x = startX + col * (cellWidth + spacing);
+      const y = startY + row * (cellHeight + spacing);
+
+      const textX = startTextX + col * (cellWidth + textSpacing);
+      const textY = startTextY + row * (cellHeight + textSpacing);
+
+      // if (index >= 24) {
+      //   doc.addPage();
+      // }
+      // Generate the QR code as a data URL and add to the PDF
+      const qrCodeDataURL = await generateQRCode(data);
+      doc.text(data, textX, textY);
+      doc.addImage(qrCodeDataURL, "JPEG", x, y, cellWidth, cellHeight);
+    }
+    if (machine?.length >= 24) {
+      doc.addPage();
+    }
+    doc.save(`Machine_QR_${timeStamp()}`);
   };
 
   const postCellToGetLineList = async (selectedCell) => {
@@ -408,6 +469,10 @@ const CreationDashboardForTLHOSS = () => {
     }
   }, [line, refKey3]);
 
+  const displayAndHide = () => {
+    setShowQRCode((showQRCode) => !showQRCode);
+  };
+
   const actionsForMachineTable = [
     {
       // icon: () => <button className="addbutton">Add</button>,
@@ -451,6 +516,32 @@ const CreationDashboardForTLHOSS = () => {
       tooltip: "PDF",
       isFreeAction: true,
     },
+    {
+      icon: () => (
+        <button className="border-0">
+          <QrCodeIcon />
+        </button>
+      ),
+      tooltip: "QR",
+      isFreeAction: false,
+      onClick: (event, selectedRow) => {
+        // downloadPDFOfMachineData();
+        setSelectedRow(selectedRow);
+        displayAndHide();
+      },
+    },
+    {
+      icon: () => (
+        <button className="border-0">
+          <QrCodeIcon />
+        </button>
+      ),
+      tooltip: "Download All QR",
+      isFreeAction: true,
+      onClick: (event, selectedRow) => {
+        downloadQRCodeOfMachineData();
+      },
+    },
   ];
 
   // console.log(
@@ -461,9 +552,15 @@ const CreationDashboardForTLHOSS = () => {
   //     : ""
   // );
 
-  // console.log(context);
   return (
     <>
+      <ViewGeneratedQROfMachine
+        showQRCode={showQRCode}
+        displayAndHide={displayAndHide}
+        selectedRow={selectedRow}
+        setSelectedRow={setSelectedRow}
+      />
+
       <div className="mainPage">
         <MachineAdd line={line} refreshForMachineData={refreshForMachineData} />
         <div className="pageCard">

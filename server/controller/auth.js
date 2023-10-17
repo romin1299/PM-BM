@@ -135,7 +135,6 @@ router.post("/signIn", async (req, res) => {
       return res.status(422).json({ error: "plz fill all the details" });
     }
     const userLogin = await User.findOne({ tm_no: tm_no });
-    // console.log(userLogin);
     if (userLogin) {
       // const IsUserOperator = await User.findOne({ tm_no: tm_no, user_type: "Operator" });
       // if (IsUserOperator) {
@@ -5444,9 +5443,9 @@ router.get(
           $unwind: "$checkSheet_data",
         },
         {
-            $match: {
-                "checkSheet_data.current_year": req.params.selectedYear
-            }
+          $match: {
+            "checkSheet_data.current_year": req.params.selectedYear,
+          },
         },
         {
           $addFields: {
@@ -5510,9 +5509,9 @@ router.get(
           $unwind: "$checkSheet_data",
         },
         {
-            $match: {
-                "checkSheet_data.current_year": req.params.selectedYear
-            }
+          $match: {
+            "checkSheet_data.current_year": req.params.selectedYear,
+          },
         },
         {
           $addFields: {
