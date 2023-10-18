@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, Tab } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import PMTabdashboard from "./Tabs/PMTabdashboard";
+import PMTabdashboard from "./BM/Tabs/PMTabdashboard";
 import BM_Routes from "./BM/BM_Routes";
+import "./App.css";
 
 function Dashboard1() {
   const navigate = useNavigate();
@@ -28,11 +29,15 @@ function Dashboard1() {
         id="uncontrolled-tab-example"
       >
         <Tab eventKey="pm" title="Preventive Maintenance">
-          <PMTabdashboard />
+          <div className="scrollable-content">
+            <PMTabdashboard />
+          </div>
         </Tab>
 
         <Tab eventKey="bm" title="Breakdown Maintenance">
-          <BM_Routes />
+          <div className="scrollable-content">
+            <BM_Routes />
+          </div>
         </Tab>
 
         {/* Add more tabs as needed */}

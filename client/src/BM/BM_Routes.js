@@ -12,7 +12,7 @@ import AdminCreationDashboard from "../pages/Admin/AdminCreationDashboard";
 import OperatorDashboard from "../pages/Operator/OperatorDashboard";
 import SummeryDashboard from "../pages/Dashboard/SummeryDashboard/SummeryDashboard";
 import BMSidebar from "./BMSidebar/BMSidebar";
-import CheckSheet from "../Tabs/RequestSheet";
+import RequestSheet from './Tabs/RequestSheet/MainRequestSheet'
 
 // Define an array of routes for each user type
 const userRoutes = [
@@ -30,7 +30,7 @@ const userRoutes = [
     routes: [
       { path: "/bm", element: <OperatorDashboard /> },
       { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
-      { path: "/bm/check-sheet", element: <CheckSheet /> },
+      { path: "/bm/check-sheet", element: <RequestSheet /> },
     ],
   },
   {
@@ -47,7 +47,7 @@ const userRoutes = [
       { path: "/bm", element: <h1>Home Dashboard</h1> },
       { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
       { path: "/bm/userAssign", element: <h1>Users</h1> },
-      { path: "/bm/check-sheet", element: <CheckSheet /> },
+      { path: "/bm/check-sheet", element: <RequestSheet /> },
     ],
   },
 ];
