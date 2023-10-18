@@ -180,7 +180,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/"></NavLink> Section Dashboard
+              <NavLink to="/pm"></NavLink> Section Dashboard
             </MenuItem>
 
             <MenuItem
@@ -199,7 +199,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/summeryDashboard"></NavLink> Plant Dashboard
+              <NavLink to="/pm/summeryDashboard"></NavLink> Plant Dashboard
             </MenuItem>
           </SubMenu>
           {userDepartment === "MTD" ? (
@@ -578,6 +578,17 @@ const TL = ({ userData, userDepartment }) => {
           >
             <NavLink to="/spareReportDashboard"></NavLink>
             Spare Report
+          </Menuitem>
+
+          <Menuitem
+            className="text-white"
+            icon={<SummarizeIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Spare Report"
+          >
+            <NavLink to="/generateRequestSheetMainDashboard"></NavLink>
+            GenerateRequestSheetMainDashboard
           </Menuitem>
         </Menu>
       </SidebarContent>
