@@ -57,6 +57,20 @@ router.get(
 );
 
 router.post("/newRequestSheetRegistration", async (req, res, next) => {
+  // console.log("machine", req.body);
+  const {
+    problemFaced,
+    PRD_ObservationForProblem_5Why_1How,
+    why_5M_1E,
+    where_process,
+    when_frequency,
+    who_person,
+    which_defectLocation,
+    how_details,
+    requestSheetdate,
+    requestSheettime,
+  } = req.body;
+
   try {
     const machine = await Machine.findOne({
       _id: req.query?.machineRef,
@@ -89,15 +103,35 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
         machine?.line_names?.cell_names?.subSection_names?.section_names
           ?.plant_names?._id,
     };
+    // console.log("opopopop", req.body.deptname);
+    // const changedParts = [deptname];
+    // console.log("xzxzxzx", changedParts);
+    const combinedDateTimeString = `${requestSheetdate}T${requestSheettime}`;
+    const requestSheetDateTime = new Date(combinedDateTimeString);
+    const currentDateTime = new Date();
 
     const requestSheet = new RequestSheetOfBM({
-      ...req.body,
-      ...req.query,
+      // ...req.query,
       ..._idObject,
       requestSheetCreatedBy: req.rootUser?._id,
+      ...req.body,
+      problemOccurredDateAndTimeOfBM: requestSheetDateTime,
+      sheetIssuedDateAndTimeOfBM: currentDateTime,
+      "breakDownBasicDataFilledByPRD.problemFaced": problemFaced,
+      "breakDownBasicDataFilledByPRD.PRD_ObservationForProblem_5Why_1How":
+        PRD_ObservationForProblem_5Why_1How,
+      "breakDownBasicDataFilledByPRD.why_5M_1E": why_5M_1E,
+      "breakDownBasicDataFilledByPRD.where_process": where_process,
+      "breakDownBasicDataFilledByPRD.when_frequency": when_frequency,
+      "breakDownBasicDataFilledByPRD.who_person": who_person,
+      "breakDownBasicDataFilledByPRD.which_defectLocation":
+        which_defectLocation,
+      "breakDownBasicDataFilledByPRD.how_details": how_details,
     });
 
     await requestSheet.save();
+
+    // console.log("Reqqqq", requestSheet);
 
     res
       .status(201)
