@@ -95,7 +95,6 @@ const GenerateRequestSheetMainDashboard = () => {
           ...state,
           isLoading: true,
           isError: false,
-          message: action?.message,
         };
       default:
         return state;

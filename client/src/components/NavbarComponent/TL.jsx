@@ -579,6 +579,17 @@ const TL = ({ userData, userDepartment }) => {
             <NavLink to="/spareReportDashboard"></NavLink>
             Spare Report
           </Menuitem>
+
+          <Menuitem
+            className="text-white"
+            icon={<SummarizeIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Spare Report"
+          >
+            <NavLink to="/generateRequestSheetMainDashboard"></NavLink>
+            GenerateRequestSheetMainDashboard
+          </Menuitem>
         </Menu>
       </SidebarContent>
       <SidebarFooter fixed="bottom">

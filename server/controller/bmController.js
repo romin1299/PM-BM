@@ -220,76 +220,84 @@ router.get(
 // -------------------------------------------------------------------------------
 
 const queryMiddleWareFunction = async (req, res, next) => {
-  req.pipelineQueryObj = [
-    {
-      $lookup: {
-        from: "cells",
-        localField: "_id",
-        foreignField: "subSection_names",
-        pipeline: [
-          {
-            $lookup: {
-              from: "lines",
-              localField: "_id",
-              foreignField: "cell_names",
-              pipeline: [
-                {
-                  $lookup: {
-                    from: "machines",
-                    localField: "_id",
-                    foreignField: "line_names",
-                    pipeline: [
-                      {
-                        $project: {
-                          machine_code: 1,
-                          machine_name: 1,
-                          machine_nickname: 1,
+  try {
+    req.pipelineQueryObj = [
+      {
+        $lookup: {
+          from: "cells",
+          localField: "_id",
+          foreignField: "subSection_names",
+          pipeline: [
+            {
+              $lookup: {
+                from: "lines",
+                localField: "_id",
+                foreignField: "cell_names",
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: "machines",
+                      localField: "_id",
+                      foreignField: "line_names",
+                      pipeline: [
+                        {
+                          $project: {
+                            machine_code: 1,
+                            machine_name: 1,
+                            machine_nickname: 1,
+                          },
                         },
-                      },
-                    ],
-                    as: "machines",
+                      ],
+                      as: "machines",
+                    },
                   },
-                },
-                { $project: { line_name: 1, machines: 1 } },
-              ],
-              as: "lines",
+                  { $project: { line_name: 1, machines: 1 } },
+                ],
+                as: "lines",
+              },
             },
-          },
-          { $project: { cell_name: 1, lines: 1 } },
-        ],
-        as: "cells",
+            { $project: { cell_name: 1, lines: 1 } },
+          ],
+          as: "cells",
+        },
       },
-    },
-    { $project: { subSection_name: 1, cells: 1 } },
-  ];
-  next();
+      { $project: { subSection_name: 1, cells: 1 } },
+    ];
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
 };
 const functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO = async (
   req,
   res,
   next
 ) => {
-  let subSectionArr = [];
-  const allDataBasedOnDashboardLevel = await SubSection.aggregate([
-    {
-      $match: {
-        subSection_id: req.subSection?.split("-")?.[0],
+  try {
+    let subSectionArr = [];
+    const allDataBasedOnDashboardLevel = await SubSection.aggregate([
+      {
+        $match: {
+          subSection_id: req.subSection?.split("-")?.[0],
+        },
       },
-    },
-    ...req.pipelineQueryObj,
-  ]);
+      ...req.pipelineQueryObj,
+    ]);
 
-  if (req.rootUser?.subSection_data?.length > 1) {
-    subSectionArr = req.rootUser?.subSection_data;
+    if (req.rootUser?.subSection_data?.length > 1) {
+      subSectionArr = req.rootUser?.subSection_data;
+    }
+
+    return res.status(201).json({
+      message: "Main dashboard data get successfully",
+      dashboardLevel: req?.dashboardLevel,
+      selectedSubSection: req.subSection,
+      subSectionArr,
+      allDataBasedOnDashboardLevel: allDataBasedOnDashboardLevel?.[0],
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
   }
-
-  return res.status(201).json({
-    message: "Main dashboard data get successfully",
-    dashboardLevel: req?.dashboardLevel,
-    selectedSubSection: req.subSection,
-    subSectionArr,
-    allDataBasedOnDashboardLevel: allDataBasedOnDashboardLevel?.[0],
-  });
 };
 
 router.get(
