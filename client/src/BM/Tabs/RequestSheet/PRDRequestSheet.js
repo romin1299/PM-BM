@@ -1,6 +1,6 @@
 // import React from "react";
 // import Table from "react-bootstrap/Table";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import denso_log from "../../../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
@@ -55,6 +55,33 @@ function MyTable() {
       console.log(error);
     }
   };
+  const getMachineDetails = async () => {
+    const machineRef = "63b67ccea716e21c95cd471a";
+
+    try {
+      const res = await fetch(
+        `/getMachineDetailsOnScanningRequest/?machineRef=${machineRef}`, // %2F is for "/"
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      const { machine } = await res.json();
+      // setMachine(machine);
+
+      console.log(machine);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getMachineDetails();
+  }, []);
 
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
@@ -81,44 +108,44 @@ function MyTable() {
               </h2>
             </td>
           </tr>
-          <tr >
-          <td className="mb-0 pb-0 border">
-            <p>
-              <b>MAINT. TYPE</b>
-            </p>
-            <Form>
-              {["radio"].map((type) => (
-                <div key={`inline-${type}`}>
-                  <Form.Check
-                    flex
-                    label="BM"
-                    name="group1"
-                    type={type}
-                    id={`inline-${type}-1`}
-                  />
-                  <Form.Check
-                    flex
-                    label="PM"
-                    name="group1"
-                    type={type}
-                    id={`inline-${type}-2`}
-                  />
-                  <Form.Check
-                    flex
-                    label="CM"
-                    type={type}
-                    id={`inline-${type}-3`}
-                  />
-                  <Form.Check
-                    flex
-                    label="TPM"
-                    type={type}
-                    id={`inline-${type}-3`}
-                  />
-                </div>
-              ))}
-            </Form>
-          </td>
+          <tr>
+            <td className="mb-0 pb-0 border">
+              <p>
+                <b>MAINT. TYPE</b>
+              </p>
+              <Form>
+                {["radio"].map((type) => (
+                  <div key={`inline-${type}`}>
+                    <Form.Check
+                      flex
+                      label="BM"
+                      name="group1"
+                      type={type}
+                      id={`inline-${type}-1`}
+                    />
+                    <Form.Check
+                      flex
+                      label="PM"
+                      name="group1"
+                      type={type}
+                      id={`inline-${type}-2`}
+                    />
+                    <Form.Check
+                      flex
+                      label="CM"
+                      type={type}
+                      id={`inline-${type}-3`}
+                    />
+                    <Form.Check
+                      flex
+                      label="TPM"
+                      type={type}
+                      id={`inline-${type}-3`}
+                    />
+                  </div>
+                ))}
+              </Form>
+            </td>
             <td style={{ width: "20%" }} className="mb-0 pb-0 border">
               <p>PRIORITY CODE (MARK CIRCLE)</p>
               <ol className="fs-6 fw-normal">
@@ -128,7 +155,11 @@ function MyTable() {
                 <li>KAIZEN</li>
               </ol>
             </td>
-            <td colSpan={9} style={{ width: "50%" }} className="mb-0 pb-0 border">
+            <td
+              colSpan={9}
+              style={{ width: "50%" }}
+              className="mb-0 pb-0 border"
+            >
               <div className="mb-2">
                 <h6 className="text-center border p-1">
                   <b>REQUEST SHEET ( To be filled by PRD)</b>
@@ -247,7 +278,6 @@ function MyTable() {
                     )}
                   </p>
                 </Col>
-                
               </Row>
               <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
                 <Col lg={6} className="border pb-2 pt-1">
@@ -275,7 +305,7 @@ function MyTable() {
               </Row>
             </td>
           </tr>
-          <tr>  
+          <tr>
             <td className="border" colSpan={8}>
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={2}>
@@ -319,7 +349,7 @@ function MyTable() {
               </Row>
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={5}>
-                  <p className="mb-0" style={{ fontSize: "12px"}} >
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>Problem faced: </b>
                   </p>
                 </Col>
@@ -341,158 +371,160 @@ function MyTable() {
               </Row>
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={5}>
-                  <p className="mb-0" style={{ fontSize: "12px"}} >
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>
                       PRD OBSERVATION FOR THIS PROBLEM BASED ON (5WHY-1HOW){" "}
-                    </b></p></Col>
-                    <Col lg={7}>
-                    <input
-                      type="text"
-                      id="prdobv"
-                      name="prdobv"
-                      className="m-1"
-                      style={{ width: "350px" }}
-                      {...register("PRD_ObservationForProblem_5Why_1How", {
-                        required: "This field is required",
-                      })}
-                    />
-                    {errors?.["PRD_ObservationForProblem_5Why_1How"] && (
-                      <p>
-                        {
-                          errors?.["PRD_ObservationForProblem_5Why_1How"]
-                            ?.message
-                        }
-                      </p>
-                    )}
-                 
+                    </b>
+                  </p>
+                </Col>
+                <Col lg={7}>
+                  <input
+                    type="text"
+                    id="prdobv"
+                    name="prdobv"
+                    className="m-1"
+                    style={{ width: "350px" }}
+                    {...register("PRD_ObservationForProblem_5Why_1How", {
+                      required: "This field is required",
+                    })}
+                  />
+                  {errors?.["PRD_ObservationForProblem_5Why_1How"] && (
+                    <p>
+                      {errors?.["PRD_ObservationForProblem_5Why_1How"]?.message}
+                    </p>
+                  )}
                 </Col>
               </Row>
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={5}>
-                  <p className="mb-0" style={{ fontSize: "12px"}} >
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>WHY (5M+1E): </b>
-                    </p></Col>
-                    <Col lg={7}>
-                    <input
-                      type="text"
-                      id="why"
-                      name="why"
-                      className="m-1"
-                      style={{ width: "350px" }}
-                      {...register("why_5M_1E", {
-                        required: "This field is required",
-                      })}
-                    />
-                    {errors?.["why_5M_1E"] && (
-                      <p>{errors?.["why_5M_1E"]?.message}</p>
-                    )}
-                  
+                  </p>
+                </Col>
+                <Col lg={7}>
+                  <input
+                    type="text"
+                    id="why"
+                    name="why"
+                    className="m-1"
+                    style={{ width: "350px" }}
+                    {...register("why_5M_1E", {
+                      required: "This field is required",
+                    })}
+                  />
+                  {errors?.["why_5M_1E"] && (
+                    <p>{errors?.["why_5M_1E"]?.message}</p>
+                  )}
                 </Col>
               </Row>
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={5}>
-                  <p className="mb-0" style={{ fontSize: "12px"}} >
-                    <b>WHERE (Process): </b></p></Col>
-                    <Col lg={7}>
-                   
-                    <input
-                      type="text"
-                      id="where"
-                      name="where"
-                      className="m-1"
-                      style={{ width: "350px" }}
-                      {...register("where_process", {
-                        required: "This field is required",
-                      })}
-                    />
-                    {errors?.["where_process"] && (
-                      <p>{errors?.["where_process"]?.message}</p>
-                    )}
-                  
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>WHERE (Process): </b>
+                  </p>
+                </Col>
+                <Col lg={7}>
+                  <input
+                    type="text"
+                    id="where"
+                    name="where"
+                    className="m-1"
+                    style={{ width: "350px" }}
+                    {...register("where_process", {
+                      required: "This field is required",
+                    })}
+                  />
+                  {errors?.["where_process"] && (
+                    <p>{errors?.["where_process"]?.message}</p>
+                  )}
                 </Col>
               </Row>
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={5}>
-                  <p className="mb-0" style={{ fontSize: "12px"}} >
-                    <b>WHEN (Frequency): </b></p></Col>
-                    <Col lg={7}>
-                    <input
-                      type="text"
-                      id="when"
-                      name="when"
-                      className="m-1"
-                      style={{ width: "350px" }}
-                      {...register("when_frequency", {
-                        required: "This field is required",
-                      })}
-                    />
-                    {errors?.["when_frequency"] && (
-                      <p>{errors?.["when_frequency"]?.message}</p>
-                    )}
-                  
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>WHEN (Frequency): </b>
+                  </p>
+                </Col>
+                <Col lg={7}>
+                  <input
+                    type="text"
+                    id="when"
+                    name="when"
+                    className="m-1"
+                    style={{ width: "350px" }}
+                    {...register("when_frequency", {
+                      required: "This field is required",
+                    })}
+                  />
+                  {errors?.["when_frequency"] && (
+                    <p>{errors?.["when_frequency"]?.message}</p>
+                  )}
                 </Col>
               </Row>
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={5}>
-                  <p className="mb-0" style={{ fontSize: "12px"}} >
-                    <b>WHO (Person): </b></p></Col>
-                    <Col lg={7}>
-                    <input
-                      type="text"
-                      id="who"
-                      name="who"
-                      className="m-1"
-                      style={{ width: "350px" }}
-                      {...register("who_person", {
-                        required: "This field is required",
-                      })}
-                    />
-                    {errors?.["who_person"] && (
-                      <p>{errors?.["who_person"]?.message}</p>
-                    )}
-                  
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>WHO (Person): </b>
+                  </p>
+                </Col>
+                <Col lg={7}>
+                  <input
+                    type="text"
+                    id="who"
+                    name="who"
+                    className="m-1"
+                    style={{ width: "350px" }}
+                    {...register("who_person", {
+                      required: "This field is required",
+                    })}
+                  />
+                  {errors?.["who_person"] && (
+                    <p>{errors?.["who_person"]?.message}</p>
+                  )}
                 </Col>
               </Row>
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={5}>
-                  <p className="mb-0" style={{ fontSize: "12px"}} >
-                    <b>WHICH (Defect Location): </b></p></Col>
-                    <Col lg={7}>
-                    <input
-                      type="text"
-                      id="which"
-                      name="which"
-                      className="m-1"
-                      style={{ width: "350px" }}
-                      {...register("which_defectLocation", {
-                        required: "This field is required",
-                      })}
-                    />
-                    {errors?.["which_defectLocation"] && (
-                      <p>{errors?.["which_defectLocation"]?.message}</p>
-                    )}
-                  
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>WHICH (Defect Location): </b>
+                  </p>
+                </Col>
+                <Col lg={7}>
+                  <input
+                    type="text"
+                    id="which"
+                    name="which"
+                    className="m-1"
+                    style={{ width: "350px" }}
+                    {...register("which_defectLocation", {
+                      required: "This field is required",
+                    })}
+                  />
+                  {errors?.["which_defectLocation"] && (
+                    <p>{errors?.["which_defectLocation"]?.message}</p>
+                  )}
                 </Col>
               </Row>
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={5}>
-                  <p className="mb-0" style={{ fontSize: "12px"}} >
-                    <b>HOW (Detail/ Observation): </b></p></Col>
-                    <Col lg={7}>
-                    <input
-                      type="text"
-                      id="how"
-                      name="how"
-                      className="m-1"
-                      style={{ width: "350px" }}
-                      {...register("how_details", {
-                        required: "This field is required",
-                      })}
-                    />
-                    {errors?.["how_details"] && (
-                      <p>{errors?.["how_details"]?.message}</p>
-                    )}
-                  
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>HOW (Detail/ Observation): </b>
+                  </p>
+                </Col>
+                <Col lg={7}>
+                  <input
+                    type="text"
+                    id="how"
+                    name="how"
+                    className="m-1"
+                    style={{ width: "350px" }}
+                    {...register("how_details", {
+                      required: "This field is required",
+                    })}
+                  />
+                  {errors?.["how_details"] && (
+                    <p>{errors?.["how_details"]?.message}</p>
+                  )}
                 </Col>
               </Row>
             </td>
