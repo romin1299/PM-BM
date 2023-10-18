@@ -1,6 +1,6 @@
 // import React from "react";
 // import Table from "react-bootstrap/Table";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import denso_log from "../../../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
@@ -55,6 +55,33 @@ function MyTable() {
       console.log(error);
     }
   };
+  const getMachineDetails = async () => {
+    const machineRef = "63b67ccea716e21c95cd471a";
+
+    try {
+      const res = await fetch(
+        `/getMachineDetailsOnScanningRequest/?machineRef=${machineRef}`, // %2F is for "/"
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      const { machine } = await res.json();
+      // setMachine(machine);
+
+      console.log(machine);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getMachineDetails();
+  }, []);
 
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
