@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 // import UpdatePassword from './pages/Login/UpdatePassword';
 import App from "./App";
 import LoginPage from "./Login/Login";
@@ -16,6 +16,7 @@ import SheetDashboard from "./ScanningComponent/SheetDashboard";
 function Router() {
   const [auth, setauth] = useState();
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate(); // Get the navigation function
 
   const isCurrentUser = async () => {
     try {
@@ -49,13 +50,19 @@ function Router() {
     // }, 1500);
   }, []);
 
+  // Check if the path is empty
+  if (window.location.pathname === "/") {
+    navigate("/bm");
+    return null;
+  }
+
   return (
     <>
       {/* <MainPage /> */}
 
       {isLoading ? (
         <div className="animationScreen">
-          <div class="ring">
+          <div className="ring">
             <img className="ringImg" src={denso_log} alt="" />
           </div>
         </div>
