@@ -94,6 +94,7 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
       .exec();
 
     const _idObject = {
+      machineRef: machine?._id,
       lineRef: machine?.line_names?._id,
       cellRef: machine?.line_names?.cell_names?._id,
       subSectionRef: machine?.line_names?.cell_names?.subSection_names?._id,
@@ -150,17 +151,97 @@ router.get("/getRequestSheetData", async (req, res, next) => {
         },
       },
       {
+        $lookup: {
+          from: "machines",
+          localField: "machineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                machine_code: 1,
+              },
+            },
+          ],
+          as: "machines",
+        },
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+          as: "lines",
+        },
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cellRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                cell_name: 1,
+              },
+            },
+          ],
+          as: "cells",
+        },
+      },
+      // {
+      //   $lookup: {
+      //     from: "subsections",
+      //     localField: "subSectionRef",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           subSection_name: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "subSections",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "sections",
+      //     localField: "sectionRef",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           section_name: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "sections",
+      //   },
+      // },
+      {
         $project: {
           requestSheetCreatedBy: 1,
-          machineRef: 1,
-          lineRef: 1,
-          cellRef: 1,
-          subSectionRef: 1,
-          sectionRef: 1,
-          plantRef: 1,
+          requestSheetNoOfBM: 1,
+          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
+          line: { $arrayElemAt: ["$lines.line_name", 0] },
+          machine: { $arrayElemAt: ["$machines.machine_code", 0] },
+          problem: "$breakDownBasicDataFilledByPRD.problemFaced",
         },
       },
     ]);
+
+    if (requestSheetData?.length === 0) {
+      return res.status(400).json({
+        message: "No data to display",
+      });
+    }
 
     const counters = await RequestSheetOfBM.aggregate([
       {
@@ -193,7 +274,10 @@ router.get("/getRequestSheetData", async (req, res, next) => {
     res.status(201).json({
       message: "Request-sheet data get successfully",
       requestSheetData,
-      counters: counters?.[0],
+      counters: {
+        ...counters?.[0],
+        total_request_sheet_count: requestSheetData?.length,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
