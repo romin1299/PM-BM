@@ -194,4 +194,10 @@ body {
 .cursor{
     cursor: pointer;
 }
+
+.scrollable-content {
+    max-height: 100vh; /* Set the desired max height */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden;
+  }
   
