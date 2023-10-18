@@ -39,12 +39,12 @@ export const menuItems = [
     ],
     allowedDepartments: ["MTD"],
   },
-  {
-    title: "Check Sheet",
-    icon: <SummarizeIcon className="text-white" />,
-    route: "/bm/check-sheet",
-    allowedRoles: ["TL/HOSS", "Plant-Admin"],
-  },
+  // {
+  //   title: "Check Sheet",
+  //   icon: <SummarizeIcon className="text-white" />,
+  //   route: "/bm/check-sheet",
+  //   allowedRoles: ["TL/HOSS", "Plant-Admin"],
+  // },
   {
     title: "Creation",
     icon: <FaThList className="text-white" />,

@@ -532,9 +532,7 @@ router.get(
   functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO
 );
 router.get("/getMachineDetailsOnScanningRequest", async (req, res, next) => {
-  const machine = await Machine.findOne({
-    _id: req.query?.machineRef,
-  })
+  const machine = await Machine.findOne(req.query)
     .populate({
       path: "line_names",
       populate: {
@@ -558,7 +556,6 @@ router.get("/getMachineDetailsOnScanningRequest", async (req, res, next) => {
   res.status(201).json({
     message: "Sheet data get successfully",
     machine,
-    
   });
 });
 
