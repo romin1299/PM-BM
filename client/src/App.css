@@ -173,3 +173,25 @@ body {
 .css-1yhpg23-MuiTableCell-root,.css-1a4b21o{
     text-align: left !important;
 }
+
+
+.scrollable-tabs-container .nav-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .scrollable-tabs-container .nav-item {
+    flex: 0 0 auto;
+  }
+  
+  .scrollable-tabs-container .nav-link {
+    padding: 0.5rem 1rem;
+  }
+  .hidden {
+    display: none;
+}
+  
+.cursor{
+    cursor: pointer;
+}
+  
