@@ -180,7 +180,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/"></NavLink> Section Dashboard
+              <NavLink to="/pm"></NavLink> Section Dashboard
             </MenuItem>
 
             <MenuItem
@@ -199,7 +199,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/summeryDashboard"></NavLink> Plant Dashboard
+              <NavLink to="/pm/summeryDashboard"></NavLink> Plant Dashboard
             </MenuItem>
           </SubMenu>
           {userDepartment === "MTD" ? (

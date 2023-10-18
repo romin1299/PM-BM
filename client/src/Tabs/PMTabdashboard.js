@@ -438,7 +438,7 @@ function App() {
             stickyNav={<RightNavbar />}
             content={
               <Routes>
-                <Route path="/" element={<OperatorDashboard />} />
+                <Route path="/pm" element={<OperatorDashboard />} />
                 <Route
                   path="/creationDashboard"
                   element={<CreationDashboardForTLHOSS />}
@@ -505,7 +505,7 @@ function App() {
                 />
 
                 <Route
-                  path="/summeryDashboard"
+                  path="/pm/summeryDashboard"
                   element={<SummeryDashboard />}
                 />
                 <Route path="/skipedPMWorkData" element={<SkipPMWorkData />} />
