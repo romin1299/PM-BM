@@ -1,8 +1,9 @@
 import React, { useEffect, useReducer } from "react";
 
 import { Container, Row, Col } from "reactstrap";
+import { useNavigate } from "react-router-dom";
 
-const MapComponent = ({ propsArray }) => {
+const MapComponent = ({ propsArray, handleNavigationToRequestSheet }) => {
   return (
     <>
       {propsArray?.map((cell) => (
@@ -31,10 +32,9 @@ const MapComponent = ({ propsArray }) => {
                       <button
                         className="machine"
                         onClick={() =>
-                          console.log(
-                            "Redirection to request-sheet page",
-                            machine?.machine_code
-                          )
+                          handleNavigationToRequestSheet({
+                            machine_code: machine?.machine_code,
+                          })
                         }
                       >
                         {machine?.machine_code}
@@ -52,6 +52,8 @@ const MapComponent = ({ propsArray }) => {
 };
 
 const GenerateRequestSheetMainDashboard = () => {
+  const navigate = useNavigate();
+
   const initialState = {
     dashboardLevel: "",
     allDataBasedOnDashboardLevel: {},
@@ -149,10 +151,25 @@ const GenerateRequestSheetMainDashboard = () => {
     });
   }, [reduceState?.selectedSubSection]);
 
+  const handleBack = () => {
+    navigate("/bm/requestListDashboard");
+  };
+
+  const handleNavigationToRequestSheet = ({ machine_code }) => {
+    navigate(`/bm/check-sheet/${machine_code}`);
+  };
+
   if (reduceState?.dashboardLevel === "Yes") {
     return (
       <>
         <Container fluid className="px-2 p-2">
+          <Row>
+            <Col>
+              <button className="btn bg-button" onClick={handleBack}>
+                Back
+              </button>
+            </Col>
+          </Row>
           <Row>
             {reduceState?.isLoading ? (
               <h3>Loading...</h3>
@@ -167,7 +184,12 @@ const GenerateRequestSheetMainDashboard = () => {
                       <div className="subSectionText">
                         {subSection?.subSection_name}
                       </div>
-                      <MapComponent propsArray={subSection?.cells} />
+                      <MapComponent
+                        propsArray={subSection?.cells}
+                        handleNavigationToRequestSheet={
+                          handleNavigationToRequestSheet
+                        }
+                      />
                     </div>
                   )
                 )}
@@ -182,6 +204,13 @@ const GenerateRequestSheetMainDashboard = () => {
   return (
     <>
       <Container fluid className="px-2 p-2">
+        <Row>
+          <Col>
+            <button className="btn bg-button" onClick={handleBack}>
+              Back
+            </button>
+          </Col>
+        </Row>
         {reduceState?.subSectionArr?.length > 0 && (
           <Row>
             <div className="m-3">
@@ -227,6 +256,7 @@ const GenerateRequestSheetMainDashboard = () => {
             <Col>
               <MapComponent
                 propsArray={reduceState?.allDataBasedOnDashboardLevel?.cells}
+                handleNavigationToRequestSheet={handleNavigationToRequestSheet}
               />
             </Col>
           </Row>

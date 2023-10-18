@@ -145,7 +145,7 @@ const RequestSheetMainDashboard = () => {
   }, []);
 
   const handleGenerateBMNavigation = async () => {
-    navigate(`/generateRequestSheetMainDashboard`);
+    navigate(`/bm/generateRequestSheetMainDashboard`);
   };
 
   const requestSheetHeader = [

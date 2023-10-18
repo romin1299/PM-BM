@@ -77,13 +77,11 @@ import AnnualPmStatus from "../../pages/Reports/ReportComponents/AnnualPmStatus"
 import PmTimeMonitoringReport from "../../pages/Reports/ReportComponents/PmTimeMonitoringReport";
 
 //approval dashboards
-import PreparationApprovalDashboard from "../pages/Section/Checksheet/PreparationApprovalDashboard";
-import PlanningApprovalDashboard from "../pages/Section/Checksheet/PlanningApprovalDashboard";
-import ImplementationApprovalDashboard from "../pages/Section/Checksheet/ImplementationApprovalDashboard";
-import Footer from "../components/Footer/Footer";
-
-import RequestSheetMainDashboard from "../BM/RequestSheet/RequestSheetMainDashboard";
-import GenerateRequestSheetMainDashboard from "../BM/RequestSheet/GenerateRequestSheetMainDashboard";
+import PreparationApprovalDashboard from "../../pages/Section/Checksheet/PreparationApprovalDashboard";
+// import PreparationApprovalDashboard from "../pages/Section/Checksheet/PreparationApprovalDashboard";
+import PlanningApprovalDashboard from "../../pages/Section/Checksheet/PlanningApprovalDashboard";
+import ImplementationApprovalDashboard from "../../pages/Section/Checksheet/ImplementationApprovalDashboard";
+import Footer from "../../components/Footer/Footer";
 
 function App() {
   const [nav, setNav] = useState(false);
@@ -553,16 +551,6 @@ function App() {
                 <Route
                   path="/pmTimeMonitoringReport"
                   element={<PmTimeMonitoringReport />}
-                />
-
-                <Route
-                  path="/bmRequestListDashboard"
-                  element={<RequestSheetMainDashboard />}
-                />
-
-                <Route
-                  path="/generateRequestSheetMainDashboard"
-                  element={<GenerateRequestSheetMainDashboard />}
                 />
               </Routes>
             }

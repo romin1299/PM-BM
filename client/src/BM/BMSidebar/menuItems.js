@@ -178,4 +178,10 @@ export const menuItems = [
     route: "/bm/spareReportDashboard",
     allowedRoles: ["TL/HOSS"],
   },
+  {
+    title: "Request-sheet dashboard",
+    icon: <SummarizeIcon className="text-white" />,
+    route: "/bm/requestListDashboard",
+    allowedRoles: ["TL/HOSS"],
+  },
 ];
