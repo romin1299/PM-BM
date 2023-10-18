@@ -3,7 +3,7 @@
 import denso_log from "../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
 
-import React from "react";
+import React, { useState } from "react";
 import { Table } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
@@ -15,8 +15,15 @@ function MyTable() {
     // reset,
   } = useForm();
 
+  const [selectedMaintenanceType, setSelectedMaintenanceType] = useState(""); // Initialize with an empty string or default value
+
+  const handleMaintenanceType = (event) => {
+    setSelectedMaintenanceType(event.target.value);
+  };
+
   const newRequestSheetRegistration = async (requestSheetData) => {
     const machineRef = "63b67ccea716e21c95cd471a";
+    requestSheetData.maintenanceType = selectedMaintenanceType;
     try {
       const res = await fetch(
         `/newRequestSheetRegistration/?machineRef=${machineRef}`,
@@ -71,36 +78,46 @@ function MyTable() {
           <td className="mb-0 pb-0">
             <p>MAINT. TYPE</p>
             <Form>
-              {["radio"].map((type) => (
-                <div key={`inline-${type}`}>
-                  <Form.Check
-                    flex
-                    label="BM"
-                    name="group1"
-                    type={type}
-                    id={`inline-${type}-1`}
-                  />
-                  <Form.Check
-                    flex
-                    label="PM"
-                    name="group1"
-                    type={type}
-                    id={`inline-${type}-2`}
-                  />
-                  <Form.Check
-                    flex
-                    label="CM"
-                    type={type}
-                    id={`inline-${type}-3`}
-                  />
-                  <Form.Check
-                    flex
-                    label="TPM"
-                    type={type}
-                    id={`inline-${type}-3`}
-                  />
-                </div>
-              ))}
+              <div key={`inline-radio`}>
+                <Form.Check
+                  flex
+                  label="BM"
+                  name="group1"
+                  type="radio"
+                  id={`inline-radio-1`}
+                  value="BM"
+                  onChange={handleMaintenanceType}
+                  checked={selectedMaintenanceType === "BM"}
+                />
+                <Form.Check
+                  flex
+                  label="PM"
+                  name="group1"
+                  type="radio"
+                  id={`inline-radio-2`}
+                  value="PM"
+                  onChange={handleMaintenanceType}
+                  checked={selectedMaintenanceType === "PM"}
+                />
+                <Form.Check
+                  flex
+                  label="CM"
+                  type="radio"
+                  id={`inline-radio-3`}
+                  value="CM"
+                  onChange={handleMaintenanceType}
+                  checked={selectedMaintenanceType === "CM"}
+                />
+                <Form.Check
+                  flex
+                  label="TPM"
+                  type="radio"
+                  id={`inline-radio-4`}
+                  value="TPM"
+                  onChange={handleMaintenanceType}
+                  checked={selectedMaintenanceType === "TPM"}
+                />
+              </div>
             </Form>
           </td>
           <td style={{ width: "20%" }} className="mb-0 pb-0">
@@ -236,7 +253,7 @@ function MyTable() {
                   <b>Month</b>
                 </p>
                 <p className="fs-6 fw-normal">Jan</p> */}
-              {/* </Col>
+                {/* </Col>
               <Col lg={4} className="border"> */}
                 {/* <p className="mb-0">
                   <b>Year</b>

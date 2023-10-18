@@ -56,7 +56,6 @@ router.get(
 );
 
 router.post("/newRequestSheetRegistration", async (req, res, next) => {
-  // console.log("machine", req.body);
   const {
     problemFaced,
     PRD_ObservationForProblem_5Why_1How,
@@ -68,7 +67,10 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
     how_details,
     requestSheetdate,
     requestSheettime,
+    maintenanceType,
   } = req.body;
+
+  // console.log(req.body);
 
   try {
     const machine = await Machine.findOne({
@@ -102,18 +104,20 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
         machine?.line_names?.cell_names?.subSection_names?.section_names
           ?.plant_names?._id,
     };
-    // console.log("opopopop", req.body.deptname);
-    // const changedParts = [deptname];
-    // console.log("xzxzxzx", changedParts);
+
     const combinedDateTimeString = `${requestSheetdate}T${requestSheettime}`;
     const requestSheetDateTime = new Date(combinedDateTimeString);
     const currentDateTime = new Date();
+
+    // const requestNo = `${machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name} - ${machine?.line_names?.line_name} - ${}`;
+    // console.log("ddddd", requestNo);
 
     const requestSheet = new RequestSheetOfBM({
       // ...req.query,
       ..._idObject,
       requestSheetCreatedBy: req.rootUser?._id,
-      ...req.body,
+      // ...req.body,
+      maintenanceType: maintenanceType || "BM",
       problemOccurredDateAndTimeOfBM: requestSheetDateTime,
       sheetIssuedDateAndTimeOfBM: currentDateTime,
       "breakDownBasicDataFilledByPRD.problemFaced": problemFaced,
@@ -129,8 +133,6 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
     });
 
     await requestSheet.save();
-
-    // console.log("Reqqqq", requestSheet);
 
     res
       .status(201)
@@ -247,5 +249,36 @@ router.get(
     }
   }
 );
+
+router.get("/getMachineDetailsOnScanningRequest", async (req, res, next) => {
+  const machine = await Machine.findOne({
+    _id: req.query?.machineRef,
+  })
+    .populate({
+      path: "line_names",
+      populate: {
+        path: "cell_names",
+        populate: {
+          path: "subSection_names",
+          populate: {
+            path: "section_names",
+            populate: {
+              path: "plant_names",
+              model: "Plants",
+            },
+          },
+        },
+      },
+    })
+    .exec();
+
+  // console.log("machine", machine);
+
+  res.status(201).json({
+    message: "Sheet data get successfully",
+    machine,
+    
+  });
+});
 
 module.exports = router;
