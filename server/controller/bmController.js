@@ -68,9 +68,12 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
     requestSheetdate,
     requestSheettime,
     maintenanceType,
+    priorityCode,
+    qualityRelated,
+    shiftOfBM,
   } = req.body;
 
-  // console.log(req.body);
+  console.log(req.body);
 
   try {
     const machine = await Machine.findOne({
@@ -110,13 +113,16 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
     const currentDateTime = new Date();
 
     // const requestNo = `${machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name} - ${machine?.line_names?.line_name} - ${}`;
-    // console.log("ddddd", requestNo);
 
     const requestSheet = new RequestSheetOfBM({
-      // ...req.query,
+      ...req.query,
       ..._idObject,
       requestSheetCreatedBy: req.rootUser?._id,
-      // ...req.body,
+      ...req.body,
+      priorityCode: priorityCode,
+      qualityRelated: qualityRelated,
+      shiftOfBM: shiftOfBM,
+      breakDownAttendedBy: req.rootUser?._id,
       maintenanceType: maintenanceType || "BM",
       problemOccurredDateAndTimeOfBM: requestSheetDateTime,
       sheetIssuedDateAndTimeOfBM: currentDateTime,
@@ -133,6 +139,7 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
     });
 
     await requestSheet.save();
+    console.log(requestSheet);
 
     res
       .status(201)
@@ -277,7 +284,6 @@ router.get("/getMachineDetailsOnScanningRequest", async (req, res, next) => {
   res.status(201).json({
     message: "Sheet data get successfully",
     machine,
-    
   });
 });
 

@@ -63,7 +63,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: String,
   },
   qualityRelated: {
-    type: Boolean, //if string required then change value: Yes/No
+    type: String, //if string required then change value: Yes/No
   },
 
   //optional
