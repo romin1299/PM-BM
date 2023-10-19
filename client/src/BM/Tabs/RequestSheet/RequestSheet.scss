@@ -1,0 +1,24 @@
+.mtd-problem-section,
+.mtd-actions-section
+ {
+//   border: 2px solid rgb(177, 177, 177);
+
+  input[type="text"] {
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 2px 5px;
+    font-size: 14px !important;
+    width: 80%;
+
+    &:focus-visible {
+      outline: none;
+    }
+  }
+
+  button {
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid gray;
+    border-radius: 3px;
+  }
+}

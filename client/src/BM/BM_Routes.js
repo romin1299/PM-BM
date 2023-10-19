@@ -49,7 +49,7 @@ const userRoutes = [
       { path: "/bm", element: <h1>Home Dashboard</h1> },
       { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
       { path: "/bm/userAssign", element: <h1>Users</h1> },
-      { path: "/bm/check-sheet/:machine_code", element: <RequestSheet /> },
+      { path: "/bm/check-sheet/:generateType/:machine_code", element: <RequestSheet /> },
       {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,

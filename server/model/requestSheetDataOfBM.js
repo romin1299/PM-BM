@@ -63,7 +63,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: String,
   },
   qualityRelated: {
-    type: Boolean, //if string required then change value: Yes/No
+    type: String, //if string required then change value: Yes/No
   },
 
   //optional
@@ -77,6 +77,19 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     ref: "User",
   },
   breakDownAttendedStatus: {
+    type: String,
+  },
+
+  assignOperator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+
+  finalActivity: {
+    type: String,
+  },
+
+  statusPRD_TL: {
     type: String,
   },
 
@@ -129,7 +142,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     ref: "User",
   },
   partQualityStatusOfPRD: {
-    type: String,
+    type: String, //yes no
   },
   partQualityDateAndTimeOfPRD: {
     type: Date, //If need String change it.

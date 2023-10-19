@@ -25,7 +25,6 @@ const QR_codeReader = () => {
           <p>{scanData}</p>
           <div className="d-flex justify-content-center text-align-top-center">
             <h4>Scan QR from below scanner</h4>
-            <button onClick={handleScan}>off</button>
           </div>
           {scanData && (
             <QrReader
