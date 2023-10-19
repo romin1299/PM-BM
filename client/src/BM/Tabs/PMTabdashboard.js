@@ -526,7 +526,7 @@ function App() {
                   element={<PreparationApprovalDashboard />}
                 />
                 <Route
-                  path="/planningApproval"
+                  path="/pm/planningApproval"
                   element={<PlanningApprovalDashboard />}
                 />
                 <Route

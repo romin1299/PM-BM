@@ -181,7 +181,11 @@ const RequestSheetMainDashboard = () => {
     },
     {
       title: "Assign",
-      field: "",
+      field: "abcd",
+      editable: (_, row) => {
+        console.log(row);
+        return false;
+      },
     },
     {
       title: "Final Activity",
