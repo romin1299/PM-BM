@@ -12,7 +12,9 @@ import AdminCreationDashboard from "../pages/Admin/AdminCreationDashboard";
 import OperatorDashboard from "../pages/Operator/OperatorDashboard";
 import SummeryDashboard from "../pages/Dashboard/SummeryDashboard/SummeryDashboard";
 import BMSidebar from "./BMSidebar/BMSidebar";
-import RequestSheet from './Tabs/RequestSheet/MainRequestSheet'
+import RequestSheet from "./Tabs/RequestSheet/MainRequestSheet";
+import RequestSheetMainDashboard from "./RequestSheet/RequestSheetMainDashboard";
+import GenerateRequestSheetMainDashboard from "./RequestSheet/GenerateRequestSheetMainDashboard";
 
 // Define an array of routes for each user type
 const userRoutes = [
@@ -47,7 +49,15 @@ const userRoutes = [
       { path: "/bm", element: <h1>Home Dashboard</h1> },
       { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
       { path: "/bm/userAssign", element: <h1>Users</h1> },
-      { path: "/bm/check-sheet", element: <RequestSheet /> },
+      { path: "/bm/check-sheet/:generateType/:machine_code", element: <RequestSheet /> },
+      {
+        path: "/bm/requestListDashboard",
+        element: <RequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/generateRequestSheetMainDashboard",
+        element: <GenerateRequestSheetMainDashboard />,
+      },
     ],
   },
 ];

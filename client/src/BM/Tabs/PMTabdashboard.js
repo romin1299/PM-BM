@@ -78,6 +78,7 @@ import PmTimeMonitoringReport from "../../pages/Reports/ReportComponents/PmTimeM
 
 //approval dashboards
 import PreparationApprovalDashboard from "../../pages/Section/Checksheet/PreparationApprovalDashboard";
+// import PreparationApprovalDashboard from "../pages/Section/Checksheet/PreparationApprovalDashboard";
 import PlanningApprovalDashboard from "../../pages/Section/Checksheet/PlanningApprovalDashboard";
 import ImplementationApprovalDashboard from "../../pages/Section/Checksheet/ImplementationApprovalDashboard";
 import Footer from "../../components/Footer/Footer";
@@ -525,7 +526,7 @@ function App() {
                   element={<PreparationApprovalDashboard />}
                 />
                 <Route
-                  path="/planningApproval"
+                  path="/pm/planningApproval"
                   element={<PlanningApprovalDashboard />}
                 />
                 <Route
