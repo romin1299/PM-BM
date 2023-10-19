@@ -117,6 +117,7 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
     const requestSheet = new RequestSheetOfBM({
       // ...req.query,
       ..._idObject,
+      requestSheetNoOfBM: req.body?.requestSheetNoOfBM,
       requestSheetCreatedBy: req.rootUser?._id,
       // ...req.body,
       maintenanceType: maintenanceType || "BM",
@@ -144,17 +145,50 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
   }
 });
 
+router.patch("/updateRequestSheet", async (req, res, next) => {
+  let queryObj = {
+    assignOperator: req.body?.assign_user_name,
+  };
+
+  if (
+    req.rootUser?.tm_department === "PRD" &&
+    req.rootUser?.user_type === "TL/HOSS"
+  ) {
+    queryObj = {
+      finalActivity: req.body?.finalActivity,
+      "maintenanceReportFilledByMTD.partQualityCheckedByPRD": req.rootUser?._id,
+      workEndedDateOfBM: new Date(req.body?.workEndedDateOfBM),
+      partQualityStatusOfPRD: req.body?.partQualityStatusOfPRD,
+      partQualityCheckedByMTD: req.body?.partQualityCheckedByMTD,
+      statusPRD_TL: req.body?.statusPRD_TL,
+    };
+  }
+  const requestSheet = await RequestSheetOfBM.findOneAndUpdate(
+    req.query,
+    {
+      $set: queryObj,
+    },
+    {
+      new: true,
+    }
+  );
+
+  res
+    .status(201)
+    .json({ message: "Request-sheet updated successfully", requestSheet });
+});
+
 router.get("/getRequestSheetData", async (req, res, next) => {
   try {
     const requestSheetData = await RequestSheetOfBM.aggregate([
-      {
-        $match: {
-          requestSheetCreatedBy: req.rootUser?._id,
-        },
-      },
+      // {
+      //   $match: {
+      //     requestSheetCreatedBy: req.rootUser?._id,
+      //   },
+      // },
       {
         $lookup: {
-          from: "machines",
+          from: "machinesalldatas",
           localField: "machineRef",
           foreignField: "_id",
           pipeline: [
@@ -235,6 +269,7 @@ router.get("/getRequestSheetData", async (req, res, next) => {
           line: { $arrayElemAt: ["$lines.line_name", 0] },
           machine: { $arrayElemAt: ["$machines.machine_code", 0] },
           problem: "$breakDownBasicDataFilledByPRD.problemFaced",
+          assign_user_name: "$assignOperator",
         },
       },
     ]);
