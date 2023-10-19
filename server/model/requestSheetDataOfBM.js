@@ -80,6 +80,19 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: String,
   },
 
+  assignOperator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+
+  finalActivity: {
+    type: String,
+  },
+
+  statusPRD_TL: {
+    type: String,
+  },
+
   //for MTD TL approval
   approvalOfMTD_TL: {
     type: mongoose.Schema.Types.ObjectId,
@@ -129,7 +142,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     ref: "User",
   },
   partQualityStatusOfPRD: {
-    type: String,
+    type: String, //yes no
   },
   partQualityDateAndTimeOfPRD: {
     type: Date, //If need String change it.
