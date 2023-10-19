@@ -16,7 +16,6 @@ import { Row, Col } from "react-bootstrap";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const LoginComponent = ({ scannedMachineId }) => {
-  console.log("*****", scannedMachineId)
   const [isRevealPwd, setIsRevealPwd] = useState(false);
   const [invalid, setInvalid] = useState();
 
@@ -63,7 +62,8 @@ const LoginComponent = ({ scannedMachineId }) => {
         // window.alert("Login Successful");
         if (scannedMachineId) {
           //call request-sheet component
-          console.log(scannedMachineId);
+          navigate(`/bm/check-sheet/scanned/${scannedMachineId}`);
+          refreshPage();
         } else {
           navigate("/", { replace: true });
           refreshPage();
@@ -82,7 +82,9 @@ const LoginComponent = ({ scannedMachineId }) => {
           {scannedMachineId ? (
             <div>
               <button
-                onClick={() => {navigate("/")}}
+                onClick={() => {
+                  navigate("/");
+                }}
                 className="border-0"
               >
                 <ArrowBackIcon />{" "}

@@ -156,7 +156,7 @@ const GenerateRequestSheetMainDashboard = () => {
   };
 
   const handleNavigationToRequestSheet = ({ machine_code }) => {
-    navigate(`/bm/check-sheet/${machine_code}`);
+    navigate(`/bm/check-sheet/manual/${machine_code}`);
   };
 
   if (reduceState?.dashboardLevel === "Yes") {

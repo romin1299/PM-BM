@@ -43,7 +43,6 @@ function Router() {
     }
     setIsLoading(false);
   };
-
   useEffect(() => {
     isCurrentUser();
     // setIsLoading(true)

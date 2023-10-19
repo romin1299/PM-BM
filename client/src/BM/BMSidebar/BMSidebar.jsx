@@ -130,6 +130,26 @@ const BMSidebar = ({ userData }) => {
             }
           })}
         </Menu>
+        <Menu iconShape="square">
+          <MenuItem
+            className="text"
+            icon={
+              <LogoutIcon
+                className="text-white"
+                style={{ transform: "rotate(180deg)" }}
+              />
+            }
+            onClick={() =>
+              Logout(userData).then((res) => {
+                if (res) {
+                  loggedOut();
+                }
+              })
+            }
+          >
+            Logout
+          </MenuItem>
+        </Menu>
       </SidebarContent>
 
       <SidebarFooter fixed="bottom">
