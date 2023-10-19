@@ -12,6 +12,8 @@ import Footer from "./components/Footer/Footer";
 
 import Scanning from "./ScanningComponent/Scanning";
 import SheetDashboard from "./ScanningComponent/SheetDashboard";
+import QR_codeReader from "./BM/QR_codeReader/QR_codeReader";
+import LoginAfterQrScanned from "./Login/LoginSubComponent/LoginAfterQrScanned";
 
 function Router() {
   const [auth, setauth] = useState();
@@ -80,6 +82,9 @@ function Router() {
             path="/machine-scan/:sheetType/:machineCode"
             element={<SheetDashboard />}
           />
+          <Route path="/BM/qr-scanning" element={<QR_codeReader/>} ></Route>
+          <Route path="/loginAfterScanned/:machineId" element={<LoginAfterQrScanned/>} ></Route>
+
         </Routes>
       )}
     </>

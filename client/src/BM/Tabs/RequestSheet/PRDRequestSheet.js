@@ -8,6 +8,8 @@ import { DropdownButton, Dropdown } from "react-bootstrap";
 
 import { Table } from "react-bootstrap";
 
+import { useParams } from "react-router-dom";
+
 const list = [
   { key: "A", value: "A" },
   { key: "B", value: "B" },
@@ -16,6 +18,10 @@ const list = [
 ];
 
 function MyTable() {
+  // let [searchParams] = useSearchParams();
+
+  const { machine_code } = useParams();
+
   const {
     register,
     handleSubmit,
@@ -73,12 +79,11 @@ function MyTable() {
       console.log(error);
     }
   };
-  const getMachineDetails = async () => {
-    const machineRef = "63b67ccea716e21c95cd471a";
 
+  const getMachineDetails = async () => {
     try {
       const res = await fetch(
-        `/getMachineDetailsOnScanningRequest/?machineRef=${machineRef}`,
+        `/getMachineDetailsOnScanningRequest/?machine_code=${machine_code}`,
         {
           method: "GET",
           headers: {
@@ -99,7 +104,7 @@ function MyTable() {
 
   useEffect(() => {
     getMachineDetails();
-  }, []);
+  }, [machine_code]);
 
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>

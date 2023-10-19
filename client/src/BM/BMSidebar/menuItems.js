@@ -39,12 +39,12 @@ export const menuItems = [
     ],
     allowedDepartments: ["MTD"],
   },
-  {
-    title: "Check Sheet",
-    icon: <SummarizeIcon className="text-white" />,
-    route: "/bm/check-sheet",
-    allowedRoles: ["TL/HOSS", "Plant-Admin"],
-  },
+  // {
+  //   title: "Check Sheet",
+  //   icon: <SummarizeIcon className="text-white" />,
+  //   route: "/bm/check-sheet",
+  //   allowedRoles: ["TL/HOSS", "Plant-Admin"],
+  // },
   {
     title: "Creation",
     icon: <FaThList className="text-white" />,
@@ -176,6 +176,12 @@ export const menuItems = [
     title: "Spare Report",
     icon: <SummarizeIcon className="text-white" />,
     route: "/bm/spareReportDashboard",
+    allowedRoles: ["TL/HOSS"],
+  },
+  {
+    title: "Request-sheet dashboard",
+    icon: <SummarizeIcon className="text-white" />,
+    route: "/bm/requestListDashboard",
     allowedRoles: ["TL/HOSS"],
   },
 ];
