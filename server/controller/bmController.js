@@ -97,7 +97,9 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
         },
       })
       .exec();
+    if (Machine) {
 
+    }
     const _idObject = {
       machineRef: machine?._id,
       lineRef: machine?.line_names?._id,
@@ -617,7 +619,8 @@ router.get(
   },
   functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO
 );
-router.get("/getMachineDetailsOnScanningRequest", async (req, res, next) => {
+router.get("/getMachineDetailsOnScanningRequest/:generateType", async (req, res, next) => {
+
   const machine = await Machine.findOne(req.query)
     .populate({
       path: "line_names",
@@ -638,11 +641,14 @@ router.get("/getMachineDetailsOnScanningRequest", async (req, res, next) => {
     .exec();
 
   // console.log("machine", machine);
-
-  res.status(201).json({
-    message: "Sheet data get successfully",
-    machine,
-  });
+  if (machine) {
+    res.status(201).json({
+      message: "Sheet data get successfully",
+      machine,
+    });
+  } else {
+    res.status(404).json({message :'Machine not found'});
+  }
 });
 
 module.exports = router;

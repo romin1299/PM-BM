@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import denso_log from "../../../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
 import { DropdownButton, Dropdown } from "react-bootstrap";
-
+import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
 
 import { useParams } from "react-router-dom";
@@ -19,8 +19,8 @@ const list = [
 
 function MyTable() {
   // let [searchParams] = useSearchParams();
-
-  const { machine_code } = useParams();
+  const navigate = useNavigate()
+  const { machine_code, generateType } = useParams();
 
   const {
     register,
@@ -83,7 +83,7 @@ function MyTable() {
   const getMachineDetails = async () => {
     try {
       const res = await fetch(
-        `/getMachineDetailsOnScanningRequest/?machine_code=${machine_code}`,
+        `/getMachineDetailsOnScanningRequest/${generateType}/?machine_code=${machine_code}`,
         {
           method: "GET",
           headers: {
@@ -93,10 +93,18 @@ function MyTable() {
           credentials: "include",
         }
       );
-      const { machine } = await res.json();
-      // setMachine(machine);
+      if (res.status === 404) {
+        if (generateType === 'scanned') {
+          navigate('/', { replace: true })
+        } else {
+          navigate('/bm/generateRequestSheetMainDashboard', { replace: true })
+        }
+      } else {
+        const { machine } = await res.json();
+        // setMachine(machine);
+        console.log(machine);
+      }
 
-      console.log(machine);
     } catch (error) {
       console.log(error);
     }
