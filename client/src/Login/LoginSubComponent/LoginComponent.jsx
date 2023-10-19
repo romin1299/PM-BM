@@ -63,10 +63,10 @@ const LoginComponent = ({ scannedMachineId }) => {
         if (scannedMachineId) {
           //call request-sheet component
           navigate(`/bm/check-sheet/scanned/${scannedMachineId}`);
-          refreshPage();
+          // refreshPage();
         } else {
-          navigate("/", { replace: true });
-          refreshPage();
+          navigate("/bm", { replace: true });
+          // refreshPage();
         }
       }
     },
