@@ -6,7 +6,7 @@ import PMTabdashboard from "./BM/Tabs/PMTabdashboard";
 import BM_Routes from "./BM/BM_Routes";
 import "./App.css";
 
-function Dashboard1() {
+function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeKey, setActiveKey] = useState("");
@@ -46,4 +46,4 @@ function Dashboard1() {
   );
 }
 
-export default Dashboard1;
+export default App;

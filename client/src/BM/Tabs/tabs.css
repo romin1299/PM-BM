@@ -1,0 +1,96 @@
+/* Add these styles to your CSS file */
+.cursor {
+    cursor: pointer;
+}
+.plant-button {
+    background-color: #af0040;
+    color: #fff;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+
+  
+
+.section-button {
+    background-color: #004ea3;
+    color: #fff;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.subsection-button {
+    background-color: #00741b;
+    color: #fff;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* Add similar styles for cell, line, and machine buttons if needed */
+/* Add these styles to your CSS file */
+.cell-button {
+    background-color: #e9af00;
+    color: #ffffff;
+    padding: 10px 10px;
+    width: auto;
+    margin-right: 50px;
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.line-button {
+    background-color: #ad1423;
+    color: #fff;
+    padding: 10px 20px;
+    margin-right: 50px;
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.machine-button {
+    background-color: #17a2b8;
+    color: #fff;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+
+
+/* Add these styles to your CSS file */
+.machine-button {
+    background-color: #1096aa;
+    color: #fff;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* Add these styles to your CSS file */
+.active-machine-button {
+    background-color: #6c757d;
+    /* Use a different background color for active state */
+    color: #fff;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
