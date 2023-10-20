@@ -449,7 +449,7 @@ function App() {
                 {context.tm_department === "MTD" ? (
                   <>
                     <Route
-                      path="/checkSheetDashboard"
+                      path="/pm/checkSheetDashboard"
                       element={<CheckSheetDashboard />}
                     />
                     {/* <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} /> */}
