@@ -3,147 +3,215 @@ import { Button, Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../../modules/PageModules";
 import "../RequestSheet.scss";
 
-const ActionList = () => {
-  // State and functions specific to the Actions component
-  const [actions, setActions] = useState([
-    // Initial actions data, you can customize this as needed
-    { id: 1, action: "Action 1" },
-    { id: 2, action: "Action 2" },
-  ]);
-
+const ActionList = ({ actions, setActions }) => {
   const [newActionText, setNewActionText] = useState("");
+  const [newActionStatus, setNewActionStatus] = useState("OK");
   const [isAdding, setIsAdding] = useState(false);
   const [editedAction, setEditedAction] = useState(null);
 
   const addAction = () => {
-    // Add a new action to the list
     if (newActionText.trim() !== "") {
       const newAction = {
         id: Date.now(),
         action: newActionText,
+        status: newActionStatus,
       };
       setActions([...actions, newAction]);
       setNewActionText("");
+      setNewActionStatus("NG");
       setIsAdding(false);
     }
   };
 
-  const updateAction = () => {
-    // Update an existing action
-    if (editedAction.action.trim() !== "") {
-      const updatedActions = actions.map((action) =>
-        action.id === editedAction.id ? editedAction : action
-      );
-      setActions(updatedActions);
-      setEditedAction(null);
-    }
-  };
-
-  const cancelEdit = () => {
-    // Cancel the edit operation
+  const editAction = (actionId, newText) => {
+    const updatedActions = actions.map((action) => {
+      if (action.id === actionId) {
+        return { ...action, action: newText };
+      }
+      return action;
+    });
+    setActions(updatedActions);
     setEditedAction(null);
   };
 
-  const cancelAdd = () => {
-    // Cancel the add operation
-    setNewActionText("");
-    setIsAdding(false);
+  const cancelEdit = () => {
+    setEditedAction(null);
   };
 
   const deleteAction = (actionId) => {
-    // Delete an action
     const updatedActions = actions.filter((action) => action.id !== actionId);
+    setActions(updatedActions);
+  };
+
+  const cancelAdd = () => {
+    setNewActionText("");
+    setNewActionStatus("NG");
+    setIsAdding(false);
+  };
+
+  const handleStatusChange = (actionId, newStatus) => {
+    const updatedActions = actions.map((action) => {
+      if (action.id === actionId) {
+        return { ...action, status: newStatus };
+      }
+      return action;
+    });
     setActions(updatedActions);
   };
 
   return (
     <div className="mtd-actions-section">
-      <Row className="m-0 border">
-        <Col className="d-flex align-items-lg-center gap-1">
-          <b>ACTION & COUNTERMEASURE STEPS: </b>
+      <Row className="m-0">
+        <Col lg={8} className="border col-auto d-flex align-items-center gap-1">
+          <b>ACTION & COUNTERMEASURE STEPS (Dynamic)</b>
         </Col>
-        <Col style={{ cursor: "pointer" }} className="col-auto">
-          <AddBoxIcon onClick={() => setIsAdding(true)} />
+        <Col
+          lg={2}
+          className="border col-auto d-flex align-items-center gap-1 p-1"
+        >
+          <b>Status</b>
+        </Col>
+        <Col
+          lg={2}
+          className="border col-auto d-flex align-items-center gap-1 p-1"
+        >
+          {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
         </Col>
       </Row>
 
-      {actions.map((action, index) =>
-        editedAction && editedAction.id === action.id ? (
-          // Edit mode
-          <Row key={action.id} className="m-0 border">
-            <Col
-              className="d-flex align-items-lg-center gap-1"
-              style={{ fontSize: "14px" }}
-            >
-              <b>{`Action ${index + 1}: `}</b>
+      {actions.map((action, index) => (
+        <Row key={action.id} className="m-0">
+          <Col
+            lg={8}
+            className={`border col-auto d-flex align-items-center gap-1 ${
+              editedAction && editedAction.id === action.id ? "editable" : ""
+            }`}
+          >
+            <b>Action {index + 1}: </b>
+            {editedAction && editedAction.id === action.id ? (
               <input
                 type="text"
                 value={editedAction.action}
                 onChange={(e) =>
-                  setEditedAction({
-                    ...editedAction,
-                    action: e.target.value,
-                  })
+                  setEditedAction({ ...editedAction, action: e.target.value })
                 }
               />
-            </Col>
-            <Col className="col-auto d-flex gap-1 p-1">
-              <button onClick={updateAction}>Update</button>
-              <button onClick={cancelEdit}>Cancel</button>
-            </Col>
-          </Row>
-        ) : (
-          // View mode
-          <Row key={action.id} className="m-0 border">
-            <Col
-              className="d-flex align-items-lg-center gap-1"
-              style={{ fontSize: "14px" }}
-            >
-              <b>{`Action ${index + 1}: `}</b>
-              {action.action}
-            </Col>
-            <Col className="col-auto d-flex gap-1 p-1">
-              <button onClick={() => deleteAction(action.id)}>Delete</button>
-              <button onClick={() => setEditedAction({ ...action })}>
-                Edit
-              </button>
-            </Col>
-          </Row>
-        )
-      )}
-
-      {/* Render the "Add" section */}
-      {isAdding ? (
-        // Add mode
-        <Row className="m-0 border">
+            ) : (
+              action.action
+            )}
+          </Col>
           <Col
-            className="d-flex align-items-lg-center gap-1"
-            style={{ fontSize: "14px" }}
+            lg={2}
+            className="border col-auto d-flex align-items-center gap-1 p-1"
           >
-            <b>{`Action ${actions.length + 1}: `}</b>
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  name={`status-${action.id}`}
+                  value="OK"
+                  checked={action.status === "OK"}
+                  onChange={() => handleStatusChange(action.id, "OK")}
+                />{" "}
+                OK
+              </label>{" "}
+              <label>
+                <input
+                  type="radio"
+                  name={`status-${action.id}`}
+                  value="NG"
+                  checked={action.status === "NG"}
+                  onChange={() => handleStatusChange(action.id, "NG")}
+                />{" "}
+                NG
+              </label>
+            </div>
+          </Col>
+          <Col
+            lg={2}
+            className="border col-auto d-flex align-items-center gap-1 p-1"
+          >
+            {editedAction && editedAction.id === action.id ? (
+              <>
+                <button
+                  onClick={() => editAction(action.id, editedAction.action)}
+                >
+                  Update
+                </button>
+                <button onClick={cancelEdit}>Cancel</button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => deleteAction(action.id)}>Delete</button>
+                <button onClick={() => setEditedAction({ ...action })}>
+                  Edit
+                </button>
+              </>
+            )}
+          </Col>
+        </Row>
+      ))}
+
+      {isAdding ? (
+        <Row className="m-0">
+          <Col
+            lg={8}
+            className="border col-auto d-flex align-items-center gap-1"
+          >
+            <b>Action {actions.length + 1}: </b>
             <input
               type="text"
               value={newActionText}
               onChange={(e) => setNewActionText(e.target.value)}
             />
           </Col>
-          <Col className="col-auto d-flex gap-1 p-1">
+          <Col
+            lg={2}
+            className="border col-auto d-flex align-items-center gap-1 p-1"
+          >
+            {/* <div>
+              <label>
+                <input
+                  type="radio"
+                  name="status-new"
+                  value="OK"
+                  checked={newActionStatus === "OK"}
+                  onChange={() => setNewActionStatus("OK")}
+                />{" "}
+                OK
+              </label>{" "}
+              <label>
+                <input
+                  type="radio"
+                  name="status-new"
+                  value="NG"
+                  checked={newActionStatus === "NG"}
+                  onChange={() => setNewActionStatus("NG")}
+                />{" "}
+                NG
+              </label>
+            </div> */}
+          </Col>
+          <Col
+            lg={2}
+            className="border col-auto d-flex align-items-center gap-1 p-1"
+          >
             <button onClick={addAction}>Add</button>
             <button onClick={cancelAdd}>Cancel</button>
           </Col>
         </Row>
       ) : (
-        // View mode with "Add" button
-        <Row className="m-0 border">
-          <Col className="d-flex justify-content-center align-items-lg-center gap-1 p-1">
-            <AddBoxIcon onClick={() => setIsAdding(true)} />
-          </Col>
+        <Row className="m-0  p-1 border">
+          {/* <Col className="border d-flex  align-items-center gap-1 p-1"> */}
+          {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
+          <button onClick={() => setIsAdding(true)}>Add Action</button>
+
+          {/* </Col> */}
         </Row>
       )}
 
       {Array.from({ length: 2 - actions.length }).map((_, index) => (
-        // Render additional "Add" sections based on the difference
-        <Row key={index} className="m-0 border p-1">
+        <Row key={index} className="m-0 p-1 border">
           <AddBoxIcon onClick={() => setIsAdding(true)} />
         </Row>
       ))}
