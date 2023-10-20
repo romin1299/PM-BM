@@ -29,13 +29,31 @@ function MyTable() {
     // reset,
   } = useForm();
 
-  const [selected, setSelected] = useState({});
-  const handleSelect = (key, event) => {
-    setSelected({ key, value: event.target.value });
+  const [selectedShift, setSelectedShift] = useState({});
+  const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
+  const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
+  const [selectedQuality, setSelectedQuality] = useState("");
+
+  const handleSelectShift = (key, event) => {
+    setSelectedShift({ key, value: event.target.value });
+  };
+
+  const handleMaintenanceType = (event) => {
+    setSelectedMaintenanceType(event.target.value);
+  };
+  const handlePriorityCode = (event) => {
+    setSelectedPriorityCode(event.target.value);
+  };
+  const handleQuality = (event) => {
+    setSelectedQuality(event.target.value);
   };
 
   const newRequestSheetRegistration = async (requestSheetData) => {
     const machineRef = "63b67ccea716e21c95cd471a";
+    requestSheetData.maintenanceType = selectedMaintenanceType;
+    requestSheetData.priorityCode = selectedPriorityCode;
+    requestSheetData.qualityRelated = selectedQuality;
+    requestSheetData.shiftOfBM = selectedShift.key;
     try {
       const res = await fetch(
         `/newRequestSheetRegistration/?machineRef=${machineRef}`,
@@ -127,46 +145,95 @@ function MyTable() {
                 <b>MAINT. TYPE</b>
               </p>
               <Form>
-                {["radio"].map((type) => (
-                  <div key={`inline-${type}`}>
-                    <Form.Check
-                      flex
-                      label="BM"
-                      name="group1"
-                      type={type}
-                      id={`inline-${type}-1`}
-                    />
-                    <Form.Check
-                      flex
-                      label="PM"
-                      name="group1"
-                      type={type}
-                      id={`inline-${type}-2`}
-                    />
-                    <Form.Check
-                      flex
-                      label="CM"
-                      type={type}
-                      id={`inline-${type}-3`}
-                    />
-                    <Form.Check
-                      flex
-                      label="TPM"
-                      type={type}
-                      id={`inline-${type}-3`}
-                    />
-                  </div>
-                ))}
+                <div key={`inline-radio`}>
+                  <Form.Check
+                    flex
+                    label="BM"
+                    name="group1"
+                    type="radio"
+                    id={`inline-radio-1`}
+                    value="BM"
+                    onChange={handleMaintenanceType}
+                    checked={selectedMaintenanceType === "BM"}
+                  />
+                  <Form.Check
+                    flex
+                    label="PM"
+                    name="group1"
+                    type="radio"
+                    id={`inline-radio-2`}
+                    value="PM"
+                    onChange={handleMaintenanceType}
+                    checked={selectedMaintenanceType === "PM"}
+                  />
+                  <Form.Check
+                    flex
+                    label="CM"
+                    type="radio"
+                    id={`inline-radio-3`}
+                    value="CM"
+                    onChange={handleMaintenanceType}
+                    checked={selectedMaintenanceType === "CM"}
+                  />
+                  <Form.Check
+                    flex
+                    label="TPM"
+                    type="radio"
+                    id={`inline-radio-4`}
+                    value="TPM"
+                    onChange={handleMaintenanceType}
+                    checked={selectedMaintenanceType === "TPM"}
+                  />
+                </div>
               </Form>
             </td>
             <td style={{ width: "20%" }} className="mb-0 pb-0 border">
-              <p>PRIORITY CODE (MARK CIRCLE)</p>
-              <ol className="fs-6 fw-normal">
-                <li>EMERGENCY</li>
-                <li>IMPORTANT</li>
-                <li>DATA NEEDED</li>
-                <li>KAIZEN</li>
-              </ol>
+              <p>
+                {" "}
+                <b>PRIORITY CODE</b>
+              </p>
+              <Form>
+                <div key={`inline-radio`}>
+                  <Form.Check
+                    flex
+                    label="EMERGENCY"
+                    name="group1"
+                    type="radio"
+                    id={`inline-radio-1`}
+                    value="EMERGENCY"
+                    onChange={handlePriorityCode}
+                    checked={selectedPriorityCode === "EMERGENCY"}
+                  />
+                  <Form.Check
+                    flex
+                    label="IMPORTANT"
+                    name="group1"
+                    type="radio"
+                    id={`inline-radio-2`}
+                    value="IMPORTANT"
+                    onChange={handlePriorityCode}
+                    checked={selectedPriorityCode === "IMPORTANT"}
+                  />
+                  <Form.Check
+                    flex
+                    label="DATA NEEDED"
+                    type="radio"
+                    id={`inline-radio-3`}
+                    value="DATA NEEDED"
+                    onChange={handlePriorityCode}
+                    checked={selectedPriorityCode === "DATA NEEDED"}
+                  />
+                  <Form.Check
+                    flex
+                    label="KAIZEN"
+                    type="radio"
+                    id={`inline-radio-4`}
+                    value="KAIZEN"
+                    onChange={handlePriorityCode}
+                    checked={selectedPriorityCode === "KAIZEN"}
+                  />
+                </div>
+              </Form>
             </td>
             <td
               colSpan={9}
@@ -551,8 +618,8 @@ function MyTable() {
                       id="dropdown-basic-button"
                       variant="secondary"
                       className="floatRight"
-                      onSelect={handleSelect}
-                      title={selected?.key || list[0].key}
+                      onSelect={handleSelectShift}
+                      title={selectedShift?.key || list[0].key}
                     >
                       {list.map((item, index) => {
                         return (
@@ -581,6 +648,9 @@ function MyTable() {
                           name="group1"
                           type={type}
                           id={`inline-${type}-1`}
+                          value="Yes"
+                          onChange={handleQuality}
+                          checked={selectedQuality === "Yes"}
                         />
                         <Form.Check
                           flex
@@ -588,6 +658,9 @@ function MyTable() {
                           name="group1"
                           type={type}
                           id={`inline-${type}-2`}
+                          value="No"
+                          onChange={handleQuality}
+                          checked={selectedQuality === "No"}
                         />
                       </div>
                     ))}
@@ -600,11 +673,17 @@ function MyTable() {
                     <b>BREAKDOWN ATTENDED BY</b>
                   </p>
                   <input
+                    id="Break"
                     type="text"
-                    id="Dept"
-                    name="deptname"
+                    name="breakdownAttended"
                     style={{ width: "100%" }}
+                    {...register("breakDownAttendedBy", {
+                      required: "This field is required",
+                    })}
                   />
+                  {errors?.["breakDownAttendedBy"] && (
+                    <p>{errors?.["breakDownAttendedBy"]?.message}</p>
+                  )}
                 </Col>
               </Row>
             </td>
