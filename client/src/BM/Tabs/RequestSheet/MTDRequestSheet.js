@@ -7,6 +7,10 @@ import { DropdownButton, Dropdown } from "react-bootstrap";
 import React, { useState } from "react";
 import { Table } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
+import ProblemList from "./SubComponents/ProblemList";
+import ActionList from "./SubComponents/ActionList";
+import PartList from "./SubComponents/PartList";
+import { useForm } from "react-hook-form";
 const list = [
   { key: "A", value: "A" },
   { key: "B", value: "B" },
@@ -16,9 +20,23 @@ const list = [
 
 function MyTable() {
   const [selected, setSelected] = useState({});
-  const handleSelect = (key, event) => {
-    setSelected({ key, value: event.target.value });
-  };
+  const [actions, setActions] = useState([]);
+  const [problems, setProblems] = useState([]);
+  const [parts, setParts] = useState([]);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    // reset,
+  } = useForm();
+
+  var curr = new Date();
+  var currentDate = curr.toISOString().substring(0, 10);
+
+  const currTime = new Date().toLocaleTimeString();
+  console.log("currTime:", currTime);
+
   return (
     <Table bordered className="mb-5">
       <thead>
@@ -58,6 +76,7 @@ function MyTable() {
             </Row>
           </td>
         </tr>
+
         <tr>
           <td colSpan={12}>
             <div className="mb-2">
@@ -75,7 +94,16 @@ function MyTable() {
                           <p className="mb-0">
                             <b>Date: </b>
 
-                            <input type="date" id="date" name="date" />
+                            <input
+                              type="date"
+                              defaultValue={currentDate}
+                              {...register("workStartedDateOfBM", {
+                                required: "Work Start date is required",
+                              })}
+                            />
+                            {errors?.["workStartedDateOfBM"] && (
+                              <p>{errors?.["workStartedDateOfBM"]?.message}</p>
+                            )}
                           </p>
                         </div>{" "}
                         &nbsp;&nbsp;&nbsp;&nbsp;
@@ -83,7 +111,16 @@ function MyTable() {
                           <p className="mb-0">
                             <b>Time: </b>
 
-                            <input type="time" id="time" name="time" />
+                            <input
+                              type="time"
+                              defaultValue={currTime}
+                              {...register("workStartedTimeOfBM", {
+                                required: "Work Start Time is required",
+                              })}
+                            />
+                            {errors?.["workStartedTimeOfBM"] && (
+                              <p>{errors?.["workStartedTimeOfBM"]?.message}</p>
+                            )}
                           </p>
                         </div>
                       </div>
@@ -102,16 +139,32 @@ function MyTable() {
                         <div className="text-center">
                           <p className="mb-0">
                             <b>Date: </b>
-
-                            <input type="date" id="date" name="date" />
+                            <input
+                              type="date"
+                              defaultValue={currentDate}
+                              {...register("workEndedDateOfBM", {
+                                required: "Work Ended date is required",
+                              })}
+                            />
+                            {errors?.["workEndedDateOfBM"] && (
+                              <p>{errors?.["workEndedDateOfBM"]?.message}</p>
+                            )}
                           </p>
                         </div>{" "}
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <div className="text-center">
                           <p className="mb-0">
                             <b>Time: </b>
-
-                            <input type="time" id="time" name="time" />
+                            <input
+                              type="time"
+                              defaultValue={currTime}
+                              {...register("workEndedTimeOfBM", {
+                                required: "Work Ended Time is required",
+                              })}
+                            />
+                            {errors?.["workEndedTimeOfBM"] && (
+                              <p>{errors?.["workEndedTimeOfBM"]?.message}</p>
+                            )}
                           </p>
                         </div>
                       </div>
@@ -151,35 +204,7 @@ function MyTable() {
 
         <tr>
           <td colSpan={8}>
-            <Row className="m-0">
-              <Col className="border d-flex justify-content-between align-items-lg-center">
-                <p className="mb-0">
-                  <b>Problem:</b>
-                </p>
-                <p className="mb-0">
-                  <AddBoxIcon />
-                </p>
-              </Col>
-            </Row>
-            <Row className="m-0">
-              <Col className="border border-top-0">
-                <Row className="border">
-                  <p className="mb-0" style={{ fontSize: "14px" }}>
-                    <b>Problem 1</b>
-                  </p>
-                </Row>
-                <Row className="border">
-                  <p className="mb-0" style={{ fontSize: "14px" }}>
-                    <b>Problem 1</b>
-                  </p>
-                </Row>
-                <Row className="border">
-                  <p className="mb-0" style={{ fontSize: "14px" }}>
-                    <b>Problem 1</b>
-                  </p>
-                </Row>
-              </Col>
-            </Row>
+            <ProblemList problems={problems} setProblems={setProblems} />
 
             <Row className="m-0">
               <Col lg={3} className="border border-top-0 text-center pb-0 pt-2">
@@ -298,36 +323,8 @@ function MyTable() {
                 </Row>
               </Col>
             </Row>
-            <Row className="m-0">
-              <Col lg={8} className="border d-flex justify-content-between align-items-lg-center">
-                <p className="mb-0">
-                  <b>ACTION & COUNTERMEASURE STEPS</b>
-                </p>
-                <p className="mb-0">
-                  <AddBoxIcon />
-                </p>
-              </Col>
-              <Col lg={4} className="border d-flex justify-content-between align-items-lg-center">
-                <p className="mb-0">
-                  <b>Status</b>
-                </p>
-                <p className="mb-0"></p>
-              </Col>
-            </Row>
-            <Row className="m-0">
-              <Col  lg={8} className="border d-flex justify-content-between align-items-lg-center">
-                <p className="mb-0">
-                  <b>Action 1</b>
-                </p>
-                
-              </Col>
-              <Col  lg={4} className="border d-flex justify-content-between align-items-lg-center">
-                <p className="mb-0">
-                  <b>Status</b>
-                </p>
-                <p className="mb-0">Edit/Delete</p>
-              </Col>
-            </Row>
+
+            {/* <ActionList actions={actions} setActions={setActions} /> */}
           </td>
           <td colSpan={4}>
             <Row className="m-0">
@@ -539,6 +536,55 @@ function MyTable() {
                 </Form>
               </Col>
             </Row>
+          </td>
+        </tr>
+
+        <tr>
+          <td colSpan={8}>
+            <ActionList actions={actions} setActions={setActions} />
+          </td>
+          <td colSpan={8}>
+            <Row className="m-0">
+              <Col className="border">
+                <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
+              </Col>
+            </Row>
+            <Row className="m-0 p-1 border">
+              <AddBoxIcon onClick={() => {}} />
+            </Row>
+            <Row className="m-0 p-1 border">
+              <AddBoxIcon onClick={() => {}} />
+            </Row>
+            <Row className="m-0">
+              <Col className="border">
+                <b>YOKOTENKAI</b>
+              </Col>
+            </Row>
+            <Row className="m-0 p-1 border">
+              <AddBoxIcon onClick={() => {}} />
+            </Row>
+            <Row className="m-0 p-1 border">
+              <AddBoxIcon onClick={() => {}} />
+            </Row>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <Row className="">
+              <b
+                style={{
+                  writingMode: "vertical-lr",
+                  transform: "rotate(180deg)",
+                  whiteSpace: "normal",
+                }}
+              >
+                CHANGED PARTS
+              </b>
+            </Row>
+          </td>
+          <td>
+            <PartList parts={parts} setParts={setParts} />
           </td>
         </tr>
       </tbody>
