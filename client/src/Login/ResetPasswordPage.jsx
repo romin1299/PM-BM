@@ -61,7 +61,7 @@ function ResetPasswordPage() {
     <>
       <div className="mains">
         <div className="containers">
-          <div className="wrappers">
+          <div className="wrappers" style={{ padding: "4rem 2.5rem" }}>
             <div style={{ textAlign: "left", paddingBottom: "1rem"}}>
               <a href="/" style={{ textDecoration: "none", color: "black" }}>
                 <KeyboardBackspaceIcon style={{ marginRight: "0.2rem" }} />

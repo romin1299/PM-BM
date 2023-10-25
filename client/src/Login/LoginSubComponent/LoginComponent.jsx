@@ -78,7 +78,7 @@ const LoginComponent = ({ scannedMachineId }) => {
   return (
     <>
       <div className="containers">
-        <div className="wrappers">
+        <div className="wrappers" style={{ padding: "4rem 2.5rem" }}>
           {scannedMachineId ? (
             <div>
               <button
@@ -95,7 +95,7 @@ const LoginComponent = ({ scannedMachineId }) => {
           )}
           <center>
             <img
-              style={{ textAlign: "center" }}
+              style={{ textAlign: "center", marginBottom: "3rem" }}
               className="denso_logo"
               src={denso_logo}
               alt=""
