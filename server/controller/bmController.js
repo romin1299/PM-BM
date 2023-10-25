@@ -100,33 +100,55 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
       const existingPRDRequestSheet = await RequestSheetOfBM.findOne({
         _id: req.query.reqId,
       });
+
       const {
         workStartedDateOfBM,
         workEndedDateOfBM,
+        workStartedTimeOfBM,
+        workEndedTimeOfBM,
         problemsOfBM,
-        whyAnalysis,
-        breakDownTime,
+        why1,
+        why2,
+        why3,
+        why4,
+        why5,
         maintenanceTime,
         qualityCheckTime,
         breakTime,
+        breakDownTime,
         minorBD,
         majorBD,
         firstTime,
         repeat,
+        requestReceivedMTD,
+        dataSheetOfBM,
+        drawingOfBM,
+        qualityConfirmed,
+        MTD_TL,
+        sectionIncharge,
+        feedbackMTD,
+        partQualityCheckedByPRD,
         actionAndCounterMeasureStep,
         changedParts,
       } = req.body;
 
-      // const combinedDateTimeString = `${workStartedDateOfBM}T${requestSheettime}`;
-      // const requestSheetDateTime = new Date(combinedDateTimeString);
+      const startDateTimeBM = `${workStartedDateOfBM}T${workStartedTimeOfBM}`;
+      const endDateTimeBM = `${workEndedDateOfBM}T${workEndedTimeOfBM}`;
+      const requestSheetStartDateTime = new Date(startDateTimeBM);
+      const requestSheetEndDateTime = new Date(endDateTimeBM);
 
       if (existingPRDRequestSheet) {
-        existingPRDRequestSheet.maintenanceReportFilledByMTD = {
-          workStartedDateOfBM,
-          workEndedDateOfBM,
+        (existingPRDRequestSheet.maintenanceReportFilledByMTD = {
+          workStartedDateOfBM: requestSheetStartDateTime,
+          workEndedDateOfBM: requestSheetEndDateTime,
           actionAndCounterMeasureStep,
           problemsOfBM,
-          whyAnalysis,
+          "whyAnalysis.why1": why1,
+          "whyAnalysis.why2": why2,
+          "whyAnalysis.why3": why3,
+          "whyAnalysis.why4": why4,
+          "whyAnalysis.why5": why5,
+
           breakDownTime,
           maintenanceTime,
           qualityCheckTime,
@@ -135,11 +157,21 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
           majorBD,
           firstTime,
           repeat,
-        };
-        existingPRDRequestSheet.changedParts = changedParts;
-
-        await existingPRDRequestSheet.save();
+        }),
+          (existingPRDRequestSheet.changedParts = changedParts),
+          (existingPRDRequestSheet.requestReceivedMTD = requestReceivedMTD),
+          (existingPRDRequestSheet.MTD_TL = MTD_TL),
+          (existingPRDRequestSheet.sectionIncharge = sectionIncharge),
+          (existingPRDRequestSheet.feedbackMTD = feedbackMTD),
+          // (existingPRDRequestSheet.partQualityCheckedByPRD = req.rootUser._id),
+          // (existingPRDRequestSheet.partQualityByMTD = partQualityByMTD),
+          (existingPRDRequestSheet.dataSheetOfBM = dataSheetOfBM),
+          (existingPRDRequestSheet.drawingOfBM = drawingOfBM),
+          (existingPRDRequestSheet.qualityConfirmed = qualityConfirmed),
+          await existingPRDRequestSheet.save();
         requestSheet = existingPRDRequestSheet;
+
+       
       }
     } else {
       const {
