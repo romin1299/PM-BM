@@ -1,15 +1,25 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useState, useEffect, useReducer, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
+import { RadioGroup } from "@mui/material";
+import TextField from "@material-ui/core/TextField";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
+
+import RoutingContext from "../../context/routing/RoutingContext";
+
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
 
 const RequestSheetMainDashboard = () => {
   const navigate = useNavigate();
+
+  const context = useContext(RoutingContext);
 
   const initialState = {
     requestSheetData: [],
@@ -19,6 +29,8 @@ const RequestSheetMainDashboard = () => {
       total_request_sheet_count: 0,
     },
     message: "",
+
+    userDropdown: [],
 
     isAddRequestSheet: false,
     isUpdateRequestSheet: false,
@@ -30,6 +42,7 @@ const RequestSheetMainDashboard = () => {
     ADD: "add-row",
     UPDATE: "update-row",
     DELETE: "delete-popup",
+    SETUP_USERS: "set-user-dropdown-value",
   };
 
   const reducer = (state, action) => {
@@ -58,6 +71,12 @@ const RequestSheetMainDashboard = () => {
         return {
           ...state,
           isUpdateRequestSheet: !state?.isUpdateRequestSheet,
+        };
+
+      case ACTION?.SETUP_USERS:
+        return {
+          ...state,
+          userDropdown: action?.users,
         };
 
       default:
@@ -120,7 +139,9 @@ const RequestSheetMainDashboard = () => {
   const getUserDetails = async () => {
     try {
       const res = await fetch(
-        `/getUserDetails?tm_department=PRD&&user_type=TL%2FHOSS`, // %2F is for "/"
+        context?.tm_department === "MTD" && context?.user_type === "TL/HOSS"
+          ? `/getUserDetails?user_type=Operator`
+          : `/getUserDetails?tm_department=MTD&&user_type=TL%2FHOSS`, // %2F is for "/"
         {
           method: "GET",
           headers: {
@@ -133,7 +154,33 @@ const RequestSheetMainDashboard = () => {
 
       const { message, users } = await res.json();
 
+      reducerDispatch({
+        type: ACTION.SETUP_USERS,
+        users,
+      });
       console.log(message, users);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateRequestSheet = async (updatedRow) => {
+    try {
+      const res = await fetch(`/updateRequestSheet/?_id=${updatedRow?._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedRow),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 201) {
+        console.log(data);
+      } else {
+        console.log("error", data);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -147,6 +194,37 @@ const RequestSheetMainDashboard = () => {
   const handleGenerateBMNavigation = async () => {
     navigate(`/bm/generateRequestSheetMainDashboard`);
   };
+
+  const conditionalBasedEditableFunctionForPRD = (_, row) => {
+    if (
+      context?.tm_department === "PRD" &&
+      context?.user_type === "TL/HOSS" &&
+      row?.Operator
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  const dropDownComponent = ({ value, onChange }) => (
+    <select
+      aria-label=".form-select-sm example"
+      id="standard-select-currency"
+      name={value}
+      fullWidth
+      select
+      autoComplete="off"
+      onChange={(e) => onChange(e.target.value)}
+      variant="standard"
+    >
+      <option selected disabled value="">
+        Please select
+      </option>
+      {reduceState?.userDropdown?.map((option) => {
+        return <option value={option?._id}>{option?.tm_name}</option>;
+      })}
+    </select>
+  );
 
   const requestSheetHeader = [
     {
@@ -180,32 +258,105 @@ const RequestSheetMainDashboard = () => {
       editable: false,
     },
     {
+      title: "Date-time",
+      field: "problemOccurredDateAndTimeOfBM",
+      editable: false,
+    },
+    {
       title: "Assign",
-      field: "abcd",
-      editable: (_, row) => {
-        console.log(row);
-        return false;
-      },
+      field: "Operator",
+      editable:
+        context?.tm_department === "MTD" && context?.user_type === "TL/HOSS"
+          ? "always"
+          : "never",
+      editComponent: dropDownComponent,
     },
     {
       title: "Final Activity",
-      field: "",
+      field: "finalActivity",
+      editable: conditionalBasedEditableFunctionForPRD,
     },
     {
       title: "End Date-Time",
-      field: "",
+      field: "problemOccurredDateAndTimeOfBM",
+      editComponent: ({ value, onChange }) => (
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <MobileDateTimePicker
+            renderInput={(props) => (
+              <input className="text-field mt-0" value={value} {...props} />
+            )}
+            value={value}
+            onChange={(problemOccurredDateAndTimeOfBM) => {
+              onChange(problemOccurredDateAndTimeOfBM.toString());
+            }}
+          />
+        </LocalizationProvider>
+      ),
+      editable: conditionalBasedEditableFunctionForPRD,
     },
     {
       title: "PRD Quality Check",
-      field: "",
+      field: "PRDUser",
+      editable: conditionalBasedEditableFunctionForPRD,
+      editComponent: ({ value, onChange }) => (
+        <RadioGroup
+          row
+          aria-labelledby="demo-row-radio-buttons-group-label"
+          name="row-radio-buttons-group"
+          style={{ marginTop: "0.2rem" }}
+        >
+          <div>
+            <input
+              type="radio"
+              name="PRDUser"
+              value="Yes"
+              onChange={(e) => onChange(e.target.value)}
+            />
+            <span for="html" className="m-2">
+              Yes
+            </span>
+            <input
+              type="radio"
+              name="PRDUser"
+              value="No"
+              onChange={(e) => onChange(e.target.value)}
+            />
+            <span for="html" className="m-2">
+              No
+            </span>
+          </div>
+        </RadioGroup>
+      ),
     },
     {
       title: "MTD Quality Check",
-      field: "",
+      field: "MTDUser",
+      editable: conditionalBasedEditableFunctionForPRD,
+      editComponent: dropDownComponent,
     },
     {
       title: "Status",
-      field: "",
+      field: "statusPRD_TL",
+      editable: conditionalBasedEditableFunctionForPRD,
+      editComponent: ({ value, onChange }) => (
+        <select
+          aria-label=".form-select-sm example"
+          id="standard-select-currency"
+          name="statusPRD_TL"
+          fullWidth
+          select
+          autoComplete="off"
+          onChange={(e) => onChange(e.target.value)}
+          variant="standard"
+        >
+          <option selected disabled value="">
+            Please select
+          </option>
+          {["NG", "Under Observation", "OK"].map((option) => {
+            return <option value={option}>{option}</option>;
+          })}
+        </select>
+      ),
     },
   ];
 
@@ -246,10 +397,10 @@ const RequestSheetMainDashboard = () => {
             Total Request: {reduceState?.counters?.total_request_sheet_count}
           </Col>
           <Col>
-            Total Request: {reduceState?.counters?.open_request_sheet_count}
+            Open Request: {reduceState?.counters?.open_request_sheet_count}
           </Col>
           <Col>
-            Total Request: {reduceState?.counters?.closed_request_sheet_count}
+            Closed Request: {reduceState?.counters?.closed_request_sheet_count}
           </Col>
         </Row>
 
@@ -272,13 +423,13 @@ const RequestSheetMainDashboard = () => {
             // tableRef={this.tableRef.current.onQueryChange()}
 
             editable={{
-              onRowAdd: (newRow) =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    resolve();
-                  }, 500);
-                  //refreshPage();
-                }),
+              // onRowAdd: (newRow) =>
+              //   new Promise((resolve, reject) => {
+              //     setTimeout(() => {
+              //       resolve();
+              //     }, 500);
+              //     //refreshPage();
+              //   }),
 
               onRowDelete: (selectedRow) =>
                 new Promise((resolve, reject) => {
@@ -292,6 +443,8 @@ const RequestSheetMainDashboard = () => {
                   const index = oldRow.tableData.id;
                   // const updatedRows = [...subSectionList.subSectionsInfo];
                   // updatedRows[index] = updatedRow;
+
+                  updateRequestSheet(updatedRow);
 
                   setTimeout(() => {
                     resolve();

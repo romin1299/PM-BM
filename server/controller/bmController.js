@@ -230,99 +230,38 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
   }
 });
 
-// NOTE : API not in use
-router.post(
-  "/newRequestSheetRegistrationMTD/:mtdid",
-  async (req, res, next) => {
-    const {
-      workStartedDateOfBM,
-      workEndedDateOfBM,
-      problemsOfBM,
-      whyAnalysis,
-      breakDownTime,
-      maintenanceTime,
-      qualityCheckTime,
-      breakTime,
-      minorBD,
-      majorBD,
-      firstTime,
-      repeat,
-      actionAndCounterMeasureStep,
-      changedParts,
-    } = req.body;
+router.patch("/updateRequestSheet", async (req, res, next) => {
+  let queryObj = {
+    assignOperator: req.body?.assign_user_name,
+  };
 
-    try {
-      const machine = await Machine.findOne({
-        _id: req.params?.mtdid,
-      })
-        .populate({
-          path: "line_names",
-          populate: {
-            path: "cell_names",
-            populate: {
-              path: "subSection_names",
-              populate: {
-                path: "section_names",
-                populate: {
-                  path: "plant_names",
-                  model: "Plants",
-                },
-              },
-            },
-          },
-        })
-        .exec();
-
-      if (!machine) {
-        // Handle the case where the machine is not found
-        res.status(404).json({ message: "Machine not found" });
-        return;
-      }
-
-      const _idObject = {
-        machineRef: machine._id,
-        lineRef: machine.line_names._id,
-        cellRef: machine.line_names.cell_names._id,
-        subSectionRef: machine.line_names.cell_names.subSection_names._id,
-        sectionRef:
-          machine.line_names.cell_names.subSection_names.section_names._id,
-        plantRef:
-          machine.line_names.cell_names.subSection_names.section_names
-            .plant_names._id,
-      };
-
-      const requestSheet = new RequestSheetOfBM({
-        // ...req.query,
-        // ..._idObject,
-        maintenanceReportFilledByMTD: {
-          workStartedDateOfBM,
-          workEndedDateOfBM,
-          actionAndCounterMeasureStep,
-          problemsOfBM,
-          whyAnalysis,
-          breakDownTime,
-          maintenanceTime,
-          qualityCheckTime,
-          breakTime,
-          minorBD,
-          majorBD,
-          firstTime,
-          repeat,
-        },
-        changedParts,
-      });
-
-      await requestSheet.save();
-
-      res.status(201).json({
-        message: "Request-sheet generated successfully",
-        requestSheet,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
+  if (
+    req.rootUser?.tm_department === "PRD" &&
+    req.rootUser?.user_type === "TL/HOSS"
+  ) {
+    queryObj = {
+      finalActivity: req.body?.finalActivity,
+      "maintenanceReportFilledByMTD.partQualityCheckedByPRD": req.rootUser?._id,
+      workEndedDateOfBM: new Date(req.body?.problemOccurredDateAndTimeOfBM),
+      partQualityStatusOfPRD: req.body?.PRDUser,
+      partQualityCheckedByMTD: req.body?.MTDUser,
+      statusPRD_TL: req.body?.statusPRD_TL,
+    };
   }
-);
+  const requestSheet = await RequestSheetOfBM.findOneAndUpdate(
+    req.query,
+    {
+      $set: queryObj,
+    },
+    {
+      new: true,
+    }
+  );
+
+  res
+    .status(201)
+    .json({ message: "Request-sheet updated successfully", requestSheet });
+});
 
 router.get("/getRequestSheetData", async (req, res, next) => {
   try {
