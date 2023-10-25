@@ -4,7 +4,7 @@ import denso_log from "../../../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
 import { DropdownButton, Dropdown } from "react-bootstrap";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import ProblemList from "./SubComponents/ProblemList";
@@ -34,8 +34,8 @@ function MyTable() {
   const [selectedQuality, setSelectedQuality] = useState("");
   const [selectedDataSheet, setSelectedDataSheet] = useState("");
   const [selectedDrawing, setSelectedDrawing] = useState("");
-  const [selectedMajor, setSelectedMajor] = useState("");
-  const [selectedMinor, setSelectedMinor] = useState("");
+  const [selectedMajor, setSelectedMajor] = useState("Yes");
+  const [selectedMinor, setSelectedMinor] = useState("No");
   const [selectedFirstTime, setSelectedFirstTime] = useState("");
   const [selectedRepeat, setSelectedRepeat] = useState("");
   const [selectedStartTime, setSelectedStartTime] = useState("");
@@ -43,6 +43,7 @@ function MyTable() {
   const [selectedMaintenanceTime, setSelectedMaintenanceTime] = useState("");
   const [selectedQualityCheckTime, setSelectedQualityCheckTime] = useState("");
   const [selectedBreakTime, setSelectedBreakTime] = useState("");
+  const [totalTime, setTotalTime] = useState(0);
 
   const handleQuality = (event) => {
     setSelectedQuality(event.target.value);
@@ -54,12 +55,12 @@ function MyTable() {
     setSelectedDrawing(event.target.value);
   };
 
-  const handleMajor = (event) => {
-    setSelectedMajor(event.target.value);
-  };
-  const handleMinor = (event) => {
-    setSelectedMinor(event.target.value);
-  };
+  // const handleMajor = (event) => {
+  //   setSelectedMajor(event.target.value);
+  // };
+  // const handleMinor = (event) => {
+  //   setSelectedMinor(event.target.value);
+  // };
   const handleFirstTime = (event) => {
     setSelectedFirstTime(event.target.value);
   };
@@ -91,7 +92,6 @@ function MyTable() {
   var startTimeParts = selectedStartTime.split(":");
   var endTimeParts = selectedEndTime.split(":");
 
-  
   var startDate = new Date();
   startDate.setHours(parseInt(startTimeParts[0], 10));
   startDate.setMinutes(parseInt(startTimeParts[1], 10));
@@ -146,6 +146,23 @@ function MyTable() {
       console.log(error);
     }
   };
+  useEffect(() => {
+    if (timeDifferenceMinutes > 120) {
+      setSelectedMajor("Yes");
+      setSelectedMinor("No");
+    } else {
+      setSelectedMajor("No");
+      setSelectedMinor("Yes");
+    }
+  }, [timeDifferenceMinutes]);
+
+  useEffect(() => {
+    const maintenanceTime = parseInt(selectedMaintenanceTime) || 0;
+    const qualityCheckTime = parseInt(selectedQualityCheckTime) || 0;
+    const breakTime = parseInt(selectedBreakTime) || 0;
+    const totalTime = maintenanceTime + qualityCheckTime + breakTime;
+    setTotalTime(totalTime);
+  }, [selectedMaintenanceTime, selectedQualityCheckTime, selectedBreakTime]);
 
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
@@ -420,6 +437,9 @@ function MyTable() {
                   )}
                 </Col>
               </Row>
+              {totalTime > timeDifferenceMinutes && (
+                <p style={{ color: "red" }}>Total time exceeds!!!</p>
+              )}
               <Row className="m-0">
                 <Col className="border">
                   <Row className="d-flex align-items-center justify-content-center">
@@ -435,20 +455,30 @@ function MyTable() {
                             <Form.Check
                               flex
                               label="Yes"
-                              name="group1"
+                              name="majorRadio"
                               type={type}
                               value="Yes"
                               id={`inline-${type}-1`}
-                              onChange={handleMajor}
+                              // onChange={handleMajor}
+                              checked={selectedMajor === "Yes"}
+                              onChange={() => {
+                                setSelectedMajor("Yes");
+                                setSelectedMinor("No");
+                              }}
                             />
                             <Form.Check
                               flex
                               label="No"
-                              name="group1"
+                              name="majorRadio"
                               type={type}
                               value="No"
                               id={`inline-${type}-2`}
-                              onChange={handleMajor}
+                              // onChange={handleMajor}
+                              checked={selectedMajor === "No"}
+                              onChange={() => {
+                                setSelectedMajor("No");
+                                setSelectedMinor("Yes");
+                              }}
                             />
                           </div>
                         ))}
@@ -507,20 +537,31 @@ function MyTable() {
                             <Form.Check
                               flex
                               label="Yes"
-                              name="group1"
+                              name="minorRadio"
                               type={type}
                               // value="Yes"
                               id={`inline-${type}-1`}
-                              onChange={handleMinor}
+                              // onChange={handleMinor}
+                              checked={selectedMinor === "Yes"}
+                              onChange={() => {
+                                setSelectedMajor("No");
+                                setSelectedMinor("Yes");
+                              }}
                             />
+                            {/* {console.log(selectedMinor === "Yes")} */}
                             <Form.Check
                               flex
                               label="No"
-                              name="group1"
+                              name="minorRadio"
                               type={type}
                               // value="No"
                               id={`inline-${type}-2`}
-                              onChange={handleMinor}
+                              // onChange={handleMinor}
+                              checked={selectedMinor === "No"}
+                              onChange={() => {
+                                setSelectedMajor("Yes");
+                                setSelectedMinor("No");
+                              }}
                             />
                           </div>
                         ))}
