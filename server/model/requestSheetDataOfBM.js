@@ -246,18 +246,18 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     ref: "Plants",
   },
 
-  assignOperator: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
+  // assignOperator: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "User",
+  // },
 
-  finalActivity: {
-    type: String,
-  },
+  // finalActivity: {
+  //   type: String,
+  // },
 
-  statusPRD_TL: {
-    type: String,
-  },
+  // statusPRD_TL: {
+  //   type: String,
+  // },
 });
 
 const RequestSheetOfBM = new mongoose.model(

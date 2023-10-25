@@ -1,7 +1,8 @@
-import React, { useEffect, useReducer, useContext } from "react";
+import React, { useState, useEffect, useReducer, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import { RadioGroup } from "@mui/material";
+import TextField from "@material-ui/core/TextField";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
@@ -198,7 +199,7 @@ const RequestSheetMainDashboard = () => {
     if (
       context?.tm_department === "PRD" &&
       context?.user_type === "TL/HOSS" &&
-      row?.assign_user_name
+      row?.Operator
     ) {
       return true;
     }
@@ -258,12 +259,12 @@ const RequestSheetMainDashboard = () => {
     },
     {
       title: "Date-time",
-      field: "",
+      field: "problemOccurredDateAndTimeOfBM",
       editable: false,
     },
     {
       title: "Assign",
-      field: "assign_user_name",
+      field: "Operator",
       editable:
         context?.tm_department === "MTD" && context?.user_type === "TL/HOSS"
           ? "always"
@@ -277,14 +278,17 @@ const RequestSheetMainDashboard = () => {
     },
     {
       title: "End Date-Time",
-      field: "workEndedDateOfBM",
+      field: "problemOccurredDateAndTimeOfBM",
       editComponent: ({ value, onChange }) => (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <MobileDateTimePicker
             renderInput={(props) => (
               <input className="text-field mt-0" value={value} {...props} />
             )}
-            onChange={(timeStamp) => onChange(timeStamp)}
+            value={value}
+            onChange={(problemOccurredDateAndTimeOfBM) => {
+              onChange(problemOccurredDateAndTimeOfBM.toString());
+            }}
           />
         </LocalizationProvider>
       ),
@@ -292,9 +296,8 @@ const RequestSheetMainDashboard = () => {
     },
     {
       title: "PRD Quality Check",
-      field: "partQualityStatusOfPRD",
+      field: "PRDUser",
       editable: conditionalBasedEditableFunctionForPRD,
-
       editComponent: ({ value, onChange }) => (
         <RadioGroup
           row
@@ -305,7 +308,7 @@ const RequestSheetMainDashboard = () => {
           <div>
             <input
               type="radio"
-              name="dashboardLevel"
+              name="PRDUser"
               value="Yes"
               onChange={(e) => onChange(e.target.value)}
             />
@@ -314,7 +317,7 @@ const RequestSheetMainDashboard = () => {
             </span>
             <input
               type="radio"
-              name="dashboardLevel"
+              name="PRDUser"
               value="No"
               onChange={(e) => onChange(e.target.value)}
             />
@@ -327,7 +330,7 @@ const RequestSheetMainDashboard = () => {
     },
     {
       title: "MTD Quality Check",
-      field: "partQualityCheckedByMTD",
+      field: "MTDUser",
       editable: conditionalBasedEditableFunctionForPRD,
       editComponent: dropDownComponent,
     },
@@ -339,7 +342,7 @@ const RequestSheetMainDashboard = () => {
         <select
           aria-label=".form-select-sm example"
           id="standard-select-currency"
-          name="monthList"
+          name="statusPRD_TL"
           fullWidth
           select
           autoComplete="off"

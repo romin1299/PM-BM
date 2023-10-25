@@ -166,9 +166,9 @@ router.patch("/updateRequestSheet", async (req, res, next) => {
     queryObj = {
       finalActivity: req.body?.finalActivity,
       "maintenanceReportFilledByMTD.partQualityCheckedByPRD": req.rootUser?._id,
-      workEndedDateOfBM: new Date(req.body?.workEndedDateOfBM),
-      partQualityStatusOfPRD: req.body?.partQualityStatusOfPRD,
-      partQualityCheckedByMTD: req.body?.partQualityCheckedByMTD,
+      workEndedDateOfBM: new Date(req.body?.problemOccurredDateAndTimeOfBM),
+      partQualityStatusOfPRD: req.body?.PRDUser,
+      partQualityCheckedByMTD: req.body?.MTDUser,
       statusPRD_TL: req.body?.statusPRD_TL,
     };
   }
