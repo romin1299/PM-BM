@@ -371,7 +371,7 @@ function MyTable() {
                     BREAKDOWN TIME
                   </p>
 
-                  <p>{timeDifferenceMinutes}</p>
+                  <p>{timeDifferenceMinutes || null}</p>
                 </Col>
                 <Col
                   lg={3}
@@ -886,21 +886,89 @@ function MyTable() {
           </tr>
 
           <tr>
-            <td>
-              <Row className="">
-                <b
-                  style={{
-                    writingMode: "vertical-lr",
-                    transform: "rotate(180deg)",
-                    whiteSpace: "normal",
-                  }}
-                >
-                  CHANGED PARTS
-                </b>
+            <td colSpan={16}>
+              <Row>
+                <Col className="col-auto">
+                  <Row className="ms-0 border p-1">
+                    <b
+                      style={{
+                        writingMode: "vertical-rl",
+                        transform: "rotate(180deg)",
+                        whiteSpace: "normal",
+                      }}
+                    >
+                      CHANGED PARTS
+                    </b>
+                  </Row>
+                </Col>
+                <Col>
+                  <Row className="">
+                    <PartList parts={parts} setParts={setParts} />
+                  </Row>
+                </Col>
               </Row>
             </td>
-            <td>
-              <PartList parts={parts} setParts={setParts} />
+          </tr>
+
+          <tr>
+            <td colSpan={16}>
+              <Row className="m-0">
+                <Col lg={4} className="border">
+                  <Row>
+                    <b className="text-decoration-underline">NOTE:</b>
+                  </Row>
+                  <Row>
+                    <span>* IN CASE OF MAJOR BREKDOWN, IT IS NECESSARY TO</span>
+                    <span>GET THE SIGNATURE OF "GM-PRD" & "GM-MTD" IN</span>
+                    <span>"CHECKED BY" BOX.</span>
+                    <span>** PART QUALITY RELATED TO MAINTENANCE WORK.</span>
+                  </Row>
+                </Col>
+
+                <Col lg={8} className="border">
+                  <Row>
+                    <Col className="text-center border p-1">
+                      <b>CHECKED BY</b>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col className="border p-1 text-center">
+                      <b>* GM-MTD</b>
+                    </Col>
+                    <Col className="border p-1 text-center">
+                      <b>* GM-PRD</b>
+                    </Col>
+                    <Col className="border p-1 text-center">
+                      <b>SECTION INCHARGE (PRD)</b>
+                    </Col>
+                    <Col className="border p-1 text-center">
+                      <b>TEAM LEADER (PRD)</b>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col className="border">
+                      <div className="p-1">
+                        <input className="w-100" type="text" />
+                      </div>
+                    </Col>
+                    <Col className="border">
+                      <div className="p-1">
+                        <input className="w-100" type="text" />
+                      </div>
+                    </Col>
+                    <Col className="border">
+                      <div className="p-1">
+                        <input className="w-100" type="text" />
+                      </div>
+                    </Col>
+                    <Col className="border">
+                      <div className="p-1">
+                        <input className="w-100" type="text" />
+                      </div>
+                    </Col>
+                  </Row>
+                </Col>
+              </Row>
             </td>
           </tr>
         </tbody>
