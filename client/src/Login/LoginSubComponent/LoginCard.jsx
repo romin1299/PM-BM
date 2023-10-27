@@ -62,7 +62,7 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
           navigate(`/bm/check-sheet/scanned/${scannedMachineId}`);
           // refreshPage();
         } else {
-          navigate("/bm", { replace: true });
+          navigate("/pm", { replace: true });
           // refreshPage();
         }
       }

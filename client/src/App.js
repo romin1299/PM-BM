@@ -11,12 +11,11 @@ function Dashboard1() {
   const location = useLocation();
   const [activeKey, setActiveKey] = useState("");
 
-  const handleTabSelect = (k) => {
-    navigate(k);
+  const handleTabSelect = (key) => {
+    navigate(key);
   };
 
   useEffect(() => {
-    // Extract the part of the path you want as the active key
     const pathParts = location.pathname.split("/");
     setActiveKey(pathParts[1]);
   }, [location.pathname]);
@@ -26,7 +25,7 @@ function Dashboard1() {
       <Tabs
         activeKey={activeKey}
         onSelect={handleTabSelect}
-        id="uncontrolled-tab-example"
+        id="application-tabs"
       >
         <Tab eventKey="pm" title="Preventive Maintenance">
           <div className="scrollable-content">
@@ -39,8 +38,6 @@ function Dashboard1() {
             <BM_Routes />
           </div>
         </Tab>
-
-        {/* Add more tabs as needed */}
       </Tabs>
     </div>
   );
