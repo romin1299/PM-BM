@@ -4,6 +4,8 @@ import { Tabs, Tab } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import PMTabdashboard from "./BM/Tabs/PMTabdashboard";
 import BM_Routes from "./BM/BM_Routes";
+import Dropdown from "./BM/Tabs/Dropdown";
+
 import "./App.css";
 
 function App() {
@@ -37,6 +39,12 @@ function App() {
         <Tab eventKey="bm" title="Breakdown Maintenance">
           <div className="scrollable-content">
             <BM_Routes />
+          </div>
+        </Tab>
+
+        <Tab eventKey="dropdown" title="Dropdown">
+          <div className="scrollable-content">
+            <Dropdown />
           </div>
         </Tab>
 

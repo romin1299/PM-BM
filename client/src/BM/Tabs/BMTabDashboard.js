@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "./tabs.css";
-import { Row, Col } from "react-bootstrap";
+import { Row, Col, Button, Card } from "react-bootstrap";
 
-function Dashboard1() {
+function BMSheet() {
   // Define state variables
   const [activePlant, setActivePlant] = useState(null);
   const [activeSection, setActiveSection] = useState(null);
@@ -121,7 +121,7 @@ function Dashboard1() {
   const generateSections = () => {
     switch (activePlant) {
       case "Plant1":
-        return ["section1", "section2", "section3"];
+        return ["section1", "section2", "section3", "section4"];
       case "Plant2":
         return ["section4", "section5", "section6", "section7", "section8"];
       default:
@@ -134,7 +134,13 @@ function Dashboard1() {
       case "section1":
         return ["subsection1", "subsection2"];
       case "section2":
-        return ["subsection3", "subsection4","subsection13", "subsection14","subsection23"];
+        return [
+          "subsection3",
+          "subsection4",
+          "subsection13",
+          "subsection14",
+          "subsection23",
+        ];
       case "section3":
         return ["subsection5", "subsection6", "subsection4"];
       case "section4":
@@ -148,7 +154,7 @@ function Dashboard1() {
   const generateCells = () => {
     switch (activeSubsection) {
       case "subsection1":
-        return ["cell1", "cell2","cell3", "cell4","cell5", "cell6"];
+        return ["cell1", "cell2", "cell3", "cell4", "cell5", "cell6"];
       case "subsection2":
         return ["cell3", "cell4"];
       case "subsection3":
@@ -164,7 +170,7 @@ function Dashboard1() {
   const generateLines = () => {
     switch (activeCell) {
       case "cell1":
-        return ["line1", "line2","line3", "line4"];
+        return ["line1", "line2", "line3", "line4"];
       case "cell2":
         return ["line3", "line4"];
       case "cell3":
@@ -203,143 +209,143 @@ function Dashboard1() {
   return (
     <>
       {/* Render Sections if Plant is active */}
-      <Row>
-        <Col>
-          {/* Render Plant */}
-          <div id="plant" className="d-block">
-            <p
-              className={`cursor plant-button ${activePlant ? "active" : ""}`}
-              onClick={() => handlePlantClick("Plant1")}
-            >
-              Plant 1
-            </p>
+
+      <Card className="container">
+       
+        {/* Render Plant */}
+        <div id="plant" className="d-flex flex-wrap" style={{lineHeight:'1'}}>
+          <Button
+            style={{ padding: "0px !important" }}
+            className={`buttonsmall cursor plant-button ${
+              activePlant ? "active" : ""
+            }`}
+            onClick={() => handlePlantClick("Plant1")}
+          >
+            <small>Plant 1</small>
+          </Button>
+          <Button
+            style={{ padding: "0px !important" }}
+            className={`buttonsmall cursor plant-button ${
+              activePlant ? "active" : ""
+            }`}
+            onClick={() => handlePlantClick("Plant2")}
+          >
+            <small>Plant 2</small>
+          </Button>
+        </div>
+
+        {activePlant && (
+          <div id="sections" className="d-flex flex-wrap" style={{lineHeight:'1'}}>
+            {generateSections().map((section) => (
+              <div id={section} key={section}>
+                <Button
+                  style={{ padding: "0px !important" }}
+                  className={`buttonsmall cursor section-button ${
+                    activeSection === section ? "active" : ""
+                  }`}
+                  onClick={() => handleSectionClick(section)}
+                >
+                  <small>{section}</small>
+                </Button>
+              </div>
+            ))}
           </div>
-        </Col>
-        <Col>
-          {activePlant && (
-            <div id="sections" className="d-block">
-              {generateSections().map((section) => (
-                <div id={section} key={section}>
-                  <p
-                    className={`cursor section-button ${
-                      activeSection === section ? "active" : ""
-                    }`}
-                    onClick={() => handleSectionClick(section)}
-                  >
-                    {section}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </Col>
-        <Col>
-          {/* Render Subsections if Section is active */}
-          {activeSection && (
-            <div id="subsections" className="d-block">
-              {generateSubsections().map((subsection) => (
-                <div id={subsection} key={subsection}>
-                  <p
-                    className={`cursor subsection-button ${
-                      activeSubsection === subsection ? "active" : ""
-                    }`}
-                    onClick={() => handleClick("subsection", subsection)}
-                  >
-                    {subsection}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </Col>
-        <Col>
-          {/* Render Cells if Subsection is active */}
-          {activeSubsection && (
-            <div className="d-block">
-              {generateCells().map((cell) => (
-                <div id={cell} key={cell}>
-                  <p
-                    className="cursor cell-button"
-                    onClick={() => handleClick("cell", cell)}
-                  >
-                    {cell}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </Col>
-        <Col>
-          {/* Render Lines if Cell is active */}
-          {activeCell && (
-            <div className="d-block">
-              {generateLines().map((line) => (
-                <div id={line} key={line}>
-                  <p
-                    className="cursor line-button"
-                    onClick={() => handleClick("line", line)}
-                  >
-                    {line}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </Col>
-        <Col>
-          {/* Render Machines if Line is active */}
-          {activeLine && (
-            <div className="d-block">
-              {generateMachines().map((machine) => (
-                <div id={machine} key={machine}>
-                  <p
-                    className="machine-button"
-                    onClick={() => handleClick("machine", machine)}
-                  >
-                    {machine}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </Col>
-        <Col>
-          {activeLine && (
-            <div id="content" className="d-block">
-              <p className="cursor" onClick={() => navigateBack("line")}>
-                &nbsp;
-              </p>
-            </div>
-          )}
-        </Col>
-        <Col>
-          {activeCell && (
-            <div id="content" className="d-block">
-              <p className="cursor" onClick={() => navigateBack("cell")}>
-                &nbsp;
-              </p>
-            </div>
-          )}
-        </Col>
-        <Col>
-          {activeSubsection && (
-            <div id="content" className="d-block">
-              <p className="cursor" onClick={() => navigateBack("subsection")}>
-                &nbsp;
-              </p>
-            </div>
-          )}
-        </Col>
-        <Col>
-          {activeSection && (
-            <div id="content" className="d-block">
-              <p className="cursor" onClick={() => navigateBack("plant")}>
-                &nbsp;
-              </p>
-            </div>
-          )}
-        </Col>
-      </Row>
+        )}
+
+        {/* Render Subsections if Section is active */}
+        {activeSection && (
+          <div id="subsections" className="d-flex flex-wrap" style={{lineHeight:'1'}}>
+            {generateSubsections().map((subsection) => (
+              <div id={subsection} key={subsection}>
+                <Button
+                  style={{ padding: "0px !important" }}
+                  className={`buttonsmall cursor subsection-button ${
+                    activeSubsection === subsection ? "active" : ""
+                  }`}
+                  onClick={() => handleClick("subsection", subsection)}
+                >
+                  <small> {subsection}</small>
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Render Cells if Subsection is active */}
+        {activeSubsection && (
+          <div className="d-flex flex-wrap" style={{lineHeight:'1'}}>
+            {generateCells().map((cell) => (
+              <div id={cell} key={cell}>
+                <Button
+                  style={{ padding: "0px !important" }}
+                  className="buttonsmall buttonsmall cursor cell-button"
+                  onClick={() => handleClick("cell", cell)}
+                >
+                  <small>{cell}</small>
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Render Lines if Cell is active */}
+        {activeCell && (
+          <div className="d-flex flex-wrap" style={{lineHeight:'1'}}>
+            {generateLines().map((line) => (
+              <div id={line} key={line}>
+                <Button
+                  style={{ padding: "0px !important" }}
+                  className="buttonsmall cursor line-button"
+                  onClick={() => handleClick("line", line)}
+                >
+                   <small>{line}</small>
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Render Machines if Line is active */}
+        {activeLine && (
+          <div className="d-flex flex-wrap" style={{lineHeight:'1'}}>
+            {generateMachines().map((machine) => (
+              <div id={machine} key={machine}>
+                <Button
+                  style={{ padding: "0px !important" }}
+                  className="buttonsmall machine-button"
+                  onClick={() => handleClick("machine", machine)}
+                >
+                   <small>{machine}</small>
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
+      {activeLine && (
+        <div id="content" className="d-block">
+          <p className="cursor" onClick={() => navigateBack("line")}></p>
+        </div>
+      )}
+
+      {activeCell && (
+        <div id="content" className="d-block">
+          <p className="cursor" onClick={() => navigateBack("cell")}></p>
+        </div>
+      )}
+
+      {activeSubsection && (
+        <div id="content" className="d-block">
+          <p className="cursor" onClick={() => navigateBack("subsection")}></p>
+        </div>
+      )}
+
+      {activeSection && (
+        <div id="content" className="d-block">
+          <p className="cursor" onClick={() => navigateBack("plant")}></p>
+        </div>
+      )}
 
       {/* Render activeMachine button */}
       {/* {activeMachine && (
@@ -348,7 +354,7 @@ function Dashboard1() {
             className="cursor active-machine-button"
             onClick={() => navigateBack("machine")}
           >
-            &nbsp;
+            
           </p>
         </div>
       )} */}
@@ -358,4 +364,4 @@ function Dashboard1() {
   );
 }
 
-export default Dashboard1;
+export default BMSheet;
