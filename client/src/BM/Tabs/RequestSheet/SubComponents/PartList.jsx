@@ -9,18 +9,18 @@ const PartList = ({ parts, setParts }) => {
     id: "",
     partNo: "",
     partName: "",
-    maker: "",
+    makerName: "",
     quantity: "",
-    price: "",
+    cost: "",
   });
-
+  
   const addPart = () => {
     if (
       newPart.partNo &&
       newPart.partName &&
-      newPart.maker &&
+      newPart.makerName &&
       newPart.quantity &&
-      newPart.price
+      newPart.cost
     ) {
       // Find the maximum id from existing parts
       const maxId = parts.reduce(
@@ -36,9 +36,9 @@ const PartList = ({ parts, setParts }) => {
         id: "",
         partNo: "",
         partName: "",
-        maker: "",
+        makerName: "",
         quantity: "",
-        price: "",
+        cost: "",
       });
       setIsAdding(false);
     }
@@ -52,9 +52,9 @@ const PartList = ({ parts, setParts }) => {
     if (
       editedPart.partNo &&
       editedPart.partName &&
-      editedPart.maker &&
+      editedPart.makerName &&
       editedPart.quantity &&
-      editedPart.price
+      editedPart.cost
     ) {
       const updatedParts = parts.map((part) =>
         part.id === editedPart.id ? editedPart : part
@@ -89,7 +89,7 @@ const PartList = ({ parts, setParts }) => {
           <b>QUANTITY</b>
         </Col>
         <Col lg={2} className="border">
-          <b>PRICE</b>
+          <b>COST</b>
         </Col>
         <Col
           lg={2}
@@ -124,9 +124,9 @@ const PartList = ({ parts, setParts }) => {
             <Col lg={2} className="border">
               <input
                 type="text"
-                value={editedPart.maker}
+                value={editedPart.makerName}
                 onChange={(e) =>
-                  setEditedPart({ ...editedPart, maker: e.target.value })
+                  setEditedPart({ ...editedPart, makerName: e.target.value })
                 }
               />
             </Col>
@@ -142,9 +142,9 @@ const PartList = ({ parts, setParts }) => {
             <Col lg={2} className="border">
               <input
                 type="number"
-                value={editedPart.price}
+                value={editedPart.cost}
                 onChange={(e) =>
-                  setEditedPart({ ...editedPart, price: e.target.value })
+                  setEditedPart({ ...editedPart, cost: e.target.value })
                 }
               />
             </Col>
@@ -163,13 +163,13 @@ const PartList = ({ parts, setParts }) => {
               {part.partName}
             </Col>
             <Col lg={2} className="border">
-              {part.maker}
+              {part.makerName}
             </Col>
             <Col lg={2} className="border">
               {part.quantity}
             </Col>
             <Col lg={2} className="border">
-              {part.price}
+              {part.cost}
             </Col>
             <Col lg={2} className="border d-flex align-items-center gap-1 p-1">
               <button onClick={() => editPart(part)}>Edit</button>
@@ -204,10 +204,10 @@ const PartList = ({ parts, setParts }) => {
           <Col lg={2} className="border">
             <input
               type="text"
-              placeholder="Maker"
-              value={newPart.maker}
+              placeholder="Maker Name"
+              value={newPart.makerName}
               onChange={(e) =>
-                setNewPart({ ...newPart, maker: e.target.value })
+                setNewPart({ ...newPart, makerName: e.target.value })
               }
             />
           </Col>
@@ -224,11 +224,9 @@ const PartList = ({ parts, setParts }) => {
           <Col lg={2} className="border">
             <input
               type="number"
-              placeholder="Price"
-              value={newPart.price}
-              onChange={(e) =>
-                setNewPart({ ...newPart, price: e.target.value })
-              }
+              placeholder="cost"
+              value={newPart.cost}
+              onChange={(e) => setNewPart({ ...newPart, cost: e.target.value })}
             />
           </Col>
           <Col lg={2} className="border d-flex align-items-center gap-1 p-1">

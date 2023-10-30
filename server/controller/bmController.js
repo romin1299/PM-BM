@@ -6,6 +6,7 @@ const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
 const Machine = require("../model/machineSchema");
 const User = require("../model/userSchema");
 const Section = require("../model/sectionSchema");
+const Line = require("../model/lineSchema");
 const SubSection = require("../model/subSectionSchema");
 
 const authenticate = require("../middleware/authenticate");
@@ -69,25 +70,6 @@ router.get(
 );
 
 router.post("/newRequestSheetRegistration", async (req, res, next) => {
-  const {
-    problemFaced,
-    PRD_ObservationForProblem_5Why_1How,
-    why_5M_1E,
-    where_process,
-    when_frequency,
-    who_person,
-    which_defectLocation,
-    how_details,
-    requestSheetdate,
-    requestSheettime,
-    maintenanceType,
-    priorityCode,
-    qualityRelated,
-    shiftOfBM,
-  } = req.body;
-
-  console.log(req.body);
-
   try {
     const machine = await Machine.findOne({
       _id: req.query?.machineRef,
@@ -109,54 +91,143 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
         },
       })
       .exec();
-    if (Machine) {
+
+    if (machine) {
+      // Now you can use the incremented value for your requestSheet
+      const _idObject = {
+        machineRef: machine._id,
+        lineRef: machine.line_names._id,
+        cellRef: machine.line_names.cell_names._id,
+        subSectionRef: machine.line_names.cell_names.subSection_names._id,
+        sectionRef:
+          machine.line_names.cell_names.subSection_names.section_names._id,
+        plantRef:
+          machine.line_names.cell_names.subSection_names.section_names
+            .plant_names._id,
+      };
+
+      let requestSheetNos = machine.line_names.requestSheetNos + 1;
+
+      await Line.updateOne(
+        { _id: machine.line_names._id },
+        { $set: { requestSheetNos } }
+      );
+
+      let requestSheet;
+
+      if (req.rootUser.user_type) {
+        const {
+          workStartedDateOfBM,
+          workEndedDateOfBM,
+          workStartedTimeOfBM,
+          workEndedTimeOfBM,
+        } = req.body;
+
+        const startDateTimeBM = `${workStartedDateOfBM}T${workStartedTimeOfBM}`;
+        const endDateTimeBM = `${workEndedDateOfBM}T${workEndedTimeOfBM}`;
+        const requestSheetStartDateTime = new Date(startDateTimeBM);
+        const requestSheetEndDateTime = new Date(endDateTimeBM);
+
+        let queryObj = {
+          ...req.body,
+          ..._idObject,
+        };
+
+        const requestSheet = await RequestSheetOfBM.findOneAndUpdate(
+          req.query,
+          {
+            $set: queryObj,
+          }
+        );
+
+        await requestSheet.save();
+
+        // if (existingPRDRequestSheet) {
+        // (existingPRDRequestSheet.maintenanceReportFilledByMTD = {
+        //   workStartedDateOfBM: requestSheetStartDateTime,
+        //   workEndedDateOfBM: requestSheetEndDateTime,
+        //   actionAndCounterMeasureStep,
+        //   problemsOfBM,
+        //   "whyAnalysis.why1": why1,
+        //   "whyAnalysis.why2": why2,
+        //   "whyAnalysis.why3": why3,
+        //   "whyAnalysis.why4": why4,
+        //   "whyAnalysis.why5": why5,
+        //   breakDownTime,
+        //   maintenanceTime,
+        //   qualityCheckTime,
+        //   breakTime,
+        //   minorBD,
+        //   majorBD,
+        //   firstTime,
+        //   repeat,
+        // }),
+        //   (existingPRDRequestSheet.changedParts = changedParts),
+        //   (existingPRDRequestSheet.requestReceivedMTD = requestReceivedMTD),
+        //   (existingPRDRequestSheet.MTD_TL = MTD_TL),
+        //   (existingPRDRequestSheet.sectionIncharge = sectionIncharge),
+        //   (existingPRDRequestSheet.feedbackMTD = feedbackMTD),
+        //   // (existingPRDRequestSheet.partQualityCheckedByPRD = req.rootUser._id),
+        //   // (existingPRDRequestSheet.partQualityByMTD = partQualityByMTD),
+        //   (existingPRDRequestSheet.dataSheetOfBM = dataSheetOfBM),
+        //   (existingPRDRequestSheet.drawingOfBM = drawingOfBM),
+        //   (existingPRDRequestSheet.qualityConfirmed = qualityConfirmed),
+        //   (existingPRDRequestSheet.approvalOfMTD_TL = approvalOfMTD_TL),
+        //   (existingPRDRequestSheet.approvalOfMTD_SL = approvalOfMTD_SL),
+        //   (existingPRDRequestSheet.approvalOfMTD_HOS = approvalOfMTD_HOS),
+        //   await existingPRDRequestSheet.save();
+        // requestSheet = existingPRDRequestSheet;
+        // console.log("requestSheetwdas", requestSheet);
+        // }
+      } else {
+        const {
+          problemFaced,
+          PRD_ObservationForProblem_5Why_1How,
+          why_5M_1E,
+          where_process,
+          when_frequency,
+          who_person,
+          which_defectLocation,
+          how_details,
+          requestSheetdate,
+          requestSheettime,
+          maintenanceType,
+          priorityCode,
+          qualityRelated,
+          shiftOfBM,
+        } = req.body;
+
+        const combinedDateTimeString = `${requestSheetdate}T${requestSheettime}`;
+        const requestSheetDateTime = new Date(combinedDateTimeString);
+        const currentDateTime = new Date();
+
+        requestSheet = new RequestSheetOfBM({
+          ...req.query,
+          ..._idObject,
+          requestSheetCreatedBy: req.rootUser._id,
+          ...req.body,
+          priorityCode: priorityCode,
+          qualityRelated: qualityRelated,
+          shiftOfBM: shiftOfBM,
+          breakDownAttendedBy: req.rootUser._id,
+          maintenanceType: maintenanceType || "BM",
+          problemOccurredDateAndTimeOfBM: requestSheetDateTime,
+          sheetIssuedDateAndTimeOfBM: currentDateTime,
+          breakDownBasicDataFilledByPRD: {
+            problemFaced,
+            PRD_ObservationForProblem_5Why_1How,
+            why_5M_1E,
+            where_process,
+            when_frequency,
+            who_person,
+            which_defectLocation,
+            how_details,
+          },
+        });
+
+        await requestSheet.save();
+      }
     }
-    const _idObject = {
-      machineRef: machine?._id,
-      lineRef: machine?.line_names?._id,
-      cellRef: machine?.line_names?.cell_names?._id,
-      subSectionRef: machine?.line_names?.cell_names?.subSection_names?._id,
-      sectionRef:
-        machine?.line_names?.cell_names?.subSection_names?.section_names?._id,
-      plantRef:
-        machine?.line_names?.cell_names?.subSection_names?.section_names
-          ?.plant_names?._id,
-    };
-
-    const combinedDateTimeString = `${requestSheetdate}T${requestSheettime}`;
-    const requestSheetDateTime = new Date(combinedDateTimeString);
-    const currentDateTime = new Date();
-
-    // const requestNo = `${machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name} - ${machine?.line_names?.line_name} - ${}`;
-
-    const requestSheet = new RequestSheetOfBM({
-      ...req.query,
-      ..._idObject,
-      requestSheetNoOfBM: req.body?.requestSheetNoOfBM,
-      requestSheetCreatedBy: req.rootUser?._id,
-      ...req.body,
-      priorityCode: priorityCode,
-      qualityRelated: qualityRelated,
-      shiftOfBM: shiftOfBM,
-      breakDownAttendedBy: req.rootUser?._id,
-      maintenanceType: maintenanceType || "BM",
-      problemOccurredDateAndTimeOfBM: requestSheetDateTime,
-      sheetIssuedDateAndTimeOfBM: currentDateTime,
-      "breakDownBasicDataFilledByPRD.problemFaced": problemFaced,
-      "breakDownBasicDataFilledByPRD.PRD_ObservationForProblem_5Why_1How":
-        PRD_ObservationForProblem_5Why_1How,
-      "breakDownBasicDataFilledByPRD.why_5M_1E": why_5M_1E,
-      "breakDownBasicDataFilledByPRD.where_process": where_process,
-      "breakDownBasicDataFilledByPRD.when_frequency": when_frequency,
-      "breakDownBasicDataFilledByPRD.who_person": who_person,
-      "breakDownBasicDataFilledByPRD.which_defectLocation":
-        which_defectLocation,
-      "breakDownBasicDataFilledByPRD.how_details": how_details,
-    });
-
-    await requestSheet.save();
-    console.log(requestSheet);
-
     res
       .status(201)
       .json({ message: "Request-sheet generated successfully", requestSheet });
@@ -911,7 +982,6 @@ router.get(
   },
   functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO
 );
-
 router.get(
   "/getMachineDetailsOnScanningRequest/:generateType",
   async (req, res, next) => {
@@ -934,16 +1004,39 @@ router.get(
       })
       .exec();
 
-    // console.log("machine", machine);
+    // const mtdUser = await User.find({
+    //   tm_department: req.query.tm_department,
+    //   user_type: req.query.user_type,
+    // });
+
     if (machine) {
       res.status(201).json({
         message: "Sheet data get successfully",
         machine,
+        breakDownAttendedBy: req.rootUser.tm_name,
+        // mtdUser,
       });
     } else {
       res.status(404).json({ message: "Machine not found" });
     }
   }
 );
+
+router.get("/getMtdUserDetails", async (req, res, next) => {
+  const mtdUser = await User.find({
+    tm_department: req.query.tm_department,
+    tm_grade: req.query.tm_grade,
+  });
+  const mtdUserTL = await User.find({
+    tm_department: req.query.tm_department,
+    user_type: req.query.user_type,
+  });
+
+  res.status(201).json({
+    message: "Mtd User get successfully",
+    mtdUser,
+    mtdUserTL,
+  });
+});
 
 module.exports = router;

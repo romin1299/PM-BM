@@ -1,38 +1,47 @@
-import {
-  React,
-  useFormik,
-  yup,
-  Button,
-  denso_logo,
-  useNavigate,
-  useState,
-  showPwdImg,
-  hidePwdImg,
-} from "../modules/LoginModules";
+import { React, useState } from "../modules/LoginModules";
 import "./Login.scss";
-import CloseIcon from "@mui/icons-material/Close";
-import { Link } from "react-router-dom";
-import { Row, Col } from "react-bootstrap";
 import Footer from "../components/Footer/Footer";
-import QR_codeReader from "../BM/QR_codeReader/QR_codeReader";
-import LoginComponent from "./LoginSubComponent/LoginComponent";
+import { useEffect } from "react";
+import TabletLogin from "./LoginSubComponent/TabletLogin";
+import LoginCard from "./LoginSubComponent/LoginCard";
+
+function getWindowWidth() {
+  const { innerWidth } = window;
+  return innerWidth;
+}
 
 export const LoginPage = () => {
+  const [windowWidth, setWindowWidth] = useState(getWindowWidth());
+
+  useEffect(() => {
+    function handleWindowResize() {
+      setWindowWidth(getWindowWidth());
+    }
+
+    window.addEventListener("resize", handleWindowResize);
+
+    return () => {
+      window.removeEventListener("resize", handleWindowResize);
+    };
+  }, []);
+
   return (
     <>
       <main className="mains">
-        <Row>
-          <Col>
-            <QR_codeReader />
-          </Col>
-          <Col>
-            <LoginComponent />
-          </Col>
-        </Row>
+        {/* {windowWidth} */}
+        <div className="containers">
+          <div
+            className="wrappers"
+            style={{ maxWidth: "350px", padding: "20px" }}
+          >
+            {windowWidth <= 820 ? (
+              <TabletLogin />
+            ) : (
+              <LoginCard windowWidth={windowWidth} />
+            )}
+          </div>
+        </div>
       </main>
-      <br />
-      <br />
-      <br />
 
       <Footer />
     </>

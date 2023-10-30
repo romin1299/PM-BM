@@ -142,10 +142,10 @@ const ActionList = ({ actions, setActions }) => {
               </>
             ) : (
               <>
-                <button onClick={() => deleteAction(action.id)}>Delete</button>
                 <button onClick={() => setEditedAction({ ...action })}>
                   Edit
                 </button>
+                <button onClick={() => deleteAction(action.id)}>Delete</button>
               </>
             )}
           </Col>

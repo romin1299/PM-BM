@@ -7,6 +7,7 @@ import { Row, Col, Form } from "react-bootstrap";
 import { DropdownButton, Dropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
+import moment from "moment-timezone";
 
 import { useParams } from "react-router-dom";
 
@@ -19,20 +20,41 @@ const list = [
 
 function MyTable() {
   // let [searchParams] = useSearchParams();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { machine_code, generateType } = useParams();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
     // reset,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      requestSheetdate: new Date().toISOString().substring(0, 10),
+      requestSheettime: new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+      sheetIssuedDate: new Date().toISOString().substring(0, 10),
+      sheetIssuedTime: new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+    },
+  });
 
   const [selectedShift, setSelectedShift] = useState({});
   const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
   const [selectedQuality, setSelectedQuality] = useState("");
+  const [selectedMachineDetails, setMachineDetails] = useState("");
+  const [selectedAttendee, setSelectedAttendee] = useState("");
+ 
 
   const handleSelectShift = (key, event) => {
     setSelectedShift({ key, value: event.target.value });
@@ -94,17 +116,19 @@ function MyTable() {
         }
       );
       if (res.status === 404) {
-        if (generateType === 'scanned') {
-          navigate('/', { replace: true })
+        if (generateType === "scanned") {
+          navigate("/", { replace: true });
         } else {
-          navigate('/bm/generateRequestSheetMainDashboard', { replace: true })
+          navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
         }
       } else {
-        const { machine } = await res.json();
+        const { machine, breakDownAttendedBy } = await res.json();
         // setMachine(machine);
         console.log(machine);
-      }
 
+        setMachineDetails(machine);
+        setSelectedAttendee(breakDownAttendedBy);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -113,6 +137,16 @@ function MyTable() {
   useEffect(() => {
     getMachineDetails();
   }, [machine_code]);
+
+  const timezone = "Asia/Kolkata";
+  const startedDate = moment().tz(timezone).month();
+
+  console.log("IST", startedDate);
+
+  // console.log(startedDate.toDate());
+  // console.log(endedDate.toDate());
+
+  let reqNos = 0;
 
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
@@ -124,7 +158,7 @@ function MyTable() {
         </thead>
         <tbody>
           <tr>
-            <td width={100}>
+            {/* <td width={100}>
               <img
                 src={denso_log}
                 width="120"
@@ -132,7 +166,7 @@ function MyTable() {
                 className="d-inline-block align-top"
                 alt="React Bootstrap logo"
               />
-            </td>
+            </td> */}
             <td colSpan={12}>
               <h2 className="d-flex align-items-center justify-content-center">
                 MAINTENANCE WORK REQUEST/REPORT
@@ -246,26 +280,24 @@ function MyTable() {
                 </h6>
                 <p className="text-left border p-1 mb-2">
                   <b>REQUEST No.</b>{" "}
-                  <input
-                    {...register("requestSheetNoOfBM", {
-                      required: "RequestSheet no is required",
-                    })}
-                  />
-                  {errors?.["requestSheetNoOfBM"] && (
-                    <p>{errors?.["requestSheetNoOfBM"]?.message}</p>
-                  )}
+                  {
+                    selectedMachineDetails?.line_names?.cell_names
+                      ?.subSection_names?.section_names?.section_name
+                  }
+                  _{selectedMachineDetails?.line_names?.line_name}_{startedDate}
+                  _{selectedMachineDetails?.line_names?.requestSheetNos + 1}
                 </p>
                 <Row className="m-0">
                   <Col className="border">
                     <Row>
-                      <p className="border border-right-0 text-center m-0">
-                        Problem Occurred
+                      <p className="border-right-0 text-center m-0">
+                        PROBLEM OCCURRED
                       </p>
-                      <div className="d-flex align-items-center justify-content-center mt-1 mb-1">
+                      <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                         <div className="text-center">
                           <p className="mb-0">
-                            <b>Date: </b>
-
+                            <b>DATE: </b>
+                            <br />
                             <input
                               type="date"
                               {...register("requestSheetdate", {
@@ -281,7 +313,7 @@ function MyTable() {
                         <div className="text-center">
                           <p className="mb-0">
                             <b>Time: </b>
-
+                            <br />
                             <input
                               type="time"
                               {...register("requestSheettime", {
@@ -298,39 +330,47 @@ function MyTable() {
                   </Col>
                   <Col className="border">
                     <Row>
-                      <p className="border border-left-0 text-center m-0">
-                        Sheet Issued
+                      <p className="border-left-0 text-center m-0">
+                        SHEET ISSUED
                       </p>
-                      <div className="d-flex align-items-center justify-content-center mt-1 mb-1">
+                      <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                         <div className="text-center">
                           <p className="mb-0">
                             <b>Date: </b>
                             <br />
                             <input
                               type="date"
-                              {...register("sheetIssuedDate", {
-                                required: "Sheet Issued date is required",
-                              })}
+                              {...register(
+                                "sheetIssuedDate"
+                                //  {
+                                //   required: "Sheet Issued date is required",
+                                // }
+                              )}
+                              disabled
                             />
-                            {errors?.["sheetIssuedDate"] && (
+                            {/* {errors?.["sheetIssuedDate"] && (
                               <p>{errors?.["sheetIssuedDate"]?.message}</p>
-                            )}
+                            )} */}
                           </p>
                         </div>{" "}
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <div className="text-center">
                           <p className="mb-0">
-                            <b>Time: </b>
+                            <b>TIME: </b>
                             <br />
                             <input
                               type="time"
-                              {...register("sheetIssuedTime", {
-                                required: "Sheet Issued time is required",
-                              })}
+                              {...register(
+                                "sheetIssuedTime"
+                                //  {
+                                //   required: "Sheet Issued time is required",
+                                // }
+                              )}
+                              disabled
                             />
-                            {errors?.["sheetIssuedTime"] && (
+                            {/* {errors?.["sheetIssuedTime"] && (
                               <p>{errors?.["sheetIssuedTime"]?.message}</p>
-                            )}
+                            )} */}
                           </p>
                         </div>
                       </div>
@@ -361,17 +401,10 @@ function MyTable() {
               </Row>
               <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
                 <Col lg={6} className="border pb-2 pt-1">
-                  <p className="mb-0">Dept./Line</p>
-                  <input
-                    style={{ width: "100%" }}
-                    {...register("deptname", {
-                      required: "Department/Line Name is required",
-                    })}
-                  />
-                  {errors?.["deptname"] && (
-                    <p>{errors?.["deptname"]?.message}</p>
-                  )}
+                  <p className="mb-0">DEPT./LINE</p>
+                  {selectedMachineDetails?.line_names?.line_name}
                 </Col>
+
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">TL [PRD]</p>
                   <input
@@ -390,47 +423,21 @@ function MyTable() {
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={2}>
                   <p className="mb-0">
-                    <b>Machine Name:</b>{" "}
+                    <b>MACHINE NAME:</b>{" "}
                   </p>
                 </Col>
-                <Col lg={3}>
-                  <input
-                    id="Mach"
-                    name="machinename"
-                    className="m-1"
-                    style={{ width: "100%" }}
-                    {...register("machineName", {
-                      required: "Machine Name is required",
-                    })}
-                  />
-                  {errors?.["machineName"] && (
-                    <p>{errors?.["machineName"]?.message}</p>
-                  )}
-                </Col>
+                <Col lg={3}>{selectedMachineDetails.machine_name}</Col>
                 <Col lg={2}>
                   <p className="mb-0">
-                    <b>Machine No.:</b>
+                    <b>MACHINE NO.:</b>
                   </p>
                 </Col>
-                <Col lg={3}>
-                  <input
-                    id="Mach"
-                    name="machineno"
-                    className="m-1"
-                    style={{ width: "100%" }}
-                    {...register("machineNo", {
-                      required: "Machine No is required",
-                    })}
-                  />
-                  {errors?.["machineNo"] && (
-                    <p>{errors?.["machineNo"]?.message}</p>
-                  )}
-                </Col>
+                <Col lg={3}>{selectedMachineDetails.machine_code}</Col>
               </Row>
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={5}>
                   <p className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>Problem faced: </b>
+                    <b>PROBLEM FACED: </b>
                   </p>
                 </Col>
                 <Col lg={7}>
@@ -613,7 +620,7 @@ function MyTable() {
               <Row className="m-0">
                 <Col className="border p-2">
                   <p className="mb-0 d-flex align-items-center">
-                    <b>Shift</b>&nbsp;&nbsp;&nbsp;
+                    <b>SHIFT</b>&nbsp;&nbsp;&nbsp;
                     <DropdownButton
                       id="dropdown-basic-button"
                       variant="secondary"
@@ -635,7 +642,7 @@ function MyTable() {
               <Row className="m-0">
                 <Col className="border p-2">
                   <p className="mb-0 d-flex align-items-center justify-content-start">
-                    <b>Quality Related</b>&nbsp;&nbsp;&nbsp;
+                    <b>QUALITY RELATED</b>&nbsp;&nbsp;&nbsp;
                   </p>
                 </Col>
                 <Col className="border p-2 d-flex align-items-center">
@@ -672,18 +679,7 @@ function MyTable() {
                   <p className="mb-0">
                     <b>BREAKDOWN ATTENDED BY</b>
                   </p>
-                  <input
-                    id="Break"
-                    type="text"
-                    name="breakdownAttended"
-                    style={{ width: "100%" }}
-                    {...register("breakDownAttendedBy", {
-                      required: "This field is required",
-                    })}
-                  />
-                  {errors?.["breakDownAttendedBy"] && (
-                    <p>{errors?.["breakDownAttendedBy"]?.message}</p>
-                  )}
+                  {selectedAttendee}
                 </Col>
               </Row>
             </td>

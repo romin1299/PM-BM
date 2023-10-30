@@ -33,8 +33,14 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     workStartedDateOfBM: { type: Date }, //If need String change it.
     workEndedDateOfBM: { type: Date }, //If need String change it.
     refHandOverTime: { type: Date },
-    problemsOfBM: { type: String }, // If array of object [{}] require change it.
-    whyAnalysis: { type: [String] }, //If array of object [{}] require change it.
+    problemsOfBM: [{ id: { type: Date }, problem: { type: String } }], // If array of object [{}] require change it.
+    whyAnalysis: {
+      why1: { type: String },
+      why2: { type: String },
+      why3: { type: String },
+      why4: { type: String },
+      why5: { type: String },
+    }, //If array of object [{}] require change it.
 
     //Mostly use fields for charts
     breakDownTime: { type: Number },
@@ -42,19 +48,47 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     qualityCheckTime: { type: Number },
     breakTime: { type: Number },
 
-    minorBD: { type: Boolean },
-    majorBD: { type: Boolean },
+    minorBD: { type: String },
+    majorBD: { type: String },
 
-    firstTime: { type: Boolean }, // need to change if new func. occurred for this
-    repeat: { type: Boolean }, // need to change if new func. occurred for this
+    firstTime: { type: String }, // need to change if new func. occurred for this
+    repeat: { type: String }, // need to change if new func. occurred for this
 
     actionAndCounterMeasureStep: [
       {
+        id: { type: Date },
         action: { type: String },
-        statusOfAction: { type: String },
+        status: { type: String },
       },
     ],
   },
+
+  // requestReceivedMTD: {
+  //   type: String,
+  // },
+
+  // MTD_TL: {
+  //   type: String,
+  // },
+
+  // sectionIncharge: {
+  //   type: String,
+  // },
+
+  // feedbackMTD: {
+  //   type: String,
+  // },
+
+  // requestSheetNos: {
+  //   type: Number,
+  // },
+
+  // partQualityByPRD: {
+  //   type: String,
+  // },
+  // partQualityByMTD: {
+  //   type: String,
+  // },
 
   teamLeaderPRD: {
     type: mongoose.Schema.Types.ObjectId,
@@ -77,6 +111,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+
   breakDownAttendedStatus: {
     type: String,
   },
@@ -92,7 +127,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   work_order_status: {
     type: String,
-    default:"Generated"
+    default: "Generated",
   },
 
   //for MTD TL approval
@@ -104,6 +139,18 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: String,
   },
   approvalDateAndTimeOfMTD_TL: {
+    type: Date, //If need String change it.
+  },
+
+  //for MTD Sl
+  approvalOfMTD_SL: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  approvalStatusOfMTD_SL: {
+    type: String,
+  },
+  approvalDateAndTimeOfMTD_SL: {
     type: Date, //If need String change it.
   },
 
@@ -137,7 +184,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   feedback: { type: String }, //need to add who is add feedback
 
-  qualityConfirmed: { type: Boolean },
+  qualityConfirmed: { type: String },
   //part quality checked by PRD
   partQualityCheckedByPRD: {
     type: mongoose.Schema.Types.ObjectId,
