@@ -25,6 +25,18 @@ const userRoutes = [
       { path: "/bm", element: <AdminCreationDashboard /> },
       { path: "/bm/profile", element: <Profile /> },
       { path: "/bm/summeryDashboard", element: <SummeryDashboard /> },
+      {
+        path: "/bm/requestListDashboard",
+        element: <RequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/generateRequestSheetMainDashboard",
+        element: <GenerateRequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/check-sheet/:generateType/:machine_code",
+        element: <RequestSheet />,
+      },
     ],
   },
   {
@@ -33,23 +45,6 @@ const userRoutes = [
       { path: "/bm", element: <OperatorDashboard /> },
       { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
       { path: "/bm/check-sheet", element: <RequestSheet /> },
-    ],
-  },
-  {
-    user_type: "Section-Admin",
-    routes: [{ path: "/bm", element: <OperatorDashboard /> }],
-  },
-  {
-    user_type: "Operator",
-    routes: [{ path: "/bm", element: <OperatorDashboard /> }],
-  },
-  {
-    user_type: "TL/HOSS",
-    routes: [
-      { path: "/bm", element: <h1>Home Dashboard</h1> },
-      { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
-      { path: "/bm/userAssign", element: <h1>Users</h1> },
-      { path: "/bm/check-sheet/:generateType/:machine_code", element: <RequestSheet /> },
       {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,
@@ -57,6 +52,70 @@ const userRoutes = [
       {
         path: "/bm/generateRequestSheetMainDashboard",
         element: <GenerateRequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/check-sheet/:generateType/:machine_code",
+        element: <RequestSheet />,
+      },
+      { path: "/bm/profile", element: <Profile /> },
+    ],
+  },
+  {
+    user_type: "Section-Admin",
+    routes: [
+      { path: "/bm", element: <OperatorDashboard /> },
+      { path: "/bm/profile", element: <Profile /> },
+      {
+        path: "/bm/requestListDashboard",
+        element: <RequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/generateRequestSheetMainDashboard",
+        element: <GenerateRequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/check-sheet/:generateType/:machine_code",
+        element: <RequestSheet />,
+      },
+    ],
+  },
+  {
+    user_type: "Operator",
+    routes: [
+      { path: "/bm", element: <OperatorDashboard /> },
+      { path: "/bm/profile", element: <Profile /> },
+      {
+        path: "/bm/requestListDashboard",
+        element: <RequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/generateRequestSheetMainDashboard",
+        element: <GenerateRequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/check-sheet/:generateType/:machine_code",
+        element: <RequestSheet />,
+      },
+    ],
+  },
+  {
+    user_type: "TL/HOSS",
+    routes: [
+      { path: "/bm", element: <h1>Home Dashboard</h1> },
+      { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
+      { path: "/bm/profile", element: <Profile /> },
+      { path: "/bm/userAssign", element: <h1>Users</h1> },
+      {
+        path: "/bm/requestListDashboard",
+        element: <RequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/generateRequestSheetMainDashboard",
+        element: <GenerateRequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/check-sheet/:generateType/:machine_code",
+        element: <RequestSheet />,
       },
     ],
   },
