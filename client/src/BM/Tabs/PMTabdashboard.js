@@ -128,7 +128,10 @@ function App() {
                 <Route path="/pm/section" element={<SectionPage />} />
                 <Route path="/pm/userAssign" element={<UserAssign />} />
                 <Route path="/pm/profile" element={<Profile />} />
-                <Route path="/pm/machineWiseCheckSheet" element={<CheckSheet />} />
+                <Route
+                  path="/pm/machineWiseCheckSheet"
+                  element={<CheckSheet />}
+                />
                 <Route
                   path="/pm/summeryDashboard"
                   element={<SummeryDashboard />}
@@ -154,14 +157,14 @@ function App() {
                 />
                 <Route path="/pm/annualPmStatus" element={<AnnualPmStatus />} />
                 <Route
-                  path="/pmTimeMonitoringReport"
+                  path="/pm/pmTimeMonitoringReport"
                   element={<PmTimeMonitoringReport />}
                 />
 
                 {/* Report Dashboard */}
 
                 <Route
-                  path="/pmMonthlyReport"
+                  path="/pm/pmMonthlyReport"
                   element={<PmAllReportDashboard />}
                 />
                 <Route
@@ -173,7 +176,7 @@ function App() {
                   element={<SpareReportMainDashboard />}
                 />
                 <Route
-                  path="/pmSheetApprovalOfImplementationPhase"
+                  path="/pm/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
                 <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} />
@@ -195,10 +198,13 @@ function App() {
                   element={<ShowBackupChecksheetTableData />}
                 />
                 <Route
-                  path="/pmSheetApprovalOfImplementationPhase"
+                  path="/pm/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
-                <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
+                <Route
+                  path="/pm/pmSheetApproval"
+                  element={<PMSheetApproval />}
+                />
 
                 <Route
                   path="/pm/backupDataOfCheckSheet"
@@ -228,7 +234,7 @@ function App() {
             stickyNav={<RightNavbar />}
             content={
               <Routes>
-                <Route  path="/pm" element={<OperatorDashboard />} />
+                <Route path="/pm" element={<OperatorDashboard />} />
                 <Route
                   path="/pm/creationDashboard"
                   element={<CreationDashboardForSection />}
@@ -244,18 +250,24 @@ function App() {
                   path="/pm/checksheetCreationDashboard"
                   element={<ChecksheetCreationDashboard />}
                 />
-                <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
-                <Route path="/pm/machineWiseCheckSheet" element={<CheckSheet />} />
+                <Route
+                  path="/pm/pmSheetApproval"
+                  element={<PMSheetApproval />}
+                />
+                <Route
+                  path="/pm/machineWiseCheckSheet"
+                  element={<CheckSheet />}
+                />
                 <Route
                   path="/pm/checksheetCreationDashboardForMTDTLandHOS"
                   element={<MTDTLandHOSChecksheetCreationDashboard />}
                 />
                 <Route
-                  path="/pmMonthlyReport"
+                  path="/pm/pmMonthlyReport"
                   element={<PmAllReportDashboard />}
                 />
                 <Route
-                  path="/pmSheetApprovalOfImplementationPhase"
+                  path="/pm/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
                 <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} />
@@ -321,7 +333,7 @@ function App() {
                 />
                 <Route path="/pm/annualPmStatus" element={<AnnualPmStatus />} />
                 <Route
-                  path="/pmTimeMonitoringReport"
+                  path="/pm/pmTimeMonitoringReport"
                   element={<PmTimeMonitoringReport />}
                 />
               </Routes>
@@ -339,7 +351,7 @@ function App() {
             stickyNav={<RightNavbar />}
             content={
               <Routes>
-                <Route  path="/pm" element={<OperatorDashboard />} />
+                <Route path="/pm" element={<OperatorDashboard />} />
                 <Route
                   path="/pm/machineWiseCheckSheetForImplemetation"
                   element={<CheckSheetForImplementation />}
@@ -350,16 +362,19 @@ function App() {
                 />
                 <Route path="/pm/profile" element={<Profile />} />
                 <Route
-                  path="/pmMonthlyReport"
+                  path="/pm/pmMonthlyReport"
                   element={<PmAllReportDashboard />}
                 />
                 <Route
                   path="/pm/checkSheetDashboard"
                   element={<CheckSheetDashboard />}
                 />
-                <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
                 <Route
-                  path="/pmSheetApprovalOfImplementationPhase"
+                  path="/pm/pmSheetApproval"
+                  element={<PMSheetApproval />}
+                />
+                <Route
+                  path="/pm/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
                 <Route
@@ -372,7 +387,10 @@ function App() {
                   path="/pm/pendingPMLogHistory"
                   element={<PendingPMLogHistory />}
                 />
-                <Route path="/pm/skipedPMWorkData" element={<SkipPMWorkData />} />
+                <Route
+                  path="/pm/skipedPMWorkData"
+                  element={<SkipPMWorkData />}
+                />
                 <Route
                   path="/pm/spareReportDashboard"
                   element={<SpareReportMainDashboard />}
@@ -404,7 +422,7 @@ function App() {
                 />
                 <Route path="/pm/annualPmStatus" element={<AnnualPmStatus />} />
                 <Route
-                  path="/pmTimeMonitoringReport"
+                  path="/pm/pmTimeMonitoringReport"
                   element={<PmTimeMonitoringReport />}
                 />
                 <Route
@@ -444,7 +462,10 @@ function App() {
                   element={<CreationDashboardForTLHOSS />}
                 />
                 <Route path="/pm/userAssign" element={<UserAssignTLHOSS />} />
-                <Route path="/pm/machineWiseCheckSheet" element={<CheckSheet />} />
+                <Route
+                  path="/pm/machineWiseCheckSheet"
+                  element={<CheckSheet />}
+                />
                 <Route path="/pm/profile" element={<Profile />} />
                 {context.tm_department === "MTD" ? (
                   <>
@@ -480,8 +501,11 @@ function App() {
                   path="/pm/planningPhaseTable"
                   element={<PlanningPhaseTable />}
                 />
-                <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
-                {/* <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} /> */}
+                <Route
+                  path="/pm/pmSheetApproval"
+                  element={<PMSheetApproval />}
+                />
+                {/* <Route path="/pm/pmMonthlyReport" element={<PmAllReportDashboard />} /> */}
                 <Route
                   path="/pm/openAbnormalityTrack"
                   element={<OpenAbnormalityTrack />}
@@ -491,7 +515,7 @@ function App() {
                   element={<MTDTLandHOSChecksheetCreationDashboard />}
                 />
                 <Route
-                  path="/pmSheetApprovalOfImplementationPhase"
+                  path="/pm/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
                 <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} />
@@ -505,10 +529,13 @@ function App() {
                 />
 
                 <Route
-                  path="/pm/summeryDashboard"
+                  path="/pm/pm/summeryDashboard"
                   element={<SummeryDashboard />}
                 />
-                <Route path="/pm/skipedPMWorkData" element={<SkipPMWorkData />} />
+                <Route
+                  path="/pm/skipedPMWorkData"
+                  element={<SkipPMWorkData />}
+                />
                 <Route path="/pm/logHistory" element={<LogHistory />} />
                 <Route
                   path="/pm/pendingPMLogHistory"
@@ -526,7 +553,7 @@ function App() {
                   element={<PreparationApprovalDashboard />}
                 />
                 <Route
-                  path="/pm/planningApproval"
+                  path="/pm/pm/planningApproval"
                   element={<PlanningApprovalDashboard />}
                 />
                 <Route
@@ -549,7 +576,7 @@ function App() {
                 />
                 <Route path="/pm/annualPmStatus" element={<AnnualPmStatus />} />
                 <Route
-                  path="/pmTimeMonitoringReport"
+                  path="/pm/pmTimeMonitoringReport"
                   element={<PmTimeMonitoringReport />}
                 />
               </Routes>

@@ -4,7 +4,7 @@ import denso_log from "../../../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
 import { DropdownButton, Dropdown } from "react-bootstrap";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import ProblemList from "./SubComponents/ProblemList";
@@ -52,8 +52,8 @@ function MyTable() {
   const [selectedQuality, setSelectedQuality] = useState("");
   const [selectedDataSheet, setSelectedDataSheet] = useState("");
   const [selectedDrawing, setSelectedDrawing] = useState("");
-  const [selectedMajor, setSelectedMajor] = useState("");
-  const [selectedMinor, setSelectedMinor] = useState("");
+  const [selectedMajor, setSelectedMajor] = useState("Yes");
+  const [selectedMinor, setSelectedMinor] = useState("No");
   const [selectedFirstTime, setSelectedFirstTime] = useState("");
   const [selectedRepeat, setSelectedRepeat] = useState("");
   const [selectedStartTime, setSelectedStartTime] = useState("");
@@ -61,6 +61,23 @@ function MyTable() {
   const [selectedMaintenanceTime, setSelectedMaintenanceTime] = useState("");
   const [selectedQualityCheckTime, setSelectedQualityCheckTime] = useState("");
   const [selectedBreakTime, setSelectedBreakTime] = useState("");
+  const [totalTime, setTotalTime] = useState(0);
+  const [selectedAllMtdUsers, setSelectedAllMtdUsers] = useState([]);
+  const [selectedAllMtdTL, setSelectedAllMtdTL] = useState([]);
+  // const [selectedMtdSL, setSelectedMtdSL] = useState("");
+  // const [selectedMtdUser, setSelectedMtdUser] = useState("");
+  // const [selectedMtdTL, setSelectedMtdTL] = useState("");
+
+  const [selectedUser, setSelectedUser] = useState({
+    selectedMtdSL: "",
+    selectedMtdUser: "",
+    selectedMtdTL: "",
+  });
+
+  // const [selectedAll, setSelectedAll] = useState({
+  //   selectedAllMtdUsers: [],
+  //   selectedAllMtdTL: [],
+  // });
 
   const handleQuality = (event) => {
     setSelectedQuality(event.target.value);
@@ -70,13 +87,6 @@ function MyTable() {
   };
   const handleDrawing = (event) => {
     setSelectedDrawing(event.target.value);
-  };
-
-  const handleMajor = (event) => {
-    setSelectedMajor(event.target.value);
-  };
-  const handleMinor = (event) => {
-    setSelectedMinor(event.target.value);
   };
   const handleFirstTime = (event) => {
     setSelectedFirstTime(event.target.value);
@@ -99,6 +109,12 @@ function MyTable() {
   const handleBreakTime = (event) => {
     setSelectedBreakTime(event.target.value);
   };
+
+  // const handleSection = (e) => {
+  //   setSelectedUser({ selectedMtdUser: e.target.value });
+  // };
+
+  // console.log(selectedMtdTL);
 
   var curr = new Date();
   var currentDate = curr.toISOString().substring(0, 10);
@@ -146,6 +162,9 @@ function MyTable() {
     requestSheetData.minorBD = selectedMinor;
     requestSheetData.firstTime = selectedFirstTime;
     requestSheetData.repeat = selectedRepeat;
+    // requestSheetData.approvalOfMTD_TL = selectedMtdTL;
+    // requestSheetData.approvalOfMTD_SL = selectedMtdSL;
+    // requestSheetData.approvalOfMTD_HOS = selectedMtdUser;
 
     const reqid = "65324cb00dc427ec2a098ef4";
 
@@ -173,6 +192,55 @@ function MyTable() {
     }
   };
 
+  const MTD = "MTD";
+  const user_type = "TL/HOSS";
+  const tm_grade = "HOS";
+
+  const getMtdUserDetails = async () => {
+    try {
+      const res = await fetch(
+        `/getMtdUserDetails/?tm_department=${MTD}&&user_type=${user_type}&&tm_grade=${tm_grade}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { mtdUser, mtdUserTL } = await res.json();
+
+      setSelectedAllMtdUsers(mtdUser);
+      setSelectedAllMtdTL(mtdUserTL);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getMtdUserDetails();
+  }, [MTD]);
+
+  useEffect(() => {
+    if (timeDifferenceMinutes > 120) {
+      setSelectedMajor("Yes");
+      setSelectedMinor("No");
+    } else {
+      setSelectedMajor("No");
+      setSelectedMinor("Yes");
+    }
+  }, [timeDifferenceMinutes]);
+
+  useEffect(() => {
+    const maintenanceTime = parseInt(selectedMaintenanceTime) || 0;
+    const qualityCheckTime = parseInt(selectedQualityCheckTime) || 0;
+    const breakTime = parseInt(selectedBreakTime) || 0;
+    const totalTime = maintenanceTime + qualityCheckTime + breakTime;
+    setTotalTime(totalTime);
+  }, [selectedMaintenanceTime, selectedQualityCheckTime, selectedBreakTime]);
+
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
       <Table bordered className="mb-5">
@@ -192,33 +260,81 @@ function MyTable() {
                   <p className="mb-0">
                     <b>REQUEST RECEIVED MTD S.L</b>
                   </p>
-                  <input
-                    type="text"
-                    id="reqMTD"
-                    name="reqMTD"
-                    style={{ width: "100%" }}
-                    {...register("requestReceivedMTD", {
-                      required: "This field is required",
+                  <select
+                    // class="form-select form-select-sm"
+                    // aria-label=".form-select-sm example"
+                    style={{ borderRadius: "5px" }}
+                    // id="standard-select-currency"
+                    id="outlined-number"
+                    name="selectedmtd"
+                    className="textField mt-1 w-50"
+                    fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    // value={selectedMtdSL}
+                    onChange={(e) => {
+                      // handleMtdUser(e.target.value);
+
+                      setSelectedUser(e.target.value);
+                    }}
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {selectedAllMtdTL?.map((option) => {
+                      return (
+                        <option value={option?._id}>{option?.tm_name}</option>
+                      );
                     })}
-                  />
-                  {errors?.["requestReceivedMTD"] && (
-                    <p>{errors?.["requestReceivedMTD"]?.message}</p>
-                  )}
+                  </select>
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">
                     <b>MTD T.L.</b>
                   </p>
-                  <input
-                    type="text"
-                    id="MTDTL"
-                    name="MTDTL"
-                    style={{ width: "100%" }}
-                    {...register("MTD_TL", {
-                      required: "This field is required",
+                  {/* <DropdownButton
+                    id="dropdown-basic-button"
+                    variant="secondary"
+                    className="floatRight"
+                    onSelect={handleMtdUser}
+                    title={selectedMtdTL || "Select any option"}
+                  >
+                    {selectedAllMtdTL.map((item, index) => {
+                      return (
+                        <Dropdown.Item key={index} eventKey={item._id}>
+                          {item.tm_name}
+                        </Dropdown.Item>
+                      );
                     })}
-                  />
-                  {errors?.["MTD_TL"] && <p>{errors?.["MTD_TL"]?.message}</p>}
+                  </DropdownButton> */}
+
+                  <select
+                    // class="form-select form-select-sm"
+                    // aria-label=".form-select-sm example"
+                    style={{ borderRadius: "5px" }}
+                    // id="standard-select-currency"
+                    id="outlined-number"
+                    name="selectedLine"
+                    className="textField mt-1 w-50"
+                    fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    // value={selectedMtdTL}
+                    onChange={(e) => {
+                      setSelectedUser(e.target.value);
+                    }}
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {selectedAllMtdTL?.map((option) => {
+                      return (
+                        <option value={option?._id}>{option?.tm_name}</option>
+                      );
+                    })}
+                  </select>
                 </Col>
               </Row>
             </td>
@@ -333,18 +449,49 @@ function MyTable() {
                   <p className="mb-0">
                     <b>SECTION INCHARGE</b>
                   </p>
-                  <input
-                    type="text"
-                    id="sectionIncharge"
-                    name="sectionIncharge"
-                    style={{ width: "100%" }}
-                    {...register("sectionIncharge", {
-                      required: "This field is required",
+                  {/* <DropdownButton
+                    id="dropdown-basic-button"
+                    variant="secondary"
+                    className="floatRight"
+                    onSelect={handleMtdUser}
+                    title={selectedMtdUser || "Select any option"}
+                  >
+                    {selectedAllMtdUsers.map((item, index) => {
+                      return (
+                        <Dropdown.Item key={index} eventKey={item._id}>
+                          {item.tm_name}
+                        </Dropdown.Item>
+                      );
                     })}
-                  />
-                  {errors?.["sectionIncharge"] && (
-                    <p>{errors?.["sectionIncharge"]?.message}</p>
-                  )}
+                  </DropdownButton> */}
+
+                  <select
+                    // class="form-select form-select-sm"
+                    // aria-label=".form-select-sm example"
+                    style={{ borderRadius: "5px" }}
+                    // id="standard-select-currency"
+                    id="outlined-number"
+                    name="selectedLine"
+                    className="textField mt-1 w-50"
+                    fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    // value={selectedMtdUser}
+                    onChange={(e) => {
+                      setSelectedUser(e.target.value);
+                    }}
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {selectedAllMtdUsers?.map((option) => {
+                      return (
+                        <option value={option?._id}>{option?.tm_name}</option>
+                      );
+                    })}
+                  </select>
+                  {/* {errors.feedbackMTD && <p>{errors.feedbackMTD.message}</p>} */}
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">
@@ -380,7 +527,7 @@ function MyTable() {
                     BREAKDOWN TIME
                   </p>
 
-                  <p>{timeDifferenceMinutes}</p>
+                  <p>{timeDifferenceMinutes || null}</p>
                 </Col>
                 <Col
                   lg={3}
@@ -446,6 +593,9 @@ function MyTable() {
                   )}
                 </Col>
               </Row>
+              {totalTime > timeDifferenceMinutes && (
+                <p style={{ color: "red" }}>Total time exceeds!!!</p>
+              )}
               <Row className="m-0">
                 <Col className="border">
                   <Row className="d-flex align-items-center justify-content-center">
@@ -461,20 +611,30 @@ function MyTable() {
                             <Form.Check
                               flex
                               label="Yes"
-                              name="group1"
+                              name="majorRadio"
                               type={type}
                               value="Yes"
                               id={`inline-${type}-1`}
-                              onChange={handleMajor}
+                              // onChange={handleMajor}
+                              checked={selectedMajor === "Yes"}
+                              onChange={() => {
+                                setSelectedMajor("Yes");
+                                setSelectedMinor("No");
+                              }}
                             />
                             <Form.Check
                               flex
                               label="No"
-                              name="group1"
+                              name="majorRadio"
                               type={type}
                               value="No"
                               id={`inline-${type}-2`}
-                              onChange={handleMajor}
+                              // onChange={handleMajor}
+                              checked={selectedMajor === "No"}
+                              onChange={() => {
+                                setSelectedMajor("No");
+                                setSelectedMinor("Yes");
+                              }}
                             />
                           </div>
                         ))}
@@ -533,20 +693,31 @@ function MyTable() {
                             <Form.Check
                               flex
                               label="Yes"
-                              name="group1"
+                              name="minorRadio"
                               type={type}
                               // value="Yes"
                               id={`inline-${type}-1`}
-                              onChange={handleMinor}
+                              // onChange={handleMinor}
+                              checked={selectedMinor === "Yes"}
+                              onChange={() => {
+                                setSelectedMajor("No");
+                                setSelectedMinor("Yes");
+                              }}
                             />
+                            {/* {console.log(selectedMinor === "Yes")} */}
                             <Form.Check
                               flex
                               label="No"
-                              name="group1"
+                              name="minorRadio"
                               type={type}
                               // value="No"
                               id={`inline-${type}-2`}
-                              onChange={handleMinor}
+                              // onChange={handleMinor}
+                              checked={selectedMinor === "No"}
+                              onChange={() => {
+                                setSelectedMajor("Yes");
+                                setSelectedMinor("No");
+                              }}
                             />
                           </div>
                         ))}
@@ -876,21 +1047,89 @@ function MyTable() {
           </tr>
 
           <tr>
-            <td>
-              <Row className="">
-                <b
-                  style={{
-                    writingMode: "vertical-lr",
-                    transform: "rotate(180deg)",
-                    whiteSpace: "normal",
-                  }}
-                >
-                  CHANGED PARTS
-                </b>
+            <td colSpan={16}>
+              <Row>
+                <Col className="col-auto">
+                  <Row className="ms-0 border p-1">
+                    <b
+                      style={{
+                        writingMode: "vertical-rl",
+                        transform: "rotate(180deg)",
+                        whiteSpace: "normal",
+                      }}
+                    >
+                      CHANGED PARTS
+                    </b>
+                  </Row>
+                </Col>
+                <Col>
+                  <Row className="">
+                    <PartList parts={parts} setParts={setParts} />
+                  </Row>
+                </Col>
               </Row>
             </td>
-            <td>
-              <PartList parts={parts} setParts={setParts} />
+          </tr>
+
+          <tr>
+            <td colSpan={16}>
+              <Row className="m-0">
+                <Col lg={4} className="border">
+                  <Row>
+                    <b className="text-decoration-underline">NOTE:</b>
+                  </Row>
+                  <Row>
+                    <span>* IN CASE OF MAJOR BREKDOWN, IT IS NECESSARY TO</span>
+                    <span>GET THE SIGNATURE OF "GM-PRD" & "GM-MTD" IN</span>
+                    <span>"CHECKED BY" BOX.</span>
+                    <span>** PART QUALITY RELATED TO MAINTENANCE WORK.</span>
+                  </Row>
+                </Col>
+
+                <Col lg={8} className="border">
+                  <Row>
+                    <Col className="text-center border p-1">
+                      <b>CHECKED BY</b>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col className="border p-1 text-center">
+                      <b>* GM-MTD</b>
+                    </Col>
+                    <Col className="border p-1 text-center">
+                      <b>* GM-PRD</b>
+                    </Col>
+                    <Col className="border p-1 text-center">
+                      <b>SECTION INCHARGE (PRD)</b>
+                    </Col>
+                    <Col className="border p-1 text-center">
+                      <b>TEAM LEADER (PRD)</b>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col className="border">
+                      <div className="p-1">
+                        <input className="w-100" type="text" />
+                      </div>
+                    </Col>
+                    <Col className="border">
+                      <div className="p-1">
+                        <input className="w-100" type="text" />
+                      </div>
+                    </Col>
+                    <Col className="border">
+                      <div className="p-1">
+                        <input className="w-100" type="text" />
+                      </div>
+                    </Col>
+                    <Col className="border">
+                      <div className="p-1">
+                        <input className="w-100" type="text" />
+                      </div>
+                    </Col>
+                  </Row>
+                </Col>
+              </Row>
             </td>
           </tr>
         </tbody>
