@@ -36,7 +36,6 @@ function MyTable() {
   const [selectedQuality, setSelectedQuality] = useState("");
   const [selectedMachineDetails, setMachineDetails] = useState("");
   const [selectedAttendee, setSelectedAttendee] = useState("");
- 
 
   const handleSelectShift = (key, event) => {
     setSelectedShift({ key, value: event.target.value });
@@ -104,9 +103,11 @@ function MyTable() {
           navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
         }
       } else {
-        const { machine, breakDownAttendedBy } = await res.json();
+        const { machine, breakDownAttendedBy, requestSheetApprovalList } =
+          await res.json();
         // setMachine(machine);
         console.log(machine);
+        console.log("mtdUser", requestSheetApprovalList);
 
         setMachineDetails(machine);
         setSelectedAttendee(breakDownAttendedBy);
@@ -127,8 +128,6 @@ function MyTable() {
 
   // console.log(startedDate.toDate());
   // console.log(endedDate.toDate());
-
-  let reqNos = 0;
 
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
@@ -266,8 +265,9 @@ function MyTable() {
                     selectedMachineDetails?.line_names?.cell_names
                       ?.subSection_names?.section_names?.section_name
                   }
-                  _{selectedMachineDetails?.line_names?.line_name}_{startedDate}
-                  _{selectedMachineDetails?.line_names?.requestSheetNos + 1}
+                  _{selectedMachineDetails?.line_names?.line_name}_
+                  {startedDate + 1}_
+                  {selectedMachineDetails?.line_names?.requestSheetNos + 1}
                 </p>
                 <Row className="m-0">
                   <Col className="border">

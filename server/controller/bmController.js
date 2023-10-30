@@ -11,6 +11,7 @@ const SubSection = require("../model/subSectionSchema");
 
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
+const factory = require("./handlerFactory");
 
 router.use(cookieParser());
 router.use(authenticate);
@@ -81,7 +82,6 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
       .exec();
 
     if (machine) {
-      // Now you can use the incremented value for your requestSheet
       const _idObject = {
         machineRef: machine._id,
         lineRef: machine.line_names._id,
@@ -103,12 +103,27 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
 
       let requestSheet;
 
-      if (req.rootUser.user_type) {
+      if (req.rootUser.user_type === "Operator") {
         const {
           workStartedDateOfBM,
           workEndedDateOfBM,
           workStartedTimeOfBM,
           workEndedTimeOfBM,
+          breakTime,
+          qualityCheckTime,
+          maintenanceTime,
+          problemsOfBM,
+          actionAndCounterMeasureStep,
+          minorBD,
+          majorBD,
+          firstTime,
+          repeat,
+          breakDownTime,
+          why1,
+          why2,
+          why3,
+          why4,
+          why5,
         } = req.body;
 
         const startDateTimeBM = `${workStartedDateOfBM}T${workStartedTimeOfBM}`;
@@ -119,54 +134,43 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
         let queryObj = {
           ...req.body,
           ..._idObject,
+          "maintenanceReportFilledByMTD.workStartedDateOfBM":
+            requestSheetStartDateTime,
+          "maintenanceReportFilledByMTD.workEndedDateOfBM":
+            requestSheetEndDateTime,
+          "maintenanceReportFilledByMTD.actionAndCounterMeasureStep":
+            actionAndCounterMeasureStep,
+          "maintenanceReportFilledByMTD.maintenanceTime": maintenanceTime,
+          "maintenanceReportFilledByMTD.problemsOfBM": problemsOfBM,
+          "maintenanceReportFilledByMTD.breakTime": breakTime,
+          "maintenanceReportFilledByMTD.breakDownTime": breakDownTime,
+          "maintenanceReportFilledByMTD.whyAnalysis.why1": why1,
+          "maintenanceReportFilledByMTD.whyAnalysis.why2": why2,
+          "maintenanceReportFilledByMTD.whyAnalysis.why3": why3,
+          "maintenanceReportFilledByMTD.whyAnalysis.why4": why4,
+          "maintenanceReportFilledByMTD.whyAnalysis.why5": why5,
+          "maintenanceReportFilledByMTD.whyAnalysis.breakDownTime":
+            breakDownTime,
+          "maintenanceReportFilledByMTD.whyAnalysis.maintenanceTime":
+            maintenanceTime,
+          "maintenanceReportFilledByMTD.whyAnalysis.qualityCheckTime":
+            qualityCheckTime,
+          "maintenanceReportFilledByMTD.whyAnalysis.breakTime": breakTime,
+          "maintenanceReportFilledByMTD.whyAnalysis.minorBD": minorBD,
+          "maintenanceReportFilledByMTD.whyAnalysis.majorBD": majorBD,
+          "maintenanceReportFilledByMTD.whyAnalysis.firstTime": firstTime,
+          "maintenanceReportFilledByMTD.whyAnalysis.repeat": repeat,
         };
 
-        const requestSheet = await RequestSheetOfBM.findOneAndUpdate(
-          req.query,
+        requestSheet = await RequestSheetOfBM.findOneAndUpdate(
+          { _id: req.query.reqId },
           {
             $set: queryObj,
+          },
+          {
+            new: true,
           }
         );
-
-        await requestSheet.save();
-
-        // if (existingPRDRequestSheet) {
-        // (existingPRDRequestSheet.maintenanceReportFilledByMTD = {
-        //   workStartedDateOfBM: requestSheetStartDateTime,
-        //   workEndedDateOfBM: requestSheetEndDateTime,
-        //   actionAndCounterMeasureStep,
-        //   problemsOfBM,
-        //   "whyAnalysis.why1": why1,
-        //   "whyAnalysis.why2": why2,
-        //   "whyAnalysis.why3": why3,
-        //   "whyAnalysis.why4": why4,
-        //   "whyAnalysis.why5": why5,
-        //   breakDownTime,
-        //   maintenanceTime,
-        //   qualityCheckTime,
-        //   breakTime,
-        //   minorBD,
-        //   majorBD,
-        //   firstTime,
-        //   repeat,
-        // }),
-        //   (existingPRDRequestSheet.changedParts = changedParts),
-        //   (existingPRDRequestSheet.requestReceivedMTD = requestReceivedMTD),
-        //   (existingPRDRequestSheet.MTD_TL = MTD_TL),
-        //   (existingPRDRequestSheet.sectionIncharge = sectionIncharge),
-        //   (existingPRDRequestSheet.feedbackMTD = feedbackMTD),
-        //   // (existingPRDRequestSheet.partQualityCheckedByPRD = req.rootUser._id),
-        //   // (existingPRDRequestSheet.partQualityByMTD = partQualityByMTD),
-        //   (existingPRDRequestSheet.dataSheetOfBM = dataSheetOfBM),
-        //   (existingPRDRequestSheet.drawingOfBM = drawingOfBM),
-        //   (existingPRDRequestSheet.qualityConfirmed = qualityConfirmed),
-        //   (existingPRDRequestSheet.approvalOfMTD_TL = approvalOfMTD_TL),
-        //   (existingPRDRequestSheet.approvalOfMTD_SL = approvalOfMTD_SL),
-        //   (existingPRDRequestSheet.approvalOfMTD_HOS = approvalOfMTD_HOS),
-        //   await existingPRDRequestSheet.save();
-        // requestSheet = existingPRDRequestSheet;
-        // console.log("requestSheetwdas", requestSheet);
-        // }
       } else {
         const {
           problemFaced,
@@ -498,8 +502,6 @@ router.get(
         }
       }
 
-      req.queryObj = queryObj;
-
       next();
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -716,61 +718,196 @@ router.get(
   },
   functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO
 );
-router.get(
-  "/getMachineDetailsOnScanningRequest/:generateType",
-  async (req, res, next) => {
-    const machine = await Machine.findOne(req.query)
-      .populate({
-        path: "line_names",
-        populate: {
-          path: "cell_names",
-          populate: {
-            path: "subSection_names",
-            populate: {
-              path: "section_names",
-              populate: {
-                path: "plant_names",
-                model: "Plants",
-              },
-            },
-          },
-        },
-      })
-      .exec();
+// router.get(
+//   "/getMachineDetailsOnScanningRequest/:generateType",
+//   async (req, res, next) => {
+//     const machine = await Machine.findOne(req.query)
+//       .populate({
+//         path: "line_names",
+//         populate: {
+//           path: "cell_names",
+//           populate: {
+//             path: "subSection_names",
+//             populate: {
+//               path: "section_names",
+//               populate: {
+//                 path: "plant_names",
+//                 model: "Plants",
+//               },
+//             },
+//           },
+//         },
+//       })
+//       .exec();
 
-    // const mtdUser = await User.find({
-    //   tm_department: req.query.tm_department,
-    //   user_type: req.query.user_type,
-    // });
+//     const section = await Section.findOne({
+//       section_id: req?.rootUser?.section_data?.split("-")?.[0],
+//     });
 
-    if (machine) {
-      res.status(201).json({
-        message: "Sheet data get successfully",
-        machine,
-        breakDownAttendedBy: req.rootUser.tm_name,
-        // mtdUser,
-      });
-    } else {
-      res.status(404).json({ message: "Machine not found" });
-    }
-  }
-);
+//     let queryObj = {
+//       plant_data: req?.rootUser?.plant_data,
+//     };
+
+//     if (req?.query?.tm_grade !== "HOD") {
+//       if (section.dashboardLevel === "Yes") {
+//         queryObj = {
+//           ...queryObj,
+//           section_data: req?.rootUser?.section_data,
+//         };
+//       } else {
+//         queryObj = {
+//           ...queryObj,
+//           section_data: req?.rootUser?.section_data,
+//           subSection_data: { $in: req?.rootUser?.subSection_data },
+//         };
+//       }
+//     }
+
+//     console.log("queryObj", queryObj);
+
+//     // const mtdUser = await User.find({
+//     //   tm_department: req.query.tm_department,
+//     //   tm_grade: req.query.tm_grade,
+//     // });
+//     const mtdUser = await User.find({
+//       ...queryObj,
+//     });
+
+//     // const mtdUserTL = await User.find({
+//     //   tm_department: req.query.tm_department,
+//     //   user_type: req.query.user_type,
+//     // });
+
+//     if (machine) {
+//       res.status(201).json({
+//         message: "Sheet data get successfully",
+//         machine,
+//         breakDownAttendedBy: req.rootUser.tm_name,
+//         mtdUser,
+//         // mtdUserTL,
+//       });
+//     } else {
+//       res.status(404).json({ message: "Machine not found" });
+//     }
+//   }
+// );
 
 router.get("/getMtdUserDetails", async (req, res, next) => {
   const mtdUser = await User.find({
     tm_department: req.query.tm_department,
     tm_grade: req.query.tm_grade,
   });
+
   const mtdUserTL = await User.find({
     tm_department: req.query.tm_department,
     user_type: req.query.user_type,
+  });
+
+  const mtdHod = await User.find({
+    tm_department: req.query.tm_department,
+    tm_grade: "HOD",
+  });
+  const prdHod = await User.find({
+    tm_department: "PRD",
+    tm_grade: "HOD",
+  });
+  const prdHos = await User.find({
+    tm_department: "PRD",
+    tm_grade: "HOS",
+  });
+  const prdTL = await User.find({
+    tm_department: "PRD",
+    user_type: "TL/HOSS",
   });
 
   res.status(201).json({
     message: "Mtd User get successfully",
     mtdUser,
     mtdUserTL,
+    mtdHod,
+    prdHod,
+    prdHos,
+    prdTL,
   });
 });
+
+// router.get(
+//   "/getMachineDetailsOnScanningRequest/:generateType",
+//   async (req, res, next) => {
+//     const machine = await Machine.findOne(req.query)
+//       .populate({
+//         path: "line_names",
+//         populate: {
+//           path: "cell_names",
+//           populate: {
+//             path: "subSection_names",
+//             populate: {
+//               path: "section_names",
+//               populate: {
+//                 path: "plant_names",
+//                 model: "Plants",
+//               },
+//             },
+//           },
+//         },
+//       })
+//       .exec();
+
+//     const section = await Section.findOne({
+//       section_id: req?.rootUser?.section_data?.split("-")?.[0],
+//     });
+
+//     let queryObj = {
+//       plant_data: req?.rootUser?.plant_data,
+//     };
+
+//     if (req?.query?.tm_grade !== "HOD") {
+//       if (section.dashboardLevel === "Yes") {
+//         queryObj = {
+//           ...queryObj,
+//           section_data: req?.rootUser?.section_data,
+//         };
+//       } else {
+//         queryObj = {
+//           ...queryObj,
+//           section_data: req?.rootUser?.section_data,
+//           subSection_data: { $in: req?.rootUser?.subSection_data },
+//         };
+//       }
+//     }
+
+//     console.log("queryObj", queryObj);
+
+//     // const mtdUser = await User.find({
+//     //   tm_department: req.query.tm_department,
+//     //   tm_grade: req.query.tm_grade,
+//     // });
+//     const mtdUser = await User.find({
+//       queryObj,
+//     });
+
+//     // const mtdUserTL = await User.find({
+//     //   tm_department: req.query.tm_department,
+//     //   user_type: req.query.user_type,
+//     // });
+
+//     if (machine) {
+//       res.status(201).json({
+//         message: "Sheet data get successfully",
+//         machine,
+//         breakDownAttendedBy: req.rootUser.tm_name,
+//         mtdUser,
+//         // mtdUserTL,
+//       });
+//     } else {
+//       res.status(404).json({ message: "Machine not found" });
+//     }
+//   }
+// );
+
+router.get(
+  "/getMachineDetailsOnScanningRequest/:generateType",
+  factory.getUser(Machine, Section, User)
+);
 
 module.exports = router;
