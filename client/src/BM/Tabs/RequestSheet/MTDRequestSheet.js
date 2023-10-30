@@ -11,6 +11,8 @@ import ProblemList from "./SubComponents/ProblemList";
 import ActionList from "./SubComponents/ActionList";
 import PartList from "./SubComponents/PartList";
 import { useForm } from "react-hook-form";
+import moment from "moment";
+
 const list = [
   { key: "A", value: "A" },
   { key: "B", value: "B" },
@@ -28,8 +30,24 @@ function MyTable() {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
     // reset,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      workStartedTimeOfBM: new Date().toLocaleTimeString("en-US", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+      workEndedTimeOfBM: new Date().toLocaleTimeString("en-US", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+    },
+  });
 
   const [selectedQuality, setSelectedQuality] = useState("");
   const [selectedDataSheet, setSelectedDataSheet] = useState("");
@@ -85,24 +103,32 @@ function MyTable() {
   var curr = new Date();
   var currentDate = curr.toISOString().substring(0, 10);
 
-  const currTime = new Date().toLocaleTimeString();
-  console.log("currTime:", currTime);
+  const currTime = new Date().toLocaleTimeString("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 
-  var startTimeParts = selectedStartTime.split(":");
-  var endTimeParts = selectedEndTime.split(":");
+  // var startTimeParts = selectedStartTime.split(":");
+  // var endTimeParts = selectedEndTime.split(":");
 
-  
-  var startDate = new Date();
-  startDate.setHours(parseInt(startTimeParts[0], 10));
-  startDate.setMinutes(parseInt(startTimeParts[1], 10));
+  // var startDate = new Date();
+  // startDate.setHours(parseInt(startTimeParts[0], 10));
+  // startDate.setMinutes(parseInt(startTimeParts[1], 10));
 
-  var endDate = new Date();
-  endDate.setHours(parseInt(endTimeParts[0], 10));
-  endDate.setMinutes(parseInt(endTimeParts[1], 10));
+  // var endDate = new Date();
+  // endDate.setHours(parseInt(endTimeParts[0], 10));
+  // endDate.setMinutes(parseInt(endTimeParts[1], 10));
 
-  var timeDifferenceMs = endDate - startDate;
+  // console.log(startDate, "---",endDate)
 
-  var timeDifferenceMinutes = timeDifferenceMs / (1000 * 60);
+  // var timeDifferenceMs = watch('workEndedTimeOfBM') - watch("workStartedTimeOfBM");
+  var timeDifferenceMinutes = moment(watch("workEndedTimeOfBM"), "HH:mm").diff(
+    moment(watch("workStartedTimeOfBM"), "HH:mm"),
+    "minutes"
+  );
+  // var timeDifferenceMinutes = timeDifferenceMs / (1000 * 60);
 
   // console.log("Time difference in minutes:", timeDifferenceMinutes);
 
@@ -213,7 +239,7 @@ function MyTable() {
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-2">
                           <div className="text-center">
                             <p className="mb-0">
-                              <b>Date: </b>
+                              <b>DATE: </b>
 
                               <input
                                 type="date"
@@ -232,15 +258,15 @@ function MyTable() {
                           &nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
                             <p className="mb-0">
-                              <b>Time: </b>
+                              <b>TIME: </b>
 
                               <input
                                 type="time"
-                                defaultValue={currTime}
+                                // defaultValue={currTime}
                                 {...register("workStartedTimeOfBM", {
                                   required: "Work Start Time is required",
                                 })}
-                                onChange={handleStartTime}
+                                // onChange={handleStartTime}
                               />
                               {errors?.["workStartedTimeOfBM"] && (
                                 <p>
@@ -264,7 +290,7 @@ function MyTable() {
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-2">
                           <div className="text-center">
                             <p className="mb-0">
-                              <b>Date: </b>
+                              <b>DATE: </b>
                               <input
                                 type="date"
                                 defaultValue={currentDate}
@@ -280,14 +306,14 @@ function MyTable() {
                           &nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
                             <p className="mb-0">
-                              <b>Time: </b>
+                              <b>TIME: </b>
                               <input
                                 type="time"
-                                defaultValue={currTime}
+                                // defaultValue={currTime}
                                 {...register("workEndedTimeOfBM", {
                                   required: "Work Ended Time is required",
                                 })}
-                                onChange={handleEndTime}
+                                // onChange={handleEndTime}
                               />
                               {errors?.["workEndedTimeOfBM"] && (
                                 <p>{errors?.["workEndedTimeOfBM"]?.message}</p>
@@ -579,13 +605,14 @@ function MyTable() {
               <Row className="m-0">
                 <Col className="border">
                   <Row className="d-flex align-items-center justify-content-center border border-top-0">
-                    <Col>
+                    <Col md={4}>
                       <p className="mb-0" style={{ fontSize: "12px" }}>
                         <b>WHY-1 </b>
                       </p>
                     </Col>
-                    <Col>
-                      <input
+                    <Col md={8}>
+                      <textarea
+                        rows={1}
                         type="text"
                         id="Why1"
                         name="why1"
@@ -601,13 +628,14 @@ function MyTable() {
                     </Col>
                   </Row>
                   <Row className="d-flex align-items-center justify-content-center border">
-                    <Col>
+                    <Col md={4}>
                       <p className="mb-0" style={{ fontSize: "12px" }}>
                         <b>WHY-2 </b>
                       </p>
                     </Col>
-                    <Col>
-                      <input
+                    <Col md={8}>
+                      <textarea
+                        rows={1}
                         type="text"
                         id="Why2"
                         name="why2"
@@ -618,13 +646,14 @@ function MyTable() {
                     </Col>
                   </Row>
                   <Row className="d-flex align-items-center justify-content-center border">
-                    <Col>
+                    <Col md={4}>
                       <p className="mb-0" style={{ fontSize: "12px" }}>
                         <b>WHY-3 </b>
                       </p>
                     </Col>
-                    <Col>
-                      <input
+                    <Col md={8}>
+                      <textarea
+                        rows={1}
                         type="text"
                         id="Why3"
                         name="why3"
@@ -635,13 +664,14 @@ function MyTable() {
                     </Col>
                   </Row>
                   <Row className="d-flex align-items-center justify-content-center border">
-                    <Col>
+                    <Col md={4}>
                       <p className="mb-0" style={{ fontSize: "12px" }}>
                         <b>WHY-4 </b>
                       </p>
                     </Col>
-                    <Col>
-                      <input
+                    <Col md={8}>
+                      <textarea
+                        rows={1}
                         type="text"
                         id="Why4"
                         name="why4"
@@ -652,13 +682,14 @@ function MyTable() {
                     </Col>
                   </Row>
                   <Row className="d-flex align-items-center justify-content-center border">
-                    <Col>
+                    <Col md={4}>
                       <p className="mb-0" style={{ fontSize: "12px" }}>
                         <b>WHY-5 </b>
                       </p>
                     </Col>
-                    <Col>
-                      <input
+                    <Col md={8}>
+                      <textarea
+                        rows={1}
                         type="text"
                         id="Why5"
                         name="why5"

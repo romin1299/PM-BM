@@ -79,9 +79,6 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
       })
       .exec();
 
-    if (Machine) {
-    }
-
     const _idObject = {
       machineRef: machine._id,
       lineRef: machine.line_names._id,
