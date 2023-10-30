@@ -34,12 +34,12 @@ function MyTable() {
     // reset,
   } = useForm({
     defaultValues: {
-      workStartedTimeOfBM: new Date().toLocaleTimeString("en-US", {
-        timeZone: "Asia/Kolkata",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }),
+      // workStartedTimeOfBM: new Date().toLocaleTimeString("en-US", {
+      //   timeZone: "Asia/Kolkata",
+      //   hour: "2-digit",
+      //   minute: "2-digit",
+      //   hour12: false,
+      // }),
       workEndedTimeOfBM: new Date().toLocaleTimeString("en-US", {
         timeZone: "Asia/Kolkata",
         hour: "2-digit",
@@ -359,7 +359,7 @@ function MyTable() {
 
                               <input
                                 type="date"
-                                defaultValue={currentDate}
+                                // defaultValue={currentDate}
                                 {...register("workStartedDateOfBM", {
                                   required: "Work Start date is required",
                                 })}

@@ -54,7 +54,6 @@ function MyTable() {
   const [selectedQuality, setSelectedQuality] = useState("");
   const [selectedMachineDetails, setMachineDetails] = useState("");
   const [selectedAttendee, setSelectedAttendee] = useState("");
- 
 
   const handleSelectShift = (key, event) => {
     setSelectedShift({ key, value: event.target.value });
@@ -139,9 +138,9 @@ function MyTable() {
   }, [machine_code]);
 
   const timezone = "Asia/Kolkata";
-  const startedDate = moment().tz(timezone).month();
+  const startedDate = moment().tz(timezone).month() + 1;
 
-  console.log("IST", startedDate);
+  // console.log("IST", startedDate);
 
   // console.log(startedDate.toDate());
   // console.log(endedDate.toDate());
@@ -312,7 +311,7 @@ function MyTable() {
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <div className="text-center">
                           <p className="mb-0">
-                            <b>Time: </b>
+                            <b>TIME: </b>
                             <br />
                             <input
                               type="time"
@@ -336,7 +335,7 @@ function MyTable() {
                       <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                         <div className="text-center">
                           <p className="mb-0">
-                            <b>Date: </b>
+                            <b>DATE: </b>
                             <br />
                             <input
                               type="date"
@@ -381,7 +380,7 @@ function MyTable() {
             </td>
 
             <td colSpan={2} className="mb-0 pb-0 pt-0">
-              <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
+              {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
                     <b>Sr. No.</b>
@@ -398,22 +397,22 @@ function MyTable() {
                     )}
                   </p>
                 </Col>
-              </Row>
+              </Row> */}
               <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="mb-0">DEPT./LINE</p>
-                  {selectedMachineDetails?.line_names?.line_name}
+                  {selectedMachineDetails?.line_names?.cell_names?.cell_name}/{selectedMachineDetails?.line_names?.line_name}
                 </Col>
-
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">TL [PRD]</p>
-                  <input
+                  {}
+                  {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
                       required: "Team Leader Name is required",
                     })}
                   />
-                  {errors?.["TLName"] && <p>{errors?.["TLName"]?.message}</p>}
+                  {errors?.["TLName"] && <p>{errors?.["TLName"]?.message}</p>} */}
                 </Col>
               </Row>
             </td>
@@ -679,7 +678,7 @@ function MyTable() {
                   <p className="mb-0">
                     <b>BREAKDOWN ATTENDED BY</b>
                   </p>
-                  {selectedAttendee}
+                  {/* {selectedAttendee} */}
                 </Col>
               </Row>
             </td>
