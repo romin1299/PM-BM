@@ -44,6 +44,22 @@ function MyTable() {
   const [selectedQualityCheckTime, setSelectedQualityCheckTime] = useState("");
   const [selectedBreakTime, setSelectedBreakTime] = useState("");
   const [totalTime, setTotalTime] = useState(0);
+  const [selectedAllMtdUsers, setSelectedAllMtdUsers] = useState([]);
+  const [selectedAllMtdTL, setSelectedAllMtdTL] = useState([]);
+  // const [selectedMtdSL, setSelectedMtdSL] = useState("");
+  // const [selectedMtdUser, setSelectedMtdUser] = useState("");
+  // const [selectedMtdTL, setSelectedMtdTL] = useState("");
+
+  const [selectedUser, setSelectedUser] = useState({
+    selectedMtdSL: "",
+    selectedMtdUser: "",
+    selectedMtdTL: "",
+  });
+
+  // const [selectedAll, setSelectedAll] = useState({
+  //   selectedAllMtdUsers: [],
+  //   selectedAllMtdTL: [],
+  // });
 
   const handleQuality = (event) => {
     setSelectedQuality(event.target.value);
@@ -54,13 +70,6 @@ function MyTable() {
   const handleDrawing = (event) => {
     setSelectedDrawing(event.target.value);
   };
-
-  // const handleMajor = (event) => {
-  //   setSelectedMajor(event.target.value);
-  // };
-  // const handleMinor = (event) => {
-  //   setSelectedMinor(event.target.value);
-  // };
   const handleFirstTime = (event) => {
     setSelectedFirstTime(event.target.value);
   };
@@ -82,6 +91,12 @@ function MyTable() {
   const handleBreakTime = (event) => {
     setSelectedBreakTime(event.target.value);
   };
+
+  // const handleSection = (e) => {
+  //   setSelectedUser({ selectedMtdUser: e.target.value });
+  // };
+
+  // console.log(selectedMtdTL);
 
   var curr = new Date();
   var currentDate = curr.toISOString().substring(0, 10);
@@ -120,6 +135,9 @@ function MyTable() {
     requestSheetData.minorBD = selectedMinor;
     requestSheetData.firstTime = selectedFirstTime;
     requestSheetData.repeat = selectedRepeat;
+    // requestSheetData.approvalOfMTD_TL = selectedMtdTL;
+    // requestSheetData.approvalOfMTD_SL = selectedMtdSL;
+    // requestSheetData.approvalOfMTD_HOS = selectedMtdUser;
 
     const reqid = "65324cb00dc427ec2a098ef4";
 
@@ -146,6 +164,38 @@ function MyTable() {
       console.log(error);
     }
   };
+
+  const MTD = "MTD";
+  const user_type = "TL/HOSS";
+  const tm_grade = "HOS";
+
+  const getMtdUserDetails = async () => {
+    try {
+      const res = await fetch(
+        `/getMtdUserDetails/?tm_department=${MTD}&&user_type=${user_type}&&tm_grade=${tm_grade}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { mtdUser, mtdUserTL } = await res.json();
+
+      setSelectedAllMtdUsers(mtdUser);
+      setSelectedAllMtdTL(mtdUserTL);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getMtdUserDetails();
+  }, [MTD]);
+
   useEffect(() => {
     if (timeDifferenceMinutes > 120) {
       setSelectedMajor("Yes");
@@ -183,33 +233,81 @@ function MyTable() {
                   <p className="mb-0">
                     <b>REQUEST RECEIVED MTD S.L</b>
                   </p>
-                  <input
-                    type="text"
-                    id="reqMTD"
-                    name="reqMTD"
-                    style={{ width: "100%" }}
-                    {...register("requestReceivedMTD", {
-                      required: "This field is required",
+                  <select
+                    // class="form-select form-select-sm"
+                    // aria-label=".form-select-sm example"
+                    style={{ borderRadius: "5px" }}
+                    // id="standard-select-currency"
+                    id="outlined-number"
+                    name="selectedmtd"
+                    className="textField mt-1 w-50"
+                    fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    // value={selectedMtdSL}
+                    onChange={(e) => {
+                      // handleMtdUser(e.target.value);
+
+                      setSelectedUser(e.target.value);
+                    }}
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {selectedAllMtdTL?.map((option) => {
+                      return (
+                        <option value={option?._id}>{option?.tm_name}</option>
+                      );
                     })}
-                  />
-                  {errors?.["requestReceivedMTD"] && (
-                    <p>{errors?.["requestReceivedMTD"]?.message}</p>
-                  )}
+                  </select>
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">
                     <b>MTD T.L.</b>
                   </p>
-                  <input
-                    type="text"
-                    id="MTDTL"
-                    name="MTDTL"
-                    style={{ width: "100%" }}
-                    {...register("MTD_TL", {
-                      required: "This field is required",
+                  {/* <DropdownButton
+                    id="dropdown-basic-button"
+                    variant="secondary"
+                    className="floatRight"
+                    onSelect={handleMtdUser}
+                    title={selectedMtdTL || "Select any option"}
+                  >
+                    {selectedAllMtdTL.map((item, index) => {
+                      return (
+                        <Dropdown.Item key={index} eventKey={item._id}>
+                          {item.tm_name}
+                        </Dropdown.Item>
+                      );
                     })}
-                  />
-                  {errors?.["MTD_TL"] && <p>{errors?.["MTD_TL"]?.message}</p>}
+                  </DropdownButton> */}
+
+                  <select
+                    // class="form-select form-select-sm"
+                    // aria-label=".form-select-sm example"
+                    style={{ borderRadius: "5px" }}
+                    // id="standard-select-currency"
+                    id="outlined-number"
+                    name="selectedLine"
+                    className="textField mt-1 w-50"
+                    fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    // value={selectedMtdTL}
+                    onChange={(e) => {
+                      setSelectedUser(e.target.value);
+                    }}
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {selectedAllMtdTL?.map((option) => {
+                      return (
+                        <option value={option?._id}>{option?.tm_name}</option>
+                      );
+                    })}
+                  </select>
                 </Col>
               </Row>
             </td>
@@ -324,18 +422,49 @@ function MyTable() {
                   <p className="mb-0">
                     <b>SECTION INCHARGE</b>
                   </p>
-                  <input
-                    type="text"
-                    id="sectionIncharge"
-                    name="sectionIncharge"
-                    style={{ width: "100%" }}
-                    {...register("sectionIncharge", {
-                      required: "This field is required",
+                  {/* <DropdownButton
+                    id="dropdown-basic-button"
+                    variant="secondary"
+                    className="floatRight"
+                    onSelect={handleMtdUser}
+                    title={selectedMtdUser || "Select any option"}
+                  >
+                    {selectedAllMtdUsers.map((item, index) => {
+                      return (
+                        <Dropdown.Item key={index} eventKey={item._id}>
+                          {item.tm_name}
+                        </Dropdown.Item>
+                      );
                     })}
-                  />
-                  {errors?.["sectionIncharge"] && (
-                    <p>{errors?.["sectionIncharge"]?.message}</p>
-                  )}
+                  </DropdownButton> */}
+
+                  <select
+                    // class="form-select form-select-sm"
+                    // aria-label=".form-select-sm example"
+                    style={{ borderRadius: "5px" }}
+                    // id="standard-select-currency"
+                    id="outlined-number"
+                    name="selectedLine"
+                    className="textField mt-1 w-50"
+                    fullWidth
+                    select // label="Select"
+                    autoComplete="off"
+                    // value={selectedMtdUser}
+                    onChange={(e) => {
+                      setSelectedUser(e.target.value);
+                    }}
+                    variant="standard"
+                  >
+                    <option selected disabled value="">
+                      Please select
+                    </option>
+                    {selectedAllMtdUsers?.map((option) => {
+                      return (
+                        <option value={option?._id}>{option?.tm_name}</option>
+                      );
+                    })}
+                  </select>
+                  {/* {errors.feedbackMTD && <p>{errors.feedbackMTD.message}</p>} */}
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">

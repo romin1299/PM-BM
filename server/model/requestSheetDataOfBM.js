@@ -62,21 +62,25 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     ],
   },
 
-  requestReceivedMTD: {
-    type: String,
-  },
+  // requestReceivedMTD: {
+  //   type: String,
+  // },
 
-  MTD_TL: {
-    type: String,
-  },
+  // MTD_TL: {
+  //   type: String,
+  // },
 
-  sectionIncharge: {
-    type: String,
-  },
+  // sectionIncharge: {
+  //   type: String,
+  // },
 
-  feedbackMTD: {
-    type: String,
-  },
+  // feedbackMTD: {
+  //   type: String,
+  // },
+
+  // requestSheetNos: {
+  //   type: Number,
+  // },
 
   // partQualityByPRD: {
   //   type: String,
@@ -106,6 +110,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+
   breakDownAttendedStatus: {
     type: String,
   },
@@ -132,6 +137,18 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: String,
   },
   approvalDateAndTimeOfMTD_TL: {
+    type: Date, //If need String change it.
+  },
+
+  //for MTD Sl
+  approvalOfMTD_SL: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  approvalStatusOfMTD_SL: {
+    type: String,
+  },
+  approvalDateAndTimeOfMTD_SL: {
     type: Date, //If need String change it.
   },
 
