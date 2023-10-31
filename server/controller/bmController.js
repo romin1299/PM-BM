@@ -907,7 +907,7 @@ router.get("/getMtdUserDetails", async (req, res, next) => {
 
 router.get(
   "/getMachineDetailsOnScanningRequest/:generateType",
-  factory.getUser(Machine, Section, User)
+  factory.getUserData(Machine, Section, User)
 );
 
 module.exports = router;

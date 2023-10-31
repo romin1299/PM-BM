@@ -106,8 +106,8 @@ function MyTable() {
         const { machine, breakDownAttendedBy, requestSheetApprovalList } =
           await res.json();
         // setMachine(machine);
-        console.log(machine);
-        console.log("mtdUser", requestSheetApprovalList);
+        // console.log(machine);
+        // console.log("Users", requestSheetApprovalList);
 
         setMachineDetails(machine);
         setSelectedAttendee(breakDownAttendedBy);

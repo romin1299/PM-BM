@@ -1,4 +1,4 @@
-exports.getUser =
+exports.getUserData =
   (machineModel, sectionModel, userModel) => async (req, res) => {
     const machine = await machineModel
       .findOne(req.query)
@@ -20,12 +20,14 @@ exports.getUser =
       })
       .exec();
 
+   
+
     const section = await sectionModel.findOne({
       section_id: req?.rootUser?.section_data?.split("-")?.[0],
     });
 
     let queryObj = {
-      plant_data: req?.rootUser?.plant_data,
+      plant_data: req?.rootUser?.plant_data,  
     };
 
     if (req?.query?.tm_grade !== "HOD") {
@@ -42,8 +44,6 @@ exports.getUser =
         };
       }
     }
-
-    console.log("queryObj", queryObj);
 
     const mtdUser = await userModel.find({
       ...queryObj,
@@ -76,19 +76,20 @@ exports.getUser =
       user_type: "TL/HOSS",
     });
 
-    let requestSheetApprovalList = { ...mtdUser };
+    const requestSheetApprovalList = {
+      mtdUser,
+      mtdUserTL,
+      mtdHod,
+      prdHod,
+      prdHos,
+      prdTL,
+    };
 
     if (machine) {
       res.status(201).json({
         message: "Sheet data get successfully",
         machine,
         breakDownAttendedBy: req.rootUser.tm_name,
-        // mtdUser: queryMtd,
-        // mtdUserTL,
-        // mtdHod,
-        // prdHod,
-        // prdHos,
-        // prdTL,
         requestSheetApprovalList,
       });
     } else {
