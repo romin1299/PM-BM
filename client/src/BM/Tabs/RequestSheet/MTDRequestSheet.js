@@ -12,6 +12,7 @@ import ActionList from "./SubComponents/ActionList";
 import PartList from "./SubComponents/PartList";
 import { useForm } from "react-hook-form";
 import moment from "moment";
+import DropdownElem from "../../Component/DropdownElem";
 
 const list = [
   { key: "A", value: "A" },
@@ -1095,15 +1096,19 @@ function MyTable() {
                   <Row>
                     <Col className="border p-1 text-center">
                       <b>* GM-MTD</b>
+                      <DropdownElem name={"MTD_HOD_List"} />
                     </Col>
                     <Col className="border p-1 text-center">
                       <b>* GM-PRD</b>
+                      <DropdownElem name={"PRD_HOD_List"} />
                     </Col>
                     <Col className="border p-1 text-center">
                       <b>SECTION INCHARGE (PRD)</b>
+                      <DropdownElem name={"PRD_HOS_List"} />
                     </Col>
                     <Col className="border p-1 text-center">
                       <b>TEAM LEADER (PRD)</b>
+                      <DropdownElem name={"PRD_TL_List"} />
                     </Col>
                   </Row>
                   <Row>

@@ -13,6 +13,10 @@ const plantSchema = new mongoose.Schema({
       categories: { type: [String] },
     },
   ],
+  approvalListOfMinorAndMajor: {
+    minorApprovalList: [{ type: String }],
+    majorApprovalList: [{ type: String }],
+  }
 });
 
 const Plant = new mongoose.model("Plants", plantSchema);

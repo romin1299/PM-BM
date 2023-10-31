@@ -18,10 +18,10 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable() {
+function MyTable({selectedMachineDetails}) {
   // let [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { machine_code, generateType } = useParams();
+  // const navigate = useNavigate();
+  // const { machine_code, generateType } = useParams();
 
   const {
     register,
@@ -52,7 +52,7 @@ function MyTable() {
   const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
   const [selectedQuality, setSelectedQuality] = useState("");
-  const [selectedMachineDetails, setMachineDetails] = useState("");
+  // const [selectedMachineDetails, setMachineDetails] = useState("");
   const [selectedAttendee, setSelectedAttendee] = useState("");
 
   const handleSelectShift = (key, event) => {
@@ -101,41 +101,41 @@ function MyTable() {
     }
   };
 
-  const getMachineDetails = async () => {
-    try {
-      const res = await fetch(
-        `/getMachineDetailsOnScanningRequest/${generateType}/?machine_code=${machine_code}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
-      if (res.status === 404) {
-        if (generateType === "scanned") {
-          navigate("/", { replace: true });
-        } else {
-          navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
-        }
-      } else {
-        const { machine, breakDownAttendedBy } = await res.json();
-        // setMachine(machine);
-        console.log(machine);
+  // const getMachineDetails = async () => {
+  //   try {
+  //     const res = await fetch(
+  //       `/getMachineDetailsOnScanningRequest/${generateType}/?machine_code=${machine_code}`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           Accept: "application/json",
+  //           "Content-Type": "application/json",
+  //         },
+  //         credentials: "include",
+  //       }
+  //     );
+  //     if (res.status === 404) {
+  //       if (generateType === "scanned") {
+  //         navigate("/", { replace: true });
+  //       } else {
+  //         navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
+  //       }
+  //     } else {
+  //       const { machine, breakDownAttendedBy } = await res.json();
+  //       // setMachine(machine);
+  //       console.log(machine);
 
-        setMachineDetails(machine);
-        setSelectedAttendee(breakDownAttendedBy);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //       setMachineDetails(machine);
+  //       setSelectedAttendee(breakDownAttendedBy);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  useEffect(() => {
-    getMachineDetails();
-  }, [machine_code]);
+  // useEffect(() => {
+  //   getMachineDetails();
+  // }, [machine_code]);
 
   const timezone = "Asia/Kolkata";
   const startedDate = moment().tz(timezone).month() + 1;
