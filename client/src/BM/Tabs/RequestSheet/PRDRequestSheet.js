@@ -18,23 +18,41 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable() {
+function MyTable({selectedMachineDetails}) {
   // let [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { machine_code, generateType } = useParams();
+  // const navigate = useNavigate();
+  // const { machine_code, generateType } = useParams();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
     // reset,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      requestSheetdate: new Date().toISOString().substring(0, 10),
+      requestSheettime: new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+      sheetIssuedDate: new Date().toISOString().substring(0, 10),
+      sheetIssuedTime: new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+    },
+  });
 
   const [selectedShift, setSelectedShift] = useState({});
   const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
   const [selectedQuality, setSelectedQuality] = useState("");
-  const [selectedMachineDetails, setMachineDetails] = useState("");
+  // const [selectedMachineDetails, setMachineDetails] = useState("");
   const [selectedAttendee, setSelectedAttendee] = useState("");
 
   const handleSelectShift = (key, event) => {
@@ -109,22 +127,22 @@ function MyTable() {
         // console.log(machine);
         // console.log("Users", requestSheetApprovalList);
 
-        setMachineDetails(machine);
-        setSelectedAttendee(breakDownAttendedBy);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //       setMachineDetails(machine);
+  //       setSelectedAttendee(breakDownAttendedBy);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  useEffect(() => {
-    getMachineDetails();
-  }, [machine_code]);
+  // useEffect(() => {
+  //   getMachineDetails();
+  // }, [machine_code]);
 
   const timezone = "Asia/Kolkata";
-  const startedDate = moment().tz(timezone).month();
+  const startedDate = moment().tz(timezone).month() + 1;
 
-  console.log("IST", startedDate);
+  // console.log("IST", startedDate);
 
   // console.log(startedDate.toDate());
   // console.log(endedDate.toDate());
@@ -139,7 +157,7 @@ function MyTable() {
         </thead>
         <tbody>
           <tr>
-            <td width={100}>
+            {/* <td width={100}>
               <img
                 src={denso_log}
                 width="120"
@@ -147,7 +165,7 @@ function MyTable() {
                 className="d-inline-block align-top"
                 alt="React Bootstrap logo"
               />
-            </td>
+            </td> */}
             <td colSpan={12}>
               <h2 className="d-flex align-items-center justify-content-center">
                 MAINTENANCE WORK REQUEST/REPORT
@@ -272,14 +290,14 @@ function MyTable() {
                 <Row className="m-0">
                   <Col className="border">
                     <Row>
-                      <p className="border border-right-0 text-center m-0">
-                        Problem Occurred
+                      <p className="border-right-0 text-center m-0">
+                        PROBLEM OCCURRED
                       </p>
-                      <div className="d-flex align-items-center justify-content-center mt-1 mb-1">
+                      <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                         <div className="text-center">
                           <p className="mb-0">
-                            <b>Date: </b>
-
+                            <b>DATE: </b>
+                            <br />
                             <input
                               type="date"
                               {...register("requestSheetdate", {
@@ -294,8 +312,8 @@ function MyTable() {
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <div className="text-center">
                           <p className="mb-0">
-                            <b>Time: </b>
-
+                            <b>TIME: </b>
+                            <br />
                             <input
                               type="time"
                               {...register("requestSheettime", {
@@ -312,39 +330,47 @@ function MyTable() {
                   </Col>
                   <Col className="border">
                     <Row>
-                      <p className="border border-left-0 text-center m-0">
-                        Sheet Issued
+                      <p className="border-left-0 text-center m-0">
+                        SHEET ISSUED
                       </p>
-                      <div className="d-flex align-items-center justify-content-center mt-1 mb-1">
+                      <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                         <div className="text-center">
                           <p className="mb-0">
-                            <b>Date: </b>
+                            <b>DATE: </b>
                             <br />
                             <input
                               type="date"
-                              {...register("sheetIssuedDate", {
-                                required: "Sheet Issued date is required",
-                              })}
+                              {...register(
+                                "sheetIssuedDate"
+                                //  {
+                                //   required: "Sheet Issued date is required",
+                                // }
+                              )}
+                              disabled
                             />
-                            {errors?.["sheetIssuedDate"] && (
+                            {/* {errors?.["sheetIssuedDate"] && (
                               <p>{errors?.["sheetIssuedDate"]?.message}</p>
-                            )}
+                            )} */}
                           </p>
                         </div>{" "}
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <div className="text-center">
                           <p className="mb-0">
-                            <b>Time: </b>
+                            <b>TIME: </b>
                             <br />
                             <input
                               type="time"
-                              {...register("sheetIssuedTime", {
-                                required: "Sheet Issued time is required",
-                              })}
+                              {...register(
+                                "sheetIssuedTime"
+                                //  {
+                                //   required: "Sheet Issued time is required",
+                                // }
+                              )}
+                              disabled
                             />
-                            {errors?.["sheetIssuedTime"] && (
+                            {/* {errors?.["sheetIssuedTime"] && (
                               <p>{errors?.["sheetIssuedTime"]?.message}</p>
-                            )}
+                            )} */}
                           </p>
                         </div>
                       </div>
@@ -355,7 +381,7 @@ function MyTable() {
             </td>
 
             <td colSpan={2} className="mb-0 pb-0 pt-0">
-              <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
+              {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
                     <b>Sr. No.</b>
@@ -372,22 +398,22 @@ function MyTable() {
                     )}
                   </p>
                 </Col>
-              </Row>
+              </Row> */}
               <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
                 <Col lg={6} className="border pb-2 pt-1">
-                  <p className="mb-0">Dept./Line</p>
-                  {selectedMachineDetails?.line_names?.line_name}
+                  <p className="mb-0">DEPT./LINE</p>
+                  {selectedMachineDetails?.line_names?.cell_names?.cell_name}/{selectedMachineDetails?.line_names?.line_name}
                 </Col>
-
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">TL [PRD]</p>
-                  <input
+                  {}
+                  {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
                       required: "Team Leader Name is required",
                     })}
                   />
-                  {errors?.["TLName"] && <p>{errors?.["TLName"]?.message}</p>}
+                  {errors?.["TLName"] && <p>{errors?.["TLName"]?.message}</p>} */}
                 </Col>
               </Row>
             </td>
@@ -397,13 +423,13 @@ function MyTable() {
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={2}>
                   <p className="mb-0">
-                    <b>Machine Name:</b>{" "}
+                    <b>MACHINE NAME:</b>{" "}
                   </p>
                 </Col>
                 <Col lg={3}>{selectedMachineDetails.machine_name}</Col>
                 <Col lg={2}>
                   <p className="mb-0">
-                    <b>Machine No.:</b>
+                    <b>MACHINE NO.:</b>
                   </p>
                 </Col>
                 <Col lg={3}>{selectedMachineDetails.machine_code}</Col>
@@ -411,7 +437,7 @@ function MyTable() {
               <Row className="m-0 border d-flex align-items-center">
                 <Col lg={5}>
                   <p className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>Problem faced: </b>
+                    <b>PROBLEM FACED: </b>
                   </p>
                 </Col>
                 <Col lg={7}>
@@ -594,7 +620,7 @@ function MyTable() {
               <Row className="m-0">
                 <Col className="border p-2">
                   <p className="mb-0 d-flex align-items-center">
-                    <b>Shift</b>&nbsp;&nbsp;&nbsp;
+                    <b>SHIFT</b>&nbsp;&nbsp;&nbsp;
                     <DropdownButton
                       id="dropdown-basic-button"
                       variant="secondary"
@@ -616,7 +642,7 @@ function MyTable() {
               <Row className="m-0">
                 <Col className="border p-2">
                   <p className="mb-0 d-flex align-items-center justify-content-start">
-                    <b>Quality Related</b>&nbsp;&nbsp;&nbsp;
+                    <b>QUALITY RELATED</b>&nbsp;&nbsp;&nbsp;
                   </p>
                 </Col>
                 <Col className="border p-2 d-flex align-items-center">
@@ -653,7 +679,7 @@ function MyTable() {
                   <p className="mb-0">
                     <b>BREAKDOWN ATTENDED BY</b>
                   </p>
-                  {selectedAttendee}
+                  {/* {selectedAttendee} */}
                 </Col>
               </Row>
             </td>

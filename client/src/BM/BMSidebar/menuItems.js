@@ -57,6 +57,12 @@ export const menuItems = [
     allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
   },
   {
+    title: "Customized Dashboard",
+    icon: <AddTaskIcon className="text-white" />,
+    route: "/bm/customizedDashboard",
+    allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+  },
+  {
     title: "Profile",
     icon: <AccountCircleIcon className="text-white" />,
     route: "/bm/profile",

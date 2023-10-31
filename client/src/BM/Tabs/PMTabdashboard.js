@@ -99,7 +99,7 @@ function App() {
             content={
               <Routes>
                 <Route path="/pm/adminDashboard" element={<AdminDashboard />} />
-                <Route path="/pm" element={<AdminCreationDashboard />} />
+                <Route  path="/pm" element={<AdminCreationDashboard />} />
                 <Route path="/pm/profile" element={<Profile />} />
                 <Route
                   path="/pm/summeryDashboard"
@@ -120,7 +120,7 @@ function App() {
             stickyNav={<RightNavbar />}
             content={
               <Routes>
-                <Route path="/pm" element={<OperatorDashboard />} />
+                <Route  path="/pm" element={<OperatorDashboard />} />
                 <Route
                   path="/pm/creationDashboard"
                   element={<CreationDashboardForPlant />}

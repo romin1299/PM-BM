@@ -89,7 +89,7 @@ const PartList = ({ parts, setParts }) => {
           <b>QUANTITY</b>
         </Col>
         <Col lg={2} className="border">
-          <b>cost</b>
+          <b>COST</b>
         </Col>
         <Col
           lg={2}
