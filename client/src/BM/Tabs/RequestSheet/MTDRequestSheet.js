@@ -65,19 +65,22 @@ function MyTable() {
   const [totalTime, setTotalTime] = useState(0);
   const [selectedAllMtdUsers, setSelectedAllMtdUsers] = useState([]);
   const [selectedAllMtdTL, setSelectedAllMtdTL] = useState([]);
-  // const [selectedMtdSL, setSelectedMtdSL] = useState("");
-  // const [selectedMtdUser, setSelectedMtdUser] = useState("");
-  // const [selectedMtdTL, setSelectedMtdTL] = useState("");
+  const [selectedMtdSL, setSelectedMtdSL] = useState("");
+  const [selectedMtdUser, setSelectedMtdUser] = useState("");
+  const [selectedMtdTL, setSelectedMtdTL] = useState("");
+  const [selectedAllMtdHOD, setSelectedAllMtdHOD] = useState([]);
+  const [selectedMtdHOD, setSelectedMtdHOD] = useState("");
+  const [selectedAllPrdHOD, setSelectedAllPrdHOD] = useState([]);
+  const [selectedPrdHOD, setSelectedPrdHOD] = useState("");
+  const [selectedAllPrdHOS, setSelectedAllPrdHOS] = useState([]);
+  const [selectedPrdHOS, setSelectedPrdHOS] = useState("");
+  const [selectedAllPrdTL, setSelectedAllPrdTL] = useState([]);
+  const [selectedPrdTL, setSelectedPrdTL] = useState("");
 
-  const [selectedUser, setSelectedUser] = useState({
-    selectedMtdSL: "",
-    selectedMtdUser: "",
-    selectedMtdTL: "",
-  });
-
-  // const [selectedAll, setSelectedAll] = useState({
-  //   selectedAllMtdUsers: [],
-  //   selectedAllMtdTL: [],
+  // const [selectedUser, setSelectedMtdUser] = useState({
+  //   selectedMtdSL: "",
+  //   selectedMtdUser: "",
+  //   selectedMtdTL: "",
   // });
 
   const handleQuality = (event) => {
@@ -112,7 +115,7 @@ function MyTable() {
   };
 
   // const handleSection = (e) => {
-  //   setSelectedUser({ selectedMtdUser: e.target.value });
+  //   setSelectedMtdUser({ selectedMtdUser: e.target.value });
   // };
 
   // console.log(selectedMtdTL);
@@ -147,8 +150,6 @@ function MyTable() {
   );
   // var timeDifferenceMinutes = timeDifferenceMs / (1000 * 60);
 
-  // console.log("Time difference in minutes:", timeDifferenceMinutes);
-
   const newRequestSheetRegistration = async (requestSheetData) => {
     const machineRef = "63b67ccea716e21c95cd471a";
     requestSheetData.changedParts = parts;
@@ -163,9 +164,9 @@ function MyTable() {
     requestSheetData.minorBD = selectedMinor;
     requestSheetData.firstTime = selectedFirstTime;
     requestSheetData.repeat = selectedRepeat;
-    // requestSheetData.approvalOfMTD_TL = selectedMtdTL;
-    // requestSheetData.approvalOfMTD_SL = selectedMtdSL;
-    // requestSheetData.approvalOfMTD_HOS = selectedMtdUser;
+    requestSheetData.approvalOfMTD_TL = selectedMtdTL;
+    requestSheetData.approvalOfMTD_SL = selectedMtdSL;
+    requestSheetData.approvalOfMTD_HOS = selectedMtdUser;
 
     const reqid = "65324cb00dc427ec2a098ef4";
 
@@ -211,10 +212,15 @@ function MyTable() {
         }
       );
 
-      const { mtdUser, mtdUserTL } = await res.json();
+      const { mtdUser, mtdUserTL, mtdHod, prdHod, prdHos, prdTL } =
+        await res.json();
 
       setSelectedAllMtdUsers(mtdUser);
       setSelectedAllMtdTL(mtdUserTL);
+      setSelectedAllMtdHOD(mtdHod);
+      setSelectedAllPrdHOD(prdHod);
+      setSelectedAllPrdHOS(prdHos);
+      setSelectedAllPrdTL(prdTL);
     } catch (error) {
       console.log(error);
     }
@@ -272,11 +278,11 @@ function MyTable() {
                     fullWidth
                     select // label="Select"
                     autoComplete="off"
-                    // value={selectedMtdSL}
+                    value={selectedMtdSL}
                     onChange={(e) => {
                       // handleMtdUser(e.target.value);
 
-                      setSelectedUser(e.target.value);
+                      setSelectedMtdSL(e.target.value);
                     }}
                     variant="standard"
                   >
@@ -321,9 +327,9 @@ function MyTable() {
                     fullWidth
                     select // label="Select"
                     autoComplete="off"
-                    // value={selectedMtdTL}
+                    value={selectedMtdTL}
                     onChange={(e) => {
-                      setSelectedUser(e.target.value);
+                      setSelectedMtdTL(e.target.value);
                     }}
                     variant="standard"
                   >
@@ -477,9 +483,9 @@ function MyTable() {
                     fullWidth
                     select // label="Select"
                     autoComplete="off"
-                    // value={selectedMtdUser}
+                    value={selectedMtdUser}
                     onChange={(e) => {
-                      setSelectedUser(e.target.value);
+                      setSelectedMtdUser(e.target.value);
                     }}
                     variant="standard"
                   >
@@ -1114,22 +1120,130 @@ function MyTable() {
                   <Row>
                     <Col className="border">
                       <div className="p-1">
-                        <input className="w-100" type="text" />
+                        <select
+                          // class="form-select form-select-sm"
+                          // aria-label=".form-select-sm example"
+                          style={{ borderRadius: "5px" }}
+                          // id="standard-select-currency"
+                          id="outlined-number"
+                          name="selectedLine"
+                          className="textField mt-1 w-50"
+                          fullWidth
+                          select
+                          autoComplete="off"
+                          value={selectedMtdHOD}
+                          onChange={(e) => {
+                            setSelectedMtdHOD(e.target.value);
+                          }}
+                          variant="standard"
+                        >
+                          <option selected disabled value="">
+                            Please select
+                          </option>
+                          {selectedAllMtdHOD?.map((option) => {
+                            return (
+                              <option value={option?._id}>
+                                {option?.tm_name}
+                              </option>
+                            );
+                          })}
+                        </select>
                       </div>
                     </Col>
                     <Col className="border">
                       <div className="p-1">
-                        <input className="w-100" type="text" />
+                        <select
+                          // class="form-select form-select-sm"
+                          // aria-label=".form-select-sm example"
+                          style={{ borderRadius: "5px" }}
+                          // id="standard-select-currency"
+                          id="outlined-number"
+                          name="selectedLine"
+                          className="textField mt-1 w-50"
+                          fullWidth
+                          select // label="Select"
+                          autoComplete="off"
+                          value={selectedPrdHOD}
+                          onChange={(e) => {
+                            setSelectedPrdHOD(e.target.value);
+                          }}
+                          variant="standard"
+                        >
+                          <option selected disabled value="">
+                            Please select
+                          </option>
+                          {selectedAllPrdHOD?.map((option) => {
+                            return (
+                              <option value={option?._id}>
+                                {option?.tm_name}
+                              </option>
+                            );
+                          })}
+                        </select>
                       </div>
                     </Col>
                     <Col className="border">
                       <div className="p-1">
-                        <input className="w-100" type="text" />
+                        <select
+                          // class="form-select form-select-sm"
+                          // aria-label=".form-select-sm example"
+                          style={{ borderRadius: "5px" }}
+                          // id="standard-select-currency"
+                          id="outlined-number"
+                          name="selectedLine"
+                          className="textField mt-1 w-50"
+                          fullWidth
+                          select // label="Select"
+                          autoComplete="off"
+                          value={selectedPrdHOS}
+                          onChange={(e) => {
+                            setSelectedPrdHOS(e.target.value);
+                          }}
+                          variant="standard"
+                        >
+                          <option selected disabled value="">
+                            Please select
+                          </option>
+                          {selectedAllPrdHOS?.map((option) => {
+                            return (
+                              <option value={option?._id}>
+                                {option?.tm_name}
+                              </option>
+                            );
+                          })}
+                        </select>
                       </div>
                     </Col>
                     <Col className="border">
                       <div className="p-1">
-                        <input className="w-100" type="text" />
+                      <select
+                          // class="form-select form-select-sm"
+                          // aria-label=".form-select-sm example"
+                          style={{ borderRadius: "5px" }}
+                          // id="standard-select-currency"
+                          id="outlined-number"
+                          name="selectedLine"
+                          className="textField mt-1 w-50"
+                          fullWidth
+                          select // label="Select"
+                          autoComplete="off"
+                          value={selectedPrdTL}
+                          onChange={(e) => {
+                            setSelectedPrdTL(e.target.value);
+                          }}
+                          variant="standard"
+                        >
+                          <option selected disabled value="">
+                            Please select
+                          </option>
+                          {selectedAllPrdTL?.map((option) => {
+                            return (
+                              <option value={option?._id}>
+                                {option?.tm_name}
+                              </option>
+                            );
+                          })}
+                        </select>
                       </div>
                     </Col>
                   </Row>
