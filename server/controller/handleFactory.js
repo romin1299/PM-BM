@@ -20,7 +20,7 @@ exports.getUserData =
       })
       .exec();
 
-    console.log("machine", machine);
+    // console.log("machine", machine);
 
     const section = await sectionModel.findOne({
       section_id: req?.rootUser?.section_data?.split("-")?.[0],
@@ -30,7 +30,7 @@ exports.getUserData =
       plant_data: req?.rootUser?.plant_data,
     };
 
-    console.log("queryObj", queryObj);
+    // console.log("queryObj", queryObj);
 
     if (req?.query?.tm_grade !== "HOD") {
       if (section.dashboardLevel === "Yes") {
