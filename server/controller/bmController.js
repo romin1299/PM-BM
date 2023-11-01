@@ -922,54 +922,83 @@ router.get("/getRequestSheetMonitoringData/:id", async (req, res, next) => {
             completed: functionForQueryObject(statusArray[4]),
           },
         },
-        {
-          $group: {
-            _id: null,
-            array: { $push: "$$ROOT" },
-          },
-        },
+
         {
           $project: {
-            _id: 0,
-            array: {
-              $map: {
-                input: allMonths,
-                as: "month",
-                in: {
-                  $cond: [
-                    { $in: ["$$month.monthInDecimal", "$array._id"] },
-                    {
-                      month: "$$month.monthName",
-                      data: {
-                        $arrayElemAt: [
-                          "$array",
-                          {
-                            $indexOfArray: [
-                              "$array._id",
-                              "$$month.monthInDecimal",
-                            ],
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      month: "$$month.monthName",
-                      data: {
-                        _id: "$$month.monthInDecimal",
-                        generated: 0,
-                        completed: 0,
-                      },
-                    },
-                  ],
+            month: {
+              $function: {
+                body: function (month) {
+                  return [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "July",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                  ]?.[month - 1];
                 },
+                args: ["$_id"],
+                lang: "js",
               },
             },
+            generated: 1,
+            completed: 1,
           },
         },
-        { $unwind: "$array" },
-        {
-          $replaceRoot: { newRoot: "$array" },
-        },
+        // {
+        //   $group: {
+        //     _id: null,
+        //     array: { $push: "$$ROOT" },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     array: {
+        //       $map: {
+        //         input: allMonths,
+        //         as: "month",
+        //         in: {
+        //           $cond: [
+        //             { $in: ["$$month.monthInDecimal", "$array._id"] },
+        //             {
+        //               month: "$$month.monthName",
+        //               data: {
+        //                 $arrayElemAt: [
+        //                   "$array",
+        //                   {
+        //                     $indexOfArray: [
+        //                       "$array._id",
+        //                       "$$month.monthInDecimal",
+        //                     ],
+        //                   },
+        //                 ],
+        //               },
+        //             },
+        //             {
+        //               month: "$$month.monthName",
+        //               data: {
+        //                 _id: "$$month.monthInDecimal",
+        //                 generated: 0,
+        //                 completed: 0,
+        //               },
+        //             },
+        //           ],
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+        // { $unwind: "$array" },
+        // {
+        //   $replaceRoot: { newRoot: "$array" },
+        // },
       ]);
     // .explain("executionStats");
 
@@ -987,7 +1016,7 @@ router.post(
   authenticate,
   async (req, res, next) => {
     const approvalListOfMinorAndMajor = req.body;
-    
+
     const addDynamicApprovalListInPlant = await Plant.findOneAndUpdate(
       {
         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
