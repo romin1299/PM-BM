@@ -1000,12 +1000,194 @@ router.get("/getRequestSheetMonitoringData/:id", async (req, res, next) => {
         //   $replaceRoot: { newRoot: "$array" },
         // },
       ]);
+    const functionForStatusObject = (status) => ({
+      $sum: {
+        $cond: [{ $eq: ["$approvalStatusOfMTD_TL", status] }, 1, 0],
+        $cond: [{ $eq: ["$approvalStatusOfMTD_SL", status] }, 1, 0],
+      },
+    });
+    const requestSheetGeneratedByUser = await RequestSheetOfBM.aggregate([
+      // {
+      //   $lookup: {
+      //     from: "lines",
+      //     localField: "lineRef",
+      //     foreignField: "_id",
+      //     as: "lines",
+      //   },
+      // },
+      // {
+      //   $match: {
+      //     lineRef: mongoose.Types.ObjectId(req.params?.id),
+      //   },
+      // },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "approvalOfMTD_TL",
+          foreignField: "_id",
+          as: "approvalOfMTD_TL",
+        },
+      },
+      // {
+      //   $unwind: "$approvalOfMTD_TL",
+      // },
+
+      // {
+      //   $group: {
+      //     _id: "$approvalOfMTD_TL",
+      //   },
+      // },
+
+      // {
+      //   $project: {
+      //     "approvalOfMTD_TL.tm_name": 1,
+      //   },
+      // },
+      {
+        $lookup: {
+          from: "users",
+          localField: "approvalOfMTD_SL",
+          foreignField: "_id",
+          as: "approvalOfMTD_SL",
+        },
+      },
+      // {
+      //   $unwind: "$approvalOfMTD_SL",
+      // },
+      // {
+      //   $project: {
+      //     "approvalOfMTD_SL.tm_name": 1,
+      //   },
+      // },
+
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "approvalOfMTD_HOS",
+      //     foreignField: "_id",
+      //     as: "approvalOfMTD_HOS",
+      //   },
+      // },
+      // {
+      //   $unwind: "$approvalOfMTD_HOS",
+      // },
+      // {
+      //   $project: {
+      //     "approvalOfMTD_HOS.tm_name": 1,
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "approvalOfMTD_HOD",
+      //     foreignField: "_id",
+      //     as: "approvalOfMTD_HOD",
+      //   },
+      // },
+      // {
+      //   $unwind: "$approvalOfMTD_HOD",
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "approvalOfPRD_HOS",
+      //     foreignField: "_id",
+      //     as: "approvalOfPRD_HOS",
+      //   },
+      // },
+      // {
+      //   $unwind: "$approvalOfPRD_HOS",
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "approvalOfPRD_TL",
+      //     foreignField: "_id",
+      //     as: "approvalOfPRD_TL",
+      //   },
+      // },
+      // {
+      //   $unwind: "$approvalOfPRD_TL",
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "approvalOfPRD_SL",
+      //     foreignField: "_id",
+      //     as: "approvalOfPRD_SL",
+      //   },
+      // },
+      // {
+      //   $unwind: "$approvalOfPRD_SL",
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "approvalOfPRD_HOD",
+      //     foreignField: "_id",
+      //     as: "approvalOfPRD_HOD",
+      //   },
+      // },
+
+      // define which fields are you want to fetch
+      // {
+      //   $project: {
+      //     _id: 1,
+      //     email: 1,
+      //     userName: 1,
+      //     userPhone: "$user_info.phone",
+      //     role: "$user_role.role",
+      //   },
+      // },
+      // {
+      //   $unwind: "$approvalOfPRD_HOD",
+      // },
+      // {
+      //   $project: {
+      //     _id: 1,
+      //     tm_name: 1,
+      //   },
+      // },
+      {
+        $group: {
+          _id: {
+            $month: "$sheetIssuedDateAndTimeOfBM",
+          },
+
+          pending: functionForStatusObject(statusArray[3]),
+
+          userTL: {
+            $push: "$approvalOfMTD_TL",
+          },
+          userSL: {
+            $push: "$approvalOfMTD_SL",
+          },
+        },
+      },
+
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "requestSheetCreatedBy",
+      //     foreignField: "_id",
+      //     as: "users",
+      //   },
+      // },
+
+      // {
+      //   $match: {
+      //     requestSheetCreatedBy: mongoose.Types.ObjectId(req.query?.id),
+      //   },
+      // },
+    ]);
     // .explain("executionStats");
 
     return res.status(201).json({
       message: "Monitoring request-sheet data get successfully",
       allStatusCounterForGraph,
       generatedAndCompletedStatusMonthlyData,
+      requestSheetGeneratedByUser,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });

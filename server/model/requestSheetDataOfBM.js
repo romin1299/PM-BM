@@ -16,7 +16,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: Date,
   },
   sheetIssuedDateAndTimeOfBM: {
-    type: String,
+    type: Date,
   },
   breakDownBasicDataFilledByPRD: {
     problemFaced: { type: String },
