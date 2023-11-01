@@ -12,6 +12,7 @@ import ActionList from "./SubComponents/ActionList";
 import PartList from "./SubComponents/PartList";
 import { useForm } from "react-hook-form";
 import moment from "moment";
+import DropdownElem from "../../Component/DropdownElem";
 
 const list = [
   { key: "A", value: "A" },
@@ -20,12 +21,11 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable() {
+function MyTable({ selectedMachineDetails }) {
   const [selected, setSelected] = useState({});
   const [actions, setActions] = useState([]);
   const [problems, setProblems] = useState([]);
   const [parts, setParts] = useState([]);
-
   const {
     register,
     handleSubmit,
@@ -34,12 +34,12 @@ function MyTable() {
     // reset,
   } = useForm({
     defaultValues: {
-      workStartedTimeOfBM: new Date().toLocaleTimeString("en-US", {
-        timeZone: "Asia/Kolkata",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }),
+      // workStartedTimeOfBM: new Date().toLocaleTimeString("en-US", {
+      //   timeZone: "Asia/Kolkata",
+      //   hour: "2-digit",
+      //   minute: "2-digit",
+      //   hour12: false,
+      // }),
       workEndedTimeOfBM: new Date().toLocaleTimeString("en-US", {
         timeZone: "Asia/Kolkata",
         hour: "2-digit",
@@ -48,6 +48,7 @@ function MyTable() {
       }),
     },
   });
+  console.log(selectedMachineDetails);
 
   const [selectedQuality, setSelectedQuality] = useState("");
   const [selectedDataSheet, setSelectedDataSheet] = useState("");
@@ -64,19 +65,22 @@ function MyTable() {
   const [totalTime, setTotalTime] = useState(0);
   const [selectedAllMtdUsers, setSelectedAllMtdUsers] = useState([]);
   const [selectedAllMtdTL, setSelectedAllMtdTL] = useState([]);
-  // const [selectedMtdSL, setSelectedMtdSL] = useState("");
-  // const [selectedMtdUser, setSelectedMtdUser] = useState("");
-  // const [selectedMtdTL, setSelectedMtdTL] = useState("");
+  const [selectedMtdSL, setSelectedMtdSL] = useState("");
+  const [selectedMtdUser, setSelectedMtdUser] = useState("");
+  const [selectedMtdTL, setSelectedMtdTL] = useState("");
+  const [selectedAllMtdHOD, setSelectedAllMtdHOD] = useState([]);
+  const [selectedMtdHOD, setSelectedMtdHOD] = useState("");
+  const [selectedAllPrdHOD, setSelectedAllPrdHOD] = useState([]);
+  const [selectedPrdHOD, setSelectedPrdHOD] = useState("");
+  const [selectedAllPrdHOS, setSelectedAllPrdHOS] = useState([]);
+  const [selectedPrdHOS, setSelectedPrdHOS] = useState("");
+  const [selectedAllPrdTL, setSelectedAllPrdTL] = useState([]);
+  const [selectedPrdTL, setSelectedPrdTL] = useState("");
 
-  const [selectedUser, setSelectedUser] = useState({
-    selectedMtdSL: "",
-    selectedMtdUser: "",
-    selectedMtdTL: "",
-  });
-
-  // const [selectedAll, setSelectedAll] = useState({
-  //   selectedAllMtdUsers: [],
-  //   selectedAllMtdTL: [],
+  // const [selectedUser, setSelectedMtdUser] = useState({
+  //   selectedMtdSL: "",
+  //   selectedMtdUser: "",
+  //   selectedMtdTL: "",
   // });
 
   const handleQuality = (event) => {
@@ -111,7 +115,7 @@ function MyTable() {
   };
 
   // const handleSection = (e) => {
-  //   setSelectedUser({ selectedMtdUser: e.target.value });
+  //   setSelectedMtdUser({ selectedMtdUser: e.target.value });
   // };
 
   // console.log(selectedMtdTL);
@@ -146,8 +150,6 @@ function MyTable() {
   );
   // var timeDifferenceMinutes = timeDifferenceMs / (1000 * 60);
 
-  // console.log("Time difference in minutes:", timeDifferenceMinutes);
-
   const newRequestSheetRegistration = async (requestSheetData) => {
     const machineRef = "63b67ccea716e21c95cd471a";
     requestSheetData.changedParts = parts;
@@ -162,9 +164,9 @@ function MyTable() {
     requestSheetData.minorBD = selectedMinor;
     requestSheetData.firstTime = selectedFirstTime;
     requestSheetData.repeat = selectedRepeat;
-    // requestSheetData.approvalOfMTD_TL = selectedMtdTL;
-    // requestSheetData.approvalOfMTD_SL = selectedMtdSL;
-    // requestSheetData.approvalOfMTD_HOS = selectedMtdUser;
+    requestSheetData.approvalOfMTD_TL = selectedMtdTL;
+    requestSheetData.approvalOfMTD_SL = selectedMtdSL;
+    requestSheetData.approvalOfMTD_HOS = selectedMtdUser;
 
     const reqid = "65324cb00dc427ec2a098ef4";
 
@@ -192,36 +194,41 @@ function MyTable() {
     }
   };
 
-  const MTD = "MTD";
-  const user_type = "TL/HOSS";
-  const tm_grade = "HOS";
+  // const MTD = "MTD";
+  // const user_type = "TL/HOSS";
+  // const tm_grade = "HOS";
 
-  const getMtdUserDetails = async () => {
-    try {
-      const res = await fetch(
-        `/getMtdUserDetails/?tm_department=${MTD}&&user_type=${user_type}&&tm_grade=${tm_grade}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
+  // const getMtdUserDetails = async () => {
+  //   try {
+  //     const res = await fetch(
+  //       `/getMtdUserDetails/?tm_department=${MTD}&&user_type=${user_type}&&tm_grade=${tm_grade}`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           Accept: "application/json",
+  //           "Content-Type": "application/json",
+  //         },
+  //         credentials: "include",
+  //       }
+  //     );
 
-      const { mtdUser, mtdUserTL } = await res.json();
+  //     const { mtdUser, mtdUserTL, mtdHod, prdHod, prdHos, prdTL } =
+  //       await res.json();
 
-      setSelectedAllMtdUsers(mtdUser);
-      setSelectedAllMtdTL(mtdUserTL);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     setSelectedAllMtdUsers(mtdUser);
+  //     setSelectedAllMtdTL(mtdUserTL);
+  //     setSelectedAllMtdHOD(mtdHod);
+  //     setSelectedAllPrdHOD(prdHod);
+  //     setSelectedAllPrdHOS(prdHos);
+  //     setSelectedAllPrdTL(prdTL);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  useEffect(() => {
-    getMtdUserDetails();
-  }, [MTD]);
+  // useEffect(() => {
+  //   getMtdUserDetails();
+  // }, [MTD]);
 
   useEffect(() => {
     if (timeDifferenceMinutes > 120) {
@@ -260,7 +267,20 @@ function MyTable() {
                   <p className="mb-0">
                     <b>REQUEST RECEIVED MTD S.L</b>
                   </p>
-                  <select
+                  <DropdownElem
+                    name={"MTD HOSS"}
+                    selectedMinor={selectedMinor}
+                    approvalList={
+                      selectedMachineDetails?.line_names?.cell_names
+                        ?.subSection_names?.section_names?.plant_names
+                        ?.approvalListOfMinorAndMajor
+                    }
+                    options={selectedAllMtdTL}
+                    onChange={(e) => {
+                      // setSelectedUser(e.target.value);
+                    }}
+                  />
+                  {/* <select
                     // class="form-select form-select-sm"
                     // aria-label=".form-select-sm example"
                     style={{ borderRadius: "5px" }}
@@ -271,11 +291,11 @@ function MyTable() {
                     fullWidth
                     select // label="Select"
                     autoComplete="off"
-                    // value={selectedMtdSL}
+                    value={selectedMtdSL}
                     onChange={(e) => {
                       // handleMtdUser(e.target.value);
 
-                      setSelectedUser(e.target.value);
+                      setSelectedMtdSL(e.target.value);
                     }}
                     variant="standard"
                   >
@@ -287,29 +307,26 @@ function MyTable() {
                         <option value={option?._id}>{option?.tm_name}</option>
                       );
                     })}
-                  </select>
+                  </select> */}
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">
-                    <b>MTD T.L.</b>
+                    <b>MTD TL</b>
                   </p>
-                  {/* <DropdownButton
-                    id="dropdown-basic-button"
-                    variant="secondary"
-                    className="floatRight"
-                    onSelect={handleMtdUser}
-                    title={selectedMtdTL || "Select any option"}
-                  >
-                    {selectedAllMtdTL.map((item, index) => {
-                      return (
-                        <Dropdown.Item key={index} eventKey={item._id}>
-                          {item.tm_name}
-                        </Dropdown.Item>
-                      );
-                    })}
-                  </DropdownButton> */}
-
-                  <select
+                  <DropdownElem
+                    name={"MTD TL"}
+                    selectedMinor={selectedMinor}
+                    approvalList={
+                      selectedMachineDetails?.line_names?.cell_names
+                        ?.subSection_names?.section_names?.plant_names
+                        ?.approvalListOfMinorAndMajor
+                    }
+                    options={selectedAllMtdTL}
+                    onChange={(e) => {
+                      // setSelectedUser(e.target.value);
+                    }}
+                  />
+                  {/* <select
                     // class="form-select form-select-sm"
                     // aria-label=".form-select-sm example"
                     style={{ borderRadius: "5px" }}
@@ -320,9 +337,9 @@ function MyTable() {
                     fullWidth
                     select // label="Select"
                     autoComplete="off"
-                    // value={selectedMtdTL}
+                    value={selectedMtdTL}
                     onChange={(e) => {
-                      setSelectedUser(e.target.value);
+                      setSelectedMtdTL(e.target.value);
                     }}
                     variant="standard"
                   >
@@ -334,7 +351,7 @@ function MyTable() {
                         <option value={option?._id}>{option?.tm_name}</option>
                       );
                     })}
-                  </select>
+                  </select> */}
                 </Col>
               </Row>
             </td>
@@ -359,7 +376,7 @@ function MyTable() {
 
                               <input
                                 type="date"
-                                defaultValue={currentDate}
+                                // defaultValue={currentDate}
                                 {...register("workStartedDateOfBM", {
                                   required: "Work Start date is required",
                                 })}
@@ -449,23 +466,21 @@ function MyTable() {
                   <p className="mb-0">
                     <b>SECTION INCHARGE</b>
                   </p>
-                  {/* <DropdownButton
-                    id="dropdown-basic-button"
-                    variant="secondary"
-                    className="floatRight"
-                    onSelect={handleMtdUser}
-                    title={selectedMtdUser || "Select any option"}
-                  >
-                    {selectedAllMtdUsers.map((item, index) => {
-                      return (
-                        <Dropdown.Item key={index} eventKey={item._id}>
-                          {item.tm_name}
-                        </Dropdown.Item>
-                      );
-                    })}
-                  </DropdownButton> */}
+                  <DropdownElem
+                    name={"MTD HOS"}
+                    selectedMinor={selectedMinor}
+                    approvalList={
+                      selectedMachineDetails?.line_names?.cell_names
+                        ?.subSection_names?.section_names?.plant_names
+                        ?.approvalListOfMinorAndMajor
+                    }
+                    options={selectedAllMtdUsers}
+                    onChange={(e) => {
+                      // setSelectedUser(e.target.value);
+                    }}
+                  />
 
-                  <select
+                  {/* <select
                     // class="form-select form-select-sm"
                     // aria-label=".form-select-sm example"
                     style={{ borderRadius: "5px" }}
@@ -476,9 +491,9 @@ function MyTable() {
                     fullWidth
                     select // label="Select"
                     autoComplete="off"
-                    // value={selectedMtdUser}
+                    value={selectedMtdUser}
                     onChange={(e) => {
-                      setSelectedUser(e.target.value);
+                      setSelectedMtdUser(e.target.value);
                     }}
                     variant="standard"
                   >
@@ -490,7 +505,7 @@ function MyTable() {
                         <option value={option?._id}>{option?.tm_name}</option>
                       );
                     })}
-                  </select>
+                  </select> */}
                   {/* {errors.feedbackMTD && <p>{errors.feedbackMTD.message}</p>} */}
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
@@ -1109,22 +1124,59 @@ function MyTable() {
                   <Row>
                     <Col className="border">
                       <div className="p-1">
-                        <input className="w-100" type="text" />
+                        {/* <input className="w-100" type="text" /> */}
+                        <DropdownElem
+                          name={"MTD HOD"}
+                          // selectedMajor={selectedMajor}
+                          selectedMinor={selectedMinor}
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                        />
                       </div>
                     </Col>
                     <Col className="border">
                       <div className="p-1">
-                        <input className="w-100" type="text" />
+                        {/* <input className="w-100" type="text" /> */}
+                        <DropdownElem
+                          name={"PRD HOD"}
+                          selectedMinor={selectedMinor}
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                        />
                       </div>
                     </Col>
                     <Col className="border">
                       <div className="p-1">
-                        <input className="w-100" type="text" />
+                        {/* <input className="w-100" type="text" /> */}
+                        <DropdownElem
+                          name={"PRD HOS"}
+                          selectedMinor={selectedMinor}
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                        />
                       </div>
                     </Col>
                     <Col className="border">
                       <div className="p-1">
-                        <input className="w-100" type="text" />
+                        {/* <input className="w-100" type="text" /> */}
+                        <DropdownElem
+                          name={"PRD TL"}
+                          selectedMinor={selectedMinor}
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                        />
                       </div>
                     </Col>
                   </Row>

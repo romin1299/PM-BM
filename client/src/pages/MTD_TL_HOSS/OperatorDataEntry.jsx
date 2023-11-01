@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import * as yup from "yup";
 
 import TextField from "@material-ui/core/TextField";
-import TextareaAutosize from "@mui/base/TextareaAutosize";
+import {TextareaAutosize} from "@mui/base";
 
 import { useFormik } from "formik";
 import { Container, Row, Col } from "react-bootstrap";

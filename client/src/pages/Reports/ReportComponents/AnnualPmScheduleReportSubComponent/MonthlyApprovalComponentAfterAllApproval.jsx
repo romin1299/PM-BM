@@ -3,9 +3,6 @@ import React from "react";
 import CircleIcon from "@mui/icons-material/Circle";
 import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 
-import { Row, Col, Container, Button } from "react-bootstrap";
-import TextareaAutosize from "@mui/base/TextareaAutosize";
-
 const MonthlyApprovalComponentAfterAllApproval = ({
   loggedUserDetails,
   lineInfo,

@@ -18,7 +18,7 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable() {
+function MyTable({ selectedMachineDetails }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { machine_code, generateType } = useParams();
@@ -48,17 +48,16 @@ function MyTable() {
     },
   });
 
-  const [selectedShift, setSelectedShift] = useState({});
+  const [selectedShift, setSelectedShift] = useState("");
   const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
   const [selectedQuality, setSelectedQuality] = useState("");
-  const [selectedMachineDetails, setMachineDetails] = useState("");
-  const [selectedAttendee, setSelectedAttendee] = useState("");
- 
+  // const [selectedMachineDetails, setMachineDetails] = useState("");
+  const [selectedPrdTL, setSelectedPrdTL] = useState("");
 
-  const handleSelectShift = (key, event) => {
-    setSelectedShift({ key, value: event.target.value });
-  };
+  // const handleSelectShift = (key, event) => {
+  //   setSelectedShift({ key, value: event.target.value });
+  // };
 
   const handleMaintenanceType = (event) => {
     setSelectedMaintenanceType(event.target.value);
@@ -75,7 +74,7 @@ function MyTable() {
     requestSheetData.maintenanceType = selectedMaintenanceType;
     requestSheetData.priorityCode = selectedPriorityCode;
     requestSheetData.qualityRelated = selectedQuality;
-    requestSheetData.shiftOfBM = selectedShift.key;
+    requestSheetData.shiftOfBM = selectedShift;
     try {
       const res = await fetch(
         `/newRequestSheetRegistration/?machineRef=${machineRef}`,
@@ -122,12 +121,14 @@ function MyTable() {
           navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
         }
       } else {
-        const { machine, breakDownAttendedBy } = await res.json();
-        // setMachine(machine);
-        console.log(machine);
+        const { machine, prdTL, requestSheetApprovalList } = await res.json();
+        // setMachineDetails(machine);
 
-        setMachineDetails(machine);
-        setSelectedAttendee(breakDownAttendedBy);
+        // console.log(machine);
+        // console.log("Users", requestSheetApprovalList);
+
+        // setMachineDetails(machine);
+        setSelectedPrdTL(prdTL);
       }
     } catch (error) {
       console.log(error);
@@ -139,14 +140,63 @@ function MyTable() {
   }, [machine_code]);
 
   const timezone = "Asia/Kolkata";
-  const startedDate = moment().tz(timezone).month();
+  const startedDate = moment().tz(timezone).month() + 1;
 
-  console.log("IST", startedDate);
+  let sheetIssuedTime = new Date().toLocaleString("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 
-  // console.log(startedDate.toDate());
-  // console.log(endedDate.toDate());
+  const momentTime = moment(sheetIssuedTime, "HH:mm");
+  let shiftStartTime;
+  let shiftEndTime;
 
-  let reqNos = 0;
+  let plantStartTime;
+  let plantEndTime;
+
+  // for (let i = 0; i < 5; i++) {
+  //   shiftStartTime =
+  //     selectedMachineDetails?.line_names?.cell_names?.subSection_names
+  //       ?.section_names?.plant_names?.shiftOfBM[i]?.shiftStartTime;
+  //   console.log(shiftStartTime);
+
+  //   shiftEndTime =
+  //     selectedMachineDetails?.line_names?.cell_names?.subSection_names
+  //       ?.section_names?.plant_names?.shiftOfBM[i]?.shiftEndTime;
+
+  //   console.log(shiftEndTime);
+
+  //   if (momentTime > shiftStartTime && momentTime < shiftEndTime) {
+  //     plantStartTime =
+  //       selectedMachineDetails?.line_names?.cell_names?.subSection_names
+  //         ?.section_names?.plant_names?.shiftOfBM[i]?.shiftName;
+  //   }
+
+  //   // shiftEndTime =
+  //   //   selectedMachineDetails?.line_names?.cell_names?.subSection_names
+  //   //     ?.section_names?.plant_names?.shiftOfBM[i]?.shiftEndTime;
+  // }
+  // console.log(plantStartTime);
+  let temp;
+  if (
+    momentTime > moment("06:00", "HH:mm") &&
+    momentTime < moment("14:30", "HH:mm")
+  ) {
+    temp = "A";
+    // setSelectedShift("A");
+  } else if (
+    momentTime > moment("14:15", "HH:mm") &&
+    momentTime < moment("22:45", "HH:mm")
+  ) {
+    // setSelectedShift("B");
+  } else if (
+    momentTime > moment("22:45", "HH:mm") &&
+    momentTime < moment("06:15", "HH:mm")
+  ) {
+    // setSelectedShift("C");
+  }
 
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
@@ -312,7 +362,7 @@ function MyTable() {
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <div className="text-center">
                           <p className="mb-0">
-                            <b>Time: </b>
+                            <b>TIME: </b>
                             <br />
                             <input
                               type="time"
@@ -336,7 +386,7 @@ function MyTable() {
                       <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                         <div className="text-center">
                           <p className="mb-0">
-                            <b>Date: </b>
+                            <b>DATE: </b>
                             <br />
                             <input
                               type="date"
@@ -381,7 +431,7 @@ function MyTable() {
             </td>
 
             <td colSpan={2} className="mb-0 pb-0 pt-0">
-              <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
+              {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
                     <b>Sr. No.</b>
@@ -398,22 +448,23 @@ function MyTable() {
                     )}
                   </p>
                 </Col>
-              </Row>
+              </Row> */}
               <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="mb-0">DEPT./LINE</p>
+                  {selectedMachineDetails?.line_names?.cell_names?.cell_name}/
                   {selectedMachineDetails?.line_names?.line_name}
                 </Col>
-
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">TL [PRD]</p>
-                  <input
+                  {selectedPrdTL}
+                  {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
                       required: "Team Leader Name is required",
                     })}
                   />
-                  {errors?.["TLName"] && <p>{errors?.["TLName"]?.message}</p>}
+                  {errors?.["TLName"] && <p>{errors?.["TLName"]?.message}</p>} */}
                 </Col>
               </Row>
             </td>
@@ -621,7 +672,7 @@ function MyTable() {
                 <Col className="border p-2">
                   <p className="mb-0 d-flex align-items-center">
                     <b>SHIFT</b>&nbsp;&nbsp;&nbsp;
-                    <DropdownButton
+                    {/* <DropdownButton
                       id="dropdown-basic-button"
                       variant="secondary"
                       className="floatRight"
@@ -635,7 +686,8 @@ function MyTable() {
                           </Dropdown.Item>
                         );
                       })}
-                    </DropdownButton>
+                    </DropdownButton> */}
+                    {temp}
                   </p>
                 </Col>
               </Row>
@@ -679,7 +731,7 @@ function MyTable() {
                   <p className="mb-0">
                     <b>BREAKDOWN ATTENDED BY</b>
                   </p>
-                  {selectedAttendee}
+                  {/* {selectedAttendee} */}
                 </Col>
               </Row>
             </td>
