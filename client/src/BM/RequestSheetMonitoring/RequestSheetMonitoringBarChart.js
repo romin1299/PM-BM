@@ -1,9 +1,11 @@
-import React from 'react'
+import React from "react";
 
 const RequestSheetMonitoringBarChart = () => {
   return (
-    <div>RequestSheetMonitoringBarChart</div>
-  )
-}
+    <div>
+      <h3>RequestSheetMonitoringBarChart</h3>
+    </div>
+  );
+};
 
-export default RequestSheetMonitoringBarChart
+export default RequestSheetMonitoringBarChart;
