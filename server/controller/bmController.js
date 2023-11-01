@@ -11,6 +11,7 @@ const SubSection = require("../model/subSectionSchema");
 
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
+const Plant = require("../model/plantSchema");
 
 router.use(cookieParser());
 router.use(authenticate);
@@ -1038,5 +1039,36 @@ router.get("/getMtdUserDetails", async (req, res, next) => {
     mtdUserTL,
   });
 });
+
+router.post(
+  "/addDynamicApprovalListOfBM",
+  authenticate,
+  async (req, res, next) => {
+    const approvalListOfMinorAndMajor = req.body;
+    
+    const addDynamicApprovalListInPlant = await Plant.findOneAndUpdate(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+      },
+      {
+        $set: {
+          ...approvalListOfMinorAndMajor,
+        },
+      },
+      { new: true }
+    );
+
+    if (!addDynamicApprovalListInPlant) {
+      return res.status(400).json({
+        message: "Approval list not added",
+      });
+    } else {
+      return res.status(201).json({
+        message: "Approval list added successfully",
+        addDynamicApprovalListInPlant,
+      });
+    }
+  }
+);
 
 module.exports = router;

@@ -21,12 +21,11 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable() {
+function MyTable({ selectedMachineDetails }) {
   const [selected, setSelected] = useState({});
   const [actions, setActions] = useState([]);
   const [problems, setProblems] = useState([]);
   const [parts, setParts] = useState([]);
-
   const {
     register,
     handleSubmit,
@@ -49,6 +48,7 @@ function MyTable() {
       }),
     },
   });
+  console.log(selectedMachineDetails);
 
   const [selectedQuality, setSelectedQuality] = useState("");
   const [selectedDataSheet, setSelectedDataSheet] = useState("");
@@ -261,7 +261,20 @@ function MyTable() {
                   <p className="mb-0">
                     <b>REQUEST RECEIVED MTD S.L</b>
                   </p>
-                  <select
+                  <DropdownElem
+                    name={"MTD HOSS"}
+                    selectedMinor={selectedMinor}
+                    approvalList={
+                      selectedMachineDetails?.line_names?.cell_names
+                        ?.subSection_names?.section_names?.plant_names
+                        ?.approvalListOfMinorAndMajor
+                    }
+                    options={selectedAllMtdTL}
+                    onChange={(e) => {
+                      setSelectedUser(e.target.value);
+                    }}
+                  />
+                  {/* <select
                     // class="form-select form-select-sm"
                     // aria-label=".form-select-sm example"
                     style={{ borderRadius: "5px" }}
@@ -288,29 +301,26 @@ function MyTable() {
                         <option value={option?._id}>{option?.tm_name}</option>
                       );
                     })}
-                  </select>
+                  </select> */}
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">
-                    <b>MTD T.L.</b>
+                    <b>MTD TL</b>
                   </p>
-                  {/* <DropdownButton
-                    id="dropdown-basic-button"
-                    variant="secondary"
-                    className="floatRight"
-                    onSelect={handleMtdUser}
-                    title={selectedMtdTL || "Select any option"}
-                  >
-                    {selectedAllMtdTL.map((item, index) => {
-                      return (
-                        <Dropdown.Item key={index} eventKey={item._id}>
-                          {item.tm_name}
-                        </Dropdown.Item>
-                      );
-                    })}
-                  </DropdownButton> */}
-
-                  <select
+                  <DropdownElem
+                    name={"MTD TL"}
+                    selectedMinor={selectedMinor}
+                    approvalList={
+                      selectedMachineDetails?.line_names?.cell_names
+                        ?.subSection_names?.section_names?.plant_names
+                        ?.approvalListOfMinorAndMajor
+                    }
+                    options={selectedAllMtdTL}
+                    onChange={(e) => {
+                      setSelectedUser(e.target.value);
+                    }}
+                  />
+                  {/* <select
                     // class="form-select form-select-sm"
                     // aria-label=".form-select-sm example"
                     style={{ borderRadius: "5px" }}
@@ -335,7 +345,7 @@ function MyTable() {
                         <option value={option?._id}>{option?.tm_name}</option>
                       );
                     })}
-                  </select>
+                  </select> */}
                 </Col>
               </Row>
             </td>
@@ -450,23 +460,21 @@ function MyTable() {
                   <p className="mb-0">
                     <b>SECTION INCHARGE</b>
                   </p>
-                  {/* <DropdownButton
-                    id="dropdown-basic-button"
-                    variant="secondary"
-                    className="floatRight"
-                    onSelect={handleMtdUser}
-                    title={selectedMtdUser || "Select any option"}
-                  >
-                    {selectedAllMtdUsers.map((item, index) => {
-                      return (
-                        <Dropdown.Item key={index} eventKey={item._id}>
-                          {item.tm_name}
-                        </Dropdown.Item>
-                      );
-                    })}
-                  </DropdownButton> */}
+                  <DropdownElem
+                    name={"MTD HOS"}
+                    selectedMinor={selectedMinor}
+                    approvalList={
+                      selectedMachineDetails?.line_names?.cell_names
+                        ?.subSection_names?.section_names?.plant_names
+                        ?.approvalListOfMinorAndMajor
+                    }
+                    options={selectedAllMtdUsers}
+                    onChange={(e) => {
+                      setSelectedUser(e.target.value);
+                    }}
+                  />
 
-                  <select
+                  {/* <select
                     // class="form-select form-select-sm"
                     // aria-label=".form-select-sm example"
                     style={{ borderRadius: "5px" }}
@@ -491,7 +499,7 @@ function MyTable() {
                         <option value={option?._id}>{option?.tm_name}</option>
                       );
                     })}
-                  </select>
+                  </select> */}
                   {/* {errors.feedbackMTD && <p>{errors.feedbackMTD.message}</p>} */}
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
@@ -1096,40 +1104,73 @@ function MyTable() {
                   <Row>
                     <Col className="border p-1 text-center">
                       <b>* GM-MTD</b>
-                      <DropdownElem name={"MTD_HOD_List"} />
                     </Col>
                     <Col className="border p-1 text-center">
                       <b>* GM-PRD</b>
-                      <DropdownElem name={"PRD_HOD_List"} />
                     </Col>
                     <Col className="border p-1 text-center">
                       <b>SECTION INCHARGE (PRD)</b>
-                      <DropdownElem name={"PRD_HOS_List"} />
                     </Col>
                     <Col className="border p-1 text-center">
                       <b>TEAM LEADER (PRD)</b>
-                      <DropdownElem name={"PRD_TL_List"} />
                     </Col>
                   </Row>
                   <Row>
                     <Col className="border">
                       <div className="p-1">
-                        <input className="w-100" type="text" />
+                        {/* <input className="w-100" type="text" /> */}
+                        <DropdownElem
+                          name={"MTD HOD"}
+                          // selectedMajor={selectedMajor}
+                          selectedMinor={selectedMinor}
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                        />
                       </div>
                     </Col>
                     <Col className="border">
                       <div className="p-1">
-                        <input className="w-100" type="text" />
+                        {/* <input className="w-100" type="text" /> */}
+                        <DropdownElem
+                          name={"PRD HOD"}
+                          selectedMinor={selectedMinor}
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                        />
                       </div>
                     </Col>
                     <Col className="border">
                       <div className="p-1">
-                        <input className="w-100" type="text" />
+                        {/* <input className="w-100" type="text" /> */}
+                        <DropdownElem
+                          name={"PRD HOS"}
+                          selectedMinor={selectedMinor}
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                        />
                       </div>
                     </Col>
                     <Col className="border">
                       <div className="p-1">
-                        <input className="w-100" type="text" />
+                        {/* <input className="w-100" type="text" /> */}
+                        <DropdownElem
+                          name={"PRD TL"}
+                          selectedMinor={selectedMinor}
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                        />
                       </div>
                     </Col>
                   </Row>

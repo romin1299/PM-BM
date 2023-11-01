@@ -1,7 +1,15 @@
 import React from "react";
 
-const DropdownElem = ({ name, id, options, onChange, value }) => {
-  // console.log(value);
+const DropdownElem = ({
+  name,
+  id,
+  options,
+  onChange,
+  value,
+  className,
+  selectedMinor,
+  approvalList,
+}) => {
   return (
     <div>
       <select
@@ -10,11 +18,21 @@ const DropdownElem = ({ name, id, options, onChange, value }) => {
         onChange={(e) => onChange(e.target.value, id)}
         value={value}
         style={{ fontSize: "14px" }}
+        className={
+          className || "" || selectedMinor === "Yes"
+            ? approvalList?.minorApprovalList?.includes(name)
+              ? "d-inline"
+              : "d-none"
+            : approvalList?.majorApprovalList?.includes(name)
+            ? "d-inline"
+            : "d-none" | "d-none"
+        }
       >
-        {options?.map((serviceElement) => (
-          <option value={serviceElement?.key} key={serviceElement?.key}>
-            {serviceElement?.name}
-          </option>
+        <option selected disabled value="">
+          Please select
+        </option>
+        {options?.map((obj) => (
+          <option value={obj?._id}>{obj?.tm_name}</option>
         ))}
       </select>
     </div>
