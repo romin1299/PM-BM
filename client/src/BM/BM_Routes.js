@@ -107,6 +107,7 @@ const userRoutes = [
       { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
       { path: "/bm/profile", element: <Profile /> },
       { path: "/bm/userAssign", element: <h1>Users</h1> },
+      { path: "/bm/customizedDashboard", element: <MainCustomized /> },
       {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,

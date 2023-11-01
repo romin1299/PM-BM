@@ -65,19 +65,22 @@ function MyTable({ selectedMachineDetails }) {
   const [totalTime, setTotalTime] = useState(0);
   const [selectedAllMtdUsers, setSelectedAllMtdUsers] = useState([]);
   const [selectedAllMtdTL, setSelectedAllMtdTL] = useState([]);
-  // const [selectedMtdSL, setSelectedMtdSL] = useState("");
-  // const [selectedMtdUser, setSelectedMtdUser] = useState("");
-  // const [selectedMtdTL, setSelectedMtdTL] = useState("");
+  const [selectedMtdSL, setSelectedMtdSL] = useState("");
+  const [selectedMtdUser, setSelectedMtdUser] = useState("");
+  const [selectedMtdTL, setSelectedMtdTL] = useState("");
+  const [selectedAllMtdHOD, setSelectedAllMtdHOD] = useState([]);
+  const [selectedMtdHOD, setSelectedMtdHOD] = useState("");
+  const [selectedAllPrdHOD, setSelectedAllPrdHOD] = useState([]);
+  const [selectedPrdHOD, setSelectedPrdHOD] = useState("");
+  const [selectedAllPrdHOS, setSelectedAllPrdHOS] = useState([]);
+  const [selectedPrdHOS, setSelectedPrdHOS] = useState("");
+  const [selectedAllPrdTL, setSelectedAllPrdTL] = useState([]);
+  const [selectedPrdTL, setSelectedPrdTL] = useState("");
 
-  const [selectedUser, setSelectedUser] = useState({
-    selectedMtdSL: "",
-    selectedMtdUser: "",
-    selectedMtdTL: "",
-  });
-
-  // const [selectedAll, setSelectedAll] = useState({
-  //   selectedAllMtdUsers: [],
-  //   selectedAllMtdTL: [],
+  // const [selectedUser, setSelectedMtdUser] = useState({
+  //   selectedMtdSL: "",
+  //   selectedMtdUser: "",
+  //   selectedMtdTL: "",
   // });
 
   const handleQuality = (event) => {
@@ -112,7 +115,7 @@ function MyTable({ selectedMachineDetails }) {
   };
 
   // const handleSection = (e) => {
-  //   setSelectedUser({ selectedMtdUser: e.target.value });
+  //   setSelectedMtdUser({ selectedMtdUser: e.target.value });
   // };
 
   // console.log(selectedMtdTL);
@@ -147,8 +150,6 @@ function MyTable({ selectedMachineDetails }) {
   );
   // var timeDifferenceMinutes = timeDifferenceMs / (1000 * 60);
 
-  // console.log("Time difference in minutes:", timeDifferenceMinutes);
-
   const newRequestSheetRegistration = async (requestSheetData) => {
     const machineRef = "63b67ccea716e21c95cd471a";
     requestSheetData.changedParts = parts;
@@ -163,9 +164,9 @@ function MyTable({ selectedMachineDetails }) {
     requestSheetData.minorBD = selectedMinor;
     requestSheetData.firstTime = selectedFirstTime;
     requestSheetData.repeat = selectedRepeat;
-    // requestSheetData.approvalOfMTD_TL = selectedMtdTL;
-    // requestSheetData.approvalOfMTD_SL = selectedMtdSL;
-    // requestSheetData.approvalOfMTD_HOS = selectedMtdUser;
+    requestSheetData.approvalOfMTD_TL = selectedMtdTL;
+    requestSheetData.approvalOfMTD_SL = selectedMtdSL;
+    requestSheetData.approvalOfMTD_HOS = selectedMtdUser;
 
     const reqid = "65324cb00dc427ec2a098ef4";
 
@@ -193,36 +194,41 @@ function MyTable({ selectedMachineDetails }) {
     }
   };
 
-  const MTD = "MTD";
-  const user_type = "TL/HOSS";
-  const tm_grade = "HOS";
+  // const MTD = "MTD";
+  // const user_type = "TL/HOSS";
+  // const tm_grade = "HOS";
 
-  const getMtdUserDetails = async () => {
-    try {
-      const res = await fetch(
-        `/getMtdUserDetails/?tm_department=${MTD}&&user_type=${user_type}&&tm_grade=${tm_grade}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
+  // const getMtdUserDetails = async () => {
+  //   try {
+  //     const res = await fetch(
+  //       `/getMtdUserDetails/?tm_department=${MTD}&&user_type=${user_type}&&tm_grade=${tm_grade}`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           Accept: "application/json",
+  //           "Content-Type": "application/json",
+  //         },
+  //         credentials: "include",
+  //       }
+  //     );
 
-      const { mtdUser, mtdUserTL } = await res.json();
+  //     const { mtdUser, mtdUserTL, mtdHod, prdHod, prdHos, prdTL } =
+  //       await res.json();
 
-      setSelectedAllMtdUsers(mtdUser);
-      setSelectedAllMtdTL(mtdUserTL);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     setSelectedAllMtdUsers(mtdUser);
+  //     setSelectedAllMtdTL(mtdUserTL);
+  //     setSelectedAllMtdHOD(mtdHod);
+  //     setSelectedAllPrdHOD(prdHod);
+  //     setSelectedAllPrdHOS(prdHos);
+  //     setSelectedAllPrdTL(prdTL);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  useEffect(() => {
-    getMtdUserDetails();
-  }, [MTD]);
+  // useEffect(() => {
+  //   getMtdUserDetails();
+  // }, [MTD]);
 
   useEffect(() => {
     if (timeDifferenceMinutes > 120) {
@@ -271,7 +277,7 @@ function MyTable({ selectedMachineDetails }) {
                     }
                     options={selectedAllMtdTL}
                     onChange={(e) => {
-                      setSelectedUser(e.target.value);
+                      // setSelectedUser(e.target.value);
                     }}
                   />
                   {/* <select
@@ -285,11 +291,11 @@ function MyTable({ selectedMachineDetails }) {
                     fullWidth
                     select // label="Select"
                     autoComplete="off"
-                    // value={selectedMtdSL}
+                    value={selectedMtdSL}
                     onChange={(e) => {
                       // handleMtdUser(e.target.value);
 
-                      setSelectedUser(e.target.value);
+                      setSelectedMtdSL(e.target.value);
                     }}
                     variant="standard"
                   >
@@ -317,7 +323,7 @@ function MyTable({ selectedMachineDetails }) {
                     }
                     options={selectedAllMtdTL}
                     onChange={(e) => {
-                      setSelectedUser(e.target.value);
+                      // setSelectedUser(e.target.value);
                     }}
                   />
                   {/* <select
@@ -331,9 +337,9 @@ function MyTable({ selectedMachineDetails }) {
                     fullWidth
                     select // label="Select"
                     autoComplete="off"
-                    // value={selectedMtdTL}
+                    value={selectedMtdTL}
                     onChange={(e) => {
-                      setSelectedUser(e.target.value);
+                      setSelectedMtdTL(e.target.value);
                     }}
                     variant="standard"
                   >
@@ -470,7 +476,7 @@ function MyTable({ selectedMachineDetails }) {
                     }
                     options={selectedAllMtdUsers}
                     onChange={(e) => {
-                      setSelectedUser(e.target.value);
+                      // setSelectedUser(e.target.value);
                     }}
                   />
 
@@ -485,9 +491,9 @@ function MyTable({ selectedMachineDetails }) {
                     fullWidth
                     select // label="Select"
                     autoComplete="off"
-                    // value={selectedMtdUser}
+                    value={selectedMtdUser}
                     onChange={(e) => {
-                      setSelectedUser(e.target.value);
+                      setSelectedMtdUser(e.target.value);
                     }}
                     variant="standard"
                   >

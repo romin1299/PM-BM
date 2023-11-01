@@ -37,7 +37,7 @@ select {
     font-weight: 550;
     font-size: 14px;
     padding: 0.1rem 0.5rem !important;
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(214, 214, 214, 0.4);
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);

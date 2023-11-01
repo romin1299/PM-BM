@@ -7,6 +7,15 @@ const plantSchema = new mongoose.Schema({
   plant_name: {
     type: String,
   },
+
+  shiftOfBM: [
+    {
+      shiftName: { type: String },
+      shiftStartTime: { type: String },
+      shiftEndTime: { type: String },
+    },
+  ],
+
   differentCategories: [
     {
       categoryName: { type: String },
