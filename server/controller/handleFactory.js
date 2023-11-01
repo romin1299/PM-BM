@@ -20,15 +20,17 @@ exports.getUserData =
       })
       .exec();
 
-   
+    console.log("machine", machine);
 
     const section = await sectionModel.findOne({
       section_id: req?.rootUser?.section_data?.split("-")?.[0],
     });
 
     let queryObj = {
-      plant_data: req?.rootUser?.plant_data,  
+      plant_data: req?.rootUser?.plant_data,
     };
+
+    console.log("queryObj", queryObj);
 
     if (req?.query?.tm_grade !== "HOD") {
       if (section.dashboardLevel === "Yes") {
@@ -89,7 +91,7 @@ exports.getUserData =
       res.status(201).json({
         message: "Sheet data get successfully",
         machine,
-        breakDownAttendedBy: req.rootUser.tm_name,
+        prdTL: req.rootUser.tm_name,
         requestSheetApprovalList,
       });
     } else {
