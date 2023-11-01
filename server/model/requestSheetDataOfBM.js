@@ -120,6 +120,11 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     ref: "User",
   },
 
+  handOverUser: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+
   finalActivity: {
     type: String,
   },

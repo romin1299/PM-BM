@@ -254,6 +254,22 @@ const RequestSheetMainDashboard = () => {
         }),
     },
     {
+      title: "Handover To",
+      field: "handOverUser",
+      // editable: context?.tm_department === "MTD" ? "always" : "never",
+      editable: (_, row) =>
+        context?.tm_department === "MTD" &&
+        row?.requestSheetStatus === statusArray[0]
+          ? true
+          : false,
+      editComponent: ({ value, onChange }) =>
+        dropDownComponent({
+          value,
+          onChange,
+          dropDownArray: reduceState?.TLHOSS_and_TM_user_list,
+        }),
+    },
+    {
       title: "Final Action",
       field: "finalActivity",
       editable: conditionalBasedEditableFunctionForMTD,
@@ -282,7 +298,7 @@ const RequestSheetMainDashboard = () => {
     //   ),
     // },
     {
-      title: "H/O Time", //hand-over time
+      title: "H/O Time Work End", //hand-over time
       field: "handOverTime",
       editable: conditionalBasedEditableFunctionForMTD,
       editComponent: ({ value, onChange }) => (
