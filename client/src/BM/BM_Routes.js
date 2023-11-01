@@ -15,6 +15,7 @@ import BMSidebar from "./BMSidebar/BMSidebar";
 import RequestSheet from "./Tabs/RequestSheet/MainRequestSheet";
 import RequestSheetMainDashboard from "./RequestSheet/RequestSheetMainDashboard";
 import GenerateRequestSheetMainDashboard from "./RequestSheet/GenerateRequestSheetMainDashboard";
+import RequestSheetMonitoring from "./RequestSheetMonitoring/RequestSheetMonitoring";
 
 // Define an array of routes for each user type
 const userRoutes = [
@@ -116,6 +117,10 @@ const userRoutes = [
       {
         path: "/bm/check-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
+      },
+      {
+        path: "/bm/requestSheetMonitoring",
+        element: <RequestSheetMonitoring />,
       },
     ],
   },

@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 
+const moment = require("moment-timezone");
+const timezone = "Asia/Kolkata";
+
 const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
 const Machine = require("../model/machineSchema");
 const User = require("../model/userSchema");
@@ -255,13 +258,6 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           from: "machinesalldatas",
           localField: "machineRef",
           foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                machine_code: 1,
-              },
-            },
-          ],
           as: "machines",
         },
       },
@@ -343,11 +339,13 @@ const findRequestSheetMiddleware = async (req, res, next) => {
       },
       {
         $project: {
+          machines: 1,
           requestSheetCreatedBy: 1,
           requestSheetNoOfBM: 1,
           cell: { $arrayElemAt: ["$cells.cell_name", 0] },
           line: { $arrayElemAt: ["$lines.line_name", 0] },
-          machine: { $arrayElemAt: ["$machines.machine_code", 0] },
+          machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
+          machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
           PRDUser: { $arrayElemAt: ["$namesPRD.tm_name", 0] },
           assignUser: {
             $arrayElemAt: ["$namesOperators.tm_name", 0],
@@ -1039,4 +1037,143 @@ router.get("/getMtdUserDetails", async (req, res, next) => {
   });
 });
 
+// -------------------------------------------------------------------------------
+//        Monitoring RequestSheet APIS
+// -------------------------------------------------------------------------------
+
+router.get("/getRequestSheetMonitoringData/:id", async (req, res, next) => {
+  const functionForQueryObject = (status) => ({
+    $sum: {
+      $cond: [{ $eq: ["$requestSheetStatus", status] }, 1, 0],
+    },
+  });
+  try {
+    const allStatusCounterForGraph = await RequestSheetOfBM.aggregate([
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineRef",
+          foreignField: "_id",
+          as: "lines",
+        },
+      },
+      {
+        $match: {
+          lineRef: mongoose.Types.ObjectId(req.params?.id),
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total_generated: functionForQueryObject(statusArray[0]), // "Generated",
+          total_assigned: functionForQueryObject(statusArray[1]), // "Assigned",
+          total_work_order_open: functionForQueryObject(statusArray[2]), // "Work Order Open",
+          total_work_order_pending: functionForQueryObject(statusArray[3]), // "Work Order Pending",
+          total_work_order_closed: functionForQueryObject(statusArray[4]), // "Work Order Closed",
+          // "Fill sheet",
+          // "Under MTD TL approval",
+          // "Under MTD HOSS approval",
+          // "Under MTD HOS approval",
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+        },
+      },
+    ]);
+
+    const allMonths = Array.from({ length: 12 }, (_, monthIndex) => ({
+      monthName: moment().month(monthIndex).format("MMMM"),
+      monthInDecimal: `${monthIndex + 1}`,
+    }));
+
+    const generatedAndCompletedStatusMonthlyData =
+      await RequestSheetOfBM.aggregate([
+        {
+          $lookup: {
+            from: "lines",
+            localField: "lineRef",
+            foreignField: "_id",
+            as: "lines",
+          },
+        },
+        {
+          $match: {
+            lineRef: mongoose.Types.ObjectId(req.params?.id),
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%m",
+                date: "$sheetIssuedDateAndTimeOfBM",
+                timezone: timezone,
+              },
+            },
+            generated: functionForQueryObject(statusArray[0]),
+            completed: functionForQueryObject(statusArray[4]),
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            array: { $push: "$$ROOT" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            array: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthInDecimal", "$array._id"] },
+                    {
+                      month: "$$month.monthName",
+                      data: {
+                        $arrayElemAt: [
+                          "$array",
+                          {
+                            $indexOfArray: [
+                              "$array._id",
+                              "$$month.monthInDecimal",
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      month: "$$month.monthName",
+                      data: {
+                        _id: "$$month.monthInDecimal",
+                        generated: 0,
+                        completed: 0,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        { $unwind: "$array" },
+        {
+          $replaceRoot: { newRoot: "$array" },
+        },
+      ]);
+    // .explain("executionStats");
+
+    return res.status(201).json({
+      message: "Monitoring request-sheet data get successfully",
+      allStatusCounterForGraph,
+      generatedAndCompletedStatusMonthlyData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+});
 module.exports = router;
