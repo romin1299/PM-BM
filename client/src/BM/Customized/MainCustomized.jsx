@@ -1,9 +1,14 @@
-import React from 'react'
-import RequestSheetCustomizedApproval from './CustomizedApproval/RequestSheetCustomizedApproval'
+import React from "react";
+import RequestSheetCustomizedApproval from "./CustomizedApproval/RequestSheetCustomizedApproval";
+import ManageCategories from "./CustomizedCategory/ManageCategories";
+
 const MainCustomized = () => {
   return (
-    <RequestSheetCustomizedApproval/>
-  )
-}
+    <>
+      <RequestSheetCustomizedApproval />
+      <ManageCategories />
+    </>
+  );
+};
 
-export default MainCustomized
+export default MainCustomized;
