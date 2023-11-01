@@ -53,7 +53,7 @@ function MyTable({ selectedMachineDetails }) {
   const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
   const [selectedQuality, setSelectedQuality] = useState("");
   // const [selectedMachineDetails, setMachineDetails] = useState("");
-  const [selectedPrdTL, setSelectedPrdTL] = useState("");
+  // const [selectedPrdTL, setSelectedPrdTL] = useState("");
 
   // const handleSelectShift = (key, event) => {
   //   setSelectedShift({ key, value: event.target.value });
@@ -121,14 +121,13 @@ function MyTable({ selectedMachineDetails }) {
           navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
         }
       } else {
-        const { machine, prdTL, requestSheetApprovalList } = await res.json();
+        const { machine, requestSheetApprovalList } = await res.json();
         // setMachineDetails(machine);
 
         // console.log(machine);
         // console.log("Users", requestSheetApprovalList);
 
         // setMachineDetails(machine);
-        setSelectedPrdTL(prdTL);
       }
     } catch (error) {
       console.log(error);
@@ -150,52 +149,22 @@ function MyTable({ selectedMachineDetails }) {
   });
 
   const momentTime = moment(sheetIssuedTime, "HH:mm");
-  let shiftStartTime;
-  let shiftEndTime;
 
-  let plantStartTime;
-  let plantEndTime;
+  let shiftName;
+  let shiftTimes =
+    selectedMachineDetails?.line_names?.cell_names?.subSection_names
+      ?.section_names?.plant_names?.shiftOfBM;
 
-  // for (let i = 0; i < 5; i++) {
-  //   shiftStartTime =
-  //     selectedMachineDetails?.line_names?.cell_names?.subSection_names
-  //       ?.section_names?.plant_names?.shiftOfBM[i]?.shiftStartTime;
-  //   console.log(shiftStartTime);
+  if (shiftTimes) {
+    const shift = shiftTimes.filter(
+      (x) =>
+        x?.shiftStartTime &&
+        x?.shiftEndTime &&
+        momentTime > moment(x.shiftStartTime, "HH:mm") &&
+        momentTime < moment(x.shiftEndTime, "HH:mm")
+    );
 
-  //   shiftEndTime =
-  //     selectedMachineDetails?.line_names?.cell_names?.subSection_names
-  //       ?.section_names?.plant_names?.shiftOfBM[i]?.shiftEndTime;
-
-  //   console.log(shiftEndTime);
-
-  //   if (momentTime > shiftStartTime && momentTime < shiftEndTime) {
-  //     plantStartTime =
-  //       selectedMachineDetails?.line_names?.cell_names?.subSection_names
-  //         ?.section_names?.plant_names?.shiftOfBM[i]?.shiftName;
-  //   }
-
-  //   // shiftEndTime =
-  //   //   selectedMachineDetails?.line_names?.cell_names?.subSection_names
-  //   //     ?.section_names?.plant_names?.shiftOfBM[i]?.shiftEndTime;
-  // }
-  // console.log(plantStartTime);
-  let temp;
-  if (
-    momentTime > moment("06:00", "HH:mm") &&
-    momentTime < moment("14:30", "HH:mm")
-  ) {
-    temp = "A";
-    // setSelectedShift("A");
-  } else if (
-    momentTime > moment("14:15", "HH:mm") &&
-    momentTime < moment("22:45", "HH:mm")
-  ) {
-    // setSelectedShift("B");
-  } else if (
-    momentTime > moment("22:45", "HH:mm") &&
-    momentTime < moment("06:15", "HH:mm")
-  ) {
-    // setSelectedShift("C");
+    shiftName = shift[0]?.shiftName;
   }
 
   return (
@@ -457,7 +426,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">TL [PRD]</p>
-                  {selectedPrdTL}
+                  {}
                   {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
@@ -687,7 +656,7 @@ function MyTable({ selectedMachineDetails }) {
                         );
                       })}
                     </DropdownButton> */}
-                    {temp}
+                    {shiftName}
                   </p>
                 </Col>
               </Row>
