@@ -23,8 +23,8 @@ const plantSchema = new mongoose.Schema({
     },
   ],
   approvalListOfMinorAndMajor: {
-    minorApprovalList: [{ type: String }],
-    majorApprovalList: [{ type: String }],
+    minorApprovalList: { type: [String] },
+    majorApprovalList: { type: [String] },
   },
 });
 
