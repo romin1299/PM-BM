@@ -2,14 +2,19 @@
 // import Table from "react-bootstrap/Table";
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import denso_log from "../../../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
-import { DropdownButton, Dropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+
 import moment from "moment-timezone";
 
 import { useParams } from "react-router-dom";
+import { Typography } from "@mui/material";
 
 const list = [
   { key: "A", value: "A" },
@@ -139,6 +144,10 @@ function MyTable({ selectedMachineDetails }) {
     getMachineDetails();
   }, [machine_code]);
 
+  useEffect(() => {
+    setSelectedShift(getCurrentShiftName());
+  }, []);
+
   const timezone = "Asia/Kolkata";
   const startedDate = moment().tz(timezone).month() + 1;
 
@@ -150,53 +159,36 @@ function MyTable({ selectedMachineDetails }) {
   });
 
   const momentTime = moment(sheetIssuedTime, "HH:mm");
-  let shiftStartTime;
-  let shiftEndTime;
 
-  let plantStartTime;
-  let plantEndTime;
+  const shiftOfBM = [
+    {
+      shiftName: "A",
+      shiftStartTime: "06:00",
+      shiftEndTime: "14:30",
+    },
+    {
+      shiftName: "B",
+      shiftStartTime: "14:15",
+      shiftEndTime: "22:45",
+    },
+    {
+      shiftName: "C",
+      shiftStartTime: "22:45",
+      shiftEndTime: "06:15",
+    },
+  ];
 
-  // for (let i = 0; i < 5; i++) {
-  //   shiftStartTime =
-  //     selectedMachineDetails?.line_names?.cell_names?.subSection_names
-  //       ?.section_names?.plant_names?.shiftOfBM[i]?.shiftStartTime;
-  //   console.log(shiftStartTime);
+  const getCurrentShiftName = () => {
+    for (let shiftInfo of shiftOfBM) {
+      if (
+        momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
+        momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
+      )
+        return shiftInfo.shiftName;
+    }
 
-  //   shiftEndTime =
-  //     selectedMachineDetails?.line_names?.cell_names?.subSection_names
-  //       ?.section_names?.plant_names?.shiftOfBM[i]?.shiftEndTime;
-
-  //   console.log(shiftEndTime);
-
-  //   if (momentTime > shiftStartTime && momentTime < shiftEndTime) {
-  //     plantStartTime =
-  //       selectedMachineDetails?.line_names?.cell_names?.subSection_names
-  //         ?.section_names?.plant_names?.shiftOfBM[i]?.shiftName;
-  //   }
-
-  //   // shiftEndTime =
-  //   //   selectedMachineDetails?.line_names?.cell_names?.subSection_names
-  //   //     ?.section_names?.plant_names?.shiftOfBM[i]?.shiftEndTime;
-  // }
-  // console.log(plantStartTime);
-  let temp;
-  if (
-    momentTime > moment("06:00", "HH:mm") &&
-    momentTime < moment("14:30", "HH:mm")
-  ) {
-    temp = "A";
-    // setSelectedShift("A");
-  } else if (
-    momentTime > moment("14:15", "HH:mm") &&
-    momentTime < moment("22:45", "HH:mm")
-  ) {
-    // setSelectedShift("B");
-  } else if (
-    momentTime > moment("22:45", "HH:mm") &&
-    momentTime < moment("06:15", "HH:mm")
-  ) {
-    // setSelectedShift("C");
-  }
+    return null;
+  };
 
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
@@ -670,27 +662,32 @@ function MyTable({ selectedMachineDetails }) {
             <td colSpan={4} className="border">
               <Row className="m-0">
                 <Col className="border p-2">
-                  <p className="mb-0 d-flex align-items-center">
-                    <b>SHIFT</b>&nbsp;&nbsp;&nbsp;
-                    {/* <DropdownButton
-                      id="dropdown-basic-button"
-                      variant="secondary"
-                      className="floatRight"
-                      onSelect={handleSelectShift}
-                      title={selectedShift?.key || list[0].key}
+                  <FormControl>
+                    <FormLabel id="demo-radio-buttons-group-label">
+                      <Typography sx={{ fontWeight: "700", color: "black" }}>
+                        SHIFT
+                      </Typography>
+                    </FormLabel>
+
+                    <RadioGroup
+                      row
+                      value={selectedShift}
+                      aria-labelledby="demo-radio-buttons-group-label"
+                      name="radio-buttons-group"
                     >
-                      {list.map((item, index) => {
-                        return (
-                          <Dropdown.Item key={index} eventKey={item.key}>
-                            {item.value}
-                          </Dropdown.Item>
-                        );
-                      })}
-                    </DropdownButton> */}
-                    {temp}
-                  </p>
+                      {shiftOfBM.map((shiftInfo) => (
+                        <FormControlLabel
+                          value={shiftInfo.shiftName}
+                          control={<Radio color="default" size="small" />}
+                          label={shiftInfo.shiftName}
+                          disabled={selectedShift !== shiftInfo.shiftName}
+                        />
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
                 </Col>
               </Row>
+
               <Row className="m-0">
                 <Col className="border p-2">
                   <p className="mb-0 d-flex align-items-center justify-content-start">
