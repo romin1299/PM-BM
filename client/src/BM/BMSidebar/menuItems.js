@@ -20,7 +20,8 @@ import BackupTableIcon from "@mui/icons-material/BackupTable";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import StorageIcon from "@mui/icons-material/Storage";
 import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import ControlPointIcon from "@mui/icons-material/ControlPoint";
 
 export const menuItems = [
   {
@@ -58,7 +59,7 @@ export const menuItems = [
   },
   {
     title: "Customized Dashboard",
-    icon: <AddTaskIcon className="text-white" />,
+    icon: <ControlPointIcon className="text-white" />,
     route: "/bm/customizedDashboard",
     allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
   },

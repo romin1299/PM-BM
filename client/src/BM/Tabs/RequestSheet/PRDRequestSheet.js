@@ -1,17 +1,22 @@
 // import React from "react";
 // import Table from "react-bootstrap/Table";
-import React, { useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import denso_log from "../../../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
-import { DropdownButton, Dropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
+import { Typography } from "@mui/material";
 
 const list = [
   { key: "A", value: "A" },
@@ -50,7 +55,7 @@ function MyTable({ selectedMachineDetails }) {
     },
   });
 
-  // const [selectedShift, setSelectedShift] = useState("");
+  const [selectedShift, setSelectedShift] = useState("");
   // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
   // const [selectedQuality, setSelectedQuality] = useState("");
@@ -108,6 +113,10 @@ function MyTable({ selectedMachineDetails }) {
     }
   };
 
+  useEffect(() => {
+    setSelectedShift(getCurrentShiftName());
+  }, []);
+
   const timezone = "Asia/Kolkata";
   const startedDate = moment().tz(timezone).month() + 1;
 
@@ -119,53 +128,36 @@ function MyTable({ selectedMachineDetails }) {
   });
 
   const momentTime = moment(sheetIssuedTime, "HH:mm");
-  let shiftStartTime;
-  let shiftEndTime;
 
-  let plantStartTime;
-  let plantEndTime;
+  const shiftOfBM = [
+    {
+      shiftName: "A",
+      shiftStartTime: "06:00",
+      shiftEndTime: "14:30",
+    },
+    {
+      shiftName: "B",
+      shiftStartTime: "14:15",
+      shiftEndTime: "22:45",
+    },
+    {
+      shiftName: "C",
+      shiftStartTime: "22:45",
+      shiftEndTime: "06:15",
+    },
+  ];
 
-  // for (let i = 0; i < 5; i++) {
-  //   shiftStartTime =
-  //     selectedMachineDetails?.line_names?.cell_names?.subSection_names
-  //       ?.section_names?.plant_names?.shiftOfBM[i]?.shiftStartTime;
-  //   console.log(shiftStartTime);
+  const getCurrentShiftName = () => {
+    for (let shiftInfo of shiftOfBM) {
+      if (
+        momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
+        momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
+      )
+        return shiftInfo.shiftName;
+    }
 
-  //   shiftEndTime =
-  //     selectedMachineDetails?.line_names?.cell_names?.subSection_names
-  //       ?.section_names?.plant_names?.shiftOfBM[i]?.shiftEndTime;
-
-  //   console.log(shiftEndTime);
-
-  //   if (momentTime > shiftStartTime && momentTime < shiftEndTime) {
-  //     plantStartTime =
-  //       selectedMachineDetails?.line_names?.cell_names?.subSection_names
-  //         ?.section_names?.plant_names?.shiftOfBM[i]?.shiftName;
-  //   }
-
-  //   // shiftEndTime =
-  //   //   selectedMachineDetails?.line_names?.cell_names?.subSection_names
-  //   //     ?.section_names?.plant_names?.shiftOfBM[i]?.shiftEndTime;
-  // }
-  // console.log(plantStartTime);
-  let temp;
-  if (
-    momentTime > moment("06:00", "HH:mm") &&
-    momentTime < moment("14:30", "HH:mm")
-  ) {
-    temp = "A";
-    // setSelectedShift("A");
-  } else if (
-    momentTime > moment("14:15", "HH:mm") &&
-    momentTime < moment("22:45", "HH:mm")
-  ) {
-    // setSelectedShift("B");
-  } else if (
-    momentTime > moment("22:45", "HH:mm") &&
-    momentTime < moment("06:15", "HH:mm")
-  ) {
-    // setSelectedShift("C");
-  }
+    return null;
+  };
 
   return (
     <>
@@ -697,87 +689,83 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
               </td>
 
-              <td colSpan={4} className="border">
-                <Row className="m-0">
-                  <Col className="border p-2">
-                    <p className="mb-0 d-flex align-items-center">
-                      <b>SHIFT</b>&nbsp;&nbsp;&nbsp;
-                      {/* <DropdownButton
-                      id="dropdown-basic-button"
-                      variant="secondary"
-                      className="floatRight"
-                      onSelect={handleSelectShift}
-                      title={selectedShift?.key || list[0].key}
+            <td colSpan={4} className="border">
+              <Row className="m-0">
+                <Col className="border p-2">
+                  <FormControl>
+                    <FormLabel id="demo-radio-buttons-group-label">
+                      <Typography sx={{ fontWeight: "700", color: "black" }}>
+                        SHIFT
+                      </Typography>
+                    </FormLabel>
+
+                    <RadioGroup
+                      row
+                      value={watch('selectedShift')}
+                      aria-labelledby="demo-radio-buttons-group-label"
+                      name="radio-buttons-group"
                     >
-                      {list.map((item, index) => {
-                        return (
-                          <Dropdown.Item key={index} eventKey={item.key}>
-                            {item.value}
-                          </Dropdown.Item>
-                        );
-                      })}
-                    </DropdownButton> */}
-                      {temp}
-                    </p>
-                  </Col>
-                </Row>
-                <Row className="m-0">
-                  <Col className="border p-2">
-                    <p className="mb-0 d-flex align-items-center justify-content-start">
-                      <b>QUALITY RELATED</b>&nbsp;&nbsp;&nbsp;
-                    </p>
-                  </Col>
-                  <Col className="border p-2 d-flex align-items-center">
-                    <Form>
-                      {["radio"].map((type) => (
-                        <div key={`inline-${type}`} className="d-flex">
-                          <Form.Check
-                            flex
-                            label="Yes"
-                            name="qualityRelated"
-                            type={type}
-                            id={`inline-${type}-1`}
-                            value="Yes"
-                            // onChange={handleQuality}
-                            // checked={selectedQuality === "Yes"}
-                            {...register("qualityRelated", {
-                              required: "Please select quality related",
-                            })}
-                          />
-                          <Form.Check
-                            flex
-                            label="No"
-                            name="qualityRelated"
-                            type={type}
-                            id={`inline-${type}-2`}
-                            value="No"
-                            // onChange={handleQuality}
-                            // checked={selectedQuality === "No"}
-                            {...register("qualityRelated", {
-                              required: "Please select quality related",
-                            })}
-                          />
-                        </div>
+                      {shiftOfBM.map((shiftInfo) => (
+                        <FormControlLabel
+                          value={shiftInfo.shiftName}
+                          control={<Radio color="default" size="small" />}
+                          label={shiftInfo.shiftName}
+                          disabled={watch('selectedShift') !== shiftInfo.shiftName}
+                        />
                       ))}
-                      {errors?.["qualityRelated"] && (
-                        <p className="text-error">
-                          {errors?.["qualityRelated"]?.message}
-                        </p>
-                      )}
-                    </Form>
-                  </Col>
-                </Row>
-                <Row className="pt-0 mb-0 m-0">
-                  <Col lg={12} className="border pb-2 pt-1">
-                    <p className="mb-0">
-                      <b>BREAKDOWN ATTENDED BY</b>
-                    </p>
-                    {/* {selectedAttendee} */}
-                  </Col>
-                </Row>
-              </td>
-            </tr>
-          </tbody>
+                    </RadioGroup>
+                  </FormControl>
+                </Col>
+              </Row>
+
+              <Row className="m-0">
+                <Col className="border p-2">
+                  <p className="mb-0 d-flex align-items-center justify-content-start">
+                    <b>QUALITY RELATED</b>&nbsp;&nbsp;&nbsp;
+                  </p>
+                </Col>
+                <Col className="border p-2 d-flex align-items-center">
+                  <Form>
+                    {["radio"].map((type) => (
+                      <div key={`inline-${type}`} className="d-flex">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="group1"
+                          type={type}
+                          id={`inline-${type}-1`}
+                          value="Yes"
+                          {...register("qualityRelated", {
+                            required: "Please select quality related",
+                          })}
+                        />
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="group1"
+                          type={type}
+                          id={`inline-${type}-2`}
+                          value="No"
+                          {...register("qualityRelated", {
+                            required: "Please select quality related",
+                          })}
+                        />
+                      </div>
+                    ))}
+                  </Form>
+                </Col>
+              </Row>
+              <Row className="pt-0 mb-0 m-0">
+                <Col lg={12} className="border pb-2 pt-1">
+                  <p className="mb-0">
+                    <b>BREAKDOWN ATTENDED BY</b>
+                  </p>
+                  {/* {selectedAttendee} */}
+                </Col>
+              </Row>
+            </td>
+          </tr>
+        </tbody>
 
           <Row>
             <Col>
