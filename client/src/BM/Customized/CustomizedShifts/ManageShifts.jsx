@@ -13,6 +13,9 @@ import {
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
+
+
+
 import { randomId, randomArrayItem } from "@mui/x-data-grid-generator";
 
 const roles = ["Market", "Finance", "Development"];
@@ -105,18 +108,44 @@ export default function ManageShifts() {
     {
       field: "shiftStartTime",
       headerName: "Start Time",
-      type: "time",
-      //   maxWidth: 180,
-      //   width: 80,
-      editable: true,
+      renderCell: (params) => {
+        const isInEditMode = rowModesModel[params.row.id]?.mode === GridRowModes.Edit;
+  
+        return (
+          <input
+            type="time"
+            value={params.row.shiftStartTime}
+            disabled={!isInEditMode}
+            onChange={(e) => {
+              if (isInEditMode) {
+                const updatedRow = { ...params.row, shiftStartTime: e.target.value };
+                processRowUpdate(updatedRow);
+              }
+            }}
+          />
+        );
+      },
     },
     {
       field: "shiftEndTime",
       headerName: "End Time",
-      type: "time",
-      //   maxWidth: 180,
-      //   width: 80,
-      editable: true,
+      renderCell: (params) => {
+        const isInEditMode = rowModesModel[params.row.id]?.mode === GridRowModes.Edit;
+  
+        return (
+          <input
+            type="time"
+            value={params.row.shiftEndTime}
+            disabled={!isInEditMode}
+            onChange={(e) => {
+              if (isInEditMode) {
+                const updatedRow = { ...params.row, shiftEndTime: e.target.value };
+                processRowUpdate(updatedRow);
+              }
+            }}
+          />
+        );
+      },
     },
     {
       field: "actions",
