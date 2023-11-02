@@ -1164,55 +1164,53 @@ router.get("/getMtdUserDetails", async (req, res, next) => {
 //        Monitoring RequestSheet APIS
 // -------------------------------------------------------------------------------
 
-router.get("/getRequestSheetMonitoringData/:id", async (req, res, next) => {
-  const functionForQueryObject = (status) => ({
-    $sum: {
-      $cond: [{ $eq: ["$requestSheetStatus", status] }, 1, 0],
-    },
-  });
+const middlewareForGettingAllDropdownList = async (req, res, next) => {
   try {
-    const allStatusCounterForGraph = await RequestSheetOfBM.aggregate([
-      {
-        $lookup: {
-          from: "lines",
-          localField: "lineRef",
-          foreignField: "_id",
-          as: "lines",
-        },
-      },
-      {
-        $match: {
-          lineRef: mongoose.Types.ObjectId(req.params?.id),
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          total_generated: functionForQueryObject(statusArray[0]), // "Generated",
-          total_assigned: functionForQueryObject(statusArray[1]), // "Assigned",
-          total_work_order_open: functionForQueryObject(statusArray[2]), // "Work Order Open",
-          total_work_order_pending: functionForQueryObject(statusArray[3]), // "Work Order Pending",
-          total_work_order_closed: functionForQueryObject(statusArray[4]), // "Work Order Closed",
-          // "Fill sheet",
-          // "Under MTD TL approval",
-          // "Under MTD HOSS approval",
-          // "Under MTD HOS approval",
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-        },
-      },
-    ]);
+    console.log("(((((((((((((");
+    if (req.query) {
+      return next();
+    }
 
-    // const allMonths = Array.from({ length: 12 }, (_, monthIndex) => ({
-    //   monthName: moment().month(monthIndex).format("MMMM"),
-    //   monthInDecimal: `${monthIndex + 1}`,
-    // }));
+    const section = await Section.findOne({
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    });
 
-    const generatedAndCompletedStatusMonthlyData =
-      await RequestSheetOfBM.aggregate([
+    if (section.dashboardLevel === "Yes") {
+      const subSectionsData = await SubSection.find({
+        section_names: section?._id,
+      }).sort({ subSection_sequence: 1 });
+
+      const cellData = await Cell.find({
+        subSection_names: { $in: subSectionsData?.map((item) => item?._id) },
+      }).sort({ cell_sequence: 1 });
+
+      req.cellData = cellData;
+    } else {
+      queryObj = {
+        ...queryObj,
+        section_data: req?.rootUser?.section_data,
+        subSection_data: { $in: req?.rootUser?.subSection_data },
+      };
+    }
+
+    req.section = section;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+router.get(
+  "/getRequestSheetMonitoringData/:id",
+  middlewareForGettingAllDropdownList,
+  async (req, res, next) => {
+    // const functionForQueryObject = (status) => ({
+    //   $sum: {
+    //     $cond: [{ $eq: ["$requestSheetStatus", status] }, 1, 0],
+    //   },
+    // });
+    try {
+      const allStatusCounterForGraph = await RequestSheetOfBM.aggregate([
         {
           $lookup: {
             from: "lines",
@@ -1227,110 +1225,341 @@ router.get("/getRequestSheetMonitoringData/:id", async (req, res, next) => {
           },
         },
         {
-          $group: {
-            _id: {
-              $dateToString: {
-                format: "%m",
-                date: "$sheetIssuedDateAndTimeOfBM",
-                timezone: timezone,
+          $facet: {
+            counterByStatus: [
+              {
+                $group: {
+                  _id: "$requestSheetStatus",
+                  count: { $sum: 1 },
+                },
               },
-            },
-            generated: functionForQueryObject(statusArray[0]),
-            completed: functionForQueryObject(statusArray[4]),
+              {
+                $project: {
+                  _id: 0,
+                  label: "$_id",
+                  data: {
+                    $cond: [
+                      { $ne: ["$_id", statusArray[0]] },
+                      {
+                        $cond: [
+                          { $eq: ["$_id", "Completed"] },
+                          [0, 0, "$count"],
+                          [0, "$count"],
+                        ],
+                      },
+                      "$$REMOVE",
+                    ],
+                  },
+                },
+              },
+            ],
+            totalGenerated: [
+              {
+                $group: {
+                  _id: null,
+                  count: { $sum: 1 },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  label: "Generated",
+                  data: ["$count"],
+                },
+              },
+            ],
           },
         },
-
         {
           $project: {
-            month: {
-              $function: {
-                body: function (month) {
-                  return [
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "July",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec",
-                  ]?.[month - 1];
-                },
-                args: ["$_id"],
-                lang: "js",
-              },
+            datasets: {
+              $concatArrays: ["$totalGenerated", "$counterByStatus"],
             },
-            generated: 1,
-            completed: 1,
           },
         },
-
-        // ________ don't remove this commented code ________
+        {
+          $unwind: "$datasets",
+        },
+        {
+          $replaceRoot: { newRoot: "$datasets" },
+        },
 
         // {
         //   $group: {
-        //     _id: null,
-        //     array: { $push: "$$ROOT" },
+        //     _id: "$requestSheetStatus",
+        //     count: { $sum: 1 },
         //   },
         // },
         // {
         //   $project: {
         //     _id: 0,
-        //     array: {
-        //       $map: {
-        //         input: allMonths,
-        //         as: "month",
-        //         in: {
+        //     label: "$_id",
+        //     data: {
+        //       $cond: [
+        //         { $eq: ["$_id", statusArray[0]] },
+        //         ["$count"],
+        //         {
         //           $cond: [
-        //             { $in: ["$$month.monthInDecimal", "$array._id"] },
-        //             {
-        //               month: "$$month.monthName",
-        //               data: {
-        //                 $arrayElemAt: [
-        //                   "$array",
-        //                   {
-        //                     $indexOfArray: [
-        //                       "$array._id",
-        //                       "$$month.monthInDecimal",
-        //                     ],
-        //                   },
-        //                 ],
-        //               },
-        //             },
-        //             {
-        //               month: "$$month.monthName",
-        //               data: {
-        //                 _id: "$$month.monthInDecimal",
-        //                 generated: 0,
-        //                 completed: 0,
-        //               },
-        //             },
+        //             { $eq: ["$_id", "Completed"] },
+        //             [0, 0, "$count"],
+        //             [0, "$count"],
         //           ],
         //         },
-        //       },
+        //       ],
         //     },
         //   },
         // },
-        // { $unwind: "$array" },
+
         // {
-        //   $replaceRoot: { newRoot: "$array" },
+        //   $group: {
+        //     _id: null,
+        //     total_generated: {
+        //       $sum: {
+        //         $cond: [{ $gt: ["$requestSheetStatus", null] }, 1, 0],
+        //       },
+        //     }, // "Generated",
+        //     total_assigned: functionForQueryObject(statusArray[1]), // "Assigned",
+        //     total_work_order_open: functionForQueryObject(statusArray[2]), // "Work Order Open",
+        //     total_work_order_pending: functionForQueryObject(statusArray[3]), // "Work Order Pending",
+        //     total_work_order_closed: functionForQueryObject(statusArray[4]), // "Work Order Closed",
+        //     // "Fill sheet",
+        //     // "Under MTD TL approval",
+        //     // "Under MTD HOSS approval",
+        //     // "Under MTD HOS approval",
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //   },
         // },
       ]);
-    // .explain("executionStats");
 
-    return res.status(201).json({
-      message: "Monitoring request-sheet data get successfully",
-      allStatusCounterForGraph,
-      generatedAndCompletedStatusMonthlyData,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
+      const allMonths = Array.from({ length: 12 }, (_, monthIndex) => ({
+        monthName: moment().month(monthIndex).format("MMMM"),
+        monthInDecimal: `${monthIndex + 1}`,
+      }));
+
+      let queryPipelineObj = [
+        {
+          $group: {
+            _id: null,
+            array: { $push: "$$ROOT" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            array: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthInDecimal", "$array._id"] },
+                    {
+                      month: "$$month.monthName",
+                      value: {
+                        $arrayElemAt: [
+                          "$array.value",
+                          {
+                            $indexOfArray: [
+                              "$array._id",
+                              "$$month.monthInDecimal",
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      month: "$$month.monthName",
+                      value: 0,
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        { $unwind: "$array" },
+        {
+          $replaceRoot: { newRoot: "$array" },
+        },
+      ];
+
+      const generatedAndCompletedStatusMonthlyData =
+        await RequestSheetOfBM.aggregate([
+          {
+            $lookup: {
+              from: "lines",
+              localField: "lineRef",
+              foreignField: "_id",
+              as: "lines",
+            },
+          },
+          {
+            $match: {
+              lineRef: mongoose.Types.ObjectId(req.params?.id),
+            },
+          },
+          {
+            $facet: {
+              generatedCounterData: [
+                {
+                  $group: {
+                    _id: {
+                      $dateToString: {
+                        format: "%m",
+                        date: "$sheetIssuedDateAndTimeOfBM",
+                        timezone: timezone,
+                      },
+                    },
+                    value: { $sum: 1 },
+                  },
+                },
+                ...queryPipelineObj,
+              ],
+              completedCounterData: [
+                {
+                  $match: {
+                    sheetCompletedDateAndTime: {
+                      $exists: true,
+                      $ne: null,
+                    },
+                  },
+                },
+                {
+                  $group: {
+                    _id: {
+                      $dateToString: {
+                        format: "%m",
+                        date: "$sheetCompletedDateAndTime",
+                        timezone: timezone,
+                      },
+                    },
+                    value: { $sum: 1 },
+                  },
+                },
+                ...queryPipelineObj,
+              ],
+            },
+          },
+          // ________ don't remove this commented code ________
+
+          // {
+          //   $project: {
+          //     month: {
+          //       $function: {
+          //         body: function (month) {
+          //           return [
+          //             "Jan",
+          //             "Feb",
+          //             "Mar",
+          //             "Apr",
+          //             "May",
+          //             "Jun",
+          //             "July",
+          //             "Aug",
+          //             "Sep",
+          //             "Oct",
+          //             "Nov",
+          //             "Dec",
+          //           ]?.[month - 1];
+          //         },
+          //         args: ["$_id"],
+          //         lang: "js",
+          //       },
+          //     },
+          //     generated: 1,
+          //     completed: 1,
+          //   },
+          // },
+
+          // {
+          //   $group: {
+          //     _id: {
+          //       $dateToString: {
+          //         format: "%m",
+          //         date: "$sheetIssuedDateAndTimeOfBM",
+          //         timezone: timezone,
+          //       },
+          //     },
+
+          //     generated: { $sum: 1 },
+          //     completed: functionForQueryObject("$sheetCompletedDateAndTime"),
+
+          //     // generated: functionForQueryObject("$sheetIssuedDateAndTimeOfBM"),
+          //     // completed: functionForQueryObject("$sheetCompletedDateAndTime"),
+
+          //     // generated: functionForQueryObject(statusArray[0]),
+          //     // completed: functionForQueryObject("Completed"),
+          //   },
+          // },
+
+          // __________ Logic for generating all 12 month's data (if not exist then 0) ______
+
+          // {
+          //   $group: {
+          //     _id: null,
+          //     array: { $push: "$$ROOT" },
+          //   },
+          // },
+          // {
+          //   $project: {
+          //     _id: 0,
+          //     array: {
+          //       $map: {
+          //         input: allMonths,
+          //         as: "month",
+          //         in: {
+          //           $cond: [
+          //             { $in: ["$$month.monthInDecimal", "$array._id"] },
+          //             {
+          //               month: "$$month.monthName",
+          //               data: {
+          //                 $arrayElemAt: [
+          //                   "$array",
+          //                   {
+          //                     $indexOfArray: [
+          //                       "$array._id",
+          //                       "$$month.monthInDecimal",
+          //                     ],
+          //                   },
+          //                 ],
+          //               },
+          //             },
+          //             {
+          //               month: "$$month.monthName",
+          //               data: {
+          //                 _id: "$$month.monthInDecimal",
+          //                 generated: 0,
+          //                 completed: 0,
+          //               },
+          //             },
+          //           ],
+          //         },
+          //       },
+          //     },
+          //   },
+          // },
+          // { $unwind: "$array" },
+          // {
+          //   $replaceRoot: { newRoot: "$array" },
+          // },
+        ]);
+
+      return res.status(201).json({
+        message: "Monitoring request-sheet data get successfully",
+        allStatusCounterForGraph,
+        cellData: req.cellData,
+        generatedAndCompletedStatusMonthlyData:
+          generatedAndCompletedStatusMonthlyData?.[0],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
   }
-});
+);
 router.post(
   "/addDynamicApprovalListOfBM",
   authenticate,
