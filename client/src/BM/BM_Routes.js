@@ -16,7 +16,9 @@ import RequestSheet from "./Tabs/RequestSheet/MainRequestSheet";
 import RequestSheetMainDashboard from "./RequestSheet/RequestSheetMainDashboard";
 import GenerateRequestSheetMainDashboard from "./RequestSheet/GenerateRequestSheetMainDashboard";
 import BMTabDashboard from "./Tabs/BMTabDashboard";
+import RequestSheetMonitoring from "./RequestSheetMonitoring/RequestSheetMonitoring";
 
+import MainCustomized from "./Customized/MainCustomized";
 // Define an array of routes for each user type
 const userRoutes = [
   {
@@ -34,6 +36,21 @@ const userRoutes = [
       { path: "/bm", element: <OperatorDashboard /> },
       { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
       { path: "/bm/check-sheet", element: <RequestSheet /> },
+      {
+        path: "/bm/requestListDashboard",
+        element: <RequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/generateRequestSheetMainDashboard",
+        element: <GenerateRequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/check-sheet/:generateType/:machine_code",
+        element: <RequestSheet />,
+      },
+      { path: "/bm/customizedDashboard", element: <MainCustomized /> },
+
+      { path: "/bm/profile", element: <Profile /> },
     ],
   },
   {
@@ -50,7 +67,7 @@ const userRoutes = [
       { path: "/bm", element: <h1><BMTabDashboard/></h1> },
       { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
       { path: "/bm/userAssign", element: <h1>Users</h1> },
-      { path: "/bm/check-sheet/:generateType/:machine_code", element: <RequestSheet /> },
+      { path: "/bm/customizedDashboard", element: <MainCustomized /> },
       {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,
@@ -58,6 +75,14 @@ const userRoutes = [
       {
         path: "/bm/generateRequestSheetMainDashboard",
         element: <GenerateRequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/check-sheet/:generateType/:machine_code",
+        element: <RequestSheet />,
+      },
+      {
+        path: "/bm/requestSheetMonitoring",
+        element: <RequestSheetMonitoring />,
       },
     ],
   },

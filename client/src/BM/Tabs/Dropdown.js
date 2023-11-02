@@ -1,89 +1,97 @@
-import React, { useState } from 'react';
-import { IconButton, TextField } from '@mui/material';
+import React, { useState } from "react";
+import { IconButton, TextField } from "@mui/material";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 
-// SubcategoryActions component for rendering IconButton with icon
 const SubcategoryActions = ({ onAction, icon }) => (
-  <IconButton onClick={onAction}>
-    {icon}
-  </IconButton>
+  <IconButton onClick={onAction}>{icon}</IconButton>
 );
 
 const DropdownWithSubcategories = () => {
-  // State variables
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedSubcategory, setSelectedSubcategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [mainTitles, setMainTitles] = useState([
-    { label: 'Category 1', subcategories: ['Subcategory A', 'Subcategory B', 'Subcategory C'] },
-    { label: 'Category 2', subcategories: ['Subcategory D', 'Subcategory E', 'Subcategory F'] },
+    {
+      label: "Category 1",
+      subcategories: ["Subcategory A", "Subcategory B", "Subcategory C"],
+    },
+    {
+      label: "Category 2",
+      subcategories: ["Subcategory D", "Subcategory E", "Subcategory F"],
+    },
   ]);
-  const [newMainTitle, setNewMainTitle] = useState('');
-  const [editedMainTitle, setEditedMainTitle] = useState('');
-  const [newSubcategory, setNewSubcategory] = useState('');
-  const [editedSubcategory, setEditedSubcategory] = useState('');
+  const [newMainTitle, setNewMainTitle] = useState("");
+  const [editedMainTitle, setEditedMainTitle] = useState("");
+  const [newSubcategory, setNewSubcategory] = useState("");
+  const [editedSubcategory, setEditedSubcategory] = useState("");
 
-  // Handler for category selection change
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
-    setSelectedSubcategory('');
+    setSelectedSubcategory("");
   };
 
-  // Handler for subcategory selection change
   const handleSubcategoryChange = (e) => {
     setSelectedSubcategory(e.target.value);
   };
 
-  // Handler for various actions (add, edit, delete)
   const handleAction = (actionType) => {
-    switch(actionType) {
-        // Add new main title
-      case 'addMainTitle':
-      if (newMainTitle.trim() !== '') {
-        const updatedMainTitles = [...mainTitles, { label: newMainTitle, subcategories: [] }];
-        setMainTitles(updatedMainTitles);
-        setSelectedCategory(newMainTitle);
-        setNewMainTitle('');
-      }
-      break;
-    
+    switch (actionType) {
+      case "addMainTitle":
+        if (newMainTitle.trim() !== "") {
+          const updatedMainTitles = [
+            ...mainTitles,
+            { label: newMainTitle, subcategories: [] },
+          ];
+          setMainTitles(updatedMainTitles);
+          setSelectedCategory(newMainTitle);
+          setNewMainTitle("");
+        }
+        break;
+
       // Edit main title
-      case 'editMainTitle':
-        if (editedMainTitle.trim() !== '') {
+      case "editMainTitle":
+        if (editedMainTitle.trim() !== "") {
           const updatedMainTitles = mainTitles.map((title) =>
-            title.label === selectedCategory ? { ...title, label: editedMainTitle } : title
+            title.label === selectedCategory
+              ? { ...title, label: editedMainTitle }
+              : title
           );
           setMainTitles(updatedMainTitles);
           setSelectedCategory(editedMainTitle);
-          setEditedMainTitle('');
+          setEditedMainTitle("");
         }
         break;
 
       // Delete main title
-      case 'deleteMainTitle':
-        const updatedMainTitles = mainTitles.filter((title) => title.label !== selectedCategory);
+      case "deleteMainTitle":
+        const updatedMainTitles = mainTitles.filter(
+          (title) => title.label !== selectedCategory
+        );
         setMainTitles(updatedMainTitles);
-        setSelectedCategory('');
-        setSelectedSubcategory('');
+        setSelectedCategory("");
+        setSelectedSubcategory("");
         break;
 
       // Add new subcategory
-      case 'addSubcategory':
-            if (newSubcategory.trim() !== '') {
-              const updatedMainTitles = mainTitles.map((title) =>
-                title.label === selectedCategory
-                  ? { ...title, subcategories: [...title.subcategories, newSubcategory] }
-                  : title
-              );
-              setMainTitles(updatedMainTitles);
-              setNewSubcategory('');
-            }
-            break;
+      case "addSubcategory":
+        if (newSubcategory.trim() !== "") {
+          const updatedMainTitles = mainTitles.map((title) =>
+            title.label === selectedCategory
+              ? {
+                  ...title,
+                  subcategories: [...title.subcategories, newSubcategory],
+                }
+              : title
+          );
+          setMainTitles(updatedMainTitles);
+          setNewSubcategory("");
+        }
+        break;
 
       // Edit subcategory
-      case 'editSubcategory':
-        if (editedSubcategory.trim() !== '') {
+      case "editSubcategory":
+        if (editedSubcategory.trim() !== "") {
           const updatedMainTitles = mainTitles.map((title) =>
             title.label === selectedCategory
               ? {
@@ -96,19 +104,24 @@ const DropdownWithSubcategories = () => {
           );
           setMainTitles(updatedMainTitles);
           setSelectedSubcategory(editedSubcategory);
-          setEditedSubcategory('');
+          setEditedSubcategory("");
         }
         break;
 
       // Delete subcategory
-      case 'deleteSubcategory':
+      case "deleteSubcategory":
         const updatedTitles = mainTitles.map((title) =>
           title.label === selectedCategory
-            ? { ...title, subcategories: title.subcategories.filter((sub) => sub !== selectedSubcategory) }
+            ? {
+                ...title,
+                subcategories: title.subcategories.filter(
+                  (sub) => sub !== selectedSubcategory
+                ),
+              }
             : title
         );
         setMainTitles(updatedTitles);
-        setSelectedSubcategory('');
+        setSelectedSubcategory("");
         break;
 
       default:
@@ -117,9 +130,8 @@ const DropdownWithSubcategories = () => {
   };
 
   return (
-    <div className='container'>
-      <h2>Select Category</h2>
-
+    <div className="container">
+      <h2>Category</h2>
       <select value={selectedCategory} onChange={handleCategoryChange}>
         <option value="">Select Category</option>
         {mainTitles.map((mainTitle, index) => (
@@ -127,8 +139,23 @@ const DropdownWithSubcategories = () => {
             {mainTitle.label}
           </option>
         ))}
-      </select>
-
+      </select>{" "}
+      &nbsp;
+      {!selectedCategory && (
+        <>
+          <TextField
+            type="text"
+            value={newMainTitle}
+            onChange={(e) => setNewMainTitle(e.target.value)}
+            label="New Main Title"
+            variant="outlined"
+          />
+          <SubcategoryActions
+            onAction={() => handleAction("addMainTitle")}
+            icon={<AddIcon />}
+          />
+        </>
+      )}
       {selectedCategory && (
         <>
           <TextField
@@ -138,7 +165,10 @@ const DropdownWithSubcategories = () => {
             label="New Main Title"
             variant="outlined"
           />
-          <SubcategoryActions onAction={() => handleAction('addMainTitle')} icon={<AddIcon />} />
+          <SubcategoryActions
+            onAction={() => handleAction("addMainTitle")}
+            icon={<AddIcon />}
+          />
 
           <TextField
             type="text"
@@ -147,26 +177,54 @@ const DropdownWithSubcategories = () => {
             label="Edit Main Title"
             variant="outlined"
           />
-          <SubcategoryActions onAction={() => handleAction('editMainTitle')} icon={<ModeEditIcon />} />
+          <SubcategoryActions
+            onAction={() => handleAction("editMainTitle")}
+            icon={<ModeEditIcon />}
+          />
 
-          <SubcategoryActions onAction={() => handleAction('deleteMainTitle')} icon={<DeleteIcon />} />
+          <SubcategoryActions
+            onAction={() => handleAction("deleteMainTitle")}
+            icon={<DeleteIcon />}
+          />
         </>
       )}
-      <br/><br/>
-
+      <br />
+      <br />
       {selectedCategory && (
-        <select value={selectedSubcategory} onChange={handleSubcategoryChange}>
-          <option value="">Select Subcategory</option>
-          {mainTitles
-            .find((mainTitle) => mainTitle.label === selectedCategory)
-            .subcategories.map((subcategory, index) => (
-              <option key={index} value={subcategory}>
-                {subcategory}
-              </option>
-            ))}
-        </select>
-      )}
+        <>
+          <select
+            value={selectedSubcategory}
+            onChange={handleSubcategoryChange}
+          >
+            <option value="">Select Subcategory</option>
+            {mainTitles
+              .find((mainTitle) => mainTitle.label === selectedCategory)
+              .subcategories.map((subcategory, index) => (
+                <option key={index} value={subcategory}>
+                  {subcategory}
+                </option>
+              ))}
+          </select>
 
+          {!selectedSubcategory && (
+            <>
+              <TextField
+                type="text"
+                value={newSubcategory}
+                onChange={(e) => setNewSubcategory(e.target.value)}
+                label="New Subcategory"
+                variant="outlined"
+              />
+              <SubcategoryActions
+                onAction={() => handleAction("addSubcategory")}
+                icon={<AddIcon />}
+              />
+            </>
+          )}
+
+          {/* Existing code for editing and deleting subcategories */}
+        </>
+      )}
       {selectedCategory && selectedSubcategory && (
         <>
           <TextField
@@ -176,7 +234,10 @@ const DropdownWithSubcategories = () => {
             label="New Subcategory"
             variant="outlined"
           />
-          <SubcategoryActions onAction={() => handleAction('addSubcategory')} icon={<AddIcon />} />
+          <SubcategoryActions
+            onAction={() => handleAction("addSubcategory")}
+            icon={<AddIcon />}
+          />
 
           <TextField
             type="text"
@@ -185,9 +246,15 @@ const DropdownWithSubcategories = () => {
             label="Edit Subcategory"
             variant="outlined"
           />
-          <SubcategoryActions onAction={() => handleAction('editSubcategory')} icon={<ModeEditIcon />} />
+          <SubcategoryActions
+            onAction={() => handleAction("editSubcategory")}
+            icon={<ModeEditIcon />}
+          />
 
-          <SubcategoryActions onAction={() => handleAction('deleteSubcategory')} icon={<DeleteIcon />} />
+          <SubcategoryActions
+            onAction={() => handleAction("deleteSubcategory")}
+            icon={<DeleteIcon />}
+          />
         </>
       )}
     </div>

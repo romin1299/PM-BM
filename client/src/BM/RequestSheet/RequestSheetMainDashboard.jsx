@@ -248,8 +248,13 @@ const RequestSheetMainDashboard = () => {
       editable: false,
     },
     {
-      title: "Machine",
-      field: "machine",
+      title: "Machine No",
+      field: "machineNo",
+      editable: false,
+    },
+    {
+      title: "Machine Name",
+      field: "machineName",
       editable: false,
     },
     {

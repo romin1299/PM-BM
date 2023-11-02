@@ -20,7 +20,12 @@ function App() {
   useEffect(() => {
     // Extract the part of the path you want as the active key
     const pathParts = location.pathname.split("/");
-    setActiveKey(pathParts[1]);
+
+    if (pathParts[1].trim().length === 0) {
+      navigate("pm");
+    } else {
+      setActiveKey(pathParts[1]);
+    }
   }, [location.pathname]);
 
   return (

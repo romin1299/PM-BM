@@ -2,13 +2,19 @@
 // import Table from "react-bootstrap/Table";
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import denso_log from "../../../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
-import { DropdownButton, Dropdown } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+
+import moment from "moment-timezone";
 
 import { useParams } from "react-router-dom";
+import { Typography } from "@mui/material";
 
 const list = [
   { key: "A", value: "A" },
@@ -17,7 +23,7 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable() {
+function MyTable({ selectedMachineDetails }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate()
   const { machine_code, generateType } = useParams();
@@ -29,14 +35,16 @@ function MyTable() {
     // reset,
   } = useForm();
 
-  const [selectedShift, setSelectedShift] = useState({});
+  const [selectedShift, setSelectedShift] = useState("");
   const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
   const [selectedQuality, setSelectedQuality] = useState("");
+  // const [selectedMachineDetails, setMachineDetails] = useState("");
+  const [selectedPrdTL, setSelectedPrdTL] = useState("");
 
-  const handleSelectShift = (key, event) => {
-    setSelectedShift({ key, value: event.target.value });
-  };
+  // const handleSelectShift = (key, event) => {
+  //   setSelectedShift({ key, value: event.target.value });
+  // };
 
   const handleMaintenanceType = (event) => {
     setSelectedMaintenanceType(event.target.value);
@@ -53,7 +61,7 @@ function MyTable() {
     requestSheetData.maintenanceType = selectedMaintenanceType;
     requestSheetData.priorityCode = selectedPriorityCode;
     requestSheetData.qualityRelated = selectedQuality;
-    requestSheetData.shiftOfBM = selectedShift.key;
+    requestSheetData.shiftOfBM = selectedShift;
     try {
       const res = await fetch(
         `/newRequestSheetRegistration/?machineRef=${machineRef}`,
@@ -100,9 +108,14 @@ function MyTable() {
           navigate('/bm/generateRequestSheetMainDashboard', { replace: true })
         }
       } else {
-        const { machine } = await res.json();
-        // setMachine(machine);
-        console.log(machine);
+        const { machine, prdTL, requestSheetApprovalList } = await res.json();
+        // setMachineDetails(machine);
+
+        // console.log(machine);
+        // console.log("Users", requestSheetApprovalList);
+
+        // setMachineDetails(machine);
+        setSelectedPrdTL(prdTL);
       }
 
     } catch (error) {
@@ -113,6 +126,52 @@ function MyTable() {
   useEffect(() => {
     getMachineDetails();
   }, [machine_code]);
+
+  useEffect(() => {
+    setSelectedShift(getCurrentShiftName());
+  }, []);
+
+  const timezone = "Asia/Kolkata";
+  const startedDate = moment().tz(timezone).month() + 1;
+
+  let sheetIssuedTime = new Date().toLocaleString("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const momentTime = moment(sheetIssuedTime, "HH:mm");
+
+  const shiftOfBM = [
+    {
+      shiftName: "A",
+      shiftStartTime: "06:00",
+      shiftEndTime: "14:30",
+    },
+    {
+      shiftName: "B",
+      shiftStartTime: "14:15",
+      shiftEndTime: "22:45",
+    },
+    {
+      shiftName: "C",
+      shiftStartTime: "22:45",
+      shiftEndTime: "06:15",
+    },
+  ];
+
+  const getCurrentShiftName = () => {
+    for (let shiftInfo of shiftOfBM) {
+      if (
+        momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
+        momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
+      )
+        return shiftInfo.shiftName;
+    }
+
+    return null;
+  };
 
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
@@ -280,8 +339,8 @@ function MyTable() {
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <div className="text-center">
                           <p className="mb-0">
-                            <b>Time: </b>
-
+                            <b>TIME: </b>
+                            <br />
                             <input
                               type="time"
                               {...register("requestSheettime", {
@@ -304,7 +363,7 @@ function MyTable() {
                       <div className="d-flex align-items-center justify-content-center mt-1 mb-1">
                         <div className="text-center">
                           <p className="mb-0">
-                            <b>Date: </b>
+                            <b>DATE: </b>
                             <br />
                             <input
                               type="date"
@@ -341,7 +400,7 @@ function MyTable() {
             </td>
 
             <td colSpan={2} className="mb-0 pb-0 pt-0">
-              <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
+              {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
                     <b>Sr. No.</b>
@@ -358,29 +417,23 @@ function MyTable() {
                     )}
                   </p>
                 </Col>
-              </Row>
+              </Row> */}
               <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
                 <Col lg={6} className="border pb-2 pt-1">
-                  <p className="mb-0">Dept./Line</p>
-                  <input
-                    style={{ width: "100%" }}
-                    {...register("deptname", {
-                      required: "Department/Line Name is required",
-                    })}
-                  />
-                  {errors?.["deptname"] && (
-                    <p>{errors?.["deptname"]?.message}</p>
-                  )}
+                  <p className="mb-0">DEPT./LINE</p>
+                  {selectedMachineDetails?.line_names?.cell_names?.cell_name}/
+                  {selectedMachineDetails?.line_names?.line_name}
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">TL [PRD]</p>
-                  <input
+                  {selectedPrdTL}
+                  {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
                       required: "Team Leader Name is required",
                     })}
                   />
-                  {errors?.["TLName"] && <p>{errors?.["TLName"]?.message}</p>}
+                  {errors?.["TLName"] && <p>{errors?.["TLName"]?.message}</p>} */}
                 </Col>
               </Row>
             </td>
@@ -612,26 +665,32 @@ function MyTable() {
             <td colSpan={4} className="border">
               <Row className="m-0">
                 <Col className="border p-2">
-                  <p className="mb-0 d-flex align-items-center">
-                    <b>Shift</b>&nbsp;&nbsp;&nbsp;
-                    <DropdownButton
-                      id="dropdown-basic-button"
-                      variant="secondary"
-                      className="floatRight"
-                      onSelect={handleSelectShift}
-                      title={selectedShift?.key || list[0].key}
+                  <FormControl>
+                    <FormLabel id="demo-radio-buttons-group-label">
+                      <Typography sx={{ fontWeight: "700", color: "black" }}>
+                        SHIFT
+                      </Typography>
+                    </FormLabel>
+
+                    <RadioGroup
+                      row
+                      value={selectedShift}
+                      aria-labelledby="demo-radio-buttons-group-label"
+                      name="radio-buttons-group"
                     >
-                      {list.map((item, index) => {
-                        return (
-                          <Dropdown.Item key={index} eventKey={item.key}>
-                            {item.value}
-                          </Dropdown.Item>
-                        );
-                      })}
-                    </DropdownButton>
-                  </p>
+                      {shiftOfBM.map((shiftInfo) => (
+                        <FormControlLabel
+                          value={shiftInfo.shiftName}
+                          control={<Radio color="default" size="small" />}
+                          label={shiftInfo.shiftName}
+                          disabled={selectedShift !== shiftInfo.shiftName}
+                        />
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
                 </Col>
               </Row>
+
               <Row className="m-0">
                 <Col className="border p-2">
                   <p className="mb-0 d-flex align-items-center justify-content-start">
@@ -672,18 +731,7 @@ function MyTable() {
                   <p className="mb-0">
                     <b>BREAKDOWN ATTENDED BY</b>
                   </p>
-                  <input
-                    id="Break"
-                    type="text"
-                    name="breakdownAttended"
-                    style={{ width: "100%" }}
-                    {...register("breakDownAttendedBy", {
-                      required: "This field is required",
-                    })}
-                  />
-                  {errors?.["breakDownAttendedBy"] && (
-                    <p>{errors?.["breakDownAttendedBy"]?.message}</p>
-                  )}
+                  {/* {selectedAttendee} */}
                 </Col>
               </Row>
             </td>

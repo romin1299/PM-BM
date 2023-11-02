@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const requestSheetOfBMSchema = new mongoose.Schema({
   requestSheetNoOfBM: {
     type: String,
-    required: true,
   },
 
   //If require else byDefault is BM
@@ -17,7 +16,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: Date,
   },
   sheetIssuedDateAndTimeOfBM: {
-    type: Date,
+    type: String,
   },
   breakDownBasicDataFilledByPRD: {
     problemFaced: { type: String },

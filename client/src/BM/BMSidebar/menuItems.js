@@ -20,6 +20,8 @@ import BackupTableIcon from "@mui/icons-material/BackupTable";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import StorageIcon from "@mui/icons-material/Storage";
 import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import ControlPointIcon from "@mui/icons-material/ControlPoint";
 
 export const menuItems = [
   {
@@ -85,103 +87,15 @@ export const menuItems = [
     allowedDepartments: ["MTD"],
   },
   {
-    title: "Approval Log",
-    icon: <StorageIcon className="text-white" />,
-    subItems: [
-      {
-        title: "Preparation / Planning",
-        route: "/bm/SheetApproval",
-        allowedRoles: ["TL/HOSS"],
-      },
-      {
-        title: "BM Plan vs Actual Approval",
-        route: "/bm/SheetApprovalOfImplementationPhase",
-        allowedRoles: ["TL/HOSS"],
-      },
-    ],
-    allowedDepartments: ["MTD"],
+    title: "Customized Dashboard",
+    icon: <ControlPointIcon className="text-white" />,
+    route: "/bm/customizedDashboard",
+    allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
   },
   {
-    title: "BM Log",
-    icon: <LibraryBooksIcon className="text-white" />,
-    subItems: [
-      {
-        title: "BM Log",
-        route: "/bm/logHistory",
-        allowedRoles: ["TL/HOSS"],
-      },
-      {
-        title: "Pending BM Log History",
-        route: "/bm/pendingBMLogHistory",
-        allowedRoles: ["TL/HOSS"],
-      },
-    ],
-  },
-  {
-    title: "BM Report",
-    icon: <AssessmentIcon className="text-white" />,
-    subItems: [
-      {
-        title: "Monthly Report (Machine)",
-        route: "/bm/machineWiseBmMonthlyReport",
-        allowedRoles: ["TL/HOSS"],
-      },
-      {
-        title: "Monthly Report (Line)",
-        route: "/bm/lineWiseBmMonthlyReport",
-        allowedRoles: ["TL/HOSS"],
-      },
-      {
-        title: "Annual BM Schedule",
-        route: "/bm/annualBMSchedule",
-        allowedRoles: ["TL/HOSS"],
-      },
-      {
-        title: "Annual BM BM vs Actual",
-        route: "/bm/annualBmStatus",
-        allowedRoles: ["TL/HOSS"],
-      },
-      {
-        title: "BM Time Monitoring",
-        route: "/bmTimeMonitoringReport",
-        allowedRoles: ["TL/HOSS"],
-      },
-    ],
-  },
-  {
-    title: "Back-end Data",
-    icon: <CloudDownloadIcon className="text-white" />,
-    route: "/bm/backupDataOfCheckSheet",
-    allowedRoles: ["TL/HOSS"],
-  },
-  {
-    title: "Open Abnormality Tracking",
-    icon: <PendingActionsIcon className="text-white" />,
-    route: "/bm/openAbnormalityTrack",
-    allowedRoles: ["TL/HOSS"],
-  },
-  {
-    title: "Spare Entry",
-    icon: <AddToPhotosIcon className="text-white" />,
-    route: "/bm/operatorDataEntry",
-    allowedRoles: ["TL/HOSS"],
-  },
-  {
-    title: "Spare Log",
-    icon: <BackupTableIcon className="text-white" />,
-    route: "/bm/sparePartUsageHistory",
-    allowedRoles: ["TL/HOSS"],
-  },
-  {
-    title: "Spare Report",
-    icon: <SummarizeIcon className="text-white" />,
-    route: "/bm/spareReportDashboard",
-    allowedRoles: ["TL/HOSS"],
-  },
-  {
-    title: "Request-sheet dashboard",
-    icon: <SummarizeIcon className="text-white" />,
-    route: "/bm/requestListDashboard",
-    allowedRoles: ["TL/HOSS"],
+    title: "Profile",
+    icon: <AccountCircleIcon className="text-white" />,
+    route: "/bm/profile",
+    allowedRoles: ["Admin", "Plant-Admin", "operator", "TL/HOSS"],
   },
 ];
