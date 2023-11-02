@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import { ToastContainer } from "react-toastify";
 import RoutingContext from "../../../context/routing/RoutingContext";
+import { Box } from "@mui/system";
 
 const RequestSheetCustomizedApproval = () => {
   const {
@@ -69,70 +70,72 @@ const RequestSheetCustomizedApproval = () => {
   }, []);
 
   return (
-    <>
+    <div className="cell p-3">
       <ToastContainer />
       <div>
         <form onSubmit={handleSubmit(dynamicApprovalFlowOfRequestSheetOfBM)}>
-          <Row className="m-1">
+          {/* <Row className="m-1">
+            <Col className="cell m-2"> */}
+          <h4>Approval selection </h4>
+          <Row>
             <Col className="cell m-2">
-              <h4>Approval selection </h4>
-              <Row>
-                <Col className="cell m-2">
-                  <p>Minor BD Approval Selection</p>
-                  {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
-                    return (
-                      <>
-                        <input
-                          type="checkbox"
-                          name={obj?.value}
-                          value={obj?.value}
-                          id={`inline-checkbox-${obj?.key}`}
-                          {...register("minorApprovalList", {
-                            required: "Please select approval list",
-                          })}
-                        />{" "}
-                        &nbsp;
-                        <label>{obj?.value}</label> <br />
-                      </>
-                    );
-                  })}
-                  {errors?.["minorApprovalList"] && (
-                    <p>{errors?.["minorApprovalList"]?.message}</p>
-                  )}
-                </Col>
-                <Col className="cell m-2">
-                  <p>Major BD Approval Selection</p>
-                  {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
-                    return (
-                      <>
-                        <input
-                          type="checkbox"
-                          name={obj?.value}
-                          value={obj?.value}
-                          id={`inline-checkbox-${obj?.key}`}
-                          {...register("majorApprovalList", {
-                            required: "Please select approval list",
-                          })}
-                        />{" "}
-                        &nbsp;
-                        <label>{obj?.value}</label> <br />
-                      </>
-                    );
-                  })}
-                  {errors?.["majorApprovalList"] && (
-                    <p>{errors?.["majorApprovalList"]?.message}</p>
-                  )}
-                <button type="submit" className="btn bg-button m-2 float-end">
-                  Submit Approval List
-                </button>
-                </Col>
-              </Row>
+              <p>Minor BD Approval Selection</p>
+              {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
+                return (
+                  <>
+                    <input
+                      type="checkbox"
+                      name={obj?.value}
+                      value={obj?.value}
+                      id={`inline-checkbox-${obj?.key}`}
+                      {...register("minorApprovalList", {
+                        required: "Please select approval list",
+                      })}
+                    />{" "}
+                    &nbsp;
+                    <label>{obj?.value}</label> <br />
+                  </>
+                );
+              })}
+              {errors?.["minorApprovalList"] && (
+                <p>{errors?.["minorApprovalList"]?.message}</p>
+              )}
             </Col>
-            <Col></Col>
+            <Col className="cell m-2">
+              <p>Major BD Approval Selection</p>
+              {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
+                return (
+                  <>
+                    <input
+                      type="checkbox"
+                      name={obj?.value}
+                      value={obj?.value}
+                      id={`inline-checkbox-${obj?.key}`}
+                      {...register("majorApprovalList", {
+                        required: "Please select approval list",
+                      })}
+                    />{" "}
+                    &nbsp;
+                    <label>{obj?.value}</label> <br />
+                  </>
+                );
+              })}
+              {errors?.["majorApprovalList"] && (
+                <p>{errors?.["majorApprovalList"]?.message}</p>
+              )}
+            </Col>
           </Row>
+
+          <Box sx={{ display: "flex", justifyContent:"center" }}>
+            <button type="submit" className="btn bg-button ">
+              Submit Approval List
+            </button>
+          </Box>
+          {/* </Col>
+          </Row> */}
         </form>
       </div>
-    </>
+    </div>
   );
 };
 

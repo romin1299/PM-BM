@@ -50,13 +50,14 @@ const ProblemList = ({ problems, setProblems }) => {
     <div className="mtd-problem-section">
       <Row className="m-0">
         <Col lg={9} className="border d-flex align-items-center gap-1">
-          <b>PROBLEM: </b>
+          <b>PROBLEM</b>
         </Col>
         <Col
           lg={3}
           style={{ cursor: "pointer" }}
           className="border col-auto d-flex gap-1 p-1"
         >
+          <b>ACTIONS </b>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
           {/* <button onClick={() => setIsAdding(true)}>Add New Entry</button> */}
         </Col>

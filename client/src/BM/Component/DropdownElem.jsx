@@ -9,13 +9,14 @@ const DropdownElem = ({
   className,
   selectedMinor,
   approvalList,
+  setValue
 }) => {
   return (
     <div>
       <select
         name={name}
         id={id}
-        onChange={(e) => onChange(e.target.value, id)}
+        onChange={(e) => setValue(name, e.target.value)}
         value={value}
         style={{ fontSize: "14px" }}
         className={

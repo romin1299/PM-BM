@@ -47,36 +47,54 @@ exports.getUserData =
       }
     }
 
-    const mtdUser = await userModel.find({
-      ...queryObj,
-      tm_department: "MTD",
-      tm_grade: "HOS",
-    });
-    const mtdUserTL = await userModel.find({
-      ...queryObj,
-      tm_department: "MTD",
-      user_type: "TL/HOSS",
-    });
-    const mtdHod = await userModel.find({
-      ...queryObj,
-      tm_department: "MTD",
-      tm_grade: "HOD",
-    });
-    const prdHod = await userModel.find({
-      ...queryObj,
-      tm_department: "PRD",
-      tm_grade: "HOD",
-    });
-    const prdHos = await userModel.find({
-      ...queryObj,
-      tm_department: "PRD",
-      tm_grade: "HOS",
-    });
-    const prdTL = await userModel.find({
-      ...queryObj,
-      tm_department: "PRD",
-      user_type: "TL/HOSS",
-    });
+    const mtdUser = await userModel.find(
+      {
+        ...queryObj,
+        tm_department: "MTD",
+        tm_grade: "HOS",
+      },
+      { tm_name: 1, line_names: 1 }
+    );
+    const mtdUserTL = await userModel.find(
+      {
+        ...queryObj,
+        tm_department: "MTD",
+        user_type: "TL/HOSS",
+      },
+      { tm_name: 1, line_names: 1 }
+    );
+    const mtdHod = await userModel.find(
+      {
+        ...queryObj,
+        tm_department: "MTD",
+        tm_grade: "HOD",
+      },
+      { tm_name: 1, line_names: 1 }
+    );
+    const prdHod = await userModel.find(
+      {
+        ...queryObj,
+        tm_department: "PRD",
+        tm_grade: "HOD",
+      },
+      { tm_name: 1, line_names: 1 }
+    );
+    const prdHos = await userModel.find(
+      {
+        ...queryObj,
+        tm_department: "PRD",
+        tm_grade: "HOS",
+      },
+      { tm_name: 1, line_names: 1 }
+    );
+    const prdTL = await userModel.find(
+      {
+        ...queryObj,
+        tm_department: "PRD",
+        user_type: "TL/HOSS",
+      },
+      { tm_name: 1, line_names: 1 }
+    );
 
     const requestSheetApprovalList = {
       mtdUser,

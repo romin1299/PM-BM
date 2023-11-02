@@ -6,13 +6,14 @@ import { useNavigate } from "react-router-dom";
 const MapComponent = ({ propsArray, handleNavigationToRequestSheet }) => {
   return (
     <>
-      {propsArray?.map((cell) => (
-        <div className="cell m-2">
+      {propsArray?.map((cell, index) => (
+        <div className="cell m-2" key={index}>
           <p>{cell?.cell_name}</p>
           <Row className="d-flex justify-content-start">
-            {cell?.lines?.map((line) => (
+            {cell?.lines?.map((line, index) => (
               <Col
                 xs={12}
+                key={index}
                 md={cell?.lines?.length === 1 ? 12 : 6}
                 lg={
                   cell?.lines?.length === 1
@@ -28,8 +29,9 @@ const MapComponent = ({ propsArray, handleNavigationToRequestSheet }) => {
                   </div>
 
                   <div className="machineCard">
-                    {line?.machines?.map((machine) => (
+                    {line?.machines?.map((machine, index) => (
                       <button
+                      key={index}
                         className="machine"
                         onClick={() =>
                           handleNavigationToRequestSheet({
@@ -179,8 +181,8 @@ const GenerateRequestSheetMainDashboard = () => {
                   {reduceState?.allDataBasedOnDashboardLevel?.section_name}
                 </div>
                 {reduceState?.allDataBasedOnDashboardLevel?.subSections?.map(
-                  (subSection) => (
-                    <div className="subSection">
+                  (subSection, index) => (
+                    <div className="subSection" key={index}>
                       <div className="subSectionText">
                         {subSection?.subSection_name}
                       </div>
@@ -237,9 +239,9 @@ const GenerateRequestSheetMainDashboard = () => {
                 <option selected disabled value="">
                   Please select
                 </option>
-                {reduceState?.subSectionArr?.map((option) => {
+                {reduceState?.subSectionArr?.map((option, index) => {
                   return (
-                    <option className="optionStyle" value={option}>
+                    <option className="optionStyle" value={option} key={index}>
                       {option}
                     </option>
                   );

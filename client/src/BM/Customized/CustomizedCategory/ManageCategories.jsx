@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { IconButton, List, ListItem, Paper, TextField } from "@mui/material";
+import {IconButton, List, ListItem, Paper, TextField } from "@mui/material";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
@@ -152,7 +152,7 @@ const ManageCategories = () => {
   };
 
   return (
-    <Paper elevation={0} sx={{ p: 3 }} className="container">
+    <div className="cell p-3">
       <h4>Categories</h4>
 
       <Row className="mb-2">
@@ -287,7 +287,7 @@ const ManageCategories = () => {
           </Row>
         </>
       )}
-    </Paper>
+    </div>
   );
 };
 
