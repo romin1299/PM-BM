@@ -13,7 +13,7 @@ const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
 const factory = require("./handleFactory");
-
+const moment = require("moment-timezone");
 router.use(cookieParser());
 router.use(authenticate);
 
@@ -74,7 +74,7 @@ router.get(
 router.post("/newRequestSheetRegistration", async (req, res, next) => {
   try {
     const machine = await Machine.findOne({
-      _id: req.query?.machineRef,
+      machine_code: req.query?.machineRef,
     })
       .populate({
         path: "line_names",
@@ -109,11 +109,28 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
 
       let requestSheetNos = machine.line_names.requestSheetNos + 1;
 
-      await Line.updateOne(
+      let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
         { _id: machine.line_names._id },
-        { $set: { requestSheetNos } }
+        // { $set: { $inc: { requestSheetNos: 1 } } },
+        { $set: {requestSheetNos } },
+        { new: true }
       );
 
+      const requestSheetNoOfBM =
+        machine?.line_names?.cell_names?.subSection_names?.section_names
+          ?.dashboardLevel === "Yes"
+          ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
+              .substring(0, 2)
+              .toUpperCase()}_${machine?.line_names?.line_name}_${
+              moment().tz("Asia/Kolkata").month() + 1
+            }_${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim()
+          : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
+              .substring(0, 2)
+              .toUpperCase()}_${machine?.line_names?.line_name}_
+      ${moment().tz("Asia/Kolkata").month() + 1}_
+      ${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim();
+
+      console.log(requestSheetNoOfBM);
       let requestSheet;
 
       if (req.rootUser.user_type === "Operator") {
@@ -210,8 +227,9 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
         requestSheet = new RequestSheetOfBM({
           ...req.query,
           ..._idObject,
-          requestSheetCreatedBy: req.rootUser._id,
           ...req.body,
+          requestSheetNoOfBM,
+          requestSheetCreatedBy: req.rootUser._id,
           priorityCode: priorityCode,
           qualityRelated: qualityRelated,
           shiftOfBM: shiftOfBM,
@@ -233,10 +251,13 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
 
         await requestSheet.save();
       }
+      res.status(201).json({
+        message: "Request-sheet generated successfully",
+        requestSheet,
+      });
+    } else {
+      res.status(404).json({ message: "Request-sheet not generated" });
     }
-    res
-      .status(201)
-      .json({ message: "Request-sheet generated successfully", requestSheet });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
@@ -850,7 +871,7 @@ router.post(
   authenticate,
   async (req, res, next) => {
     const approvalListOfMinorAndMajor = req.body;
-    
+
     const addDynamicApprovalListInPlant = await Plant.findOneAndUpdate(
       {
         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],

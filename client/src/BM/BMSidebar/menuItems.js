@@ -48,7 +48,7 @@ export const menuItems = [
         allowedRoles: ["Admin", "TL/HOSS", "Plant-Admin", "operator"],
       },
     ],
-    allowedDepartments: ["MTD"],
+    allowedDepartments: ["MTD","PRD"],
   },
   {
     title: "Generate Request Sheet",

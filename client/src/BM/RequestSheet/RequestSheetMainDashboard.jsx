@@ -399,7 +399,11 @@ const RequestSheetMainDashboard = () => {
           <Col className="d-flex align-items-center justify-content-center">
             <button
               onClick={handleGenerateBMNavigation}
-              className="btn bg-button"
+              className={
+                context?.tm_department === "PRD"
+                  ? `btn bg-button d-inline`
+                  : "d-none"
+              }
               style={{ marginTop: "1rem" }}
             >
               Generate BM
