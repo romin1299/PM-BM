@@ -16,7 +16,6 @@ const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
 const factory = require("./handleFactory");
-const moment = require("moment-timezone");
 router.use(cookieParser());
 router.use(authenticate);
 
