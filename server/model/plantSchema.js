@@ -16,10 +16,14 @@ const plantSchema = new mongoose.Schema({
     },
   ],
 
-  differentCategories: [
+  categories: [
     {
-      categoryName: { type: String },
-      categories: { type: [String] },
+      name: { type: String },
+      subCategories: [
+        {
+          name: { type: String },
+        },
+      ],
     },
   ],
   approvalListOfMinorAndMajor: {

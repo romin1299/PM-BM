@@ -1004,180 +1004,232 @@ router.get("/getRequestSheetMonitoringData/:id", async (req, res, next) => {
       $sum: {
         $cond: [{ $eq: ["$approvalStatusOfMTD_TL", status] }, 1, 0],
         $cond: [{ $eq: ["$approvalStatusOfMTD_SL", status] }, 1, 0],
+        $cond: [{ $eq: ["$approvalStatusOfMTD_HOS", status] }, 1, 0],
+        $cond: [{ $eq: ["$approvalStatusOfMTD_HOD", status] }, 1, 0],
+        $cond: [{ $eq: ["$approvalStatusOfPRD_TL", status] }, 1, 0],
+        $cond: [{ $eq: ["$approvalStatusOfPRD_SL", status] }, 1, 0],
+        $cond: [{ $eq: ["$approvalStatusOfPRD_HOD", status] }, 1, 0],
+        $cond: [{ $eq: ["$approvalStatusOfPRD_HOS", status] }, 1, 0],
+        $cond: [{ $eq: ["$approvalStatusOfPRD_SL", status] }, 1, 0],
       },
     });
     const requestSheetGeneratedByUser = await RequestSheetOfBM.aggregate([
-      // {
-      //   $lookup: {
-      //     from: "lines",
-      //     localField: "lineRef",
-      //     foreignField: "_id",
-      //     as: "lines",
-      //   },
-      // },
-      // {
-      //   $match: {
-      //     lineRef: mongoose.Types.ObjectId(req.params?.id),
-      //   },
-      // },
-
       {
-        $lookup: {
-          from: "users",
-          localField: "approvalOfMTD_TL",
-          foreignField: "_id",
-          as: "approvalOfMTD_TL",
+        $facet: {
+          mtd_tl: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "approvalOfMTD_TL",
+                foreignField: "_id",
+                as: "userMTD_TL",
+              },
+            },
+            {
+              $unwind: "$userMTD_TL",
+            },
+
+            {
+              // $group: {
+              //   _id: {
+              //     userType: "$userMTD_TL.user_type",
+
+              //     month: { $month: "$sheetIssuedDateAndTimeOfBM" },
+              //   },
+              // },
+
+              $group: {
+                _id: {
+                  tm_name: "$userMTD_TL.tm_name",
+                  userType: "$userMTD_TL.user_type",
+                  month: { $month: "$sheetIssuedDateAndTimeOfBM" },
+                },
+
+                pending: functionForStatusObject(statusArray[3]),
+              },
+            },
+          ],
+          mtd_sl: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "approvalOfMTD_SL",
+                foreignField: "_id",
+                as: "userMTD_SL",
+              },
+            },
+            {
+              $unwind: "$userMTD_SL",
+            },
+
+            {
+              $group: {
+                _id: {
+                  tm_name: "$userMTD_SL.tm_name",
+                  userType: "$userMTD_SL.user_type",
+                  month: { $month: "$sheetIssuedDateAndTimeOfBM" },
+                },
+
+                pending: functionForStatusObject(statusArray[3]),
+              },
+            },
+          ],
+          mtd_hod: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "approvalOfMTD_HOD",
+                foreignField: "_id",
+                as: "userMTD_HOD",
+              },
+            },
+            {
+              $unwind: "$userMTD_HOD",
+            },
+
+            {
+              $group: {
+                _id: {
+                  tm_name: "$userMTD_HOD.tm_name",
+                  userType: "$userMTD_HOD.user_type",
+                  month: { $month: "$sheetIssuedDateAndTimeOfBM" },
+                },
+
+                pending: functionForStatusObject(statusArray[3]),
+              },
+            },
+          ],
+          mtd_hos: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "approvalOfMTD_HOS",
+                foreignField: "_id",
+                as: "userMTD_HOS",
+              },
+            },
+            {
+              $unwind: "$userMTD_HOS",
+            },
+
+            {
+              $group: {
+                _id: {
+                  tm_name: "$userMTD_HOS.tm_name",
+                  userType: "$userMTD_HOS.user_type",
+                  month: { $month: "$sheetIssuedDateAndTimeOfBM" },
+                },
+
+                pending: functionForStatusObject(statusArray[3]),
+              },
+            },
+          ],
+          prd_hod: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "approvalOfPRD_HOD",
+                foreignField: "_id",
+                as: "userPRD_HOD",
+              },
+            },
+            {
+              $unwind: "$userPRD_HOD",
+            },
+
+            {
+              $group: {
+                _id: {
+                  tm_name: "$userPRD_HOD.tm_name",
+                  userType: "$userPRD_HOD.user_type",
+                  month: { $month: "$sheetIssuedDateAndTimeOfBM" },
+                },
+
+                pending: functionForStatusObject(statusArray[3]),
+              },
+            },
+          ],
+          prd_hos: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "approvalOfPRD_HOS",
+                foreignField: "_id",
+                as: "userPRD_HOS",
+              },
+            },
+            {
+              $unwind: "$userPRD_HOS",
+            },
+
+            {
+              $group: {
+                _id: {
+                  tm_name: "$userPRD_HOS.tm_name",
+                  userType: "$userPRD_HOS.user_type",
+                  month: { $month: "$sheetIssuedDateAndTimeOfBM" },
+                },
+
+                pending: functionForStatusObject(statusArray[3]),
+              },
+            },
+          ],
+          prd_sl: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "approvalOfPRD_SL",
+                foreignField: "_id",
+                as: "userPRD_SL",
+              },
+            },
+            {
+              $unwind: "$userPRD_SL",
+            },
+
+            {
+              $group: {
+                _id: {
+                  tm_name: "$userPRD_SL.tm_name",
+                  userType: "$userPRD_SL.user_type",
+                  month: { $month: "$sheetIssuedDateAndTimeOfBM" },
+                },
+
+                pending: functionForStatusObject(statusArray[3]),
+              },
+            },
+          ],
+          prd_tl: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "approvalOfPRD_TL",
+                foreignField: "_id",
+                as: "userPRD_TL",
+              },
+            },
+            {
+              $unwind: "$userPRD_TL",
+            },
+
+            {
+              $group: {
+                _id: {
+                  tm_name: "$userPRD_TL.tm_name",
+                  userType: "$userPRD_TL.user_type",
+                  month: { $month: "$sheetIssuedDateAndTimeOfBM" },
+                },
+
+                pending: functionForStatusObject(statusArray[3]),
+              },
+            },
+          ],
         },
       },
-      // {
-      //   $unwind: "$approvalOfMTD_TL",
-      // },
-
-      // {
-      //   $group: {
-      //     _id: "$approvalOfMTD_TL",
-      //   },
-      // },
 
       // {
       //   $project: {
-      //     "approvalOfMTD_TL.tm_name": 1,
-      //   },
-      // },
-      {
-        $lookup: {
-          from: "users",
-          localField: "approvalOfMTD_SL",
-          foreignField: "_id",
-          as: "approvalOfMTD_SL",
-        },
-      },
-      // {
-      //   $unwind: "$approvalOfMTD_SL",
-      // },
-      // {
-      //   $project: {
-      //     "approvalOfMTD_SL.tm_name": 1,
-      //   },
-      // },
-
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     localField: "approvalOfMTD_HOS",
-      //     foreignField: "_id",
-      //     as: "approvalOfMTD_HOS",
-      //   },
-      // },
-      // {
-      //   $unwind: "$approvalOfMTD_HOS",
-      // },
-      // {
-      //   $project: {
-      //     "approvalOfMTD_HOS.tm_name": 1,
-      //   },
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     localField: "approvalOfMTD_HOD",
-      //     foreignField: "_id",
-      //     as: "approvalOfMTD_HOD",
-      //   },
-      // },
-      // {
-      //   $unwind: "$approvalOfMTD_HOD",
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     localField: "approvalOfPRD_HOS",
-      //     foreignField: "_id",
-      //     as: "approvalOfPRD_HOS",
-      //   },
-      // },
-      // {
-      //   $unwind: "$approvalOfPRD_HOS",
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     localField: "approvalOfPRD_TL",
-      //     foreignField: "_id",
-      //     as: "approvalOfPRD_TL",
-      //   },
-      // },
-      // {
-      //   $unwind: "$approvalOfPRD_TL",
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     localField: "approvalOfPRD_SL",
-      //     foreignField: "_id",
-      //     as: "approvalOfPRD_SL",
-      //   },
-      // },
-      // {
-      //   $unwind: "$approvalOfPRD_SL",
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     localField: "approvalOfPRD_HOD",
-      //     foreignField: "_id",
-      //     as: "approvalOfPRD_HOD",
-      //   },
-      // },
-
-      // define which fields are you want to fetch
-      // {
-      //   $project: {
-      //     _id: 1,
-      //     email: 1,
-      //     userName: 1,
-      //     userPhone: "$user_info.phone",
-      //     role: "$user_role.role",
-      //   },
-      // },
-      // {
-      //   $unwind: "$approvalOfPRD_HOD",
-      // },
-      // {
-      //   $project: {
-      //     _id: 1,
-      //     tm_name: 1,
-      //   },
-      // },
-      {
-        $group: {
-          _id: {
-            $month: "$sheetIssuedDateAndTimeOfBM",
-          },
-
-          pending: functionForStatusObject(statusArray[3]),
-
-          userTL: {
-            $push: "$approvalOfMTD_TL",
-          },
-          userSL: {
-            $push: "$approvalOfMTD_SL",
-          },
-        },
-      },
-
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     localField: "requestSheetCreatedBy",
-      //     foreignField: "_id",
-      //     as: "users",
-      //   },
-      // },
-
-      // {
-      //   $match: {
-      //     requestSheetCreatedBy: mongoose.Types.ObjectId(req.query?.id),
+      //     result: { $setUnion: ["mtd_hod"] },
       //   },
       // },
     ]);
@@ -1221,6 +1273,158 @@ router.post(
         addDynamicApprovalListInPlant,
       });
     }
+  }
+);
+router.post(
+  "/addCategories",
+
+  async (req, res, next) => {
+    const categories = req.body;
+
+    const frontendObject = {
+      name: "cat1",
+    };
+
+    const backendObject = {
+      name: "cat1",
+      subCategory: [],
+    };
+
+    const addCategory = await Plant.findOneAndUpdate(
+      {
+        plant_id: "P1",
+      },
+      {
+        $push: { ...categories, subCategory: [] },
+      },
+      { new: true }
+    );
+
+    return res.status(201).json({
+      message: "Categories added successfully",
+      addCategory,
+    });
+  }
+);
+// router.patch(
+//   "/updateCategory/:catid",
+
+//   async (req, res, next) => {
+//     const subCategories = req.body;
+//     console.log(subCategories);
+
+//     const addCategory = await Plant.findOneAndUpdate(
+//       {
+//         plant_id: "P1",
+
+//         "subCategories._id": req.params?.catid,
+//         // _id: req.params?.subid,
+//       },
+//       {
+//         $set: {
+//           ...subCategories,
+//         },
+//       },
+//       { new: true }
+//     );
+
+//     console.log("addCategory", addCategory);
+
+//     return res.status(201).json({
+//       message: "Categories added successfully",
+//       addCategory,
+//     });
+//   }
+// );
+
+router.patch("/updateCategory/:catid/:subid", async (req, res, next) => {
+  const { catid } = req.params;
+  const { name, p } = req.body;
+
+  try {
+    const category = await Plant.updateOne(
+      {
+        "categories._id": mongoose.Types.ObjectId(req.params.catid),
+      },
+      {
+        $set: { "categories.$[].name": name },
+      },
+      {
+        arrayFilters: [
+          { "categories._id": mongoose.Types.ObjectId(req.params.catid) },
+        ],
+      }
+    );
+    // const subCategory = await Plant.updateOne(
+    //   {
+    //     "categories.subCategories._id": mongoose.Types.ObjectId(
+    //       req.params.subid
+    //     ),
+    //   },
+    //   {
+    //     $set: { "categories.$[].subCategories.$[].name": name },
+    //   },
+    //   {
+    //     arrayFilters: [
+    //       {
+    //         "categories.subCategories._id": mongoose.Types.ObjectId(
+    //           req.params.subid
+    //         ),
+    //       },
+    //     ],
+    //   }
+    // );
+    // const Category = await Plant.find(
+    //   {
+    //     "categories.subCategories_id": req.params.catid,
+    //   }
+    //   // {
+    //   //   $set: { name },
+    //   // }
+    //   // {
+    //   //   new: true,
+    //   // }
+    // );
+
+    // console.log("subCategory", subCategory);
+    console.log("subCategory", category);
+
+    return res.status(201).json({
+      message: "SubCategory updated successfully",
+      // subCategory,
+      category,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error updating subCategory" });
+  }
+});
+
+router.post(
+  "/addShift/:id",
+
+  async (req, res, next) => {
+    const shift = req.body;
+    console.log(shift);
+
+    const addShift = await Plant.findOneAndUpdate(
+      {
+        plant_id: req.params?.id,
+      },
+      {
+        $set: {
+          ...shift,
+        },
+      },
+      { new: true }
+    );
+
+    console.log("addCategory", addShift);
+
+    return res.status(201).json({
+      message: "Shifts added successfully",
+      addShift,
+    });
   }
 );
 
