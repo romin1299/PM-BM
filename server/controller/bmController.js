@@ -1279,23 +1279,14 @@ router.post(
   "/addCategories",
 
   async (req, res, next) => {
-    const categories = req.body;
-
-    const frontendObject = {
-      name: "cat1",
-    };
-
-    const backendObject = {
-      name: "cat1",
-      subCategory: [],
-    };
+    const { categoryName } = req.body;
 
     const addCategory = await Plant.findOneAndUpdate(
       {
         plant_id: "P1",
       },
       {
-        $push: { ...categories, subCategory: [] },
+        $push: { categoryName, subCategory: [] },
       },
       { new: true }
     );
@@ -1306,88 +1297,76 @@ router.post(
     });
   }
 );
-// router.patch(
-//   "/updateCategory/:catid",
+router.post(
+  "/addSubCategories/:catId",
 
-//   async (req, res, next) => {
-//     const subCategories = req.body;
-//     console.log(subCategories);
+  async (req, res, next) => {
+    const { name } = req.body;
 
-//     const addCategory = await Plant.findOneAndUpdate(
-//       {
-//         plant_id: "P1",
-
-//         "subCategories._id": req.params?.catid,
-//         // _id: req.params?.subid,
-//       },
-//       {
-//         $set: {
-//           ...subCategories,
-//         },
-//       },
-//       { new: true }
-//     );
-
-//     console.log("addCategory", addCategory);
-
-//     return res.status(201).json({
-//       message: "Categories added successfully",
-//       addCategory,
-//     });
-//   }
-// );
-
-router.patch("/updateCategory/:catid/:subid", async (req, res, next) => {
-  const { catid } = req.params;
-  const { name, p } = req.body;
-
-  try {
-    const category = await Plant.updateOne(
+    const addSubCategory = await Plant.updateOne(
       {
-        "categories._id": mongoose.Types.ObjectId(req.params.catid),
+        "categories._id": mongoose.Types.ObjectId(req.params.catId),
       },
       {
-        $set: { "categories.$[].name": name },
+        $push: {
+          "categories.$.subCategories": {
+            name,
+          },
+        },
       },
-      {
-        arrayFilters: [
-          { "categories._id": mongoose.Types.ObjectId(req.params.catid) },
-        ],
-      }
+
+      { new: true }
     );
-    // const subCategory = await Plant.updateOne(
-    //   {
-    //     "categories.subCategories._id": mongoose.Types.ObjectId(
-    //       req.params.subid
-    //     ),
-    //   },
-    //   {
-    //     $set: { "categories.$[].subCategories.$[].name": name },
-    //   },
-    //   {
-    //     arrayFilters: [
-    //       {
-    //         "categories.subCategories._id": mongoose.Types.ObjectId(
-    //           req.params.subid
-    //         ),
-    //       },
-    //     ],
-    //   }
-    // );
-    // const Category = await Plant.find(
-    //   {
-    //     "categories.subCategories_id": req.params.catid,
-    //   }
-    //   // {
-    //   //   $set: { name },
-    //   // }
-    //   // {
-    //   //   new: true,
-    //   // }
-    // );
+
+    return res.status(201).json({
+      message: "Categories added successfully",
+      addSubCategory,
+    });
+  }
+);
+
+router.patch("/updateCategory/:catId/:subId", async (req, res, next) => {
+  const { subName, catName } = req.body;
+  let category;
+  try {
+    if (catName) {
+      category = await Plant.updateOne(
+        {
+          "categories._id": mongoose.Types.ObjectId(req.params.catId),
+        },
+        {
+          $set: { "categories.$[categories].name": catName },
+        },
+        {
+          arrayFilters: [
+            { "categories._id": mongoose.Types.ObjectId(req.params.catId) },
+          ],
+        }
+      );
+    } else if (subName) {
+      category = await Plant.updateOne(
+        {
+          "categories.subCategories._id": mongoose.Types.ObjectId(
+            req.params.subId
+          ),
+        },
+        {
+          $set: {
+            "categories.$[].subCategories.$[subCategories].name": subName,
+          },
+        },
+        {
+          arrayFilters: [
+            {
+              "subCategories._id": mongoose.Types.ObjectId(req.params.subId),
+            },
+          ],
+        }
+      );
+    }
 
     // console.log("subCategory", subCategory);
-    console.log("subCategory", category);
+    // console.log("subCategory", category);
 
     return res.status(201).json({
       message: "SubCategory updated successfully",
