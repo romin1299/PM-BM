@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import PRDRequestSheet from "./PRDRequestSheet";
 import MTDRequestSheet from "./MTDRequestSheet";
 import { useParams, useNavigate } from "react-router-dom";
+import RoutingContext from "../../../context/routing/RoutingContext";
+
 function MyTable() {
   const navigate = useNavigate();
+  const context = useContext(RoutingContext);
+
   const { machine_code, generateType } = useParams();
   const [selectedMachineDetails, setMachineDetails] = useState("");
+  const [approvalListOfBM, setApprovalListOfBM] = useState([]);
 
   const getMachineDetails = async () => {
     try {
@@ -27,11 +32,12 @@ function MyTable() {
           navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
         }
       } else {
-        const { machine } = await res.json();
+        const { machine, requestSheetApprovalList } = await res.json();
         // setMachine(machine);
         console.log(machine);
 
         setMachineDetails(machine);
+        setApprovalListOfBM(requestSheetApprovalList);
         // setSelectedAttendee(breakDownAttendedBy);
       }
     } catch (error) {
@@ -45,8 +51,16 @@ function MyTable() {
 
   return (
     <>
-      <PRDRequestSheet selectedMachineDetails={selectedMachineDetails} />
-      <MTDRequestSheet selectedMachineDetails={selectedMachineDetails}/>
+      <PRDRequestSheet
+        selectedMachineDetails={selectedMachineDetails}
+        // approvalListOfBM={approvalListOfBM}
+      />
+      
+      {/* need to add condition for PRD not able add data on MTD part */}
+      <MTDRequestSheet
+        selectedMachineDetails={selectedMachineDetails}
+        approvalListOfBM={approvalListOfBM}
+      />
     </>
   );
 }

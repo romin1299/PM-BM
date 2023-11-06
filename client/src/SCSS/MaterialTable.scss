@@ -280,6 +280,22 @@ select {
     font-size: medium !important;
 }
 
-.css-10hburv-MuiTypography-root{
-    font-weight: bold !important;
+.css-10hburv-MuiTypography-root {
+  // font-weight: bold !important;
+}
+
+.category-input-button {
+  border: 1px solid #6da2ad;
+  border-radius: 3px;
+  padding: 2px 5px;
+  font-size: 14px !important;
+  width: 80%;
+
+  &:focus-visible {
+    outline: none;
+    border: 1px solid #2e4044;
+  }
+}
+.fs-1rem {
+  font-size: 16px !important;
 }

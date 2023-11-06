@@ -69,12 +69,13 @@ const ActionList = ({ actions, setActions }) => {
           lg={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <b>Status</b>
+          <b>STATUS</b>
         </Col>
         <Col
           lg={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
+          <b>ACTIONS</b>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
         </Col>
       </Row>

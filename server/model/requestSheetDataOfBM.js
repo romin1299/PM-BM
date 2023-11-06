@@ -18,6 +18,9 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   sheetIssuedDateAndTimeOfBM: {
     type: Date,
   },
+  sheetCompletedDateAndTime: {
+    type: Date,
+  },
   breakDownBasicDataFilledByPRD: {
     problemFaced: { type: String },
     PRD_ObservationForProblem_5Why_1How: { type: String },
@@ -116,6 +119,11 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   },
 
   assignUser: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+
+  handOverUser: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
