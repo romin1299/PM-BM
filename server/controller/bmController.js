@@ -1505,9 +1505,11 @@ router.get(
   "/getCategories",
 
   async (req, res, next) => {
-    const getCategory = await Plant.find({
+    const category = await Plant.find({
       plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
     });
+
+    let getCategory = category[0].categories;
 
     return res.status(201).json({
       message: "Categories get successfully",
@@ -1519,17 +1521,27 @@ router.post(
   "/addCategories",
 
   async (req, res, next) => {
-    const { categoryName } = req.body;
+    const { name } = req.body;
 
-    const addCategory = await Plant.findOneAndUpdate(
+    
+
+    const addCategory = await Plant.updateOne(
       {
         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
       },
       {
-        $push: { categoryName, subCategory: [] },
+        $push: {
+          categories: {
+            name,
+            subCategories: [],
+          },
+        },
       },
+
       { new: true }
     );
+
+    console.log(addCategory);
 
     return res.status(201).json({
       message: "Categories added successfully",
@@ -1572,6 +1584,7 @@ router.patch("/updateCategory/:catId", async (req, res, next) => {
   try {
     const category = await Plant.updateOne(
       {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
         "categories._id": mongoose.Types.ObjectId(req.params.catId),
       },
       {
@@ -1603,6 +1616,7 @@ router.patch("/updateSubCategory/:subId", async (req, res, next) => {
   try {
     const subCategory = await Plant.updateOne(
       {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
         "categories.subCategories._id": mongoose.Types.ObjectId(
           req.params.subId
         ),
