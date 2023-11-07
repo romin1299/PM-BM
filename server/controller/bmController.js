@@ -16,6 +16,7 @@ const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
 const factory = require("./handleFactory");
+
 router.use(cookieParser());
 router.use(authenticate);
 
@@ -114,7 +115,7 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
       let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
         { _id: machine.line_names._id },
         // { $set: { $inc: { requestSheetNos: 1 } } },
-        { $set: {requestSheetNos } },
+        { $set: { requestSheetNos } },
         { new: true }
       );
 
@@ -181,17 +182,6 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
           "maintenanceReportFilledByMTD.whyAnalysis.why3": why3,
           "maintenanceReportFilledByMTD.whyAnalysis.why4": why4,
           "maintenanceReportFilledByMTD.whyAnalysis.why5": why5,
-          "maintenanceReportFilledByMTD.whyAnalysis.breakDownTime":
-            breakDownTime,
-          "maintenanceReportFilledByMTD.whyAnalysis.maintenanceTime":
-            maintenanceTime,
-          "maintenanceReportFilledByMTD.whyAnalysis.qualityCheckTime":
-            qualityCheckTime,
-          "maintenanceReportFilledByMTD.whyAnalysis.breakTime": breakTime,
-          "maintenanceReportFilledByMTD.whyAnalysis.minorBD": minorBD,
-          "maintenanceReportFilledByMTD.whyAnalysis.majorBD": majorBD,
-          "maintenanceReportFilledByMTD.whyAnalysis.firstTime": firstTime,
-          "maintenanceReportFilledByMTD.whyAnalysis.repeat": repeat,
         };
 
         requestSheet = await RequestSheetOfBM.findOneAndUpdate(
@@ -267,6 +257,8 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
 
 const findRequestSheetMiddleware = async (req, res, next) => {
   try {
+   
+
     let queryObj = {};
 
     if (req.query._id) {
@@ -274,6 +266,9 @@ const findRequestSheetMiddleware = async (req, res, next) => {
         _id: mongoose.Types.ObjectId(req.query._id),
       };
     }
+
+   
+
     const requestSheetData = await RequestSheetOfBM.aggregate([
       {
         $match: queryObj,
@@ -424,6 +419,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
         message: "No data to display",
       });
     }
+    
 
     req.requestSheetData = requestSheetData;
     next();
@@ -1355,118 +1351,118 @@ router.get(
         // },
       ]);
 
-    const allMonths = Array.from({ length: 12 }, (_, monthIndex) => ({
-      monthName: moment().month(monthIndex).format("MMMM"),
-      monthInDecimal: `${monthIndex + 1}`,
-    }));
+      const allMonths = Array.from({ length: 12 }, (_, monthIndex) => ({
+        monthName: moment().month(monthIndex).format("MMMM"),
+        monthInDecimal: `${monthIndex + 1}`,
+      }));
 
-    const generatedAndCompletedStatusMonthlyData =
-      await RequestSheetOfBM.aggregate([
-        {
-          $lookup: {
-            from: "lines",
-            localField: "lineRef",
-            foreignField: "_id",
-            as: "lines",
-          },
-        },
-        {
-          $match: {
-            lineRef: mongoose.Types.ObjectId(req.params?.id),
-          },
-        },
-        {
-          $group: {
-            _id: {
-              $dateToString: {
-                format: "%m",
-                date: "$sheetIssuedDateAndTimeOfBM",
-                timezone: timezone,
-              },
+      const generatedAndCompletedStatusMonthlyData =
+        await RequestSheetOfBM.aggregate([
+          {
+            $lookup: {
+              from: "lines",
+              localField: "lineRef",
+              foreignField: "_id",
+              as: "lines",
             },
-            generated: functionForQueryObject(statusArray[0]),
-            completed: functionForQueryObject(statusArray[4]),
           },
-        },
-
-        {
-          $project: {
-            month: {
-              $function: {
-                body: function (month) {
-                  return [
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "July",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec",
-                  ]?.[month - 1];
+          {
+            $match: {
+              lineRef: mongoose.Types.ObjectId(req.params?.id),
+            },
+          },
+          {
+            $group: {
+              _id: {
+                $dateToString: {
+                  format: "%m",
+                  date: "$sheetIssuedDateAndTimeOfBM",
+                  timezone: timezone,
                 },
-                args: ["$_id"],
-                lang: "js",
               },
+              generated: functionForQueryObject(statusArray[0]),
+              completed: functionForQueryObject(statusArray[4]),
             },
-            generated: 1,
-            completed: 1,
           },
-        },
-        // {
-        //   $group: {
-        //     _id: null,
-        //     array: { $push: "$$ROOT" },
-        //   },
-        // },
-        // {
-        //   $project: {
-        //     _id: 0,
-        //     array: {
-        //       $map: {
-        //         input: allMonths,
-        //         as: "month",
-        //         in: {
-        //           $cond: [
-        //             { $in: ["$$month.monthInDecimal", "$array._id"] },
-        //             {
-        //               month: "$$month.monthName",
-        //               data: {
-        //                 $arrayElemAt: [
-        //                   "$array",
-        //                   {
-        //                     $indexOfArray: [
-        //                       "$array._id",
-        //                       "$$month.monthInDecimal",
-        //                     ],
-        //                   },
-        //                 ],
-        //               },
-        //             },
-        //             {
-        //               month: "$$month.monthName",
-        //               data: {
-        //                 _id: "$$month.monthInDecimal",
-        //                 generated: 0,
-        //                 completed: 0,
-        //               },
-        //             },
-        //           ],
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
-        // { $unwind: "$array" },
-        // {
-        //   $replaceRoot: { newRoot: "$array" },
-        // },
-      ]);
-    // .explain("executionStats");
+
+          {
+            $project: {
+              month: {
+                $function: {
+                  body: function (month) {
+                    return [
+                      "Jan",
+                      "Feb",
+                      "Mar",
+                      "Apr",
+                      "May",
+                      "Jun",
+                      "July",
+                      "Aug",
+                      "Sep",
+                      "Oct",
+                      "Nov",
+                      "Dec",
+                    ]?.[month - 1];
+                  },
+                  args: ["$_id"],
+                  lang: "js",
+                },
+              },
+              generated: 1,
+              completed: 1,
+            },
+          },
+          // {
+          //   $group: {
+          //     _id: null,
+          //     array: { $push: "$$ROOT" },
+          //   },
+          // },
+          // {
+          //   $project: {
+          //     _id: 0,
+          //     array: {
+          //       $map: {
+          //         input: allMonths,
+          //         as: "month",
+          //         in: {
+          //           $cond: [
+          //             { $in: ["$$month.monthInDecimal", "$array._id"] },
+          //             {
+          //               month: "$$month.monthName",
+          //               data: {
+          //                 $arrayElemAt: [
+          //                   "$array",
+          //                   {
+          //                     $indexOfArray: [
+          //                       "$array._id",
+          //                       "$$month.monthInDecimal",
+          //                     ],
+          //                   },
+          //                 ],
+          //               },
+          //             },
+          //             {
+          //               month: "$$month.monthName",
+          //               data: {
+          //                 _id: "$$month.monthInDecimal",
+          //                 generated: 0,
+          //                 completed: 0,
+          //               },
+          //             },
+          //           ],
+          //         },
+          //       },
+          //     },
+          //   },
+          // },
+          // { $unwind: "$array" },
+          // {
+          //   $replaceRoot: { newRoot: "$array" },
+          // },
+        ]);
+      // .explain("executionStats");
 
       return res.status(201).json({
         message: "Monitoring request-sheet data get successfully",
@@ -1560,53 +1556,67 @@ router.post(
   }
 );
 
-router.patch("/updateCategory/:catId/:subId", async (req, res, next) => {
-  const { subName, catName } = req.body;
-  let category;
+router.patch("/updateCategory/:catId", async (req, res, next) => {
+  const { catName } = req.body;
+
   try {
-    if (catName) {
-      category = await Plant.updateOne(
-        {
-          "categories._id": mongoose.Types.ObjectId(req.params.catId),
+    const category = await Plant.updateOne(
+      {
+        "categories._id": mongoose.Types.ObjectId(req.params.catId),
+      },
+      {
+        $set: { "categories.$[categories].name": catName },
+      },
+      {
+        arrayFilters: [
+          { "categories._id": mongoose.Types.ObjectId(req.params.catId) },
+        ],
+      }
+    );
+
+    // console.log("subCategory", subCategory);
+    // console.log("subCategory", category);
+
+    return res.status(201).json({
+      message: "Category updated successfully",
+
+      category,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error updating subCategory" });
+  }
+});
+router.patch("/updateSubCategory/:subId", async (req, res, next) => {
+  const { subName } = req.body;
+
+  try {
+    const subCategory = await Plant.updateOne(
+      {
+        "categories.subCategories._id": mongoose.Types.ObjectId(
+          req.params.subId
+        ),
+      },
+      {
+        $set: {
+          "categories.$[].subCategories.$[subCategories].name": subName,
         },
-        {
-          $set: { "categories.$[categories].name": catName },
-        },
-        {
-          arrayFilters: [
-            { "categories._id": mongoose.Types.ObjectId(req.params.catId) },
-          ],
-        }
-      );
-    } else if (subName) {
-      category = await Plant.updateOne(
-        {
-          "categories.subCategories._id": mongoose.Types.ObjectId(
-            req.params.subId
-          ),
-        },
-        {
-          $set: {
-            "categories.$[].subCategories.$[subCategories].name": subName,
+      },
+      {
+        arrayFilters: [
+          {
+            "subCategories._id": mongoose.Types.ObjectId(req.params.subId),
           },
-        },
-        {
-          arrayFilters: [
-            {
-              "subCategories._id": mongoose.Types.ObjectId(req.params.subId),
-            },
-          ],
-        }
-      );
-    }
+        ],
+      }
+    );
 
     // console.log("subCategory", subCategory);
     // console.log("subCategory", category);
 
     return res.status(201).json({
       message: "SubCategory updated successfully",
-      // subCategory,
-      category,
+      subCategory,
     });
   } catch (error) {
     console.error(error);
@@ -1615,7 +1625,7 @@ router.patch("/updateCategory/:catId/:subId", async (req, res, next) => {
 });
 
 router.post(
-  "/addShift/:id",
+  "/addShift",
 
   async (req, res, next) => {
     const shift = req.body;
@@ -1623,7 +1633,7 @@ router.post(
 
     const addShift = await Plant.findOneAndUpdate(
       {
-        plant_id: req.params?.id,
+        plant_id: "P1",
       },
       {
         $set: {
@@ -1633,11 +1643,78 @@ router.post(
       { new: true }
     );
 
-    console.log("addCategory", addShift);
+    // console.log("addCategory", addShift);
 
     return res.status(201).json({
       message: "Shifts added successfully",
       addShift,
+    });
+  }
+);
+router.patch(
+  "/deleteSubCategory/:catId/:subId",
+
+  async (req, res, next) => {
+    const deletedSubCategory = await Plant.updateOne(
+      {
+        plant_id: "P1",
+        categories: {
+          $elemMatch: {
+            _id: mongoose.Types.ObjectId(req.params.catId),
+            "subCategories._id": mongoose.Types.ObjectId(req.params.subId),
+          },
+        },
+      },
+      {
+        $pull: {
+          "categories.$[outer].subCategories": {
+            _id: mongoose.Types.ObjectId(req.params.subId),
+          },
+        },
+      },
+      {
+        arrayFilters: [
+          { "outer._id": mongoose.Types.ObjectId(req.params.catId) },
+        ],
+      }
+    );
+
+    // console.log("deletedCategory", deletedSubCategory);
+
+    return res.status(201).json({
+      message: "Shifts added successfully",
+      deletedSubCategory,
+    });
+  }
+);
+router.patch(
+  "/deleteCategory/:catId",
+
+  async (req, res, next) => {
+    const deletedCategory = await Plant.updateOne(
+      {
+        plant_id: "P1",
+        "categories._id": mongoose.Types.ObjectId(req.params.catId),
+      },
+      {
+        $pull: {
+          categories: {
+            _id: mongoose.Types.ObjectId(req.params.catId),
+          },
+        },
+      },
+      {
+        arrayFilters: [
+          { "categories._id": mongoose.Types.ObjectId(req.params.catId) },
+        ],
+      }
+    );
+
+    // console.log("deletedCategory", deletedCategory);
+
+    return res.status(201).json({
+      message: "Shifts added successfully",
+      deletedCategory,
     });
   }
 );
@@ -1719,6 +1796,196 @@ router.get(
 //       res.status(404).json({ message: "Machine not found" });
 //     }
 //   }
+// );
+
+// router.get(
+//   "/getRequestSheetDataLineWise", async (req, res, next) => {
+//     try {
+//       const startDate = moment().tz(timezone).month("April");
+  
+//       const endDate = moment().tz(timezone).endOf("hour");
+  
+//       let queryObj = {};
+  
+//       if (req.query._id) {
+//         queryObj = {
+//           _id: mongoose.Types.ObjectId(req.query._id),
+//         };
+//       }
+  
+//       if (req.query.lineId) {
+//         queryObj = {
+//           lineRef: mongoose.Types.ObjectId(req.query.lineId),
+//           sheetIssuedDateAndTimeOfBM: {
+//             $gte: startDate.toDate(),
+//             $lte: endDate.toDate(),
+//           },
+//         };
+//       }
+  
+//       const requestSheetData = await RequestSheetOfBM.aggregate([
+//         {
+//           $match: queryObj,
+//         },
+//         {
+//           $lookup: {
+//             from: "machinesalldatas",
+//             localField: "machineRef",
+//             foreignField: "_id",
+//             as: "machines",
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "lines",
+//             localField: "lineRef",
+//             foreignField: "_id",
+//             pipeline: [
+//               {
+//                 $project: {
+//                   line_name: 1,
+//                 },
+//               },
+//             ],
+//             as: "lines",
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "cells",
+//             localField: "cellRef",
+//             foreignField: "_id",
+//             pipeline: [
+//               {
+//                 $project: {
+//                   cell_name: 1,
+//                 },
+//               },
+//             ],
+//             as: "cells",
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "users",
+//             localField: "partQualityCheckedByPRD",
+//             foreignField: "_id",
+//             pipeline: [
+//               {
+//                 $project: {
+//                   tm_name: 1,
+//                 },
+//               },
+//             ],
+//             as: "namesPRD",
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "users",
+//             let: { mtdUserId: "$partQualityCheckedByMTD" },
+//             pipeline: [
+//               {
+//                 $match: {
+//                   $expr: {
+//                     $and: [
+//                       { $eq: ["$user_type", "TL/HOSS"] },
+//                       { $eq: ["$tm_department", "MTD"] },
+//                       { $eq: ["$_id", "$$mtdUserId"] },
+//                     ],
+//                   },
+//                 },
+//               },
+//               {
+//                 $project: {
+//                   user_type: 1,
+//                   tm_department: 1,
+//                   tm_name: 1,
+//                 },
+//               },
+//             ],
+//             as: "namesMTD",
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "users",
+//             localField: "assignUser",
+//             foreignField: "_id",
+//             pipeline: [
+//               {
+//                 $project: {
+//                   user_type: 1,
+//                   tm_name: 1,
+//                 },
+//               },
+//             ],
+//             as: "namesOperators",
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "users",
+//             localField: "handOverUser",
+//             foreignField: "_id",
+//             as: "handoverUserDetails",
+//           },
+//         },
+//         {
+//           $project: {
+//             machines: 1,
+//             requestSheetCreatedBy: 1,
+//             requestSheetNoOfBM: 1,
+//             cell: { $arrayElemAt: ["$cells.cell_name", 0] },
+//             line: { $arrayElemAt: ["$lines.line_name", 0] },
+//             machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
+//             machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
+//             PRDUser: { $arrayElemAt: ["$namesPRD.tm_name", 0] },
+//             assignUser: {
+//               $arrayElemAt: ["$namesOperators.tm_name", 0],
+//             },
+//             handOverUser: {
+//               $arrayElemAt: ["$handoverUserDetails.tm_name", 0],
+//             },
+//             handOverTime: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+//             work_order_status: 1,
+//             requestSheetStatus: 1,
+//             MTDUser: { $arrayElemAt: ["$namesMTD.tm_name", 0] },
+//             problem: "$breakDownBasicDataFilledByPRD.problemFaced",
+//             problemOccurredDateAndTimeOfBM: 1,
+//             "maintenanceReportFilledByMTD.workEndedDateOfBM": 1,
+//             partQualityStatusOfPRD: 1,
+//             finalActivity: 1,
+//             statusPRD_TL: 1,
+//             PRDUser: {
+//               $concat: [
+//                 "$partQualityStatusOfPRD",
+//                 " - ",
+//                 { $arrayElemAt: ["$namesPRD.tm_name", 0] },
+//               ],
+//             },
+//           },
+//         },
+//       ]);
+  
+//       if (requestSheetData?.length === 0) {
+//         return res.status(400).json({
+//           message: "No data to display",
+//         });
+//       }
+    
+//         return res.status(400).json({
+//           message: "Request Sheet line based get successfully",
+//           requestSheetData,
+//         });
+
+      
+  
+     
+//        } catch (error) {
+//       res.status(500).json({ message: error?.message, error: new Error(error) });
+//     }
+//   };
 // );
 
 module.exports = router;
