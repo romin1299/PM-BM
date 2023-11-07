@@ -257,8 +257,6 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
 
 const findRequestSheetMiddleware = async (req, res, next) => {
   try {
-   
-
     let queryObj = {};
 
     if (req.query._id) {
@@ -266,8 +264,6 @@ const findRequestSheetMiddleware = async (req, res, next) => {
         _id: mongoose.Types.ObjectId(req.query._id),
       };
     }
-
-   
 
     const requestSheetData = await RequestSheetOfBM.aggregate([
       {
@@ -419,7 +415,6 @@ const findRequestSheetMiddleware = async (req, res, next) => {
         message: "No data to display",
       });
     }
-    
 
     req.requestSheetData = requestSheetData;
     next();
@@ -1506,6 +1501,20 @@ router.post(
     }
   }
 );
+router.get(
+  "/getCategories",
+
+  async (req, res, next) => {
+    const getCategory = await Plant.find({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+
+    return res.status(201).json({
+      message: "Categories get successfully",
+      getCategory,
+    });
+  }
+);
 router.post(
   "/addCategories",
 
@@ -1514,7 +1523,7 @@ router.post(
 
     const addCategory = await Plant.findOneAndUpdate(
       {
-        plant_id: "P1",
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
       },
       {
         $push: { categoryName, subCategory: [] },
@@ -1536,6 +1545,7 @@ router.post(
 
     const addSubCategory = await Plant.updateOne(
       {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
         "categories._id": mongoose.Types.ObjectId(req.params.catId),
       },
       {
@@ -1633,7 +1643,7 @@ router.post(
 
     const addShift = await Plant.findOneAndUpdate(
       {
-        plant_id: "P1",
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
       },
       {
         $set: {
@@ -1657,7 +1667,7 @@ router.patch(
   async (req, res, next) => {
     const deletedSubCategory = await Plant.updateOne(
       {
-        plant_id: "P1",
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
         categories: {
           $elemMatch: {
             _id: mongoose.Types.ObjectId(req.params.catId),
@@ -1693,7 +1703,7 @@ router.patch(
   async (req, res, next) => {
     const deletedCategory = await Plant.updateOne(
       {
-        plant_id: "P1",
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
         "categories._id": mongoose.Types.ObjectId(req.params.catId),
       },
       {
@@ -1798,194 +1808,189 @@ router.get(
 //   }
 // );
 
-// router.get(
-//   "/getRequestSheetDataLineWise", async (req, res, next) => {
-//     try {
-//       const startDate = moment().tz(timezone).month("April");
-  
-//       const endDate = moment().tz(timezone).endOf("hour");
-  
-//       let queryObj = {};
-  
-//       if (req.query._id) {
-//         queryObj = {
-//           _id: mongoose.Types.ObjectId(req.query._id),
-//         };
-//       }
-  
-//       if (req.query.lineId) {
-//         queryObj = {
-//           lineRef: mongoose.Types.ObjectId(req.query.lineId),
-//           sheetIssuedDateAndTimeOfBM: {
-//             $gte: startDate.toDate(),
-//             $lte: endDate.toDate(),
-//           },
-//         };
-//       }
-  
-//       const requestSheetData = await RequestSheetOfBM.aggregate([
-//         {
-//           $match: queryObj,
-//         },
-//         {
-//           $lookup: {
-//             from: "machinesalldatas",
-//             localField: "machineRef",
-//             foreignField: "_id",
-//             as: "machines",
-//           },
-//         },
-//         {
-//           $lookup: {
-//             from: "lines",
-//             localField: "lineRef",
-//             foreignField: "_id",
-//             pipeline: [
-//               {
-//                 $project: {
-//                   line_name: 1,
-//                 },
-//               },
-//             ],
-//             as: "lines",
-//           },
-//         },
-//         {
-//           $lookup: {
-//             from: "cells",
-//             localField: "cellRef",
-//             foreignField: "_id",
-//             pipeline: [
-//               {
-//                 $project: {
-//                   cell_name: 1,
-//                 },
-//               },
-//             ],
-//             as: "cells",
-//           },
-//         },
-//         {
-//           $lookup: {
-//             from: "users",
-//             localField: "partQualityCheckedByPRD",
-//             foreignField: "_id",
-//             pipeline: [
-//               {
-//                 $project: {
-//                   tm_name: 1,
-//                 },
-//               },
-//             ],
-//             as: "namesPRD",
-//           },
-//         },
-//         {
-//           $lookup: {
-//             from: "users",
-//             let: { mtdUserId: "$partQualityCheckedByMTD" },
-//             pipeline: [
-//               {
-//                 $match: {
-//                   $expr: {
-//                     $and: [
-//                       { $eq: ["$user_type", "TL/HOSS"] },
-//                       { $eq: ["$tm_department", "MTD"] },
-//                       { $eq: ["$_id", "$$mtdUserId"] },
-//                     ],
-//                   },
-//                 },
-//               },
-//               {
-//                 $project: {
-//                   user_type: 1,
-//                   tm_department: 1,
-//                   tm_name: 1,
-//                 },
-//               },
-//             ],
-//             as: "namesMTD",
-//           },
-//         },
-//         {
-//           $lookup: {
-//             from: "users",
-//             localField: "assignUser",
-//             foreignField: "_id",
-//             pipeline: [
-//               {
-//                 $project: {
-//                   user_type: 1,
-//                   tm_name: 1,
-//                 },
-//               },
-//             ],
-//             as: "namesOperators",
-//           },
-//         },
-//         {
-//           $lookup: {
-//             from: "users",
-//             localField: "handOverUser",
-//             foreignField: "_id",
-//             as: "handoverUserDetails",
-//           },
-//         },
-//         {
-//           $project: {
-//             machines: 1,
-//             requestSheetCreatedBy: 1,
-//             requestSheetNoOfBM: 1,
-//             cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-//             line: { $arrayElemAt: ["$lines.line_name", 0] },
-//             machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
-//             machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
-//             PRDUser: { $arrayElemAt: ["$namesPRD.tm_name", 0] },
-//             assignUser: {
-//               $arrayElemAt: ["$namesOperators.tm_name", 0],
-//             },
-//             handOverUser: {
-//               $arrayElemAt: ["$handoverUserDetails.tm_name", 0],
-//             },
-//             handOverTime: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-//             work_order_status: 1,
-//             requestSheetStatus: 1,
-//             MTDUser: { $arrayElemAt: ["$namesMTD.tm_name", 0] },
-//             problem: "$breakDownBasicDataFilledByPRD.problemFaced",
-//             problemOccurredDateAndTimeOfBM: 1,
-//             "maintenanceReportFilledByMTD.workEndedDateOfBM": 1,
-//             partQualityStatusOfPRD: 1,
-//             finalActivity: 1,
-//             statusPRD_TL: 1,
-//             PRDUser: {
-//               $concat: [
-//                 "$partQualityStatusOfPRD",
-//                 " - ",
-//                 { $arrayElemAt: ["$namesPRD.tm_name", 0] },
-//               ],
-//             },
-//           },
-//         },
-//       ]);
-  
-//       if (requestSheetData?.length === 0) {
-//         return res.status(400).json({
-//           message: "No data to display",
-//         });
-//       }
-    
-//         return res.status(400).json({
-//           message: "Request Sheet line based get successfully",
-//           requestSheetData,
-//         });
+router.get("/getRequestSheetDataLineWise", async (req, res, next) => {
+  try {
+    const startDate = moment().tz(timezone).month("April");
 
-      
-  
-     
-//        } catch (error) {
-//       res.status(500).json({ message: error?.message, error: new Error(error) });
-//     }
-//   };
-// );
+    const endDate = moment().tz(timezone).endOf("hour");
+
+    let queryObj = {};
+
+    if (req.query._id) {
+      queryObj = {
+        _id: mongoose.Types.ObjectId(req.query._id),
+      };
+    }
+
+    if (req.query.lineId) {
+      queryObj = {
+        lineRef: mongoose.Types.ObjectId(req.query.lineId),
+        sheetIssuedDateAndTimeOfBM: {
+          $gte: startDate.toDate(),
+          $lte: endDate.toDate(),
+        },
+      };
+    }
+
+    const requestSheetData = await RequestSheetOfBM.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          as: "machines",
+        },
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+          as: "lines",
+        },
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cellRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                cell_name: 1,
+              },
+            },
+          ],
+          as: "cells",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "partQualityCheckedByPRD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+              },
+            },
+          ],
+          as: "namesPRD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          let: { mtdUserId: "$partQualityCheckedByMTD" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$user_type", "TL/HOSS"] },
+                    { $eq: ["$tm_department", "MTD"] },
+                    { $eq: ["$_id", "$$mtdUserId"] },
+                  ],
+                },
+              },
+            },
+            {
+              $project: {
+                user_type: 1,
+                tm_department: 1,
+                tm_name: 1,
+              },
+            },
+          ],
+          as: "namesMTD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignUser",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_name: 1,
+              },
+            },
+          ],
+          as: "namesOperators",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "handOverUser",
+          foreignField: "_id",
+          as: "handoverUserDetails",
+        },
+      },
+      {
+        $project: {
+          machines: 1,
+          requestSheetCreatedBy: 1,
+          requestSheetNoOfBM: 1,
+          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
+          line: { $arrayElemAt: ["$lines.line_name", 0] },
+          machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
+          machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
+          PRDUser: { $arrayElemAt: ["$namesPRD.tm_name", 0] },
+          assignUser: {
+            $arrayElemAt: ["$namesOperators.tm_name", 0],
+          },
+          handOverUser: {
+            $arrayElemAt: ["$handoverUserDetails.tm_name", 0],
+          },
+          handOverTime: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+          work_order_status: 1,
+          requestSheetStatus: 1,
+          MTDUser: { $arrayElemAt: ["$namesMTD.tm_name", 0] },
+          problem: "$breakDownBasicDataFilledByPRD.problemFaced",
+          problemOccurredDateAndTimeOfBM: 1,
+          "maintenanceReportFilledByMTD.workEndedDateOfBM": 1,
+          partQualityStatusOfPRD: 1,
+          finalActivity: 1,
+          statusPRD_TL: 1,
+          PRDUser: {
+            $concat: [
+              "$partQualityStatusOfPRD",
+              " - ",
+              { $arrayElemAt: ["$namesPRD.tm_name", 0] },
+            ],
+          },
+        },
+      },
+    ]);
+
+    if (requestSheetData?.length === 0) {
+      return res.status(400).json({
+        message: "No data to display",
+      });
+    }
+
+    return res.status(400).json({
+      message: "Request Sheet line based get successfully",
+      totalRequestSheets: requestSheetData.length,
+      requestSheetData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error: new Error(error) });
+  }
+});
 
 module.exports = router;
