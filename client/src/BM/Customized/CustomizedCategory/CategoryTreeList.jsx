@@ -9,8 +9,16 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import { Box, Button, Divider, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { RenderInputRow } from "./ManageCategories";
+import MuiDeleteDialog from "./MuiDeleteDialog";
 
 const CategoryTreeList = ({
   categories,
@@ -19,6 +27,7 @@ const CategoryTreeList = ({
   onDeleteCategory,
 }) => {
   const [expandedCategories, setExpandedCategories] = useState([]);
+  //adding and editing is similar, can be optimized by using only one but for better understanding there are two states
   const [addingId, setAddingId] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const inputRef = useRef(null);
@@ -34,13 +43,42 @@ const CategoryTreeList = ({
   };
 
   const RenderCategory = ({ category, parentCategoryId }) => {
+    // console.log("category._id:", category.name, "-->", category._id);
+    // console.log("parentCategoryId:", parentCategoryId);
+
+    const listItemStyles = [
+      {
+        "&:hover": { backgroundColor: "#004b5b2e", cursor: "pointer" },
+      },
+      {
+        "& + .MuiListItemSecondaryAction-root": {
+          visibility: "hidden",
+        },
+        "&:hover + .MuiListItemSecondaryAction-root": {
+          visibility: "visible",
+        },
+      },
+    ];
+
+    const listItemTextStyles = {
+      "& .MuiListItemText-primary":
+        parentCategoryId < 0
+          ? {
+              // color: "#4f4f4f",
+              fontWeight: "600",
+            }
+          : {
+              color: "#555555",
+              fontSize: "15px",
+            },
+    };
+
     return (
-      <div key={category.id}>
+      <div key={category._id}>
         <Divider />
 
-        {/* {console.log("category.id:", category.id, editingId)} */}
-
-        {category.id === editingId ? (
+        {category._id === editingId ? (
+          // If the current category is set to editing then the row will be rendered as input field
           <RenderInputRow
             inputRef={inputRef}
             onSubmit={onEditCategory}
@@ -48,109 +86,92 @@ const CategoryTreeList = ({
             onCancel={() => setEditingId(null)}
           />
         ) : (
+          // else category will be shown as simple text item
           <ListItem
-            sx={[
-              {
-                "&:hover": { backgroundColor: "#004b5b2e", cursor: "pointer" },
-              },
-              {
-                "& + .MuiListItemSecondaryAction-root": {
-                  display: "none",
-                },
-                "&:hover + .MuiListItemSecondaryAction-root": {
-                  display: "flex",
-                },
-                // ".MuiListItemSecondaryAction-root:hover + &:hover": {
-                //   backgroundColor: "#004b5b2e",
-                //   cursor: "pointer",
-                // },
-              },
-            ]}
+            sx={listItemStyles}
             disablePadding
             onClick={() => {
-              category.subCategories?.length > 0 && toggleCategory(category.id);
+              category.subCategories?.length > 0 &&
+                toggleCategory(category._id);
               setAddingId(null);
             }}
           >
             {category.subCategories?.length > 0 ? (
+              // If current category has subcategories then expand icons will be shown
               <IconButton style={{ marginRight: 5 }} size="small">
-                {expandedCategories.includes(category.id) ? (
+                {expandedCategories.includes(category._id) ? (
                   <ExpandLessIcon fontSize="inherit" />
                 ) : (
                   <ExpandMoreIcon fontSize="inherit" />
                 )}
               </IconButton>
             ) : (
-              <span style={{ width: "48px" }} /> // Spacer for the icon
+              // else make space instead of icon before category name
+              <span style={{ width: parentCategoryId < 0 ? "33px" : "48px" }} />
             )}
 
-            <ListItemText
-              primary={category.name}
-              sx={{
-                "& .MuiListItemText-primary":
-                  parentCategoryId < 0
-                    ? {
-                        // color: "#4f4f4f",
-                        fontWeight: "600",
-                      }
-                    : {
-                        color: "#555555",
-                        fontSize: "15px",
-                      },
-              }}
-            />
-            <ListItemSecondaryAction sx={{ "&:hover": { display: "flex" } }}>
-              <IconButton
-                size="small"
-                onClick={() => {
-                  setEditingId(category.id);
-                  console.log("editing id:", category.id);
-                }}
-              >
-                <EditIcon fontSize="inherit" />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={() => onDeleteCategory(category.id)}
-              >
-                <DeleteIcon fontSize="inherit" />
-              </IconButton>
+            <ListItemText primary={category.name} sx={listItemTextStyles} />
 
-              {parentCategoryId < 0 && (
+            <ListItemSecondaryAction
+              sx={{ "&:hover": { visibility: "visible" } }}
+            >
+              <Tooltip title="Edit" disableInteractive>
                 <IconButton
                   size="small"
                   onClick={() => {
-                    setAddingId(parentCategoryId);
-                    setExpandedCategories([category.id]);
+                    setAddingId(null);
+                    setEditingId(category._id);
+                    console.log("editing id:", category._id);
                   }}
                 >
-                  <AddIcon fontSize="inherit" />
+                  <EditIcon fontSize="inherit" />
                 </IconButton>
+              </Tooltip>
+
+              <MuiDeleteDialog
+                item={{ ...category, parentCategoryId }}
+                handleSubmit={onDeleteCategory}
+              />
+
+              {parentCategoryId < 0 && (
+                // Subcategories can be added only to the categories with parent Id < 0  [i.e. -1]
+                <Tooltip title="Add Subcategory" disableInteractive>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setEditingId(null);
+                      setAddingId(parentCategoryId);
+                      setExpandedCategories([category._id]);
+                    }}
+                  >
+                    <AddIcon fontSize="inherit" />
+                  </IconButton>
+                </Tooltip>
               )}
             </ListItemSecondaryAction>
           </ListItem>
         )}
 
-        {category.subCategories?.length > 0 &&
-          expandedCategories.includes(category.id) && (
-            <List disablePadding>
-              {addingId === parentCategoryId && (
-                <RenderInputRow
-                  inputRef={inputRef}
-                  onSubmit={onAddCategory}
-                  category={{ parentCategoryId: -2 }}
-                  onCancel={() => setAddingId(null)}
-                />
-              )}
+        {parentCategoryId < 0 && expandedCategories.includes(category._id) && (
+          <List disablePadding>
+            {category.subCategories?.map((childCategory) => (
+              <RenderCategory
+                category={childCategory}
+                parentCategoryId={category._id}
+              />
+            ))}
 
-              {category.subCategories?.map((childCategory) => (
-                <RenderCategory
-                  category={childCategory}
-                  parentCategoryId={category.id}
-                />
-              ))}
-            </List>
-          )}
+            {addingId === parentCategoryId && (
+              //If sub category is being added and parent category id matches then render the input row
+              <RenderInputRow
+                inputRef={inputRef}
+                onSubmit={onAddCategory}
+                category={{ parentCategoryId: category._id }}
+                onCancel={() => setAddingId(null)}
+              />
+            )}
+          </List>
+        )}
       </div>
     );
   };
@@ -174,7 +195,10 @@ const CategoryTreeList = ({
             "&:hover": { borderColor: "#3f97a9" },
           }}
           endIcon={<AddIcon />}
-          onClick={() => setEditingId(-1)}
+          onClick={() => {
+            setEditingId(-1);
+            toggleCategory(-1);
+          }}
         >
           <Typography sx={{ pt: "2px" }} variant="body1">
             Add new Category
@@ -183,6 +207,20 @@ const CategoryTreeList = ({
       </Stack>
 
       <List sx={{ pb: 0 }}>
+        {/* map all the categories fetched from the server */}
+        {categories.length > 0 ? (
+          categories.map((category) => (
+            // for the first iteration of the mapping the given category will always be parent.
+            // parentCategoryId = -1 means that there does not exist parent for this category.
+            <RenderCategory category={category} parentCategoryId={-1} />
+          ))
+        ) : (
+          <div className="alert alert-secondary mb-2 text-center" role="alert">
+            No categories data to show
+          </div>
+        )}
+
+        {/* New category adding row will be rendered here */}
         {editingId && editingId === -1 && (
           <RenderInputRow
             inputRef={inputRef}
@@ -191,10 +229,6 @@ const CategoryTreeList = ({
             onCancel={() => setEditingId(null)}
           />
         )}
-
-        {categories.map((category) => (
-          <RenderCategory category={category} parentCategoryId={-1} />
-        ))}
       </List>
     </Box>
   );
