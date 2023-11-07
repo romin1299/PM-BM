@@ -1523,8 +1523,6 @@ router.post(
   async (req, res, next) => {
     const { name } = req.body;
 
-    
-
     const addCategory = await Plant.updateOne(
       {
         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
@@ -1540,8 +1538,6 @@ router.post(
 
       { new: true }
     );
-
-    console.log(addCategory);
 
     return res.status(201).json({
       message: "Categories added successfully",
@@ -1647,31 +1643,107 @@ router.patch("/updateSubCategory/:subId", async (req, res, next) => {
     return res.status(500).json({ message: "Error updating subCategory" });
   }
 });
+router.get(
+  "/getAllShifts",
 
+  async (req, res, next) => {
+    const shifts = await Plant.find({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+    let getShifts = shifts[0].shiftOfBM;
+
+    return res.status(201).json({
+      message: "Shifts get successfully",
+      getShifts,
+    });
+  }
+);
 router.post(
   "/addShift",
 
   async (req, res, next) => {
-    const shift = req.body;
-    console.log(shift);
+    const { shiftName, shiftStartTime, shiftEndTime } = req.body;
 
     const addShift = await Plant.findOneAndUpdate(
       {
         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
       },
       {
-        $set: {
-          ...shift,
+        $push: {
+          shiftOfBM: {
+            shiftName,
+            shiftStartTime,
+            shiftEndTime,
+          },
         },
       },
       { new: true }
     );
 
-    // console.log("addCategory", addShift);
+   
 
     return res.status(201).json({
       message: "Shifts added successfully",
       addShift,
+    });
+  }
+);
+router.patch(
+  "/updateShift/:shiftId",
+
+  async (req, res, next) => {
+    const { shiftName, shiftStartTime, shiftEndTime } = req.body;
+
+    const updateShift = await Plant.updateOne(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+        "shiftOfBM._id": mongoose.Types.ObjectId(req.params.shiftId),
+      },
+      {
+        $set: {
+          "shiftOfBM.$.shiftName": shiftName,
+          "shiftOfBM.$.shiftStartTime": shiftStartTime,
+          "shiftOfBM.$.shiftEndTime": shiftEndTime,
+        },
+      },
+      { new: true }
+    );
+
+   
+
+    return res.status(201).json({
+      message: "Shifts updated successfully",
+      updateShift,
+    });
+  }
+);
+
+router.patch(
+  "/deleteShift/:shiftId",
+
+  async (req, res, next) => {
+    const deletedShift = await Plant.updateOne(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+        "shiftOfBM._id": mongoose.Types.ObjectId(req.params.shiftId),
+      },
+      {
+        $pull: {
+          shiftOfBM: {
+            _id: mongoose.Types.ObjectId(req.params.shiftId),
+          },
+        },
+      },
+      {
+        arrayFilters: [
+          { "shiftOfBM._id": mongoose.Types.ObjectId(req.params.shiftId) },
+        ],
+      }
+    );
+
+    return res.status(201).json({
+      message: "Shift Deleted successfully",
+      deletedShift,
     });
   }
 );
@@ -1703,10 +1775,10 @@ router.patch(
       }
     );
 
-    // console.log("deletedCategory", deletedSubCategory);
+  
 
     return res.status(201).json({
-      message: "Shifts added successfully",
+      message: "SubCategory deleted successfully",
       deletedSubCategory,
     });
   }
@@ -1734,10 +1806,10 @@ router.patch(
       }
     );
 
-    // console.log("deletedCategory", deletedCategory);
+ 
 
     return res.status(201).json({
-      message: "Shifts added successfully",
+      message: "Category Deleted successfully",
       deletedCategory,
     });
   }
@@ -2007,4 +2079,54 @@ router.get("/getRequestSheetDataLineWise", async (req, res, next) => {
   }
 });
 
+router.get("/getProblemCategoriesPieChart", async (req, res, next) => {
+  const categoriesPieChart = await RequestSheetOfBM.aggregate([
+    {
+      $match: {
+        lineRef: mongoose.Types.ObjectId(req.query.lineId),
+      },
+    },
+
+    {
+      $group: {
+        _id: {
+          categories: "$problemCategory",
+        },
+        bdtime: { $sum: "$bdTime" },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+  return res.status(400).json({
+    message: "Categories data in PieChart get successfully",
+    totalCategories: categoriesPieChart.length,
+    categoriesPieChart,
+  });
+});
+
+router.get("/getBdCategoryPieChart", async (req, res, next) => {
+  const bdCategoryPieChart = await RequestSheetOfBM.aggregate([
+    {
+      $match: {
+        // lineRef: mongoose.Types.ObjectId(req.query.lineId),
+      },
+    },
+
+    {
+      $group: {
+        _id: {
+          categories: "$bdCategory",
+        },
+        bdtime: { $sum: "$bdTime" },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  return res.status(400).json({
+    message: "Categories data in PieChart get successfully",
+    totalCategories: bdCategoryPieChart.length,
+    bdCategoryPieChart,
+  });
+});
 module.exports = router;
