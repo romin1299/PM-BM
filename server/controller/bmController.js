@@ -1680,8 +1680,6 @@ router.post(
       { new: true }
     );
 
-   
-
     return res.status(201).json({
       message: "Shifts added successfully",
       addShift,
@@ -1708,8 +1706,6 @@ router.patch(
       },
       { new: true }
     );
-
-   
 
     return res.status(201).json({
       message: "Shifts updated successfully",
@@ -1775,8 +1771,6 @@ router.patch(
       }
     );
 
-  
-
     return res.status(201).json({
       message: "SubCategory deleted successfully",
       deletedSubCategory,
@@ -1805,8 +1799,6 @@ router.patch(
         ],
       }
     );
-
- 
 
     return res.status(201).json({
       message: "Category Deleted successfully",
@@ -2069,7 +2061,7 @@ router.get("/getRequestSheetDataLineWise", async (req, res, next) => {
       });
     }
 
-    return res.status(400).json({
+    return res.status(200).json({
       message: "Request Sheet line based get successfully",
       totalRequestSheets: requestSheetData.length,
       requestSheetData,
@@ -2079,7 +2071,7 @@ router.get("/getRequestSheetDataLineWise", async (req, res, next) => {
   }
 });
 
-router.get("/getProblemCategoriesPieChart", async (req, res, next) => {
+router.get("/getProblemCategoryPieChart", async (req, res, next) => {
   const categoriesPieChart = await RequestSheetOfBM.aggregate([
     {
       $match: {
@@ -2123,10 +2115,185 @@ router.get("/getBdCategoryPieChart", async (req, res, next) => {
     },
   ]);
 
-  return res.status(400).json({
+  return res.status(200).json({
     message: "Categories data in PieChart get successfully",
     totalCategories: bdCategoryPieChart.length,
     bdCategoryPieChart,
+  });
+});
+router.get("/getBdPercentage", async (req, res, next) => {
+  const startDate = moment().tz(timezone).startOf("year");
+
+  const endDate = moment().tz(timezone).endOf("hour");
+
+  const allMonths = Array.from({ length: 12 }, (_, monthIndex) =>
+    moment().month(monthIndex).format("MMMM")
+  );
+
+  let queryObj = {};
+  if (req.query.cellId) {
+    queryObj = {
+      cellRef: mongoose.Types.ObjectId(req.query.cellId),
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: startDate.toDate(),
+        $lte: endDate.toDate(),
+      },
+    };
+  }
+  if (req.query.lineId) {
+    queryObj = {
+      // ...queryObj,
+      lineRef: mongoose.Types.ObjectId(req.query.lineId),
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: startDate.toDate(),
+        $lte: endDate.toDate(),
+      },
+    };
+  }
+
+  const getBdPercentage = await RequestSheetOfBM.aggregate([
+    {
+      $match: queryObj,
+    },
+    {
+      $group: {
+        _id: {
+          $month: "$sheetIssuedDateAndTimeOfBM",
+        },
+        bdHours: { $sum: "$bdTime" },
+        totalProdHours: { $sum: "$prodTotal" },
+      },
+    },
+    {
+      $project: {
+        bdHours: 1,
+        totalProdHours: 1,
+        monthName: 1,
+        percentage: {
+          $multiply: [{ $divide: ["$bdHours", "$totalProdHours"] }, 100],
+        },
+      },
+    },
+
+    {
+      $group: {
+        _id: null,
+        allMonthsPercentage: {
+          $push: { month: "$_id", percentage: "$percentage" },
+        },
+        FYAverage: { $avg: "$percentage" },
+      },
+    },
+  ]);
+
+  // console.log("Result", getBdPercentage);
+
+  // const result = allMonths.map((monthname) => {
+  //   const monthData = getBdPercentage.find((item) =>
+  //     console.log(
+  //       item.allMonthsPercentage.map(
+  //         (mo) => mo.k === moment(monthname, "MMMM").month() + 1
+  //       )
+  //     )
+  //   );
+
+  //   console.log("monthData", monthData);
+  // return {
+  //   _id: { monthName: monthname },
+  //   percentage: monthData,
+  //   // FY: monthData.FYAverage,
+  // };
+  // });
+
+  // console.log("Result", result);
+
+  return res.status(200).json({
+    message: "BD percentage get successfully",
+    totalCategories: getBdPercentage.length,
+    getBdPercentage,
+  });
+});
+
+router.get("/getMtbfData", async (req, res, next) => {
+  const startDate = moment().tz(timezone).startOf("year");
+
+  const endDate = moment().tz(timezone).endOf("hour");
+
+  let queryObj = {};
+  if (req.query.cellId) {
+    queryObj = {
+      cellRef: mongoose.Types.ObjectId(req.query.cellId),
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: startDate.toDate(),
+        $lte: endDate.toDate(),
+      },
+    };
+  }
+  if (req.query.lineId) {
+    queryObj = {
+      // ...queryObj,
+      lineRef: mongoose.Types.ObjectId(req.query.lineId),
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: startDate.toDate(),
+        $lte: endDate.toDate(),
+      },
+    };
+  }
+  const allMonths = Array.from({ length: 12 }, (_, monthIndex) =>
+    moment().month(monthIndex).format("MMMM")
+  );
+
+  const getMtbf = await RequestSheetOfBM.aggregate([
+    {
+      $match: queryObj,
+    },
+    {
+      $group: {
+        _id: {
+          $month: "$sheetIssuedDateAndTimeOfBM",
+        },
+        bdHours: { $sum: "$bdTime" },
+        totalProdHours: { $sum: "$prodTotal" },
+        count: { $sum: 1 },
+      },
+    },
+
+    {
+      $project: {
+        bdHours: 1,
+        totalProdHours: 1,
+        count: 1,
+        MTBF: {
+          $subtract: [{ $divide: ["$totalProdHours", "$count"] }, "$bdHours"],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        allMonthsMTBF: { $push: { month: "$_id", value: "$MTBF" } },
+        FYAverage: { $avg: "$MTBF" },
+      },
+    },
+  ]);
+
+  // const result = allMonths.map((monthname) => {
+  //   const monthData = getMtbf.find(
+  //     (item) => item._id.monthName === moment(monthname, "MMMM").month() + 1
+  //   );
+  //   return {
+  //     monthName: monthname,
+
+  //     MTBF: monthData ? monthData.MTBF : 0,
+  //   };
+  // });
+
+  // console.log("Result", result);
+
+  return res.status(200).json({
+    message: "MTBF data get successfully",
+    totalCategories: getMtbf.length,
+    getMtbf,
   });
 });
 module.exports = router;
