@@ -234,17 +234,6 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
           "maintenanceReportFilledByMTD.whyAnalysis.why3": why3,
           "maintenanceReportFilledByMTD.whyAnalysis.why4": why4,
           "maintenanceReportFilledByMTD.whyAnalysis.why5": why5,
-          "maintenanceReportFilledByMTD.whyAnalysis.breakDownTime":
-            breakDownTime,
-          "maintenanceReportFilledByMTD.whyAnalysis.maintenanceTime":
-            maintenanceTime,
-          "maintenanceReportFilledByMTD.whyAnalysis.qualityCheckTime":
-            qualityCheckTime,
-          "maintenanceReportFilledByMTD.whyAnalysis.breakTime": breakTime,
-          "maintenanceReportFilledByMTD.whyAnalysis.minorBD": minorBD,
-          "maintenanceReportFilledByMTD.whyAnalysis.majorBD": majorBD,
-          "maintenanceReportFilledByMTD.whyAnalysis.firstTime": firstTime,
-          "maintenanceReportFilledByMTD.whyAnalysis.repeat": repeat,
         };
 
         requestSheet = await RequestSheetOfBM.findOneAndUpdate(
@@ -327,6 +316,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
         _id: mongoose.Types.ObjectId(req.query._id),
       };
     }
+
     const requestSheetData = await RequestSheetOfBM.aggregate([
       {
         $match: queryObj,
@@ -1515,101 +1505,47 @@ router.get(
             $match: req.queryObj,
           },
           {
-            $facet: {
-              generatedCounterData: [
-                {
-                  $group: {
-                    _id: {
-                      $dateToString: {
-                        format: "%m",
-                        date: "$sheetIssuedDateAndTimeOfBM",
-                        timezone: timezone,
-                      },
-                    },
-                    value: { $sum: 1 },
-                  },
+            $group: {
+              _id: {
+                $dateToString: {
+                  format: "%m",
+                  date: "$sheetIssuedDateAndTimeOfBM",
+                  timezone: timezone,
                 },
-                ...queryPipelineObj,
-              ],
-              completedCounterData: [
-                {
-                  $match: {
-                    sheetCompletedDateAndTime: {
-                      $exists: true,
-                      $ne: null,
-                    },
-                  },
-                },
-                {
-                  $group: {
-                    _id: {
-                      $dateToString: {
-                        format: "%m",
-                        date: "$sheetCompletedDateAndTime",
-                        timezone: timezone,
-                      },
-                    },
-                    value: { $sum: 1 },
-                  },
-                },
-                ...queryPipelineObj,
-              ],
+              },
+              generated: functionForQueryObject(statusArray[0]),
+              completed: functionForQueryObject(statusArray[4]),
             },
           },
-          // ________ don't remove this commented code ________
 
-          // {
-          //   $project: {
-          //     month: {
-          //       $function: {
-          //         body: function (month) {
-          //           return [
-          //             "Jan",
-          //             "Feb",
-          //             "Mar",
-          //             "Apr",
-          //             "May",
-          //             "Jun",
-          //             "July",
-          //             "Aug",
-          //             "Sep",
-          //             "Oct",
-          //             "Nov",
-          //             "Dec",
-          //           ]?.[month - 1];
-          //         },
-          //         args: ["$_id"],
-          //         lang: "js",
-          //       },
-          //     },
-          //     generated: 1,
-          //     completed: 1,
-          //   },
-          // },
-
-          // {
-          //   $group: {
-          //     _id: {
-          //       $dateToString: {
-          //         format: "%m",
-          //         date: "$sheetIssuedDateAndTimeOfBM",
-          //         timezone: timezone,
-          //       },
-          //     },
-
-          //     generated: { $sum: 1 },
-          //     completed: functionForQueryObject("$sheetCompletedDateAndTime"),
-
-          //     // generated: functionForQueryObject("$sheetIssuedDateAndTimeOfBM"),
-          //     // completed: functionForQueryObject("$sheetCompletedDateAndTime"),
-
-          //     // generated: functionForQueryObject(statusArray[0]),
-          //     // completed: functionForQueryObject("Completed"),
-          //   },
-          // },
-
-          // __________ Logic for generating all 12 month's data (if not exist then 0) ______
-
+          {
+            $project: {
+              month: {
+                $function: {
+                  body: function (month) {
+                    return [
+                      "Jan",
+                      "Feb",
+                      "Mar",
+                      "Apr",
+                      "May",
+                      "Jun",
+                      "July",
+                      "Aug",
+                      "Sep",
+                      "Oct",
+                      "Nov",
+                      "Dec",
+                    ]?.[month - 1];
+                  },
+                  args: ["$_id"],
+                  lang: "js",
+                },
+              },
+              generated: 1,
+              completed: 1,
+            },
+          },
           // {
           //   $group: {
           //     _id: null,
@@ -1659,6 +1595,7 @@ router.get(
           //   $replaceRoot: { newRoot: "$array" },
           // },
         ]);
+      // .explain("executionStats");
 
       // const userBasedApprovalPending = await RequestSheetOfBM.aggregate([
       //   {
@@ -1967,6 +1904,311 @@ router.post(
         addDynamicApprovalListInPlant,
       });
     }
+  }
+);
+router.get(
+  "/getCategories",
+
+  async (req, res, next) => {
+    const category = await Plant.find({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+
+    let getCategory = category[0].categories;
+
+    return res.status(201).json({
+      message: "Categories get successfully",
+      getCategory,
+    });
+  }
+);
+router.post(
+  "/addCategories",
+
+  async (req, res, next) => {
+    const { name } = req.body;
+
+    const addCategory = await Plant.updateOne(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+      },
+      {
+        $push: {
+          categories: {
+            name,
+            subCategories: [],
+          },
+        },
+      },
+
+      { new: true }
+    );
+
+    return res.status(201).json({
+      message: "Categories added successfully",
+      addCategory,
+    });
+  }
+);
+router.post(
+  "/addSubCategories/:catId",
+
+  async (req, res, next) => {
+    const { name } = req.body;
+
+    const addSubCategory = await Plant.updateOne(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+        "categories._id": mongoose.Types.ObjectId(req.params.catId),
+      },
+      {
+        $push: {
+          "categories.$.subCategories": {
+            name,
+          },
+        },
+      },
+
+      { new: true }
+    );
+
+    return res.status(201).json({
+      message: "Categories added successfully",
+      addSubCategory,
+    });
+  }
+);
+
+router.patch("/updateCategory/:catId", async (req, res, next) => {
+  const { catName } = req.body;
+
+  try {
+    const category = await Plant.updateOne(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+        "categories._id": mongoose.Types.ObjectId(req.params.catId),
+      },
+      {
+        $set: { "categories.$[categories].name": catName },
+      },
+      {
+        arrayFilters: [
+          { "categories._id": mongoose.Types.ObjectId(req.params.catId) },
+        ],
+      }
+    );
+
+    // console.log("subCategory", subCategory);
+    // console.log("subCategory", category);
+
+    return res.status(201).json({
+      message: "Category updated successfully",
+
+      category,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error updating subCategory" });
+  }
+});
+router.patch("/updateSubCategory/:subId", async (req, res, next) => {
+  const { subName } = req.body;
+
+  try {
+    const subCategory = await Plant.updateOne(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+        "categories.subCategories._id": mongoose.Types.ObjectId(
+          req.params.subId
+        ),
+      },
+      {
+        $set: {
+          "categories.$[].subCategories.$[subCategories].name": subName,
+        },
+      },
+      {
+        arrayFilters: [
+          {
+            "subCategories._id": mongoose.Types.ObjectId(req.params.subId),
+          },
+        ],
+      }
+    );
+
+    // console.log("subCategory", subCategory);
+    // console.log("subCategory", category);
+
+    return res.status(201).json({
+      message: "SubCategory updated successfully",
+      subCategory,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error updating subCategory" });
+  }
+});
+router.get(
+  "/getAllShifts",
+
+  async (req, res, next) => {
+    const shifts = await Plant.find({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+    let getShifts = shifts[0].shiftOfBM;
+
+    return res.status(201).json({
+      message: "Shifts get successfully",
+      getShifts,
+    });
+  }
+);
+router.post(
+  "/addShift",
+
+  async (req, res, next) => {
+    const { shiftName, shiftStartTime, shiftEndTime } = req.body;
+
+    const addShift = await Plant.findOneAndUpdate(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+      },
+      {
+        $push: {
+          shiftOfBM: {
+            shiftName,
+            shiftStartTime,
+            shiftEndTime,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    return res.status(201).json({
+      message: "Shifts added successfully",
+      addShift,
+    });
+  }
+);
+router.patch(
+  "/updateShift/:shiftId",
+
+  async (req, res, next) => {
+    const { shiftName, shiftStartTime, shiftEndTime } = req.body;
+
+    const updateShift = await Plant.updateOne(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+        "shiftOfBM._id": mongoose.Types.ObjectId(req.params.shiftId),
+      },
+      {
+        $set: {
+          "shiftOfBM.$.shiftName": shiftName,
+          "shiftOfBM.$.shiftStartTime": shiftStartTime,
+          "shiftOfBM.$.shiftEndTime": shiftEndTime,
+        },
+      },
+      { new: true }
+    );
+
+    return res.status(201).json({
+      message: "Shifts updated successfully",
+      updateShift,
+    });
+  }
+);
+
+router.patch(
+  "/deleteShift/:shiftId",
+
+  async (req, res, next) => {
+    const deletedShift = await Plant.updateOne(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+        "shiftOfBM._id": mongoose.Types.ObjectId(req.params.shiftId),
+      },
+      {
+        $pull: {
+          shiftOfBM: {
+            _id: mongoose.Types.ObjectId(req.params.shiftId),
+          },
+        },
+      },
+      {
+        arrayFilters: [
+          { "shiftOfBM._id": mongoose.Types.ObjectId(req.params.shiftId) },
+        ],
+      }
+    );
+
+    return res.status(201).json({
+      message: "Shift Deleted successfully",
+      deletedShift,
+    });
+  }
+);
+router.patch(
+  "/deleteSubCategory/:catId/:subId",
+
+  async (req, res, next) => {
+    const deletedSubCategory = await Plant.updateOne(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+        categories: {
+          $elemMatch: {
+            _id: mongoose.Types.ObjectId(req.params.catId),
+            "subCategories._id": mongoose.Types.ObjectId(req.params.subId),
+          },
+        },
+      },
+      {
+        $pull: {
+          "categories.$[outer].subCategories": {
+            _id: mongoose.Types.ObjectId(req.params.subId),
+          },
+        },
+      },
+      {
+        arrayFilters: [
+          { "outer._id": mongoose.Types.ObjectId(req.params.catId) },
+        ],
+      }
+    );
+
+    return res.status(201).json({
+      message: "SubCategory deleted successfully",
+      deletedSubCategory,
+    });
+  }
+);
+router.patch(
+  "/deleteCategory/:catId",
+
+  async (req, res, next) => {
+    const deletedCategory = await Plant.updateOne(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+        "categories._id": mongoose.Types.ObjectId(req.params.catId),
+      },
+      {
+        $pull: {
+          categories: {
+            _id: mongoose.Types.ObjectId(req.params.catId),
+          },
+        },
+      },
+      {
+        arrayFilters: [
+          { "categories._id": mongoose.Types.ObjectId(req.params.catId) },
+        ],
+      }
+    );
+
+    return res.status(201).json({
+      message: "Category Deleted successfully",
+      deletedCategory,
+    });
   }
 );
 
@@ -3019,5 +3261,417 @@ router.patch(
     }
   }
 );
+
+
+router.get("/getRequestSheetDataLineWise", async (req, res, next) => {
+  try {
+    const startDate = moment().tz(timezone).month("April");
+
+    const endDate = moment().tz(timezone).endOf("hour");
+
+    let queryObj = {};
+
+    if (req.query._id) {
+      queryObj = {
+        _id: mongoose.Types.ObjectId(req.query._id),
+      };
+    }
+
+    if (req.query.lineId) {
+      queryObj = {
+        lineRef: mongoose.Types.ObjectId(req.query.lineId),
+        sheetIssuedDateAndTimeOfBM: {
+          $gte: startDate.toDate(),
+          $lte: endDate.toDate(),
+        },
+      };
+    }
+
+    const requestSheetData = await RequestSheetOfBM.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          as: "machines",
+        },
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+          as: "lines",
+        },
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cellRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                cell_name: 1,
+              },
+            },
+          ],
+          as: "cells",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "partQualityCheckedByPRD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+              },
+            },
+          ],
+          as: "namesPRD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          let: { mtdUserId: "$partQualityCheckedByMTD" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$user_type", "TL/HOSS"] },
+                    { $eq: ["$tm_department", "MTD"] },
+                    { $eq: ["$_id", "$$mtdUserId"] },
+                  ],
+                }
+              }
+            },
+            {
+              $project: {
+                user_type: 1,
+                tm_department: 1,
+                tm_name: 1,
+              },
+            },
+          ],
+          as: "namesMTD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignUser",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_name: 1,
+              },
+            },
+          ],
+          as: "namesOperators",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "handOverUser",
+          foreignField: "_id",
+          as: "handoverUserDetails",
+        },
+      },
+      {
+        $project: {
+          machines: 1,
+          requestSheetCreatedBy: 1,
+          requestSheetNoOfBM: 1,
+          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
+          line: { $arrayElemAt: ["$lines.line_name", 0] },
+          machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
+          machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
+          PRDUser: { $arrayElemAt: ["$namesPRD.tm_name", 0] },
+          assignUser: {
+            $arrayElemAt: ["$namesOperators.tm_name", 0],
+          },
+          handOverUser: {
+            $arrayElemAt: ["$handoverUserDetails.tm_name", 0],
+          },
+          handOverTime: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+          work_order_status: 1,
+          requestSheetStatus: 1,
+          MTDUser: { $arrayElemAt: ["$namesMTD.tm_name", 0] },
+          problem: "$breakDownBasicDataFilledByPRD.problemFaced",
+          problemOccurredDateAndTimeOfBM: 1,
+          "maintenanceReportFilledByMTD.workEndedDateOfBM": 1,
+          partQualityStatusOfPRD: 1,
+          finalActivity: 1,
+          statusPRD_TL: 1,
+          PRDUser: {
+            $concat: [
+              "$partQualityStatusOfPRD",
+              " - ",
+              { $arrayElemAt: ["$namesPRD.tm_name", 0] },
+            ],
+          },
+        },
+      },
+    ]);
+
+    if (requestSheetData?.length === 0) {
+      return res.status(400).json({
+        message: "No data to display",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Request Sheet line based get successfully",
+      totalRequestSheets: requestSheetData.length,
+      requestSheetData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error: new Error(error) });
+  }
+});
+
+router.get("/getProblemCategoryPieChart", async (req, res, next) => {
+  const categoriesPieChart = await RequestSheetOfBM.aggregate([
+    {
+      $match: {
+        lineRef: mongoose.Types.ObjectId(req.query.lineId),
+      },
+    },
+
+    {
+      $group: {
+        _id: {
+          categories: "$problemCategory",
+        },
+        bdtime: { $sum: "$bdTime" },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+  return res.status(400).json({
+    message: "Categories data in PieChart get successfully",
+    totalCategories: categoriesPieChart.length,
+    categoriesPieChart,
+  });
+});
+
+router.get("/getBdCategoryPieChart", async (req, res, next) => {
+  const bdCategoryPieChart = await RequestSheetOfBM.aggregate([
+    {
+      $match: {
+        // lineRef: mongoose.Types.ObjectId(req.query.lineId),
+      },
+    },
+
+    {
+      $group: {
+        _id: {
+          categories: "$bdCategory",
+        },
+        bdtime: { $sum: "$bdTime" },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  return res.status(200).json({
+    message: "Categories data in PieChart get successfully",
+    totalCategories: bdCategoryPieChart.length,
+    bdCategoryPieChart,
+  });
+});
+router.get("/getBdPercentage", async (req, res, next) => {
+  const startDate = moment().tz(timezone).startOf("year");
+
+  const endDate = moment().tz(timezone).endOf("hour");
+
+  const allMonths = Array.from({ length: 12 }, (_, monthIndex) =>
+    moment().month(monthIndex).format("MMMM")
+  );
+
+  let queryObj = {};
+  if (req.query.cellId) {
+    queryObj = {
+      cellRef: mongoose.Types.ObjectId(req.query.cellId),
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: startDate.toDate(),
+        $lte: endDate.toDate(),
+      },
+    };
+  }
+  if (req.query.lineId) {
+    queryObj = {
+      // ...queryObj,
+      lineRef: mongoose.Types.ObjectId(req.query.lineId),
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: startDate.toDate(),
+        $lte: endDate.toDate(),
+      },
+    };
+  }
+
+  const getBdPercentage = await RequestSheetOfBM.aggregate([
+    {
+      $match: queryObj,
+    },
+    {
+      $group: {
+        _id: {
+          $month: "$sheetIssuedDateAndTimeOfBM",
+        },
+        bdHours: { $sum: "$bdTime" },
+        totalProdHours: { $sum: "$prodTotal" },
+      },
+    },
+    {
+      $project: {
+        bdHours: 1,
+        totalProdHours: 1,
+        monthName: 1,
+        percentage: {
+          $multiply: [{ $divide: ["$bdHours", "$totalProdHours"] }, 100],
+        },
+      },
+    },
+
+    {
+      $group: {
+        _id: null,
+        allMonthsPercentage: {
+          $push: { month: "$_id", percentage: "$percentage" },
+        },
+        FYAverage: { $avg: "$percentage" },
+      },
+    },
+  ]);
+
+  // console.log("Result", getBdPercentage);
+
+  // const result = allMonths.map((monthname) => {
+  //   const monthData = getBdPercentage.find((item) =>
+  //     console.log(
+  //       item.allMonthsPercentage.map(
+  //         (mo) => mo.k === moment(monthname, "MMMM").month() + 1
+  //       )
+  //     )
+  //   );
+
+  //   console.log("monthData", monthData);
+  // return {
+  //   _id: { monthName: monthname },
+  //   percentage: monthData,
+  //   // FY: monthData.FYAverage,
+  // };
+  // });
+
+  // console.log("Result", result);
+
+  return res.status(200).json({
+    message: "BD percentage get successfully",
+    totalCategories: getBdPercentage.length,
+    getBdPercentage,
+  });
+});
+
+router.get("/getMtbfData", async (req, res, next) => {
+  const startDate = moment().tz(timezone).startOf("year");
+
+  const endDate = moment().tz(timezone).endOf("hour");
+
+  let queryObj = {};
+  if (req.query.cellId) {
+    queryObj = {
+      cellRef: mongoose.Types.ObjectId(req.query.cellId),
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: startDate.toDate(),
+        $lte: endDate.toDate(),
+      },
+    };
+  }
+  if (req.query.lineId) {
+    queryObj = {
+      // ...queryObj,
+      lineRef: mongoose.Types.ObjectId(req.query.lineId),
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: startDate.toDate(),
+        $lte: endDate.toDate(),
+      },
+    };
+  }
+  const allMonths = Array.from({ length: 12 }, (_, monthIndex) =>
+    moment().month(monthIndex).format("MMMM")
+  );
+
+  const getMtbf = await RequestSheetOfBM.aggregate([
+    {
+      $match: queryObj,
+    },
+    {
+      $group: {
+        _id: {
+          $month: "$sheetIssuedDateAndTimeOfBM",
+        },
+        bdHours: { $sum: "$bdTime" },
+        totalProdHours: { $sum: "$prodTotal" },
+        count: { $sum: 1 },
+      },
+    },
+
+    {
+      $project: {
+        bdHours: 1,
+        totalProdHours: 1,
+        count: 1,
+        MTBF: {
+          $subtract: [{ $divide: ["$totalProdHours", "$count"] }, "$bdHours"],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        allMonthsMTBF: { $push: { month: "$_id", value: "$MTBF" } },
+        FYAverage: { $avg: "$MTBF" },
+      },
+    },
+  ]);
+
+  // const result = allMonths.map((monthname) => {
+  //   const monthData = getMtbf.find(
+  //     (item) => item._id.monthName === moment(monthname, "MMMM").month() + 1
+  //   );
+  //   return {
+  //     monthName: monthname,
+
+  //     MTBF: monthData ? monthData.MTBF : 0,
+  //   };
+  // });
+
+  // console.log("Result", result);
+
+  return res.status(200).json({
+    message: "MTBF data get successfully",
+    totalCategories: getMtbf.length,
+    getMtbf,
+  });
+});
 
 module.exports = router;

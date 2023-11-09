@@ -47,7 +47,7 @@ exports.getUserData =
       }
     }
 
-    const mtdUser = await userModel.find(
+    const mtdHOS = await userModel.find(
       {
         ...queryObj,
         tm_department: "MTD",
@@ -55,7 +55,7 @@ exports.getUserData =
       },
       { tm_name: 1, line_names: 1 }
     );
-    const mtdUserTL = await userModel.find(
+    const mtdTL = await userModel.find(
       {
         ...queryObj,
         tm_department: "MTD",
@@ -63,7 +63,7 @@ exports.getUserData =
       },
       { tm_name: 1, line_names: 1 }
     );
-    const mtdHod = await userModel.find(
+    const mtdHOD = await userModel.find(
       {
         ...queryObj,
         tm_department: "MTD",
@@ -71,7 +71,7 @@ exports.getUserData =
       },
       { tm_name: 1, line_names: 1 }
     );
-    const prdHod = await userModel.find(
+    const prdHOD = await userModel.find(
       {
         ...queryObj,
         tm_department: "PRD",
@@ -79,7 +79,7 @@ exports.getUserData =
       },
       { tm_name: 1, line_names: 1 }
     );
-    const prdHos = await userModel.find(
+    const prdHOS = await userModel.find(
       {
         ...queryObj,
         tm_department: "PRD",
@@ -97,11 +97,11 @@ exports.getUserData =
     );
 
     const requestSheetApprovalList = {
-      mtdUser,
-      mtdUserTL,
-      mtdHod,
-      prdHod,
-      prdHos,
+      mtdHOS,
+      mtdTL,
+      mtdHOD,
+      prdHOD,
+      prdHOS,
       prdTL,
     };
 
@@ -109,7 +109,6 @@ exports.getUserData =
       res.status(201).json({
         message: "Sheet data get successfully",
         machine,
-        prdTL: req.rootUser.tm_name,
         requestSheetApprovalList,
       });
     } else {
