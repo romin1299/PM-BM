@@ -20,6 +20,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   },
   sheetCompletedDateAndTime: {
     type: Date,
+    default: new Date(),
   },
   breakDownBasicDataFilledByPRD: {
     problemFaced: { type: String },
@@ -138,19 +139,23 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   },
 
   //for MTD TL approval
-  approvalOfMTD_TL: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
+  approvalOfMTD_TL: [
+    {
+      // TL/HOSS
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   approvalStatusOfMTD_TL: {
-    type: String,
+    type: [String],
   },
   approvalDateAndTimeOfMTD_TL: {
-    type: Date, //If need String change it.
+    type: [Date], //If need String change it.
   },
 
   //for MTD Sl
   approvalOfMTD_SL: {
+    // HOSS
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
@@ -162,15 +167,17 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   },
 
   //for section incharge MTD HOS approval
-  approvalOfMTD_HOS: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
+  approvalOfMTD_HOS: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   approvalStatusOfMTD_HOS: {
-    type: String,
+    type: [String],
   },
   approvalDateAndTimeOfMTD_HOS: {
-    type: Date, //If need String change it.
+    type: [Date], //If need String change it.
   },
 
   //for PRD TL approval
