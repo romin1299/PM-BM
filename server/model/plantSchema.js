@@ -30,6 +30,15 @@ const plantSchema = new mongoose.Schema({
     minorApprovalList: { type: [String] },
     majorApprovalList: { type: [String] },
   },
+
+  // hourly filter options for product/line report
+  lessThanValue: {
+    type: [Number],
+  },
+  greaterThan: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Plant = new mongoose.model("Plants", plantSchema);
