@@ -49,13 +49,13 @@ export default function MuiDeleteDialog({ item, handleSubmit }) {
         <DialogContent>
           <DialogContentText
             id="alert-dialog-slide-description"
-            className="alert alert-danger"
+            className="alert alert-danger mt-2"
           >
             Do you really want to delete{" "}
             <b style={{ textDecoration: "underline" }}>{item.name}</b> category?
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
+        <DialogActions className="mb-2">
           <Button variant="outlined" onClick={handleClose}>
             Cancel
           </Button>

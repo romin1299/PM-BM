@@ -115,6 +115,22 @@ const CategoryTreeList = ({
             <ListItemSecondaryAction
               sx={{ "&:hover": { visibility: "visible" } }}
             >
+              {parentCategoryId < 0 && (
+                // Subcategories can be added only to the categories with parent Id < 0  [i.e. -1]
+                <Tooltip title="Add Subcategory" disableInteractive>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setEditingId(null);
+                      setAddingId(parentCategoryId);
+                      setExpandedCategories([category._id]);
+                    }}
+                  >
+                    <AddIcon fontSize="inherit" />
+                  </IconButton>
+                </Tooltip>
+              )}
+
               <Tooltip title="Edit" disableInteractive>
                 <IconButton
                   size="small"
@@ -132,22 +148,6 @@ const CategoryTreeList = ({
                 item={{ ...category, parentCategoryId }}
                 handleSubmit={onDeleteCategory}
               />
-
-              {parentCategoryId < 0 && (
-                // Subcategories can be added only to the categories with parent Id < 0  [i.e. -1]
-                <Tooltip title="Add Subcategory" disableInteractive>
-                  <IconButton
-                    size="small"
-                    onClick={() => {
-                      setEditingId(null);
-                      setAddingId(parentCategoryId);
-                      setExpandedCategories([category._id]);
-                    }}
-                  >
-                    <AddIcon fontSize="inherit" />
-                  </IconButton>
-                </Tooltip>
-              )}
             </ListItemSecondaryAction>
           </ListItem>
         )}
