@@ -118,6 +118,16 @@ export const menuItems = [
         route: "/bm/report/monthly-breakdown-trend",
         allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
+      {
+        title: "Line Contibution BD Report",
+        route: "/bm/report/line-contribution-breakdown-trend",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+      {
+        title: "TM MTTR Skill",
+        route: "/bm/report/tm-mtr",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
     ],
   },
   {

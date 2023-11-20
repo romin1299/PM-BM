@@ -16,7 +16,7 @@ const MenuProps = {
   },
 };
 
-const products = ["Oliver", "Van", "April", "Ralph", "Omar"];
+const products = ["Product 1", "Product 2", "Product 3", "Product 4", "Product 5"];
 
 function getStyles(name, personName, theme) {
   return {
@@ -53,7 +53,7 @@ export default function LineSelectionDropdown() {
         input={<OutlinedInput />}
         renderValue={(selected) => {
           if (selected.length === 0) {
-            return <em>Products</em>;
+            return <strong>Products</strong>;
           }
 
           return selected.join(", ");
@@ -66,7 +66,7 @@ export default function LineSelectionDropdown() {
         inputProps={{ "aria-label": "Without label" }}
       >
         <MenuItem disabled value="">
-          <em>Products</em>
+          <p>Products</p>
         </MenuItem>
         {products.map((name) => (
           <MenuItem
@@ -86,7 +86,7 @@ export default function LineSelectionDropdown() {
         input={<OutlinedInput />}
         renderValue={(selected) => {
           if (selected.length === 0) {
-            return <em>Sections</em>;
+            return <strong>Sections</strong>;
           }
 
           return selected.join(", ");
@@ -99,7 +99,7 @@ export default function LineSelectionDropdown() {
         inputProps={{ "aria-label": "Without label" }}
       >
         <MenuItem disabled value="">
-          <em>Sections</em>
+          <p>Sections</p>
         </MenuItem>
         {products.map((name) => (
           <MenuItem
@@ -119,7 +119,7 @@ export default function LineSelectionDropdown() {
         input={<OutlinedInput />}
         renderValue={(selected) => {
           if (selected.length === 0) {
-            return <em>Line</em>;
+            return <strong>Line</strong>;
           }
 
           return selected.join(", ");
@@ -132,7 +132,7 @@ export default function LineSelectionDropdown() {
         inputProps={{ "aria-label": "Without label" }}
       >
         <MenuItem disabled value="">
-          <em>Line</em>
+          <p>Line</p>
         </MenuItem>
         {products.map((name) => (
           <MenuItem

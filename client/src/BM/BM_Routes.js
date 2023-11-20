@@ -23,6 +23,8 @@ import MainCustomized from "./Customized/MainCustomized";
 import ManHourDashboard from "./Reports/ManHourReport/ManHourDashboard";
 import MonthlyBDTDashboard from "./Reports/MonthlyBDTrend/MonthlyBDDashboard";
 import DailyBTDashboard from "./Reports/DailyBreakdownTrend/DailyBDDashboard";
+import LineContributionBD from "./Reports/LineContributionBreakdown/LineContributionMain";
+import TMMTR from "./Reports/TMMTTRSkill/TMMTRMain"
 // Define an array of routes for each user type
 const userRoutes = [
   {
@@ -100,6 +102,14 @@ const userRoutes = [
       {
         path: "/bm/report/monthly-breakdown-trend",
         element: <MonthlyBDTDashboard />,
+      },
+      {
+        path: "/bm/report/line-contribution-breakdown-trend",
+        element: <LineContributionBD />,
+      },
+      {
+        path: "/bm/report/tm-mtr",
+        element: <TMMTR />,
       },
     ],
   },
