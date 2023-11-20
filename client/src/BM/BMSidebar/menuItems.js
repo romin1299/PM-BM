@@ -67,7 +67,7 @@ export const menuItems = [
         allowedRoles: ["HOD", "TL/HOSS"],
       },
     ],
-    allowedDepartments: ["MTD"],
+    allowedDepartments: ["MTD","PRD"],
   },
   {
     title: "Approval",

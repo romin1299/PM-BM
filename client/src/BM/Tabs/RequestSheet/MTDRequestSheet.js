@@ -21,7 +21,7 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable({ selectedMachineDetails }) {
+function MyTable({ selectedMachineDetails, approvalListOfBM }) {
   const [selected, setSelected] = useState({});
   const [actions, setActions] = useState([]);
   const [problems, setProblems] = useState([]);
@@ -30,6 +30,8 @@ function MyTable({ selectedMachineDetails }) {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
+    setValue,
     // reset,
   } = useForm({
     defaultValues: {
@@ -47,78 +49,44 @@ function MyTable({ selectedMachineDetails }) {
       }),
     },
   });
-  console.log(selectedMachineDetails);
+  console.log(approvalListOfBM);
 
-  const [selectedQuality, setSelectedQuality] = useState("");
-  const [selectedDataSheet, setSelectedDataSheet] = useState("");
-  const [selectedDrawing, setSelectedDrawing] = useState("");
+  // const [selectedQuality, setSelectedQuality] = useState("");
+  // const [selectedDataSheet, setSelectedDataSheet] = useState("");
+  // const [selectedDrawing, setSelectedDrawing] = useState("");
   const [selectedMajor, setSelectedMajor] = useState("Yes");
   const [selectedMinor, setSelectedMinor] = useState("No");
-  const [selectedFirstTime, setSelectedFirstTime] = useState("");
-  const [selectedRepeat, setSelectedRepeat] = useState("");
-  const [selectedStartTime, setSelectedStartTime] = useState("");
-  const [selectedEndTime, setSelectedEndTime] = useState("");
-  const [selectedMaintenanceTime, setSelectedMaintenanceTime] = useState("");
-  const [selectedQualityCheckTime, setSelectedQualityCheckTime] = useState("");
-  const [selectedBreakTime, setSelectedBreakTime] = useState("");
-  const [totalTime, setTotalTime] = useState(0);
-  const [selectedAllMtdUsers, setSelectedAllMtdUsers] = useState([]);
-  const [selectedAllMtdTL, setSelectedAllMtdTL] = useState([]);
-  const [selectedMtdSL, setSelectedMtdSL] = useState("");
-  const [selectedMtdUser, setSelectedMtdUser] = useState("");
-  const [selectedMtdTL, setSelectedMtdTL] = useState("");
-  const [selectedAllMtdHOD, setSelectedAllMtdHOD] = useState([]);
-  const [selectedMtdHOD, setSelectedMtdHOD] = useState("");
-  const [selectedAllPrdHOD, setSelectedAllPrdHOD] = useState([]);
-  const [selectedPrdHOD, setSelectedPrdHOD] = useState("");
-  const [selectedAllPrdHOS, setSelectedAllPrdHOS] = useState([]);
-  const [selectedPrdHOS, setSelectedPrdHOS] = useState("");
-  const [selectedAllPrdTL, setSelectedAllPrdTL] = useState([]);
-  const [selectedPrdTL, setSelectedPrdTL] = useState("");
+  // const [selectedFirstTime, setSelectedFirstTime] = useState("");
+  // const [selectedRepeat, setSelectedRepeat] = useState("");
+  // const [selectedMaintenanceTime, setSelectedMaintenanceTime] = useState("");
+  // const [selectedQualityCheckTime, setSelectedQualityCheckTime] = useState("");
+  // const [selectedBreakTime, setSelectedBreakTime] = useState("");
+  // const [totalTime, setTotalTime] = useState(0);
 
-  // const [selectedUser, setSelectedMtdUser] = useState({
-  //   selectedMtdSL: "",
-  //   selectedMtdUser: "",
-  //   selectedMtdTL: "",
-  // });
-
-  const handleQuality = (event) => {
-    setSelectedQuality(event.target.value);
-  };
-  const handleDataSheet = (event) => {
-    setSelectedDataSheet(event.target.value);
-  };
-  const handleDrawing = (event) => {
-    setSelectedDrawing(event.target.value);
-  };
-
-  // const handleMajor = (event) => {
-  //   setSelectedMajor(event.target.value);
+  // const handleQuality = (event) => {
+  //   setSelectedQuality(event.target.value);
   // };
-  // const handleMinor = (event) => {
-  //   setSelectedMinor(event.target.value);
+  // const handleDataSheet = (event) => {
+  //   setSelectedDataSheet(event.target.value);
   // };
-  const handleFirstTime = (event) => {
-    setSelectedFirstTime(event.target.value);
-  };
-  const handleRepeated = (event) => {
-    setSelectedRepeat(event.target.value);
-  };
-  const handleStartTime = (event) => {
-    setSelectedStartTime(event.target.value);
-  };
-  const handleEndTime = (event) => {
-    setSelectedEndTime(event.target.value);
-  };
-  const handleMaintenanceTime = (event) => {
-    setSelectedMaintenanceTime(event.target.value);
-  };
-  const handleQualityCheckTime = (event) => {
-    setSelectedQualityCheckTime(event.target.value);
-  };
-  const handleBreakTime = (event) => {
-    setSelectedBreakTime(event.target.value);
-  };
+  // const handleDrawing = (event) => {
+  //   setSelectedDrawing(event.target.value);
+  // };
+  // const handleFirstTime = (event) => {
+  //   setSelectedFirstTime(event.target.value);
+  // };
+  // const handleRepeated = (event) => {
+  //   setSelectedRepeat(event.target.value);
+  // };
+  // const handleMaintenanceTime = (event) => {
+  //   setSelectedMaintenanceTime(event.target.value);
+  // };
+  // const handleQualityCheckTime = (event) => {
+  //   setSelectedQualityCheckTime(event.target.value);
+  // };
+  // const handleBreakTime = (event) => {
+  //   setSelectedBreakTime(event.target.value);
+  // };
 
   // const handleSection = (e) => {
   //   setSelectedMtdUser({ selectedMtdUser: e.target.value });
@@ -149,21 +117,21 @@ function MyTable({ selectedMachineDetails }) {
 
   const newRequestSheetRegistration = async (requestSheetData) => {
     const machineRef = "63b67ccea716e21c95cd471a";
-    requestSheetData.changedParts = parts;
-    requestSheetData.problemsOfBM = problems;
-    requestSheetData.actionAndCounterMeasureStep = actions;
-    requestSheetData.qualityConfirmed = selectedQuality;
-    requestSheetData.dataSheetOfBM = selectedDataSheet;
-    requestSheetData.drawingOfBM = selectedDrawing;
-    requestSheetData.breakDownTime = timeDifferenceMinutes;
+    // requestSheetData.changedParts = parts;
+    // requestSheetData.problemsOfBM = problems;
+    // requestSheetData.actionAndCounterMeasureStep = actions;
+    // requestSheetData.qualityConfirmed = selectedQuality;
+    // requestSheetData.dataSheetOfBM = selectedDataSheet;
+    // requestSheetData.drawingOfBM = selectedDrawing;
+    // requestSheetData.breakDownTime = timeDifferenceMinutes;
 
-    requestSheetData.majorBD = selectedMajor;
-    requestSheetData.minorBD = selectedMinor;
-    requestSheetData.firstTime = selectedFirstTime;
-    requestSheetData.repeat = selectedRepeat;
-    requestSheetData.approvalOfMTD_TL = selectedMtdTL;
-    requestSheetData.approvalOfMTD_SL = selectedMtdSL;
-    requestSheetData.approvalOfMTD_HOS = selectedMtdUser;
+    // requestSheetData.majorBD = selectedMajor;
+    // requestSheetData.minorBD = selectedMinor;
+    // requestSheetData.firstTime = selectedFirstTime;
+    // requestSheetData.repeat = selectedRepeat;
+    // requestSheetData.approvalOfMTD_TL = selectedMtdTL;
+    // requestSheetData.approvalOfMTD_SL = selectedMtdSL;
+    // requestSheetData.approvalOfMTD_HOS = selectedMtdUser;
 
     const reqid = "65324cb00dc427ec2a098ef4";
 
@@ -237,13 +205,13 @@ function MyTable({ selectedMachineDetails }) {
     }
   }, [timeDifferenceMinutes]);
 
-  useEffect(() => {
-    const maintenanceTime = parseInt(selectedMaintenanceTime) || 0;
-    const qualityCheckTime = parseInt(selectedQualityCheckTime) || 0;
-    const breakTime = parseInt(selectedBreakTime) || 0;
-    const totalTime = maintenanceTime + qualityCheckTime + breakTime;
-    setTotalTime(totalTime);
-  }, [selectedMaintenanceTime, selectedQualityCheckTime, selectedBreakTime]);
+  // useEffect(() => {
+  //   const maintenanceTime = parseInt(selectedMaintenanceTime) || 0;
+  //   const qualityCheckTime = parseInt(selectedQualityCheckTime) || 0;
+  //   const breakTime = parseInt(selectedBreakTime) || 0;
+  //   const totalTime = maintenanceTime + qualityCheckTime + breakTime;
+  //   setTotalTime(totalTime);
+  // }, [selectedMaintenanceTime, selectedQualityCheckTime, selectedBreakTime]);
 
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
@@ -264,19 +232,7 @@ function MyTable({ selectedMachineDetails }) {
                   <p className="mb-0">
                     <b>REQUEST RECEIVED MTD S.L</b>
                   </p>
-                  <DropdownElem
-                    name={"MTD HOSS"}
-                    selectedMinor={selectedMinor}
-                    approvalList={
-                      selectedMachineDetails?.line_names?.cell_names
-                        ?.subSection_names?.section_names?.plant_names
-                        ?.approvalListOfMinorAndMajor
-                    }
-                    options={selectedAllMtdTL}
-                    onChange={(e) => {
-                      // setSelectedUser(e.target.value);
-                    }}
-                  />
+
                   {/* <select
                     // class="form-select form-select-sm"
                     // aria-label=".form-select-sm example"
@@ -318,7 +274,8 @@ function MyTable({ selectedMachineDetails }) {
                         ?.subSection_names?.section_names?.plant_names
                         ?.approvalListOfMinorAndMajor
                     }
-                    options={selectedAllMtdTL}
+                    options={approvalListOfBM?.mtdUserTL}
+                    setValue={setValue}
                     onChange={(e) => {
                       // setSelectedUser(e.target.value);
                     }}
@@ -375,11 +332,11 @@ function MyTable({ selectedMachineDetails }) {
                                 type="date"
                                 // defaultValue={currentDate}
                                 {...register("workStartedDateOfBM", {
-                                  required: "Work Start date is required",
+                                  required: "Work start date is required",
                                 })}
                               />
                               {errors?.["workStartedDateOfBM"] && (
-                                <p>
+                                <p className="text-error">
                                   {errors?.["workStartedDateOfBM"]?.message}
                                 </p>
                               )}
@@ -394,12 +351,12 @@ function MyTable({ selectedMachineDetails }) {
                                 type="time"
                                 defaultValue={currTime}
                                 {...register("workStartedTimeOfBM", {
-                                  required: "Work Start Time is required",
+                                  required: "Work start time is required",
                                 })}
                                 onChange={handleStartTime}
                               />
                               {errors?.["workStartedTimeOfBM"] && (
-                                <p>
+                                <p className="text-error">
                                   {errors?.["workStartedTimeOfBM"]?.message}
                                 </p>
                               )}
@@ -429,7 +386,9 @@ function MyTable({ selectedMachineDetails }) {
                                 })}
                               />
                               {errors?.["workEndedDateOfBM"] && (
-                                <p>{errors?.["workEndedDateOfBM"]?.message}</p>
+                                <p className="text-error">
+                                  {errors?.["workEndedDateOfBM"]?.message}
+                                </p>
                               )}
                             </p>
                           </div>{" "}
@@ -446,7 +405,9 @@ function MyTable({ selectedMachineDetails }) {
                                 onChange={handleEndTime}
                               />
                               {errors?.["workEndedTimeOfBM"] && (
-                                <p>{errors?.["workEndedTimeOfBM"]?.message}</p>
+                                <p className="text-error">
+                                  {errors?.["workEndedTimeOfBM"]?.message}
+                                </p>
                               )}
                             </p>
                           </div>
@@ -463,6 +424,22 @@ function MyTable({ selectedMachineDetails }) {
                   <p className="mb-0">
                     <b>SECTION INCHARGE</b>
                   </p>
+                  <label>MTD HOSS</label>
+                  <DropdownElem
+                    name={"MTD HOSS"}
+                    selectedMinor={selectedMinor}
+                    approvalList={
+                      selectedMachineDetails?.line_names?.cell_names
+                        ?.subSection_names?.section_names?.plant_names
+                        ?.approvalListOfMinorAndMajor
+                    }
+                    options={approvalListOfBM?.mtdUserTL}
+                    setValue={setValue}
+                    onChange={(e) => {
+                      // setSelectedUser(e.target.value);
+                    }}
+                  />
+                  {selectedMajor === "Yes" && <label>MTD HOS</label>}
                   <DropdownElem
                     name={"MTD HOS"}
                     selectedMinor={selectedMinor}
@@ -471,7 +448,8 @@ function MyTable({ selectedMachineDetails }) {
                         ?.subSection_names?.section_names?.plant_names
                         ?.approvalListOfMinorAndMajor
                     }
-                    options={selectedAllMtdUsers}
+                    options={approvalListOfBM?.mtdUser}
+                    setValue={setValue}
                     onChange={(e) => {
                       // setSelectedUser(e.target.value);
                     }}
@@ -503,7 +481,7 @@ function MyTable({ selectedMachineDetails }) {
                       );
                     })}
                   </select> */}
-                  {/* {errors.feedbackMTD && <p>{errors.feedbackMTD.message}</p>} */}
+                  {/* {errors.feedbackMTD && <p className="text-error">{errors.feedbackMTD.message}</p>} */}
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">
@@ -519,7 +497,9 @@ function MyTable({ selectedMachineDetails }) {
                     })}
                   />
                   {errors?.["feedbackMTD"] && (
-                    <p>{errors?.["feedbackMTD"]?.message}</p>
+                    <p className="text-error">
+                      {errors?.["feedbackMTD"]?.message}
+                    </p>
                   )}
                 </Col>
               </Row>
@@ -536,7 +516,7 @@ function MyTable({ selectedMachineDetails }) {
                   className="border border-top-0 text-center pb-0 pt-2"
                 >
                   <p className="mb-0" style={{ fontSize: "12px" }}>
-                    BREAKDOWN TIME
+                    <b>BREAKDOWN TIME</b>
                   </p>
 
                   <p>{timeDifferenceMinutes || null}</p>
@@ -546,7 +526,7 @@ function MyTable({ selectedMachineDetails }) {
                   className="border border-top-0 text-center pb-0 pt-2"
                 >
                   <p className="mb-0" style={{ fontSize: "12px" }}>
-                    MAINTENANCE TIME
+                    <b>MAINTENANCE TIME</b>
                   </p>
                   <input
                     type="number"
@@ -556,10 +536,12 @@ function MyTable({ selectedMachineDetails }) {
                     {...register("maintenanceTime", {
                       required: "This field is required",
                     })}
-                    onChange={handleMaintenanceTime}
+                    // onChange={handleMaintenanceTime}
                   />
                   {errors?.["maintenanceTime"] && (
-                    <p>{errors?.["maintenanceTime"]?.message}</p>
+                    <p className="text-error">
+                      {errors?.["maintenanceTime"]?.message}
+                    </p>
                   )}
                 </Col>
                 <Col
@@ -567,7 +549,7 @@ function MyTable({ selectedMachineDetails }) {
                   className="border border-top-0 text-center pb-0 pt-2"
                 >
                   <p className="mb-0" style={{ fontSize: "12px" }}>
-                    QUALITY CHECK TIME
+                    <b>QUALITY CHECK TIME</b>
                   </p>
                   <input
                     type="number"
@@ -577,10 +559,12 @@ function MyTable({ selectedMachineDetails }) {
                     {...register("qualityCheckTime", {
                       required: "This field is required",
                     })}
-                    onChange={handleQualityCheckTime}
+                    // onChange={handleQualityCheckTime}
                   />
                   {errors?.["qualityCheckTime"] && (
-                    <p>{errors?.["qualityCheckTime"]?.message}</p>
+                    <p className="text-error">
+                      {errors?.["qualityCheckTime"]?.message}
+                    </p>
                   )}
                 </Col>
                 <Col
@@ -588,7 +572,7 @@ function MyTable({ selectedMachineDetails }) {
                   className="border border-top-0 text-center pb-0 pt-2"
                 >
                   <p className="mb-0" style={{ fontSize: "12px" }}>
-                    BREAK TIME
+                    <b>BREAK TIME</b>
                   </p>
                   <input
                     type="number"
@@ -598,14 +582,19 @@ function MyTable({ selectedMachineDetails }) {
                     {...register("breakTime", {
                       required: "This field is required",
                     })}
-                    onChange={handleBreakTime}
+                    // onChange={handleBreakTime}
                   />
                   {errors?.["breakTime"] && (
-                    <p>{errors?.["breakTime"]?.message}</p>
+                    <p className="text-error">
+                      {errors?.["breakTime"]?.message}
+                    </p>
                   )}
                 </Col>
               </Row>
-              {totalTime > timeDifferenceMinutes && (
+              {watch("maintenanceTime") +
+                watch("qualityCheckTime") +
+                watch("breakTime") >
+                timeDifferenceMinutes && (
                 <p style={{ color: "red" }}>Total time exceeds!!!</p>
               )}
               <Row className="m-0">
@@ -627,6 +616,7 @@ function MyTable({ selectedMachineDetails }) {
                               type={type}
                               value="Yes"
                               id={`inline-${type}-1`}
+                              disabled
                               // onChange={handleMajor}
                               checked={selectedMajor === "Yes"}
                               onChange={() => {
@@ -641,6 +631,7 @@ function MyTable({ selectedMachineDetails }) {
                               type={type}
                               value="No"
                               id={`inline-${type}-2`}
+                              disabled
                               // onChange={handleMajor}
                               checked={selectedMajor === "No"}
                               onChange={() => {
@@ -672,7 +663,7 @@ function MyTable({ selectedMachineDetails }) {
                               type={type}
                               value="Yes"
                               id={`inline-${type}-1`}
-                              onChange={handleFirstTime}
+                              // onChange={handleFirstTime}
                             />
                             <Form.Check
                               flex
@@ -681,7 +672,7 @@ function MyTable({ selectedMachineDetails }) {
                               type={type}
                               value="No"
                               id={`inline-${type}-2`}
-                              onChange={handleFirstTime}
+                              // onChange={handleFirstTime}
                             />
                           </div>
                         ))}
@@ -707,6 +698,7 @@ function MyTable({ selectedMachineDetails }) {
                               label="Yes"
                               name="minorRadio"
                               type={type}
+                              disabled
                               // value="Yes"
                               id={`inline-${type}-1`}
                               // onChange={handleMinor}
@@ -722,6 +714,7 @@ function MyTable({ selectedMachineDetails }) {
                               label="No"
                               name="minorRadio"
                               type={type}
+                              disabled
                               // value="No"
                               id={`inline-${type}-2`}
                               // onChange={handleMinor}
@@ -755,7 +748,7 @@ function MyTable({ selectedMachineDetails }) {
                               type={type}
                               value="Yes"
                               id={`inline-${type}-1`}
-                              onChange={handleRepeated}
+                              // onChange={handleRepeated}
                             />
                             <Form.Check
                               flex
@@ -764,7 +757,7 @@ function MyTable({ selectedMachineDetails }) {
                               type={type}
                               value="No"
                               id={`inline-${type}-2`}
-                              onChange={handleRepeated}
+                              // onChange={handleRepeated}
                             />
                           </div>
                         ))}
@@ -805,7 +798,7 @@ function MyTable({ selectedMachineDetails }) {
                         })}
                       />
                       {/* {errors?.["whyAnalysis"] && (
-                        <p>{errors?.["whyAnalysis"]?.message}</p>
+                        <p className="text-error">{errors?.["whyAnalysis"]?.message}</p>
                       )} */}
                     </Col>
                   </Row>
@@ -899,7 +892,7 @@ function MyTable({ selectedMachineDetails }) {
                           type={type}
                           value="Yes"
                           id={`inline-${type}-1`}
-                          onChange={handleQuality}
+                          // onChange={handleQuality}
                         />
                         <Form.Check
                           flex
@@ -908,7 +901,7 @@ function MyTable({ selectedMachineDetails }) {
                           type={type}
                           value="No"
                           id={`inline-${type}-2`}
-                          onChange={handleQuality}
+                          // onChange={handleQuality}
                         />
                       </div>
                     ))}
@@ -933,7 +926,9 @@ function MyTable({ selectedMachineDetails }) {
                     })}
                   />
                   {errors?.["partQualityByPRD"] && (
-                    <p>{errors?.["partQualityByPRD"]?.message}</p>
+                    <p className="text-error">
+                      {errors?.["partQualityByPRD"]?.message}
+                    </p>
                   )}
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
@@ -950,7 +945,9 @@ function MyTable({ selectedMachineDetails }) {
                     })}
                   />
                   {errors?.["partQualityByMTD"] && (
-                    <p>{errors?.["partQualityByMTD"]?.message}</p>
+                    <p className="text-error">
+                      {errors?.["partQualityByMTD"]?.message}
+                    </p>
                   )}
                 </Col>
               </Row>
@@ -971,7 +968,7 @@ function MyTable({ selectedMachineDetails }) {
                           type={type}
                           value="Yes"
                           id={`inline-${type}-1`}
-                          onChange={handleDataSheet}
+                          // onChange={handleDataSheet}
                         />
                         <Form.Check
                           flex
@@ -980,7 +977,7 @@ function MyTable({ selectedMachineDetails }) {
                           type={type}
                           value="No"
                           id={`inline-${type}-2`}
-                          onChange={handleDataSheet}
+                          // onChange={handleDataSheet}
                         />
                       </div>
                     ))}
@@ -1004,7 +1001,7 @@ function MyTable({ selectedMachineDetails }) {
                           type={type}
                           value="Yes"
                           id={`inline-${type}-1`}
-                          onChange={handleDrawing}
+                          // onChange={handleDrawing}
                         />
                         <Form.Check
                           flex
@@ -1013,7 +1010,7 @@ function MyTable({ selectedMachineDetails }) {
                           type={type}
                           value="No"
                           id={`inline-${type}-2`}
-                          onChange={handleDrawing}
+                          // onChange={handleDrawing}
                         />
                       </div>
                     ))}
@@ -1126,6 +1123,8 @@ function MyTable({ selectedMachineDetails }) {
                               ?.subSection_names?.section_names?.plant_names
                               ?.approvalListOfMinorAndMajor
                           }
+                          options={approvalListOfBM?.mtdHod}
+                          setValue={setValue}
                         />
                       </div>
                     </Col>
@@ -1140,6 +1139,8 @@ function MyTable({ selectedMachineDetails }) {
                               ?.subSection_names?.section_names?.plant_names
                               ?.approvalListOfMinorAndMajor
                           }
+                          options={approvalListOfBM?.prdHod}
+                          setValue={setValue}
                         />
                       </div>
                     </Col>
@@ -1154,6 +1155,8 @@ function MyTable({ selectedMachineDetails }) {
                               ?.subSection_names?.section_names?.plant_names
                               ?.approvalListOfMinorAndMajor
                           }
+                          options={approvalListOfBM?.prdHos}
+                          setValue={setValue}
                         />
                       </div>
                     </Col>
@@ -1168,6 +1171,8 @@ function MyTable({ selectedMachineDetails }) {
                               ?.subSection_names?.section_names?.plant_names
                               ?.approvalListOfMinorAndMajor
                           }
+                          options={approvalListOfBM?.prdTL}
+                          setValue={setValue}
                         />
                       </div>
                     </Col>

@@ -101,16 +101,20 @@ export default function ManageShifts() {
     {
       field: "shiftName",
       headerName: "Shift",
-      //   maxWidth: 100,
-      //   width: 80,
+      minWidth: 30,
+      // maxWidth: 100,
+      // width: 180,
       editable: true,
     },
     {
       field: "shiftStartTime",
       headerName: "Start Time",
+      type: "time",
+      width: 120,
       renderCell: (params) => {
-        const isInEditMode = rowModesModel[params.row.id]?.mode === GridRowModes.Edit;
-  
+        const isInEditMode =
+          rowModesModel[params.row.id]?.mode === GridRowModes.Edit;
+
         return (
           <input
             type="time"
@@ -118,7 +122,10 @@ export default function ManageShifts() {
             disabled={!isInEditMode}
             onChange={(e) => {
               if (isInEditMode) {
-                const updatedRow = { ...params.row, shiftStartTime: e.target.value };
+                const updatedRow = {
+                  ...params.row,
+                  shiftStartTime: e.target.value,
+                };
                 processRowUpdate(updatedRow);
               }
             }}
@@ -129,9 +136,12 @@ export default function ManageShifts() {
     {
       field: "shiftEndTime",
       headerName: "End Time",
+      type: "time",
+      width: 120,
       renderCell: (params) => {
-        const isInEditMode = rowModesModel[params.row.id]?.mode === GridRowModes.Edit;
-  
+        const isInEditMode =
+          rowModesModel[params.row.id]?.mode === GridRowModes.Edit;
+
         return (
           <input
             type="time"
@@ -139,7 +149,10 @@ export default function ManageShifts() {
             disabled={!isInEditMode}
             onChange={(e) => {
               if (isInEditMode) {
-                const updatedRow = { ...params.row, shiftEndTime: e.target.value };
+                const updatedRow = {
+                  ...params.row,
+                  shiftEndTime: e.target.value,
+                };
                 processRowUpdate(updatedRow);
               }
             }}
@@ -198,7 +211,7 @@ export default function ManageShifts() {
 
   return (
     <div
-      className="cell p-3"
+      className="cell p-3 mt-2 mb-2"
       style={{
         width: "100%",
       }}

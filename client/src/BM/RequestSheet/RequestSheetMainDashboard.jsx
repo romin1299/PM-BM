@@ -277,13 +277,30 @@ const RequestSheetMainDashboard = () => {
       editComponent: dropDownComponent,
     },
     {
-      title: "Final Activity",
+      title: "Handover To",
+      field: "handOverUser",
+      // editable: context?.tm_department === "MTD" ? "always" : "never",
+      editable: (_, row) =>
+        context?.tm_department === "MTD" &&
+        row?.requestSheetStatus === statusArray[0]
+          ? true
+          : false,
+      editComponent: ({ value, onChange }) =>
+        dropDownComponent({
+          value,
+          onChange,
+          dropDownArray: reduceState?.TLHOSS_and_TM_user_list,
+        }),
+    },
+    {
+      title: "Final Action",
       field: "finalActivity",
       editable: conditionalBasedEditableFunctionForPRD,
     },
     {
-      title: "End Date-Time",
-      field: "problemOccurredDateAndTimeOfBM",
+      title: "H/O Time Work End", //hand-over time
+      field: "handOverTime",
+      editable: conditionalBasedEditableFunctionForMTD,
       editComponent: ({ value, onChange }) => (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <MobileDateTimePicker
@@ -391,7 +408,11 @@ const RequestSheetMainDashboard = () => {
           <Col className="d-flex align-items-center justify-content-center">
             <button
               onClick={handleGenerateBMNavigation}
-              className="btn bg-button"
+              className={
+                context?.tm_department === "PRD"
+                  ? `btn bg-button d-inline`
+                  : "d-none"
+              }
               style={{ marginTop: "1rem" }}
             >
               Generate BM
