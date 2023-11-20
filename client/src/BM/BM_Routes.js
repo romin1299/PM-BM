@@ -19,6 +19,9 @@ import RequestSheetMonitoring from "./RequestSheetMonitoring/RequestSheetMonitor
 import ProductionLineWiseReport from "./Reports/ProductionLineWiseReport/ProductionLineWiseReport";
 
 import MainCustomized from "./Customized/MainCustomized";
+import ManHourDashboard from "./Reports/ManHourReport/ManHourDashboard";
+import MonthlyBDTDashboard from "./Reports/MonthlyBDTrend/MonthlyBDDashboard";
+import DailyBTDashboard from "./Reports/DailyBreakdownTrend/DailyBDDashboard";
 // Define an array of routes for each user type
 const userRoutes = [
   {
@@ -130,6 +133,15 @@ const userRoutes = [
       {
         path: "/bm/report/productionLineWiseReport",
         element: <ProductionLineWiseReport />,
+      },
+      { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
+      {
+        path: "/bm/report/daily-breakdown-trend",
+        element: <DailyBTDashboard />,
+      },
+      {
+        path: "/bm/report/monthly-breakdown-trend",
+        element: <MonthlyBDTDashboard />,
       },
     ],
   },
