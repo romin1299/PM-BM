@@ -2375,6 +2375,15 @@ router.get(
           },
         },
         {
+          $project: {
+            count: 1,
+            target: 1,
+            hours: {
+              $divide: ["$hours", "$count"],
+            },
+          },
+        },
+        {
           $group: {
             _id: null,
             array: { $push: "$$ROOT" },
@@ -2428,7 +2437,7 @@ router.get(
             _id: null,
             labels: { $push: "$month" },
             target: { $push: "$value.target" },
-            MTTR: {
+            data: {
               $push: "$value.hours",
             },
             backgroundColor: {
@@ -2449,6 +2458,527 @@ router.get(
       return res.status(201).json({
         message: "MTTR graph data get successfully",
         MTTRReportData: MTTRReportData?.[0],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getBDHoursGraphData/:purpose/:filter/:selectedId",
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      const BDHours = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%m",
+                date: "$sheetIssuedDateAndTimeOfBM",
+                timezone: timezone,
+              },
+            },
+            hours: {
+              $sum: {
+                $divide: [
+                  {
+                    $subtract: [
+                      "$sheetCompletedDateAndTime",
+                      "$sheetIssuedDateAndTimeOfBM",
+                    ],
+                  },
+                  3600000,
+                ],
+              },
+            },
+            target: {
+              $sum: {
+                $divide: [
+                  {
+                    $subtract: [
+                      "$sheetCompletedDateAndTime",
+                      "$sheetIssuedDateAndTimeOfBM",
+                    ],
+                  },
+                  3600000,
+                ],
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            array: { $push: "$$ROOT" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            array: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthInDecimal", "$array._id"] },
+                    {
+                      month: "$$month.monthName",
+                      value: {
+                        $arrayElemAt: [
+                          "$array",
+                          {
+                            $indexOfArray: [
+                              "$array._id",
+                              "$$month.monthInDecimal",
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      month: "$$month.monthName",
+                      value: {
+                        _id: "$$month.monthInDecimal",
+                        hours: 0,
+                        target: 0,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        { $unwind: "$array" },
+        {
+          $replaceRoot: { newRoot: "$array" },
+        },
+        {
+          $group: {
+            _id: null,
+            labels: { $push: "$month" },
+            target: { $push: "$value.target" },
+            data: {
+              $push: "$value.hours",
+            },
+            backgroundColor: {
+              $push: {
+                $cond: [
+                  {
+                    $gt: ["$value.hours", "$value.target"],
+                  },
+                  "red",
+                  "green",
+                ],
+              },
+            },
+          },
+        },
+      ]);
+
+      let boundaries = [0, Infinity]; // total data,
+      let customLegendArray = [
+        {
+          id: 0,
+          key: "total",
+        },
+      ];
+
+      if (req.body?.hoursFilter?.length > 0) {
+        boundaries = [0];
+        customLegendArray = [];
+
+        for (let i = 0; i < req.body?.hoursFilter.length; i++) {
+          boundaries.push(req.body?.hoursFilter[i] * 1);
+          customLegendArray.push(
+            i === 0
+              ? {
+                  id: 0,
+                  key: `<${req.body?.hoursFilter[i]}`,
+                }
+              : {
+                  id: req.body?.hoursFilter[i - 1] * 1,
+                  key: `<${req.body?.hoursFilter[i]}`,
+                }
+          );
+        }
+      }
+
+      if (req.body?.graterThenHoursFilter) {
+        if (req.body?.hoursFilter?.length > 0) {
+          boundaries = [
+            ...boundaries,
+            req.body?.graterThenHoursFilter * 1,
+            Infinity,
+          ];
+          customLegendArray.push({
+            id: req.body?.graterThenHoursFilter * 1,
+            key: `${req.body?.graterThenHoursFilter}+`,
+          });
+        } else {
+          boundaries = [req.body?.graterThenHoursFilter * 1, Infinity];
+          customLegendArray = [
+            {
+              id: req.body?.graterThenHoursFilter * 1,
+              key: `${req.body?.graterThenHoursFilter}+`,
+            },
+          ];
+        }
+      }
+
+      let queryObjects = {
+        bucketOutputObj: {
+          requestSheetNoOfBM: { $push: "$requestSheetNoOfBM" },
+          count: { $sum: 1 },
+          sumOfBDhours: { $sum: "$BDhours" },
+        },
+        mapArray: [
+          {
+            _id: "$$item",
+            count: {
+              $arrayElemAt: [
+                "$array.count",
+                {
+                  $indexOfArray: ["$array._id", "$$item.id"],
+                },
+              ],
+            },
+            sumOfBDhours: {
+              $arrayElemAt: [
+                "$array.sumOfBDhours",
+                {
+                  $indexOfArray: ["$array._id", "$$item.id"],
+                },
+              ],
+            },
+          },
+          {
+            _id: "$$item",
+            count: 0,
+            sumOfBDhours: 0,
+          },
+        ],
+        requestSheetProjection: {
+          count: "$count",
+          sumOfBDhours: "$sumOfBDhours",
+        },
+      };
+
+      if (req.params?.purpose === "hours-filter") {
+        queryObjects = {
+          bucketOutputObj: {
+            sumOfBDhours: { $sum: "$BDhours" },
+          },
+          mapArray: [
+            {
+              _id: "$$item",
+
+              sumOfBDhours: {
+                $arrayElemAt: [
+                  "$array.sumOfBDhours",
+                  {
+                    $indexOfArray: ["$array._id", "$$item.id"],
+                  },
+                ],
+              },
+            },
+            {
+              _id: "$$item",
+              sumOfBDhours: 0,
+            },
+          ],
+          requestSheetProjection: {
+            sumOfBDhours: "$sumOfBDhours",
+          },
+        };
+      } else if (req.params?.purpose === "count-filter") {
+        queryObjects = {
+          bucketOutputObj: {
+            count: { $sum: 1 },
+          },
+          mapArray: [
+            {
+              _id: "$$item",
+              count: {
+                $arrayElemAt: [
+                  "$array.count",
+                  {
+                    $indexOfArray: ["$array._id", "$$item.id"],
+                  },
+                ],
+              },
+            },
+            {
+              _id: "$$item",
+              count: 0,
+            },
+          ],
+          requestSheetProjection: {
+            count: "$count",
+          },
+        };
+      }
+
+      let lessThenValue = [1,2]
+
+      const data = await RequestSheetOfBM.aggregate([
+        {
+          $match: {
+            sheetCompletedDateAndTime: { $ne: null },
+          },
+          // $match: req.queryObj,
+        },
+
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%m",
+                date: "$sheetIssuedDateAndTimeOfBM",
+                timezone: timezone,
+              },
+            },
+            count: { $sum: 1 },
+            BDhours: {
+              $push: {
+                $divide: [
+                  {
+                    $subtract: [
+                      "$sheetCompletedDateAndTime",
+                      "$sheetIssuedDateAndTimeOfBM",
+                    ],
+                  },
+                  3600000,
+                ],
+              },
+            },
+            
+          },
+        },
+
+
+        // {
+        //   $project: {
+        //     machineRef: 1,
+        //     requestSheetNoOfBM: 1,
+        //     sheetIssuedDateAndTimeOfBM: 1,
+        //     sheetCompletedDateAndTime: 1,
+        //     BDhours: {
+        //       $divide: [
+        //         {
+        //           $subtract: [
+        //             "$sheetCompletedDateAndTime",
+        //             "$sheetIssuedDateAndTimeOfBM",
+        //           ],
+        //         },
+        //         3600000,
+        //       ],
+        //     },
+        //   },
+        // },
+        // {
+        //   $bucket: {
+        //     groupBy: "$BDhours",
+        //     // boundaries: [0, Infinity], // 0 <= value < 2, 2<= value < 3
+        //     boundaries: boundaries, // 0 <= value < 2, 2<= value < 3
+        //     // boundaries: [0, 3], // 0 <= value < 3
+        //     default: "Other",
+        //     output: {
+        //       requestSheetNoOfBM: { $push: "$requestSheetNoOfBM" },
+        //       count: { $sum: 1 },
+        //       sumOfBDhours: { $sum: "$BDhours" },
+        //     },
+        //     // output: queryObjects?.bucketOutputObj,
+        //     // {
+        //     //   count: { $sum: 1 },
+        //     //   sumOfBDhours: { $sum: "$BDhours" },
+        //     // },
+        //   },
+        // },
+        // {
+        //   $group: {
+        //     _id: null,
+        //     array: { $push: "$$ROOT" },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     data: {
+        //       $map: {
+        //         input: customLegendArray,
+        //         as: "item",
+        //         in: {
+        //           $cond: [
+        //             { $in: ["$$item.id", "$array._id"] },
+        //             ...queryObjects?.mapArray,
+        //             // {
+        //             //   _id: "$$item",
+        //             //   count: {
+        //             //     $arrayElemAt: [
+        //             //       "$array.count",
+        //             //       {
+        //             //         $indexOfArray: ["$array._id", "$$item.id"],
+        //             //       },
+        //             //     ],
+        //             //   },
+        //             //   sumOfBDhours: {
+        //             //     $arrayElemAt: [
+        //             //       "$array.sumOfBDhours",
+        //             //       {
+        //             //         $indexOfArray: ["$array._id", "$$item.id"],
+        //             //       },
+        //             //     ],
+        //             //   },
+        //             // },
+        //             // {
+        //             //   _id: "$$item",
+        //             //   count: 0,
+        //             //   sumOfBDhours: 0,
+        //             // },
+        //           ],
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+        // {
+        //   $unwind: "$data",
+        // },
+        // {
+        //   $replaceRoot: { newRoot: "$data" },
+        // },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     groupId: "$_id",
+
+        //     ...queryObjects?.requestSheetProjection,
+        //     // count: "$count",
+        //     // sumOfBDhours: "$sumOfBDhours",
+        //   },
+        // },
+
+        // {
+        //   $group: {
+        //     _id: {
+        //       $dateToString: {
+        //         format: "%m",
+        //         date: "$sheetIssuedDateAndTimeOfBM",
+        //         timezone: timezone,
+        //       },
+        //     },
+        //     count: { $sum: 1 },
+        //     BDhours: {
+        //       $sum: {
+        //         $divide: [
+        //           {
+        //             $subtract: [
+        //               "$sheetCompletedDateAndTime",
+        //               "$sheetIssuedDateAndTimeOfBM",
+        //             ],
+        //           },
+        //           3600000,
+        //         ],
+        //       },
+        //     },
+        //     target: {
+        //       $sum: {
+        //         $divide: [
+        //           {
+        //             $subtract: [
+        //               "$sheetCompletedDateAndTime",
+        //               "$sheetIssuedDateAndTimeOfBM",
+        //             ],
+        //           },
+        //           3600000,
+        //         ],
+        //       },
+        //     },
+        //   },
+        // },
+
+        // {
+        //   $group: {
+        //     _id: null,
+        //     array: { $push: "$$ROOT" },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     array: {
+        //       $map: {
+        //         input: allMonths,
+        //         as: "month",
+        //         in: {
+        //           $cond: [
+        //             { $in: ["$$month.monthInDecimal", "$array._id"] },
+        //             {
+        //               month: "$$month.monthName",
+        //               value: {
+        //                 $arrayElemAt: [
+        //                   "$array",
+        //                   {
+        //                     $indexOfArray: [
+        //                       "$array._id",
+        //                       "$$month.monthInDecimal",
+        //                     ],
+        //                   },
+        //                 ],
+        //               },
+        //             },
+        //             {
+        //               month: "$$month.monthName",
+        //               value: {
+        //                 _id: "$$month.monthInDecimal",
+        //                 hours: 0,
+        //                 target: 0,
+        //               },
+        //             },
+        //           ],
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+        // { $unwind: "$array" },
+        // {
+        //   $replaceRoot: { newRoot: "$array" },
+        // },
+        // {
+        //   $group: {
+        //     _id: null,
+        //     labels: { $push: "$month" },
+        //     target: { $push: "$value.target" },
+        //     data: {
+        //       $push: "$value.hours",
+        //     },
+        //     backgroundColor: {
+        //       $push: {
+        //         $cond: [
+        //           {
+        //             $gt: ["$value.hours", "$value.target"],
+        //           },
+        //           "red",
+        //           "green",
+        //         ],
+        //       },
+        //     },
+        //   },
+        // },
+      ]);
+
+      return res.status(201).json({
+        message: "MTTR graph data get successfully",
+        data,
+        BDHours: BDHours?.[0],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -3179,7 +3709,6 @@ router.patch(
   }
 );
 
-
 router.get("/getRequestSheetDataLineWise", async (req, res, next) => {
   try {
     const startDate = moment().tz(timezone).month("April");
@@ -3274,8 +3803,8 @@ router.get("/getRequestSheetDataLineWise", async (req, res, next) => {
                     { $eq: ["$tm_department", "MTD"] },
                     { $eq: ["$_id", "$$mtdUserId"] },
                   ],
-                }
-              }
+                },
+              },
             },
             {
               $project: {

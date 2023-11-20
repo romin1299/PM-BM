@@ -22,6 +22,7 @@ import StorageIcon from "@mui/icons-material/Storage";
 import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
+import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 
 export const menuItems = [
   {
@@ -67,7 +68,7 @@ export const menuItems = [
         allowedRoles: ["HOD", "TL/HOSS"],
       },
     ],
-    allowedDepartments: ["MTD","PRD"],
+    allowedDepartments: ["MTD", "PRD"],
   },
   {
     title: "Approval",
@@ -91,6 +92,33 @@ export const menuItems = [
     icon: <ControlPointIcon className="text-white" />,
     route: "/bm/customizedDashboard",
     allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+  },
+  {
+    title: "Reports",
+    icon: <AccessTimeFilledIcon className="text-white" />,
+    allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+    subItems: [
+      {
+        title: "Production Line Wise",
+        route: "/bm/report/productionLineWiseReport",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+      {
+        title: "Man Hour Report",
+        route: "/bm/report/man-hour",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+      {
+        title: "Daily BD Report",
+        route: "/bm/report/daily-breakdown-trend",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+      {
+        title: "Monthly BD Report",
+        route: "/bm/report/monthly-breakdown-trend",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+    ],
   },
   {
     title: "Profile",

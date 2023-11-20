@@ -3,12 +3,15 @@ import { Container, Row, Col } from "reactstrap";
 
 import BDHoursVsCountComponent from "./BDHoursVsCountComponent";
 import MTTRComponent from "./MTTRComponent";
+import MTBFComponent from "./MTBFComponent";
+import BDhours from "./BDhours";
 
 const ProductionLineWiseReport = () => {
   const initialState = {
     selectedCell: "",
     cellData: [],
 
+    selectedValue: "",
     flagForCellAndLineToggle: "based-on-cell",
 
     message: "",
@@ -29,20 +32,52 @@ const ProductionLineWiseReport = () => {
           message: action?.message,
           cellData: action?.cellData,
           selectedCell: action?.selectedCell,
+          selectedValue: action?.selectedCell,
         };
 
       case ACTION?.SELECT_CELL:
         return {
           ...state,
           selectedCell: action?.selectedCell,
+          selectedValue: action?.selectedCell,
           selectedLine: "",
         };
 
       case ACTION?.SELECT_LINE:
         return {
           ...state,
-          selectedLine: action?.selectedCell,
+          selectedLine: action?.selectedLine,
+          selectedValue: action?.selectedLine,
         };
+
+      // case ACTION?.SELECT_SUBSECTION:
+      //   return {
+      //     ...state,
+      //     selectedSubSection: action?.selectedSubSection,
+      //     selectedCell: "",
+      //     selectedLine: "",
+      //   };
+
+      // case ACTION?.SELECT_CELL:
+      //   return {
+      //     ...state,
+      //     selectedCell: action?.selectedCell,
+      //     selectedLine: "",
+      //   };
+
+      // case ACTION?.SELECT_LINE:
+      //   return {
+      //     ...state,
+      //     selectedLine: action?.selectedCell,
+      //   };
+
+      // case ACTION?.RESET_DROPDOWN_VALUE:
+      //   return {
+      //     ...state,
+      //     selectedSubSection: "",
+      //     selectedCell: "",
+      //     selectedLine: "",
+      //   };
 
       default:
         return state;
@@ -84,16 +119,25 @@ const ProductionLineWiseReport = () => {
     <Container fluid>
       <Row>
         <Col>
-          <MTTRComponent
-            selectedCell={reduceState?.selectedCell}
+          <BDhours
+            selectedValue={reduceState?.selectedValue}
             flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
           />
+        </Col>
+        <Col>
+          <MTTRComponent
+            selectedValue={reduceState?.selectedValue}
+            flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+          />
+        </Col>
+        <Col>
+          <MTBFComponent />
         </Col>
       </Row>
       <Row>
         <Col>
           <BDHoursVsCountComponent
-            selectedCell={reduceState?.selectedCell}
+            selectedValue={reduceState?.selectedValue}
             flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
           />
         </Col>
