@@ -7,7 +7,7 @@ import FilterComponent from "./FilterComponent";
 
 const BDHoursVsCountComponent = ({
   flagForCellAndLineToggle,
-  selectedCell,
+  selectedValue,
 }) => {
   const initialState = {
     labels: [],
@@ -68,35 +68,6 @@ const BDHoursVsCountComponent = ({
           ...obj,
         };
 
-      case ACTION?.SELECT_SUBSECTION:
-        return {
-          ...state,
-          selectedSubSection: action?.selectedSubSection,
-          selectedCell: "",
-          selectedLine: "",
-        };
-
-      case ACTION?.SELECT_CELL:
-        return {
-          ...state,
-          selectedCell: action?.selectedCell,
-          selectedLine: "",
-        };
-
-      case ACTION?.SELECT_LINE:
-        return {
-          ...state,
-          selectedLine: action?.selectedCell,
-        };
-
-      case ACTION?.RESET_DROPDOWN_VALUE:
-        return {
-          ...state,
-          selectedSubSection: "",
-          selectedCell: "",
-          selectedLine: "",
-        };
-
       default:
         return state;
     }
@@ -108,7 +79,7 @@ const BDHoursVsCountComponent = ({
     try {
       const res = await fetch(
         `/getBDhoursVsCountDataFunction/${purpose}/${flagForCellAndLineToggle}/63317dbe1d1becfedab337e4`,
-        // `/getBDhoursVsCountDataFunction/${flagForCellAndLineToggle}/${selectedCell}`,
+        // `/getBDhoursVsCountDataFunction/${flagForCellAndLineToggle}/${selectedValue}`,
         {
           method: "POST",
           headers: {
@@ -139,13 +110,13 @@ const BDHoursVsCountComponent = ({
   console.log(reduceState);
 
   useEffect(() => {
-    if (selectedCell) {
+    if (selectedValue) {
       getBDhoursVsCountReportData({
         purpose: "by-default",
         data: {},
       });
     }
-  }, [selectedCell]);
+  }, [selectedValue]);
 
   return (
     <Container fluid>

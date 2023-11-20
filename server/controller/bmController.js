@@ -2458,6 +2458,15 @@ router.get(
           },
         },
         {
+          $project: {
+            count: 1,
+            target: 1,
+            hours: {
+              $divide: ["$hours", "$count"],
+            },
+          },
+        },
+        {
           $group: {
             _id: null,
             array: { $push: "$$ROOT" },
@@ -2511,7 +2520,7 @@ router.get(
             _id: null,
             labels: { $push: "$month" },
             target: { $push: "$value.target" },
-            MTTR: {
+            data: {
               $push: "$value.hours",
             },
             backgroundColor: {
@@ -2532,6 +2541,134 @@ router.get(
       return res.status(201).json({
         message: "MTTR graph data get successfully",
         MTTRReportData: MTTRReportData?.[0],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getBDHoursGraphData/:purpose/:filter/:selectedId",
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      const BDHours = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%m",
+                date: "$sheetIssuedDateAndTimeOfBM",
+                timezone: timezone,
+              },
+            },
+            hours: {
+              $sum: {
+                $divide: [
+                  {
+                    $subtract: [
+                      "$sheetCompletedDateAndTime",
+                      "$sheetIssuedDateAndTimeOfBM",
+                    ],
+                  },
+                  3600000,
+                ],
+              },
+            },
+            target: {
+              $sum: {
+                $divide: [
+                  {
+                    $subtract: [
+                      "$sheetCompletedDateAndTime",
+                      "$sheetIssuedDateAndTimeOfBM",
+                    ],
+                  },
+                  3600000,
+                ],
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            array: { $push: "$$ROOT" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            array: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthInDecimal", "$array._id"] },
+                    {
+                      month: "$$month.monthName",
+                      value: {
+                        $arrayElemAt: [
+                          "$array",
+                          {
+                            $indexOfArray: [
+                              "$array._id",
+                              "$$month.monthInDecimal",
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      month: "$$month.monthName",
+                      value: {
+                        _id: "$$month.monthInDecimal",
+                        hours: 0,
+                        target: 0,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        { $unwind: "$array" },
+        {
+          $replaceRoot: { newRoot: "$array" },
+        },
+        {
+          $group: {
+            _id: null,
+            labels: { $push: "$month" },
+            target: { $push: "$value.target" },
+            data: {
+              $push: "$value.hours",
+            },
+            backgroundColor: {
+              $push: {
+                $cond: [
+                  {
+                    $gt: ["$value.hours", "$value.target"],
+                  },
+                  "red",
+                  "green",
+                ],
+              },
+            },
+          },
+        },
+      ]);
+
+    
+      return res.status(201).json({
+        message: "BDHours graph data get successfully",
+        BDHours: BDHours?.[0],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
