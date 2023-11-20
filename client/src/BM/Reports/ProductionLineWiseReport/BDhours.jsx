@@ -3,11 +3,11 @@ import React, { useEffect, useReducer } from "react";
 import { Container, Row, Col } from "reactstrap";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
 
-const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
+const BDhours = ({ selectedValue, flagForCellAndLineToggle }) => {
   const initialState = {
-    MTTRReportData: {
+    BDHours: {
       labels: [],
-      data: [],
+      MTTR: [],
       target: [],
       backgroundColor: [],
     },
@@ -28,7 +28,7 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
           ...state,
           isLoading: false,
           message: action?.message,
-          MTTRReportData: action?.MTTRReportData,
+          BDHours: action?.BDHours,
         };
 
       default:
@@ -38,11 +38,11 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
-  const getMTTRReportData = async () => {
+  const getBDHours = async () => {
     try {
       const res = await fetch(
-        `/getMTTRGraphData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
-        // `/getMTTRGraphData/${flagForCellAndLineToggle}/${selectedValue}`,
+        `/getBDHoursGraphData/by-default/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
+        // `/getBDHoursGraphData/${flagForCellAndLineToggle}/${selectedValue}`,
         {
           method: "GET",
           headers: {
@@ -53,13 +53,13 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
         }
       );
 
-      const { message, MTTRReportData } = await res.json();
+      const { message, BDHours } = await res.json();
 
       if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET,
           message,
-          MTTRReportData,
+          BDHours,
         });
       }
     } catch (error) {
@@ -69,7 +69,7 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
 
   useEffect(() => {
     if (selectedValue) {
-      getMTTRReportData();
+      getBDHours();
     }
   }, [selectedValue]);
 
@@ -78,7 +78,7 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
       <Row>
         <Col>
           <LineBarChartForProductionLineWise
-            ReportData={reduceState?.MTTRReportData}
+            ReportData={reduceState?.BDHours}
           />
         </Col>
       </Row>
@@ -86,4 +86,4 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
   );
 };
 
-export default MTTRComponent;
+export default BDhours;

@@ -14,7 +14,7 @@ import {
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
 
-const MTTRChart = ({ MTTRReportData }) => {
+const LineBarChartForProductionLineWise = ({ ReportData }) => {
   ChartJS.register(
     LinearScale,
     CategoryScale,
@@ -50,7 +50,7 @@ const MTTRChart = ({ MTTRReportData }) => {
   };
 
   const data = {
-    labels: MTTRReportData?.labels,
+    labels: ReportData?.labels,
     datasets: [
       {
         type: "line",
@@ -58,13 +58,13 @@ const MTTRChart = ({ MTTRReportData }) => {
         borderColor: "rgb(75, 192, 192)",
         borderWidth: 2,
         fill: false,
-        data: MTTRReportData?.target,
+        data: ReportData?.target,
       },
       {
         type: "bar",
         label: "Dataset 2",
-        backgroundColor: MTTRReportData?.backgroundColor,
-        data: MTTRReportData?.MTTR,
+        backgroundColor: ReportData?.backgroundColor,
+        data: ReportData?.data,
         borderColor: "white",
         borderWidth: 2,
         stack: "s-1",
@@ -74,4 +74,4 @@ const MTTRChart = ({ MTTRReportData }) => {
   return <Chart type="bar" data={data} options={options} />;
 };
 
-export default MTTRChart;
+export default LineBarChartForProductionLineWise;
