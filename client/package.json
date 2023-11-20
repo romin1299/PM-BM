@@ -21,6 +21,7 @@
     "axios": "^0.27.2",
     "bootstrap": "^5.2.0",
     "chart.js": "^4.0.1",
+    "chartjs-plugin-annotation": "^3.0.1",
     "chartjs-plugin-datalabels": "^2.2.0",
     "date-fns": "^2.0.0-alpha.27",
     "force": "^0.0.3",

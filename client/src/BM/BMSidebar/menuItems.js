@@ -89,6 +89,16 @@ export const menuItems = [
         route: "/bm/report/monthly-breakdown-trend",
         allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
+      {
+        title: "MTTR Report",
+        route: "/bm/report/mttr",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+      {
+        title: "MTBF Report",
+        route: "/bm/report/mtbf",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
     ],
   },
   {
