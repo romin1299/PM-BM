@@ -9,11 +9,13 @@ import {
   Legend,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { Box, Typography } from "@mui/material";
-import { Row, Col } from "react-bootstrap";
-import { chartColors } from "../../Utils/ChartUtils/chartEnums";
+import { Box, Divider, Paper, Typography } from "@mui/material";
+import { Row, Container } from "react-bootstrap";
+import {
+  MONTH_LABELS,
+  chartColors,
+} from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-
 
 ChartJS.register(
   CategoryScale,
@@ -68,98 +70,54 @@ export const options = {
       },
       title: {
         display: true,
-        text: "Days",
+        text: "Months",
       },
       ticks: {
-        color: 'black'
+        color: 'black',
+        maxRotation: 90,
+        minRotation: 90,
       },
     },
     y: {
       stacked: true,
       position: "left",
       ticks: {
-        color: 'black'
+        color: 'black',
       },
     },
-    y2: {
-      position: "right",
-      ticks: {
-        color: 'black'
-      },
-    },
+    
   },
 };
 
 const daysLabels = Array.from({ length: 30 }, (_, i) => (i + 1).toString());
 
 const getRandomDataArray = (max = 30) => {
-  return Array.from({ length: 30 }, () => Math.floor(Math.random() * max));
+  return Array.from({ length: 8 }, () => Math.floor(Math.random() * max));
 };
 
 const dataset = [
   {
-    // type: "line",
-    // label: "Total Count",
-    // data: getRandomDataArray(30),
-    // borderColor: chartColors.yellow[1],
-    // borderWidth: 2,
-    // backgroundColor: chartColors.magenta[1],
-    // fill: false,
-    // yAxisID: "y2",
     type: "line",
     label: "Total Count",
     data: getRandomDataArray(30),
     borderColor: chartColors.magenta[1],
     borderWidth: 2,
-    backgroundColor: 'rgba(202, 31, 75)',
+    backgroundColor: 'chartColors.magenta[1]',
     pointStyle: 'rectRot',
-    yAxisID: "y2",
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "< 60",
-    data: getRandomDataArray(60),
-    borderColor: chartColors.orange[1],
     yAxisID: "y",
-    pointStyle: 'rect'
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "< 120",
-    data: getRandomDataArray(120),
-    yAxisID: "y",
-    pointStyle: 'rect'
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "> 120",
-    data: getRandomDataArray(140),
-    yAxisID: "y",
-    pointStyle: 'rect'
   },
 ];
 
-// export const data = {
-//   labels: daysLabels,
-//   datasets: dataset.map((dataset, i) => ({
-//     ...dataset,
-//     backgroundColor: chartColors[i - 1],
-//   })),
-// };
-
 export const data = {
-  labels: daysLabels,
+  labels: MONTH_LABELS,
   datasets: dataset.map((dataset, i) => ({
     ...dataset,
-    backgroundColor: i === 0 ? 'rgba(202, 31, 75)' : dataset.label === "< 60" ? chartColors.orange[2] : dataset.label === "< 120" ? chartColors.green[0] : dataset.label === "> 120" ? chartColors.aqua[1] : chartColors[i - 1],
+    // backgroundColor: chartColors[i - 1],
+    backgroundColor: i === 0 ? chartColors.magenta[1] : dataset.label === "< 60" ? chartColors.blue[3] : dataset.label === "< 120" ? chartColors.green[3] : dataset.label === "> 120" ? chartColors.orange[2] : chartColors[i - 1],
   })),
 };
 
-
-const DailyBDTrendChart = () => {
+const TMProgress = () => {
   const [filteredData, setFilteredData] = useState(data);
 
   const [filterOptions, setFilterOptions] = useState({
@@ -184,26 +142,25 @@ const DailyBDTrendChart = () => {
   //   }, [filterOptions]);
 
   return (
-    <Box className="cell p-3 mt-3">
-      <Row>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-          sx={{ fontWeight: "500" }}
-        >
-          Daily Breakdown Trend
-        </Typography>
-        {/* <Col className="col-auto d-flex">
-            <FilterMenu DropdownValue="hour" />
-          </Col> */}
-      </Row>
+    <Box className="cell p-3">
+      <Row style={{ marginBottom: "1rem" }}>
+          <Typography
+            className="col"
+            variant="h5"
+            component="h5"
+            sx={{ fontWeight: "500" }}
+          >
+            TM Progress
+          </Typography>
+        </Row>
+        <Divider sx={{ mb: 4, borderColor: "black" }} />
+        <div style={{ width: "100%", height: "300px" }}>
+          <Chart data={data} options={options} />
+        </div>
+      </Box>
+    
 
-      <div style={{ width: "100%", height: "300px" }}>
-        <Chart data={data} options={options} />
-      </div>
-    </Box>
   );
 };
 
-export default DailyBDTrendChart;
+export default TMProgress;

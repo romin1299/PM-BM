@@ -57,9 +57,15 @@ export const options = {
         display: true,
         text: "Months",
       },
+      ticks:{
+        color:'black',
+      }
     },
     y: {
       stacked: true,
+      ticks:{
+        color:'black',
+      }
     },
   },
 };
@@ -90,7 +96,7 @@ export const data = {
   labels: serverResLabels,
   datasets: serverResDataset.map((dataset, i) => ({
     ...dataset,
-    backgroundColor: chartColors[1],
+    backgroundColor: chartColors.green[1],
   })),
 };
 

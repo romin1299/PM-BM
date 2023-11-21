@@ -6,14 +6,13 @@ import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 
 const sectionBoxStyle = {
   p: 1,
-  border: "1px solid lightgray",
   width: "100%",
 };
 
 const sectionBodyBoxStyle = {
-  height: "200px",
+  height: "100px",
   display: "flex",
-  borderTop: "1px solid lightgray",
+  borderRadius: "6px",
   gap: "10px",
   justifyContent: "center",
   alignItems: "center",
@@ -22,58 +21,58 @@ const sectionBodyBoxStyle = {
 
 const MajorBDCount = () => {
   return (
-    <Row className="m-2 mb-3">
-      <Col md={12} lg={6}>
-        <Typography
-          variant="h5"
-          component="h5"
-          sx={{ fontWeight: "500", textDecoration: "underline" }}
-        >
-          Major Breakdown Count
-        </Typography>
+    <Box className="cell p-3 mt-3">
+      <Row className="mb-3">
+        <Col md={12} lg={6} >
+          <Typography
+            variant="h5"
+            component="h5"
+            sx={{ fontWeight: "500", textDecoration: "underline" }}
+          >
+            Major Breakdown Count
+          </Typography>
 
-        <Typography variant="h6" component="p" className="mt-3">
-          FY 23:
-        </Typography>
+          <Typography variant="h6" component="h6" className="mt-3">
+            FY 23:
+          </Typography>
 
-        <Typography variant="h6" component="p">
-          Target → 12 Nos/Year
-        </Typography>
+          <Typography variant="h6" component="h6" className="mt-3">
+            <b>Target →</b> 12 Nos/Year
+          </Typography>
 
-        <Box sx={{ mt: 3, display: "flex" }}>
-          <Box sx={sectionBoxStyle}>
-            <Typography variant="h6" textAlign="center" fontWeight={600}>
-              Mounting MBD Count
-            </Typography>
-            <Box sx={sectionBodyBoxStyle}>
-              <Typography variant="h2" textAlign="center" fontWeight={600}>
-                1
+          <Box className="cell" sx={{ mt: 3, display: "flex" }}>
+            <Box sx={sectionBoxStyle}>
+              <Typography variant="h6" textAlign="center" fontWeight={600}>
+                Mounting MBD Count
               </Typography>
+              <Box sx={sectionBodyBoxStyle}>
+                <Typography variant="h4" textAlign="center" fontWeight={600}>
+                  1
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ ...sectionBoxStyle, borderLeft: "none" }}>
+              <Typography variant="h6" textAlign="center" fontWeight={600}>
+                Final MBD Count
+              </Typography>
+              <Box sx={sectionBodyBoxStyle}>
+                <Typography variant="h4" textAlign="center" fontWeight={600}>
+                  3
+                </Typography>
+              </Box>
             </Box>
           </Box>
+        </Col>
 
-          <Box sx={{ ...sectionBoxStyle, borderLeft: "none" }}>
-            <Typography variant="h6" textAlign="center" fontWeight={600}>
-              Final MBD Count
-            </Typography>
-            <Box sx={sectionBodyBoxStyle}>
-              <Typography variant="h2" textAlign="center" fontWeight={600}>
-                3
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-      </Col>
+        <Col md={12} lg={6} style={{ borderLeft: "1px solid lightgray" }}>
 
-      <Col
-        md={12}
-        lg={6}
-        className="d-flex justify-content-center align-items-center"
-        style={{ borderLeft: "1px solid lightgray" }}
-      >
-        <Bar options={options} data={data} />
-      </Col>
-    </Row>
+          <Bar options={options} data={data} />
+
+
+        </Col>
+      </Row>
+    </Box>
   );
 };
 
@@ -86,7 +85,7 @@ export const options = {
       text: "Hourly Trend",
     },
     legend: {
-      // align: "end",
+      align: "end",
       labels: {
         usePointStyle: true,
       },
@@ -106,6 +105,7 @@ export const options = {
         // autoSkip: false,
         maxRotation: 90,
         minRotation: 90,
+        color: 'black',
       },
     },
     y: {
@@ -114,6 +114,9 @@ export const options = {
         display: true,
         text: "Nos",
       },
+      ticks: {
+        color: 'black',
+      }
     },
   },
 };
@@ -140,11 +143,13 @@ export const data = {
       label: "MA",
       data: [1, 0, 0, 2, 0, 0],
       backgroundColor: chartColors.orange[2],
+      pointStyle: 'rect',
     },
     {
       label: "FA",
       data: [1, 1, 0, 0, 1, 0],
       backgroundColor: chartColors.aqua[1],
+      pointStyle: 'rect',
     },
   ],
 };

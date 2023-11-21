@@ -90,7 +90,7 @@ export const data = {
 
 const MachineTrend = () => {
   return (
-    <Box className="cell p-3">
+    <Box className="cell p-3 mb-3">
       <Row style={{ marginBottom: "1rem" }}>
         <Typography className="col" variant="h5" component="h5">
           Machine Trend
@@ -101,8 +101,8 @@ const MachineTrend = () => {
         </Col>
       </Row>
 
-      <div style={{ width: "100%", height: "250px" }}>
-        <Line options={options} data={data} />
+      <div style={{ height: "250px" }}>
+        <Line height={100} options={options} data={data} />
       </div>
     </Box>
   );

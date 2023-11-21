@@ -9,7 +9,7 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import { Box, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 import { Col, Row } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { FilterMenu } from "./SubComponents/FilterMenu";
@@ -26,6 +26,7 @@ ChartJS.register(
 export const options = {
   plugins: {
     legend: {
+      align: "end",
       labels: {
         usePointStyle: true,
       },
@@ -45,9 +46,15 @@ export const options = {
         display: true,
         text: "Months",
       },
+      ticks: {
+        color: 'black'
+      },
     },
     y: {
       stacked: true,
+      ticks: {
+        color: 'black'
+      },
     },
   },
 };
@@ -71,10 +78,12 @@ const serverResDataset = [
   {
     label: "BM",
     data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
+    pointStyle:'rect'
   },
   {
     label: "PM",
     data: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
+    pointStyle:'rect'
   },
 ];
 
@@ -102,7 +111,8 @@ export const data = {
   labels: serverResLabels,
   datasets: serverResDataset.map((dataset, i) => ({
     ...dataset,
-    backgroundColor: chartColors[i],
+    backgroundColor: i === 0 ? 'rgba(202, 31, 75)' : chartColors[i - 1],
+
   })),
 };
 
@@ -115,14 +125,14 @@ const ChartToPPTExample = () => {
           variant="h5"
           component="h5"
         >
-          Hour Trend - Example
+          Hour Trend
         </Typography>
 
         <Col className="col-auto d-flex">
           <FilterMenu DropdownValue="hour" />
         </Col>
       </Row>
-
+      <Divider sx={{ mb: 4, borderColor: "black" }} />
       <Bar options={options} data={data} />
     </Box>
   );

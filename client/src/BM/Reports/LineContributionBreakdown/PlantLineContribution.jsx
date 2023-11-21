@@ -61,8 +61,8 @@ export const options = {
 
             // },
             ticks: {
-                maxRotation: 90,
-                minRotation: 90,
+                // maxRotation: 90,
+                // minRotation: 90,
                 color: 'black'
             },
 
@@ -125,7 +125,7 @@ const data = {
             type: "line",
             label: "Breakdown Hrs",
             data: [19, 18, 16, 14, 12, 10, 8, 6, 4, 2, 1, 1],
-            borderColor: chartColors.yellow[1],
+            borderColor: chartColors.magenta[1],
             borderWidth: 2,
             fill: false,
             backgroundColor: chartColors.magenta[1],
@@ -147,37 +147,23 @@ const data = {
 
 const LineCondribution = () => {
     return (
-
-        <Container fluid>
-
-
-            <Row style={{ marginTop: "1.25rem" }}>
-                <Col lg={12}>
-                    <Box className="cell p-3">
-                        <Row style={{ marginBottom: "1rem" }}>
-                            <Typography
-                                className="col"
-                                variant="h5"
-                                component="h5"
-                            >
-                                Plant Contribution
-                            </Typography>
-
-                            <Col className="col-auto d-flex">
-                                <FilterMenu DropdownValue="hour" />
-                            </Col>
-                        </Row>
-                        <Divider sx={{ mb: 2, borderColor: "black" }} />
-                        <Chart height={120} options={options} data={data} />
-                    </Box>
-                </Col>
-
-
-
-            </Row>
-        </Container>
-
-
+        <Box className="cell p-3 mb-5">
+        <Row style={{ marginBottom: "1rem" }}>
+          <Typography
+            className="col"
+            variant="h5"
+            component="h5"
+          >
+            Plant Contribution
+          </Typography>
+  
+          <Col className="col-auto d-flex">
+            <FilterMenu DropdownValue="hour" />
+          </Col>
+        </Row>
+        <Divider sx={{ mb: 2, borderColor: "black" }} />
+        <Chart height={100} options={options} data={data} />
+      </Box>
     );
 };
 

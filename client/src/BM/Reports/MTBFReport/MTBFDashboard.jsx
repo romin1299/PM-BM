@@ -1,6 +1,6 @@
 import React from "react";
 import { Col, Container, Row } from "react-bootstrap";
-import { Paper, Typography } from "@mui/material";
+import { Box,Paper, Typography } from "@mui/material";
 import ChartsToolbar from "./SubComponents/ChartsToolbar";
 import MTTRTrendChart from "./MTBF_Trend";
 import LineTrend from "./LineTrend";
@@ -10,8 +10,8 @@ import MachineDataTable from "../MTTRReport/MachineDataTable";
 const MTBFDashboard = () => {
   return (
     <Container fluid>
-      <Paper elevation={0} variant="outlined" sx={{ mt: 2, p: 1, pl: 2 }}>
-        <Row>
+      <Box className="cell p-3 mb-3 mt-3">
+      <Row style={{ marginBottom: "1rem" }}>
           <Col className="d-flex align-items-center">
             <Typography variant="h4" component="h4">
               MTBF Report
@@ -20,9 +20,9 @@ const MTBFDashboard = () => {
 
           <ChartsToolbar />
         </Row>
-      </Paper>
+      
 
-      <Row style={{ marginTop: "1.25rem" }}>
+      <Row className="mt-3">
         <Col md={6}>
           <MTTRTrendChart />
         </Col>
@@ -39,6 +39,7 @@ const MTBFDashboard = () => {
           <MachineDataTable />
         </Col>
       </Row>
+      </Box>
     </Container>
   );
 };

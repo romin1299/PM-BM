@@ -112,7 +112,7 @@ export const data = {
 
 const LineTrend = () => {
   return (
-    <Box className="cell p-3">
+    <Box className="cell p-3 mb-3">
       <Row style={{ marginBottom: "1rem" }}>
         <Typography className="col" variant="h5" component="h5">
           Line Trend
@@ -123,7 +123,7 @@ const LineTrend = () => {
         </Col>
       </Row>
 
-      <Chart options={options} data={data} />
+      <Chart height={100} options={options} data={data} />
     </Box>
   );
 };

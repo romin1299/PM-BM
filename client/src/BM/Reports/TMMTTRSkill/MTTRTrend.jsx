@@ -3,7 +3,7 @@ import { Chart } from "react-chartjs-2";
 import { Box, Divider, Paper, Typography } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { Row, Col } from "react-bootstrap";
-import { FilterMenu } from "./SubComponents/FilterMenu";
+import { FilterMenu } from "../ManHourReport/SubComponents/FilterMenu";
 
 import {
   Chart as ChartJS,
@@ -47,7 +47,7 @@ export const options = {
       },
       title: {
         display: true,
-        text: "Months",
+        text: "TM Names",
       },
       ticks: {
         maxRotation: 90,
@@ -87,16 +87,7 @@ const TM_Names = [
 export const data = {
   labels: TM_Names,
   datasets: [
-    {
-      type: "line",
-      label: "Dataset 1",
-      data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-      borderColor: chartColors.blue[1],
-      borderWidth: 2,
-      fill: false,
-      backgroundColor: chartColors.blue[1],
-      pointBorderColor: chartColors.blue[1],
-    },
+    
     {
       type: "bar",
       stack: "bar-stacked",
@@ -107,20 +98,11 @@ export const data = {
       borderWidth: 0,
       pointStyle:'rect',
     },
-    {
-      type: "bar",
-      stack: "bar-stacked",
-      label: "Dataset 3",
-      data: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
-      backgroundColor: chartColors.red[0],
-      borderColor: chartColors.red[0],
-      borderWidth: 0,
-      pointStyle:'rect',
-    },
+    
   ],
 };
 
-const MTTRTrend = () => {
+const TMLoad = () => {
   return (
     <Box className="cell p-3">
       <Row style={{ marginBottom: "1rem" }}>
@@ -129,7 +111,7 @@ const MTTRTrend = () => {
           variant="h5"
           component="h5"
         >
-         MTTR Trend
+          TM Load
         </Typography>
 
         <Col className="col-auto d-flex">
@@ -139,16 +121,7 @@ const MTTRTrend = () => {
       <Divider sx={{ mb: 4, borderColor: "black" }} />
       <Chart options={options} data={data} />
     </Box>
-    // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>
-    //   <Typography variant="h5" component="h4">
-    //     TM Load
-    //   </Typography>
-
-    //   <Divider sx={{ mb: 4, borderColor: "black" }} />
-
-    //   <Chart options={options} data={data} />
-    // </Paper>
   );
 };
 
-export default MTTRTrend;
+export default TMLoad;
