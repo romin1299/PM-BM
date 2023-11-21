@@ -57,7 +57,7 @@ const LoginCard = ({ scannedMachineId }) => {
         // window.alert("Login Successful");
         if (scannedMachineId) {
           //call request-sheet component
-          navigate(`/bm/check-sheet/scanned/${scannedMachineId}`);
+          navigate(`/bm/request-sheet/scanned/${scannedMachineId}`);
           // refreshPage();
         } else {
           navigate("/bm", { replace: true });

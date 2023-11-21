@@ -17,6 +17,7 @@ import RequestSheetMainDashboard from "./RequestSheet/RequestSheetMainDashboard"
 import GenerateRequestSheetMainDashboard from "./RequestSheet/GenerateRequestSheetMainDashboard";
 import BMTabDashboard from "./Tabs/BMTabDashboard";
 import RequestSheetMonitoring from "./RequestSheetMonitoring/RequestSheetMonitoring";
+import RequestSheetUpdate from "./Tabs/RequestSheetForUpdate/MainRequestSheetForUpdate";
 import ProductionLineWiseReport from "./Reports/ProductionLineWiseReport/ProductionLineWiseReport";
 
 import MainCustomized from "./Customized/MainCustomized";
@@ -37,14 +38,6 @@ const userRoutes = [
       { path: "/bm", element: <AdminCreationDashboard /> },
       { path: "/bm/profile", element: <Profile /> },
       { path: "/bm/summeryDashboard", element: <SummeryDashboard /> },
-    ],
-  },
-  {
-    user_type: "Plant-Admin",
-    routes: [
-      { path: "/bm", element: <OperatorDashboard /> },
-      { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
-      { path: "/bm/check-sheet", element: <RequestSheet /> },
       {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,
@@ -54,7 +47,27 @@ const userRoutes = [
         element: <GenerateRequestSheetMainDashboard />,
       },
       {
-        path: "/bm/check-sheet/:generateType/:machine_code",
+        path: "/bm/request-sheet/:generateType/:machine_code",
+        element: <RequestSheet />,
+      },
+    ],
+  },
+  {
+    user_type: "Plant-Admin",
+    routes: [
+      { path: "/bm", element: <OperatorDashboard /> },
+      { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
+      { path: "/bm/request-sheet", element: <RequestSheet /> },
+      {
+        path: "/bm/requestListDashboard",
+        element: <RequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/generateRequestSheetMainDashboard",
+        element: <GenerateRequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
       },
       { path: "/bm/customizedDashboard", element: <MainCustomized /> },
@@ -64,11 +77,45 @@ const userRoutes = [
   },
   {
     user_type: "Section-Admin",
-    routes: [{ path: "/bm", element: <OperatorDashboard /> }],
+    routes: [
+      { path: "/bm", element: <OperatorDashboard /> },
+      { path: "/bm/profile", element: <Profile /> },
+      {
+        path: "/bm/requestListDashboard",
+        element: <RequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/generateRequestSheetMainDashboard",
+        element: <GenerateRequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/request-sheet/:generateType/:machine_code",
+        element: <RequestSheet />,
+      },
+    ],
   },
   {
     user_type: "Operator",
-    routes: [{ path: "/bm", element: <OperatorDashboard /> }],
+    routes: [
+      { path: "/bm", element: <OperatorDashboard /> },
+      { path: "/bm/profile", element: <Profile /> },
+      {
+        path: "/bm/requestListDashboard",
+        element: <RequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/generateRequestSheetMainDashboard",
+        element: <GenerateRequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/request-sheet/:generateType/:machine_code",
+        element: <RequestSheet />,
+      },
+      {
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
+        element: <RequestSheetUpdate />,
+      },
+    ],
   },
   {
     user_type: "TL/HOSS",
@@ -86,12 +133,16 @@ const userRoutes = [
         element: <GenerateRequestSheetMainDashboard />,
       },
       {
-        path: "/bm/check-sheet/:generateType/:machine_code",
+        path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
       },
       {
         path: "/bm/requestSheetMonitoring",
         element: <RequestSheetMonitoring />,
+      },
+      {
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
+        element: <RequestSheetUpdate />,
       },
       {
         path: "/bm/report/productionLineWiseReport",

@@ -20,6 +20,76 @@ const timezone = "Asia/Kolkata";
 router.use(cookieParser());
 router.use(authenticate);
 
+const {
+  PENDING_APPROVAL_LIST,
+  APPROVED_APPROVAL_LIST,
+  REJECTED_APPROVAL_LIST,
+  APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM,
+} = require("../GlobalData/RequestSheetApprovalStatus");
+
+const statusArray = [
+  "Generated",
+  "Assigned",
+  "Work Order Open",
+  "Work Order Pending",
+  "Work Order Closed",
+  "Fill sheet",
+  "Under MTD TL approval",
+  "Under MTD HOSS approval",
+  "Under MTD HOS approval",
+];
+
+const allMonths = [
+  {
+    monthName: "Apr",
+    monthInDecimal: "4",
+  },
+  {
+    monthName: "May",
+    monthInDecimal: "5",
+  },
+  {
+    monthName: "Jun",
+    monthInDecimal: "6",
+  },
+  {
+    monthName: "Jul",
+    monthInDecimal: "7",
+  },
+  {
+    monthName: "Aug",
+    monthInDecimal: "8",
+  },
+  {
+    monthName: "Sep",
+    monthInDecimal: "9",
+  },
+  {
+    monthName: "Oct",
+    monthInDecimal: "10",
+  },
+  {
+    monthName: "Nov",
+    monthInDecimal: "11",
+  },
+  {
+    monthName: "Dec",
+    monthInDecimal: "12",
+  },
+  {
+    monthName: "Jan",
+    monthInDecimal: "1",
+  },
+  {
+    monthName: "Feb",
+    monthInDecimal: "2",
+  },
+  {
+    monthName: "Mar",
+    monthInDecimal: "3",
+  },
+];
+
 router.get(
   "/getDataBasedOnScanningRequest/:sheetType/:machineCode",
   async (req, res, next) => {
@@ -101,12 +171,13 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
     let requestSheet;
 
 
-      if (req.rootUser.user_type === "Operator") {
+      if (
+        req.rootUser.user_type === "Operator" ||
+        req.rootUser.tm_department === "MTD"
+      ) {
         const {
           workStartedDateOfBM,
           workEndedDateOfBM,
-          workStartedTimeOfBM,
-          workEndedTimeOfBM,
           breakTime,
           qualityCheckTime,
           maintenanceTime,
@@ -122,35 +193,46 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
           why3,
           why4,
           why5,
+          changedParts,
+          feedbackMTD_HOS,
+          qualityConfirmed,
+          partQualityCheckedByMTD,
+          partQualityCheckedByPRD,
         } = req.body;
-
-      const startDateTimeBM = `${workStartedDateOfBM}T${workStartedTimeOfBM}`;
-      const endDateTimeBM = `${workEndedDateOfBM}T${workEndedTimeOfBM}`;
-      const requestSheetStartDateTime = new Date(startDateTimeBM);
-      const requestSheetEndDateTime = new Date(endDateTimeBM);
 
         let queryObj = {
           ...req.body,
           ..._idObject,
           "maintenanceReportFilledByMTD.workStartedDateOfBM":
-            requestSheetStartDateTime,
-          "maintenanceReportFilledByMTD.workEndedDateOfBM":
-            requestSheetEndDateTime,
+            workStartedDateOfBM,
+          "maintenanceReportFilledByMTD.workEndedDateOfBM": workEndedDateOfBM,
           "maintenanceReportFilledByMTD.actionAndCounterMeasureStep":
             actionAndCounterMeasureStep,
-          "maintenanceReportFilledByMTD.maintenanceTime": maintenanceTime,
           "maintenanceReportFilledByMTD.problemsOfBM": problemsOfBM,
-          "maintenanceReportFilledByMTD.breakTime": breakTime,
           "maintenanceReportFilledByMTD.breakDownTime": breakDownTime,
           "maintenanceReportFilledByMTD.whyAnalysis.why1": why1,
           "maintenanceReportFilledByMTD.whyAnalysis.why2": why2,
           "maintenanceReportFilledByMTD.whyAnalysis.why3": why3,
           "maintenanceReportFilledByMTD.whyAnalysis.why4": why4,
           "maintenanceReportFilledByMTD.whyAnalysis.why5": why5,
+          "maintenanceReportFilledByMTD.breakDownTime": breakDownTime,
+          "maintenanceReportFilledByMTD.maintenanceTime": maintenanceTime,
+          "maintenanceReportFilledByMTD.qualityCheckTime": qualityCheckTime,
+          "maintenanceReportFilledByMTD.breakTime": breakTime,
+          "maintenanceReportFilledByMTD.minorBD": minorBD,
+          "maintenanceReportFilledByMTD.majorBD": majorBD,
+          "maintenanceReportFilledByMTD.firstTime": firstTime,
+          "maintenanceReportFilledByMTD.repeat": repeat,
+          sparePartUsedOrNot: changedParts?.length > 0 ? true : false,
+          changedParts,
+          feedbackMTD_HOS,
+          qualityConfirmed,
+          partQualityCheckedByMTD,
+          partQualityCheckedByPRD,
         };
 
         requestSheet = await RequestSheetOfBM.findOneAndUpdate(
-          { _id: req.query.reqId },
+          { requestSheetNoOfBM: req.query.reqId },
           {
             $set: queryObj,
           },
@@ -158,6 +240,10 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
             new: true,
           }
         );
+        res.status(201).json({
+          message: "Request-sheet updated successfully",
+          requestSheet,
+        });
       } else {
         const {
           problemFaced,
@@ -168,18 +254,40 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
           who_person,
           which_defectLocation,
           how_details,
-          requestSheetdate,
-          requestSheettime,
+          // requestSheetdate,
+          // requestSheettime,
+          // sheetIssuedDate,
+          // sheetIssuedTime,
+          problemOccurredDateAndTimeOfBM,
+          sheetIssuedDateAndTimeOfBM,
           maintenanceType,
           priorityCode,
           qualityRelated,
           shiftOfBM,
-          sheetIssuedTime,
         } = req.body;
 
-        const combinedDateTimeString = `${requestSheetdate}T${requestSheettime}`;
-        const requestSheetDateTime = new Date(combinedDateTimeString);
-        const currentDateTime = new Date();
+        let requestSheetNos = machine.line_names.requestSheetNos + 1;
+
+        let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
+          { _id: machine.line_names._id },
+          // { $set: { $inc: { requestSheetNos: 1 } } },
+          { $set: { requestSheetNos } },
+          { new: true }
+        );
+
+        const requestSheetNoOfBM =
+          machine?.line_names?.cell_names?.subSection_names?.section_names
+            ?.dashboardLevel === "Yes"
+            ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
+                .substring(0, 2)
+                .toUpperCase()}_${machine?.line_names?.line_name}_${
+                moment().tz("Asia/Kolkata").month() + 1
+              }_${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim()
+            : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
+                .substring(0, 2)
+                .toUpperCase()}_${machine?.line_names?.line_name}_
+      ${moment().tz("Asia/Kolkata").month() + 1}_
+      ${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim();
 
         requestSheet = new RequestSheetOfBM({
           ...req.query,
@@ -190,10 +298,10 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
           priorityCode: priorityCode,
           qualityRelated: qualityRelated,
           shiftOfBM: shiftOfBM,
-          breakDownAttendedBy: req.rootUser._id,
+          // breakDownAttendedBy: req.rootUser._id,
           maintenanceType: maintenanceType || "BM",
-          problemOccurredDateAndTimeOfBM: requestSheetDateTime,
-          sheetIssuedDateAndTimeOfBM: sheetIssuedTime,
+          problemOccurredDateAndTimeOfBM,
+          sheetIssuedDateAndTimeOfBM,
           breakDownBasicDataFilledByPRD: {
             problemFaced,
             PRD_ObservationForProblem_5Why_1How,
@@ -207,11 +315,11 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
         });
 
         await requestSheet.save();
+        res.status(201).json({
+          message: "Request-sheet generated successfully",
+          requestSheet,
+        });
       }
-      res.status(201).json({
-        message: "Request-sheet generated successfully",
-        requestSheet,
-      });
     } else {
       res.status(404).json({ message: "Request-sheet not generated" });
     }
@@ -358,12 +466,25 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           handOverUser: {
             $arrayElemAt: ["$handoverUserDetails.tm_name", 0],
           },
-          handOverTime: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+          handOverTime: {
+            $dateToString: {
+              format: "%Y-%m-%d %H:%M:%S",
+              date: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+              timezone: "Asia/Kolkata",
+            },
+          },
           work_order_status: 1,
           requestSheetStatus: 1,
           MTDUser: { $arrayElemAt: ["$namesMTD.tm_name", 0] },
           problem: "$breakDownBasicDataFilledByPRD.problemFaced",
-          problemOccurredDateAndTimeOfBM: 1,
+          // problemOccurredDateAndTimeOfBM:
+          problemOccurredDateAndTimeOfBM: {
+            $dateToString: {
+              format: "%Y-%m-%d %H:%M:%S",
+              date: "$problemOccurredDateAndTimeOfBM",
+              timezone: "Asia/Kolkata",
+            },
+          },
           "maintenanceReportFilledByMTD.workEndedDateOfBM": 1,
           partQualityStatusOfPRD: 1,
           finalActivity: 1,
@@ -2208,6 +2329,46 @@ router.get(
 //   }
 // );
 
+router.get(
+  "/getMachineRequestSheetDetails/:machine_code/:requestSheetNoOfBM",
+  async (req, res, next) => {
+    try {
+      let requestSheetData = await RequestSheetOfBM.findOne({
+        requestSheetNoOfBM: req.params?.requestSheetNoOfBM,
+      })
+        .populate({ path: "machineRef" })
+        .populate({
+          path: "lineRef",
+        })
+        .populate({ path: "cellRef" })
+        .populate({ path: "plantRef" })
+        .populate({ path: "assignUser" })
+        .populate({ path: "requestSheetCreatedBy" })
+        .populate({ path: "approvalOfMTD_TL" })
+        .populate({ path: "approvalOfMTD_HOSS" })
+        .populate({ path: "approvalOfPRD_TL" })
+        .populate({ path: "approvalOfPRD_HOS" })
+        .populate({ path: "approvalOfMTD_HOS" })
+        .populate({ path: "approvalOfPRD_HOD" })
+        .populate({ path: "approvalOfMTD_HOD" })
+        .populate({ path: "partQualityCheckedByPRD" })
+        .populate({ path: "partQualityCheckedByMTD" })
+        .exec();
+
+      if (!requestSheetData) {
+        return res.status(400).json({
+          message: "No sheet found for the update",
+        });
+      }
+      res.status(201).json({
+        message: "Request-sheet data get successfully",
+        requestSheetData,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
 // -------------------------------------------------------------------------------
 //        Report 1 : Production/Line Wise KPI
 // -------------------------------------------------------------------------------
@@ -2289,6 +2450,152 @@ router.get(
   }
 );
 
+router.patch(
+  "/sendApprovalForRequestSheetOfBM/:reqId/:machineRef",
+  async (req, res, next) => {
+    try {
+      let { assignApprovalList, requestSheetDataOfBM } = req.body;
+
+      if (
+        !assignApprovalList?.MTD_TL &&
+        requestSheetDataOfBM?.assignUser?._id ===
+          (req?.rootUser?._id).toString()
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Please fill required approval list" });
+      }
+
+      if (
+        requestSheetDataOfBM?.assignUser?._id ===
+        (req?.rootUser?._id).toString()
+      ) {
+        const updateAssignApprovalOfMTD_TL =
+          await RequestSheetOfBM.findOneAndUpdate(
+            {
+              requestSheetNoOfBM: req.params?.reqId,
+              assignUser: req?.rootUser?._id,
+            },
+            {
+              $set: {
+                approvalOfMTD_TL: assignApprovalList?.MTD_TL,
+                approvalStatusOfMTD_TL: "MTD TL Approval Pending",
+                approvalDateAndTimeOfMTD_TL: new Date(),
+                requestSheetStatus: "MTD TL Approval Pending",
+              },
+              $push: {
+                approvalLogOfMTD_TL: assignApprovalList?.MTD_TL,
+                approvalStatusLogOfMTD_TL: "MTD TL Approval Pending",
+                approvalDateAndTimeLogOfMTD_TL: new Date(),
+              },
+            },
+            { new: true }
+          ).exec();
+
+        if (updateAssignApprovalOfMTD_TL) {
+          return res.status(201).json({
+            message: "Successfully send approval to MTD TL!",
+            updateAssignApprovalOfMTD_TL,
+          });
+        }
+      }
+
+      Object.keys(assignApprovalList).forEach(
+        (key) =>
+          assignApprovalList[key] === "" && delete assignApprovalList[key]
+      );
+
+      const updateTheStatusOfBMSheetApprover = async (
+        keyOfDepartment,
+        assignApprovalList
+      ) => {
+        let queryObjForUpdate = {},
+          queryObjForPush = {};
+
+        queryObjForUpdate = {
+          ...queryObjForUpdate,
+          [`approvalOf${keyOfDepartment}`]: assignApprovalList[keyOfDepartment],
+          [`approvalStatusOf${keyOfDepartment}`]: `${keyOfDepartment.replace(
+            "_",
+            " "
+          )} Approval Pending`,
+          [`approvalDateAndTimeOf${keyOfDepartment}`]: new Date(),
+        };
+
+        queryObjForPush = {
+          ...queryObjForPush,
+          [`approvalLogOf${keyOfDepartment}`]:
+            assignApprovalList[keyOfDepartment],
+          [`approvalStatusLogOf${keyOfDepartment}`]: `${keyOfDepartment.replace(
+            "_",
+            " "
+          )} Approval Pending`,
+          [`approvalDateAndTimeLogOf${keyOfDepartment}`]: new Date(),
+        };
+
+        let resultOfUpdateStatusOfApprover =
+          await RequestSheetOfBM.findOneAndUpdate(
+            {
+              requestSheetNoOfBM: req.params?.reqId,
+              approvalOfMTD_TL: req?.rootUser?._id,
+            },
+            {
+              $set: {
+                ...queryObjForUpdate,
+                requestSheetStatus: "MTD TL Approval Approved",
+              },
+              $push: {
+                ...queryObjForPush,
+              },
+            },
+
+            { new: true }
+          );
+      };
+
+      if (assignApprovalList?.minorBD === "Yes") {
+        Object.keys(assignApprovalList).forEach((key) => {
+          if (
+            requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
+              key.replace("_", " ")
+            )
+          ) {
+            updateTheStatusOfBMSheetApprover(key, assignApprovalList);
+          }
+        });
+        return res
+          .status(201)
+          .json({
+            message: `${req.params?.reqId} Request-sheet approval send !!`,
+          });
+      } else {
+        Object.keys(assignApprovalList).forEach((key) => {
+          if (
+            requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+              key.replace("_", " ")
+            )
+          ) {
+            updateTheStatusOfBMSheetApprover(key, assignApprovalList);
+          }
+        });
+        return res
+          .status(201)
+          .json({ message: "Request-sheet approval send !!" });
+      }
+
+      console.log(resultOfUpdateStatusOfApprover);
+
+      // if (resultOfUpdateStatusOfApprover) {
+      //   res.status(201).json({ message: "Request-sheet approval send !!" });
+      // } else {
+      //   console.error();
+      //   res.status(400).json({ message: "Approval not send" });
+      // }
+      //send email of approval to MTD TL (Remaining)
+    } catch (error) {
+      console.log(error);
+    }
+  })
 const filterMiddleware = async (req, res, next) => {
   try {
     let queryObj = {};

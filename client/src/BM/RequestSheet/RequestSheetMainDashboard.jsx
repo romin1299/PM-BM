@@ -231,6 +231,7 @@ const RequestSheetMainDashboard = () => {
       title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       editable: false,
+      width: "5%",
     },
     {
       title: "Request No",
@@ -265,6 +266,11 @@ const RequestSheetMainDashboard = () => {
     {
       title: "Date-time",
       field: "problemOccurredDateAndTimeOfBM",
+      editable: false,
+    },
+    {
+      title: "R.S Status",
+      field: "requestSheetStatus",
       editable: false,
     },
     {
@@ -374,6 +380,22 @@ const RequestSheetMainDashboard = () => {
         console.log("----------", selectedRow);
       },
     },
+    (row) => ({
+      icon: () => <DescriptionIcon />,
+      tooltip: "Update Action",
+      position: "row",
+      disabled:
+        row?.work_order_status === "Pending" ||
+        row?.work_order_status === "Closed"
+          ? false
+          : true,
+      onClick: (event, selectedRow) => {
+        console.log("----------", selectedRow);
+        navigate(
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`
+        );
+      },
+    }),
   ];
 
   return (

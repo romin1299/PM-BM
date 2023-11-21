@@ -35,37 +35,19 @@ export const menuItems = [
         allowedRoles: ["TL/HOSS", "Plant-Admin"],
       },
       {
-        title: "Plant Dashboard",
+        title: "Admin",
+        route: "/bm/requestListDashboard",
+        allowedRoles: ["Admin"],
+      },
+      {
+        title: "Request Sheets",
+        route: "/bm/requestListDashboard",
+        allowedRoles: ["Admin", "TL/HOSS", "Plant-Admin", "Operator"],
+      },
+      {
+        title: "Summary",
         route: "/bm/summeryDashboard",
-        allowedRoles: ["TL/HOSS"],
-      },
-    ],
-    allowedDepartments: ["MTD"],
-  },
-  // {
-  //   title: "Check Sheet",
-  //   icon: <SummarizeIcon className="text-white" />,
-  //   route: "/bm/check-sheet",
-  //   allowedRoles: ["TL/HOSS", "Plant-Admin"],
-  // },
-  {
-    title: "Creation",
-    icon: <FaThList className="text-white" />,
-    subItems: [
-      {
-        title: "Creation Dashboard",
-        route: "/bm/creationDashboard",
-        allowedRoles: ["HOD", "TL/HOSS"],
-      },
-      {
-        title: "User Assign",
-        route: "/bm/userAssign",
-        allowedRoles: ["HOD", "TL/HOSS"],
-      },
-      {
-        title: "CheckSheet Dashboard",
-        route: "/bm/checkSheetDashboard",
-        allowedRoles: ["HOD", "TL/HOSS"],
+        allowedRoles: ["Admin", "TL/HOSS", "Plant-Admin", "Operator"],
       },
     ],
     allowedDepartments: ["MTD", "PRD"],
@@ -73,25 +55,14 @@ export const menuItems = [
   {
     title: "Approval",
     icon: <AddTaskIcon className="text-white" />,
-    subItems: [
-      {
-        title: "Preparation Approval",
-        route: "/bm/preparationApproval",
-        allowedRoles: ["TL/HOSS"],
-      },
-      {
-        title: "Implementation Approval",
-        route: "/bm/implementationApproval",
-        allowedRoles: ["TL/HOSS"],
-      },
-    ],
-    allowedDepartments: ["MTD"],
+    route: "/bm/requestListDashboard",
+    allowedRoles: ["TL/HOSS", "Plant-Admin", "Operator"],
   },
   {
     title: "Customized Dashboard",
     icon: <ControlPointIcon className="text-white" />,
     route: "/bm/customizedDashboard",
-    allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+    allowedRoles: ["TL/HOSS", "Plant-Admin", "Operator"],
   },
   {
     title: "Reports",
@@ -144,6 +115,145 @@ export const menuItems = [
     title: "Profile",
     icon: <AccountCircleIcon className="text-white" />,
     route: "/bm/profile",
-    allowedRoles: ["Admin", "Plant-Admin", "operator", "TL/HOSS"],
+    allowedRoles: ["Admin", "Plant-Admin", "Operator", "TL/HOSS"],
   },
+  // {
+  //   title: "Creation",
+  //   icon: <FaThList className="text-white" />,
+  //   subItems: [
+  //     {
+  //       title: "Creation Dashboard",
+  //       route: "/bm/creationDashboard",
+  //       allowedRoles: ["Admin", "Plant-Admin", "Operator", "TL/HOSS"],
+  //     },
+  //     {
+  //       title: "User Assign",
+  //       route: "/bm/userAssign",
+  //       allowedRoles: ["Admin", "Plant-Admin", "Operator", "TL/HOSS"],
+  //     },
+  //     {
+  //       title: "CheckSheet Dashboard",
+  //       route: "/bm/checkSheetDashboard",
+  //       allowedRoles: ["Admin", "Plant-Admin", "Operator", "TL/HOSS"],
+  //     },
+  //   ],
+  //   allowedDepartments: ["MTD"],
+  // },
+  // {
+  //   title: "Approval",
+  //   icon: <AddTaskIcon className="text-white" />,
+  //   subItems: [
+  //     {
+  //       title: "Preparation Approval",
+  //       route: "/bm/preparationApproval",
+  //       allowedRoles: ["TL/HOSS"],
+  //     },
+  //     {
+  //       title: "Implementation Approval",
+  //       route: "/bm/implementationApproval",
+  //       allowedRoles: ["TL/HOSS"],
+  //     },
+  //   ],
+  //   allowedDepartments: ["MTD"],
+  // },
+  // {
+  //   title: "Approval Log",
+  //   icon: <StorageIcon className="text-white" />,
+  //   subItems: [
+  //     {
+  //       title: "Preparation / Planning",
+  //       route: "/bm/SheetApproval",
+  //       allowedRoles: ["TL/HOSS"],
+  //     },
+  //     {
+  //       title: "BM Plan vs Actual Approval",
+  //       route: "/bm/SheetApprovalOfImplementationPhase",
+  //       allowedRoles: ["TL/HOSS"],
+  //     },
+  //   ],
+  //   allowedDepartments: ["MTD"],
+  // },
+  // {
+  //   title: "BM Log",
+  //   icon: <LibraryBooksIcon className="text-white" />,
+  //   subItems: [
+  //     {
+  //       title: "BM Log",
+  //       route: "/bm/logHistory",
+  //       allowedRoles: ["TL/HOSS"],
+  //     },
+  //     {
+  //       title: "Pending BM Log History",
+  //       route: "/bm/pendingBMLogHistory",
+  //       allowedRoles: ["TL/HOSS"],
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "BM Report",
+  //   icon: <AssessmentIcon className="text-white" />,
+  //   subItems: [
+  //     {
+  //       title: "Monthly Report (Machine)",
+  //       route: "/bm/machineWiseBmMonthlyReport",
+  //       allowedRoles: ["TL/HOSS"],
+  //     },
+  //     {
+  //       title: "Monthly Report (Line)",
+  //       route: "/bm/lineWiseBmMonthlyReport",
+  //       allowedRoles: ["TL/HOSS"],
+  //     },
+  //     {
+  //       title: "Annual BM Schedule",
+  //       route: "/bm/annualBMSchedule",
+  //       allowedRoles: ["TL/HOSS"],
+  //     },
+  //     {
+  //       title: "Annual BM BM vs Actual",
+  //       route: "/bm/annualBmStatus",
+  //       allowedRoles: ["TL/HOSS"],
+  //     },
+  //     {
+  //       title: "BM Time Monitoring",
+  //       route: "/bmTimeMonitoringReport",
+  //       allowedRoles: ["TL/HOSS"],
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Back-end Data",
+  //   icon: <CloudDownloadIcon className="text-white" />,
+  //   route: "/bm/backupDataOfCheckSheet",
+  //   allowedRoles: ["TL/HOSS"],
+  // },
+  // {
+  //   title: "Open Abnormality Tracking",
+  //   icon: <PendingActionsIcon className="text-white" />,
+  //   route: "/bm/openAbnormalityTrack",
+  //   allowedRoles: ["TL/HOSS"],
+  // },
+  // {
+  //   title: "Spare Entry",
+  //   icon: <AddToPhotosIcon className="text-white" />,
+  //   route: "/bm/OperatorDataEntry",
+  //   allowedRoles: ["TL/HOSS"],
+  // },
+  // {
+  //   title: "Spare Log",
+  //   icon: <BackupTableIcon className="text-white" />,
+  //   route: "/bm/sparePartUsageHistory",
+  //   allowedRoles: ["TL/HOSS"],
+  // },
+  // {
+  //   title: "Spare Report",
+  //   icon: <SummarizeIcon className="text-white" />,
+  //   route: "/bm/spareReportDashboard",
+  //   allowedRoles: ["TL/HOSS"],
+  // },
+  // {
+  //   title: "Request-sheet dashboard",
+  //   icon: <SummarizeIcon className="text-white" />,
+  //   route: "/bm/requestListDashboard",
+  //   allowedRoles: ["TL/HOSS"],
+  // },
 ];
