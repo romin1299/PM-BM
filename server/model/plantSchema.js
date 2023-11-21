@@ -16,15 +16,28 @@ const plantSchema = new mongoose.Schema({
     },
   ],
 
-  differentCategories: [
+  categories: [
     {
-      categoryName: { type: String },
-      categories: { type: [String] },
+      name: { type: String },
+      subCategories: [
+        {
+          name: { type: String },
+        },
+      ],
     },
   ],
   approvalListOfMinorAndMajor: {
     minorApprovalList: { type: [String] },
     majorApprovalList: { type: [String] },
+  },
+
+  // hourly filter options for product/line report
+  lessThanValue: {
+    type: [Number],
+  },
+  greaterThan: {
+    type: Number,
+    default: 0,
   },
 });
 

@@ -20,6 +20,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   },
   sheetCompletedDateAndTime: {
     type: Date,
+    default: new Date(),
   },
   breakDownBasicDataFilledByPRD: {
     problemFaced: { type: String },

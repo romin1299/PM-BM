@@ -17,7 +17,14 @@ import RequestSheetMainDashboard from "./RequestSheet/RequestSheetMainDashboard"
 import GenerateRequestSheetMainDashboard from "./RequestSheet/GenerateRequestSheetMainDashboard";
 import RequestSheetMonitoring from "./RequestSheetMonitoring/RequestSheetMonitoring";
 import RequestSheetUpdate from "./Tabs/RequestSheetForUpdate/MainRequestSheetForUpdate";
+import ProductionLineWiseReport from "./Reports/ProductionLineWiseReport/ProductionLineWiseReport";
+
 import MainCustomized from "./Customized/MainCustomized";
+import ManHourDashboard from "./Reports/ManHourReport/ManHourDashboard";
+import MonthlyBDTDashboard from "./Reports/MonthlyBDTrend/MonthlyBDDashboard";
+import DailyBTDashboard from "./Reports/DailyBreakdownTrend/DailyBDDashboard";
+import MTTRDashboard from "./Reports/MTTRReport/MTTRDashboard";
+import MTBFDashboard from "./Reports/MTBFReport/MTBFDashboard";
 // Define an array of routes for each user type
 const userRoutes = [
   {
@@ -133,6 +140,27 @@ const userRoutes = [
       {
         path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
         element: <RequestSheetUpdate />,
+      },
+      {
+        path: "/bm/report/productionLineWiseReport",
+        element: <ProductionLineWiseReport />,
+      },
+      { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
+      {
+        path: "/bm/report/daily-breakdown-trend",
+        element: <DailyBTDashboard />,
+      },
+      {
+        path: "/bm/report/monthly-breakdown-trend",
+        element: <MonthlyBDTDashboard />,
+      },
+      {
+        path: "/bm/report/mttr",
+        element: <MTTRDashboard />,
+      },
+      {
+        path: "/bm/report/mtbf",
+        element: <MTBFDashboard />,
       },
     ],
   },
