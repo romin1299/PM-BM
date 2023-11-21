@@ -26,10 +26,10 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable({ selectedMachineDetails }) {
+function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { machine_code, generateType } = useParams();
+  const { machine_code, generateType, requestSheetNoOfBM } = useParams();
   const context = useContext(RoutingContext);
   const {
     register,
@@ -37,30 +37,16 @@ function MyTable({ selectedMachineDetails }) {
     formState: { errors },
     watch,
     reset,
+    setValue,
   } = useForm({
     defaultValues: {
-      problemOccurredDateAndTimeOfBM: moment(new Date()).format(
-        "YYYY-MM-DDTHH:mm"
-      ),
-      // requestSheettime: new Date().toLocaleString("en-US", {
-      //   timeZone: "Asia/Kolkata",
-      //   hour: "2-digit",
-      //   minute: "2-digit",
-      //   hour12: false,
-      // }),
-      sheetIssuedDateAndTimeOfBM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
-      // sheetIssuedTime: new Date().toLocaleString("en-US", {
-      //   timeZone: "Asia/Kolkata",
-      //   hour: "2-digit",
-      //   minute: "2-digit",
-      //   hour12: false,
-      // }),
+      ...requestSheetDataOfBM,
     },
   });
-  console.log(new Date());
+
   const selectedRequestSheetData = useLocation();
 
-  console.log(selectedRequestSheetData?.state?.selectedRow);
+  // console.log(selectedRequestSheetData?.state?.selectedRow)
 
   const [selectedShift, setSelectedShift] = useState("");
   // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
@@ -125,7 +111,10 @@ function MyTable({ selectedMachineDetails }) {
   }, []);
 
   const timezone = "Asia/Kolkata";
-  const startedDate = moment().tz(timezone).month() + 1;
+  const startedDate =
+    moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM)
+      .tz(timezone)
+      .month() + 1;
 
   let sheetIssuedTime = new Date().toLocaleString("en-US", {
     timeZone: "Asia/Kolkata",
@@ -134,7 +123,7 @@ function MyTable({ selectedMachineDetails }) {
     hour12: false,
   });
 
-  const momentTime = moment(sheetIssuedTime, "HH:mm");
+  const momentTime = moment(sheetIssuedTime, "hh:mm");
 
   const shiftOfBM = [
     {
@@ -157,8 +146,8 @@ function MyTable({ selectedMachineDetails }) {
   const getCurrentShiftName = () => {
     for (let shiftInfo of shiftOfBM) {
       if (
-        momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
-        momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
+        momentTime > moment(shiftInfo?.shiftStartTime, "hh:mm") &&
+        momentTime < moment(shiftInfo?.shiftEndTime, "hh:mm")
       )
         return shiftInfo.shiftName;
     }
@@ -166,13 +155,64 @@ function MyTable({ selectedMachineDetails }) {
     return null;
   };
 
+  useEffect(() => {
+    if (requestSheetDataOfBM?.requestSheetNoOfBM) {
+      setValue(
+        "problemOccurredDateAndTimeOfBM",
+        moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM)
+          .tz("Asia/Kolkata")
+          .format("YYYY-MM-DDTHH:mm")
+      );
+      setValue("maintenanceType", requestSheetDataOfBM?.maintenanceType);
+      setValue("priorityCode", requestSheetDataOfBM?.priorityCode);
+      setValue(
+        "problemFaced",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.problemFaced
+      );
+      setValue(
+        "PRD_ObservationForProblem_5Why_1How",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD
+          ?.PRD_ObservationForProblem_5Why_1How
+      );
+      setValue(
+        "why_5M_1E",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.why_5M_1E
+      );
+      setValue(
+        "where_process",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.where_process
+      );
+      setValue(
+        "when_frequency",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.when_frequency
+      );
+      setValue(
+        "who_person",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.who_person
+      );
+      setValue(
+        "which_defectLocation",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD
+          ?.which_defectLocation
+      );
+      setValue("shiftOfBM", requestSheetDataOfBM?.shiftOfBM);
+      setValue("qualityRelated", requestSheetDataOfBM?.qualityRelated);
+      setValue(
+        "breakDownAttendedBy",
+        requestSheetDataOfBM?.breakDownAttendedBy
+      );
+    }
+  }, [requestSheetDataOfBM?.requestSheetNoOfBM, setValue]);
+
   return (
     <>
       <ToastContainer />
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
         <Table>
           <thead>
-            <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
+            {/* <tr>
+              <th colSpan="4">Header with 4 Columns</th>
+            </tr> */}
           </thead>
           <tbody>
             <tr>
@@ -335,19 +375,7 @@ function MyTable({ selectedMachineDetails }) {
                     <b>REQUEST SHEET ( To be filled by PRD)</b>
                   </h6>
                   <p className="text-left border p-1 mb-2">
-                    <b>REQUEST No.</b>{" "}
-                    {selectedMachineDetails?.line_names?.cell_names
-                      ?.subSection_names?.section_names?.dashboardLevel ===
-                    "Yes"
-                      ? selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.section_name
-                          ?.substring(0, 2)
-                          ?.toUpperCase()
-                      : selectedMachineDetails?.line_names?.cell_names?.subSection_names?.subSection_name
-                          ?.substring(0, 2)
-                          ?.toUpperCase()}
-                    _{selectedMachineDetails?.line_names?.line_name}_
-                    {startedDate}_
-                    {selectedMachineDetails?.line_names?.requestSheetNos + 1}
+                    <b>REQUEST No.</b> {requestSheetNoOfBM}
                   </p>
                   <Row className="m-0">
                     <Col className="border">
@@ -362,18 +390,8 @@ function MyTable({ selectedMachineDetails }) {
                               <br />
                               <input
                                 type="datetime-local"
-                                {...register("problemOccurredDateAndTimeOfBM", {
-                                  required: "RequestSheet date is required",
-                                })}
+                                {...register("problemOccurredDateAndTimeOfBM")}
                               />
-                              {errors?.["problemOccurredDateAndTimeOfBM"] && (
-                                <p className="text-error">
-                                  {
-                                    errors?.["problemOccurredDateAndTimeOfBM"]
-                                      ?.message
-                                  }
-                                </p>
-                              )}
                             </p>
                           </div>{" "}
                           {/* &nbsp;&nbsp;&nbsp;&nbsp;
@@ -383,15 +401,8 @@ function MyTable({ selectedMachineDetails }) {
                               <br />
                               <input
                                 type="time"
-                                {...register("requestSheettime", {
-                                  required: "RequestSheet time is required",
-                                })}
+                                {...register("requestSheettime")}
                               />
-                              {errors?.["requestSheettime"] && (
-                                <p className="text-error">
-                                  {errors?.["requestSheettime"]?.message}
-                                </p>
-                              )}
                             </p>
                           </div> */}
                         </div>
@@ -407,36 +418,33 @@ function MyTable({ selectedMachineDetails }) {
                             <p className="mb-0">
                               <b>DATE & TIME: </b>
                               <br />
-                              <input
-                                type="datetime-local"
+                              {/* <input
+                                type="date"
                                 {...register(
-                                  "sheetIssuedDateAndTimeOfBM"
+                                  "sheetIssuedDate"
                                   //  {
                                   //   required: "Sheet Issued date is required",
                                   // }
                                 )}
                                 disabled
-                              />
-                              {/* {errors?.["sheetIssuedDateAndTimeOfBM"] && (
-                              <p className="text-error">{errors?.["sheetIssuedDateAndTimeOfBM"]?.message}</p>
-                            )} */}
+                              /> */}
+                              {moment(
+                                requestSheetDataOfBM?.sheetIssuedDateAndTimeOfBM
+                              )
+                                .tz("Asia/Kolkata")
+                                .format("DD-MM-YYYY THH:mm")}
                             </p>
                           </div>{" "}
-                          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                          {/* <div className="text-center">
+                          {/* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                          <div className="text-center">
                             <p className="mb-0">
                               <b>TIME: </b>
                               <br />
-                              <input
-                                type="time"
-                                {...register(
-                                  "sheetIssuedTime"
-                                  //  {
-                                  //   required: "Sheet Issued time is required",
-                                  // }
-                                )}
-                                disabled
-                              />
+                              {moment(
+                                requestSheetDataOfBM?.sheetIssuedDateAndTimeOfBM
+                              )
+                                .tz("Asia/Kolkata")
+                                .format("hh:mm")}
                             </p>
                           </div> */}
                         </div>
@@ -470,8 +478,8 @@ function MyTable({ selectedMachineDetails }) {
                     <p className="mb-0">
                       <b>DEPT./LINE</b>
                     </p>
-                    {selectedMachineDetails?.line_names?.cell_names?.cell_name}/
-                    {selectedMachineDetails?.line_names?.line_name}
+                    {requestSheetDataOfBM?.cellRef?.cell_name}/
+                    {requestSheetDataOfBM?.lineRef?.line_name}
                   </Col>
                 </Row>
                 <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
@@ -479,7 +487,7 @@ function MyTable({ selectedMachineDetails }) {
                     <p className="fs-6 mb-0">
                       <b>TL [PRD]</b>
                     </p>
-                    {context?.tm_name}
+                    {requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}
                     {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
@@ -499,13 +507,17 @@ function MyTable({ selectedMachineDetails }) {
                       <b>MACHINE NAME:</b>{" "}
                     </p>
                   </Col>
-                  <Col lg={3}>{selectedMachineDetails.machine_name}</Col>
+                  <Col lg={3}>
+                    {requestSheetDataOfBM?.machineRef?.machine_name}
+                  </Col>
                   <Col lg={2}>
                     <p className="mb-0">
                       <b>MACHINE NO.:</b>
                     </p>
                   </Col>
-                  <Col lg={3}>{selectedMachineDetails.machine_code}</Col>
+                  <Col lg={3}>
+                    {requestSheetDataOfBM?.machineRef?.machine_code}
+                  </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
@@ -517,18 +529,18 @@ function MyTable({ selectedMachineDetails }) {
                     <input
                       type="text"
                       id="prob"
-                      name="problemfaced"
+                      name="problemFaced"
                       className="m-1"
                       style={{ width: "350px" }}
                       {...register("problemFaced", {
                         required: "Please fill this field",
                       })}
                     />
-                    {errors?.["problemFaced"] && (
+                    {/* {errors?.["problemFaced"] && (
                       <p className="text-error">
                         {errors?.["problemFaced"]?.message}
                       </p>
-                    )}
+                    )} */}
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
@@ -550,14 +562,14 @@ function MyTable({ selectedMachineDetails }) {
                         required: "Please fill this field",
                       })}
                     />
-                    {errors?.["PRD_ObservationForProblem_5Why_1How"] && (
+                    {/* {errors?.["PRD_ObservationForProblem_5Why_1How"] && (
                       <p className="text-error">
                         {
                           errors?.["PRD_ObservationForProblem_5Why_1How"]
                             ?.message
                         }
                       </p>
-                    )}
+                    )} */}
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
@@ -781,7 +793,7 @@ function MyTable({ selectedMachineDetails }) {
                 className="btn bg-button"
                 style={{ marginTop: "1rem" }}
               >
-                Register
+                Update Filled PRD Data
               </button>
             </Col>
           </Row>

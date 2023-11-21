@@ -16,7 +16,7 @@ import RequestSheet from "./Tabs/RequestSheet/MainRequestSheet";
 import RequestSheetMainDashboard from "./RequestSheet/RequestSheetMainDashboard";
 import GenerateRequestSheetMainDashboard from "./RequestSheet/GenerateRequestSheetMainDashboard";
 import RequestSheetMonitoring from "./RequestSheetMonitoring/RequestSheetMonitoring";
-
+import RequestSheetUpdate from "./Tabs/RequestSheetForUpdate/MainRequestSheetForUpdate";
 import MainCustomized from "./Customized/MainCustomized";
 // Define an array of routes for each user type
 const userRoutes = [
@@ -36,7 +36,7 @@ const userRoutes = [
         element: <GenerateRequestSheetMainDashboard />,
       },
       {
-        path: "/bm/check-sheet/:generateType/:machine_code",
+        path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
       },
     ],
@@ -46,7 +46,7 @@ const userRoutes = [
     routes: [
       { path: "/bm", element: <OperatorDashboard /> },
       { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
-      { path: "/bm/check-sheet", element: <RequestSheet /> },
+      { path: "/bm/request-sheet", element: <RequestSheet /> },
       {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,
@@ -56,7 +56,7 @@ const userRoutes = [
         element: <GenerateRequestSheetMainDashboard />,
       },
       {
-        path: "/bm/check-sheet/:generateType/:machine_code",
+        path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
       },
       { path: "/bm/customizedDashboard", element: <MainCustomized /> },
@@ -78,7 +78,7 @@ const userRoutes = [
         element: <GenerateRequestSheetMainDashboard />,
       },
       {
-        path: "/bm/check-sheet/:generateType/:machine_code",
+        path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
       },
     ],
@@ -97,8 +97,12 @@ const userRoutes = [
         element: <GenerateRequestSheetMainDashboard />,
       },
       {
-        path: "/bm/check-sheet/:generateType/:machine_code",
+        path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
+      },
+      {
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
+        element: <RequestSheetUpdate />,
       },
     ],
   },
@@ -119,12 +123,16 @@ const userRoutes = [
         element: <GenerateRequestSheetMainDashboard />,
       },
       {
-        path: "/bm/check-sheet/:generateType/:machine_code",
+        path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
       },
       {
         path: "/bm/requestSheetMonitoring",
         element: <RequestSheetMonitoring />,
+      },
+      {
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
+        element: <RequestSheetUpdate />,
       },
     ],
   },

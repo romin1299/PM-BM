@@ -2,32 +2,34 @@ import React from "react";
 
 const DropdownElem = ({
   name,
-  id,
   options,
-  onChange,
-  value,
   className,
   selectedMinor,
+  selectedMajor,
   approvalList,
-  setValue
+  register,
+  required,
+  errors,
+  displayOrNot
 }) => {
   return (
     <div>
       <select
-        name={name}
-        id={id}
-        onChange={(e) => setValue(name, e.target.value)}
-        value={value}
         style={{ fontSize: "14px" }}
         className={
-          className || "" || selectedMinor === "Yes"
-            ? approvalList?.minorApprovalList?.includes(name)
-              ? "d-inline"
-              : "d-none"
-            : approvalList?.majorApprovalList?.includes(name)
+          className ||
+          "" ||
+          (displayOrNot && selectedMinor === "Yes" &&
+            approvalList?.minorApprovalList?.includes(name.replace("_", " ")))
             ? "d-inline"
-            : "d-none" | "d-none"
+            : displayOrNot && selectedMajor === "Yes" &&
+              approvalList?.majorApprovalList?.includes(name.replace("_", " "))
+            ? "d-inline"
+            : "d-none"
         }
+        {...register(name, 
+          (required = { required })
+          )}
       >
         <option selected disabled value="">
           Please select
@@ -36,6 +38,12 @@ const DropdownElem = ({
           <option value={obj?._id}>{obj?.tm_name}</option>
         ))}
       </select>
+      {errors?.[name] && (
+        <p className="text-error">{`Please select ${name.replace(
+          "_",
+          " "
+        )}`}</p>
+      )}
     </div>
   );
 };
