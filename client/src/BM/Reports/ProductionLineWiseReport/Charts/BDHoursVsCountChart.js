@@ -48,6 +48,7 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
       },
       y2: {
         stacked: true,
+        position: "right",
       },
     },
   };

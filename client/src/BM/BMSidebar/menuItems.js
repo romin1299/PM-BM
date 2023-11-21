@@ -124,6 +124,16 @@ export const menuItems = [
         allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
       {
+        title: "MTTR Report",
+        route: "/bm/report/mttr",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+      {
+        title: "MTBF Report",
+        route: "/bm/report/mtbf",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+      {
         title: "TM MTTR Skill",
         route: "/bm/report/tm-mtr",
         allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
