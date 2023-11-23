@@ -36,15 +36,13 @@ export const options = {
       },
     },
     datalabels: {
-      formatter: (value, context) => {
-        return value > 30 ? value : "";
-      },
-      formatter: (value, context) => {
-        if (context.dataset.type === "bar") {
-          return value > 30 ? value : "";
-        }
-        return value;
-      },
+      formatter: (value, context) => value || "",
+      // formatter: (value, context) => {
+      //   if (context.dataset.type === "bar") {
+      //     return value > 30 ? value : "";
+      //   }
+      //   return value;
+      // },
       font: { weight: "bold", size: 8 },
       // color: (context) => context.dataset.type === "line" ? chartColors[3] : "gray",
       anchor: (context) => (context.dataset.type === "line" ? "end" : "center"),
@@ -85,49 +83,8 @@ const getRandomDataArray = (max = 30) => {
   return Array.from({ length: 30 }, () => Math.floor(Math.random() * max));
 };
 
-const dataset = [
-  {
-    type: "line",
-    label: "Total Count",
-    data: getRandomDataArray(30),
-    borderColor: chartColors[3],
-    borderWidth: 2,
-    fill: false,
-    yAxisID: "y2",
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "< 60",
-    data: getRandomDataArray(60),
-    yAxisID: "y",
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "< 120",
-    data: getRandomDataArray(120),
-    yAxisID: "y",
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "> 120",
-    data: getRandomDataArray(140),
-    yAxisID: "y",
-  },
-];
-
-export const data = {
-  labels: daysLabels,
-  datasets: dataset.map((dataset, i) => ({
-    ...dataset,
-    backgroundColor: chartColors[i - 1],
-  })),
-};
-
-const DailyBDTrendChart = () => {
-  const [filteredData, setFilteredData] = useState(data);
+const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
+  const [filteredData, setFilteredData] = useState([]);
 
   const [filterOptions, setFilterOptions] = useState({
     lessThan60: false,
@@ -149,6 +106,94 @@ const DailyBDTrendChart = () => {
   //   useEffect(() => {
   //     filterData();
   //   }, [filterOptions]);
+
+  const [dailyBreakdownTrendData, setDailyBreakdownTrendData] = useState({
+    // labels: daysLabels,
+
+    // dayWiseCount: getRandomDataArray(30),
+    // lessThanOrEqualToOneHourData: getRandomDataArray(60),
+    // greaterThenOneAndLessThanOrEqualToTwoHourData: getRandomDataArray(120),
+    // greaterThenTwoHourData: getRandomDataArray(180),
+
+    labels: [],
+
+    dayWiseCount: [],
+    lessThanOrEqualToOneHourData: [],
+    greaterThenOneAndLessThanOrEqualToTwoHourData: [],
+    greaterThenTwoHourData: [],
+  });
+
+  const getDailyBreakdownTrendData = async () => {
+    try {
+      const res = await fetch(
+        `/getDailyBreakdownTrendData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
+        // `/getMTTRGraphData/${flagForCellAndLineToggle}/${selectedValue}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, dailyBreakdownTrendData } = await res.json();
+
+      if (res?.status === 201) {
+        setDailyBreakdownTrendData(dailyBreakdownTrendData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedValue) {
+      getDailyBreakdownTrendData();
+    }
+  }, [selectedValue]);
+
+  const datasets = [
+    {
+      type: "line",
+      label: "Total Count",
+      data: dailyBreakdownTrendData?.dayWiseCount,
+      borderColor: chartColors[3],
+      borderWidth: 2,
+      fill: false,
+      yAxisID: "y2",
+    },
+    {
+      type: "bar",
+      stack: "bar-stacked",
+      label: "< 1",
+      data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
+      yAxisID: "y",
+      backgroundColor: chartColors[0],
+    },
+    {
+      type: "bar",
+      stack: "bar-stacked",
+      label: "< 2",
+      data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
+      backgroundColor: chartColors[1],
+      yAxisID: "y",
+    },
+    {
+      type: "bar",
+      stack: "bar-stacked",
+      label: "> 2",
+      data: dailyBreakdownTrendData?.greaterThenTwoHourData,
+      backgroundColor: chartColors[2],
+      yAxisID: "y",
+    },
+  ];
+
+  const data = {
+    labels: dailyBreakdownTrendData?.labels,
+    datasets,
+  };
 
   return (
     <Box className="p-3">
