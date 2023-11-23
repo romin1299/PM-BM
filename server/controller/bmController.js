@@ -3743,7 +3743,7 @@ router.get(
             labels: { $push: "$month" },
             // target: { $push: "$value.target" },
             totalPercentage: {
-              $push: "$value.percentage",
+              $push: { $trunc: ["$value.percentage", 1] },
             },
             // backgroundColor: {
             //   $push: {
@@ -3837,21 +3837,37 @@ router.get(
 
             count: { $sum: 1 },
 
-            hours: {
-              $sum: {
-                $cond: [
-                  { $gt: ["$sheetIssuedDateAndTimeOfBM", null] },
-                  {
-                    $divide: [
-                      {
-                        $subtract: ["$prodTotal", "$bdTime"],
-                      },
-                      "$count",
-                    ],
-                  },
-                  0,
-                ],
-              },
+            // hours: {
+            //   $sum: {
+            //     $cond: [
+            //       { $gt: ["$sheetIssuedDateAndTimeOfBM", null] },
+            //       {
+            //         $divide: [
+            //           {
+            //             $subtract: ["$prodTotal", "$bdTime"],
+            //           },
+            //           "$count",
+            //         ],
+            //       },
+            //       0,
+            //     ],
+            //   },
+            // },
+          },
+        },
+
+
+        {
+          $project: {
+            count: 1,
+            hours: 1,
+            Hours: {
+              $divide: [
+                {
+                  $subtract: ["$prodTotal", "$bdTime"],
+                },
+                "$count",
+              ],
             },
           },
         },
@@ -3912,7 +3928,7 @@ router.get(
             labels: { $push: "$month" },
             // target: { $push: "$value.target" },
             MTBF: {
-              $push: "$value.count",
+              $push: "$value.hours",
             },
             // backgroundColor: {
             //   $push: {
@@ -4011,216 +4027,214 @@ router.get(
       //   $lte: endDate.toDate(),
       // },
     };
-    const plantWiseMonthlyBDTrend = [
-      // if(req.params.filterWise === "Plant"){
-      {
-        $facet: {
-          plantHourlyData: [
-            {
-              $match: queryObj,
-            },
-            {
-              $group: {
-                _id: {
-                  $dateToString: {
-                    format: "%m",
-                    date: "$sheetIssuedDateAndTimeOfBM",
-                    timezone: timezone,
-                  },
-                },
 
-                lessThanOne: {
-                  $sum: {
-                    $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
-                  },
-                },
-                lessThanTwo: {
-                  $sum: {
-                    $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
-                  },
-                },
-                greaterThanTwo: {
-                  $sum: {
-                    $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
-                  },
-                },
+    const plantWiseMonthlyBDTrend = await RequestSheetOfBM.aggregate(
+      [
+        {
+          $facet: {
+            plantHourlyData: [
+              {
+                $match: queryObj,
               },
-            },
-            // {
-            //   $project: {
-            //     lessThanOne: 1,
-            //     lessThanTwo: 1,
-            //     greaterThanTwo:1
-            //   },
-            // },
+              {
+                $group: {
+                  _id: {
+                    $dateToString: {
+                      format: "%m",
+                      date: "$sheetIssuedDateAndTimeOfBM",
+                      timezone: timezone,
+                    },
+                  },
 
-            {
-              $group: {
-                _id: null,
-                array: { $push: "$$ROOT" },
-              },
-            },
-
-            {
-              $project: {
-                _id: 0,
-                array: {
-                  $map: {
-                    input: allMonths,
-                    as: "month",
-                    in: {
-                      $cond: [
-                        { $in: ["$$month.monthInDecimal", "$array._id"] },
-                        {
-                          month: "$$month.monthName",
-                          value: {
-                            $arrayElemAt: [
-                              "$array",
-                              {
-                                $indexOfArray: [
-                                  "$array._id",
-                                  "$$month.monthInDecimal",
-                                ],
-                              },
-                            ],
-                          },
-                        },
-                        {
-                          month: "$$month.monthName",
-                          value: {
-                            _id: "$$month.monthInDecimal",
-                            lessThanOne: 0,
-                            lessThanTwo: 0,
-                            greaterThanTwo: 0,
-                          },
-                        },
-                      ],
+                  lessThanOne: {
+                    $sum: {
+                      $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
+                    },
+                  },
+                  lessThanTwo: {
+                    $sum: {
+                      $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
+                    },
+                  },
+                  greaterThanTwo: {
+                    $sum: {
+                      $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
                     },
                   },
                 },
               },
-            },
-            { $unwind: "$array" },
-            {
-              $replaceRoot: { newRoot: "$array" },
-            },
-            {
-              $group: {
-                _id: null,
-                labels: { $push: "$month" },
-                // target: { $push: "$value.target" },
-                LessThanOne: {
-                  $push: "$value.lessThanOne",
-                },
-                LessThanTwo: {
-                  $push: "$value.lessThanTwo",
-                },
-                GreaterThanTwo: {
-                  $push: "$value.greaterThanTwo",
+              // {
+              //   $project: {
+              //     lessThanOne: 1,
+              //     lessThanTwo: 1,
+              //     greaterThanTwo:1
+              //   },
+              // },
+
+              {
+                $group: {
+                  _id: null,
+                  array: { $push: "$$ROOT" },
                 },
               },
-            },
-          ],
 
-          sectionTotalData: [
-            {
-              $match: queryObj,
-            },
-            {
-              $group: {
-                _id: {
-                  date: dateObj,
-                  sectionRef: "$sectionRef",
-                },
-                bdTimeSum: { $sum: "$bdTime" },
-              },
-            },
-
-            {
-              $group: {
-                _id: "$_id.date",
-                sectionWiseTotal: {
-                  $push: {
-                    sectionRef: "$_id.sectionRef",
-                    bdTimeSum: "$bdTimeSum",
-                  },
-                },
-              },
-            },
-            // {
-            //   $project: {
-            //     _id: 0,
-            //     date: "$_id",
-            //     sectionWiseTotal: 1,
-            //   },
-            // },
-
-            {
-              $group: {
-                _id: null,
-                array: { $push: "$$ROOT" },
-              },
-            },
-
-            {
-              $project: {
-                _id: 0,
-                array: {
-                  $map: {
-                    input: allMonths,
-                    as: "month",
-                    in: {
-                      $cond: [
-                        { $in: ["$$month.monthInDecimal", "$array._id"] },
-                        {
-                          month: "$$month.monthName",
-                          value: {
-                            $arrayElemAt: [
-                              "$array",
-                              {
-                                $indexOfArray: [
-                                  "$array._id",
-                                  "$$month.monthInDecimal",
-                                ],
-                              },
-                            ],
+              {
+                $project: {
+                  _id: 0,
+                  array: {
+                    $map: {
+                      input: allMonths,
+                      as: "month",
+                      in: {
+                        $cond: [
+                          { $in: ["$$month.monthInDecimal", "$array._id"] },
+                          {
+                            month: "$$month.monthName",
+                            value: {
+                              $arrayElemAt: [
+                                "$array",
+                                {
+                                  $indexOfArray: [
+                                    "$array._id",
+                                    "$$month.monthInDecimal",
+                                  ],
+                                },
+                              ],
+                            },
                           },
-                        },
-                        {
-                          month: "$$month.monthName",
-                          value: {
-                            _id: "$$month.monthInDecimal",
-                            sectionWiseTotal: 0,
+                          {
+                            month: "$$month.monthName",
+                            value: {
+                              _id: "$$month.monthInDecimal",
+                              lessThanOne: 0,
+                              lessThanTwo: 0,
+                              greaterThanTwo: 0,
+                            },
                           },
-                        },
-                      ],
+                        ],
+                      },
                     },
                   },
                 },
               },
-            },
-            { $unwind: "$array" },
-            {
-              $replaceRoot: { newRoot: "$array" },
-            },
-            {
-              $group: {
-                _id: null,
-                labels: { $push: "$month" },
-                // target: { $push: "$value.target" },
-                sections: {
-                  $push: "$value.sectionWiseTotal",
+              { $unwind: "$array" },
+              {
+                $replaceRoot: { newRoot: "$array" },
+              },
+              {
+                $group: {
+                  _id: null,
+                  labels: { $push: "$month" },
+                  // target: { $push: "$value.target" },
+                  LessThanOne: {
+                    $push: "$value.lessThanOne",
+                  },
+                  LessThanTwo: {
+                    $push: "$value.lessThanTwo",
+                  },
+                  GreaterThanTwo: {
+                    $push: "$value.greaterThanTwo",
+                  },
                 },
               },
-            },
-          ],
+            ],
+
+            sectionTotalData: [
+              {
+                $match: queryObj,
+              },
+              {
+                $group: {
+                  _id: {
+                    date: dateObj,
+                    sectionRef: "$sectionRef",
+                  },
+                  bdTimeSum: { $sum: "$bdTime" },
+                },
+              },
+
+              {
+                $group: {
+                  _id: "$_id.date",
+                  sectionWiseTotal: {
+                    $push: {
+                      sectionRef: "$_id.sectionRef",
+                      bdTimeSum: "$bdTimeSum",
+                    },
+                  },
+                },
+              },
+              // {
+              //   $project: {
+              //     _id: 0,
+              //     date: "$_id",
+              //     sectionWiseTotal: 1,
+              //   },
+              // },
+
+              {
+                $group: {
+                  _id: null,
+                  array: { $push: "$$ROOT" },
+                },
+              },
+
+              {
+                $project: {
+                  _id: 0,
+                  array: {
+                    $map: {
+                      input: allMonths,
+                      as: "month",
+                      in: {
+                        $cond: [
+                          { $in: ["$$month.monthInDecimal", "$array._id"] },
+                          {
+                            month: "$$month.monthName",
+                            value: {
+                              $arrayElemAt: [
+                                "$array",
+                                {
+                                  $indexOfArray: [
+                                    "$array._id",
+                                    "$$month.monthInDecimal",
+                                  ],
+                                },
+                              ],
+                            },
+                          },
+                          {
+                            month: "$$month.monthName",
+                            value: {
+                              _id: "$$month.monthInDecimal",
+                              sectionWiseTotal: 0,
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+              { $unwind: "$array" },
+              {
+                $replaceRoot: { newRoot: "$array" },
+              },
+              {
+                $group: {
+                  _id: null,
+                  labels: { $push: "$month" },
+                  // target: { $push: "$value.target" },
+                  sections: {
+                    $push: "$value.sectionWiseTotal",
+                  },
+                },
+              },
+            ],
+          },
         },
-      },
-      // }
-    ];
-
-    const bdTrend = await RequestSheetOfBM.aggregate(
-      plantWiseMonthlyBDTrend
+        // }
+      ]
 
       //     MtbfLastYearData: [
       //       {
@@ -4254,15 +4268,16 @@ router.get(
     );
 
     return res.status(200).json({
-      message: "Monthly BD trend data get successfully",
-      totalCategories: bdTrend.length,
-      bdTrend: bdTrend?.[0],
+      message: "PlantWise Monthly BD trend data get successfully",
+
+      plantWiseMonthlyBDTrend: plantWiseMonthlyBDTrend?.[0],
     });
   }
 );
 
 router.get(
   "/sectionWiseMonthlyBDTrend/:sectionId",
+
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
     let queryObj = {};
@@ -4281,216 +4296,215 @@ router.get(
       //   $lte: endDate.toDate(),
       // },
     };
-    const sectionWiseMonthlyBDTrend = [
-      // if(req.params.filterWise === "Plant"){
-      {
-        $facet: {
-          sectionHourlyData: [
-            {
-              $match: queryObj,
-            },
-            {
-              $group: {
-                _id: {
-                  $dateToString: {
-                    format: "%m",
-                    date: "$sheetIssuedDateAndTimeOfBM",
-                    timezone: timezone,
-                  },
-                },
 
-                lessThanOne: {
-                  $sum: {
-                    $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
-                  },
-                },
-                lessThanTwo: {
-                  $sum: {
-                    $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
-                  },
-                },
-                greaterThanTwo: {
-                  $sum: {
-                    $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
-                  },
-                },
+    const sectionWiseMonthlyBDTrend = await RequestSheetOfBM.aggregate(
+      [
+        // if(req.params.filterWise === "Plant"){
+        {
+          $facet: {
+            sectionHourlyData: [
+              {
+                $match: queryObj,
               },
-            },
-            // {
-            //   $project: {
-            //     lessThanOne: 1,
-            //     lessThanTwo: 1,
-            //     greaterThanTwo:1
-            //   },
-            // },
+              {
+                $group: {
+                  _id: {
+                    $dateToString: {
+                      format: "%m",
+                      date: "$sheetIssuedDateAndTimeOfBM",
+                      timezone: timezone,
+                    },
+                  },
 
-            {
-              $group: {
-                _id: null,
-                array: { $push: "$$ROOT" },
-              },
-            },
-
-            {
-              $project: {
-                _id: 0,
-                array: {
-                  $map: {
-                    input: allMonths,
-                    as: "month",
-                    in: {
-                      $cond: [
-                        { $in: ["$$month.monthInDecimal", "$array._id"] },
-                        {
-                          month: "$$month.monthName",
-                          value: {
-                            $arrayElemAt: [
-                              "$array",
-                              {
-                                $indexOfArray: [
-                                  "$array._id",
-                                  "$$month.monthInDecimal",
-                                ],
-                              },
-                            ],
-                          },
-                        },
-                        {
-                          month: "$$month.monthName",
-                          value: {
-                            _id: "$$month.monthInDecimal",
-                            lessThanOne: 0,
-                            lessThanTwo: 0,
-                            greaterThanTwo: 0,
-                          },
-                        },
-                      ],
+                  lessThanOne: {
+                    $sum: {
+                      $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
+                    },
+                  },
+                  lessThanTwo: {
+                    $sum: {
+                      $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
+                    },
+                  },
+                  greaterThanTwo: {
+                    $sum: {
+                      $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
                     },
                   },
                 },
               },
-            },
-            { $unwind: "$array" },
-            {
-              $replaceRoot: { newRoot: "$array" },
-            },
-            {
-              $group: {
-                _id: null,
-                labels: { $push: "$month" },
-                // target: { $push: "$value.target" },
-                LessThanOne: {
-                  $push: "$value.lessThanOne",
-                },
-                LessThanTwo: {
-                  $push: "$value.lessThanTwo",
-                },
-                GreaterThanTwo: {
-                  $push: "$value.greaterThanTwo",
+              // {
+              //   $project: {
+              //     lessThanOne: 1,
+              //     lessThanTwo: 1,
+              //     greaterThanTwo:1
+              //   },
+              // },
+
+              {
+                $group: {
+                  _id: null,
+                  array: { $push: "$$ROOT" },
                 },
               },
-            },
-          ],
 
-          cellTotalData: [
-            {
-              $match: queryObj,
-            },
-            {
-              $group: {
-                _id: {
-                  date: dateObj,
-                  cellRef: "$cellRef",
-                },
-                bdTimeSum: { $sum: "$bdTime" },
-              },
-            },
-
-            {
-              $group: {
-                _id: "$_id.date",
-                cellWiseTotal: {
-                  $push: {
-                    cellRef: "$_id.cellRef",
-                    bdTimeSum: "$bdTimeSum",
-                  },
-                },
-              },
-            },
-            // {
-            //   $project: {
-            //     _id: 0,
-            //     date: "$_id",
-            //     sectionWiseTotal: 1,
-            //   },
-            // },
-
-            {
-              $group: {
-                _id: null,
-                array: { $push: "$$ROOT" },
-              },
-            },
-
-            {
-              $project: {
-                _id: 0,
-                array: {
-                  $map: {
-                    input: allMonths,
-                    as: "month",
-                    in: {
-                      $cond: [
-                        { $in: ["$$month.monthInDecimal", "$array._id"] },
-                        {
-                          month: "$$month.monthName",
-                          value: {
-                            $arrayElemAt: [
-                              "$array",
-                              {
-                                $indexOfArray: [
-                                  "$array._id",
-                                  "$$month.monthInDecimal",
-                                ],
-                              },
-                            ],
+              {
+                $project: {
+                  _id: 0,
+                  array: {
+                    $map: {
+                      input: allMonths,
+                      as: "month",
+                      in: {
+                        $cond: [
+                          { $in: ["$$month.monthInDecimal", "$array._id"] },
+                          {
+                            month: "$$month.monthName",
+                            value: {
+                              $arrayElemAt: [
+                                "$array",
+                                {
+                                  $indexOfArray: [
+                                    "$array._id",
+                                    "$$month.monthInDecimal",
+                                  ],
+                                },
+                              ],
+                            },
                           },
-                        },
-                        {
-                          month: "$$month.monthName",
-                          value: {
-                            _id: "$$month.monthInDecimal",
-                            cellWiseTotal: 0,
+                          {
+                            month: "$$month.monthName",
+                            value: {
+                              _id: "$$month.monthInDecimal",
+                              lessThanOne: 0,
+                              lessThanTwo: 0,
+                              greaterThanTwo: 0,
+                            },
                           },
-                        },
-                      ],
+                        ],
+                      },
                     },
                   },
                 },
               },
-            },
-            { $unwind: "$array" },
-            {
-              $replaceRoot: { newRoot: "$array" },
-            },
-            {
-              $group: {
-                _id: null,
-                labels: { $push: "$month" },
-                // target: { $push: "$value.target" },
-                cells: {
-                  $push: "$value.cellWiseTotal",
+              { $unwind: "$array" },
+              {
+                $replaceRoot: { newRoot: "$array" },
+              },
+              {
+                $group: {
+                  _id: null,
+                  labels: { $push: "$month" },
+                  // target: { $push: "$value.target" },
+                  LessThanOne: {
+                    $push: "$value.lessThanOne",
+                  },
+                  LessThanTwo: {
+                    $push: "$value.lessThanTwo",
+                  },
+                  GreaterThanTwo: {
+                    $push: "$value.greaterThanTwo",
+                  },
                 },
               },
-            },
-          ],
+            ],
+
+            cellTotalData: [
+              {
+                $match: queryObj,
+              },
+              {
+                $group: {
+                  _id: {
+                    date: dateObj,
+                    cellRef: "$cellRef",
+                  },
+                  bdTimeSum: { $sum: "$bdTime" },
+                },
+              },
+
+              {
+                $group: {
+                  _id: "$_id.date",
+                  cellWiseTotal: {
+                    $push: {
+                      cellRef: "$_id.cellRef",
+                      bdTimeSum: "$bdTimeSum",
+                    },
+                  },
+                },
+              },
+              // {
+              //   $project: {
+              //     _id: 0,
+              //     date: "$_id",
+              //     sectionWiseTotal: 1,
+              //   },
+              // },
+
+              {
+                $group: {
+                  _id: null,
+                  array: { $push: "$$ROOT" },
+                },
+              },
+
+              {
+                $project: {
+                  _id: 0,
+                  array: {
+                    $map: {
+                      input: allMonths,
+                      as: "month",
+                      in: {
+                        $cond: [
+                          { $in: ["$$month.monthInDecimal", "$array._id"] },
+                          {
+                            month: "$$month.monthName",
+                            value: {
+                              $arrayElemAt: [
+                                "$array",
+                                {
+                                  $indexOfArray: [
+                                    "$array._id",
+                                    "$$month.monthInDecimal",
+                                  ],
+                                },
+                              ],
+                            },
+                          },
+                          {
+                            month: "$$month.monthName",
+                            value: {
+                              _id: "$$month.monthInDecimal",
+                              cellWiseTotal: 0,
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+              { $unwind: "$array" },
+              {
+                $replaceRoot: { newRoot: "$array" },
+              },
+              {
+                $group: {
+                  _id: null,
+                  labels: { $push: "$month" },
+                  // target: { $push: "$value.target" },
+                  cells: {
+                    $push: "$value.cellWiseTotal",
+                  },
+                },
+              },
+            ],
+          },
         },
-      },
-      // }
-    ];
-
-    const bdTrend = await RequestSheetOfBM.aggregate(
-      sectionWiseMonthlyBDTrend
+        // }
+      ]
 
       //     MtbfLastYearData: [
       //       {
@@ -4523,9 +4537,9 @@ router.get(
       // ]
     );
     return res.status(200).json({
-      message: "Monthly BD trend data get successfully",
-      totalCategories: bdTrend.length,
-      bdTrend: bdTrend?.[0],
+      message: "Section Wise Monthly BD trend data get successfully",
+
+      sectionWiseMonthlyBDTrend: sectionWiseMonthlyBDTrend?.[0],
     });
   }
 );
@@ -4551,140 +4565,138 @@ router.get(
         $lt: moment().startOf("year").add(1, "year").toDate(),
       },
     };
-    const sectionWiseYearlyBDTrend = [
-      // if(req.params.filterWise === "Plant"){
-      {
-        $facet: {
-          plantHourlyData: [
-            {
-              $match: queryObj,
-            },
-            {
-              $group: {
-                _id: {
-                  $dateToString: {
-                    format: "%Y",
-                    date: "$sheetIssuedDateAndTimeOfBM",
-                    timezone: timezone,
-                  },
-                },
 
-                lessThanOne: {
-                  $sum: {
-                    $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
-                  },
-                },
-                lessThanTwo: {
-                  $sum: {
-                    $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
-                  },
-                },
-                greaterThanTwo: {
-                  $sum: {
-                    $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
-                  },
-                },
+    const plantWiseYearlyBDTrend = await RequestSheetOfBM.aggregate(
+      [
+        {
+          $facet: {
+            plantHourlyData: [
+              {
+                $match: queryObj,
               },
-            },
-            // // {
-            // //   $project: {
-            // //     lessThanOne: 1,
-            // //     lessThanTwo: 1,
-            // //     greaterThanTwo:1
-            // //   },
-            // // },
+              {
+                $group: {
+                  _id: {
+                    $dateToString: {
+                      format: "%Y",
+                      date: "$sheetIssuedDateAndTimeOfBM",
+                      timezone: timezone,
+                    },
+                  },
 
-            {
-              $group: {
-                _id: null,
-                array: { $push: "$$ROOT" },
-              },
-            },
-
-            { $unwind: "$array" },
-            {
-              $replaceRoot: { newRoot: "$array" },
-            },
-            {
-              $group: {
-                _id: null,
-                labels: { $push: "$_id" },
-                // target: { $push: "$value.target" },
-                LessThanOne: {
-                  $push: "$lessThanOne",
-                },
-                LessThanTwo: {
-                  $push: "$lessThanTwo",
-                },
-                GreaterThanTwo: {
-                  $push: "$greaterThanTwo",
-                },
-              },
-            },
-          ],
-
-          sectionTotalData: [
-            {
-              $match: queryObj,
-            },
-            {
-              $group: {
-                _id: {
-                  date: dateObj,
-                  sectionRef: "$sectionRef",
-                },
-                bdTimeSum: { $sum: "$bdTime" },
-              },
-            },
-
-            {
-              $group: {
-                _id: "$_id.date",
-                sectionWiseTotal: {
-                  $push: {
-                    sectionRef: "$_id.sectionRef",
-                    bdTimeSum: "$bdTimeSum",
+                  lessThanOne: {
+                    $sum: {
+                      $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
+                    },
+                  },
+                  lessThanTwo: {
+                    $sum: {
+                      $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
+                    },
+                  },
+                  greaterThanTwo: {
+                    $sum: {
+                      $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
+                    },
                   },
                 },
               },
-            },
-            // {
-            //   $project: {
-            //     _id: 0,
-            //     date: "$_id",
-            //     sectionWiseTotal: 1,
-            //   },
-            // },
+              // // {
+              // //   $project: {
+              // //     lessThanOne: 1,
+              // //     lessThanTwo: 1,
+              // //     greaterThanTwo:1
+              // //   },
+              // // },
 
-            {
-              $group: {
-                _id: null,
-                array: { $push: "$$ROOT" },
-              },
-            },
-
-            { $unwind: "$array" },
-            {
-              $replaceRoot: { newRoot: "$array" },
-            },
-            {
-              $group: {
-                _id: null,
-                labels: { $push: "$_id" },
-                // target: { $push: "$value.target" },
-                sections: {
-                  $push: "$sectionWiseTotal",
+              {
+                $group: {
+                  _id: null,
+                  array: { $push: "$$ROOT" },
                 },
               },
-            },
-          ],
+
+              { $unwind: "$array" },
+              {
+                $replaceRoot: { newRoot: "$array" },
+              },
+              {
+                $group: {
+                  _id: null,
+                  labels: { $push: "$_id" },
+                  // target: { $push: "$value.target" },
+                  LessThanOne: {
+                    $push: "$lessThanOne",
+                  },
+                  LessThanTwo: {
+                    $push: "$lessThanTwo",
+                  },
+                  GreaterThanTwo: {
+                    $push: "$greaterThanTwo",
+                  },
+                },
+              },
+            ],
+
+            sectionTotalData: [
+              {
+                $match: queryObj,
+              },
+              {
+                $group: {
+                  _id: {
+                    date: dateObj,
+                    sectionRef: "$sectionRef",
+                  },
+                  bdTimeSum: { $sum: "$bdTime" },
+                },
+              },
+
+              {
+                $group: {
+                  _id: "$_id.date",
+                  sectionWiseTotal: {
+                    $push: {
+                      sectionRef: "$_id.sectionRef",
+                      bdTimeSum: "$bdTimeSum",
+                    },
+                  },
+                },
+              },
+              // {
+              //   $project: {
+              //     _id: 0,
+              //     date: "$_id",
+              //     sectionWiseTotal: 1,
+              //   },
+              // },
+
+              {
+                $group: {
+                  _id: null,
+                  array: { $push: "$$ROOT" },
+                },
+              },
+
+              { $unwind: "$array" },
+              {
+                $replaceRoot: { newRoot: "$array" },
+              },
+              {
+                $group: {
+                  _id: null,
+                  labels: { $push: "$_id" },
+                  // target: { $push: "$value.target" },
+                  sections: {
+                    $push: "$sectionWiseTotal",
+                  },
+                },
+              },
+            ],
+          },
         },
-      },
-      // }
-    ];
-
-    const bdTrend = await RequestSheetOfBM.aggregate(
-      sectionWiseYearlyBDTrend
+        // }
+      ]
 
       //     MtbfLastYearData: [
       //       {
@@ -4717,9 +4729,9 @@ router.get(
       // ]
     );
     return res.status(200).json({
-      message: "Monthly BD trend data get successfully",
-      totalCategories: bdTrend.length,
-      bdTrend: bdTrend?.[0],
+      message: "Plant Wise Yearly BD trend data get successfully",
+
+      plantWiseYearlyBDTrend: plantWiseYearlyBDTrend?.[0],
     });
   }
 );
@@ -4744,140 +4756,139 @@ router.get(
         $lt: moment().startOf("year").add(1, "year").toDate(),
       },
     };
-    const sectionWiseMonthlyBDTrend = [
-      // if(req.params.filterWise === "Plant"){
-      {
-        $facet: {
-          sectionHourlyData: [
-            {
-              $match: queryObj,
-            },
-            {
-              $group: {
-                _id: {
-                  $dateToString: {
-                    format: "%Y",
-                    date: "$sheetIssuedDateAndTimeOfBM",
-                    timezone: timezone,
-                  },
-                },
 
-                lessThanOne: {
-                  $sum: {
-                    $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
-                  },
-                },
-                lessThanTwo: {
-                  $sum: {
-                    $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
-                  },
-                },
-                greaterThanTwo: {
-                  $sum: {
-                    $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
-                  },
-                },
+    const sectionWiseYearlyBDTrend = await RequestSheetOfBM.aggregate(
+      [
+        // if(req.params.filterWise === "Plant"){
+        {
+          $facet: {
+            sectionHourlyData: [
+              {
+                $match: queryObj,
               },
-            },
-            // {
-            //   $project: {
-            //     lessThanOne: 1,
-            //     lessThanTwo: 1,
-            //     greaterThanTwo:1
-            //   },
-            // },
+              {
+                $group: {
+                  _id: {
+                    $dateToString: {
+                      format: "%Y",
+                      date: "$sheetIssuedDateAndTimeOfBM",
+                      timezone: timezone,
+                    },
+                  },
 
-            {
-              $group: {
-                _id: null,
-                array: { $push: "$$ROOT" },
-              },
-            },
-
-            { $unwind: "$array" },
-            {
-              $replaceRoot: { newRoot: "$array" },
-            },
-            {
-              $group: {
-                _id: null,
-                labels: { $push: "$_id" },
-                // target: { $push: "$value.target" },
-                LessThanOne: {
-                  $push: "$lessThanOne",
-                },
-                LessThanTwo: {
-                  $push: "$lessThanTwo",
-                },
-                GreaterThanTwo: {
-                  $push: "$greaterThanTwo",
-                },
-              },
-            },
-          ],
-
-          cellTotalData: [
-            {
-              $match: queryObj,
-            },
-            {
-              $group: {
-                _id: {
-                  date: dateObj,
-                  cellRef: "$cellRef",
-                },
-                bdTimeSum: { $sum: "$bdTime" },
-              },
-            },
-
-            {
-              $group: {
-                _id: "$_id.date",
-                cellWiseTotal: {
-                  $push: {
-                    cellRef: "$_id.cellRef",
-                    bdTimeSum: "$bdTimeSum",
+                  lessThanOne: {
+                    $sum: {
+                      $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
+                    },
+                  },
+                  lessThanTwo: {
+                    $sum: {
+                      $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
+                    },
+                  },
+                  greaterThanTwo: {
+                    $sum: {
+                      $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
+                    },
                   },
                 },
               },
-            },
-            // {
-            //   $project: {
-            //     _id: 0,
-            //     date: "$_id",
-            //     sectionWiseTotal: 1,
-            //   },
-            // },
+              // {
+              //   $project: {
+              //     lessThanOne: 1,
+              //     lessThanTwo: 1,
+              //     greaterThanTwo:1
+              //   },
+              // },
 
-            {
-              $group: {
-                _id: null,
-                array: { $push: "$$ROOT" },
-              },
-            },
-
-            { $unwind: "$array" },
-            {
-              $replaceRoot: { newRoot: "$array" },
-            },
-            {
-              $group: {
-                _id: null,
-                labels: { $push: "$_id" },
-                // target: { $push: "$value.target" },
-                cells: {
-                  $push: "$cellWiseTotal",
+              {
+                $group: {
+                  _id: null,
+                  array: { $push: "$$ROOT" },
                 },
               },
-            },
-          ],
+
+              { $unwind: "$array" },
+              {
+                $replaceRoot: { newRoot: "$array" },
+              },
+              {
+                $group: {
+                  _id: null,
+                  labels: { $push: "$_id" },
+                  // target: { $push: "$value.target" },
+                  LessThanOne: {
+                    $push: "$lessThanOne",
+                  },
+                  LessThanTwo: {
+                    $push: "$lessThanTwo",
+                  },
+                  GreaterThanTwo: {
+                    $push: "$greaterThanTwo",
+                  },
+                },
+              },
+            ],
+
+            cellTotalData: [
+              {
+                $match: queryObj,
+              },
+              {
+                $group: {
+                  _id: {
+                    date: dateObj,
+                    cellRef: "$cellRef",
+                  },
+                  bdTimeSum: { $sum: "$bdTime" },
+                },
+              },
+
+              {
+                $group: {
+                  _id: "$_id.date",
+                  cellWiseTotal: {
+                    $push: {
+                      cellRef: "$_id.cellRef",
+                      bdTimeSum: "$bdTimeSum",
+                    },
+                  },
+                },
+              },
+              // {
+              //   $project: {
+              //     _id: 0,
+              //     date: "$_id",
+              //     sectionWiseTotal: 1,
+              //   },
+              // },
+
+              {
+                $group: {
+                  _id: null,
+                  array: { $push: "$$ROOT" },
+                },
+              },
+
+              { $unwind: "$array" },
+              {
+                $replaceRoot: { newRoot: "$array" },
+              },
+              {
+                $group: {
+                  _id: null,
+                  labels: { $push: "$_id" },
+                  // target: { $push: "$value.target" },
+                  cells: {
+                    $push: "$cellWiseTotal",
+                  },
+                },
+              },
+            ],
+          },
         },
-      },
-      // }
-    ];
-
-    const bdTrend = await RequestSheetOfBM.aggregate(
-      sectionWiseMonthlyBDTrend
+        // }
+      ]
 
       //     MtbfLastYearData: [
       //       {
@@ -4910,12 +4921,13 @@ router.get(
       // ]
     );
     return res.status(200).json({
-      message: "Monthly BD trend data get successfully",
-      totalCategories: bdTrend.length,
-      bdTrend: bdTrend?.[0],
+      message: "Section Wise Yearly BD trend data get successfully",
+
+      sectionWiseYearlyBDTrend: sectionWiseYearlyBDTrend?.[0],
     });
   }
 );
+
 router.get(
   "/majorBDCount/:lineId",
   // BdTrendFilterMiddleware,
@@ -5109,17 +5121,11 @@ router.get(
   }
 );
 router.get(
-  "/lineBDContribution/:plantId",
+  "/lineWiseBDContributionForPlant/:plantId",
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
     let queryObj = {};
-    let dateObj = {
-      $dateToString: {
-        format: "%Y",
-        date: "$sheetIssuedDateAndTimeOfBM",
-        timezone: timezone,
-      },
-    };
+    let queryObj2 = {};
 
     queryObj = {
       plantRef: mongoose.Types.ObjectId(req.params.plantId),
@@ -5128,199 +5134,151 @@ router.get(
         $lt: moment().startOf("month").add(1, "month").toDate(),
       },
     };
-    const sectionWiseMonthlyBDTrend = [
-      // if(req.params.filterWise === "Plant"){
-      {
-        $facet: {
-          sectionHourlyData: [
-            {
-              $match: queryObj,
-            },
-            // {
-            //   $group: {
-            //     _id: {
-
-            //       lineRef : "$lineRef"},
-            //   },
-            // },
-
-            // {
-            //   $lookup: {
-            //     from: "lines",
-            //     let: { lineId: "$_id" },
-            //     pipeline: [
-            //       { $match: { $expr: { $eq: ["$userId", "$$userId"] } } },
-            //       { $project: { jobId: 1, _id: 0 } },
-            //     ],
-            //     as: "jobIds",
-            //   },
-            // },
-            // { $addFields: { jobIds: "$jobIds.jobId" } },
-
-            // {
-            //   $lookup: {
-            //     from: "lines",
-            //     localField: "_id.lineRef",
-            //     foreignField: "_id",
-            //     as: "line_names",
-            //   },
-            // },
-            // {
-            //   $project : {
-            //     _id: 0,
-            //     line_name : "$line_names.line_name"
-            //   }
-            // },
-
-            // {
-            //   $unwind : "$line_name"
-            // },
-            // {
-            //   $group: {
-            //     _id: { lineName: "$lineRef", bdTime:  "$bdTime"  },
-            //   },
-
-            //   // sumofBdHours :  {
-            //   //     $sum: {
-            //   //       $cond: [{ $gt: ["$bdTime", 1] }, "$bdTime", 0],
-            //   //     },
-            //   //   },
-            // },
-            {
-              $group: {
-                _id: { lineName: "$lineRef", bdTime:  "$bdTime"  },
-                
-                finish: {
-                  $sum: "$_id.bdTime"
-                },
-                
-            },
-          }
-            // {
-            //   $group : {
-            //     _id : {
-            //       $sum : "$sumOfLine"
-            //     }
-            //   }
-            // }
-
-            //     lessThanOne: {
-            //       $sum: {
-            //         $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
-            //       },
-            //     },
-            //     lessThanTwo: {
-            //       $sum: {
-            //         $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
-            //       },
-            //     },
-            //     greaterThanTwo: {
-            //       $sum: {
-            //         $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
-            //       },
-            //     },
-            //   },
-            // },
-            // // {
-            // //   $project: {
-            // //     lessThanOne: 1,
-            // //     lessThanTwo: 1,
-            // //     greaterThanTwo:1
-            // //   },
-            // // },
-
-            // {
-            //   $group: {
-            //     _id: null,
-            //     array: { $push: "$$ROOT" },
-            //   },
-            // },
-
-            // { $unwind: "$array" },
-            // {
-            //   $replaceRoot: { newRoot: "$array" },
-            // },
-            // {
-            //   $group: {
-            //     _id: null,
-            //     labels: { $push: "$_id" },
-            //     // target: { $push: "$value.target" },
-            //     LessThanOne: {
-            //       $push: "$lessThanOne",
-            //     },
-            //     LessThanTwo: {
-            //       $push: "$lessThanTwo",
-            //     },
-            //     GreaterThanTwo: {
-            //       $push: "$greaterThanTwo",
-            //     },
-            //   },
-            // },
-          ],
-
-          // cellTotalData: [
-          //   {
-          //     $match: queryObj,
-          //   },
-          //   {
-          //     $group: {
-          //       _id: {
-          //         date: dateObj,
-          //         cellRef: "$cellRef",
-          //       },
-          //       bdTimeSum: { $sum: "$bdTime" },
-          //     },
-          //   },
-
-          //   {
-          //     $group: {
-          //       _id: "$_id.date",
-          //       cellWiseTotal: {
-          //         $push: {
-          //           cellRef: "$_id.cellRef",
-          //           bdTimeSum: "$bdTimeSum",
-          //         },
-          //       },
-          //     },
-          //   },
-          //   // {
-          //   //   $project: {
-          //   //     _id: 0,
-          //   //     date: "$_id",
-          //   //     sectionWiseTotal: 1,
-          //   //   },
-          //   // },
-
-          //   {
-          //     $group: {
-          //       _id: null,
-          //       array: { $push: "$$ROOT" },
-          //     },
-          //   },
-
-          //   { $unwind: "$array" },
-          //   {
-          //     $replaceRoot: { newRoot: "$array" },
-          //   },
-          //   {
-          //     $group: {
-          //       _id: null,
-          //       labels: { $push: "$_id" },
-          //       // target: { $push: "$value.target" },
-          //       cells: {
-          //         $push: "$cellWiseTotal",
-          //       },
-
-          //     },
-          //   },
-          // ],
-        },
+    queryObj2 = {
+      plantRef: mongoose.Types.ObjectId(req.params.plantId),
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: moment().startOf("year").toDate(),
+        $lt: moment().startOf("year").add(1, "year").toDate(),
       },
-      // }
-    ];
+    };
 
-    const bdTrend = await RequestSheetOfBM.aggregate(
-      sectionWiseMonthlyBDTrend
+    const lineWiseBDContribution = await RequestSheetOfBM.aggregate(
+      [
+        {
+          $facet: {
+            lineMonthlyData: [
+              {
+                $match: queryObj,
+              },
+              {
+                $lookup: {
+                  from: "lines",
+                  localField: "lineRef",
+                  foreignField: "_id",
+                  as: "line_data",
+                },
+              },
+
+              {
+                $unwind: "$line_data",
+              },
+              {
+                $group: {
+                  _id: "$line_data.line_name",
+                  // totalBdTime: { $sum: "$bdTime" },
+                  bdHoursLineWise: {
+                    $sum: "$bdTime",
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  totalBdTime: { $sum: "$bdHoursLineWise" },
+                  lineData: {
+                    $push: {
+                      line_name: "$_id",
+                      bdHoursLineWise: "$bdHoursLineWise",
+                    },
+                  },
+                },
+              },
+              {
+                $unwind: "$lineData",
+              },
+              {
+                $project: {
+                  _id: "$lineData.line_name",
+                  totalBdTime: 1,
+                  bdHours: "$lineData.bdHoursLineWise",
+                  percentage: {
+                    $multiply: [
+                      {
+                        $divide: ["$lineData.bdHoursLineWise", "$totalBdTime"],
+                      },
+                      100,
+                    ],
+                  },
+                },
+              },
+
+              {
+                $group: {
+                  _id: null,
+
+                  lineNames: { $push: "$_id" },
+                  bdHours: { $push: "$bdHours" },
+                  percentages: { $push: { $trunc: ["$percentage", 1] } },
+                },
+              },
+            ],
+            lineYearlyData: [
+              {
+                $match: queryObj2,
+              },
+              {
+                $lookup: {
+                  from: "lines",
+                  localField: "lineRef",
+                  foreignField: "_id",
+                  as: "line_data",
+                },
+              },
+              {
+                $unwind: "$line_data",
+              },
+              {
+                $group: {
+                  _id: "$line_data.line_name",
+                  // totalBdTime: { $sum: "$bdTime" },
+                  bdHoursLineWise: {
+                    $sum: "$bdTime",
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  totalBdTime: { $sum: "$bdHoursLineWise" },
+                  lineData: {
+                    $push: {
+                      line_name: "$_id",
+                      bdHoursLineWise: "$bdHoursLineWise",
+                    },
+                  },
+                },
+              },
+              {
+                $unwind: "$lineData",
+              },
+              {
+                $project: {
+                  _id: "$lineData.line_name",
+                  // totalBdTime: 1,
+                  bdHours: "$lineData.bdHoursLineWise",
+                  percentage: {
+                    $multiply: [
+                      {
+                        $divide: ["$lineData.bdHoursLineWise", "$totalBdTime"],
+                      },
+                      100,
+                    ],
+                  },
+                },
+              },
+
+              {
+                $group: {
+                  _id: null,
+                  lineNames: { $push: "$_id" },
+                  bdHours: { $push: "$bdHours" },
+                  percentages: { $push: { $trunc: ["$percentage", 1] } },
+                },
+              },
+            ],
+          },
+        },
+      ]
 
       //     MtbfLastYearData: [
       //       {
@@ -5353,11 +5311,476 @@ router.get(
       // ]
     );
     return res.status(200).json({
-      message: "Monthly BD trend data get successfully",
-      totalCategories: bdTrend.length,
-      bdTrend: bdTrend?.[0],
+      message: "LineWise Bd contribution for Plant get successfully",
+      lineWiseBDContribution: lineWiseBDContribution?.[0],
+    });
+  }
+);
+
+router.get(
+  "/lineWiseBDContributionForSection",
+  middlewareForGettingAllDropdownList,
+  queryObjectMiddlewareFunction,
+  async (req, res, next) => {
+    let queryObj = {};
+
+    let queryObj2 = {};
+
+    // queryObj = {
+    //   sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
+    //   sheetIssuedDateAndTimeOfBM: {
+    //     $gte: moment().startOf("month").toDate(),
+    //     $lt: moment().startOf("month").add(1, "month").toDate(),
+    //   },
+    // };
+    // queryObj2 = {
+    //   sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
+    //   sheetIssuedDateAndTimeOfBM: {
+    //     $gte: moment().startOf("year").toDate(),
+    //     $lt: moment().startOf("year").add(1, "year").toDate(),
+    //   },
+    // };
+
+    const lineWiseBDContribution = await RequestSheetOfBM.aggregate(
+      [
+        {
+          $facet: {
+            lineMonthlyData: [
+              {
+                $match: req.queryObj,
+              },
+
+              {
+                $match: {
+                  sheetIssuedDateAndTimeOfBM: {
+                    $gte: moment().startOf("month").toDate(),
+                    $lt: moment().startOf("month").add(1, "month").toDate(),
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "lines",
+                  localField: "lineRef",
+                  foreignField: "_id",
+                  as: "line_data",
+                },
+              },
+
+              {
+                $unwind: "$line_data",
+              },
+              
+              {
+                $group: {
+                  _id: "$line_data.line_name",
+                  // totalBdTime: { $sum: "$bdTime" },
+                  bdHoursLineWise: {
+                    $sum: "$bdTime",
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  totalBdTime: { $sum: "$bdHoursLineWise" },
+                  lineData: {
+                    $push: {
+                      line_name: "$_id",
+                      bdHoursLineWise: "$bdHoursLineWise",
+                    },
+                  },
+                },
+              },
+              {
+                $unwind: "$lineData",
+              },
+              {
+                $project: {
+                  _id: "$lineData.line_name",
+                  totalBdTime: 1,
+                  bdHours: "$lineData.bdHoursLineWise",
+                  percentage: {
+                    $multiply: [
+                      {
+                        $divide: ["$lineData.bdHoursLineWise", "$totalBdTime"],
+                      },
+                      100,
+                    ],
+                  },
+                },
+              },
+
+              {
+                $group: {
+                  _id: null,
+
+                  lineNames: { $push: "$_id" },
+                  bdHours: { $push: "$bdHours" },
+                  percentages: { $push: { $trunc: ["$percentage", 1] } },
+                },
+              },
+            ],
+            lineYearlyData: [
+              {
+                $match: req.queryObj,
+              },
+              {
+                $match: {
+                  sheetIssuedDateAndTimeOfBM: {
+                    $gte: moment().startOf("year").toDate(),
+                    $lt: moment().startOf("year").add(1, "year").toDate(),
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "lines",
+                  localField: "lineRef",
+                  foreignField: "_id",
+                  as: "line_data",
+                },
+              },
+              {
+                $unwind: "$line_data",
+              },
+              {
+                $group: {
+                  _id: "$line_data.line_name",
+                  // totalBdTime: { $sum: "$bdTime" },
+                  bdHoursLineWise: {
+                    $sum: "$bdTime",
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  totalBdTime: { $sum: "$bdHoursLineWise" },
+                  lineData: {
+                    $push: {
+                      line_name: "$_id",
+                      bdHoursLineWise: "$bdHoursLineWise",
+                    },
+                  },
+                },
+              },
+              {
+                $unwind: "$lineData",
+              },
+              {
+                $project: {
+                  _id: "$lineData.line_name",
+                  // totalBdTime: 1,
+                  bdHours: "$lineData.bdHoursLineWise",
+                  percentage: {
+                    $multiply: [
+                      {
+                        $divide: ["$lineData.bdHoursLineWise", "$totalBdTime"],
+                      },
+                      100,
+                    ],
+                  },
+                },
+              },
+
+              {
+                $group: {
+                  _id: "$totalBdTime",
+                  lineNames: { $push: "$_id" },
+                  bdHours: { $push: "$bdHours" },
+                  percentages: { $push: { $trunc: ["$percentage", 1] } },
+                },
+              },
+            ],
+          },
+        },
+        // }
+      ]
+
+      //     MtbfLastYearData: [
+      //       {
+      //         $match: queryObj2,
+      //       },
+      //       {
+      //         $group: {
+      //           _id: {
+      //             $dateToString: {
+      //               format: "%Y",
+      //               date: "$sheetIssuedDateAndTimeOfBM",
+      //               timezone: timezone,
+      //             },
+      //           },
+      //           // bds: { $push: "$bdTime" },
+      //           count: { $sum: 1 },
+      //           // average: { $avg: "$bdTime" },
+      //           // month: { $first: { $month: "$ceatedAt" } },
+      //         },
+      //       },
+
+      //       {
+      //         $group: {
+      //           _id: { $avg: "$count" },
+      //         },
+      //       },
+      //     ],
+      //   },
+      // },
+      // ]
+    );
+    return res.status(200).json({
+      message: "LineWise Bd contribution for Section get successfully",
+      lineWiseBDContribution: lineWiseBDContribution?.[0],
+    });
+  }
+);
+
+router.get(
+  "/lineWiseBDContributionForCell",
+  middlewareForGettingAllDropdownList,
+  queryObjectMiddlewareFunction,
+  async (req, res, next) => {
+    let queryObj = {};
+    let queryObj2 = {};
+
+    // queryObj = {
+    //   cellRef: mongoose.Types.ObjectId(req.params.cellId),
+    //   sheetIssuedDateAndTimeOfBM: {
+    //     $gte: moment().startOf("month").toDate(),
+    //     $lt: moment().startOf("month").add(1, "month").toDate(),
+    //   },
+    // };
+    // queryObj2 = {
+    //   cellRef: mongoose.Types.ObjectId(req.params.cellId),
+    //   sheetIssuedDateAndTimeOfBM: {
+    //     $gte: moment().startOf("year").toDate(),
+    //     $lt: moment().startOf("year").add(1, "year").toDate(),
+    //   },
+    // };
+
+    const lineWiseBDContribution = await RequestSheetOfBM.aggregate(
+      [
+        {
+          $facet: {
+            lineMonthlyData: [
+              {
+                $match: req.queryObj,
+              },
+
+              {
+                $match: {
+                  sheetIssuedDateAndTimeOfBM: {
+                    $gte: moment().startOf("month").toDate(),
+                    $lt: moment().startOf("month").add(1, "month").toDate(),
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "lines",
+                  localField: "lineRef",
+                  foreignField: "_id",
+                  as: "line_data",
+                },
+              },
+
+              {
+                $unwind: "$line_data",
+              },
+              {
+                $group: {
+                  _id: "$line_data.line_name",
+                  // totalBdTime: { $sum: "$bdTime" },
+                  bdHoursLineWise: {
+                    $sum: "$bdTime",
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  totalBdTime: { $sum: "$bdHoursLineWise" },
+                  lineData: {
+                    $push: {
+                      line_name: "$_id",
+                      bdHoursLineWise: "$bdHoursLineWise",
+                    },
+                  },
+                },
+              },
+              {
+                $unwind: "$lineData",
+              },
+              {
+                $project: {
+                  _id: "$lineData.line_name",
+                  // totalBdTime: 1,
+                  bdHours: "$lineData.bdHoursLineWise",
+                  percentage: {
+                    $multiply: [
+                      {
+                        $divide: ["$lineData.bdHoursLineWise", "$totalBdTime"],
+                      },
+                      100,
+                    ],
+                  },
+                },
+              },
+
+              {
+                $group: {
+                  _id: null,
+
+                  lineNames: { $push: "$_id" },
+                  bdHours: { $push: "$bdHours" },
+                  percentages: { $push: { $trunc: ["$percentage", 1] } },
+                },
+              },
+            ],
+            lineYearlyData: [
+              {
+                $match: req.queryObj,
+              },
+
+              {
+                $match: {
+                  sheetIssuedDateAndTimeOfBM: {
+                    $gte: moment().startOf("year").toDate(),
+                    $lt: moment().startOf("year").add(1, "year").toDate(),
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "lines",
+                  localField: "lineRef",
+                  foreignField: "_id",
+                  as: "line_data",
+                },
+              },
+              {
+                $unwind: "$line_data",
+              },
+              {
+                $group: {
+                  _id: "$line_data.line_name",
+                  // totalBdTime: { $sum: "$bdTime" },
+                  bdHoursLineWise: {
+                    $sum: "$bdTime",
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  totalBdTime: { $sum: "$bdHoursLineWise" },
+                  lineData: {
+                    $push: {
+                      line_name: "$_id",
+                      bdHoursLineWise: "$bdHoursLineWise",
+                    },
+                  },
+                },
+              },
+              {
+                $unwind: "$lineData",
+              },
+              {
+                $project: {
+                  _id: "$lineData.line_name",
+                  // totalBdTime: 1,
+                  bdHours: "$lineData.bdHoursLineWise",
+                  percentage: {
+                    $multiply: [
+                      {
+                        $divide: ["$lineData.bdHoursLineWise", "$totalBdTime"],
+                      },
+                      100,
+                    ],
+                  },
+                },
+              },
+
+              {
+                $group: {
+                  _id: null,
+                  lineNames: { $push: "$_id" },
+                  bdHours: { $push: "$bdHours" },
+                  percentages: { $push: { $trunc: ["$percentage", 1] } },
+                },
+              },
+            ],
+          },
+        },
+        // }
+      ]
+
+      //     MtbfLastYearData: [
+      //       {
+      //         $match: queryObj2,
+      //       },
+      //       {
+      //         $group: {
+      //           _id: {
+      //             $dateToString: {
+      //               format: "%Y",
+      //               date: "$sheetIssuedDateAndTimeOfBM",
+      //               timezone: timezone,
+      //             },
+      //           },
+      //           // bds: { $push: "$bdTime" },
+      //           count: { $sum: 1 },
+      //           // average: { $avg: "$bdTime" },
+      //           // month: { $first: { $month: "$ceatedAt" } },
+      //         },
+      //       },
+
+      //       {
+      //         $group: {
+      //           _id: { $avg: "$count" },
+      //         },
+      //       },
+      //     ],
+      //   },
+      // },
+      // ]
+    );
+    return res.status(200).json({
+      message: "LineWise Bd contribution for Cell get successfully",
+      lineWiseBDContribution: lineWiseBDContribution?.[0],
     });
   }
 );
 
 module.exports = router;
+
+// const section = await Section.findOne({
+//   section_id: req?.rootUser?.section_data?.split("-")?.[0],
+// });
+
+// let allDataBasedOnDashboardLevel;
+// if (section?.dashboardLevel === "Yes") {
+//   allDataBasedOnDashboardLevel = await Section.aggregate([
+//     {
+//       $match: {
+//         _id: section?._id,
+//       },
+//     },
+//     {
+//       $lookup: {
+//         from: "subsections",
+//         localField: "_id",
+//         foreignField: "section_names",
+//         pipeline: req.pipelineQueryObj,
+//         as: "subSections",
+//       },
+//     },
+//     { $project: { section_name: 1, subSections: 1 } },
+//   ]);
+
+//   return res.status(201).json({
+//     message: "Main dashboard data get successfully",
+//     dashboardLevel: section?.dashboardLevel,
+//     allDataBasedOnDashboardLevel: allDataBasedOnDashboardLevel?.[0],
+//   });
+// }
