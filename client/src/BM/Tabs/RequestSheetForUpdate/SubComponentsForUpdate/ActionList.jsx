@@ -1,0 +1,223 @@
+import React, { useState } from "react";
+import { Button, Col, Row } from "react-bootstrap";
+import { AddBoxIcon } from "../../../../modules/PageModules";
+import "../RequestSheet.scss";
+
+const ActionList = ({ actions, setActions }) => {
+  const [newActionText, setNewActionText] = useState("");
+  const [newActionStatus, setNewActionStatus] = useState("OK");
+  const [isAdding, setIsAdding] = useState(false);
+  const [editedAction, setEditedAction] = useState(null);
+
+  const addAction = () => {
+    if (newActionText.trim() !== "") {
+      const newAction = {
+        id: Date.now(),
+        action: newActionText,
+        status: newActionStatus,
+      };
+      setActions([...actions, newAction]);
+      setNewActionText("");
+      setNewActionStatus("NG");
+      setIsAdding(false);
+    }
+  };
+
+  const editAction = (actionId, newText) => {
+    const updatedActions = actions.map((action) => {
+      if (action.id === actionId) {
+        return { ...action, action: newText };
+      }
+      return action;
+    });
+    setActions(updatedActions);
+    setEditedAction(null);
+  };
+
+  const cancelEdit = () => {
+    setEditedAction(null);
+  };
+
+  const deleteAction = (actionId) => {
+    const updatedActions = actions.filter((action) => action.id !== actionId);
+    setActions(updatedActions);
+  };
+
+  const cancelAdd = () => {
+    setNewActionText("");
+    setNewActionStatus("NG");
+    setIsAdding(false);
+  };
+
+  const handleStatusChange = (actionId, newStatus) => {
+    const updatedActions = actions.map((action) => {
+      if (action.id === actionId) {
+        return { ...action, status: newStatus };
+      }
+      return action;
+    });
+    setActions(updatedActions);
+  };
+
+  return (
+    <div className="mtd-actions-section">
+      <Row className="m-0">
+        <Col lg={8} className="border col-auto d-flex align-items-center gap-1">
+          <b>ACTION & COUNTERMEASURE STEPS (Dynamic)</b>
+        </Col>
+        <Col
+          lg={2}
+          className="border col-auto d-flex align-items-center gap-1 p-1"
+        >
+          <b>STATUS</b>
+        </Col>
+        <Col
+          lg={2}
+          className="border col-auto d-flex align-items-center gap-1 p-1"
+        >
+          <b>ACTIONS</b>
+          {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
+        </Col>
+      </Row>
+
+      {actions.map((action, index) => (
+        <Row key={action.id} className="m-0">
+          <Col
+            lg={8}
+            className={`border col-auto d-flex align-items-center gap-1 ${
+              editedAction && editedAction.id === action.id ? "editable" : ""
+            }`}
+          >
+            <b>Action {index + 1}: </b>
+            {editedAction && editedAction.id === action.id ? (
+              <input
+                type="text"
+                value={editedAction.action}
+                onChange={(e) =>
+                  setEditedAction({ ...editedAction, action: e.target.value })
+                }
+              />
+            ) : (
+              action.action
+            )}
+          </Col>
+          <Col
+            lg={2}
+            className="border col-auto d-flex align-items-center gap-1 p-1"
+          >
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  name={`status-${action.id}`}
+                  value="OK"
+                  checked={action.status === "OK"}
+                  onChange={() => handleStatusChange(action.id, "OK")}
+                />{" "}
+                OK
+              </label>{" "}
+              <label>
+                <input
+                  type="radio"
+                  name={`status-${action.id}`}
+                  value="NG"
+                  checked={action.status === "NG"}
+                  onChange={() => handleStatusChange(action.id, "NG")}
+                />{" "}
+                NG
+              </label>
+            </div>
+          </Col>
+          <Col
+            lg={2}
+            className="border col-auto d-flex align-items-center gap-1 p-1"
+          >
+            {editedAction && editedAction.id === action.id ? (
+              <>
+                <button
+                  onClick={() => editAction(action.id, editedAction.action)}
+                >
+                  Update
+                </button>
+                <button onClick={cancelEdit}>Cancel</button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => setEditedAction({ ...action })}>
+                  Edit
+                </button>
+                <button onClick={() => deleteAction(action.id)}>Delete</button>
+              </>
+            )}
+          </Col>
+        </Row>
+      ))}
+
+      {isAdding ? (
+        <Row className="m-0">
+          <Col
+            lg={8}
+            className="border col-auto d-flex align-items-center gap-1"
+          >
+            <b>Action {actions.length + 1}: </b>
+            <input
+              type="text"
+              value={newActionText}
+              onChange={(e) => setNewActionText(e.target.value)}
+            />
+          </Col>
+          <Col
+            lg={2}
+            className="border col-auto d-flex align-items-center gap-1 p-1"
+          >
+            {/* <div>
+              <label>
+                <input
+                  type="radio"
+                  name="status-new"
+                  value="OK"
+                  checked={newActionStatus === "OK"}
+                  onChange={() => setNewActionStatus("OK")}
+                />{" "}
+                OK
+              </label>{" "}
+              <label>
+                <input
+                  type="radio"
+                  name="status-new"
+                  value="NG"
+                  checked={newActionStatus === "NG"}
+                  onChange={() => setNewActionStatus("NG")}
+                />{" "}
+                NG
+              </label>
+            </div> */}
+          </Col>
+          <Col
+            lg={2}
+            className="border col-auto d-flex align-items-center gap-1 p-1"
+          >
+            <button onClick={addAction}>Add</button>
+            <button onClick={cancelAdd}>Cancel</button>
+          </Col>
+        </Row>
+      ) : (
+        <Row className="m-0  p-1 border">
+          {/* <Col className="border d-flex  align-items-center gap-1 p-1"> */}
+          {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
+          <button onClick={() => setIsAdding(true)}>Add Action</button>
+
+          {/* </Col> */}
+        </Row>
+      )}
+
+      {Array.from({ length: 2 - actions.length }).map((_, index) => (
+        <Row key={index} className="m-0 p-1 border">
+          <AddBoxIcon onClick={() => setIsAdding(true)} />
+        </Row>
+      ))}
+    </div>
+  );
+};
+
+export default ActionList;

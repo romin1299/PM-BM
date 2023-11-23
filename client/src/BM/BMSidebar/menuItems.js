@@ -30,9 +30,9 @@ export const menuItems = [
     icon: <DashboardIcon className="text-white" />,
     subItems: [
       {
-        title: "Home",
+        title: "Section Dashboard",
         route: "/bm",
-        allowedRoles: ["Admin", "TL/HOSS", "Plant-Admin"],
+        allowedRoles: ["TL/HOSS", "Plant-Admin"],
       },
       {
         title: "Admin",
@@ -42,27 +42,27 @@ export const menuItems = [
       {
         title: "Request Sheets",
         route: "/bm/requestListDashboard",
-        allowedRoles: ["Admin", "TL/HOSS", "Plant-Admin", "operator"],
+        allowedRoles: ["Admin", "TL/HOSS", "Plant-Admin", "Operator"],
       },
       {
         title: "Summary",
         route: "/bm/summeryDashboard",
-        allowedRoles: ["Admin", "TL/HOSS", "Plant-Admin", "operator"],
+        allowedRoles: ["Admin", "TL/HOSS", "Plant-Admin", "Operator"],
       },
     ],
     allowedDepartments: ["MTD", "PRD"],
   },
   {
-    title: "Generate Request Sheet",
+    title: "Approval",
     icon: <AddTaskIcon className="text-white" />,
-    route: "/bm/generateRequestSheetMainDashboard",
-    allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+    route: "/bm/requestListDashboard",
+    allowedRoles: ["TL/HOSS", "Plant-Admin", "Operator"],
   },
   {
     title: "Customized Dashboard",
     icon: <ControlPointIcon className="text-white" />,
     route: "/bm/customizedDashboard",
-    allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+    allowedRoles: ["TL/HOSS", "Plant-Admin", "Operator"],
   },
   {
     title: "Reports",
@@ -89,13 +89,33 @@ export const menuItems = [
         route: "/bm/report/monthly-breakdown-trend",
         allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
+      {
+        title: "Line Contibution BD Report",
+        route: "/bm/report/line-contribution-breakdown-trend",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+      {
+        title: "MTTR Report",
+        route: "/bm/report/mttr",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+      {
+        title: "MTBF Report",
+        route: "/bm/report/mtbf",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+      {
+        title: "TM MTTR Skill",
+        route: "/bm/report/tm-mtr",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
     ],
   },
   {
     title: "Profile",
     icon: <AccountCircleIcon className="text-white" />,
     route: "/bm/profile",
-    allowedRoles: ["Admin", "Plant-Admin", "operator", "TL/HOSS"],
+    allowedRoles: ["Admin", "Plant-Admin", "Operator", "TL/HOSS"],
   },
   // {
   //   title: "Creation",
@@ -104,17 +124,17 @@ export const menuItems = [
   //     {
   //       title: "Creation Dashboard",
   //       route: "/bm/creationDashboard",
-  //       allowedRoles: ["Admin", "Plant-Admin", "operator", "TL/HOSS"],
+  //       allowedRoles: ["Admin", "Plant-Admin", "Operator", "TL/HOSS"],
   //     },
   //     {
   //       title: "User Assign",
   //       route: "/bm/userAssign",
-  //       allowedRoles: ["Admin", "Plant-Admin", "operator", "TL/HOSS"],
+  //       allowedRoles: ["Admin", "Plant-Admin", "Operator", "TL/HOSS"],
   //     },
   //     {
   //       title: "CheckSheet Dashboard",
   //       route: "/bm/checkSheetDashboard",
-  //       allowedRoles: ["Admin", "Plant-Admin", "operator", "TL/HOSS"],
+  //       allowedRoles: ["Admin", "Plant-Admin", "Operator", "TL/HOSS"],
   //     },
   //   ],
   //   allowedDepartments: ["MTD"],
@@ -215,7 +235,7 @@ export const menuItems = [
   // {
   //   title: "Spare Entry",
   //   icon: <AddToPhotosIcon className="text-white" />,
-  //   route: "/bm/operatorDataEntry",
+  //   route: "/bm/OperatorDataEntry",
   //   allowedRoles: ["TL/HOSS"],
   // },
   // {

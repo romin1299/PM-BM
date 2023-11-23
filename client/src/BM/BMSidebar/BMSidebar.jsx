@@ -130,7 +130,7 @@ const BMSidebar = ({ userData }) => {
             }
           })}
         </Menu>
-        <Menu iconShape="square">
+        {/* <Menu iconShape="square">
           <MenuItem
             className="text"
             icon={
@@ -149,7 +149,7 @@ const BMSidebar = ({ userData }) => {
           >
             Logout
           </MenuItem>
-        </Menu>
+        </Menu> */}
       </SidebarContent>
 
       <SidebarFooter fixed="bottom">

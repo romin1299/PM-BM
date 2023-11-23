@@ -16,10 +16,12 @@ import QR_codeReader from "./BM/QR_codeReader/QR_codeReader";
 import LoginAfterQrScanned from "./Login/LoginSubComponent/LoginAfterQrScanned";
 
 import RoutingState from "./context/routing/RoutingState";
+import { ToastContainer } from "react-toastify";
 
 function Router() {
   return (
     <>
+    <ToastContainer />
       <Routes>
         <Route
           path="/*"

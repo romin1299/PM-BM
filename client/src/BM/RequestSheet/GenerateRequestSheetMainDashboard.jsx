@@ -31,7 +31,7 @@ const MapComponent = ({ propsArray, handleNavigationToRequestSheet }) => {
                   <div className="machineCard">
                     {line?.machines?.map((machine, index) => (
                       <button
-                      key={index}
+                        key={index}
                         className="machine"
                         onClick={() =>
                           handleNavigationToRequestSheet({
@@ -158,7 +158,7 @@ const GenerateRequestSheetMainDashboard = () => {
   };
 
   const handleNavigationToRequestSheet = ({ machine_code }) => {
-    navigate(`/bm/check-sheet/manual/${machine_code}`);
+    navigate(`/bm/request-sheet/manual/${machine_code}`);
   };
 
   if (reduceState?.dashboardLevel === "Yes") {

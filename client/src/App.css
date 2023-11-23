@@ -186,6 +186,7 @@ body {
 .scrollable-tabs-container .nav-link {
   padding: 0.5rem 1rem;
 }
+
 .hidden {
   display: none;
 }
@@ -195,7 +196,9 @@ body {
 }
 
 .scrollable-content {
-  max-height: 100vh; /* Set the desired max height */
-  overflow-y: auto; /* Enable vertical scrolling */
+  max-height: 100vh;
+  /* Set the desired max height */
+  overflow-y: auto;
+  /* Enable vertical scrolling */
   overflow-x: hidden;
 }

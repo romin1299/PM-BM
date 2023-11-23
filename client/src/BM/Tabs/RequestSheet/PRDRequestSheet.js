@@ -10,6 +10,8 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
+import { denso_logo } from "../../../components/NavbarComponent/ImportModules";
+
 
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
@@ -17,6 +19,7 @@ import { useParams } from "react-router-dom";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { Typography } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
 const list = [
   { key: "A", value: "A" },
@@ -27,7 +30,7 @@ const list = [
 
 function MyTable({ selectedMachineDetails }) {
   // let [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const { machine_code, generateType } = useParams();
   const context = useContext(RoutingContext);
   const {
@@ -38,22 +41,28 @@ function MyTable({ selectedMachineDetails }) {
     reset,
   } = useForm({
     defaultValues: {
-      requestSheetdate: new Date().toISOString().substring(0, 10),
-      requestSheettime: new Date().toLocaleString("en-US", {
-        timeZone: "Asia/Kolkata",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }),
-      sheetIssuedDate: new Date().toISOString().substring(0, 10),
-      sheetIssuedTime: new Date().toLocaleString("en-US", {
-        timeZone: "Asia/Kolkata",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }),
+      problemOccurredDateAndTimeOfBM: moment(new Date()).format(
+        "YYYY-MM-DDTHH:mm"
+      ),
+      // requestSheettime: new Date().toLocaleString("en-US", {
+      //   timeZone: "Asia/Kolkata",
+      //   hour: "2-digit",
+      //   minute: "2-digit",
+      //   hour12: false,
+      // }),
+      sheetIssuedDateAndTimeOfBM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
+      // sheetIssuedTime: new Date().toLocaleString("en-US", {
+      //   timeZone: "Asia/Kolkata",
+      //   hour: "2-digit",
+      //   minute: "2-digit",
+      //   hour12: false,
+      // }),
     },
   });
+  console.log(new Date());
+  const selectedRequestSheetData = useLocation();
+
+  console.log(selectedRequestSheetData?.state?.selectedRow);
 
   const [selectedShift, setSelectedShift] = useState("");
   // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
@@ -103,11 +112,12 @@ function MyTable({ selectedMachineDetails }) {
         if (generateType === "scanned") {
           navigate("/", { replace: true });
         } else {
-          navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
+          navigate('/bm/generateRequestSheetMainDashboard', { replace: true })
         }
       } else {
         WarningToast(data?.message);
       }
+
     } catch (error) {
       console.log(error);
     }
@@ -165,15 +175,13 @@ function MyTable({ selectedMachineDetails }) {
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
         <Table>
           <thead>
-            <tr>
-              <th colSpan="4">Header with 4 Columns</th>
-            </tr>
+            <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
           </thead>
           <tbody>
             <tr>
               {/* <td width={100}>
               <img
-                src={denso_log}
+                src={denso_logo}
                 width="120"
                 height="30"
                 className="d-inline-block align-top"
@@ -334,10 +342,10 @@ function MyTable({ selectedMachineDetails }) {
                     {selectedMachineDetails?.line_names?.cell_names
                       ?.subSection_names?.section_names?.dashboardLevel ===
                     "Yes"
-                      ? (selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
+                      ? selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.section_name
                           ?.substring(0, 2)
                           ?.toUpperCase()
-                      : (selectedMachineDetails?.line_names?.cell_names?.subSection_names?.subSection_name)
+                      : selectedMachineDetails?.line_names?.cell_names?.subSection_names?.subSection_name
                           ?.substring(0, 2)
                           ?.toUpperCase()}
                     _{selectedMachineDetails?.line_names?.line_name}_
@@ -353,22 +361,25 @@ function MyTable({ selectedMachineDetails }) {
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
                             <p className="mb-0">
-                              <b>DATE: </b>
+                              <b>DATE & TIME: </b>
                               <br />
                               <input
-                                type="date"
-                                {...register("requestSheetdate", {
+                                type="datetime-local"
+                                {...register("problemOccurredDateAndTimeOfBM", {
                                   required: "RequestSheet date is required",
                                 })}
                               />
-                              {errors?.["requestSheetdate"] && (
+                              {errors?.["problemOccurredDateAndTimeOfBM"] && (
                                 <p className="text-error">
-                                  {errors?.["requestSheetdate"]?.message}
+                                  {
+                                    errors?.["problemOccurredDateAndTimeOfBM"]
+                                      ?.message
+                                  }
                                 </p>
                               )}
                             </p>
                           </div>{" "}
-                          &nbsp;&nbsp;&nbsp;&nbsp;
+                          {/* &nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
                             <p className="mb-0">
                               <b>TIME: </b>
@@ -385,7 +396,7 @@ function MyTable({ selectedMachineDetails }) {
                                 </p>
                               )}
                             </p>
-                          </div>
+                          </div> */}
                         </div>
                       </Row>
                     </Col>
@@ -397,25 +408,25 @@ function MyTable({ selectedMachineDetails }) {
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
                             <p className="mb-0">
-                              <b>DATE: </b>
+                              <b>DATE & TIME: </b>
                               <br />
                               <input
-                                type="date"
+                                type="datetime-local"
                                 {...register(
-                                  "sheetIssuedDate"
+                                  "sheetIssuedDateAndTimeOfBM"
                                   //  {
                                   //   required: "Sheet Issued date is required",
                                   // }
                                 )}
                                 disabled
                               />
-                              {/* {errors?.["sheetIssuedDate"] && (
-                              <p className="text-error">{errors?.["sheetIssuedDate"]?.message}</p>
+                              {/* {errors?.["sheetIssuedDateAndTimeOfBM"] && (
+                              <p className="text-error">{errors?.["sheetIssuedDateAndTimeOfBM"]?.message}</p>
                             )} */}
                             </p>
                           </div>{" "}
                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                          <div className="text-center">
+                          {/* <div className="text-center">
                             <p className="mb-0">
                               <b>TIME: </b>
                               <br />
@@ -429,11 +440,8 @@ function MyTable({ selectedMachineDetails }) {
                                 )}
                                 disabled
                               />
-                              {/* {errors?.["sheetIssuedTime"] && (
-                              <p className="text-error">{errors?.["sheetIssuedTime"]?.message}</p>
-                            )} */}
                             </p>
-                          </div>
+                          </div> */}
                         </div>
                       </Row>
                     </Col>
@@ -689,83 +697,85 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
               </td>
 
-            <td colSpan={4} className="border">
-              <Row className="m-0">
-                <Col className="border p-2">
-                  <FormControl>
-                    <FormLabel id="demo-radio-buttons-group-label">
-                      <Typography sx={{ fontWeight: "700", color: "black" }}>
-                        SHIFT
-                      </Typography>
-                    </FormLabel>
+              <td colSpan={4} className="border">
+                <Row className="m-0">
+                  <Col className="border p-2">
+                    <FormControl>
+                      <FormLabel id="demo-radio-buttons-group-label">
+                        <Typography sx={{ fontWeight: "700", color: "black" }}>
+                          SHIFT
+                        </Typography>
+                      </FormLabel>
 
-                    <RadioGroup
-                      row
-                      value={watch('selectedShift')}
-                      aria-labelledby="demo-radio-buttons-group-label"
-                      name="radio-buttons-group"
-                    >
-                      {shiftOfBM.map((shiftInfo) => (
-                        <FormControlLabel
-                          value={shiftInfo.shiftName}
-                          control={<Radio color="default" size="small" />}
-                          label={shiftInfo.shiftName}
-                          disabled={watch('selectedShift') !== shiftInfo.shiftName}
-                        />
+                      <RadioGroup
+                        row
+                        value={watch("selectedShift")}
+                        aria-labelledby="demo-radio-buttons-group-label"
+                        name="radio-buttons-group"
+                      >
+                        {shiftOfBM.map((shiftInfo) => (
+                          <FormControlLabel
+                            value={shiftInfo.shiftName}
+                            control={<Radio color="default" size="small" />}
+                            label={shiftInfo.shiftName}
+                            disabled={
+                              watch("selectedShift") !== shiftInfo.shiftName
+                            }
+                          />
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                  </Col>
+                </Row>
+
+                <Row className="m-0">
+                  <Col className="border p-2">
+                    <p className="mb-0 d-flex align-items-center justify-content-start">
+                      <b>QUALITY RELATED</b>&nbsp;&nbsp;&nbsp;
+                    </p>
+                  </Col>
+                  <Col className="border p-2 d-flex align-items-center">
+                    <Form>
+                      {["radio"].map((type) => (
+                        <div key={`inline-${type}`} className="d-flex">
+                          <Form.Check
+                            flex
+                            label="Yes"
+                            name="group1"
+                            type={type}
+                            id={`inline-${type}-1`}
+                            value="Yes"
+                            {...register("qualityRelated", {
+                              required: "Please select quality related",
+                            })}
+                          />
+                          <Form.Check
+                            flex
+                            label="No"
+                            name="group1"
+                            type={type}
+                            id={`inline-${type}-2`}
+                            value="No"
+                            {...register("qualityRelated", {
+                              required: "Please select quality related",
+                            })}
+                          />
+                        </div>
                       ))}
-                    </RadioGroup>
-                  </FormControl>
-                </Col>
-              </Row>
-
-              <Row className="m-0">
-                <Col className="border p-2">
-                  <p className="mb-0 d-flex align-items-center justify-content-start">
-                    <b>QUALITY RELATED</b>&nbsp;&nbsp;&nbsp;
-                  </p>
-                </Col>
-                <Col className="border p-2 d-flex align-items-center">
-                  <Form>
-                    {["radio"].map((type) => (
-                      <div key={`inline-${type}`} className="d-flex">
-                        <Form.Check
-                          flex
-                          label="Yes"
-                          name="group1"
-                          type={type}
-                          id={`inline-${type}-1`}
-                          value="Yes"
-                          {...register("qualityRelated", {
-                            required: "Please select quality related",
-                          })}
-                        />
-                        <Form.Check
-                          flex
-                          label="No"
-                          name="group1"
-                          type={type}
-                          id={`inline-${type}-2`}
-                          value="No"
-                          {...register("qualityRelated", {
-                            required: "Please select quality related",
-                          })}
-                        />
-                      </div>
-                    ))}
-                  </Form>
-                </Col>
-              </Row>
-              <Row className="pt-0 mb-0 m-0">
-                <Col lg={12} className="border pb-2 pt-1">
-                  <p className="mb-0">
-                    <b>BREAKDOWN ATTENDED BY</b>
-                  </p>
-                  {/* {selectedAttendee} */}
-                </Col>
-              </Row>
-            </td>
-          </tr>
-        </tbody>
+                    </Form>
+                  </Col>
+                </Row>
+                <Row className="pt-0 mb-0 m-0">
+                  <Col lg={12} className="border pb-2 pt-1">
+                    <p className="mb-0">
+                      <b>BREAKDOWN ATTENDED BY</b>
+                    </p>
+                    {/* {selectedAttendee} */}
+                  </Col>
+                </Row>
+              </td>
+            </tr>
+          </tbody>
 
           <Row>
             <Col>

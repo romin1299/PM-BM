@@ -1,0 +1,806 @@
+// import React from "react";
+// import Table from "react-bootstrap/Table";
+import React, { useState, useContext, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { Row, Col, Form } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { Table } from "react-bootstrap";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+
+import moment from "moment-timezone";
+import { ToastContainer } from "react-toastify";
+import { useParams } from "react-router-dom";
+import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
+import RoutingContext from "../../../context/routing/RoutingContext";
+import { Typography } from "@mui/material";
+import { useLocation } from "react-router-dom";
+
+const list = [
+  { key: "A", value: "A" },
+  { key: "B", value: "B" },
+  { key: "C", value: "C" },
+  { key: "D", value: "D" },
+];
+
+function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
+  // let [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { machine_code, generateType, requestSheetNoOfBM } = useParams();
+  const context = useContext(RoutingContext);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    reset,
+    setValue,
+  } = useForm({
+    defaultValues: {
+      ...requestSheetDataOfBM,
+    },
+  });
+
+  const selectedRequestSheetData = useLocation();
+
+  // console.log(selectedRequestSheetData?.state?.selectedRow)
+
+  const [selectedShift, setSelectedShift] = useState("");
+  // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
+  // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
+  // const [selectedQuality, setSelectedQuality] = useState("");
+  // const [selectedMachineDetails, setMachineDetails] = useState("");
+
+  // const handleSelectShift = (key, event) => {
+  //   setSelectedShift({ key, value: event.target.value });
+  // };
+
+  // const handleMaintenanceType = (event) => {
+  //   setSelectedMaintenanceType(event.target.value);
+  // };
+  // const handlePriorityCode = (event) => {
+  //   setSelectedPriorityCode(event.target.value);
+  // };
+  // const handleQuality = (event) => {
+  //   setSelectedQuality(event.target.value);
+  // };
+
+  const newRequestSheetRegistration = async (requestSheetData) => {
+    // const machineRef = "63b67ccea716e21c95cd471a";
+    // requestSheetData.maintenanceType = selectedMaintenanceType;
+    // requestSheetData.priorityCode = selectedPriorityCode;
+    // requestSheetData.qualityRelated = selectedQuality;
+    // requestSheetData.shiftOfBM = selectedShift;
+    try {
+      const res = await fetch(
+        `/newRequestSheetRegistration/?machineRef=${machine_code}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...requestSheetData,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.status === 201) {
+        SuccessToast(data?.message);
+        reset();
+        if (generateType === "scanned") {
+          navigate("/", { replace: true });
+        } else {
+          navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
+        }
+      } else {
+        WarningToast(data?.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    setSelectedShift(getCurrentShiftName());
+  }, []);
+
+  const timezone = "Asia/Kolkata";
+  const startedDate =
+    moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM)
+      .tz(timezone)
+      .month() + 1;
+
+  let sheetIssuedTime = new Date().toLocaleString("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const momentTime = moment(sheetIssuedTime, "hh:mm");
+
+  const shiftOfBM = [
+    {
+      shiftName: "A",
+      shiftStartTime: "06:00",
+      shiftEndTime: "14:30",
+    },
+    {
+      shiftName: "B",
+      shiftStartTime: "14:15",
+      shiftEndTime: "22:45",
+    },
+    {
+      shiftName: "C",
+      shiftStartTime: "22:45",
+      shiftEndTime: "06:15",
+    },
+  ];
+
+  const getCurrentShiftName = () => {
+    for (let shiftInfo of shiftOfBM) {
+      if (
+        momentTime > moment(shiftInfo?.shiftStartTime, "hh:mm") &&
+        momentTime < moment(shiftInfo?.shiftEndTime, "hh:mm")
+      )
+        return shiftInfo.shiftName;
+    }
+
+    return null;
+  };
+
+  useEffect(() => {
+    if (requestSheetDataOfBM?.requestSheetNoOfBM) {
+      setValue(
+        "problemOccurredDateAndTimeOfBM",
+        moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM)
+          .tz("Asia/Kolkata")
+          .format("YYYY-MM-DDTHH:mm")
+      );
+      setValue("maintenanceType", requestSheetDataOfBM?.maintenanceType);
+      setValue("priorityCode", requestSheetDataOfBM?.priorityCode);
+      setValue(
+        "problemFaced",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.problemFaced
+      );
+      setValue(
+        "PRD_ObservationForProblem_5Why_1How",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD
+          ?.PRD_ObservationForProblem_5Why_1How
+      );
+      setValue(
+        "why_5M_1E",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.why_5M_1E
+      );
+      setValue(
+        "where_process",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.where_process
+      );
+      setValue(
+        "when_frequency",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.when_frequency
+      );
+      setValue(
+        "who_person",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.who_person
+      );
+      setValue(
+        "which_defectLocation",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD
+          ?.which_defectLocation
+      );
+      setValue("shiftOfBM", requestSheetDataOfBM?.shiftOfBM);
+      setValue("qualityRelated", requestSheetDataOfBM?.qualityRelated);
+      setValue(
+        "breakDownAttendedBy",
+        requestSheetDataOfBM?.breakDownAttendedBy
+      );
+    }
+  }, [requestSheetDataOfBM?.requestSheetNoOfBM, setValue]);
+
+  return (
+    <>
+      <ToastContainer />
+      <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
+        <Table>
+          <thead>
+            {/* <tr>
+              <th colSpan="4">Header with 4 Columns</th>
+            </tr> */}
+          </thead>
+          <tbody>
+            <tr>
+              {/* <td width={100}>
+              <img
+                src={denso_log}
+                width="120"
+                height="30"
+                className="d-inline-block align-top"
+                alt="React Bootstrap logo"
+              />
+            </td> */}
+              <td colSpan={12}>
+                <h2 className="d-flex align-items-center justify-content-center">
+                  MAINTENANCE WORK REQUEST/REPORT
+                </h2>
+              </td>
+            </tr>
+            <tr>
+              <td className="mb-0 pb-0 border">
+                <p>
+                  <b>MAINT. TYPE</b>
+                </p>
+                <Form>
+                  <div key={`inline-radio`}>
+                    <Form.Check
+                      flex
+                      label="BM"
+                      name="maintenanceType"
+                      type="radio"
+                      id={`inline-radio-1`}
+                      value="BM"
+                      {...register("maintenanceType", {
+                        required: "Please select maintenance type",
+                      })}
+                      // onChange={handleMaintenanceType}
+                      // checked={selectedMaintenanceType === "BM"}
+                    />
+                    <Form.Check
+                      flex
+                      label="PM"
+                      name="maintenanceType"
+                      type="radio"
+                      id={`inline-radio-2`}
+                      value="PM"
+                      // onChange={handleMaintenanceType}
+                      // checked={selectedMaintenanceType === "PM"}
+                      {...register("maintenanceType", {
+                        required: "Please select maintenance type",
+                      })}
+                    />
+                    <Form.Check
+                      flex
+                      label="CM"
+                      type="radio"
+                      name="maintenanceType"
+                      id={`inline-radio-3`}
+                      value="CM"
+                      // onChange={handleMaintenanceType}
+                      // checked={selectedMaintenanceType === "CM"}
+                      {...register("maintenanceType", {
+                        required: "Please select maintenance type",
+                      })}
+                    />
+                    <Form.Check
+                      flex
+                      label="TPM"
+                      type="radio"
+                      name="maintenanceType"
+                      id={`inline-radio-4`}
+                      value="TPM"
+                      // onChange={handleMaintenanceType}
+                      // checked={selectedMaintenanceType === "TPM"}
+                      {...register("maintenanceType", {
+                        required: "Please select maintenance type",
+                      })}
+                    />
+                  </div>
+                  {errors?.["maintenanceType"] && (
+                    <p className="text-error">
+                      {errors?.["maintenanceType"]?.message}
+                    </p>
+                  )}
+                </Form>
+              </td>
+              <td style={{ width: "20%" }} className="mb-0 pb-0 border">
+                <p>
+                  {" "}
+                  <b>PRIORITY CODE</b>
+                </p>
+                <Form>
+                  <div key={`inline-radio`}>
+                    <Form.Check
+                      flex
+                      label="EMERGENCY"
+                      name="priorityCode"
+                      type="radio"
+                      id={`inline-radio-1`}
+                      value="EMERGENCY"
+                      // onChange={handlePriorityCode}
+                      // checked={selectedPriorityCode === "EMERGENCY"}
+                      {...register("priorityCode", {
+                        required: "Please select priority code",
+                      })}
+                    />
+                    <Form.Check
+                      flex
+                      label="IMPORTANT"
+                      name="priorityCode"
+                      type="radio"
+                      id={`inline-radio-2`}
+                      value="IMPORTANT"
+                      // onChange={handlePriorityCode}
+                      // checked={selectedPriorityCode === "IMPORTANT"}
+                      {...register("priorityCode", {
+                        required: "Please select priority code",
+                      })}
+                    />
+                    <Form.Check
+                      flex
+                      label="DATA NEEDED"
+                      name="priorityCode"
+                      type="radio"
+                      id={`inline-radio-3`}
+                      value="DATA NEEDED"
+                      // onChange={handlePriorityCode}
+                      // checked={selectedPriorityCode === "DATA NEEDED"}
+                      {...register("priorityCode", {
+                        required: "Please select priority code",
+                      })}
+                    />
+                    <Form.Check
+                      flex
+                      label="KAIZEN"
+                      name="priorityCode"
+                      type="radio"
+                      id={`inline-radio-4`}
+                      value="KAIZEN"
+                      // onChange={handlePriorityCode}
+                      // checked={selectedPriorityCode === "KAIZEN"}
+                      {...register("priorityCode", {
+                        required: "Please select priority code",
+                      })}
+                    />
+                  </div>
+                  {errors?.["priorityCode"] && (
+                    <p className="text-error">
+                      {errors?.["priorityCode"]?.message}
+                    </p>
+                  )}
+                </Form>
+              </td>
+              <td
+                colSpan={9}
+                style={{ width: "50%" }}
+                className="mb-0 pb-0 border"
+              >
+                <div className="mb-2">
+                  <h6 className="text-center border p-1">
+                    <b>REQUEST SHEET ( To be filled by PRD)</b>
+                  </h6>
+                  <p className="text-left border p-1 mb-2">
+                    <b>REQUEST No.</b> {requestSheetNoOfBM}
+                  </p>
+                  <Row className="m-0">
+                    <Col className="border">
+                      <Row>
+                        <p className="border-right-0 text-center m-0">
+                          PROBLEM OCCURRED
+                        </p>
+                        <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
+                          <div className="text-center">
+                            <p className="mb-0">
+                              <b>DATE & TIME: </b>
+                              <br />
+                              <input
+                                type="datetime-local"
+                                {...register("problemOccurredDateAndTimeOfBM")}
+                              />
+                            </p>
+                          </div>{" "}
+                          {/* &nbsp;&nbsp;&nbsp;&nbsp;
+                          <div className="text-center">
+                            <p className="mb-0">
+                              <b>TIME: </b>
+                              <br />
+                              <input
+                                type="time"
+                                {...register("requestSheettime")}
+                              />
+                            </p>
+                          </div> */}
+                        </div>
+                      </Row>
+                    </Col>
+                    <Col className="border">
+                      <Row>
+                        <p className="border-left-0 text-center m-0">
+                          SHEET ISSUED
+                        </p>
+                        <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
+                          <div className="text-center">
+                            <p className="mb-0">
+                              <b>DATE & TIME: </b>
+                              <br />
+                              {/* <input
+                                type="date"
+                                {...register(
+                                  "sheetIssuedDate"
+                                  //  {
+                                  //   required: "Sheet Issued date is required",
+                                  // }
+                                )}
+                                disabled
+                              /> */}
+                              {moment(
+                                requestSheetDataOfBM?.sheetIssuedDateAndTimeOfBM
+                              )
+                                .tz("Asia/Kolkata")
+                                .format("DD-MM-YYYY THH:mm")}
+                            </p>
+                          </div>{" "}
+                          {/* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                          <div className="text-center">
+                            <p className="mb-0">
+                              <b>TIME: </b>
+                              <br />
+                              {moment(
+                                requestSheetDataOfBM?.sheetIssuedDateAndTimeOfBM
+                              )
+                                .tz("Asia/Kolkata")
+                                .format("hh:mm")}
+                            </p>
+                          </div> */}
+                        </div>
+                      </Row>
+                    </Col>
+                  </Row>
+                </div>
+              </td>
+
+              <td colSpan={2} className="mb-0 pb-0 pt-0">
+                {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
+                <Col className="border border-left-0">
+                  <p className="mb-0">
+                    <b>Sr. No.</b>
+                  </p>
+                  <p className="fs-6 fw-normal">
+                    <input
+                      style={{ width: "100%" }}
+                      {...register("serialNo", {
+                        required: "Serial No. is required",
+                      })}
+                    />
+                    {errors?.["serialNo"] && (
+                      <p className="text-error">{errors?.["serialNo"]?.message}</p>
+                    )}
+                  </p>
+                </Col>
+              </Row> */}
+                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
+                  <Col className="border pb-2 pt-1">
+                    <p className="mb-0">
+                      <b>DEPT./LINE</b>
+                    </p>
+                    {requestSheetDataOfBM?.cellRef?.cell_name}/
+                    {requestSheetDataOfBM?.lineRef?.line_name}
+                  </Col>
+                </Row>
+                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
+                  <Col className="border pb-2">
+                    <p className="fs-6 mb-0">
+                      <b>TL [PRD]</b>
+                    </p>
+                    {requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}
+                    {/* <input
+                    style={{ width: "100%" }}
+                    {...register("TLName", {
+                      required: "Team Leader Name is required",
+                    })}
+                  />
+                  {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
+                  </Col>
+                </Row>
+              </td>
+            </tr>
+            <tr>
+              <td className="border" colSpan={8}>
+                <Row className="m-0 border d-flex align-items-center">
+                  <Col lg={2}>
+                    <p className="mb-0">
+                      <b>MACHINE NAME:</b>{" "}
+                    </p>
+                  </Col>
+                  <Col lg={3}>
+                    {requestSheetDataOfBM?.machineRef?.machine_name}
+                  </Col>
+                  <Col lg={2}>
+                    <p className="mb-0">
+                      <b>MACHINE NO.:</b>
+                    </p>
+                  </Col>
+                  <Col lg={3}>
+                    {requestSheetDataOfBM?.machineRef?.machine_code}
+                  </Col>
+                </Row>
+                <Row className="m-0 border d-flex align-items-center">
+                  <Col lg={5}>
+                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>PROBLEM FACED: </b>
+                    </p>
+                  </Col>
+                  <Col lg={7}>
+                    <input
+                      type="text"
+                      id="prob"
+                      name="problemFaced"
+                      className="m-1"
+                      style={{ width: "350px" }}
+                      {...register("problemFaced", {
+                        required: "Please fill this field",
+                      })}
+                    />
+                    {/* {errors?.["problemFaced"] && (
+                      <p className="text-error">
+                        {errors?.["problemFaced"]?.message}
+                      </p>
+                    )} */}
+                  </Col>
+                </Row>
+                <Row className="m-0 border d-flex align-items-center">
+                  <Col lg={5}>
+                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>
+                        PRD OBSERVATION FOR THIS PROBLEM BASED ON (5WHY-1HOW){" "}
+                      </b>
+                    </p>
+                  </Col>
+                  <Col lg={7}>
+                    <input
+                      type="text"
+                      id="prdobv"
+                      name="prdobv"
+                      className="m-1"
+                      style={{ width: "350px" }}
+                      {...register("PRD_ObservationForProblem_5Why_1How", {
+                        required: "Please fill this field",
+                      })}
+                    />
+                    {/* {errors?.["PRD_ObservationForProblem_5Why_1How"] && (
+                      <p className="text-error">
+                        {
+                          errors?.["PRD_ObservationForProblem_5Why_1How"]
+                            ?.message
+                        }
+                      </p>
+                    )} */}
+                  </Col>
+                </Row>
+                <Row className="m-0 border d-flex align-items-center">
+                  <Col lg={5}>
+                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>WHY (5M+1E): </b>
+                    </p>
+                  </Col>
+                  <Col lg={7}>
+                    <input
+                      type="text"
+                      id="why"
+                      name="why"
+                      className="m-1"
+                      style={{ width: "350px" }}
+                      {...register("why_5M_1E", {
+                        // required: "Please fill this field",
+                      })}
+                    />
+                    {/* {errors?.["why_5M_1E"] && (
+                      <p className="text-error">{errors?.["why_5M_1E"]?.message}</p>
+                    )} */}
+                  </Col>
+                </Row>
+                <Row className="m-0 border d-flex align-items-center">
+                  <Col lg={5}>
+                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>WHERE (Process): </b>
+                    </p>
+                  </Col>
+                  <Col lg={7}>
+                    <input
+                      type="text"
+                      id="where"
+                      name="where"
+                      className="m-1"
+                      style={{ width: "350px" }}
+                      {...register("where_process", {
+                        // required: "Please fill this field",
+                      })}
+                    />
+                    {/* {errors?.["where_process"] && (
+                      <p className="text-error">{errors?.["where_process"]?.message}</p>
+                    )} */}
+                  </Col>
+                </Row>
+                <Row className="m-0 border d-flex align-items-center">
+                  <Col lg={5}>
+                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>WHEN (Frequency): </b>
+                    </p>
+                  </Col>
+                  <Col lg={7}>
+                    <input
+                      type="text"
+                      id="when"
+                      name="when"
+                      className="m-1"
+                      style={{ width: "350px" }}
+                      {...register("when_frequency", {
+                        // required: "Please fill this field",
+                      })}
+                    />
+                    {/* {errors?.["when_frequency"] && (
+                      <p className="text-error">{errors?.["when_frequency"]?.message}</p>
+                    )} */}
+                  </Col>
+                </Row>
+                <Row className="m-0 border d-flex align-items-center">
+                  <Col lg={5}>
+                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>WHO (Person): </b>
+                    </p>
+                  </Col>
+                  <Col lg={7}>
+                    <input
+                      type="text"
+                      id="who"
+                      name="who"
+                      className="m-1"
+                      style={{ width: "350px" }}
+                      {...register("who_person", {
+                        // required: "Please fill this field",
+                      })}
+                    />
+                    {/* {errors?.["who_person"] && (
+                      <p className="text-error">{errors?.["who_person"]?.message}</p>
+                    )} */}
+                  </Col>
+                </Row>
+                <Row className="m-0 border d-flex align-items-center">
+                  <Col lg={5}>
+                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>WHICH (Defect Location): </b>
+                    </p>
+                  </Col>
+                  <Col lg={7}>
+                    <input
+                      type="text"
+                      id="which"
+                      name="which"
+                      className="m-1"
+                      style={{ width: "350px" }}
+                      {...register("which_defectLocation", {
+                        // required: "Please fill this field",
+                      })}
+                    />
+                    {/* {errors?.["which_defectLocation"] && (
+                      <p className="text-error">{errors?.["which_defectLocation"]?.message}</p>
+                    )} */}
+                  </Col>
+                </Row>
+                <Row className="m-0 border d-flex align-items-center">
+                  <Col lg={5}>
+                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>HOW (Detail/ Observation): </b>
+                    </p>
+                  </Col>
+                  <Col lg={7}>
+                    <input
+                      type="text"
+                      id="how"
+                      name="how"
+                      className="m-1"
+                      style={{ width: "350px" }}
+                      {...register("how_details", {
+                        // required: "Please fill this field",
+                      })}
+                    />
+                    {/* {errors?.["how_details"] && (
+                      <p className="text-error">{errors?.["how_details"]?.message}</p>
+                    )} */}
+                  </Col>
+                </Row>
+              </td>
+
+              <td colSpan={4} className="border">
+                <Row className="m-0">
+                  <Col className="border p-2">
+                    <FormControl>
+                      <FormLabel id="demo-radio-buttons-group-label">
+                        <Typography sx={{ fontWeight: "700", color: "black" }}>
+                          SHIFT
+                        </Typography>
+                      </FormLabel>
+
+                      <RadioGroup
+                        row
+                        value={watch("selectedShift")}
+                        aria-labelledby="demo-radio-buttons-group-label"
+                        name="radio-buttons-group"
+                      >
+                        {shiftOfBM.map((shiftInfo) => (
+                          <FormControlLabel
+                            value={shiftInfo.shiftName}
+                            control={<Radio color="default" size="small" />}
+                            label={shiftInfo.shiftName}
+                            disabled={
+                              watch("selectedShift") !== shiftInfo.shiftName
+                            }
+                          />
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                  </Col>
+                </Row>
+
+                <Row className="m-0">
+                  <Col className="border p-2">
+                    <p className="mb-0 d-flex align-items-center justify-content-start">
+                      <b>QUALITY RELATED</b>&nbsp;&nbsp;&nbsp;
+                    </p>
+                  </Col>
+                  <Col className="border p-2 d-flex align-items-center">
+                    <Form>
+                      {["radio"].map((type) => (
+                        <div key={`inline-${type}`} className="d-flex">
+                          <Form.Check
+                            flex
+                            label="Yes"
+                            name="group1"
+                            type={type}
+                            id={`inline-${type}-1`}
+                            value="Yes"
+                            {...register("qualityRelated", {
+                              required: "Please select quality related",
+                            })}
+                          />
+                          <Form.Check
+                            flex
+                            label="No"
+                            name="group1"
+                            type={type}
+                            id={`inline-${type}-2`}
+                            value="No"
+                            {...register("qualityRelated", {
+                              required: "Please select quality related",
+                            })}
+                          />
+                        </div>
+                      ))}
+                    </Form>
+                  </Col>
+                </Row>
+                <Row className="pt-0 mb-0 m-0">
+                  <Col lg={12} className="border pb-2 pt-1">
+                    <p className="mb-0">
+                      <b>BREAKDOWN ATTENDED BY</b>
+                    </p>
+                    {/* {selectedAttendee} */}
+                  </Col>
+                </Row>
+              </td>
+            </tr>
+          </tbody>
+
+          <Row>
+            <Col>
+              <button
+                type="submit"
+                className="btn bg-button"
+                style={{ marginTop: "1rem" }}
+              >
+                Update Filled PRD Data
+              </button>
+            </Col>
+          </Row>
+        </Table>
+      </form>
+    </>
+  );
+}
+
+export default MyTable;

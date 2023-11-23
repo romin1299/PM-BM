@@ -6,7 +6,6 @@ const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
 const Machine = require("../model/machineSchema");
 const User = require("../model/userSchema");
 const Section = require("../model/sectionSchema");
-const Line = require("../model/lineSchema");
 const SubSection = require("../model/subSectionSchema");
 const Cell = require("../model/cellSchema");
 
@@ -20,6 +19,13 @@ const timezone = "Asia/Kolkata";
 
 router.use(cookieParser());
 router.use(authenticate);
+
+const {
+  PENDING_APPROVAL_LIST,
+  APPROVED_APPROVAL_LIST,
+  REJECTED_APPROVAL_LIST,
+  APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM,
+} = require("../GlobalData/RequestSheetApprovalStatus");
 
 const statusArray = [
   "Generated",
@@ -160,40 +166,18 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
         plantRef:
           machine.line_names.cell_names.subSection_names.section_names
             .plant_names._id,
-      };
+      }
 
-      let requestSheetNos = machine.line_names.requestSheetNos + 1;
+    let requestSheet;
 
-      let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
-        { _id: machine.line_names._id },
-        // { $set: { $inc: { requestSheetNos: 1 } } },
-        { $set: { requestSheetNos } },
-        { new: true }
-      );
 
-      const requestSheetNoOfBM =
-        machine?.line_names?.cell_names?.subSection_names?.section_names
-          ?.dashboardLevel === "Yes"
-          ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
-              .substring(0, 2)
-              .toUpperCase()}_${machine?.line_names?.line_name}_${
-              moment().tz("Asia/Kolkata").month() + 1
-            }_${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim()
-          : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
-              .substring(0, 2)
-              .toUpperCase()}_${machine?.line_names?.line_name}_
-      ${moment().tz("Asia/Kolkata").month() + 1}_
-      ${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim();
-
-      console.log(requestSheetNoOfBM);
-      let requestSheet;
-
-      if (req.rootUser.user_type === "Operator") {
+      if (
+        req.rootUser.user_type === "Operator" ||
+        req.rootUser.tm_department === "MTD"
+      ) {
         const {
           workStartedDateOfBM,
           workEndedDateOfBM,
-          workStartedTimeOfBM,
-          workEndedTimeOfBM,
           breakTime,
           qualityCheckTime,
           maintenanceTime,
@@ -209,35 +193,46 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
           why3,
           why4,
           why5,
+          changedParts,
+          feedbackMTD_HOS,
+          qualityConfirmed,
+          partQualityCheckedByMTD,
+          partQualityCheckedByPRD,
         } = req.body;
-
-        const startDateTimeBM = `${workStartedDateOfBM}T${workStartedTimeOfBM}`;
-        const endDateTimeBM = `${workEndedDateOfBM}T${workEndedTimeOfBM}`;
-        const requestSheetStartDateTime = new Date(startDateTimeBM);
-        const requestSheetEndDateTime = new Date(endDateTimeBM);
 
         let queryObj = {
           ...req.body,
           ..._idObject,
           "maintenanceReportFilledByMTD.workStartedDateOfBM":
-            requestSheetStartDateTime,
-          "maintenanceReportFilledByMTD.workEndedDateOfBM":
-            requestSheetEndDateTime,
+            workStartedDateOfBM,
+          "maintenanceReportFilledByMTD.workEndedDateOfBM": workEndedDateOfBM,
           "maintenanceReportFilledByMTD.actionAndCounterMeasureStep":
             actionAndCounterMeasureStep,
-          "maintenanceReportFilledByMTD.maintenanceTime": maintenanceTime,
           "maintenanceReportFilledByMTD.problemsOfBM": problemsOfBM,
-          "maintenanceReportFilledByMTD.breakTime": breakTime,
           "maintenanceReportFilledByMTD.breakDownTime": breakDownTime,
           "maintenanceReportFilledByMTD.whyAnalysis.why1": why1,
           "maintenanceReportFilledByMTD.whyAnalysis.why2": why2,
           "maintenanceReportFilledByMTD.whyAnalysis.why3": why3,
           "maintenanceReportFilledByMTD.whyAnalysis.why4": why4,
           "maintenanceReportFilledByMTD.whyAnalysis.why5": why5,
+          "maintenanceReportFilledByMTD.breakDownTime": breakDownTime,
+          "maintenanceReportFilledByMTD.maintenanceTime": maintenanceTime,
+          "maintenanceReportFilledByMTD.qualityCheckTime": qualityCheckTime,
+          "maintenanceReportFilledByMTD.breakTime": breakTime,
+          "maintenanceReportFilledByMTD.minorBD": minorBD,
+          "maintenanceReportFilledByMTD.majorBD": majorBD,
+          "maintenanceReportFilledByMTD.firstTime": firstTime,
+          "maintenanceReportFilledByMTD.repeat": repeat,
+          sparePartUsedOrNot: changedParts?.length > 0 ? true : false,
+          changedParts,
+          feedbackMTD_HOS,
+          qualityConfirmed,
+          partQualityCheckedByMTD,
+          partQualityCheckedByPRD,
         };
 
         requestSheet = await RequestSheetOfBM.findOneAndUpdate(
-          { _id: req.query.reqId },
+          { requestSheetNoOfBM: req.query.reqId },
           {
             $set: queryObj,
           },
@@ -245,6 +240,10 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
             new: true,
           }
         );
+        res.status(201).json({
+          message: "Request-sheet updated successfully",
+          requestSheet,
+        });
       } else {
         const {
           problemFaced,
@@ -255,18 +254,40 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
           who_person,
           which_defectLocation,
           how_details,
-          requestSheetdate,
-          requestSheettime,
+          // requestSheetdate,
+          // requestSheettime,
+          // sheetIssuedDate,
+          // sheetIssuedTime,
+          problemOccurredDateAndTimeOfBM,
+          sheetIssuedDateAndTimeOfBM,
           maintenanceType,
           priorityCode,
           qualityRelated,
           shiftOfBM,
-          sheetIssuedTime,
         } = req.body;
 
-        const combinedDateTimeString = `${requestSheetdate}T${requestSheettime}`;
-        const requestSheetDateTime = new Date(combinedDateTimeString);
-        const currentDateTime = new Date();
+        let requestSheetNos = machine.line_names.requestSheetNos + 1;
+
+        let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
+          { _id: machine.line_names._id },
+          // { $set: { $inc: { requestSheetNos: 1 } } },
+          { $set: { requestSheetNos } },
+          { new: true }
+        );
+
+        const requestSheetNoOfBM =
+          machine?.line_names?.cell_names?.subSection_names?.section_names
+            ?.dashboardLevel === "Yes"
+            ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
+                .substring(0, 2)
+                .toUpperCase()}_${machine?.line_names?.line_name}_${
+                moment().tz("Asia/Kolkata").month() + 1
+              }_${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim()
+            : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
+                .substring(0, 2)
+                .toUpperCase()}_${machine?.line_names?.line_name}_
+      ${moment().tz("Asia/Kolkata").month() + 1}_
+      ${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim();
 
         requestSheet = new RequestSheetOfBM({
           ...req.query,
@@ -277,10 +298,10 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
           priorityCode: priorityCode,
           qualityRelated: qualityRelated,
           shiftOfBM: shiftOfBM,
-          breakDownAttendedBy: req.rootUser._id,
+          // breakDownAttendedBy: req.rootUser._id,
           maintenanceType: maintenanceType || "BM",
-          problemOccurredDateAndTimeOfBM: requestSheetDateTime,
-          sheetIssuedDateAndTimeOfBM: sheetIssuedTime,
+          problemOccurredDateAndTimeOfBM,
+          sheetIssuedDateAndTimeOfBM,
           breakDownBasicDataFilledByPRD: {
             problemFaced,
             PRD_ObservationForProblem_5Why_1How,
@@ -294,14 +315,18 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
         });
 
         await requestSheet.save();
+        res.status(201).json({
+          message: "Request-sheet generated successfully",
+          requestSheet,
+        });
       }
-      res.status(201).json({
-        message: "Request-sheet generated successfully",
-        requestSheet,
-      });
     } else {
       res.status(404).json({ message: "Request-sheet not generated" });
     }
+
+    res
+      .status(201)
+      .json({ message: "Request-sheet generated successfully", requestSheet });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
@@ -441,12 +466,25 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           handOverUser: {
             $arrayElemAt: ["$handoverUserDetails.tm_name", 0],
           },
-          handOverTime: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+          handOverTime: {
+            $dateToString: {
+              format: "%Y-%m-%d %H:%M:%S",
+              date: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+              timezone: "Asia/Kolkata",
+            },
+          },
           work_order_status: 1,
           requestSheetStatus: 1,
           MTDUser: { $arrayElemAt: ["$namesMTD.tm_name", 0] },
           problem: "$breakDownBasicDataFilledByPRD.problemFaced",
-          problemOccurredDateAndTimeOfBM: 1,
+          // problemOccurredDateAndTimeOfBM:
+          problemOccurredDateAndTimeOfBM: {
+            $dateToString: {
+              format: "%Y-%m-%d %H:%M:%S",
+              date: "$problemOccurredDateAndTimeOfBM",
+              timezone: "Asia/Kolkata",
+            },
+          },
           "maintenanceReportFilledByMTD.workEndedDateOfBM": 1,
           partQualityStatusOfPRD: 1,
           finalActivity: 1,
@@ -2291,6 +2329,46 @@ router.get(
 //   }
 // );
 
+router.get(
+  "/getMachineRequestSheetDetails/:machine_code/:requestSheetNoOfBM",
+  async (req, res, next) => {
+    try {
+      let requestSheetData = await RequestSheetOfBM.findOne({
+        requestSheetNoOfBM: req.params?.requestSheetNoOfBM,
+      })
+        .populate({ path: "machineRef" })
+        .populate({
+          path: "lineRef",
+        })
+        .populate({ path: "cellRef" })
+        .populate({ path: "plantRef" })
+        .populate({ path: "assignUser" })
+        .populate({ path: "requestSheetCreatedBy" })
+        .populate({ path: "approvalOfMTD_TL" })
+        .populate({ path: "approvalOfMTD_HOSS" })
+        .populate({ path: "approvalOfPRD_TL" })
+        .populate({ path: "approvalOfPRD_HOS" })
+        .populate({ path: "approvalOfMTD_HOS" })
+        .populate({ path: "approvalOfPRD_HOD" })
+        .populate({ path: "approvalOfMTD_HOD" })
+        .populate({ path: "partQualityCheckedByPRD" })
+        .populate({ path: "partQualityCheckedByMTD" })
+        .exec();
+
+      if (!requestSheetData) {
+        return res.status(400).json({
+          message: "No sheet found for the update",
+        });
+      }
+      res.status(201).json({
+        message: "Request-sheet data get successfully",
+        requestSheetData,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
 // -------------------------------------------------------------------------------
 //        Report 1 : Production/Line Wise KPI
 // -------------------------------------------------------------------------------
@@ -2372,6 +2450,152 @@ router.get(
   }
 );
 
+router.patch(
+  "/sendApprovalForRequestSheetOfBM/:reqId/:machineRef",
+  async (req, res, next) => {
+    try {
+      let { assignApprovalList, requestSheetDataOfBM } = req.body;
+
+      if (
+        !assignApprovalList?.MTD_TL &&
+        requestSheetDataOfBM?.assignUser?._id ===
+          (req?.rootUser?._id).toString()
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Please fill required approval list" });
+      }
+
+      if (
+        requestSheetDataOfBM?.assignUser?._id ===
+        (req?.rootUser?._id).toString()
+      ) {
+        const updateAssignApprovalOfMTD_TL =
+          await RequestSheetOfBM.findOneAndUpdate(
+            {
+              requestSheetNoOfBM: req.params?.reqId,
+              assignUser: req?.rootUser?._id,
+            },
+            {
+              $set: {
+                approvalOfMTD_TL: assignApprovalList?.MTD_TL,
+                approvalStatusOfMTD_TL: "MTD TL Approval Pending",
+                approvalDateAndTimeOfMTD_TL: new Date(),
+                requestSheetStatus: "MTD TL Approval Pending",
+              },
+              $push: {
+                approvalLogOfMTD_TL: assignApprovalList?.MTD_TL,
+                approvalStatusLogOfMTD_TL: "MTD TL Approval Pending",
+                approvalDateAndTimeLogOfMTD_TL: new Date(),
+              },
+            },
+            { new: true }
+          ).exec();
+
+        if (updateAssignApprovalOfMTD_TL) {
+          return res.status(201).json({
+            message: "Successfully send approval to MTD TL!",
+            updateAssignApprovalOfMTD_TL,
+          });
+        }
+      }
+
+      Object.keys(assignApprovalList).forEach(
+        (key) =>
+          assignApprovalList[key] === "" && delete assignApprovalList[key]
+      );
+
+      const updateTheStatusOfBMSheetApprover = async (
+        keyOfDepartment,
+        assignApprovalList
+      ) => {
+        let queryObjForUpdate = {},
+          queryObjForPush = {};
+
+        queryObjForUpdate = {
+          ...queryObjForUpdate,
+          [`approvalOf${keyOfDepartment}`]: assignApprovalList[keyOfDepartment],
+          [`approvalStatusOf${keyOfDepartment}`]: `${keyOfDepartment.replace(
+            "_",
+            " "
+          )} Approval Pending`,
+          [`approvalDateAndTimeOf${keyOfDepartment}`]: new Date(),
+        };
+
+        queryObjForPush = {
+          ...queryObjForPush,
+          [`approvalLogOf${keyOfDepartment}`]:
+            assignApprovalList[keyOfDepartment],
+          [`approvalStatusLogOf${keyOfDepartment}`]: `${keyOfDepartment.replace(
+            "_",
+            " "
+          )} Approval Pending`,
+          [`approvalDateAndTimeLogOf${keyOfDepartment}`]: new Date(),
+        };
+
+        let resultOfUpdateStatusOfApprover =
+          await RequestSheetOfBM.findOneAndUpdate(
+            {
+              requestSheetNoOfBM: req.params?.reqId,
+              approvalOfMTD_TL: req?.rootUser?._id,
+            },
+            {
+              $set: {
+                ...queryObjForUpdate,
+                requestSheetStatus: "MTD TL Approval Approved",
+              },
+              $push: {
+                ...queryObjForPush,
+              },
+            },
+
+            { new: true }
+          );
+      };
+
+      if (assignApprovalList?.minorBD === "Yes") {
+        Object.keys(assignApprovalList).forEach((key) => {
+          if (
+            requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
+              key.replace("_", " ")
+            )
+          ) {
+            updateTheStatusOfBMSheetApprover(key, assignApprovalList);
+          }
+        });
+        return res
+          .status(201)
+          .json({
+            message: `${req.params?.reqId} Request-sheet approval send !!`,
+          });
+      } else {
+        Object.keys(assignApprovalList).forEach((key) => {
+          if (
+            requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+              key.replace("_", " ")
+            )
+          ) {
+            updateTheStatusOfBMSheetApprover(key, assignApprovalList);
+          }
+        });
+        return res
+          .status(201)
+          .json({ message: "Request-sheet approval send !!" });
+      }
+
+      console.log(resultOfUpdateStatusOfApprover);
+
+      // if (resultOfUpdateStatusOfApprover) {
+      //   res.status(201).json({ message: "Request-sheet approval send !!" });
+      // } else {
+      //   console.error();
+      //   res.status(400).json({ message: "Approval not send" });
+      // }
+      //send email of approval to MTD TL (Remaining)
+    } catch (error) {
+      console.log(error);
+    }
+  })
 const filterMiddleware = async (req, res, next) => {
   try {
     let queryObj = {};
@@ -4135,14 +4359,345 @@ router.get("/getBdCategoryPieChart", async (req, res, next) => {
     bdCategoryPieChart,
   });
 });
-router.get("/getBdPercentage", async (req, res, next) => {
+router.get(
+  "/getBdPercentage/:filter/:selectedId",
+  filterMiddleware,
+  async (req, res, next) => {
+    const startDate = moment().tz(timezone).startOf("year");
+
+    const endDate = moment().tz(timezone).endOf("hour");
+
+    const laststartDate = moment()
+      .tz(timezone)
+      .startOf("year")
+      .subtract(1, "year");
+
+    const lastendDate = moment().tz(timezone).endOf("year").subtract(1, "year");
+    // const allMonths = Array.from({ length: 12 }, (_, monthIndex) =>
+    //   moment().month(monthIndex).format("MMMM")
+    // );
+
+    const getBdPercentage = await RequestSheetOfBM.aggregate(
+      [
+        // {
+        //   $facet: {
+        // BdPerCurrentYearData: [
+        {
+          $match: req.queryObj,
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%m",
+                date: "$sheetIssuedDateAndTimeOfBM",
+                timezone: timezone,
+              },
+            },
+
+            bdHours: { $sum: "$bdTime" },
+            totalProdHours: { $sum: "$prodTotal" },
+            // percentage: {
+            //   $multiply: [{ $divide: ["$bdHours", "$totalProdHours"] }, 100],
+            // },
+          },
+        },
+        {
+          $project: {
+            bdHours: 1,
+            totalProdHours: 1,
+            monthName: 1,
+            percentage: {
+              $multiply: [{ $divide: ["$bdHours", "$totalProdHours"] }, 100],
+            },
+          },
+        },
+
+        {
+          $group: {
+            _id: null,
+            array: { $push: "$$ROOT" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            array: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthInDecimal", "$array._id"] },
+                    {
+                      month: "$$month.monthName",
+                      value: {
+                        $arrayElemAt: [
+                          "$array",
+                          {
+                            $indexOfArray: [
+                              "$array._id",
+                              "$$month.monthInDecimal",
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      month: "$$month.monthName",
+                      value: {
+                        _id: "$$month.monthInDecimal",
+                        bdHours: 0,
+                        totalProdHours: 0,
+                        percentage: 0,
+                        // target: 0,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        { $unwind: "$array" },
+        {
+          $replaceRoot: { newRoot: "$array" },
+        },
+        {
+          $group: {
+            _id: null,
+            labels: { $push: "$month" },
+            // target: { $push: "$value.target" },
+            totalPercentage: {
+              $push: "$value.percentage",
+            },
+            // backgroundColor: {
+            //   $push: {
+            //     $cond: [
+            //       {
+            //         $lte: ["$value.hours", "$value.target"],
+            //       },
+            //       "green",
+            //       "red",
+            //     ],
+            //   },
+            // },
+            // percentageAvg: { $avg: "$value.percentage" },
+          },
+        },
+      ]
+
+      //     BdLastYearData: [
+      //       {
+      //         $match: queryObj2,
+      //       },
+      //       {
+      //         $group: {
+      //           _id: {
+      //             $dateToString: {
+      //               format: "%Y",
+      //               date: "$sheetIssuedDateAndTimeOfBM",
+      //               timezone: timezone,
+      //             },
+      //           },
+      //           bdHours: { $sum: "$bdTime" },
+      //           totalProdHours: { $sum: "$prodTotal" },
+      //           // count: { $sum: 1 },
+      //           // average: { $avg: "$bdTime" },
+      //           // month: { $first: { $month: "$ceatedAt" } },
+      //         },
+      //       },
+      //       {
+      //         $project: {
+      //           bdHours: 1,
+      //           totalProdHours: 1,
+      //           monthName: 1,
+      //           percentage: {
+      //             $multiply: [{ $divide: ["$bdHours", "$totalProdHours"] }, 100],
+      //           },
+      //         },
+      //       },
+
+      //       // {
+      //       //   $group: {
+      //       //     _id: { $avg: "$percentage" },
+      //       //   },
+      //       // },
+      //     ],
+      //   },
+      // },
+      // ]
+    );
+
+    return res.status(200).json({
+      message: "BD percentage get successfully",
+      totalCategories: getBdPercentage.length,
+      getBdPercentage: getBdPercentage?.[0],
+    });
+  }
+);
+
+router.get(
+  "/getMtbfData/:filter/:selectedId",
+  filterMiddleware,
+  async (req, res, next) => {
+    const getMtbf = await RequestSheetOfBM.aggregate(
+      [
+        // {
+        //   $facet: {
+        //     MtbfCurrentYearData: [
+        {
+          $match: req.queryObj,
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%m",
+                date: "$sheetIssuedDateAndTimeOfBM",
+                timezone: timezone,
+              },
+            },
+            // bdHours: { $sum: "$bdTime" },
+            // totalProdHours: { $sum: "$prodTotal" },
+
+            count: { $sum: 1 },
+
+            hours: {
+              $sum: {
+                $cond: [
+                  { $gt: ["$sheetIssuedDateAndTimeOfBM", null] },
+                  {
+                    $divide: [
+                      {
+                        $subtract: ["$prodTotal", "$bdTime"],
+                      },
+                      "$count",
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+
+        {
+          $group: {
+            _id: null,
+            array: { $push: "$$ROOT" },
+          },
+        },
+
+        {
+          $project: {
+            _id: 0,
+            array: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthInDecimal", "$array._id"] },
+                    {
+                      month: "$$month.monthName",
+                      value: {
+                        $arrayElemAt: [
+                          "$array",
+                          {
+                            $indexOfArray: [
+                              "$array._id",
+                              "$$month.monthInDecimal",
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      month: "$$month.monthName",
+                      value: {
+                        _id: "$$month.monthInDecimal",
+                        count: 0,
+                        hours: 0,
+                        target: 0,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        { $unwind: "$array" },
+        {
+          $replaceRoot: { newRoot: "$array" },
+        },
+        {
+          $group: {
+            _id: null,
+            labels: { $push: "$month" },
+            // target: { $push: "$value.target" },
+            MTBF: {
+              $push: "$value.count",
+            },
+            // backgroundColor: {
+            //   $push: {
+            //     $cond: [
+            //       {
+            //         $lte: ["$value.hours", "$value.target"],
+            //       },
+            //       "green",
+            //       "red",
+            //     ],
+            //   },
+            // },
+          },
+        },
+      ]
+
+      //     MtbfLastYearData: [
+      //       {
+      //         $match: queryObj2,
+      //       },
+      //       {
+      //         $group: {
+      //           _id: {
+      //             $dateToString: {
+      //               format: "%Y",
+      //               date: "$sheetIssuedDateAndTimeOfBM",
+      //               timezone: timezone,
+      //             },
+      //           },
+      //           // bds: { $push: "$bdTime" },
+      //           count: { $sum: 1 },
+      //           // average: { $avg: "$bdTime" },
+      //           // month: { $first: { $month: "$ceatedAt" } },
+      //         },
+      //       },
+
+      //       {
+      //         $group: {
+      //           _id: { $avg: "$count" },
+      //         },
+      //       },
+      //     ],
+      //   },
+      // },
+      // ]
+    );
+
+    return res.status(200).json({
+      message: "MTBF data get successfully",
+      totalCategories: getMtbf.length,
+      getMtbf: getMtbf?.[0],
+    });
+  }
+);
+
+router.get("/monthlyBDTrend", async (req, res, next) => {
   const startDate = moment().tz(timezone).startOf("year");
 
   const endDate = moment().tz(timezone).endOf("hour");
-
-  const allMonths = Array.from({ length: 12 }, (_, monthIndex) =>
-    moment().month(monthIndex).format("MMMM")
-  );
 
   let queryObj = {};
   if (req.query.cellId) {
@@ -4164,151 +4719,6 @@ router.get("/getBdPercentage", async (req, res, next) => {
       },
     };
   }
-
-  const getBdPercentage = await RequestSheetOfBM.aggregate([
-    {
-      $match: queryObj,
-    },
-    {
-      $group: {
-        _id: {
-          $month: "$sheetIssuedDateAndTimeOfBM",
-        },
-        bdHours: { $sum: "$bdTime" },
-        totalProdHours: { $sum: "$prodTotal" },
-      },
-    },
-    {
-      $project: {
-        bdHours: 1,
-        totalProdHours: 1,
-        monthName: 1,
-        percentage: {
-          $multiply: [{ $divide: ["$bdHours", "$totalProdHours"] }, 100],
-        },
-      },
-    },
-
-    {
-      $group: {
-        _id: null,
-        allMonthsPercentage: {
-          $push: { month: "$_id", percentage: "$percentage" },
-        },
-        FYAverage: { $avg: "$percentage" },
-      },
-    },
-  ]);
-
-  // console.log("Result", getBdPercentage);
-
-  // const result = allMonths.map((monthname) => {
-  //   const monthData = getBdPercentage.find((item) =>
-  //     console.log(
-  //       item.allMonthsPercentage.map(
-  //         (mo) => mo.k === moment(monthname, "MMMM").month() + 1
-  //       )
-  //     )
-  //   );
-
-  //   console.log("monthData", monthData);
-  // return {
-  //   _id: { monthName: monthname },
-  //   percentage: monthData,
-  //   // FY: monthData.FYAverage,
-  // };
-  // });
-
-  // console.log("Result", result);
-
-  return res.status(200).json({
-    message: "BD percentage get successfully",
-    totalCategories: getBdPercentage.length,
-    getBdPercentage,
-  });
-});
-
-router.get("/getMtbfData", async (req, res, next) => {
-  const startDate = moment().tz(timezone).startOf("year");
-
-  const endDate = moment().tz(timezone).endOf("hour");
-
-  let queryObj = {};
-  if (req.query.cellId) {
-    queryObj = {
-      cellRef: mongoose.Types.ObjectId(req.query.cellId),
-      sheetIssuedDateAndTimeOfBM: {
-        $gte: startDate.toDate(),
-        $lte: endDate.toDate(),
-      },
-    };
-  }
-  if (req.query.lineId) {
-    queryObj = {
-      // ...queryObj,
-      lineRef: mongoose.Types.ObjectId(req.query.lineId),
-      sheetIssuedDateAndTimeOfBM: {
-        $gte: startDate.toDate(),
-        $lte: endDate.toDate(),
-      },
-    };
-  }
-  const allMonths = Array.from({ length: 12 }, (_, monthIndex) =>
-    moment().month(monthIndex).format("MMMM")
-  );
-
-  const getMtbf = await RequestSheetOfBM.aggregate([
-    {
-      $match: queryObj,
-    },
-    {
-      $group: {
-        _id: {
-          $month: "$sheetIssuedDateAndTimeOfBM",
-        },
-        bdHours: { $sum: "$bdTime" },
-        totalProdHours: { $sum: "$prodTotal" },
-        count: { $sum: 1 },
-      },
-    },
-
-    {
-      $project: {
-        bdHours: 1,
-        totalProdHours: 1,
-        count: 1,
-        MTBF: {
-          $subtract: [{ $divide: ["$totalProdHours", "$count"] }, "$bdHours"],
-        },
-      },
-    },
-    {
-      $group: {
-        _id: null,
-        allMonthsMTBF: { $push: { month: "$_id", value: "$MTBF" } },
-        FYAverage: { $avg: "$MTBF" },
-      },
-    },
-  ]);
-
-  // const result = allMonths.map((monthname) => {
-  //   const monthData = getMtbf.find(
-  //     (item) => item._id.monthName === moment(monthname, "MMMM").month() + 1
-  //   );
-  //   return {
-  //     monthName: monthname,
-
-  //     MTBF: monthData ? monthData.MTBF : 0,
-  //   };
-  // });
-
-  // console.log("Result", result);
-
-  return res.status(200).json({
-    message: "MTBF data get successfully",
-    totalCategories: getMtbf.length,
-    getMtbf,
-  });
 });
 
 //          MTTR Report

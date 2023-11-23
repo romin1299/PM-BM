@@ -10,9 +10,10 @@ import {
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
 import { Box, Typography } from "@mui/material";
-import { Row } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+
 
 ChartJS.register(
   CategoryScale,
@@ -31,6 +32,7 @@ export const options = {
   responsive: true,
   plugins: {
     legend: {
+      align: "end",
       labels: {
         usePointStyle: true,
       },
@@ -66,13 +68,22 @@ export const options = {
         display: true,
         text: "Days",
       },
+      ticks: {
+        color: 'black'
+      },
     },
     y: {
       stacked: true,
       position: "left",
+      ticks: {
+        color: 'black'
+      },
     },
     y2: {
       position: "right",
+      ticks: {
+        color: 'black'
+      },
     },
   },
 };
@@ -84,28 +95,6 @@ const getRandomDataArray = (max = 30) => {
 };
 
 const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
-  const [filteredData, setFilteredData] = useState([]);
-
-  const [filterOptions, setFilterOptions] = useState({
-    lessThan60: false,
-    lessThan120: false,
-    greaterThan120: false,
-  });
-
-  const handleCheckboxChange = (option) => {
-    setFilterOptions((prevOptions) => ({
-      ...prevOptions,
-      [option]: !prevOptions[option],
-    }));
-  };
-
-  //   const filterData = () => {
-  //     // Implement filtering logic here based on checkbox states
-  //   };
-
-  //   useEffect(() => {
-  //     filterData();
-  //   }, [filterOptions]);
 
   const [dailyBreakdownTrendData, setDailyBreakdownTrendData] = useState({
     // labels: daysLabels,
@@ -154,11 +143,13 @@ const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
     }
   }, [selectedValue]);
 
+
   const datasets = [
     {
       type: "line",
       label: "Total Count",
       data: dailyBreakdownTrendData?.dayWiseCount,
+      backgroundColor:'rgba(202, 31, 75)',
       borderColor: chartColors[3],
       borderWidth: 2,
       fill: false,
@@ -170,14 +161,14 @@ const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
       label: "< 1",
       data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
       yAxisID: "y",
-      backgroundColor: chartColors[0],
+      backgroundColor:chartColors.orange[2],
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: "< 2",
       data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
-      backgroundColor: chartColors[1],
+      backgroundColor:chartColors.green[0],
       yAxisID: "y",
     },
     {
@@ -185,7 +176,7 @@ const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
       stack: "bar-stacked",
       label: "> 2",
       data: dailyBreakdownTrendData?.greaterThenTwoHourData,
-      backgroundColor: chartColors[2],
+      backgroundColor:chartColors.aqua[1],
       yAxisID: "y",
     },
   ];
@@ -196,8 +187,8 @@ const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
   };
 
   return (
-    <Box className="p-3">
-      <Row style={{ marginBottom: "1rem" }}>
+    <Box className="cell p-3 mt-3">
+      <Row>
         <Typography
           className="col"
           variant="h5"
@@ -206,6 +197,9 @@ const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
         >
           Daily Breakdown Trend
         </Typography>
+        {/* <Col className="col-auto d-flex">
+            <FilterMenu DropdownValue="hour" />
+          </Col> */}
       </Row>
 
       <div style={{ width: "100%", height: "300px" }}>

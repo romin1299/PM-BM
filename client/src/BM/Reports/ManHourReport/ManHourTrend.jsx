@@ -33,6 +33,7 @@ export const options = {
       labels: {
         usePointStyle: true,
       },
+      
     },
     datalabels: {
       display: false,
@@ -49,13 +50,20 @@ export const options = {
         display: true,
         text: "Months",
       },
+      ticks: {
+        color: 'black'
     },
+  },
     y: {
       stacked: true,
       title: {
         display: true,
         text: "Hours",
       },
+      ticks: {
+        color: 'black'
+    },
+      
     },
   },
 };
@@ -66,12 +74,14 @@ export const data = {
     {
       label: "BM",
       data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-      backgroundColor: chartColors.orange[2],
+      backgroundColor: chartColors.green[0],
+      pointStyle:'rect',
     },
     {
       label: "PM",
       data: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
       backgroundColor: chartColors.aqua[1],
+      pointStyle:'rect'
     },
   ],
 };
@@ -92,7 +102,7 @@ const ManHourTrend = () => {
           <FilterMenu DropdownValue="hour" />
         </Col>
       </Row>
-
+      <Divider sx={{ mb: 4, borderColor: "black" }} />
       <Bar options={options} data={data} />
     </Box>
   );

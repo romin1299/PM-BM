@@ -27,7 +27,7 @@ export default function DownloadMenu({
 
   return (
     <div>
-      <Tooltip title="Download">
+      <Tooltip title="Export">
         <Button
           disableElevation
           size="small"

@@ -4,18 +4,20 @@ import { Tabs, Tab } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import PMTabdashboard from "./BM/Tabs/PMTabdashboard";
 import BM_Routes from "./BM/BM_Routes";
+
 import "./App.css";
 
-function Dashboard1() {
+function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeKey, setActiveKey] = useState("");
 
-  const handleTabSelect = (key) => {
-    navigate(key);
+  const handleTabSelect = (k) => {
+    navigate(k);
   };
 
   useEffect(() => {
+    // Extract the part of the path you want as the active key
     const pathParts = location.pathname.split("/");
 
     if (pathParts[1].trim().length === 0) {
@@ -30,7 +32,7 @@ function Dashboard1() {
       <Tabs
         activeKey={activeKey}
         onSelect={handleTabSelect}
-        id="application-tabs"
+        id="uncontrolled-tab-example"
       >
         <Tab eventKey="pm" title="Preventive Maintenance">
           <div className="scrollable-content">
@@ -43,9 +45,13 @@ function Dashboard1() {
             <BM_Routes />
           </div>
         </Tab>
+
+        
+
+       
       </Tabs>
     </div>
   );
 }
 
-export default Dashboard1;
+export default App;

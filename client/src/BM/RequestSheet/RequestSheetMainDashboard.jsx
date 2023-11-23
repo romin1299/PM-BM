@@ -3,12 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import { RadioGroup } from "@mui/material";
 import TextField from "@material-ui/core/TextField";
-import { Multiselect } from "multiselect-react-dropdown";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
-import DescriptionIcon from "@mui/icons-material/Description";
 
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -23,18 +21,6 @@ const RequestSheetMainDashboard = () => {
 
   const context = useContext(RoutingContext);
 
-  const statusArray = [
-    "Generated",
-    "Assigned",
-    "Work Order Open",
-    "Work Order Pending",
-    "Work Order Closed",
-    "Fill sheet",
-    "Under MTD TL approval",
-    "Under MTD HOSS approval",
-    "Under MTD HOS approval",
-  ];
-
   const initialState = {
     requestSheetData: [],
     counters: {
@@ -44,14 +30,19 @@ const RequestSheetMainDashboard = () => {
     },
     message: "",
 
-    // MTD_or_PRD_user_list: [],
-    TLHOSS_and_TM_user_list: [],
+    userDropdown: [],
+
+    isAddRequestSheet: false,
+    isUpdateRequestSheet: false,
+    showDeleteConfirmationModal: false,
   };
 
   const ACTION = {
+    GET: "get-request-sheets",
+    ADD: "add-row",
+    UPDATE: "update-row",
     DELETE: "delete-popup",
     SETUP_USERS: "set-user-dropdown-value",
-    UPDATE_REQUEST_SHEET: "update-request-sheet",
   };
 
   const reducer = (state, action) => {
@@ -60,26 +51,61 @@ const RequestSheetMainDashboard = () => {
         return {
           ...state,
           requestSheetData: action?.requestSheetData,
-          TLHOSS_and_TM_user_list: action?.TLHOSS_and_TM_user_list,
-          // MTD_or_PRD_user_list: action?.MTD_or_PRD_user_list,
           counters: action?.counters,
           message: action?.message,
         };
 
-      case ACTION?.UPDATE_REQUEST_SHEET:
+      case ACTION?.ADD:
         return {
           ...state,
-          requestSheetData: state?.requestSheetData?.map((item) =>
-            item?._id === action?.requestSheet?._id
-              ? action?.requestSheet
-              : item
-          ),
-          message: action?.message,
+          isAddRequestSheet: !state?.isAddRequestSheet,
+        };
+
+      case ACTION?.DELETE:
+        return {
+          ...state,
+          showDeleteConfirmationModal: !state?.showDeleteConfirmationModal,
+        };
+
+      case ACTION?.UPDATE:
+        return {
+          ...state,
+          isUpdateRequestSheet: !state?.isUpdateRequestSheet,
+        };
+
+      case ACTION?.SETUP_USERS:
+        return {
+          ...state,
+          userDropdown: action?.users,
         };
 
       default:
         return state;
     }
+    // if (action?.type === ACTION?.GET) {
+    //   return {
+    //     ...state,
+    //     requestSheetData: action?.requestSheetData,
+    //     message: action?.message,
+    //   };
+    // } else if (action?.type === ACTION?.ADD) {
+    //   return {
+    //     ...state,
+    //     isAddLocation: !state?.isAddLocation,
+    //   };
+    // } else if (action?.type === ACTION?.DELETE) {
+    //   return {
+    //     ...state,
+    //     showDeleteConfirmationModal: !state?.showDeleteConfirmationModal,
+    //   };
+    // } else if (action?.type === ACTION?.UPDATE) {
+    //   return {
+    //     ...state,
+    //     isUpdateLocation: !state?.isUpdateLocation,
+    //   };
+    // } else {
+    //   return state;
+    // }
   };
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -95,24 +121,44 @@ const RequestSheetMainDashboard = () => {
         credentials: "include",
       });
 
-      const {
-        message,
-        requestSheetData,
-        counters,
-        TLHOSS_and_TM_user_list,
-        // MTD_or_PRD_user_list,
-      } = await res.json();
+      const { message, requestSheetData, counters } = await res.json();
 
       if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET,
           requestSheetData,
-          TLHOSS_and_TM_user_list,
-          // MTD_or_PRD_user_list,
           counters,
           message,
         });
       }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getUserDetails = async () => {
+    try {
+      const res = await fetch(
+        context?.tm_department === "MTD" && context?.user_type === "TL/HOSS"
+          ? `/getUserDetails?user_type=Operator`
+          : `/getUserDetails?tm_department=MTD&&user_type=TL%2FHOSS`, // %2F is for "/"
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, users } = await res.json();
+
+      reducerDispatch({
+        type: ACTION.SETUP_USERS,
+        users,
+      });
+      console.log(message, users);
     } catch (error) {
       console.log(error);
     }
@@ -128,17 +174,12 @@ const RequestSheetMainDashboard = () => {
         body: JSON.stringify(updatedRow),
       });
 
-      const { requestSheet, message } = await res.json();
+      const data = await res.json();
 
       if (res.status === 201) {
-        reducerDispatch({
-          type: ACTION.UPDATE_REQUEST_SHEET,
-          requestSheet,
-          message,
-        });
-        return requestSheet;
+        console.log(data);
       } else {
-        console.log("error");
+        console.log("error", data);
       }
     } catch (error) {
       console.log(error);
@@ -147,36 +188,25 @@ const RequestSheetMainDashboard = () => {
 
   useEffect(() => {
     getAllRequestSheetData();
+    getUserDetails();
   }, []);
 
   const handleGenerateBMNavigation = async () => {
     navigate(`/bm/generateRequestSheetMainDashboard`);
   };
 
-  // const conditionalBasedEditableFunctionForPRD = (_, row) => {
-  //   if (
-  //     context?.tm_department === "PRD" &&
-  //     context?.user_type === "TL/HOSS" &&
-  //     row?.assignUser
-  //   ) {
-  //     return true;
-  //   }
-  //   return false;
-  // };
-
-  const conditionalBasedEditableFunctionForMTD = (col, row) => {
+  const conditionalBasedEditableFunctionForPRD = (_, row) => {
     if (
-      context?.tm_department === "MTD" &&
-      (col?.field === "work_order_status"
-        ? row?.requestSheetStatus !== statusArray[0]
-        : row?.requestSheetStatus === statusArray[1])
+      context?.tm_department === "PRD" &&
+      context?.user_type === "TL/HOSS" &&
+      row?.Operator
     ) {
       return true;
     }
     return false;
   };
 
-  const dropDownComponent = ({ value, onChange, dropDownArray }) => (
+  const dropDownComponent = ({ value, onChange }) => (
     <select
       aria-label=".form-select-sm example"
       id="standard-select-currency"
@@ -190,7 +220,7 @@ const RequestSheetMainDashboard = () => {
       <option selected disabled value="">
         Please select
       </option>
-      {dropDownArray?.map((option) => {
+      {reduceState?.userDropdown?.map((option) => {
         return <option value={option?._id}>{option?.tm_name}</option>;
       })}
     </select>
@@ -201,6 +231,7 @@ const RequestSheetMainDashboard = () => {
       title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       editable: false,
+      width: "5%",
     },
     {
       title: "Request No",
@@ -238,69 +269,27 @@ const RequestSheetMainDashboard = () => {
       editable: false,
     },
     {
+      title: "R.S Status",
+      field: "requestSheetStatus",
+      editable: false,
+    },
+    {
       title: "Assign",
-      field: "assignUser",
-      // editable: context?.tm_department === "MTD" ? "always" : "never",
-      editable: (_, row) =>
-        context?.tm_department === "MTD" &&
-        row?.requestSheetStatus === statusArray[0]
-          ? true
-          : false,
-      editComponent: ({ value, onChange }) =>
-        dropDownComponent({
-          value,
-          onChange,
-          dropDownArray: reduceState?.TLHOSS_and_TM_user_list,
-        }),
+      field: "Operator",
+      editable:
+        context?.tm_department === "MTD" && context?.user_type === "TL/HOSS"
+          ? "always"
+          : "never",
+      editComponent: dropDownComponent,
     },
     {
-      title: "Handover To",
-      field: "handOverUser",
-      // editable: context?.tm_department === "MTD" ? "always" : "never",
-      editable: (_, row) =>
-        context?.tm_department === "MTD" &&
-        row?.requestSheetStatus === statusArray[0]
-          ? true
-          : false,
-      editComponent: ({ value, onChange }) =>
-        dropDownComponent({
-          value,
-          onChange,
-          dropDownArray: reduceState?.TLHOSS_and_TM_user_list,
-        }),
-    },
-    {
-      title: "Final Action",
+      title: "Final Activity",
       field: "finalActivity",
-      editable: conditionalBasedEditableFunctionForMTD,
+      editable: conditionalBasedEditableFunctionForPRD,
     },
-    // {
-    //   title: "MTD Quality Check",
-    //   field: "MTDUser",
-    //   editable: context?.tm_department === "MTD" ? "always" : "never",
-    //   editComponent: ({ value, onChange }) => (
-    //     <Multiselect
-    //       displayValue="tm_name"
-    //       className="col-9 "
-    //       options={reduceState?.MTD_or_PRD_user_list}
-    //       onSelect={async (selectedList) => {
-    //         await onChange(selectedList);
-    //       }}
-    //       onRemove={async (selectedList) => {
-    //         await onChange(selectedList);
-    //       }}
-    //       style={{
-    //         multiselectContainer: {
-    //           width: "15rem",
-    //         },
-    //       }}
-    //     />
-    //   ),
-    // },
     {
-      title: "H/O Time Work End", //hand-over time
-      field: "handOverTime",
-      editable: conditionalBasedEditableFunctionForMTD,
+      title: "End Date-Time",
+      field: "problemOccurredDateAndTimeOfBM",
       editComponent: ({ value, onChange }) => (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <MobileDateTimePicker
@@ -308,62 +297,63 @@ const RequestSheetMainDashboard = () => {
               <input className="text-field mt-0" value={value} {...props} />
             )}
             value={value}
-            onChange={(handOverTime) => {
-              onChange(handOverTime.toString());
+            onChange={(problemOccurredDateAndTimeOfBM) => {
+              onChange(problemOccurredDateAndTimeOfBM.toString());
             }}
           />
         </LocalizationProvider>
       ),
+      editable: conditionalBasedEditableFunctionForPRD,
     },
-    // {
-    //   title: "PRD Quality Check",
-    //   field: "PRDUser",
-    //   editable: conditionalBasedEditableFunctionForPRD,
-    //   editComponent: ({ value, onChange }) =>
-    //     dropDownComponent({
-    //       value,
-    //       onChange,
-    //       dropDownArray: reduceState?.MTD_or_PRD_user_list,
-    //     }),
-    //   // editComponent: ({ value, onChange }) => (
-    //   //   <RadioGroup
-    //   //     row
-    //   //     aria-labelledby="demo-row-radio-buttons-group-label"
-    //   //     name="row-radio-buttons-group"
-    //   //     style={{ marginTop: "0.2rem" }}
-    //   //   >
-    //   //     <div>
-    //   //       <input
-    //   //         type="radio"
-    //   //         name="PRDUser"
-    //   //         value="Yes"
-    //   //         onChange={(e) => onChange(e.target.value)}
-    //   //       />
-    //   //       <span for="html" className="m-2">
-    //   //         Yes
-    //   //       </span>
-    //   //       <input
-    //   //         type="radio"
-    //   //         name="PRDUser"
-    //   //         value="No"
-    //   //         onChange={(e) => onChange(e.target.value)}
-    //   //       />
-    //   //       <span for="html" className="m-2">
-    //   //         No
-    //   //       </span>
-    //   //     </div>
-    //   //   </RadioGroup>
-    //   // ),
-    // },
     {
-      title: "Work Order Status",
-      field: "work_order_status",
-      editable: conditionalBasedEditableFunctionForMTD,
+      title: "PRD Quality Check",
+      field: "PRDUser",
+      editable: conditionalBasedEditableFunctionForPRD,
+      editComponent: ({ value, onChange }) => (
+        <RadioGroup
+          row
+          aria-labelledby="demo-row-radio-buttons-group-label"
+          name="row-radio-buttons-group"
+          style={{ marginTop: "0.2rem" }}
+        >
+          <div>
+            <input
+              type="radio"
+              name="PRDUser"
+              value="Yes"
+              onChange={(e) => onChange(e.target.value)}
+            />
+            <span for="html" className="m-2">
+              Yes
+            </span>
+            <input
+              type="radio"
+              name="PRDUser"
+              value="No"
+              onChange={(e) => onChange(e.target.value)}
+            />
+            <span for="html" className="m-2">
+              No
+            </span>
+          </div>
+        </RadioGroup>
+      ),
+    },
+    {
+      title: "MTD Quality Check",
+      field: "MTDUser",
+      editable: conditionalBasedEditableFunctionForPRD,
+      editComponent: dropDownComponent,
+    },
+    {
+      title: "Status",
+      field: "statusPRD_TL",
+      editable: conditionalBasedEditableFunctionForPRD,
       editComponent: ({ value, onChange }) => (
         <select
           aria-label=".form-select-sm example"
           id="standard-select-currency"
-          name="work_order_status"
+          name="statusPRD_TL"
           fullWidth
           select
           autoComplete="off"
@@ -373,7 +363,7 @@ const RequestSheetMainDashboard = () => {
           <option selected disabled value="">
             Please select
           </option>
-          {["Open", "Pending", "Closed"].map((option) => {
+          {["NG", "Under Observation", "OK"].map((option) => {
             return <option value={option}>{option}</option>;
           })}
         </select>
@@ -401,6 +391,9 @@ const RequestSheetMainDashboard = () => {
           : true,
       onClick: (event, selectedRow) => {
         console.log("----------", selectedRow);
+        navigate(
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`
+        );
       },
     }),
   ];
@@ -477,9 +470,16 @@ const RequestSheetMainDashboard = () => {
                 }),
 
               onRowUpdate: (updatedRow, oldRow) =>
-                new Promise(async (resolve, reject) => {
-                  await updateRequestSheet(updatedRow);
-                  resolve();
+                new Promise((resolve, reject) => {
+                  const index = oldRow.tableData.id;
+                  // const updatedRows = [...subSectionList.subSectionsInfo];
+                  // updatedRows[index] = updatedRow;
+
+                  updateRequestSheet(updatedRow);
+
+                  setTimeout(() => {
+                    resolve();
+                  }, 500);
                 }),
             }}
             options={{
