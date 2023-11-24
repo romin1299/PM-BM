@@ -134,7 +134,7 @@ const Admin = ({ userData }) => {
             title="Dashboard"
             icon={<DashboardIcon className="text-white" />}
           >
-            <NavLink to="/pm/"></NavLink> Dashboard
+            <NavLink to="/"></NavLink> Dashboard
           </Menuitem>
           
 
@@ -146,7 +146,7 @@ const Admin = ({ userData }) => {
             data-placement="right"
             title="Admin Dashboard"
           >
-            <NavLink to="/pm/adminDashboard"></NavLink>
+            <NavLink to="/adminDashboard"></NavLink>
             Admin Dashboard
           </Menuitem>
           

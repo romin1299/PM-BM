@@ -6,7 +6,6 @@ const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
 const Machine = require("../model/machineSchema");
 const User = require("../model/userSchema");
 const Section = require("../model/sectionSchema");
-const Line = require("../model/lineSchema");
 const SubSection = require("../model/subSectionSchema");
 const Cell = require("../model/cellSchema");
 
@@ -167,33 +166,10 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
         plantRef:
           machine.line_names.cell_names.subSection_names.section_names
             .plant_names._id,
-      };
+      }
 
-      let requestSheetNos = machine.line_names.requestSheetNos + 1;
+    let requestSheet;
 
-      let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
-        { _id: machine.line_names._id },
-        // { $set: { $inc: { requestSheetNos: 1 } } },
-        { $set: { requestSheetNos } },
-        { new: true }
-      );
-
-      const requestSheetNoOfBM =
-        machine?.line_names?.cell_names?.subSection_names?.section_names
-          ?.dashboardLevel === "Yes"
-          ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
-              .substring(0, 2)
-              .toUpperCase()}_${machine?.line_names?.line_name}_${
-              moment().tz("Asia/Kolkata").month() + 1
-            }_${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim()
-          : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
-              .substring(0, 2)
-              .toUpperCase()}_${machine?.line_names?.line_name}_
-      ${moment().tz("Asia/Kolkata").month() + 1}_
-      ${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim();
-
-      console.log(requestSheetNoOfBM);
-      let requestSheet;
 
       if (
         req.rootUser.user_type === "Operator" ||
@@ -348,6 +324,10 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
     } else {
       res.status(404).json({ message: "Request-sheet not generated" });
     }
+
+    res
+      .status(201)
+      .json({ message: "Request-sheet generated successfully", requestSheet });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
@@ -2964,6 +2944,508 @@ const filterMiddleware = async (req, res, next) => {
   }
 };
 
+//          Daily breakdown trend
+router.get(
+  "/getDailyBreakdownTrendData/:filter/:selectedId",
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      const startDate = moment().tz(timezone).startOf("month");
+
+      const endDate = moment().tz(timezone).endOf("day");
+
+      const allDatesInMonth = Array.from(
+        { length: endDate.date() },
+        (_, index) => startDate.clone().add(index, "days").format("DD")
+      );
+
+      const matchObj = {
+        ...req.queryObj,
+        sheetIssuedDateAndTimeOfBM: {
+          $gte: startDate.toDate(),
+          $lte: endDate.toDate(),
+        },
+      };
+
+      const queryFunction = async ({ conditionObj }) =>
+        RequestSheetOfBM.aggregate([
+          {
+            $match: matchObj,
+          },
+          {
+            $sort: {
+              _id: -1,
+            },
+          },
+          {
+            $addFields: {
+              BDhour: {
+                $divide: [
+                  {
+                    $subtract: [
+                      "$sheetCompletedDateAndTime",
+                      "$sheetIssuedDateAndTimeOfBM",
+                    ],
+                  },
+                  3600000,
+                ],
+              },
+            },
+          },
+          {
+            $match: {
+              BDhour: conditionObj,
+            },
+          },
+          {
+            $group: {
+              _id: {
+                $dateToString: {
+                  format: "%d",
+                  date: "$sheetIssuedDateAndTimeOfBM",
+                  timezone: timezone,
+                },
+              },
+              count: { $sum: 1 },
+              hours: {
+                $sum: "$BDhour",
+              },
+            },
+          },
+
+          {
+            $group: {
+              _id: null,
+              array: { $push: "$$ROOT" },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              array: {
+                $cond: [
+                  { $gt: [{ $size: "$array" }, 0] },
+                  {
+                    $map: {
+                      input: allDatesInMonth,
+                      as: "date",
+                      in: {
+                        $cond: [
+                          { $in: ["$$date", "$array._id"] },
+                          {
+                            $arrayElemAt: [
+                              "$array.hours",
+                              {
+                                $indexOfArray: ["$array._id", "$$date"],
+                              },
+                            ],
+                          },
+                          0,
+                        ],
+                      },
+                    },
+                  },
+                  "$array",
+                ],
+              },
+
+              // {
+              //   $map: {
+              //     input: allDatesInMonth,
+              //     as: "date",
+              //     in: {
+              //       $cond: [
+              //         { $in: ["$$date", "$array._id"] },
+              //         {
+              //           $arrayElemAt: [
+              //             "$array",
+              //             {
+              //               $indexOfArray: ["$array._id", "$$date"],
+              //             },
+              //           ],
+              //         },
+              //         {
+              //           _id: "$$date",
+              //           count: 0,
+              //           hours: 0,
+              //         },
+              //       ],
+              //     },
+              //   },
+              // },
+            },
+          },
+          // { $unwind: "$array" },
+          // {
+          //   $replaceRoot: { newRoot: "$array" },
+          // },
+        ]);
+
+      const dayWiseCount = await RequestSheetOfBM.aggregate([
+        {
+          $match: matchObj,
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%d",
+                date: "$sheetIssuedDateAndTimeOfBM",
+                timezone: timezone,
+              },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            array: { $push: "$$ROOT" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            array: {
+              $map: {
+                input: allDatesInMonth,
+                as: "date",
+                in: {
+                  $cond: [
+                    { $in: ["$$date", "$array._id"] },
+                    {
+                      $arrayElemAt: [
+                        "$array.count",
+                        {
+                          $indexOfArray: ["$array._id", "$$date"],
+                        },
+                      ],
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        },
+      ]);
+
+      const lessThanOrEqualToOneHourData = await queryFunction({
+        conditionObj: { $lte: 1 },
+      });
+
+      const greaterThenOneAndLessThanOrEqualToTwoHourData = await queryFunction(
+        {
+          conditionObj: {
+            $gt: 1,
+            $lte: 2,
+          },
+        }
+      );
+
+      const greaterThenTwoHourData = await queryFunction({
+        conditionObj: { $gt: 2 },
+      });
+
+      // const data = await RequestSheetOfBM.aggregate([
+      //   {
+      //     $match: {
+      //       sheetIssuedDateAndTimeOfBM: {
+      //         $gte: startDate.toDate(),
+      //         $lte: endDate.toDate(),
+      //       },
+      //     },
+      //     // $match: {
+      //     //   ...req.queryObj,
+      //     //   sheetIssuedDateAndTimeOfBM: {
+      //     //     $gte: startDate.toDate(),
+      //     //     $lte: endDate.toDate(),
+      //     //   },
+      //     // },
+      //   },
+      //   {
+      //     $sort: {
+      //       _id: -1,
+      //     },
+      //   },
+      //   {
+      //     $addFields: {
+      //       BDhour: {
+      //         $divide: [
+      //           {
+      //             $subtract: [
+      //               "$sheetCompletedDateAndTime",
+      //               "$sheetIssuedDateAndTimeOfBM",
+      //             ],
+      //           },
+      //           3600000,
+      //         ],
+      //       },
+      //     },
+      //   },
+      //   {
+      //     $facet: {
+      //       lessThanOrEqualToOneHourData: [
+      //         {
+      //           $match: {
+      //             BDhour: { $lte: 1 },
+      //           },
+      //         },
+      //         {
+      //           $group: {
+      //             _id: {
+      //               $dateToString: {
+      //                 format: "%d",
+      //                 date: "$sheetIssuedDateAndTimeOfBM",
+      //                 timezone: timezone,
+      //               },
+      //             },
+      //             count: { $sum: 1 },
+      //             hours: {
+      //               $sum: "$BDhour",
+      //             },
+      //           },
+      //         },
+      //       ],
+      //       greaterThenOneAndLessThanOrEqualToTwoHourData: [
+      //         {
+      //           $match: {
+      //             BDhour: {
+      //               $gt: 1,
+      //               $lte: 2,
+      //             },
+      //           },
+      //         },
+      //         {
+      //           $group: {
+      //             _id: {
+      //               $dateToString: {
+      //                 format: "%d",
+      //                 date: "$sheetIssuedDateAndTimeOfBM",
+      //                 timezone: timezone,
+      //               },
+      //             },
+      //             count: { $sum: 1 },
+      //             hours: {
+      //               $sum: "$BDhour",
+      //             },
+      //           },
+      //         },
+      //       ],
+      //       greaterThenTwoHourData: [
+      //         {
+      //           $match: {
+      //             BDhour: { $gt: 2 },
+      //           },
+      //         },
+      //         {
+      //           $group: {
+      //             _id: {
+      //               $dateToString: {
+      //                 format: "%d",
+      //                 date: "$sheetIssuedDateAndTimeOfBM",
+      //                 timezone: timezone,
+      //               },
+      //             },
+      //             count: { $sum: 1 },
+      //             hours: {
+      //               $sum: "$BDhour",
+      //             },
+      //           },
+      //         },
+      //       ],
+      //     },
+      //   },
+
+      //   // {
+      //   //   $group: {
+      //   //     _id: null,
+      //   //     array: { $push: "$$ROOT" },
+      //   //   },
+      //   // },
+      //   // {
+      //   //   $project: {
+      //   //     _id: 0,
+      //   //     array: {
+      //   //       $cond: [
+      //   //         { $gt: [{ $size: "$array" }, 0] },
+      //   //         {
+      //   //           $map: {
+      //   //             input: allDatesInMonth,
+      //   //             as: "date",
+      //   //             in: {
+      //   //               $cond: [
+      //   //                 { $in: ["$$date", "$array._id"] },
+      //   //                 {
+      //   //                   $arrayElemAt: [
+      //   //                     "$array.hours",
+      //   //                     {
+      //   //                       $indexOfArray: ["$array._id", "$$date"],
+      //   //                     },
+      //   //                   ],
+      //   //                 },
+      //   //                 0,
+      //   //               ],
+      //   //             },
+      //   //           },
+      //   //         },
+      //   //         "$array",
+      //   //       ],
+      //   //     },
+
+      //   //   },
+      //   // },
+      // ]);
+
+      return res.status(201).json({
+        message: "DailyBreakdownTrend graph data get successfully",
+        // data,
+
+        dailyBreakdownTrendData: {
+          labels: allDatesInMonth,
+          dayWiseCount:
+            dayWiseCount?.length > 0 ? dayWiseCount?.[0]?.array : dayWiseCount,
+          lessThanOrEqualToOneHourData:
+            lessThanOrEqualToOneHourData?.length > 0
+              ? lessThanOrEqualToOneHourData?.[0]?.array
+              : lessThanOrEqualToOneHourData,
+          greaterThenOneAndLessThanOrEqualToTwoHourData:
+            greaterThenOneAndLessThanOrEqualToTwoHourData?.length > 0
+              ? greaterThenOneAndLessThanOrEqualToTwoHourData?.[0]?.array
+              : greaterThenOneAndLessThanOrEqualToTwoHourData,
+          greaterThenTwoHourData:
+            greaterThenTwoHourData?.length > 0
+              ? greaterThenTwoHourData?.[0]?.array
+              : greaterThenTwoHourData,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+const requestSheetMiddleware = async (req, res, next) => {
+  try {
+    const requestSheetData = await RequestSheetOfBM.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $lookup: {
+          from: "sections",
+          localField: "sectionRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                section_name: 1,
+              },
+            },
+          ],
+          as: "sections",
+        },
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cellRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                cell_name: 1,
+              },
+            },
+          ],
+          as: "cells",
+        },
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+          as: "lines",
+        },
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                machine_code: 1,
+                machine_name: 1,
+              },
+            },
+          ],
+          as: "machines",
+        },
+      },
+      {
+        $project: {
+          sectionName: { $arrayElemAt: ["$sections.section_name", 0] },
+          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
+          line: { $arrayElemAt: ["$lines.line_name", 0] },
+          machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
+          machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
+          problem: "$breakDownBasicDataFilledByPRD.problemFaced",
+          problemOccurredDateAndTimeOfBM: 1,
+          work_order_status: 1,
+          requestSheetStatus: 1,
+          requestSheetNoOfBM: 1,
+        },
+      },
+    ]);
+
+    return res.status(201).json({
+      message: "RequestSheet data get successfully",
+      requestSheetData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+router.get(
+  "/getRequestSheetDataBasedOnSelectedDate/:filter/:selectedId/:date",
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      let nextDate = new Date(req.params.date);
+      nextDate.setDate(nextDate.getDate() + 1);
+
+      req.queryObj = {
+        ...req.queryObj,
+        sheetIssuedDateAndTimeOfBM: {
+          $gte: new Date(req.params.date),
+          $lt: nextDate,
+        },
+      };
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  requestSheetMiddleware
+);
+
 router.get(
   "/getMTTRGraphData/:filter/:selectedId",
   filterMiddleware,
@@ -4592,5 +5074,500 @@ router.get("/getApprovalRequestSheetData", async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 });
+
+//          MTTR Report
+
+router.get("/getSectionOrSubSectionDropdownValue", async (req, res, next) => {
+  try {
+    const section = await Section.findOne({
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    });
+
+    req.section = section;
+
+    let subSectionsData;
+
+    if (section.dashboardLevel === "No") {
+      subSectionsData = await SubSection.find({
+        subSection_id: {
+          $in: req.rootUser?.subSection_data?.map(
+            (item) => item?.split("-")?.[0]
+          ),
+        },
+      });
+    } else {
+      subSectionsData = await SubSection.find({
+        section_names: section?._id,
+      });
+    }
+
+    const cellData = await Cell.find({
+      subSection_names: { $in: subSectionsData },
+    }).sort({ cell_sequence: 1 });
+
+    return res.status(201).json({
+      message: "Cell dropdown value get successfully",
+      selectedCell: cellData?.[0]?._id,
+      cellData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+});
+
+// middleware function for getting data of MTTR and MTBF
+const middlewareForFindingTrendData = async (req, res, next) => {
+  try {
+    const TrendData = await RequestSheetOfBM.aggregate([
+      {
+        $match: {},
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%m",
+              date: "$sheetIssuedDateAndTimeOfBM",
+              timezone: timezone,
+            },
+          },
+          count: { $sum: 1 },
+          hours: {
+            $sum: {
+              $cond: [
+                { $gt: ["$sheetCompletedDateAndTime", null] },
+                {
+                  $divide: [
+                    {
+                      $subtract: [
+                        "$sheetCompletedDateAndTime",
+                        "$sheetIssuedDateAndTimeOfBM",
+                      ],
+                    },
+                    3600000,
+                  ],
+                },
+                0,
+              ],
+            },
+          },
+          target: {
+            $sum: {
+              $cond: [
+                { $gt: ["$sheetCompletedDateAndTime", null] },
+                {
+                  $divide: [
+                    {
+                      $subtract: [
+                        "$sheetCompletedDateAndTime",
+                        "$sheetIssuedDateAndTimeOfBM",
+                      ],
+                    },
+                    3600000,
+                  ],
+                },
+                0,
+              ],
+            },
+          },
+          ...req.groupRefKey,
+        },
+      },
+      {
+        $project: {
+          count: 1,
+          target: 1,
+          hours: req.hourCalculationFormula,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          array: { $push: "$$ROOT" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          array: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  { $in: ["$$month.monthInDecimal", "$array._id"] },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      $arrayElemAt: [
+                        "$array",
+                        {
+                          $indexOfArray: [
+                            "$array._id",
+                            "$$month.monthInDecimal",
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      _id: "$$month.monthInDecimal",
+                      count: 0,
+                      hours: 0,
+                      target: 0,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      { $unwind: "$array" },
+      {
+        $replaceRoot: { newRoot: "$array" },
+      },
+      {
+        $group: {
+          _id: null,
+          labels: { $push: "$month" },
+          target: { $push: "$value.target" },
+          data: {
+            $push: "$value.hours",
+          },
+          backgroundColor: {
+            $push: {
+              $cond: [
+                {
+                  $lte: ["$value.hours", "$value.target"],
+                },
+                "green",
+                "red",
+              ],
+            },
+          },
+        },
+      },
+    ]);
+
+    req.TrendData = TrendData;
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
+  try {
+    const TrendData = await RequestSheetOfBM.aggregate([
+      {
+        $match: {},
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+          as: "line",
+        },
+      },
+      { $unwind: "$line" },
+      {
+        $group: {
+          _id: "$line.line_name",
+          count: { $sum: 1 },
+          hours: {
+            $sum: {
+              $cond: [
+                { $gt: ["$sheetCompletedDateAndTime", null] },
+                {
+                  $divide: [
+                    {
+                      $subtract: [
+                        "$sheetCompletedDateAndTime",
+                        "$sheetIssuedDateAndTimeOfBM",
+                      ],
+                    },
+                    3600000,
+                  ],
+                },
+                0,
+              ],
+            },
+          },
+          target: {
+            $sum: {
+              $cond: [
+                { $gt: ["$sheetCompletedDateAndTime", null] },
+                {
+                  $divide: [
+                    {
+                      $subtract: [
+                        "$sheetCompletedDateAndTime",
+                        "$sheetIssuedDateAndTimeOfBM",
+                      ],
+                    },
+                    3600000,
+                  ],
+                },
+                0,
+              ],
+            },
+          },
+          ...req.groupRefKey,
+        },
+      },
+      {
+        $project: {
+          count: 1,
+          target: 1,
+          hours: req.hourCalculationFormula,
+        },
+      },
+      {
+        $sort: {
+          hours: -1,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          labels: { $push: "$_id" },
+          target: { $push: "$target" },
+          data: { $push: "$hours" },
+        },
+      },
+    ]);
+
+    req.TrendData = TrendData;
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
+  const TrendData = await RequestSheetOfBM.aggregate([
+    {
+      $match: {},
+    },
+    {
+      $lookup: {
+        from: "machinesalldatas",
+        localField: "machineRef",
+        foreignField: "_id",
+        pipeline: [
+          {
+            $project: {
+              machine_code: 1,
+            },
+          },
+        ],
+        as: "machine",
+      },
+    },
+    { $unwind: "$machine" },
+    {
+      $group: {
+        _id: "$machine",
+        count: { $sum: 1 },
+        hours: {
+          $sum: {
+            $cond: [
+              { $gt: ["$sheetCompletedDateAndTime", null] },
+              {
+                $divide: [
+                  {
+                    $subtract: [
+                      "$sheetCompletedDateAndTime",
+                      "$sheetIssuedDateAndTimeOfBM",
+                    ],
+                  },
+                  3600000,
+                ],
+              },
+              0,
+            ],
+          },
+        },
+        ...req.groupRefKey,
+      },
+    },
+    {
+      $project: {
+        hours: req.hourCalculationFormula,
+      },
+    },
+    {
+      $sort: {
+        hours: -1,
+      },
+    },
+    {
+      $limit: 20,
+    },
+    {
+      $group: {
+        _id: null,
+        machineId: { $push: "$_id._id" },
+        labels: { $push: "$_id.machine_code" },
+        data: { $push: "$hours" },
+      },
+    },
+  ]);
+
+  req.TrendData = TrendData;
+
+  next();
+};
+
+// filter middleware for all the charts of MTTR Report
+const filterMiddlewareForMTTRReport = async (req, res, next) => {
+  try {
+    req.groupRefKey = {};
+
+    req.hourCalculationFormula = {
+      $divide: ["$hours", "$count"],
+    };
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+// filter middleware for all the charts of MTBF Report
+const filterMiddlewareForMTBFReport = async (req, res, next) => {
+  try {
+    req.groupRefKey = {
+      totalProdHours: { $sum: "$prodTotal" },
+    };
+
+    req.hourCalculationFormula = {
+      $divide: [
+        {
+          $subtract: ["$totalProdHours", "$hours"],
+        },
+        "$count",
+      ],
+    };
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const responseMiddlewareForReport = async (req, res, next) => {
+  try {
+    return res.status(201).json({
+      message: req.message,
+      data: req?.TrendData?.[0],
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+router.get(
+  "/getTrendData/MTTR/:filter/:selectedId",
+  filterMiddlewareForMTTRReport,
+  middlewareForFindingTrendData,
+  async (req, res, next) => {
+    req.message = "MTTR trend graph data get successfully";
+    next();
+  },
+  responseMiddlewareForReport
+);
+
+router.get(
+  "/getLineWiseMTTRTrendData/:filter/:selectedId",
+  filterMiddlewareForMTTRReport,
+  middlewareForFindingLineWiseTrendData,
+  async (req, res, next) => {
+    req.message = "Line wise MTTR trend data get successfully";
+    next();
+  },
+  responseMiddlewareForReport
+);
+
+router.get(
+  "/getMachineWiseMTTRTrendData/:filter/:selectedId",
+  filterMiddlewareForMTTRReport,
+  middlewareForFindingMachineWiseTrendData,
+  async (req, res, next) => {
+    req.message = "Machine wise MTTR trend data get successfully";
+    next();
+  },
+  responseMiddlewareForReport
+);
+
+router.get(
+  "/getRequestSheetDataBasedOnSelectedMachine/:machineCode/:date",
+  async (req, res, next) => {
+    try {
+      let nextDate = new Date(req.params.date);
+      nextDate.setDate(nextDate.getDate() + 1);
+
+      req.queryObj = {
+        machineRef: mongoose.Types.ObjectId(req.params?.machineCode),
+        sheetIssuedDateAndTimeOfBM: {
+          $gte: new Date(req.params.date),
+          $lt: nextDate,
+        },
+      };
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  requestSheetMiddleware
+);
+
+router.get(
+  "/getTrendData/MTBF/:filter/:selectedId",
+  filterMiddlewareForMTBFReport,
+  middlewareForFindingTrendData,
+  async (req, res, next) => {
+    req.message = "MTBF trend graph data get successfully";
+    next();
+  },
+  responseMiddlewareForReport
+);
+
+router.get(
+  "/getLineWiseMTBFTrendData/:filter/:selectedId",
+  filterMiddlewareForMTBFReport,
+  middlewareForFindingLineWiseTrendData,
+  async (req, res, next) => {
+    req.message = "Line wise MTBF trend data get successfully";
+    next();
+  },
+  responseMiddlewareForReport
+);
+
+router.get(
+  "/getMachineWiseMTBFTrendDataData/:filter/:selectedId",
+  filterMiddlewareForMTBFReport,
+  middlewareForFindingMachineWiseTrendData,
+  async (req, res, next) => {
+    req.message = "Machine wise MTBF trend data get successfully";
+    next();
+  },
+  responseMiddlewareForReport
+);
+
 
 module.exports = router;

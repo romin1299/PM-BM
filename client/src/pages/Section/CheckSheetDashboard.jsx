@@ -348,7 +348,7 @@ const CheckSheetDashboard = () => {
               ),
               // tooltip: <h1>I am a tooltip</h1>,
               onClick: (event, selectedRow) => {
-                navigate("/pm/checksheetCreationDashboard", {
+                navigate("/checksheetCreationDashboard", {
                   state: { selectedRow: selectedRow, lineData: lineData },
                 });
               },
@@ -390,7 +390,7 @@ const CheckSheetDashboard = () => {
               ),
               // tooltip: <h1>I am a tooltip</h1>,
               onClick: (event, selectedRow) => {
-                navigate("/pm/planningPhaseTable", {
+                navigate("/planningPhaseTable", {
                   state: { selectedRow: selectedRow },
                 });
               },
@@ -457,7 +457,7 @@ const CheckSheetDashboard = () => {
               onClick: (event, selectedRow) => {
                 // console.log(selectedRow, lineData);
 
-                navigate("/pm/checksheetCreationDashboard", {
+                navigate("/checksheetCreationDashboard", {
                   state: { selectedRow: selectedRow, lineData: lineData },
                 });
               },

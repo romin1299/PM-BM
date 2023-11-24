@@ -35,7 +35,6 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   maintenanceReportFilledByMTD: {
     workStartedDateOfBM: { type: Date }, //If need String change it.
     workEndedDateOfBM: { type: Date }, //If need String change it.
-    refHandOverTime: { type: Date },
     problemsOfBM: [{ id: { type: Date }, problem: { type: String } }], // If array of object [{}] require change it.
     whyAnalysis: {
       why1: { type: String },
@@ -66,25 +65,21 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     ],
   },
 
-  // requestReceivedMTD: {
-  //   type: String,
-  // },
+  requestReceivedMTD: {
+    type: String,
+  },
 
-  // MTD_TL: {
-  //   type: String,
-  // },
+  MTD_TL: {
+    type: String,
+  },
 
-  // sectionIncharge: {
-  //   type: String,
-  // },
+  sectionIncharge: {
+    type: String,
+  },
 
-  // feedbackMTD: {
-  //   type: String,
-  // },
-
-  // requestSheetNos: {
-  //   type: Number,
-  // },
+  feedbackMTD: {
+    type: String,
+  },
 
   // partQualityByPRD: {
   //   type: String,
@@ -114,12 +109,11 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
-
   breakDownAttendedStatus: {
     type: String,
   },
 
-  assignUser: {
+  assignOperator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
@@ -133,9 +127,8 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: String,
   },
 
-  work_order_status: {
+  statusPRD_TL: {
     type: String,
-    default: "Generated",
   },
 
   //for MTD TL approval
@@ -397,11 +390,6 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   plantRef: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Plants",
-  },
-
-  requestSheetStatus: {
-    type: String,
-    default: "Generated",
   },
 
   // assignOperator: {

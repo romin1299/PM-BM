@@ -94,6 +94,7 @@ export const data = {
       backgroundColor: "rgba(255, 205, 86, 0.7)",
       borderColor: "rgba(255, 205, 86, 1)",
       borderWidth: 1,
+      pointStyle:'rect',
     },
     {
       label: "PM",
@@ -101,6 +102,7 @@ export const data = {
       backgroundColor: "rgba(75, 192, 192, 0.7)",
       borderColor: "rgba(75, 192, 192)",
       borderWidth: 1,
+      pointStyle:'rect',
     },
   ],
 };

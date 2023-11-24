@@ -31,6 +31,7 @@ export const options = {
   responsive: true,
   plugins: {
     legend: {
+      align: "end",
       labels: {
         usePointStyle: true,
       },
@@ -68,10 +69,16 @@ export const options = {
         display: true,
         text: "Months",
       },
+      ticks: {
+        color: 'black'
+      },
     },
     y: {
       stacked: true,
       position: "left",
+      ticks: {
+        color: 'black'
+      },
     },
   },
 };
@@ -83,6 +90,7 @@ const dataset = [
     label: "< 60",
     data: [35, 41],
     yAxisID: "y",
+    pointStyle: 'rect',
   },
   {
     type: "bar",
@@ -90,6 +98,7 @@ const dataset = [
     label: "< 120",
     data: [68, 35],
     yAxisID: "y",
+    pointStyle: 'rect',
   },
   {
     type: "bar",
@@ -97,6 +106,7 @@ const dataset = [
     label: "> 120",
     data: [126, 215],
     yAxisID: "y",
+    pointStyle: 'rect',
   },
 ];
 
@@ -133,7 +143,7 @@ const YearlyTrendChart = () => {
   //   }, [filterOptions]);
 
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
+    <Box className="cell p-3 mt-3">
       <Row style={{ marginBottom: "1rem" }}>
         <Typography
           className="col"
@@ -148,7 +158,7 @@ const YearlyTrendChart = () => {
       <div style={{ width: "100%", height: "300px" }}>
         <Chart data={data} options={options} />
       </div>
-    </Paper>
+    </Box>
   );
 };
 

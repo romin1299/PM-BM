@@ -1,110 +1,193 @@
-import React from "react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Bar, Line } from "react-chartjs-2";
-import { Box, Typography } from "@mui/material";
-import { Col, Row } from "react-bootstrap";
-import { chartColors } from "../../Utils/ChartUtils/chartEnums";
-import { FilterMenu } from "./SubComponents/FilterMenu";
+import React, { useEffect, useState, useReducer } from "react";
+import LineChart from "../Common/LineChart";
+import { useForm } from "react-hook-form";
+import { Container, Row, Col } from "react-bootstrap";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
 
-export const options = {
-  plugins: {
-    legend: {
-      display: false,
-      labels: {
-        usePointStyle: true,
+const MachineTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setError,
+    setValue,
+    clearErrors,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      selectedMachine: {
+        _id: "",
+        machine_code: "",
       },
+      selectedDate: "",
     },
-    datalabels: {
-      font: { weight: "bold", size: 12 },
-      anchor: "end",
-      align: "top",
-      offset: 1,
-    },
-  },
-  maintainAspectRatio: false,
-  responsive: true,
-  scales: {
-    x: {
-      stacked: true,
-      grid: {
-        display: false,
-      },
-      title: {
-        display: true,
-        text: "Months",
-      },
-    },
-    y: {
-      min: 0,
-      max: 3,
-    },
-  },
-};
+  });
 
-const serverResLabels = [
-  "Mc1",
-  "Mc2",
-  "Mc3",
-  "Mc4",
-  "Mc5",
-  "Mc6",
-  "Mc7",
-  "Mc8",
-  "Mc9",
-  "Mc10",
-  "Mc11",
-  "Mc12",
-];
+  const initialState = {
+    MachineWiseMTTRTrend: {
+      machineId: [],
+      labels: [],
+      data: [],
+    },
 
-const serverResDataset = [
-  {
-    label: "Top 20",
-    data: [2.5, 2.4, 2.3, 2.3, 2.1, 2.0, 1.5, 1.3, 1, 1, 0.5, 0.5],
-  },
-];
-export const data = {
-  labels: serverResLabels,
-  datasets: serverResDataset.map((dataset, i) => ({
-    ...dataset,
-    backgroundColor: chartColors[3],
-    borderColor: chartColors[3],
-  })),
-};
+    requestSheetData: [],
 
-const MachineTrend = () => {
+    message: "",
+    isLoading: true,
+    isError: false,
+  };
+
+  const ACTION = {
+    GET_MACHINE_MTTR: "get-machineWise-MTTR-data",
+    GET_RS_DATA: "get-requestSheet-data-based-on-selectedMachine",
+    HANDLE_SELECTED_MACHINE: "handle-selected-machine",
+  };
+
+  const reducer = (state, action) => {
+    switch (action?.type) {
+      case ACTION?.GET_MACHINE_MTTR:
+        return {
+          ...state,
+          isLoading: false,
+          message: action?.message,
+          MachineWiseMTTRTrend: action?.MachineWiseMTTRTrend,
+        };
+
+      case ACTION?.GET_RS_DATA:
+        return {
+          ...state,
+          isLoading: false,
+          message: action?.message,
+          requestSheetData: action?.requestSheetData,
+        };
+
+      default:
+        return state;
+    }
+  };
+
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+
+  const getMachineWiseMTTRTrendData = async () => {
+    try {
+      const res = await fetch(
+        `/getMachineWiseMTTRTrendData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
+        // `/getMachineWiseMTTRTrendData/${flagForCellAndLineToggle}/${selectedValue}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, data } = await res.json();
+
+      if (res?.status === 201) {
+        reducerDispatch({
+          type: ACTION.GET_MACHINE_MTTR,
+          MachineWiseMTTRTrend: data,
+          message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getMachineWiseMTTRTrendData();
+    if (selectedValue) {
+    }
+  }, [selectedValue]);
+
+  const getRequestSheetDataBasedOnSelectedMachine = async (data) => {
+    try {
+
+      if (data?.selectedMachine?._id === "") {
+        return setError("selectedMachine", {
+          type: "required",
+          message: "Please select machine",
+        });
+      }
+      const res = await fetch(
+        `/getRequestSheetDataBasedOnSelectedMachine/${data?.selectedMachine?._id}/${data?.selectedDate}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, requestSheetData } = await res.json();
+
+      if (res?.status === 201) {
+        reducerDispatch({
+          type: ACTION.GET_RS_DATA,
+          requestSheetData,
+          message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <Box className="cell p-3">
-      <Row style={{ marginBottom: "1rem" }}>
-        <Typography className="col" variant="h5" component="h5">
-          Machine Trend
-        </Typography>
-
-        <Col className="col-auto d-flex">
-          <FilterMenu DropdownValue="hour" />
-        </Col>
+    <Container fluid>
+      <Row>
+        <LineChart
+          title="Machine Trend"
+          dataset={reduceState?.MachineWiseMTTRTrend}
+          setValue={setValue}
+          clearErrors={clearErrors}
+        />
       </Row>
 
-      <div style={{ width: "100%", height: "250px" }}>
-        <Line options={options} data={data} />
-      </div>
-    </Box>
+      <form
+        onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedMachine)}
+        className="pt-1 d-flex align-items-center justify-content-end"
+      >
+        <Row>
+          <Col>
+            {errors?.["selectedMachine"] && (
+              <p className="text-error">
+                {errors?.["selectedMachine"]?.message}
+              </p>
+            )}
+            {watch("selectedMachine.machine_code")}
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <input
+              type="date"
+              {...register("selectedDate", {
+                required: "Please select date",
+              })}
+            />
+            {errors?.["selectedDate"] && (
+              <p className="text-error">{errors?.["selectedDate"]?.message}</p>
+            )}
+          </Col>
+          <Col>
+            <button type="submit" className="btn bg-button ">
+              Go
+            </button>
+          </Col>
+        </Row>
+      </form>
+
+      <Row>
+        <BDRequestSheetTable requestSheetData={reduceState?.requestSheetData} />
+      </Row>
+    </Container>
   );
 };
 

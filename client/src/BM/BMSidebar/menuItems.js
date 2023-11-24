@@ -30,9 +30,9 @@ export const menuItems = [
     icon: <DashboardIcon className="text-white" />,
     subItems: [
       {
-        title: "Home",
+        title: "Section Dashboard",
         route: "/bm",
-        allowedRoles: ["Admin", "TL/HOSS", "Plant-Admin"],
+        allowedRoles: ["TL/HOSS", "Plant-Admin"],
       },
       {
         title: "Admin",
@@ -53,7 +53,7 @@ export const menuItems = [
     allowedDepartments: ["MTD", "PRD"],
   },
   {
-    title: "Generate Request Sheet",
+    title: "Approval",
     icon: <AddTaskIcon className="text-white" />,
     route: "/bm/requestListDashboard",
     allowedRoles: ["TL/HOSS", "Plant-Admin", "Operator"],
@@ -96,6 +96,11 @@ export const menuItems = [
         allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
       {
+        title: "Line Contibution BD Report",
+        route: "/bm/report/line-contribution-breakdown-trend",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+      {
         title: "MTTR Report",
         route: "/bm/report/mttr",
         allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
@@ -103,6 +108,11 @@ export const menuItems = [
       {
         title: "MTBF Report",
         route: "/bm/report/mtbf",
+        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+      },
+      {
+        title: "TM MTTR Skill",
+        route: "/bm/report/tm-mtr",
         allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
     ],

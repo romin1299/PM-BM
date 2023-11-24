@@ -98,11 +98,11 @@ function App() {
             stickyNav={<RightNavbar />}
             content={
               <Routes>
-                <Route path="/pm/adminDashboard" element={<AdminDashboard />} />
-                <Route  path="/pm" element={<AdminCreationDashboard />} />
-                <Route path="/pm/profile" element={<Profile />} />
+                <Route path="/adminDashboard" element={<AdminDashboard />} />
+                <Route path="/" element={<AdminCreationDashboard />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route
-                  path="/pm/summeryDashboard"
+                  path="/summeryDashboard"
                   element={<SummeryDashboard />}
                 />
               </Routes>
@@ -120,103 +120,97 @@ function App() {
             stickyNav={<RightNavbar />}
             content={
               <Routes>
-                <Route  path="/pm" element={<OperatorDashboard />} />
+                <Route path="/" element={<OperatorDashboard />} />
                 <Route
-                  path="/pm/creationDashboard"
+                  path="/creationDashboard"
                   element={<CreationDashboardForPlant />}
                 />
-                <Route path="/pm/section" element={<SectionPage />} />
-                <Route path="/pm/userAssign" element={<UserAssign />} />
-                <Route path="/pm/profile" element={<Profile />} />
+                <Route path="/section" element={<SectionPage />} />
+                <Route path="/userAssign" element={<UserAssign />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/machineWiseCheckSheet" element={<CheckSheet />} />
                 <Route
-                  path="/pm/machineWiseCheckSheet"
-                  element={<CheckSheet />}
-                />
-                <Route
-                  path="/pm/summeryDashboard"
+                  path="/summeryDashboard"
                   element={<SummeryDashboard />}
                 />
-                <Route path="/pm/logHistory" element={<LogHistory />} />
+                <Route path="/logHistory" element={<LogHistory />} />
                 <Route
-                  path="/pm/pendingPMLogHistory"
+                  path="/pendingPMLogHistory"
                   element={<PendingPMLogHistory />}
                 />
 
                 {/* All reports routing */}
                 <Route
-                  path="/pm/machineWisePmMonthlyReport"
+                  path="/machineWisePmMonthlyReport"
                   element={<MachineWisePmMonthlyReport />}
                 />
                 <Route
-                  path="/pm/lineWisePmMonthlyReport"
+                  path="/lineWisePmMonthlyReport"
                   element={<LineWisePmMonthlyReport />}
                 />
                 <Route
-                  path="/pm/annualPMSchedule"
+                  path="/annualPMSchedule"
                   element={<AnnualPMSchedule />}
                 />
-                <Route path="/pm/annualPmStatus" element={<AnnualPmStatus />} />
+                <Route path="/annualPmStatus" element={<AnnualPmStatus />} />
                 <Route
-                  path="/pm/pmTimeMonitoringReport"
+                  path="/pmTimeMonitoringReport"
                   element={<PmTimeMonitoringReport />}
                 />
 
                 {/* Report Dashboard */}
 
                 <Route
-                  path="/pm/pmMonthlyReport"
+                  path="/pmMonthlyReport"
                   element={<PmAllReportDashboard />}
                 />
                 <Route
-                  path="/pm/openAbnormalityTrack"
+                  path="/openAbnormalityTrack"
                   element={<OpenAbnormalityTrack />}
                 />
                 <Route
-                  path="/pm/spareReportDashboard"
+                  path="/spareReportDashboard"
                   element={<SpareReportMainDashboard />}
                 />
                 <Route
-                  path="/pm/pmSheetApprovalOfImplementationPhase"
+                  path="/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
-                <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} />
+                <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
                 <Route
-                  path="/pm/summeryDashboard"
+                  path="/summeryDashboard"
                   element={<SummeryDashboard />}
                 />
-                <Route path="/pm/logHistory" element={<LogHistory />} />
+                <Route path="/logHistory" element={<LogHistory />} />
                 <Route
-                  path="/pm/pendingPMLogHistory"
+                  path="/pendingPMLogHistory"
                   element={<PendingPMLogHistory />}
                 />
                 <Route
-                  path="/pm/sparePartUsageHistory"
+                  path="/sparePartUsageHistory"
                   element={<SparePartUsageHistory />}
                 />
                 <Route
-                  path="/pm/backupTableData"
+                  path="/backupTableData"
                   element={<ShowBackupChecksheetTableData />}
                 />
                 <Route
-                  path="/pm/pmSheetApprovalOfImplementationPhase"
+                  path="/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
-                <Route
-                  path="/pm/pmSheetApproval"
-                  element={<PMSheetApproval />}
-                />
+                <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
 
                 <Route
-                  path="/pm/backupDataOfCheckSheet"
+                  path="/backupDataOfCheckSheet"
                   element={<BackupDataOfCheckSheet />}
                 />
 
                 <Route
-                  path="/pm/sixMonthApprovalDashboard"
+                  path="/sixMonthApprovalDashboard"
                   element={<SixMonthApprovalDashboard />}
                 />
                 <Route
-                  path="/pm/checksheetFormApproval"
+                  path="/checksheetFormApproval"
                   element={<ChecksheetFormApprovalForHOSAndHOD />}
                 />
               </Routes>
@@ -234,106 +228,100 @@ function App() {
             stickyNav={<RightNavbar />}
             content={
               <Routes>
-                <Route path="/pm" element={<OperatorDashboard />} />
+                <Route path="/" element={<OperatorDashboard />} />
                 <Route
-                  path="/pm/creationDashboard"
+                  path="/creationDashboard"
                   element={<CreationDashboardForSection />}
                 />
-                <Route path="/pm/userAssign" element={<UserAssignSection />} />
-                <Route path="/pm/profile" element={<Profile />} />
-                {/* <Route path="/pm/approvalDashboard" element={<CheckSheetApprovalDashboardForHOS />} /> */}
+                <Route path="/userAssign" element={<UserAssignSection />} />
+                <Route path="/profile" element={<Profile />} />
+                {/* <Route path="/approvalDashboard" element={<CheckSheetApprovalDashboardForHOS />} /> */}
                 <Route
-                  path="/pm/checksheetFormApproval"
+                  path="/checksheetFormApproval"
                   element={<ChecksheetFormApprovalForHOSAndHOD />}
                 />
                 <Route
-                  path="/pm/checksheetCreationDashboard"
+                  path="/checksheetCreationDashboard"
                   element={<ChecksheetCreationDashboard />}
                 />
+                <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
+                <Route path="/machineWiseCheckSheet" element={<CheckSheet />} />
                 <Route
-                  path="/pm/pmSheetApproval"
-                  element={<PMSheetApproval />}
-                />
-                <Route
-                  path="/pm/machineWiseCheckSheet"
-                  element={<CheckSheet />}
-                />
-                <Route
-                  path="/pm/checksheetCreationDashboardForMTDTLandHOS"
+                  path="/checksheetCreationDashboardForMTDTLandHOS"
                   element={<MTDTLandHOSChecksheetCreationDashboard />}
                 />
                 <Route
-                  path="/pm/pmMonthlyReport"
+                  path="/pmMonthlyReport"
                   element={<PmAllReportDashboard />}
                 />
                 <Route
-                  path="/pm/pmSheetApprovalOfImplementationPhase"
+                  path="/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
-                <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} />
+                <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
                 <Route
-                  path="/pm/summeryDashboard"
+                  path="/summeryDashboard"
                   element={<SummeryDashboard />}
                 />
-                <Route path="/pm/logHistory" element={<LogHistory />} />
+                <Route path="/logHistory" element={<LogHistory />} />
                 <Route
-                  path="/pm/pendingPMLogHistory"
+                  path="/pendingPMLogHistory"
                   element={<PendingPMLogHistory />}
                 />
                 <Route
-                  path="/pm/sparePartUsageHistory"
+                  path="/sparePartUsageHistory"
                   element={<SparePartUsageHistory />}
                 />
                 <Route
-                  path="/pm/backupTableData"
+                  path="/backupTableData"
                   element={<ShowBackupChecksheetTableData />}
                 />
 
                 <Route
-                  path="/pm/backupDataOfCheckSheet"
+                  path="/backupDataOfCheckSheet"
                   element={<BackupDataOfCheckSheet />}
                 />
                 <Route
-                  path="/pm/spareReportDashboard"
+                  path="/spareReportDashboard"
                   element={<SpareReportMainDashboard />}
                 />
                 <Route
-                  path="/pm/openAbnormalityTrack"
+                  path="/openAbnormalityTrack"
                   element={<OpenAbnormalityTrack />}
                 />
 
-                {/* <Route path="/pm/checkSheet" element={<CheckSheet />} /> */}
+                {/* <Route path="/checkSheet" element={<CheckSheet />} /> */}
 
                 {/* approval dashboard */}
                 <Route
-                  path="/pm/preparationApproval"
+                  path="/preparationApproval"
                   element={<PreparationApprovalDashboard />}
                 />
                 <Route
-                  path="/pm/planningApproval"
+                  path="/planningApproval"
                   element={<PlanningApprovalDashboard />}
                 />
                 <Route
-                  path="/pm/implementationApproval"
+                  path="/implementationApproval"
                   element={<ImplementationApprovalDashboard />}
                 />
 
                 {/* All reports routing */}
                 <Route
-                  path="/pm/machineWisePmMonthlyReport"
+                  path="/machineWisePmMonthlyReport"
                   element={<MachineWisePmMonthlyReport />}
                 />
                 <Route
-                  path="/pm/lineWisePmMonthlyReport"
+                  path="/lineWisePmMonthlyReport"
                   element={<LineWisePmMonthlyReport />}
                 />
                 <Route
-                  path="/pm/annualPMSchedule"
+                  path="/annualPMSchedule"
                   element={<AnnualPMSchedule />}
                 />
-                <Route path="/pm/annualPmStatus" element={<AnnualPmStatus />} />
+                <Route path="/annualPmStatus" element={<AnnualPmStatus />} />
                 <Route
-                  path="/pm/pmTimeMonitoringReport"
+                  path="/pmTimeMonitoringReport"
                   element={<PmTimeMonitoringReport />}
                 />
               </Routes>
@@ -351,94 +339,88 @@ function App() {
             stickyNav={<RightNavbar />}
             content={
               <Routes>
-                <Route path="/pm" element={<OperatorDashboard />} />
+                <Route path="/" element={<OperatorDashboard />} />
                 <Route
-                  path="/pm/machineWiseCheckSheetForImplemetation"
+                  path="/machineWiseCheckSheetForImplemetation"
                   element={<CheckSheetForImplementation />}
                 />
                 <Route
-                  path="/pm/sparePartUsageHistory"
+                  path="/sparePartUsageHistory"
                   element={<SparePartUsageHistory />}
                 />
-                <Route path="/pm/profile" element={<Profile />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route
-                  path="/pm/pmMonthlyReport"
+                  path="/pmMonthlyReport"
                   element={<PmAllReportDashboard />}
                 />
                 <Route
-                  path="/pm/checkSheetDashboard"
+                  path="/checkSheetDashboard"
                   element={<CheckSheetDashboard />}
                 />
+                <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
                 <Route
-                  path="/pm/pmSheetApproval"
-                  element={<PMSheetApproval />}
-                />
-                <Route
-                  path="/pm/pmSheetApprovalOfImplementationPhase"
+                  path="/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
                 <Route
-                  path="/pm/summeryDashboard"
+                  path="/summeryDashboard"
                   element={<SummeryDashboard />}
                 />
-                <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} />
-                <Route path="/pm/logHistory" element={<LogHistory />} />
+                <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
+                <Route path="/logHistory" element={<LogHistory />} />
                 <Route
-                  path="/pm/pendingPMLogHistory"
+                  path="/pendingPMLogHistory"
                   element={<PendingPMLogHistory />}
                 />
+                <Route path="/skipedPMWorkData" element={<SkipPMWorkData />} />
                 <Route
-                  path="/pm/skipedPMWorkData"
-                  element={<SkipPMWorkData />}
-                />
-                <Route
-                  path="/pm/spareReportDashboard"
+                  path="/spareReportDashboard"
                   element={<SpareReportMainDashboard />}
                 />
 
                 <Route
-                  path="/pm/checksheetCreationDashboard"
+                  path="/checksheetCreationDashboard"
                   element={<ChecksheetCreationDashboard />}
                 />
 
-                <Route path="/pm/checkSheetForm" element={<CheckSheetForm />} />
+                <Route path="/checkSheetForm" element={<CheckSheetForm />} />
 
-                {/* <Route path="/pm/checkSheetDashboard" element={<CheckSheetDashboard />} />
-                <Route path="/pm/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
-                <Route path="/pm/checkSheetForm" element={<CheckSheetForm />} /> */}
+                {/* <Route path="/checkSheetDashboard" element={<CheckSheetDashboard />} />
+                <Route path="/checksheetCreationDashboard" element={<ChecksheetCreationDashboard />} />
+                <Route path="/checkSheetForm" element={<CheckSheetForm />} /> */}
 
                 {/* All reports routing */}
                 <Route
-                  path="/pm/machineWisePmMonthlyReport"
+                  path="/machineWisePmMonthlyReport"
                   element={<MachineWisePmMonthlyReport />}
                 />
                 <Route
-                  path="/pm/lineWisePmMonthlyReport"
+                  path="/lineWisePmMonthlyReport"
                   element={<LineWisePmMonthlyReport />}
                 />
                 <Route
-                  path="/pm/annualPMSchedule"
+                  path="/annualPMSchedule"
                   element={<AnnualPMSchedule />}
                 />
-                <Route path="/pm/annualPmStatus" element={<AnnualPmStatus />} />
+                <Route path="/annualPmStatus" element={<AnnualPmStatus />} />
                 <Route
-                  path="/pm/pmTimeMonitoringReport"
+                  path="/pmTimeMonitoringReport"
                   element={<PmTimeMonitoringReport />}
                 />
                 <Route
-                  path="/pm/operatorDataEntry"
+                  path="/operatorDataEntry"
                   element={<OperatorDataEntry />}
                 />
                 <Route
-                  path="/pm/backupTableData"
+                  path="/backupTableData"
                   element={<ShowBackupChecksheetTableData />}
                 />
                 <Route
-                  path="/pm/backupDataOfCheckSheet"
+                  path="/backupDataOfCheckSheet"
                   element={<BackupDataOfCheckSheet />}
                 />
                 <Route
-                  path="/pm/openAbnormalityTrack"
+                  path="/openAbnormalityTrack"
                   element={<OpenAbnormalityTrack />}
                 />
               </Routes>
@@ -458,24 +440,21 @@ function App() {
               <Routes>
                 <Route path="/pm" element={<OperatorDashboard />} />
                 <Route
-                  path="/pm/creationDashboard"
+                  path="/creationDashboard"
                   element={<CreationDashboardForTLHOSS />}
                 />
-                <Route path="/pm/userAssign" element={<UserAssignTLHOSS />} />
-                <Route
-                  path="/pm/machineWiseCheckSheet"
-                  element={<CheckSheet />}
-                />
-                <Route path="/pm/profile" element={<Profile />} />
+                <Route path="/userAssign" element={<UserAssignTLHOSS />} />
+                <Route path="/machineWiseCheckSheet" element={<CheckSheet />} />
+                <Route path="/profile" element={<Profile />} />
                 {context.tm_department === "MTD" ? (
                   <>
                     <Route
                       path="/pm/checkSheetDashboard"
                       element={<CheckSheetDashboard />}
                     />
-                    {/* <Route path="/pm/sparePartUsageHistory" element={<SparePartUsageHistory />} /> */}
+                    {/* <Route path="/sparePartUsageHistory" element={<SparePartUsageHistory />} /> */}
                     <Route
-                      path="/pm/operatorDataEntry"
+                      path="/operatorDataEntry"
                       element={<OperatorDataEntry />}
                     />
                   </>
@@ -483,100 +462,94 @@ function App() {
                   ""
                 )}
                 <Route
-                  path="/pm/sparePartUsageHistory"
+                  path="/sparePartUsageHistory"
                   element={<SparePartUsageHistory />}
                 />
 
                 <Route
-                  path="/pm/checksheetCreationDashboard"
+                  path="/checksheetCreationDashboard"
                   element={<ChecksheetCreationDashboard />}
                 />
-                <Route path="/pm/checkSheetForm" element={<CheckSheetForm />} />
-                {/* <Route path="/pm/approvalDashboard" element={<CheckSheetApprovalDashboardForTL />} /> */}
+                <Route path="/checkSheetForm" element={<CheckSheetForm />} />
+                {/* <Route path="/approvalDashboard" element={<CheckSheetApprovalDashboardForTL />} /> */}
                 <Route
-                  path="/pm/checksheetFormApproval"
+                  path="/checksheetFormApproval"
                   element={<ChecksheetFormApprovalForTL />}
                 />
                 <Route
-                  path="/pm/planningPhaseTable"
+                  path="/planningPhaseTable"
                   element={<PlanningPhaseTable />}
                 />
+                <Route path="/pmSheetApproval" element={<PMSheetApproval />} />
+                {/* <Route path="/pmMonthlyReport" element={<PmAllReportDashboard />} /> */}
                 <Route
-                  path="/pm/pmSheetApproval"
-                  element={<PMSheetApproval />}
-                />
-                {/* <Route path="/pm/pmMonthlyReport" element={<PmAllReportDashboard />} /> */}
-                <Route
-                  path="/pm/openAbnormalityTrack"
+                  path="/openAbnormalityTrack"
                   element={<OpenAbnormalityTrack />}
                 />
                 <Route
-                  path="/pm/checksheetCreationDashboardForMTDTLandHOS"
+                  path="/checksheetCreationDashboardForMTDTLandHOS"
                   element={<MTDTLandHOSChecksheetCreationDashboard />}
                 />
                 <Route
-                  path="/pm/pmSheetApprovalOfImplementationPhase"
+                  path="/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
-                <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} />
+                <Route path="/viewCheckSheet" element={<ViewChecksheet />} />
                 <Route
-                  path="/pm/backupDataOfCheckSheet"
+                  path="/backupDataOfCheckSheet"
                   element={<BackupDataOfCheckSheet />}
                 />
                 <Route
-                  path="/pm/backupTableData"
+                  path="/backupTableData"
                   element={<ShowBackupChecksheetTableData />}
                 />
 
                 <Route
-                  path="/pm/pm/summeryDashboard"
+                  path="/pm/summeryDashboard"
                   element={<SummeryDashboard />}
                 />
+                <Route path="/skipedPMWorkData" element={<SkipPMWorkData />} />
+                <Route path="/logHistory" element={<LogHistory />} />
                 <Route
-                  path="/pm/skipedPMWorkData"
-                  element={<SkipPMWorkData />}
-                />
-                <Route path="/pm/logHistory" element={<LogHistory />} />
-                <Route
-                  path="/pm/pendingPMLogHistory"
+                  path="/pendingPMLogHistory"
                   element={<PendingPMLogHistory />}
                 />
 
                 <Route
-                  path="/pm/spareReportDashboard"
+                  path="/spareReportDashboard"
                   element={<SpareReportMainDashboard />}
                 />
 
                 {/* approval dashboard */}
                 <Route
-                  path="/pm/preparationApproval"
+                  path="/preparationApproval"
                   element={<PreparationApprovalDashboard />}
                 />
                 <Route
-                  path="/pm/pm/planningApproval"
+                  path="/pm/planningApproval"
                   element={<PlanningApprovalDashboard />}
                 />
                 <Route
-                  path="/pm/implementationApproval"
+                  path="/implementationApproval"
                   element={<ImplementationApprovalDashboard />}
                 />
 
                 {/* All reports routing */}
                 <Route
-                  path="/pm/machineWisePmMonthlyReport"
+                  path="/machineWisePmMonthlyReport"
                   element={<MachineWisePmMonthlyReport />}
                 />
                 <Route
-                  path="/pm/lineWisePmMonthlyReport"
+                  path="/lineWisePmMonthlyReport"
                   element={<LineWisePmMonthlyReport />}
                 />
                 <Route
-                  path="/pm/annualPMSchedule"
+                  path="/annualPMSchedule"
                   element={<AnnualPMSchedule />}
                 />
-                <Route path="/pm/annualPmStatus" element={<AnnualPmStatus />} />
+                <Route path="/annualPmStatus" element={<AnnualPmStatus />} />
                 <Route
-                  path="/pm/pmTimeMonitoringReport"
+                  path="/pmTimeMonitoringReport"
                   element={<PmTimeMonitoringReport />}
                 />
               </Routes>

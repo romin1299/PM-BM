@@ -10,7 +10,7 @@ import {
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
 import { Box, Paper, Typography } from "@mui/material";
-import { Row } from "react-bootstrap";
+import { Row, Container } from "react-bootstrap";
 import {
   MONTH_LABELS,
   chartColors,
@@ -34,6 +34,7 @@ export const options = {
   responsive: true,
   plugins: {
     legend: {
+      align: "end",
       labels: {
         usePointStyle: true,
       },
@@ -71,13 +72,22 @@ export const options = {
         display: true,
         text: "Months",
       },
+      ticks: {
+        color: 'black'
+      },
     },
     y: {
       stacked: true,
       position: "left",
+      ticks: {
+        color: 'black'
+      },
     },
     y2: {
       position: "right",
+      ticks: {
+        color: 'black'
+      },
     },
   },
 };
@@ -93,9 +103,10 @@ const dataset = [
     type: "line",
     label: "Total Count",
     data: getRandomDataArray(30),
-    borderColor: chartColors[3],
+    borderColor: chartColors.magenta[1],
     borderWidth: 2,
-    fill: false,
+    backgroundColor: 'chartColors.magenta[1]',
+    pointStyle: 'rectRot',
     yAxisID: "y2",
   },
   {
@@ -104,6 +115,7 @@ const dataset = [
     label: "< 60",
     data: getRandomDataArray(60),
     yAxisID: "y",
+    pointStyle: 'rect'
   },
   {
     type: "bar",
@@ -111,6 +123,7 @@ const dataset = [
     label: "< 120",
     data: getRandomDataArray(120),
     yAxisID: "y",
+    pointStyle: 'rect'
   },
   {
     type: "bar",
@@ -118,6 +131,7 @@ const dataset = [
     label: "> 120",
     data: getRandomDataArray(140),
     yAxisID: "y",
+    pointStyle: 'rect'
   },
 ];
 
@@ -125,7 +139,8 @@ export const data = {
   labels: MONTH_LABELS,
   datasets: dataset.map((dataset, i) => ({
     ...dataset,
-    backgroundColor: chartColors[i - 1],
+    // backgroundColor: chartColors[i - 1],
+    backgroundColor: i === 0 ? chartColors.magenta[1] : dataset.label === "< 60" ? chartColors.blue[3] : dataset.label === "< 120" ? chartColors.green[3] : dataset.label === "> 120" ? chartColors.orange[2] : chartColors[i - 1],
   })),
 };
 
@@ -154,22 +169,25 @@ const MonthlyBDTrendChart = () => {
   //   }, [filterOptions]);
 
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
-      <Row style={{ marginBottom: "1rem" }}>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-          sx={{ fontWeight: "500" }}
-        >
-          Electronics: Monthly Breakdown Trend
-        </Typography>
-      </Row>
+    <Container fluid>
+      <Box className="cell p-3 mt-3">
+        <Row>
+          <Typography
+            className="col"
+            variant="h5"
+            component="h5"
+            sx={{ fontWeight: "500" }}
+          >
+            Electronics: Monthly Breakdown Trend
+          </Typography>
+        </Row>
 
-      <div style={{ width: "100%", height: "300px" }}>
-        <Chart data={data} options={options} />
-      </div>
-    </Paper>
+        <div style={{ width: "100%", height: "300px" }}>
+          <Chart data={data} options={options} />
+        </div>
+      </Box>
+    </Container>
+
   );
 };
 

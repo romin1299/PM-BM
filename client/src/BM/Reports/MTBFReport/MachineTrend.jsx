@@ -49,10 +49,18 @@ export const options = {
         display: true,
         text: "Months",
       },
+      ticks:{
+        color:'black',
+      }
     },
     y: {
       min: 0,
       max: 3,
+      maxRotation: 90,
+        minRotation: 90,
+      ticks:{
+        color:'black',
+      }
     },
   },
 };
@@ -83,8 +91,8 @@ export const data = {
   labels: serverResLabels,
   datasets: serverResDataset.map((dataset, i) => ({
     ...dataset,
-    backgroundColor: chartColors[0],
-    borderColor: chartColors[7],
+    backgroundColor: chartColors.orange[2],
+    borderColor: chartColors.orange[2],
     borderWidth: 1,
   })),
 };

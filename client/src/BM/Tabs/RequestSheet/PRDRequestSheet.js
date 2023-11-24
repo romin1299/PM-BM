@@ -10,6 +10,8 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
+import { denso_logo } from "../../../components/NavbarComponent/ImportModules";
+
 
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
@@ -28,7 +30,7 @@ const list = [
 
 function MyTable({ selectedMachineDetails }) {
   // let [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const { machine_code, generateType } = useParams();
   const context = useContext(RoutingContext);
   const {
@@ -110,11 +112,12 @@ function MyTable({ selectedMachineDetails }) {
         if (generateType === "scanned") {
           navigate("/", { replace: true });
         } else {
-          navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
+          navigate('/bm/generateRequestSheetMainDashboard', { replace: true })
         }
       } else {
         WarningToast(data?.message);
       }
+
     } catch (error) {
       console.log(error);
     }
@@ -178,7 +181,7 @@ function MyTable({ selectedMachineDetails }) {
             <tr>
               {/* <td width={100}>
               <img
-                src={denso_log}
+                src={denso_logo}
                 width="120"
                 height="30"
                 className="d-inline-block align-top"

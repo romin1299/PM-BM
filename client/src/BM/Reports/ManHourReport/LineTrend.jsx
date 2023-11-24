@@ -1,7 +1,9 @@
 import React from "react";
 import { Chart } from "react-chartjs-2";
-import { Divider, Paper, Typography } from "@mui/material";
+import { Box, Divider, Paper, Typography } from "@mui/material";
+import { Row, Col } from "react-bootstrap"
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
+import { FilterMenu } from "./SubComponents/FilterMenu";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -52,6 +54,7 @@ export const options = {
         maxRotation: 90,
         minRotation: 90,
         // padding: 10,
+        color:'black',
       },
     },
     y: {
@@ -60,6 +63,9 @@ export const options = {
         display: true,
         text: "Hours",
       },
+      ticks: {
+        color: 'black'
+    },
     },
   },
 };
@@ -86,38 +92,61 @@ export const data = {
       type: "line",
       label: "Total",
       data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-      borderColor: chartColors.orange[1],
+      borderColor: chartColors.magenta[1],
       borderWidth: 2,
       fill: false,
+      backgroundColor: chartColors.magenta[1],
+      pointStyle: 'rectRot',
+      pointRadius: 5,
+      pointBorderColor: 'rgb(204, 41, 46)'
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: "BM",
       data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-      backgroundColor: chartColors.orange[2],
+      backgroundColor: chartColors.yellow[1],
+      pointStyle:'rect'
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: "PM",
       data: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
-      backgroundColor: chartColors.aqua[1],
+      backgroundColor: chartColors.green[1],
+      pointStyle:'rect'
     },
   ],
 };
 
 const LineTrend = () => {
   return (
-    <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>
-      <Typography variant="h5" component="h4">
-        Line Trend
-      </Typography>
+    <Box className="cell p-3">
+      <Row style={{ marginBottom: "1rem" }}>
+        <Typography
+          className="col"
+          variant="h5"
+          component="h5"
+        >
+          Line Trend
+        </Typography>
 
+        <Col className="col-auto d-flex">
+          <FilterMenu DropdownValue="hour" />
+        </Col>
+      </Row>
       <Divider sx={{ mb: 4, borderColor: "black" }} />
-
       <Chart options={options} data={data} />
-    </Paper>
+    </Box>
+    // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>
+    //   <Typography variant="h5" component="h4">
+    //     Line Trend
+    //   </Typography>
+
+    //   <Divider sx={{ mb: 4, borderColor: "black" }} />
+
+    //   <Chart options={options} data={data} />
+    // </Paper>
   );
 };
 

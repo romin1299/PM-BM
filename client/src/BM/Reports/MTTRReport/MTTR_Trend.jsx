@@ -1,4 +1,10 @@
 import React from "react";
+import { Chart } from "react-chartjs-2";
+import { Box, Divider, Paper, Typography } from "@mui/material";
+import { chartColors } from "../../Utils/ChartUtils/chartEnums";
+import { Row, Col } from "react-bootstrap";
+import { FilterMenu } from "./SubComponents/FilterMenu";
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -7,12 +13,8 @@ import {
   Title,
   Tooltip,
   Legend,
+  PointElement,
 } from "chart.js";
-import { Bar } from "react-chartjs-2";
-import { Box, Typography } from "@mui/material";
-import { Col, Row } from "react-bootstrap";
-import { chartColors } from "../../Utils/ChartUtils/chartEnums";
-import { FilterMenu } from "./SubComponents/FilterMenu";
 
 ChartJS.register(
   CategoryScale,
@@ -20,25 +22,14 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
+  PointElement,
   Legend
 );
 
 export const options = {
   plugins: {
-    annotation: {
-      annotations: {
-        line1: {
-          // Indicates the type of annotation
-          type: "line",
-          yMin: 1,
-          yMax: 1,
-          borderColor: chartColors[3],
-          borderWidth: 2,
-        },
-      },
-    },
     legend: {
-      display: false,
+      align: "end",
       labels: {
         usePointStyle: true,
       },
@@ -52,65 +43,112 @@ export const options = {
     x: {
       stacked: true,
       grid: {
-        display: false,
+        display: false, // Hide vertical grid lines
       },
       title: {
         display: true,
         text: "Months",
       },
+      ticks: {
+        maxRotation: 90,
+        minRotation: 90,
+        // padding: 10,
+        color:'black',
+      },
     },
     y: {
       stacked: true,
+      title: {
+        display: true,
+        text: "Hours",
+      },
+      ticks: {
+        color: 'black'
+    },
     },
   },
 };
 
-const serverResLabels = [
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-  "Jan",
-  "Feb",
-  "Mar",
-];
-
-const serverResDataset = [
-  {
-    label: "BM",
-    data: [1.5, 2.4, 1.3, 1.8, 0.5, 0.3, 1.3, 1.3, 1, 1.2, 0.5, 2.5],
-  },
+const TM_Names = [
+  "Jatindar",
+  "Mangal",
+  "Ujjawal",
+  "NeeraK",
+  "Dalip",
+  "Gagandeep",
+  "Inderjeet",
+  "Shubhash",
+  "Ashish",
+  "Sandeep",
+  "Anshul",
+  "Shreekant",
 ];
 
 export const data = {
-  labels: serverResLabels,
-  datasets: serverResDataset.map((dataset, i) => ({
-    ...dataset,
-    backgroundColor: chartColors[i],
-  })),
+  labels: TM_Names,
+  datasets: [
+    {
+      type: "line",
+      label: "Dataset 1",
+      data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
+      borderColor: chartColors.blue[1],
+      borderWidth: 2,
+      fill: false,
+      backgroundColor: chartColors.blue[1],
+      pointBorderColor: chartColors.blue[1],
+    },
+    {
+      type: "bar",
+      stack: "bar-stacked",
+      label: "Dataset 2",
+      data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
+      backgroundColor: chartColors.brown[0],
+      borderColor: chartColors.brown[0],
+      borderWidth: 0,
+      pointStyle:'rect',
+    },
+    {
+      type: "bar",
+      stack: "bar-stacked",
+      label: "Dataset 3",
+      data: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
+      backgroundColor: chartColors.red[0],
+      borderColor: chartColors.red[0],
+      borderWidth: 0,
+      pointStyle:'rect',
+    },
+  ],
 };
 
-const MTTRTrendChart = () => {
+const MTTRTrend = () => {
   return (
     <Box className="cell p-3">
       <Row style={{ marginBottom: "1rem" }}>
-        <Typography className="col" variant="h5" component="h5">
-          MTTR Trend
+        <Typography
+          className="col"
+          variant="h5"
+          component="h5"
+        >
+         MTTR Trend
         </Typography>
 
         <Col className="col-auto d-flex">
           <FilterMenu DropdownValue="hour" />
         </Col>
       </Row>
-
-      <Bar options={options} data={data} />
+      <Divider sx={{ mb: 4, borderColor: "black" }} />
+      <Chart options={options} data={data} />
     </Box>
+    // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>
+    //   <Typography variant="h5" component="h4">
+    //     TM Load
+    //   </Typography>
+
+    //   <Divider sx={{ mb: 4, borderColor: "black" }} />
+
+    //   <Chart options={options} data={data} />
+    // </Paper>
   );
 };
 
-export default MTTRTrendChart;
+export default MTTRTrend;
