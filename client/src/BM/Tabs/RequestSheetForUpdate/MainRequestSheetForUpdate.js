@@ -36,7 +36,7 @@ function MyTable() {
       } else {
         const { machine, requestSheetApprovalList } = await res.json();
         // setMachine(machine);
-        console.log(machine);
+        // console.log(machine);
 
         setMachineDetails(machine);
         setApprovalListOfBM(requestSheetApprovalList);

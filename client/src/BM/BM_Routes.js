@@ -25,6 +25,8 @@ import MonthlyBDTDashboard from "./Reports/MonthlyBDTrend/MonthlyBDDashboard";
 import DailyBTDashboard from "./Reports/DailyBreakdownTrend/DailyBDDashboard";
 import MTTRDashboard from "./Reports/MTTRReport/MTTRDashboard";
 import MTBFDashboard from "./Reports/MTBFReport/MTBFDashboard";
+
+import ApprovalDashboardOfRequestSheet from "./ApprovalDashboards/ApprovalDashboardOfRequestSheet";
 // Define an array of routes for each user type
 const userRoutes = [
   {
@@ -69,6 +71,8 @@ const userRoutes = [
       { path: "/bm/customizedDashboard", element: <MainCustomized /> },
 
       { path: "/bm/profile", element: <Profile /> },
+
+      { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
     ],
   },
   {
@@ -88,6 +92,7 @@ const userRoutes = [
         path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
       },
+      { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
     ],
   },
   {
@@ -162,6 +167,7 @@ const userRoutes = [
         path: "/bm/report/mtbf",
         element: <MTBFDashboard />,
       },
+      { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
     ],
   },
 ];

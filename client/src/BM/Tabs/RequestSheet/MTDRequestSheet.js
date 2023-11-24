@@ -243,6 +243,11 @@ function MyTable({
     }
   }, [timeDifferenceMinutes]);
 
+  console.log(
+    requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id,
+    requestSheetDataOfBM?.approvalOfMTD_TL?._id !== loggedUserDetails?._id
+  );
+
   return (
     <form>
       <Table bordered className="mb-5">
@@ -267,8 +272,13 @@ function MyTable({
                   <p className="fs-6 mb-0">
                     <b>MTD TL</b>
                   </p>
+                  {/* {requestSheetDataOfBM?.approvalOfMTD_TL?.length > 0 ? (
+                    requestSheetDataOfBM?.approvalOfMTD_TL?.[
+                      requestSheetDataOfBM?.approvalOfMTD_TL?.length - 1
+                    ]?.tm_name
+                  ) : ( */}
                   {requestSheetDataOfBM?.approvalOfMTD_TL ? (
-                    requestSheetDataOfBM?.approvalOfMTD_TL.tm_name
+                    requestSheetDataOfBM?.approvalOfMTD_TL?.tm_name
                   ) : (
                     <DropdownElem
                       name={"MTD_TL"}
@@ -285,7 +295,7 @@ function MyTable({
                         requestSheetDataOfBM?.assignUser?._id ===
                         loggedUserDetails?._id
                       }
-                      options={approvalListOfBM?.mtdUserTL}
+                      options={approvalListOfBM?.mtdTL}
                       // required={
                       //   selectedMinor === "Yes" &&
                       //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
@@ -438,8 +448,17 @@ function MyTable({
                     ""
                   )}
 
+                  {/* {requestSheetDataOfBM?.approvalOfMTD_HOSS?.length > 0 ? (
+                    <p>
+                      {
+                        requestSheetDataOfBM?.approvalOfMTD_HOSS?.[
+                          requestSheetDataOfBM?.approvalOfMTD_HOSS?.length - 1
+                        ]?.tm_name
+                      }
+                    </p>
+                  ) : ( */}
                   {requestSheetDataOfBM?.approvalOfMTD_HOSS ? (
-                    <p>{requestSheetDataOfBM?.approvalOfMTD_HOSS.tm_name}</p>
+                    <p>{requestSheetDataOfBM?.approvalOfMTD_HOSS?.tm_name}</p>
                   ) : (
                     <DropdownElem
                       name={"MTD_HOSS"}
@@ -451,10 +470,11 @@ function MyTable({
                           ?.approvalListOfMinorAndMajor
                       }
                       displayOrNot={
-                        requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-                        loggedUserDetails?._id
+                        requestSheetDataOfBM?.approvalOfMTD_TL?.[
+                          requestSheetDataOfBM?.approvalOfMTD_TL?.length - 1
+                        ]?._id === loggedUserDetails?._id
                       }
-                      options={approvalListOfBM?.mtdUserTL}
+                      options={approvalListOfBM?.mtdTL}
                       register={register}
                       errors={errors}
                       // required={
@@ -473,8 +493,13 @@ function MyTable({
                     />
                   )}
                   {selectedMajor === "Yes" && <label>MTD HOS</label>}
+                  {/* {requestSheetDataOfBM?.approvalOfMTD_HOS?.length > 0 ? (
+                    requestSheetDataOfBM?.approvalOfMTD_HOS?.[
+                      requestSheetDataOfBM?.approvalOfMTD_HOS?.length - 1
+                    ]?.tm_name
+                  ) : ( */}
                   {requestSheetDataOfBM?.approvalOfMTD_HOS ? (
-                    requestSheetDataOfBM?.approvalOfMTD_HOS.tm_name
+                    requestSheetDataOfBM?.approvalOfMTD_HOS?.tm_name
                   ) : (
                     <DropdownElem
                       name={"MTD_HOS"}
@@ -486,10 +511,11 @@ function MyTable({
                           ?.approvalListOfMinorAndMajor
                       }
                       displayOrNot={
-                        requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-                        loggedUserDetails?._id
+                        requestSheetDataOfBM?.approvalOfMTD_TL?.[
+                          requestSheetDataOfBM?.approvalOfMTD_TL?.length - 1
+                        ]?._id === loggedUserDetails?._id
                       }
-                      options={approvalListOfBM?.mtdUser}
+                      options={approvalListOfBM?.mtdHOS}
                       register={register}
                       errors={errors}
                       // required={
@@ -977,7 +1003,7 @@ function MyTable({
                   ) : (
                     <DropdownElem
                       name={"partQualityCheckedByMTD"}
-                      options={approvalListOfBM?.mtdUserTL}
+                      options={approvalListOfBM?.mtdTL}
                       className={"d-inline"}
                       register={register}
                       errors={errors}
@@ -1147,8 +1173,13 @@ function MyTable({
                   <Row>
                     <Col className="border">
                       <div className="p-1">
+                        {/* {requestSheetDataOfBM?.approvalOfMTD_HOD?.length > 0 ? (
+                          requestSheetDataOfBM?.approvalOfMTD_HOD?.[
+                            requestSheetDataOfBM?.approvalOfMTD_HOD?.length - 1
+                          ]?.tm_name
+                        ) : ( */}
                         {requestSheetDataOfBM?.approvalOfMTD_HOD ? (
-                          requestSheetDataOfBM?.approvalOfMTD_HOD.tm_name
+                          requestSheetDataOfBM?.approvalOfMTD_HOD?.tm_name
                         ) : (
                           <DropdownElem
                             name={"MTD_HOD"}
@@ -1160,10 +1191,12 @@ function MyTable({
                                 ?.approvalListOfMinorAndMajor
                             }
                             displayOrNot={
-                              requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-                              loggedUserDetails?._id
+                              requestSheetDataOfBM?.approvalOfMTD_TL?.[
+                                requestSheetDataOfBM?.approvalOfMTD_TL?.length -
+                                  1
+                              ]?._id === loggedUserDetails?._id
                             }
-                            options={approvalListOfBM?.mtdHod}
+                            options={approvalListOfBM?.mtdHOD}
                             register={register}
                             errors={errors}
                             // required={
@@ -1185,8 +1218,13 @@ function MyTable({
                     </Col>
                     <Col className="border">
                       <div className="p-1">
+                        {/* {requestSheetDataOfBM?.approvalOfPRD_HOD?.length > 0 ? (
+                          requestSheetDataOfBM?.approvalOfPRD_HOD?.[
+                            requestSheetDataOfBM?.approvalOfPRD_HOD?.length - 1
+                          ].tm_name
+                        ) : ( */}
                         {requestSheetDataOfBM?.approvalOfPRD_HOD ? (
-                          requestSheetDataOfBM?.approvalOfPRD_HOD.tm_name
+                          requestSheetDataOfBM?.approvalOfPRD_HOD?.tm_name
                         ) : (
                           <DropdownElem
                             name={"PRD_HOD"}
@@ -1198,10 +1236,12 @@ function MyTable({
                                 ?.approvalListOfMinorAndMajor
                             }
                             displayOrNot={
-                              requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-                              loggedUserDetails?._id
+                              requestSheetDataOfBM?.approvalOfMTD_TL?.[
+                                requestSheetDataOfBM?.approvalOfMTD_TL?.length -
+                                  1
+                              ]?._id === loggedUserDetails?._id
                             }
-                            options={approvalListOfBM?.prdHod}
+                            options={approvalListOfBM?.prdHOD}
                             register={register}
                             errors={errors}
                             // required={
@@ -1223,8 +1263,13 @@ function MyTable({
                     </Col>
                     <Col className="border">
                       <div className="p-1">
+                        {/* {requestSheetDataOfBM?.approvalOfPRD_HOS?.length > 0 ? (
+                          requestSheetDataOfBM?.approvalOfPRD_HOS?.[
+                            requestSheetDataOfBM?.approvalOfPRD_HOS?.length - 1
+                          ]?.tm_name
+                        ) : ( */}
                         {requestSheetDataOfBM?.approvalOfPRD_HOS ? (
-                          requestSheetDataOfBM?.approvalOfPRD_HOS.tm_name
+                          requestSheetDataOfBM?.approvalOfPRD_HOS?.tm_name
                         ) : (
                           <DropdownElem
                             name={"PRD_HOS"}
@@ -1236,10 +1281,12 @@ function MyTable({
                                 ?.approvalListOfMinorAndMajor
                             }
                             displayOrNot={
-                              requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-                              loggedUserDetails?._id
+                              requestSheetDataOfBM?.approvalOfMTD_TL?.[
+                                requestSheetDataOfBM?.approvalOfMTD_TL?.length -
+                                  1
+                              ]?._id === loggedUserDetails?._id
                             }
-                            options={approvalListOfBM?.prdHos}
+                            options={approvalListOfBM?.prdHOS}
                             register={register}
                             errors={errors}
                             // required={
@@ -1261,8 +1308,13 @@ function MyTable({
                     </Col>
                     <Col className="border">
                       <div className="p-1">
+                        {/* {requestSheetDataOfBM?.approvalOfPRD_TL?.length > 0 ? (
+                          requestSheetDataOfBM?.approvalOfPRD_TL?.[
+                            requestSheetDataOfBM?.approvalOfPRD_TL?.length - 1
+                          ]?.tm_name
+                        ) : ( */}
                         {requestSheetDataOfBM?.approvalOfPRD_TL ? (
-                          requestSheetDataOfBM?.approvalOfPRD_TL.tm_name
+                          requestSheetDataOfBM?.approvalOfPRD_TL?.tm_name
                         ) : (
                           <DropdownElem
                             name={"PRD_TL"}
@@ -1303,29 +1355,123 @@ function MyTable({
             </td>
           </tr>
         </tbody>
+        {(requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
+          (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
+            requestSheetDataOfBM?.requestSheetStatus === "Pending" ||
+            requestSheetDataOfBM?.requestSheetStatus === "Closed" ||
+            requestSheetDataOfBM?.approvalStatusOfMTD_TL === "Rejected")) ||
+        (requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
+          loggedUserDetails?._id &&
+          (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
+            requestSheetDataOfBM?.requestSheetStatus === "Pending" ||
+            requestSheetDataOfBM?.requestSheetStatus === "Closed" ||
+            requestSheetDataOfBM?.approvalStatusOfMTD_HOSS === "Rejected" ||
+            requestSheetDataOfBM?.approvalStatusOfMTD_HOS === "Rejected" ||
+            requestSheetDataOfBM?.approvalStatusOfPRD_TL === "Rejected" ||
+            requestSheetDataOfBM?.approvalStatusOfPRD_HOS === "Rejected" ||
+            requestSheetDataOfBM?.approvalStatusOfPRD_HOD === "Rejected" ||
+            requestSheetDataOfBM?.approvalStatusOfMTD_HOD === "Rejected")) ? (
+          <Row>
+            <Col>
+              <button
+                type="submit"
+                className="btn bg-button"
+                style={{ marginTop: "1rem" }}
+                onClick={handleSubmit(newRequestSheetRegistration)}
+              >
+                Submit
+              </button>
+            </Col>
+            <Col>
+              <button
+                type="submit"
+                className="btn bg-button"
+                style={{ marginTop: "1rem" }}
+                onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
+              >
+                Send for approval
+              </button>
+            </Col>
+          </Row>
+        ) : (
+          ""
+        )}
 
-        <Row>
-          <Col>
-            <button
-              type="submit"
-              className="btn bg-button"
-              style={{ marginTop: "1rem" }}
-              onClick={handleSubmit(newRequestSheetRegistration)}
-            >
-              Submit
-            </button>
-          </Col>
-          <Col>
-            <button
-              type="submit"
-              className="btn bg-button"
-              style={{ marginTop: "1rem" }}
-              onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
-            >
-              Send for approval
-            </button>
-          </Col>
-        </Row>
+        {(requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
+          requestSheetDataOfBM?.requestSheetStatus === "Pending" ||
+          requestSheetDataOfBM?.requestSheetStatus === "Closed") &&
+        requestSheetDataOfBM?.approvalOfMTD_TL?._id !==
+          loggedUserDetails?._id &&
+        requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id ? (
+          <Row>
+            <Col>
+              Kindly approve request-sheet.{" "}
+              <Form>
+                <div className="d-flex">
+                  <Form.Check
+                    flex
+                    label="Yes"
+                    name="ApprovalOfRequestSheet"
+                    type="radio"
+                    value="Yes"
+                    id="ApprovalOfRequestSheet"
+                    {...register("ApprovalOfRequestSheet", {
+                      required: "This field is required",
+                    })}
+                    // onChange={handleQuality}
+                  />
+                  <Form.Check
+                    flex
+                    label="No"
+                    name="ApprovalOfRequestSheet"
+                    type="radio"
+                    value="No"
+                    id="ApprovalOfRequestSheet"
+                    {...register("ApprovalOfRequestSheet", {
+                      required: "This field is required",
+                    })}
+                    // onChange={handleQuality}
+                  />
+                </div>
+                {errors?.["ApprovalOfRequestSheet"] && (
+                  <p className="text-error">
+                    {errors?.["ApprovalOfRequestSheet"]?.message}
+                  </p>
+                )}
+                {watch("ApprovalOfRequestSheet") === "No" ? (
+                  <>
+                    <input
+                      type="text"
+                      name="rejectedRemarksOfRequestSheet"
+                      placeholder="Enter rejected remarks"
+                      className="p-1 m-1"
+                      {...register("rejectedRemarksOfRequestSheet", {
+                        required: "Please fill this field",
+                      })}
+                    />
+                    {errors?.["rejectedRemarksOfRequestSheet"] && (
+                      <p className="text-error">
+                        {errors?.["rejectedRemarksOfRequestSheet"]?.message}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  ""
+                )}
+                &nbsp;
+                <button
+                  type="submit"
+                  className="btn bg-button"
+                  // onClick={handleSubmit(newRequestSheetRegistration)}
+                >
+                  Submit
+                </button>
+              </Form>
+            </Col>
+          </Row>
+        ) : (
+          ""
+        )}
       </Table>
     </form>
   );

@@ -401,8 +401,9 @@ const RequestSheetMainDashboard = () => {
       tooltip: "Update Action",
       position: "row",
       disabled:
-        row?.work_order_status === "Pending" ||
-        row?.work_order_status === "Closed"
+        row?.assignUserId === context?._id &&
+        (row?.work_order_status === "Pending" ||
+          row?.work_order_status === "Closed")
           ? false
           : true,
       onClick: (event, selectedRow) => {
