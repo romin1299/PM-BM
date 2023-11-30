@@ -5059,212 +5059,122 @@ router.get(
   }
 );
 
-// router.get(
-//   "/sectionMonthlyBdTrendForPlant/:plantId",
-//   // BdTrendFilterMiddleware,
-//   async (req, res, next) => {
-//     let queryObj = {};
-//     let dateObj = {
-//       $dateToString: {
-//         format: "%m",
-//         date: "$sheetIssuedDateAndTimeOfBM",
-//         timezone: timezone,
-//       },
-//     };
+router.get(
+  "/sectionMonthlyBdTrendForPlant/:plantId",
+  // BdTrendFilterMiddleware,
+  async (req, res, next) => {
+    let queryObj = {};
+    let dateObj = {
+      $dateToString: {
+        format: "%m",
+        date: "$sheetIssuedDateAndTimeOfBM",
+        timezone: timezone,
+      },
+    };
 
-//     queryObj = {
-//       plantRef: mongoose.Types.ObjectId(req.params.plantId),
-//       // sheetIssuedDateAndTimeOfBM: {
-//       //   $gte: startDate.toDate(),
-//       //   $lte: endDate.toDate(),
-//       // },
-//     };
+    queryObj = {
+      plantRef: mongoose.Types.ObjectId(req.params.plantId),
+      // sheetIssuedDateAndTimeOfBM: {
+      //   $gte: startDate.toDate(),
+      //   $lte: endDate.toDate(),
+      // },
+    };
 
-//     const monthlyBDTrendSection = await RequestSheetOfBM.aggregate([
-//       {
-//         $match: queryObj,
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             date: dateObj,
-//             sectionRef: "$sectionRef",
-//           },
-//           bdTimeSum: { $sum: "$bdTime" },
-//         },
-//       },
+    const monthlyBDTrendSection = await RequestSheetOfBM.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $lookup: {
+          from: "sections",
+          localField: "sectionRef",
+          foreignField: "_id",
+          as: "section_data",
+        },
+      },
 
-//       { 
-//         $group: {
-//           _id: "$_id.sectionRef",
-//           sectionWiseTotal: {
-//             $push: {
-//               month: "$_id.date",
-//               bdTimeSum: "$bdTimeSum",
-//             },
-//           },
-//         },
-//       },
+      {
+        $unwind: "$section_data",
+      },
+      {
+        $group: {
+          _id: {
+            date: dateObj,
+            sectionRef: "$section_data.section_name",
+          },
+          bdTimeSum: { $sum: "$bdTime" },
+        },
+      },
 
-    
-//       {
-//         $group: {
-//           _id: null,
-//           array: { $push: "$$ROOT" }, 
-//         },
-//       },
+      { 
+        $group: {
+          _id: "$_id.sectionRef",
+          sectionWiseTotal: {
+            $push: {
+              month: "$_id.date",
+              bdTimeSum: "$bdTimeSum",
+            },
+          },
+        },
+      },
 
-//       // {
-//       //   $unwind: "$array",
-//       // },
-//       // {
-//       //   $unwind: "$array.sectionWiseTotal",
-//       // },
-//       // {
-//       //   $group: {
-//       //     _id: {
-//       //       sectionRef: "$array._id",
-//       //     },
-//       //     data: {
-//       //       $push: {
-//       //         month: "$array.sectionWiseTotal.month",
-//       //         bdTimeSum: "$array.sectionWiseTotal.bdTimeSum",
-//       //       },
-//       //     },
-//       //   },
-//       // },
-//       // {
-//       //   $project: {
-//       //     _id: 0,
-//       //     sectionRef: "$_id.sectionRef",
-//       //     data: 1,
-//       //   },
-//       // },
-
-//       // {
-//       //   $project: {
-//       //     _id: 0,
-//       //     array: {
-//       //       $map: {
-//       //         input: allMonths,
-//       //         as: "month",
-//       //         in: {
-//       //           $let: {
-//       //             vars: {
-//       //               matchedMonth: {
-//       //                 $filter: {
-//       //                   input: "$array.data",
-//       //                   as: "sectionData",
-//       //                   cond: {
-//       //                     $eq: ["$$sectionData.month", "$$month.monthInDecimal"]
-//       //                   }
-//       //                 }
-//       //               }
-//       //             },
-//       //             in: {
-//       //               $cond: [
-//       //                 { $gt: [{ $size: "$$matchedMonth" }, 0] },
-//       //                 {
-//       //                   sectionRef: "$_id.sectionRef",
-//       //                   bdSum: "$$matchedMonth.bdTimeSum"
-//       //                 },
-//       //                 {
-//       //                   sectionRef: "$_id.sectionRef",
-//       //                   bdSum: 0
-//       //                 }
-//       //               ]
-//       //             }
-//       //           }
-//       //         }
-//       //       }
-//       //     }
-//       //   }
-//       // }
-      
-      
+      {
+        $project: {
+          // _id: 0,
+          array: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  { $in: ["$$month.monthInDecimal", "$sectionWiseTotal.month"] },
+                  {
+                    $arrayElemAt: [
+                      "$sectionWiseTotal.bdTimeSum",
+                      {
+                        $indexOfArray: [
+                          "$sectionWiseTotal.month",
+                          "$$month.monthInDecimal",
+                        ],
+                      },
+                    ],
+                  },
+                 0
+                ],
+              },
+            },
+          },
+        },
+      },
       
 
-//       {
-//         $project: {
-//           _id: 0,
-//           array: {
-//             $map: {
-//               input: allMonths,
-//               as: "month",
-//               in: {
-    
-//                 $cond: [
-//                   {
-                  
-//                       $filter: {
-//                         input: "$array",
-//                         as: "sectionData",
-//                         cond: {
-//                           $eq: [ "$$month.monthInDecimal","$$sectionData.month"]
-//                         }
-//                       }
-                    
-//                   },
-//                   {
-//                     // section : "$array._id",
-//                     month: "$$month.monthName",
-//                     value: {
-//                       $arrayElemAt: [
-                     
-//                         "$array.sectionWiseTotal",
-//                         {
-//                           $indexOfArray: [
-//                             "$array.sectionWiseTotal.month",
-//                             "$$month.monthInDecimal"
-//                           ]
-//                         }
-//                       ]
-//                     }
-//                   },
-//                   {
-//                     month: "$$month.monthName",
-//                     value: {
-//                       _id: "$$month.monthInDecimal",
-//                       sectionWiseTotal: 0
-//                     }
-//                   }
-//                 ]
-//               }
-//             }
-//           }
-//         }
-//       },
-      
-
-//       // { $unwind: "$array" },
-//       // {
-//       //   $replaceRoot: { newRoot: "$array" },
-//       // },
-//       // {
-//       //   $group: {
-//       //     _id: null,
-//       //     labels: { $push: "$data.month" },
-//       //     // target: { $push: "$value.target" },
-//       //     // sections: {
-//       //     //   $push: "$value.data.sectionRef",
-//       //     // },
-//       //     sections: {
-//       //       $push: "$data.bdTimeSum",
-//       //     },
-//       //   },
-//       // },
+      // // { $unwind: "$array" },
+      // // {
+      // //   $replaceRoot: { newRoot: "$array" },
+      // // },
+      // {
+      //   $group: {
+      //     _id: null,
+      //     labels: { $push: "$data.month" },
+      //     // target: { $push: "$value.target" },
+      //     // sections: {
+      //     //   $push: "$value.data.sectionRef",
+      //     // },
+      //     sections: {
+      //       $push: "$data.bdTimeSum",
+      //     },
+      //   },
+      // },
    
-//     ]);
+    ]);
 
-//     return res.status(200).json({
-//       message: "PlantWise Monthly BD trend data for Section get successfully",
+    return res.status(200).json({
+      message: "PlantWise Monthly BD trend data for Section get successfully",
 
-//       monthlyBDTrendSection: monthlyBDTrendSection,
-//     });
-//   }
-// );
-
-
+      monthlyBDTrendSection: monthlyBDTrendSection,
+    });
+  }
+);
 
 router.get(
   "/hourlyMonthlyBdTrendForSection/:sectionId",
@@ -5396,123 +5306,121 @@ router.get(
   }
 );
 
-// router.get(
-//   "/cellMonthlyBdTrendForSection/:sectionId",
+router.get(
+  "/cellMonthlyBdTrendForSection/:sectionId",
 
-//   // BdTrendFilterMiddleware,
-//   async (req, res, next) => {
-//     let queryObj = {};
-//     let dateObj = {
-//       $dateToString: {
-//         format: "%m",
-//         date: "$sheetIssuedDateAndTimeOfBM",
-//         timezone: timezone,
-//       },
-//     };
+  // BdTrendFilterMiddleware,
+  async (req, res, next) => {
+    let queryObj = {};
+    let dateObj = {
+      $dateToString: {
+        format: "%m",
+        date: "$sheetIssuedDateAndTimeOfBM",
+        timezone: timezone,
+      },
+    };
 
-//     queryObj = {
-//       sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
-//       // sheetIssuedDateAndTimeOfBM: {
-//       //   $gte: startDate.toDate(),
-//       //   $lte: endDate.toDate(),
-//       // },
-//     };
+    queryObj = {
+      sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
+      // sheetIssuedDateAndTimeOfBM: {
+      //   $gte: startDate.toDate(),
+      //   $lte: endDate.toDate(),
+      // },
+    };
 
-//     const monthlyBDTrendCell = await RequestSheetOfBM.aggregate([
-//       {
-//         $match: queryObj,
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             date: dateObj,
-//             cellRef: "$cellRef",
-//           },
-//           bdTimeSum: { $sum: "$bdTime" },
-//         },
-//       },
+    const monthlyBDTrendCell = await RequestSheetOfBM.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cellRef",
+          foreignField: "_id",
+          as: "cell_data",
+        },
+      },
 
-//       {
-//         $group: {
-//           _id: "$_id.date",
-//           cellWiseTotal: {
-//             $push: {
-//               cellRef: "$_id.cellRef",
-//               bdTimeSum: "$bdTimeSum",
-//             },
-//           },
-//         },
-//       },
+      {
+        $unwind: "$cell_data",
+      },
+      {
+        $group: {
+          _id: {
+            date: dateObj,
+            cellRef: "$cell_data.cell_name",
+          },
+          bdTimeSum: { $sum: "$bdTime" },
+        },
+      },
 
-//       {
-//         $group: {
-//           _id: null,
-//           array: { $push: "$$ROOT" },
-//         },
-//       },
+      {
+        $group: {
+          _id: "$_id.cellRef",
+          cellWiseTotal: {
+            $push: {
+              month: "$_id.date",
+              bdTimeSum: "$bdTimeSum",
+            },
+          },
+        },
+      },
 
-//       // {
-//       //   $project: {
-//       //     _id: 0,
-//       //     array: {
-//       //       $map: {
-//       //         input: allMonths,
-//       //         as: "month",
-//       //         in: {
-//       //           $cond: [
-//       //             { $in: ["$$month.monthInDecimal", "$array._id"] },
-//       //             {
-//       //               month: "$$month.monthName",
-//       //               value: {
-//       //                 $arrayElemAt: [
-//       //                   "$array",
-//       //                   {
-//       //                     $indexOfArray: [
-//       //                       "$array._id",
-//       //                       "$$month.monthInDecimal",
-//       //                     ],
-//       //                   },
-//       //                 ],
-//       //               },
-//       //             },
-//       //             {
-//       //               month: "$$month.monthName",
-//       //               value: {
-//       //                 _id: "$$month.monthInDecimal",
-//       //                 cellWiseTotal: 0,
-//       //               },
-//       //             },
-//       //           ],
-//       //         },
-//       //       },
-//       //     },
-//       //   },
-//       // },
-//       // { $unwind: "$array" },
-//       // {
-//       //   $replaceRoot: { newRoot: "$array" },
-//       // },
-//       // {
-//       //   $group: {
-//       //     _id: null,
-//       //     labels: { $push: "$month" },
-//       //     // target: { $push: "$value.target" },
-//       //     cells: {
-//       //       $push: "$value.cellWiseTotal",
-//       //     },
-//       //   },
-//       // },
-//     ]);
+      {
+        $project: {
+          // _id: 0,
+          array: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  { $in: ["$$month.monthInDecimal", "$cellWiseTotal.month"] },
+                  {
+                    $arrayElemAt: [
+                      "$cellWiseTotal.bdTimeSum",
+                      {
+                        $indexOfArray: [
+                          "$cellWiseTotal.month",
+                          "$$month.monthInDecimal",
+                        ],
+                      },
+                    ],
+                  },
+                 0
+                ],
+              },
+            },
+          },
+        },
+      },
+      // { $unwind: "$array" },
+      // {
+      //   $replaceRoot: { newRoot: "$array" },
+      // },
+      // {
+      //   $group: {
+      //     _id: null,
+      //     labels: { $push: "$month" },
+      //     // target: { $push: "$value.target" },
+      //     cells: {
+      //       $push: "$value.cellWiseTotal",
+      //     },
+      //   },
+      // },
+    ]);
 
-//     return res.status(200).json({
-//       message: "Section Wise Monthly BD trend data for cell get successfully",
+    return res.status(200).json({
+      message: "Section Wise Monthly BD trend data for cell get successfully",
 
-//       monthlyBDTrendCell: monthlyBDTrendCell?.[0],
-//     });
-//   }
-// );
+      monthlyBDTrendCell: monthlyBDTrendCell?.[0],
+    });
+  }
+);
 
 // ---------------- Yearly BD Trend Chart -------------------
+
+
 
 router.get(
   "/hourlyYearlyBdTrendForPlant/:plantId",
@@ -5673,146 +5581,193 @@ router.get(
   }
 );
 
-// router.get(
-//   "/sectionYearlyBdTrendForPlant/:plantId",
-//   // BdTrendFilterMiddleware,
-//   async (req, res, next) => {
-//     let queryObj = {};
-//     let queryObj2 = {};
-//     let dateObj = {
-//       $dateToString: {
-//         format: "%Y",
-//         date: "$sheetIssuedDateAndTimeOfBM",
-//         timezone: timezone,
-//       },
-//     };
+router.get(
+  "/sectionYearlyBdTrendForPlant/:plantId",
+  // BdTrendFilterMiddleware,
+  async (req, res, next) => {
+    let queryObj = {};
+    let queryObj2 = {};
+    let dateObj = {
+      $dateToString: {
+        format: "%Y",
+        date: "$sheetIssuedDateAndTimeOfBM",
+        timezone: timezone,
+      },
+    };
 
-//     queryObj = {
-//       plantRef: mongoose.Types.ObjectId(req.params.plantId),
+    queryObj = {
+      plantRef: mongoose.Types.ObjectId(req.params.plantId),
 
-//       sheetIssuedDateAndTimeOfBM: {
-//         $gte: moment().startOf("year").toDate(),
-//         $lt: moment().startOf("year").add(1, "year").toDate(),
-//       },
-//     };
-//     queryObj2 = {
-//       plantRef: mongoose.Types.ObjectId(req.params.plantId),
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: moment().startOf("year").toDate(),
+        $lt: moment().startOf("year").add(1, "year").toDate(),
+      },
+    };
+    queryObj2 = {
+      plantRef: mongoose.Types.ObjectId(req.params.plantId),
 
-//       sheetIssuedDateAndTimeOfBM: {
-//         $gte: moment().subtract(1, "year").startOf("year").toDate(),
-//         $lt: moment().subtract(1, "year").endOf("year").toDate(),
-//       },
-//     };
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: moment().subtract(1, "year").startOf("year").toDate(),
+        $lt: moment().subtract(1, "year").endOf("year").toDate(),
+      },
+    };
 
-//     const yearlyBDTrendSection = await RequestSheetOfBM.aggregate([
-//       {
-//         $facet: {
-//           currentYear: [
-//             {
-//               $match: queryObj,
-//             },
-//             {
-//               $group: {
-//                 _id: {
-//                   date: dateObj,
-//                   sectionRef: "$sectionRef",
-//                 },
-//                 bdTimeSum: { $sum: "$bdTime" },
-//               },
-//             },
+    const yearlyBDTrendSection = await RequestSheetOfBM.aggregate([
+      {
+        $facet: {
+          currentYear: [
+            {
+              $match: queryObj,
+            },
 
-//             {
-//               $group: {
-//                 _id: "$_id.date",
-//                 sectionWiseTotal: {
-//                   $push: {
-//                     sectionRef: "$_id.sectionRef",
-//                     bdTimeSum: "$bdTimeSum",
-//                   },
-//                 },
-//               },
-//             },
+            {
+              $lookup: {
+                from: "sections",
+                localField: "sectionRef",
+                foreignField: "_id",
+                as: "section_data",
+              },
+            },
+      
+            {
+              $unwind: "$section_data",
+            },
+            {
+              $group: {
+                _id: {
+                  date: dateObj,
+                  sectionRef: "$section_data.section_name",
+                },
+                bdTimeSum: { $sum: "$bdTime" },
+              },
+            },
 
-//             {
-//               $group: {
-//                 _id: null,
-//                 array: { $push: "$$ROOT" },
-//               },
-//             },
+            {
+              $group: {
+                _id: "$_id.sectionRef",
+                sectionWiseTotal: {
+                  $push: {
+                    year: "$_id.date",
+                    bdTimeSum: "$bdTimeSum",
+                  },
+                },
+              },
+            },
 
-//             { $unwind: "$array" },
-//             {
-//               $replaceRoot: { newRoot: "$array" },
-//             },
-//             {
-//               $group: {
-//                 _id: null,
-//                 labels: { $push: "$_id" },
-//                 // target: { $push: "$value.target" },
-//                 sections: {
-//                   $push: "$sectionWiseTotal",
-//                 },
-//               },
-//             },
-//           ],
-//           financialYear: [
-//             {
-//               $match: queryObj2,
-//             },
-//             {
-//               $group: {
-//                 _id: {
-//                   date: dateObj,
-//                   sectionRef: "$sectionRef",
-//                 },
-//                 bdTimeSum: { $sum: "$bdTime" },
-//               },
-//             },
 
-//             {
-//               $group: {
-//                 _id: "$_id.date",
-//                 sectionWiseTotal: {
-//                   $push: {
-//                     sectionRef: "$_id.sectionRef",
-//                     bdTimeSum: "$bdTimeSum",
-//                   },
-//                 },
-//               },
-//             },
+            
+      // {
+      //   $project: {
+      //     // _id: 0,
+      //     array: {
+      //       $map: {
+      //         input: allMonths,
+      //         as: "month",
+      //         in: {
+      //           $cond: [
+      //             { $in: ["$$month.monthInDecimal", "$sectionWiseTotal.year"] },
+      //             {
+      //               $arrayElemAt: [
+      //                 "$sectionWiseTotal.bdTimeSum",
+      //                 {
+      //                   $indexOfArray: [
+      //                     "$sectionWiseTotal.year",
+      //                     "$$month.monthInDecimal",
+      //                   ],
+      //                 },
+      //               ],
+      //             },
+      //            0
+      //           ],
+      //         },
+      //       },
+      //     },
+      //   },
+      // },
 
-//             {
-//               $group: {
-//                 _id: null,
-//                 array: { $push: "$$ROOT" },
-//               },
-//             },
+            // {
+            //   $group: {
+            //     _id: null,
+            //     array: { $push: "$$ROOT" },
+            //   },
+            // },
 
-//             { $unwind: "$array" },
-//             {
-//               $replaceRoot: { newRoot: "$array" },
-//             },
-//             {
-//               $group: {
-//                 _id: null,
-//                 labels: { $push: "$_id" },
-//                 // target: { $push: "$value.target" },
-//                 sections: {
-//                   $push: "$sectionWiseTotal",
-//                 },
-//               },
-//             },
-//           ],
-//         },
-//       },
-//     ]);
-//     return res.status(200).json({
-//       message: "Plant Wise Yearly BD trend data get successfully",
+            { $unwind: "$sectionWiseTotal" },
+            // {
+            //   $replaceRoot: { newRoot: "$array" },
+            // },
+            {
+              $group: {
+                _id: null,
+                labels: { $push: "$_id" },
+                // target: { $push: "$value.target" },
+                data: {
+                  $push: "$sectionWiseTotal.bdTimeSum",
+                },
+              },
+            },
+          ],
+          financialYear: [
+            {
+              $match: queryObj2,
+            },
+            {
+              $lookup: {
+                from: "sections",
+                localField: "sectionRef",
+                foreignField: "_id",
+                as: "section_data",
+              },
+            },
+      
+            {
+              $unwind: "$section_data",
+            },
+            {
+              $group: {
+                _id: {
+                  date: dateObj,
+                  sectionRef: "$section_data.section_name",
+                },
+                bdTimeSum: { $sum: "$bdTime" },
+              },
+            },
 
-//       yearlyBDTrendSection: yearlyBDTrendSection?.[0],
-//     });
-//   }
-// );
+            
+            {
+              $group: {
+                _id: "$_id.sectionRef",
+                sectionWiseTotal: {
+                  $push: {
+                    year: "$_id.date",
+                    bdTimeSum: "$bdTimeSum",
+                  },
+                },
+              },
+            },
+            { $unwind: "$sectionWiseTotal" },
+           
+            {
+              $group: {
+                _id: null,
+                labels: { $push: "$_id" },
+                // target: { $push: "$value.target" },
+                data: {
+                  $push: "$sectionWiseTotal.bdTimeSum",
+                },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+    return res.status(200).json({
+      message: "Plant Wise Yearly BD trend data get successfully",
+
+      yearlyBDTrendSection: yearlyBDTrendSection?.[0],
+    });
+  }
+);
 
 router.get(
   "/hourlyYearlyBdTrendForSection/:sectionId",
@@ -5973,147 +5928,151 @@ router.get(
   }
 );
 
-// router.get(
-//   "/cellYearlyBdTrendForSection/:sectionId",
-//   // BdTrendFilterMiddleware,
-//   async (req, res, next) => {
-//     let queryObj = {};
-//     let queryObj2 = {};
-//     let dateObj = {
-//       $dateToString: {
-//         format: "%Y",
-//         date: "$sheetIssuedDateAndTimeOfBM",
-//         timezone: timezone,
-//       },
-//     };
+router.get(
+  "/cellYearlyBdTrendForSection/:sectionId",
+  // BdTrendFilterMiddleware,
+  async (req, res, next) => {
+    let queryObj = {};
+    let queryObj2 = {};
+    let dateObj = {
+      $dateToString: {
+        format: "%Y",
+        date: "$sheetIssuedDateAndTimeOfBM",
+        timezone: timezone,
+      },
+    };
 
-//     queryObj = {
-//       sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
-//       sheetIssuedDateAndTimeOfBM: {
-//         $gte: moment().startOf("year").toDate(),
-//         $lt: moment().startOf("year").add(1, "year").toDate(),
-//       },
-//     };
+    queryObj = {
+      sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: moment().startOf("year").toDate(),
+        $lt: moment().startOf("year").add(1, "year").toDate(),
+      },
+    };
 
-//     queryObj2 = {
-//       sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
+    queryObj2 = {
+      sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
 
-//       sheetIssuedDateAndTimeOfBM: {
-//         $gte: moment().subtract(1, "year").startOf("year").toDate(),
-//         $lt: moment().subtract(1, "year").endOf("year").toDate(),
-//       },
-//     };
+      sheetIssuedDateAndTimeOfBM: {
+        $gte: moment().subtract(1, "year").startOf("year").toDate(),
+        $lt: moment().subtract(1, "year").endOf("year").toDate(),
+      },
+    };
 
-//     const yearlyBDTrendCell = await RequestSheetOfBM.aggregate([
-//       {
-//         $facet: {
-//           currentYear: [
-//             {
-//               $match: queryObj,
-//             },
-//             {
-//               $group: {
-//                 _id: {
-//                   date: dateObj,
-//                   cellRef: "$cellRef",
-//                 },
-//                 bdTimeSum: { $sum: "$bdTime" },
-//               },
-//             },
+    const yearlyBDTrendCell = await RequestSheetOfBM.aggregate([
+      {
+        $facet: {
+          currentYear: [
+            {
+              $match: queryObj,
+            },
+            {
+              $lookup: {
+                from: "cells",
+                localField: "cellRef",
+                foreignField: "_id",
+                as: "cell_data",
+              },
+            },
+      
+            {
+              $unwind: "$cell_data",
+            },
+            {
+              $group: {
+                _id: {
+                  date: dateObj,
+                  cellRef: "$cell_data.cell_name",
+                },
+                bdTimeSum: { $sum: "$bdTime" },
+              },
+            },
 
-//             {
-//               $group: {
-//                 _id: "$_id.date",
-//                 cellWiseTotal: {
-//                   $push: {
-//                     cellRef: "$_id.cellRef",
-//                     bdTimeSum: "$bdTimeSum",
-//                   },
-//                 },
-//               },
-//             },
+            {
+              $group: {
+                _id: "$_id.cellRef",
+                cellWiseTotal: {
+                  $push: {
+                    month: "$_id.date",
+                    bdTimeSum: "$bdTimeSum",
+                  },
+                },
+              },
+            },
+            { $unwind: "$cellWiseTotal" },
+            
+            {
+              $group: {
+                _id: null,
+                labels: { $push: "$_id" },
+                // target: { $push: "$value.target" },
+                cells: {
+                  $push: "$cellWiseTotal.bdTimeSum",
+                },
+              },
+            },
+          ],
 
-//             {
-//               $group: {
-//                 _id: null,
-//                 array: { $push: "$$ROOT" },
-//               },
-//             },
+          financialYear: [
+            {
+              $match: queryObj2,
+            },
+            {
+              $lookup: {
+                from: "cells",
+                localField: "cellRef",
+                foreignField: "_id",
+                as: "cell_data",
+              },
+            },
+      
+            {
+              $unwind: "$cell_data",
+            },
+            {
+              $group: {
+                _id: {
+                  date: dateObj,
+                  cellRef: "$cell_data.cell_name",
+                },
+                bdTimeSum: { $sum: "$bdTime" },
+              },
+            },
 
-//             { $unwind: "$array" },
-//             {
-//               $replaceRoot: { newRoot: "$array" },
-//             },
-//             {
-//               $group: {
-//                 _id: null,
-//                 labels: { $push: "$_id" },
-//                 // target: { $push: "$value.target" },
-//                 cells: {
-//                   $push: "$cellWiseTotal",
-//                 },
-//               },
-//             },
-//           ],
+            {
+              $group: {
+                _id: "$_id.cellRef",
+                cellWiseTotal: {
+                  $push: {
+                    year: "$_id.date",
+                    bdTimeSum: "$bdTimeSum",
+                  },
+                },
+              },
+            },
+            { $unwind: "$sectionWiseTotal" },
+            
+            {
+              $group: {
+                _id: null,
+                labels: { $push: "$_id" },
+                // target: { $push: "$value.target" },
+                cells: {
+                  $push: "$cellWiseTotal.bdTimeSum",
+                },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+    return res.status(200).json({
+      message: "Section Wise Yearly BD trend data get successfully",
 
-//           financialYear: [
-//             {
-//               $match: queryObj2,
-//             },
-//             {
-//               $group: {
-//                 _id: {
-//                   date: dateObj,
-//                   cellRef: "$cellRef",
-//                 },
-//                 bdTimeSum: { $sum: "$bdTime" },
-//               },
-//             },
-
-//             {
-//               $group: {
-//                 _id: "$_id.date",
-//                 cellWiseTotal: {
-//                   $push: {
-//                     cellRef: "$_id.cellRef",
-//                     bdTimeSum: "$bdTimeSum",
-//                   },
-//                 },
-//               },
-//             },
-
-//             {
-//               $group: {
-//                 _id: null,
-//                 array: { $push: "$$ROOT" },
-//               },
-//             },
-
-//             { $unwind: "$array" },
-//             {
-//               $replaceRoot: { newRoot: "$array" },
-//             },
-//             {
-//               $group: {
-//                 _id: null,
-//                 labels: { $push: "$_id" },
-//                 // target: { $push: "$value.target" },
-//                 cells: {
-//                   $push: "$cellWiseTotal",
-//                 },
-//               },
-//             },
-//           ],
-//         },
-//       },
-//     ]);
-//     return res.status(200).json({
-//       message: "Section Wise Yearly BD trend data get successfully",
-
-//       yearlyBDTrendCell: yearlyBDTrendCell?.[0],
-//     });
-//   }
-// );
+      yearlyBDTrendCell: yearlyBDTrendCell?.[0],
+    });
+  }
+);
 
 
 
@@ -6319,6 +6278,7 @@ router.get(
 // );
 
 // ---------------- LineWise BD Contribution Charts -------------------
+
 
 router.get(
   "/monthlyLineWiseBdContributionForPlant/:plantId",
