@@ -15,13 +15,24 @@ import BMSidebar from "./BMSidebar/BMSidebar";
 import RequestSheet from "./Tabs/RequestSheet/MainRequestSheet";
 import RequestSheetMainDashboard from "./RequestSheet/RequestSheetMainDashboard";
 import GenerateRequestSheetMainDashboard from "./RequestSheet/GenerateRequestSheetMainDashboard";
+import BMTabDashboard from "./Tabs/BMTabDashboard";
 import RequestSheetMonitoring from "./RequestSheetMonitoring/RequestSheetMonitoring";
+import RequestSheetUpdate from "./Tabs/RequestSheetForUpdate/MainRequestSheetForUpdate";
 import ProductionLineWiseReport from "./Reports/ProductionLineWiseReport/ProductionLineWiseReport";
 
 import MainCustomized from "./Customized/MainCustomized";
 import ManHourDashboard from "./Reports/ManHourReport/ManHourDashboard";
 import MonthlyBDTDashboard from "./Reports/MonthlyBDTrend/MonthlyBDDashboard";
 import DailyBTDashboard from "./Reports/DailyBreakdownTrend/DailyBDDashboard";
+import MTTRReportDashboard from "./Reports/MTTRReport/MTTRReportDashboard";
+import MTBFReportDashboard from "./Reports/MTBFReport/MTBFReportDashboard";
+import MTTRDashboard from "./Reports/MTTRReport/MTTRDashboard";
+import MTBFDashboard from "./Reports/MTBFReport/MTBFDashboard";
+
+import ApprovalDashboardOfRequestSheet from "./ApprovalDashboards/ApprovalDashboardOfRequestSheet";
+import LineContributionBD from "./Reports/LineContributionBreakdown/LineContributionMain";
+import TMMTR from "./Reports/TMMTTRSkill/TMMTRDashboard"
+
 // Define an array of routes for each user type
 const userRoutes = [
   {
@@ -40,7 +51,7 @@ const userRoutes = [
         element: <GenerateRequestSheetMainDashboard />,
       },
       {
-        path: "/bm/check-sheet/:generateType/:machine_code",
+        path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
       },
     ],
@@ -50,7 +61,7 @@ const userRoutes = [
     routes: [
       { path: "/bm", element: <OperatorDashboard /> },
       { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
-      { path: "/bm/check-sheet", element: <RequestSheet /> },
+      { path: "/bm/request-sheet", element: <RequestSheet /> },
       {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,
@@ -60,12 +71,14 @@ const userRoutes = [
         element: <GenerateRequestSheetMainDashboard />,
       },
       {
-        path: "/bm/check-sheet/:generateType/:machine_code",
+        path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
       },
       { path: "/bm/customizedDashboard", element: <MainCustomized /> },
 
       { path: "/bm/profile", element: <Profile /> },
+
+      { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
     ],
   },
   {
@@ -82,9 +95,10 @@ const userRoutes = [
         element: <GenerateRequestSheetMainDashboard />,
       },
       {
-        path: "/bm/check-sheet/:generateType/:machine_code",
+        path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
       },
+      { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
     ],
   },
   {
@@ -101,17 +115,20 @@ const userRoutes = [
         element: <GenerateRequestSheetMainDashboard />,
       },
       {
-        path: "/bm/check-sheet/:generateType/:machine_code",
+        path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
+      },
+      {
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
+        element: <RequestSheetUpdate />,
       },
     ],
   },
   {
     user_type: "TL/HOSS",
     routes: [
-      { path: "/bm", element: <h1>Home Dashboard</h1> },
+      { path: "/bm", element: <h1><BMTabDashboard/></h1> },
       { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
-      { path: "/bm/profile", element: <Profile /> },
       { path: "/bm/userAssign", element: <h1>Users</h1> },
       { path: "/bm/customizedDashboard", element: <MainCustomized /> },
       {
@@ -123,12 +140,16 @@ const userRoutes = [
         element: <GenerateRequestSheetMainDashboard />,
       },
       {
-        path: "/bm/check-sheet/:generateType/:machine_code",
+        path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
       },
       {
         path: "/bm/requestSheetMonitoring",
         element: <RequestSheetMonitoring />,
+      },
+      {
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
+        element: <RequestSheetUpdate />,
       },
       {
         path: "/bm/report/productionLineWiseReport",
@@ -143,6 +164,29 @@ const userRoutes = [
         path: "/bm/report/monthly-breakdown-trend",
         element: <MonthlyBDTDashboard />,
       },
+      {
+        path: "/bm/report/mttr-report",
+        element: <MTTRReportDashboard />,
+      },
+      {
+        path: "/bm/report/mtbf-report",
+        element: <MTBFReportDashboard />,
+        path: "/bm/report/line-contribution-breakdown-trend",
+        element: <LineContributionBD />,
+      },
+      {
+        path: "/bm/report/tm-mtr",
+        element: <TMMTR />,
+      },
+      {
+        path: "/bm/report/mttr",
+        element: <MTTRDashboard />,
+      },
+      {
+        path: "/bm/report/mtbf",
+        element: <MTBFDashboard />,
+      },
+      { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
     ],
   },
 ];

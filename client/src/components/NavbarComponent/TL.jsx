@@ -222,7 +222,7 @@ const TL = ({ userData, userDepartment }) => {
                   />
                 }
               >
-                <NavLink to="/pm/creationDashboard"></NavLink>
+                <NavLink to="/creationDashboard"></NavLink>
                 Creation Dashboard
               </MenuItem>
 
@@ -239,7 +239,7 @@ const TL = ({ userData, userDepartment }) => {
                   />
                 }
               >
-                <NavLink to="/pm/userAssign"></NavLink>
+                <NavLink to="/userAssign"></NavLink>
                 User Assign
               </MenuItem>
               <MenuItem
@@ -255,7 +255,7 @@ const TL = ({ userData, userDepartment }) => {
                   />
                 }
               >
-                <NavLink to="/pm/checkSheetDashboard"></NavLink>
+                <NavLink to="/checkSheetDashboard"></NavLink>
                 CheckSheet Dashboard
               </MenuItem>
             </SubMenu>
@@ -283,7 +283,7 @@ const TL = ({ userData, userDepartment }) => {
                 }
                 href="/preparationApproval"
               >
-                <NavLink to="/pm/preparationApproval"></NavLink>
+                <NavLink to="/preparationApproval"></NavLink>
                 Preparation Approval
               </MenuItem>
 
@@ -301,7 +301,7 @@ const TL = ({ userData, userDepartment }) => {
                 }
                 href="/implementationApproval"
               >
-                <NavLink to="/pm/implementationApproval"></NavLink>
+                <NavLink to="/implementationApproval"></NavLink>
                 Implementation Approval
               </MenuItem>
             </SubMenu>
@@ -343,7 +343,7 @@ const TL = ({ userData, userDepartment }) => {
                 }
                 href="/implementationApproval"
               >
-                <NavLink to="/pm/implementationApproval"></NavLink>
+                <NavLink to="/implementationApproval"></NavLink>
                 Implementation Approval
               </MenuItem>
             </SubMenu>
@@ -369,7 +369,7 @@ const TL = ({ userData, userDepartment }) => {
               }
               href="/pmSheetApproval"
             >
-              <NavLink to="/pm/pmSheetApproval"></NavLink>
+              <NavLink to="/pmSheetApproval"></NavLink>
               Preparation / Planning
             </MenuItem>
 
@@ -386,7 +386,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pm/pmSheetApprovalOfImplementationPhase"></NavLink>
+              <NavLink to="/pmSheetApprovalOfImplementationPhase"></NavLink>
               PM Plan vs Actual Approval
             </MenuItem>
           </SubMenu>
@@ -410,7 +410,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pm/logHistory"></NavLink>
+              <NavLink to="/logHistory"></NavLink>
               PM Log
             </MenuItem>
 
@@ -427,7 +427,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pm/pendingPMLogHistory"></NavLink>
+              <NavLink to="/pendingPMLogHistory"></NavLink>
               Pending PM Log History
             </MenuItem>
           </SubMenu>
@@ -450,7 +450,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pm/machineWisePmMonthlyReport"></NavLink>
+              <NavLink to="/machineWisePmMonthlyReport"></NavLink>
               Monthly Report (Machine)
             </MenuItem>
 
@@ -467,7 +467,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pm/lineWisePmMonthlyReport"></NavLink>
+              <NavLink to="/lineWisePmMonthlyReport"></NavLink>
               Monthly Report (Line)
             </MenuItem>
             <MenuItem
@@ -483,7 +483,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pm/annualPMSchedule"></NavLink>
+              <NavLink to="/annualPMSchedule"></NavLink>
               Annual PM Schedule
             </MenuItem>
             <MenuItem
@@ -499,7 +499,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pm/annualPmStatus"></NavLink>
+              <NavLink to="/annualPmStatus"></NavLink>
               Annual PM PM vs Actual
             </MenuItem>
             <MenuItem
@@ -515,7 +515,7 @@ const TL = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pm/pmTimeMonitoringReport"></NavLink>
+              <NavLink to="/pmTimeMonitoringReport"></NavLink>
               PM Time Monitoring
             </MenuItem>
           </SubMenu>
@@ -528,7 +528,7 @@ const TL = ({ userData, userDepartment }) => {
               data-placement="right"
               title="Back-end Data"
             >
-              <NavLink to="/pm/backupDataOfCheckSheet"></NavLink>
+              <NavLink to="/backupDataOfCheckSheet"></NavLink>
               Back-end Data
             </Menuitem>
           ) : (
@@ -542,7 +542,7 @@ const TL = ({ userData, userDepartment }) => {
             data-placement="right"
             title="Open Abnormality Tracking"
           >
-            <NavLink to="/pm/openAbnormalityTrack"></NavLink>
+            <NavLink to="/openAbnormalityTrack"></NavLink>
             Open Abnormality Tracking
           </Menuitem>
           {userDepartment === "MTD" ? (
@@ -553,7 +553,7 @@ const TL = ({ userData, userDepartment }) => {
               data-placement="right"
               title="Spare Entry"
             >
-              <NavLink to="/pm/operatorDataEntry"></NavLink>
+              <NavLink to="/operatorDataEntry"></NavLink>
               Spare Entry
             </Menuitem>
           ) : (
@@ -566,7 +566,7 @@ const TL = ({ userData, userDepartment }) => {
             data-placement="right"
             title="Spare Log"
           >
-            <NavLink to="/pm/sparePartUsageHistory"></NavLink>
+            <NavLink to="/sparePartUsageHistory"></NavLink>
             Spare Log
           </Menuitem>
           <Menuitem
@@ -576,7 +576,7 @@ const TL = ({ userData, userDepartment }) => {
             data-placement="right"
             title="Spare Report"
           >
-            <NavLink to="/pm/spareReportDashboard"></NavLink>
+            <NavLink to="/spareReportDashboard"></NavLink>
             Spare Report
           </Menuitem>
 
@@ -587,7 +587,7 @@ const TL = ({ userData, userDepartment }) => {
             data-placement="right"
             title="Spare Report"
           >
-            <NavLink to="/pm/generateRequestSheetMainDashboard"></NavLink>
+            <NavLink to="/generateRequestSheetMainDashboard"></NavLink>
             GenerateRequestSheetMainDashboard
           </Menuitem>
         </Menu>

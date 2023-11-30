@@ -10,9 +10,10 @@ import {
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
 import { Box, Typography } from "@mui/material";
-import { Row } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+
 
 ChartJS.register(
   CategoryScale,
@@ -31,20 +32,19 @@ export const options = {
   responsive: true,
   plugins: {
     legend: {
+      align: "end",
       labels: {
         usePointStyle: true,
       },
     },
     datalabels: {
-      formatter: (value, context) => {
-        return value > 30 ? value : "";
-      },
-      formatter: (value, context) => {
-        if (context.dataset.type === "bar") {
-          return value > 30 ? value : "";
-        }
-        return value;
-      },
+      formatter: (value, context) => value || "",
+      // formatter: (value, context) => {
+      //   if (context.dataset.type === "bar") {
+      //     return value > 30 ? value : "";
+      //   }
+      //   return value;
+      // },
       font: { weight: "bold", size: 8 },
       // color: (context) => context.dataset.type === "line" ? chartColors[3] : "gray",
       anchor: (context) => (context.dataset.type === "line" ? "end" : "center"),
@@ -68,13 +68,22 @@ export const options = {
         display: true,
         text: "Days",
       },
+      ticks: {
+        color: 'black'
+      },
     },
     y: {
       stacked: true,
       position: "left",
+      ticks: {
+        color: 'black'
+      },
     },
     y2: {
       position: "right",
+      ticks: {
+        color: 'black'
+      },
     },
   },
 };
@@ -85,74 +94,101 @@ const getRandomDataArray = (max = 30) => {
   return Array.from({ length: 30 }, () => Math.floor(Math.random() * max));
 };
 
-const dataset = [
-  {
-    type: "line",
-    label: "Total Count",
-    data: getRandomDataArray(30),
-    borderColor: chartColors[3],
-    borderWidth: 2,
-    fill: false,
-    yAxisID: "y2",
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "< 60",
-    data: getRandomDataArray(60),
-    yAxisID: "y",
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "< 120",
-    data: getRandomDataArray(120),
-    yAxisID: "y",
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "> 120",
-    data: getRandomDataArray(140),
-    yAxisID: "y",
-  },
-];
+const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
 
-export const data = {
-  labels: daysLabels,
-  datasets: dataset.map((dataset, i) => ({
-    ...dataset,
-    backgroundColor: chartColors[i - 1],
-  })),
-};
+  const [dailyBreakdownTrendData, setDailyBreakdownTrendData] = useState({
+    // labels: daysLabels,
 
-const DailyBDTrendChart = () => {
-  const [filteredData, setFilteredData] = useState(data);
+    // dayWiseCount: getRandomDataArray(30),
+    // lessThanOrEqualToOneHourData: getRandomDataArray(60),
+    // greaterThenOneAndLessThanOrEqualToTwoHourData: getRandomDataArray(120),
+    // greaterThenTwoHourData: getRandomDataArray(180),
 
-  const [filterOptions, setFilterOptions] = useState({
-    lessThan60: false,
-    lessThan120: false,
-    greaterThan120: false,
+    labels: [],
+
+    dayWiseCount: [],
+    lessThanOrEqualToOneHourData: [],
+    greaterThenOneAndLessThanOrEqualToTwoHourData: [],
+    greaterThenTwoHourData: [],
   });
 
-  const handleCheckboxChange = (option) => {
-    setFilterOptions((prevOptions) => ({
-      ...prevOptions,
-      [option]: !prevOptions[option],
-    }));
+  const getDailyBreakdownTrendData = async () => {
+    try {
+      const res = await fetch(
+        `/getDailyBreakdownTrendData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
+        // `/getMTTRGraphData/${flagForCellAndLineToggle}/${selectedValue}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, dailyBreakdownTrendData } = await res.json();
+
+      if (res?.status === 201) {
+        setDailyBreakdownTrendData(dailyBreakdownTrendData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  //   const filterData = () => {
-  //     // Implement filtering logic here based on checkbox states
-  //   };
+  useEffect(() => {
+    if (selectedValue) {
+      getDailyBreakdownTrendData();
+    }
+  }, [selectedValue]);
 
-  //   useEffect(() => {
-  //     filterData();
-  //   }, [filterOptions]);
+
+  const datasets = [
+    {
+      type: "line",
+      label: "Total Count",
+      data: dailyBreakdownTrendData?.dayWiseCount,
+      backgroundColor:'rgba(202, 31, 75)',
+      borderColor: chartColors[3],
+      borderWidth: 2,
+      fill: false,
+      yAxisID: "y2",
+    },
+    {
+      type: "bar",
+      stack: "bar-stacked",
+      label: "< 1",
+      data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
+      yAxisID: "y",
+      backgroundColor:chartColors.orange[2],
+    },
+    {
+      type: "bar",
+      stack: "bar-stacked",
+      label: "< 2",
+      data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
+      backgroundColor:chartColors.green[0],
+      yAxisID: "y",
+    },
+    {
+      type: "bar",
+      stack: "bar-stacked",
+      label: "> 2",
+      data: dailyBreakdownTrendData?.greaterThenTwoHourData,
+      backgroundColor:chartColors.aqua[1],
+      yAxisID: "y",
+    },
+  ];
+
+  const data = {
+    labels: dailyBreakdownTrendData?.labels,
+    datasets,
+  };
 
   return (
-    <Box className="p-3">
-      <Row style={{ marginBottom: "1rem" }}>
+    <Box className="cell p-3 mt-3">
+      <Row>
         <Typography
           className="col"
           variant="h5"
@@ -161,6 +197,9 @@ const DailyBDTrendChart = () => {
         >
           Daily Breakdown Trend
         </Typography>
+        {/* <Col className="col-auto d-flex">
+            <FilterMenu DropdownValue="hour" />
+          </Col> */}
       </Row>
 
       <div style={{ width: "100%", height: "300px" }}>

@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Chart } from "react-chartjs-2";
-import { Divider, Paper, Typography } from "@mui/material";
+import { Box, Divider, Paper, Typography } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { Col, Row } from "react-bootstrap";
 import { CountFilters } from "./DailyBDTrendChart";
+
 
 export const options = {
   plugins: {
@@ -43,9 +44,10 @@ export const options = {
         text: "Months",
       },
       ticks: {
-        maxRotation: 90,
-        minRotation: 90,
+        // maxRotation: 90,
+        // minRotation: 90,
         // padding: 10,
+        color:'black',
       },
     },
     y: {
@@ -54,6 +56,9 @@ export const options = {
         display: true,
         text: "Total Hours",
       },
+      ticks: {
+        color: 'black',
+    },
     },
     y1: {
       position: "right", // Align the y-axis to the right
@@ -61,6 +66,9 @@ export const options = {
         display: true,
         text: "Cummulative Avg Hrs",
       },
+      ticks: {
+        color: 'black',
+    },
     },
   },
 };
@@ -86,10 +94,11 @@ export const initialData = {
     {
       type: "line",
       label: "Average",
-      data: [12, 24, 15, 5, 23, 18, 30, 10, 8, 25, 20, 15],
-      borderColor: chartColors.palettes.palette3[0],
+      data: [12, 18, 15, 5, 23, 18, 20, 10, 8, 16, 20, 15],
+      borderColor: chartColors.blue[1],
       borderWidth: 2,
-      fill: false,
+      backgroundColor: chartColors.blue[1],
+      pointStyle: 'rectRot',
       yAxisID: "y1",
     },
     {
@@ -97,49 +106,63 @@ export const initialData = {
       stack: "bar-stacked",
       label: "FP",
       data: [3, 15, 10, 8, 12, 18, 20, 25, 30, 5, 15, 10],
-      backgroundColor: chartColors[0],
+      backgroundColor: chartColors.yellow[1],
+      borderColor: chartColors.yellow[1],
+      pointStyle:'rect',
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: "INJ",
       data: [20, 8, 15, 10, 5, 18, 12, 25, 30, 3, 10, 15],
-      backgroundColor: chartColors[1],
+      backgroundColor: chartColors.aqua[3],
+      borderColor: chartColors.aqua[3],
+      pointStyle:'rect',
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: "VCT",
       data: [10, 15, 20, 8, 5, 25, 18, 30, 12, 3, 15, 10],
-      backgroundColor: chartColors[2],
+      backgroundColor: chartColors.purple[4],
+      borderColor: chartColors.purple[4],
+      pointStyle:'rect',
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: "O2",
       data: [15, 10, 8, 20, 18, 5, 12, 25, 30, 3, 15, 10],
-      backgroundColor: chartColors[3],
+      backgroundColor: chartColors.green[3],
+      borderColor: chartColors.green[3],
+      pointStyle:'rect',
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: "ETB",
       data: [8, 15, 10, 5, 18, 20, 25, 30, 12, 3, 15, 10],
-      backgroundColor: chartColors[4],
+      backgroundColor: chartColors.magenta[2],
+      borderColor: chartColors.magenta[2],
+      pointStyle:'rect',
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: "VCT PARTS",
       data: [10, 5, 20, 8, 12, 15, 18, 30, 3, 25, 15, 10],
-      backgroundColor: chartColors[5],
+      backgroundColor: chartColors.blue[3],
+      borderColor: chartColors.blue[3],
+      pointStyle:'rect',
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: "FP PARTS",
       data: [5, 15, 10, 8, 12, 18, 20, 25, 30, 3, 15, 10],
-      backgroundColor: chartColors[7],
+      backgroundColor: chartColors.brown[1],
+      borderColor: chartColors.brown[1],
+      pointStyle:'rect',
     },
   ],
 };
@@ -161,7 +184,7 @@ const MTTRChart = () => {
   };
 
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
+    <Box className="cell p-3 mb-3">
       <Row style={{ marginBottom: "1rem" }}>
         <Typography
           className="col"
@@ -171,10 +194,11 @@ const MTTRChart = () => {
         >
           Mean Time to Repair (MTTR)
         </Typography>
+        
       </Row>
 
       <Chart data={data} options={options} />
-    </Paper>
+    </Box>
   );
 };
 
