@@ -4673,7 +4673,7 @@ router.get(
         },
       },
     ]);
-    return res.status(400).json({
+    return res.status(200).json({
       message: "Categories data in PieChart get successfully",
 
       problemCategoriesPieChart: problemCategoriesPieChart?.[0],

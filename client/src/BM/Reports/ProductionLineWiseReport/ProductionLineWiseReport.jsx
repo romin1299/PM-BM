@@ -6,8 +6,11 @@ import DailyBDTrendChart from "../DailyBreakdownTrend/DailyBDTrendChart";
 import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
 import BDHoursVsCountComponent from "./BDHoursVsCountComponent";
 import MTTRComponent from "./MTTRComponent";
-import MTBFComponent from "./MTBFComponent";
+import MTBFComponent from "./MTBFComponent.jsx";
 import BDhours from "./BDhours";
+import { Box, Typography } from "@mui/material";
+import BDPercentageChart from "./BDPercentage.jsx";
+import CategoryPieCharts from "./CategoryPieCharts.jsx";
 
 const ProductionLineWiseReport = () => {
   const {
@@ -162,69 +165,92 @@ const ProductionLineWiseReport = () => {
 
   return (
     <Container fluid>
-      <form
-        onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedDate)}
-        className="pt-1 d-flex align-items-center justify-content-end"
-      >
+      <Box className="cell p-3 mt-3">
         <Row>
-          <Col>
-            <input
-              type="date"
-              {...register("selectedDate", {
-                required: "Please select date",
-              })}
-            />
-            {errors?.["selectedDate"] && (
-              <p className="text-error">{errors?.["selectedDate"]?.message}</p>
-            )}
+          <Col className="d-flex align-items-center">
+            <Typography variant="h4" component="h4">
+              Product/Line Wise KPI
+            </Typography>
           </Col>
-          <Col>
-            <button type="submit" className="btn bg-button ">
-              Go
-            </button>
+
+          <Col className="col-auto">
+            <form
+              onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedDate)}
+              className="pt-1 d-flex align-items-center justify-content-end"
+            >
+              <Row>
+                <Col>
+                  <input
+                    type="date"
+                    {...register("selectedDate", {
+                      required: "Please select date",
+                    })}
+                  />
+                  {errors?.["selectedDate"] && (
+                    <p className="text-error">
+                      {errors?.["selectedDate"]?.message}
+                    </p>
+                  )}
+                </Col>
+                <Col>
+                  <button type="submit" className="btn bg-button ">
+                    Go
+                  </button>
+                </Col>
+              </Row>
+            </form>
           </Col>
         </Row>
-      </form>
-      <Row>
-        <Col>
-          <DailyBDTrendChart
-            selectedValue={reduceState?.selectedValue}
-            flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
-          />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <BDRequestSheetTable
-            requestSheetData={reduceState?.requestSheetData}
-          />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <BDhours
-            selectedValue={reduceState?.selectedValue}
-            flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
-          />
-        </Col>
-        <Col>
-          <MTTRComponent
-            selectedValue={reduceState?.selectedValue}
-            flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
-          />
-        </Col>
-        <Col>
-          <MTBFComponent />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <BDHoursVsCountComponent
-            selectedValue={reduceState?.selectedValue}
-            flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
-          />
-        </Col>
-      </Row>
+
+        <DailyBDTrendChart
+          selectedValue={reduceState?.selectedValue}
+          flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+        />
+
+        <BDRequestSheetTable requestSheetData={reduceState?.requestSheetData} />
+
+        <Row className="mt-3 g-2">
+          <Col lg={3} md={6}>
+            <BDhours
+              selectedValue={reduceState?.selectedValue}
+              flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+            />
+          </Col>
+          <Col lg={3} md={6}>
+            <MTTRComponent
+              selectedValue={reduceState?.selectedValue}
+              flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+            />
+          </Col>
+          <Col lg={3} md={6}>
+            <MTBFComponent
+              selectedValue={reduceState?.selectedValue}
+              flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+            />
+          </Col>
+          <Col lg={3} md={6}>
+            <BDPercentageChart
+              selectedValue={reduceState?.selectedValue}
+              flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+            />
+          </Col>
+        </Row>
+
+        <Row className="mt-1 g-2">
+          <Col lg={6}>
+            <BDHoursVsCountComponent
+              selectedValue={reduceState?.selectedValue}
+              flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+            />
+          </Col>
+          <Col lg={6}>
+            <CategoryPieCharts
+              selectedValue={reduceState?.selectedValue}
+              flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+            />
+          </Col>
+        </Row>
+      </Box>
     </Container>
   );
 };

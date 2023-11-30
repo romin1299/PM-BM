@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer } from "react";
-
+import { Box, Divider, Typography } from "@mui/material";
 import { Container, Row, Col } from "reactstrap";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
 
@@ -74,15 +74,15 @@ const BDhours = ({ selectedValue, flagForCellAndLineToggle }) => {
   }, [selectedValue]);
 
   return (
-    <Container>
+    <Box className="cell p-3">
       <Row>
-        <Col>
-          <LineBarChartForProductionLineWise
-            ReportData={reduceState?.BDHours}
-          />
-        </Col>
+        <Typography className="col" variant="h6" component="h6">
+          BD Hours
+        </Typography>
       </Row>
-    </Container>
+      <Divider sx={{ mb: 1, borderColor: "black" }} />
+      <LineBarChartForProductionLineWise ReportData={reduceState?.BDHours} />
+    </Box>
   );
 };
 

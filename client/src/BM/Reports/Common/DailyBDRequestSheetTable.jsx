@@ -107,7 +107,7 @@ const BDRequestSheetTable = ({ requestSheetData }) => {
           draggable: false,
           actionsColumnIndex: -1,
           pageSize: 10,
-          pageSizeOptions: false,
+          // pageSizeOptions: false,  //commented because showing warning in console: invalid prop
           paginationType: "stepped",
           addRowPosition: "first",
           headerStyle: {
