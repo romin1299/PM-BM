@@ -1295,6 +1295,8 @@ const middlewareForGettingAllDropdownList = async (req, res, next) => {
       const subSectionsData = await SubSection.find({
         section_names: section?._id,
       });
+
+      // console.log(subSectionsData)
       const cellData = await Cell.find({
         subSection_names: { $in: subSectionsData },
       }).sort({ cell_sequence: 1 });
@@ -4916,8 +4918,10 @@ router.get(
           labels: { $push: "$month" },
 
           data: {
-            $push: "$value.hours",
+            $push: { $trunc: ["$value.hours",1] },
           },
+
+         
         },
       },
     ]);
@@ -4929,6 +4933,41 @@ router.get(
     });
   }
 );
+
+
+
+// router.get("/getSectionsDropdown", async (req, res, next) => {
+//   try {
+//     const section = await Section.findOne({
+//       section_id: req?.rootUser?.section_data?.split("-")?.[0],
+//     });
+
+//     req.section = section;
+
+//     let subSectionsData;
+
+//     if (section.dashboardLevel === "No") {
+//       subSectionsData = await SubSection.find({
+//         subSection_id: {
+//           $in: req.rootUser?.subSection_data?.map(
+//             (item) => item?.split("-")?.[0]
+//           ),
+//         },
+//       });
+//     } else {
+//       subSectionsData = await SubSection.find({
+//         section_names: section?._id,
+//       });
+//     }
+
+//     return res.status(201).json({
+//       message: "Section dropdown value get successfully",
+//       subSectionsData,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: error?.message, error });
+//   }
+// });
 
 // ---------------- Monthly BD Trend Chart -------------------
 
