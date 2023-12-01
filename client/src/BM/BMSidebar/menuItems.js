@@ -65,6 +65,12 @@ export const menuItems = [
     allowedRoles: ["TL/HOSS", "Plant-Admin", "Operator"],
   },
   {
+    title: "Approval Dashboard",
+    icon: <FactCheckIcon className="text-white" />,
+    route: "/bm/approval",
+    allowedRoles: ["TL/HOSS", "Plant-Admin","Section-Admin", "Operator"],
+  },
+  {
     title: "Reports",
     icon: <AccessTimeFilledIcon className="text-white" />,
     allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],

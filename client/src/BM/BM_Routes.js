@@ -28,6 +28,8 @@ import MTTRReportDashboard from "./Reports/MTTRReport/MTTRReportDashboard";
 import MTBFReportDashboard from "./Reports/MTBFReport/MTBFReportDashboard";
 import MTTRDashboard from "./Reports/MTTRReport/MTTRDashboard";
 import MTBFDashboard from "./Reports/MTBFReport/MTBFDashboard";
+
+import ApprovalDashboardOfRequestSheet from "./ApprovalDashboards/ApprovalDashboardOfRequestSheet";
 import LineContributionBD from "./Reports/LineContributionBreakdown/LineContributionMain";
 import TMMTR from "./Reports/TMMTTRSkill/TMMTRDashboard";
 
@@ -76,6 +78,8 @@ const userRoutes = [
 
       { path: "/bm/profile", element: <Profile /> },
       { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
+
+      { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
     ],
   },
   {
@@ -96,6 +100,7 @@ const userRoutes = [
         element: <RequestSheet />,
       },
       { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
+      { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
     ],
   },
   {
@@ -192,6 +197,7 @@ const userRoutes = [
         path: "/bm/report/mtbf",
         element: <MTBFDashboard />,
       },
+      { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
     ],
   },
 ];

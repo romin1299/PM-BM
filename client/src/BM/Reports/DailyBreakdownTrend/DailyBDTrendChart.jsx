@@ -193,7 +193,7 @@ const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
           className="col"
           variant="h5"
           component="h5"
-          sx={{ fontWeight: "500" }}
+          sx={{ textDecoration: "underline" }}
         >
           Daily Breakdown Trend
         </Typography>

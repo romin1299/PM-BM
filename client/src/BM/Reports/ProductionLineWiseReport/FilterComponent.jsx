@@ -31,18 +31,20 @@ const FilterFormComponent = ({
         <Col>
           <form onSubmit={handleSubmit(handleSubmitHourFilter)}>
             <Row>
-              {FilterArray?.lessThanValue?.map((item) => (
-                <Col>
-                  <input
-                    type="checkbox"
-                    name="hoursFilter"
-                    value={item}
-                    {...register("hoursFilter")}
-                  />
-                  &nbsp;
-                  <label>{`<${item}`}</label> <br />
-                </Col>
-              ))}
+              {FilterArray?.lessThanValue?.map((item, index) => {
+                return (
+                  <Col key={index}>
+                    <input
+                      type="checkbox"
+                      name="hoursFilter"
+                      value={item}
+                      {...register("hoursFilter")}
+                    />
+                    &nbsp;
+                    <label>{`<${item}`}</label> <br />
+                  </Col>
+                );
+              })}
 
               <Col>
                 <input
@@ -55,7 +57,7 @@ const FilterFormComponent = ({
                 <label>{`${FilterArray?.greaterThan}+`}</label> <br />
               </Col>
               <Col>
-                <button type="submit" className="btn bg-button">
+                <button type="submit" className="btn bg-button btn-sm">
                   submit
                 </button>
               </Col>
@@ -103,7 +105,10 @@ const FilterComponent = ({ getBDhoursVsCountReportData }) => {
     <Container fluid>
       <Row>
         <Col>
-          <button className="btn bg-button" onClick={handleOpenOrCloseModal}>
+          <button
+            className="btn bg-button btn-sm"
+            onClick={handleOpenOrCloseModal}
+          >
             Add more options
           </button>
         </Col>

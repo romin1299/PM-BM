@@ -138,14 +138,14 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   //for MTD TL approval
   approvalOfMTD_TL: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "Users",
   },
   approvalStatusOfMTD_TL: {
-    type: String,
+    type: [String],
   },
   approvalDateAndTimeOfMTD_TL: {
-    type: Date, //If need String change it.
+    type: [Date], //If need String change it.
   },
 
   //for MTD TL approval for Log(History)
@@ -174,14 +174,14 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   //for MTD HOSS
   approvalOfMTD_HOSS: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "Users",
   },
   approvalStatusOfMTD_HOSS: {
-    type: String,
+    type: [String],
   },
   approvalDateAndTimeOfMTD_HOSS: {
-    type: Date, //If need String change it.
+    type: [Date], //If need String change it.
   },
 
   //for MTD HOSS for Log(History)
@@ -198,14 +198,14 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   //for section incharge MTD HOS approval
   approvalOfMTD_HOS: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "Users",
   },
   approvalStatusOfMTD_HOS: {
-    type: String,
+    type: [String],
   },
   approvalDateAndTimeOfMTD_HOS: {
-    type: Date, //If need String change it.
+    type: [Date], //If need String change it.
   },
 
   //for section incharge MTD HOS approval for Log(History)
@@ -222,14 +222,14 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   //for PRD TL approval
   approvalOfPRD_TL: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "Users",
   },
   approvalStatusOfPRD_TL: {
-    type: String,
+    type: [String],
   },
   approvalDateAndTimeOfPRD_TL: {
-    type: Date, //If need String change it.
+    type: [Date], //If need String change it.
   },
 
   //for PRD TL approval for Log(History)
@@ -244,7 +244,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: [Date], //If need String change it.
   },
 
-  rejectedRemarks: {
+  rejectedRemarksOfRequestSheet: {
     type: [String],
   },
 
@@ -298,14 +298,14 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   //for section incharge PRD HOS approval
   approvalOfPRD_HOS: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "Users",
   },
   approvalStatusOfPRD_HOS: {
-    type: String,
+    type: [String],
   },
   approvalDateAndTimeOfPRD_HOS: {
-    type: Date, //If need String change it.
+    type: [Date], //If need String change it.
   },
 
   //for section incharge PRD HOS approval for Log(History)
@@ -322,14 +322,14 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   //for PRD HOD approval
   approvalOfPRD_HOD: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "Users",
   },
   approvalStatusOfPRD_HOD: {
-    type: String,
+    type: [String],
   },
   approvalDateAndTimeOfPRD_HOD: {
-    type: Date, //If need String change it.
+    type: [Date], //If need String change it.
   },
 
   //for PRD HOD approval for Log(History)
@@ -346,14 +346,14 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   //for MTD HOD approval
   approvalOfMTD_HOD: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "Users",
   },
   approvalStatusOfMTD_HOD: {
-    type: String,
+    type: [String],
   },
   approvalDateAndTimeOfMTD_HOD: {
-    type: Date, //If need String change it.
+    type: [Date], //If need String change it.
   },
 
   //for MTD HOD approval for Log(History)

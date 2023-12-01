@@ -14,8 +14,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
 
 import RoutingContext from "../../context/routing/RoutingContext";
-
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 const RequestSheetMainDashboard = () => {
   const navigate = useNavigate();
@@ -386,8 +386,9 @@ const RequestSheetMainDashboard = () => {
       tooltip: "Update Action",
       position: "row",
       disabled:
-        row?.work_order_status === "Pending" ||
-        row?.work_order_status === "Closed"
+        row?.assignUserId === context?._id &&
+        (row?.work_order_status === "Pending" ||
+          row?.work_order_status === "Closed")
           ? false
           : true,
       onClick: (event, selectedRow) => {
