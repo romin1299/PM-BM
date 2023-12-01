@@ -4,9 +4,9 @@ import { Container, Row, Col } from "reactstrap";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
 import { Box, Divider, Typography } from "@mui/material";
 
-const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
+const MTBFComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
   const initialState = {
-    MTTRReportData: {
+    MTBFReportData: {
       labels: [],
       data: [],
       target: [],
@@ -19,7 +19,7 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
   };
 
   const ACTION = {
-    GET: "get-MTTR-report-data",
+    GET: "get-MTBF-report-data",
   };
 
   const reducer = (state, action) => {
@@ -29,7 +29,7 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
           ...state,
           isLoading: false,
           message: action?.message,
-          MTTRReportData: action?.MTTRReportData,
+          MTBFReportData: action?.MTBFReportData,
         };
 
       default:
@@ -39,11 +39,10 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
-  const getMTTRReportData = async () => {
+  const getMTBFReportData = async () => {
     try {
       const res = await fetch(
-        `/getMTTRGraphData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
-        // `/getMTTRGraphData/${flagForCellAndLineToggle}/${selectedValue}`,
+        `/getMtbfData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
         {
           method: "GET",
           headers: {
@@ -54,13 +53,13 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
         }
       );
 
-      const { message, MTTRReportData } = await res.json();
+      const { message, getMtbf } = await res.json();
 
-      if (res?.status === 201) {
+      if (res?.status === 200) {
         reducerDispatch({
           type: ACTION.GET,
           message,
-          MTTRReportData,
+          MTBFReportData: getMtbf,
         });
       }
     } catch (error) {
@@ -70,7 +69,7 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
 
   useEffect(() => {
     if (selectedValue) {
-      getMTTRReportData();
+      getMTBFReportData();
     }
   }, [selectedValue]);
 
@@ -78,15 +77,16 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
     <Box className="cell p-3">
       <Row>
         <Typography className="col" variant="h6" component="h6">
-          MTTR
+          MTBF
         </Typography>
       </Row>
       <Divider sx={{ mb: 1, borderColor: "black" }} />
       <LineBarChartForProductionLineWise
-        ReportData={reduceState?.MTTRReportData}
+        MTBF={true}
+        ReportData={reduceState?.MTBFReportData}
       />
     </Box>
   );
 };
 
-export default MTTRComponent;
+export default MTBFComponent;

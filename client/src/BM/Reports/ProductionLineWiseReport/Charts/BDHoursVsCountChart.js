@@ -12,6 +12,7 @@ import {
   BarController,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
+import { Box } from "@mui/material";
 
 const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
   ChartJS.register(
@@ -93,7 +94,11 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
       })),
     ],
   };
-  return <Chart type="bar" data={data} options={options} />;
+  return (
+    <Box>
+      <Chart type="bar" data={data} options={options} />
+    </Box>
+  );
 };
 
 export default BDHoursVsCountChart;

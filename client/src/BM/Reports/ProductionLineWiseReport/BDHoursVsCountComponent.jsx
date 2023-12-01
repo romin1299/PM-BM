@@ -4,6 +4,7 @@ import { Container, Row, Col } from "reactstrap";
 
 import BDHoursVsCountChart from "./Charts/BDHoursVsCountChart";
 import FilterComponent from "./FilterComponent";
+import { Box, Divider, Typography } from "@mui/material";
 
 const BDHoursVsCountComponent = ({
   flagForCellAndLineToggle,
@@ -107,7 +108,7 @@ const BDHoursVsCountComponent = ({
     }
   };
 
-  console.log(reduceState);
+  // console.log(reduceState);
 
   useEffect(() => {
     if (selectedValue) {
@@ -119,25 +120,24 @@ const BDHoursVsCountComponent = ({
   }, [selectedValue]);
 
   return (
-    <Container fluid>
-      <Row>
-        <Col>
-          <FilterComponent
-            getBDhoursVsCountReportData={getBDhoursVsCountReportData}
-          />
-        </Col>
-      </Row>
-      <Row>
-        <Col lg={6}>
-          <BDHoursVsCountChart
-            totalBDCount={reduceState?.totalBDCount}
-            BDCount={reduceState?.BDCount}
-            BDhours={reduceState?.BDhours}
-            labels={reduceState?.labels}
-          />
-        </Col>
-      </Row>
-    </Container>
+    <Box className="cell p-3">
+      <Typography className="col" variant="h5" component="h5">
+        BD Hours Vs Count
+      </Typography>
+
+      <Divider sx={{ mb: 2, borderColor: "black" }} />
+
+      <FilterComponent
+        getBDhoursVsCountReportData={getBDhoursVsCountReportData}
+      />
+
+      <BDHoursVsCountChart
+        totalBDCount={reduceState?.totalBDCount}
+        BDCount={reduceState?.BDCount}
+        BDhours={reduceState?.BDhours}
+        labels={reduceState?.labels}
+      />
+    </Box>
   );
 };
 

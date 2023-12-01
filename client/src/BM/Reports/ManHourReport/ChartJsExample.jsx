@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -47,13 +47,13 @@ export const options = {
         text: "Months",
       },
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
     y: {
       stacked: true,
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
   },
@@ -78,12 +78,12 @@ const serverResDataset = [
   {
     label: "BM",
     data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-    pointStyle:'rect'
+    pointStyle: "rect",
   },
   {
     label: "PM",
     data: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
-    pointStyle:'rect'
+    pointStyle: "rect",
   },
 ];
 
@@ -107,24 +107,72 @@ const otherDataConfigs = [
 
 const colorPreset = [chartColors[1], chartColors[2]];
 
-export const data = {
-  labels: serverResLabels,
-  datasets: serverResDataset.map((dataset, i) => ({
-    ...dataset,
-    backgroundColor: i === 0 ? 'rgba(202, 31, 75)' : chartColors[i - 1],
+const ChartToPPTExample = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+}) => {
+  const [HourTrendData, setHourTrendData] = useState({
+    BMHourTrend: [],
+    PMHourTrend: [],
+  });
 
-  })),
-};
+  const getHourTrendData = async () => {
+    try {
+      const res = await fetch(
+        // `/manHourReport/hourTrend/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
+        `/manHourReport/hourTrend/${flagForTogglingFilter}/${selectedValue}/${selectedYear}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
 
-const ChartToPPTExample = () => {
+      const { message, hourTrendData } = await res.json();
+
+      if (res?.status === 201) {
+        setHourTrendData(hourTrendData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedValue && flagForTogglingFilter) {
+      getHourTrendData();
+    }
+  }, [selectedValue, selectedYear]);
+
+  const data = {
+    labels: serverResLabels,
+    datasets: [
+      {
+        backgroundColor: "rgba(202, 31, 75)",
+        label: "BM",
+        data: HourTrendData?.BMHourTrend,
+      },
+      {
+        backgroundColor: chartColors[0],
+        label: "PM",
+        data: HourTrendData?.PMHourTrend,
+      },
+    ],
+
+    // serverResDataset.map((dataset, i) => ({
+    //   ...dataset,
+    //   backgroundColor: i === 0 ? "rgba(202, 31, 75)" : chartColors[i - 1],
+    // })),
+  };
+
   return (
     <Box className="cell p-3">
       <Row style={{ marginBottom: "1rem" }}>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-        >
+        <Typography className="col" variant="h5" component="h5">
           Hour Trend
         </Typography>
 

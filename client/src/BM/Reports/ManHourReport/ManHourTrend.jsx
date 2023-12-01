@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -33,7 +33,6 @@ export const options = {
       labels: {
         usePointStyle: true,
       },
-      
     },
     datalabels: {
       display: false,
@@ -51,9 +50,9 @@ export const options = {
         text: "Months",
       },
       ticks: {
-        color: 'black'
+        color: "black",
+      },
     },
-  },
     y: {
       stacked: true,
       title: {
@@ -61,40 +60,71 @@ export const options = {
         text: "Hours",
       },
       ticks: {
-        color: 'black'
-    },
-      
+        color: "black",
+      },
     },
   },
 };
 
-export const data = {
-  labels: MONTH_LABELS,
-  datasets: [
-    {
-      label: "BM",
-      data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-      backgroundColor: chartColors.green[0],
-      pointStyle:'rect',
-    },
-    {
-      label: "PM",
-      data: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
-      backgroundColor: chartColors.aqua[1],
-      pointStyle:'rect'
-    },
-  ],
-};
+const ManHourTrend = ({ selectedValue, flagForTogglingFilter,selectedYear }) => {
+  const [manHourTrendData, setManHourTrendData] = useState({
+    BMManHourTrend: [],
+    PMManHourTrend: [],
+  });
 
-const ManHourTrend = () => {
+  const getManHourTrendData = async () => {
+    try {
+      const res = await fetch(
+        // `/manHourReport/manHourTrend/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
+        `/manHourReport/manHourTrend/${flagForTogglingFilter}/${selectedValue}/${selectedYear}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, manHourTrendData } = await res.json();
+
+      if (res?.status === 201) {
+        setManHourTrendData(manHourTrendData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedValue) {
+      getManHourTrendData();
+    }
+  }, [selectedValue,selectedYear]);
+
+  const data = {
+    labels: MONTH_LABELS,
+    datasets: [
+      {
+        label: "BM",
+        data: manHourTrendData?.BMManHourTrend,
+        backgroundColor: chartColors.green[0],
+        pointStyle: "rect",
+      },
+      {
+        label: "PM",
+        data: manHourTrendData?.PMManHourTrend,
+        backgroundColor: chartColors.aqua[1],
+        pointStyle: "rect",
+      },
+    ],
+  };
+
   return (
     <Box className="cell p-3">
       <Row style={{ marginBottom: "1rem" }}>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-        >
+        <Typography className="col" variant="h5" component="h5">
           Man-Hour Trend
         </Typography>
 

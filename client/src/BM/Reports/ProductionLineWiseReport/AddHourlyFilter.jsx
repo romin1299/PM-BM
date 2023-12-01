@@ -88,15 +88,19 @@ const AddHourlyFilter = ({
             </Col>
           </Row>
           <Row className="p-2">
-            {filter?.lessThanValue?.map((item, index) => (
-              <Col className="p-1">
-                <input
-                  type="number"
-                  value={item}
-                  onChange={(e) => handleInputChangeForLessThanValue(e, index)}
-                />
-              </Col>
-            ))}
+            {filter?.lessThanValue?.map((item, index) => {
+              return (
+                <Col className="p-1" key={index}>
+                  <input
+                    type="number"
+                    value={item}
+                    onChange={(e) =>
+                      handleInputChangeForLessThanValue(e, index)
+                    }
+                  />
+                </Col>
+              );
+            })}
           </Row>
           <Row>
             <b>+ value</b>
