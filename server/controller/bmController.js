@@ -4739,7 +4739,7 @@ router.get(
           _id: {
             $dateToString: {
               format: "%m",
-              date: "$sheetIssuedDateAndTimeOfBM",
+              date: "$problemOccurredDateAndTimeOfBM",
               timezone: timezone,
             },
           },
@@ -4837,6 +4837,7 @@ router.get(
   "/getMtbfData/:filter/:selectedId",
   filterMiddleware,
   async (req, res, next) => {
+
     const getMtbf = await RequestSheetOfBM.aggregate([
       {
         $match: req.queryObj,
@@ -4846,7 +4847,7 @@ router.get(
           _id: {
             $dateToString: {
               format: "%m",
-              date: "$sheetIssuedDateAndTimeOfBM",
+              date: "$problemOccurredDateAndTimeOfBM",
               timezone: timezone,
             },
           },
@@ -4934,57 +4935,57 @@ router.get(
   }
 );
 
+router.get("/getSectionsDropdownForBdTrend", async (req, res, next) => {
+  try {
+    const section = await Section.findOne({
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    });
 
+    // req.section = section;
 
-// router.get("/getSectionsDropdown", async (req, res, next) => {
-//   try {
-//     const section = await Section.findOne({
-//       section_id: req?.rootUser?.section_data?.split("-")?.[0],
-//     });
+    let subSectionsData;
 
-//     req.section = section;
+    if (section.dashboardLevel === "No") {
+      subSectionsData = await SubSection.find({
+        subSection_id: {
+          $in: req.rootUser?.subSection_data?.map(
+            (item) => item?.split("-")?.[0]
+          ),
+        },
+      });
+     
+    } else {
 
-//     let subSectionsData;
+      subSectionsData = await SubSection.find({
+        section_names: section?._id,
+      });
+      
+    }
 
-//     if (section.dashboardLevel === "No") {
-//       subSectionsData = await SubSection.find({
-//         subSection_id: {
-//           $in: req.rootUser?.subSection_data?.map(
-//             (item) => item?.split("-")?.[0]
-//           ),
-//         },
-//       });
-//     } else {
-//       subSectionsData = await SubSection.find({
-//         section_names: section?._id,
-//       });
-//     }
-
-//     return res.status(201).json({
-//       message: "Section dropdown value get successfully",
-//       subSectionsData,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: error?.message, error });
-//   }
-// });
+    return res.status(201).json({
+      message: "Sections dropdown data get successfully",
+      subSectionsData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+});
 
 // ---------------- Monthly BD Trend Chart -------------------
 
 router.get(
-  "/hourlyMonthlyBdTrendForPlant/:plantId",
+  "/hourlyMonthlyBdTrendForPlant",
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
+    
+let queryObj = {};
 
-    console.log(req.rootUser)
-    let queryObj = {};
+    const plant = await Plant.findOne({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
 
     queryObj = {
-      plantRef: mongoose.Types.ObjectId(req.params.plantId),
-      // sheetIssuedDateAndTimeOfBM: {
-      //   $gte: startDate.toDate(),
-      //   $lte: endDate.toDate(),
-      // },
+      plantRef: mongoose.Types.ObjectId(plant._id),
     };
 
     const monthlyBDTrendHourly = await RequestSheetOfBM.aggregate([
@@ -4998,7 +4999,7 @@ router.get(
                 _id: {
                   $dateToString: {
                     format: "%m",
-                    date: "$sheetIssuedDateAndTimeOfBM",
+                    date: "$problemOccurredDateAndTimeOfBM",
                     timezone: timezone,
                   },
                 },
@@ -5100,24 +5101,24 @@ router.get(
 );
 
 router.get(
-  "/sectionMonthlyBdTrendForPlant/:plantId",
+  "/sectionMonthlyBdTrendForPlant",
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
-    let queryObj = {};
+    
     let dateObj = {
       $dateToString: {
         format: "%m",
-        date: "$sheetIssuedDateAndTimeOfBM",
+        date: "$problemOccurredDateAndTimeOfBM",
         timezone: timezone,
       },
     };
+    let queryObj = {};
+    const plant = await Plant.findOne({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
 
     queryObj = {
-      plantRef: mongoose.Types.ObjectId(req.params.plantId),
-      // sheetIssuedDateAndTimeOfBM: {
-      //   $gte: startDate.toDate(),
-      //   $lte: endDate.toDate(),
-      // },
+      plantRef: mongoose.Types.ObjectId(plant._id),
     };
 
     const monthlyBDTrendSection = await RequestSheetOfBM.aggregate([
@@ -5225,14 +5226,14 @@ router.get(
     let dateObj = {
       $dateToString: {
         format: "%m",
-        date: "$sheetIssuedDateAndTimeOfBM",
+        date: "$problemOccurredDateAndTimeOfBM",
         timezone: timezone,
       },
     };
 
     queryObj = {
       sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
-      // sheetIssuedDateAndTimeOfBM: {
+      // problemOccurredDateAndTimeOfBM: {
       //   $gte: startDate.toDate(),
       //   $lte: endDate.toDate(),
       // },
@@ -5247,7 +5248,7 @@ router.get(
           _id: {
             $dateToString: {
               format: "%m",
-              date: "$sheetIssuedDateAndTimeOfBM",
+              date: "$problemOccurredDateAndTimeOfBM",
               timezone: timezone,
             },
           },
@@ -5355,14 +5356,14 @@ router.get(
     let dateObj = {
       $dateToString: {
         format: "%m",
-        date: "$sheetIssuedDateAndTimeOfBM",
+        date: "$problemOccurredDateAndTimeOfBM",
         timezone: timezone,
       },
     };
 
     queryObj = {
       sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
-      // sheetIssuedDateAndTimeOfBM: {
+      // problemOccurredDateAndTimeOfBM: {
       //   $gte: startDate.toDate(),
       //   $lte: endDate.toDate(),
       // },
@@ -5458,7 +5459,7 @@ router.get(
     queryObj = {
       plantRef: mongoose.Types.ObjectId(req.params.plantId),
 
-      sheetIssuedDateAndTimeOfBM: {
+      problemOccurredDateAndTimeOfBM: {
         $gte: moment().startOf("year").toDate(),
         $lt: moment().startOf("year").add(1, "year").toDate(),
       },
@@ -5468,7 +5469,7 @@ router.get(
     queryObj2 = {
       plantRef: mongoose.Types.ObjectId(req.params.plantId),
 
-      sheetIssuedDateAndTimeOfBM: {
+      problemOccurredDateAndTimeOfBM: {
         $gte: moment().subtract(1, "year").startOf("year").toDate(),
         $lt: moment().subtract(1, "year").endOf("year").toDate(),
       },
@@ -5486,7 +5487,7 @@ router.get(
                 _id: {
                   $dateToString: {
                     format: "%Y",
-                    date: "$sheetIssuedDateAndTimeOfBM",
+                    date: "$problemOccurredDateAndTimeOfBM",
                     timezone: timezone,
                   },
                 },
@@ -5547,7 +5548,7 @@ router.get(
                 _id: {
                   $dateToString: {
                     format: "%Y",
-                    date: "$sheetIssuedDateAndTimeOfBM",
+                    date: "$problemOccurredDateAndTimeOfBM",
                     timezone: timezone,
                   },
                 },
@@ -5617,7 +5618,7 @@ router.get(
     let dateObj = {
       $dateToString: {
         format: "%Y",
-        date: "$sheetIssuedDateAndTimeOfBM",
+        date: "$problemOccurredDateAndTimeOfBM",
         timezone: timezone,
       },
     };
@@ -5625,7 +5626,7 @@ router.get(
     queryObj = {
       plantRef: mongoose.Types.ObjectId(req.params.plantId),
 
-      sheetIssuedDateAndTimeOfBM: {
+      problemOccurredDateAndTimeOfBM: {
         $gte: moment().startOf("year").toDate(),
         $lt: moment().startOf("year").add(1, "year").toDate(),
       },
@@ -5633,7 +5634,7 @@ router.get(
     queryObj2 = {
       plantRef: mongoose.Types.ObjectId(req.params.plantId),
 
-      sheetIssuedDateAndTimeOfBM: {
+      problemOccurredDateAndTimeOfBM: {
         $gte: moment().subtract(1, "year").startOf("year").toDate(),
         $lt: moment().subtract(1, "year").endOf("year").toDate(),
       },
@@ -5805,7 +5806,7 @@ router.get(
 
     queryObj = {
       sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
-      sheetIssuedDateAndTimeOfBM: {
+      problemOccurredDateAndTimeOfBM: {
         $gte: moment().startOf("year").toDate(),
         $lt: moment().startOf("year").add(1, "year").toDate(),
       },
@@ -5814,7 +5815,7 @@ router.get(
     queryObj2 = {
       sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
 
-      sheetIssuedDateAndTimeOfBM: {
+      problemOccurredDateAndTimeOfBM: {
         $gte: moment().subtract(1, "year").startOf("year").toDate(),
         $lt: moment().subtract(1, "year").endOf("year").toDate(),
       },
@@ -5832,7 +5833,7 @@ router.get(
                 _id: {
                   $dateToString: {
                     format: "%Y",
-                    date: "$sheetIssuedDateAndTimeOfBM",
+                    date: "$problemOccurredDateAndTimeOfBM",
                     timezone: timezone,
                   },
                 },
@@ -5893,7 +5894,7 @@ router.get(
                 _id: {
                   $dateToString: {
                     format: "%Y",
-                    date: "$sheetIssuedDateAndTimeOfBM",
+                    date: "$problemOccurredDateAndTimeOfBM",
                     timezone: timezone,
                   },
                 },
@@ -5964,14 +5965,14 @@ router.get(
     let dateObj = {
       $dateToString: {
         format: "%Y",
-        date: "$sheetIssuedDateAndTimeOfBM",
+        date: "$problemOccurredDateAndTimeOfBM",
         timezone: timezone,
       },
     };
 
     queryObj = {
       sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
-      sheetIssuedDateAndTimeOfBM: {
+      problemOccurredDateAndTimeOfBM: {
         $gte: moment().startOf("year").toDate(),
         $lt: moment().startOf("year").add(1, "year").toDate(),
       },
@@ -5980,7 +5981,7 @@ router.get(
     queryObj2 = {
       sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
 
-      sheetIssuedDateAndTimeOfBM: {
+      problemOccurredDateAndTimeOfBM: {
         $gte: moment().subtract(1, "year").startOf("year").toDate(),
         $lt: moment().subtract(1, "year").endOf("year").toDate(),
       },
@@ -6104,24 +6105,25 @@ router.get(
 
 // ---------------- Major BD Count Chart -------------------
 router.get(
-  "/majorBDCountForPlant/:plantId",
+  "/majorBDCountForPlant",
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
-    let queryObj = {};
+    
     let dateObj = {
       $dateToString: {
         format: "%m",
-        date: "$sheetIssuedDateAndTimeOfBM",
+        date: "$problemOccurredDateAndTimeOfBM",
         timezone: timezone,
       },
     };
 
+    let queryObj = {};
+    const plant = await Plant.findOne({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+
     queryObj = {
-      plantRef: mongoose.Types.ObjectId(req.params.plantId),
-      // sheetIssuedDateAndTimeOfBM: {
-      //   $gte: moment().startOf("year").toDate(),
-      //   $lt: moment().startOf("year").add(1, "year").toDate(),
-      // },
+      plantRef: mongoose.Types.ObjectId(plant._id),
     };
 
    
@@ -6217,14 +6219,14 @@ router.get(
     let dateObj = {
       $dateToString: {
         format: "%m",
-        date: "$sheetIssuedDateAndTimeOfBM",
+        date: "$problemOccurredDateAndTimeOfBM",
         timezone: timezone,
       },
     };
 
     queryObj = {
       sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
-      // sheetIssuedDateAndTimeOfBM: {
+      // problemOccurredDateAndTimeOfBM: {
       //   $gte: moment().startOf("year").toDate(),
       //   $lt: moment().startOf("year").add(1, "year").toDate(),
       // },
@@ -6322,7 +6324,7 @@ router.get(
 
     queryObj = {
       plantRef: mongoose.Types.ObjectId(req.params.plantId),
-      sheetIssuedDateAndTimeOfBM: {
+      problemOccurredDateAndTimeOfBM: {
         $gte: moment().startOf("month").toDate(),
         $lt: moment().startOf("month").add(1, "month").toDate(),
       },
@@ -6408,7 +6410,7 @@ router.get(
 
     queryObj = {
       plantRef: mongoose.Types.ObjectId(req.params.plantId),
-      sheetIssuedDateAndTimeOfBM: {
+      problemOccurredDateAndTimeOfBM: {
         $gte: moment().startOf("year").toDate(),
         $lt: moment().startOf("year").add(1, "year").toDate(),
       },
@@ -6496,14 +6498,14 @@ router.get(
 
     // queryObj = {
     //   sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
-    //   sheetIssuedDateAndTimeOfBM: {
+    //   problemOccurredDateAndTimeOfBM: {
     //     $gte: moment().startOf("month").toDate(),
     //     $lt: moment().startOf("month").add(1, "month").toDate(),
     //   },
     // };
     // queryObj2 = {
     //   sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
-    //   sheetIssuedDateAndTimeOfBM: {
+    //   problemOccurredDateAndTimeOfBM: {
     //     $gte: moment().startOf("year").toDate(),
     //     $lt: moment().startOf("year").add(1, "year").toDate(),
     //   },
@@ -6515,7 +6517,7 @@ router.get(
       },
       {
         $match: {
-          sheetIssuedDateAndTimeOfBM: {
+          problemOccurredDateAndTimeOfBM: {
             $gte: moment().startOf("year").toDate(),
             $lt: moment().startOf("year").add(1, "year").toDate(),
           },
@@ -6599,14 +6601,14 @@ router.get(
 
     // queryObj = {
     //   sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
-    //   sheetIssuedDateAndTimeOfBM: {
+    //   problemOccurredDateAndTimeOfBM: {
     //     $gte: moment().startOf("month").toDate(),
     //     $lt: moment().startOf("month").add(1, "month").toDate(),
     //   },
     // };
     // queryObj2 = {
     //   sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
-    //   sheetIssuedDateAndTimeOfBM: {
+    //   problemOccurredDateAndTimeOfBM: {
     //     $gte: moment().startOf("year").toDate(),
     //     $lt: moment().startOf("year").add(1, "year").toDate(),
     //   },
@@ -6619,7 +6621,7 @@ router.get(
 
       {
         $match: {
-          sheetIssuedDateAndTimeOfBM: {
+          problemOccurredDateAndTimeOfBM: {
             $gte: moment().startOf("month").toDate(),
             $lt: moment().startOf("month").add(1, "month").toDate(),
           },
@@ -6705,14 +6707,14 @@ router.get(
 
     // queryObj = {
     //   cellRef: mongoose.Types.ObjectId(req.params.cellId),
-    //   sheetIssuedDateAndTimeOfBM: {
+    //   problemOccurredDateAndTimeOfBM: {
     //     $gte: moment().startOf("month").toDate(),
     //     $lt: moment().startOf("month").add(1, "month").toDate(),
     //   },
     // };
     // queryObj2 = {
     //   cellRef: mongoose.Types.ObjectId(req.params.cellId),
-    //   sheetIssuedDateAndTimeOfBM: {
+    //   problemOccurredDateAndTimeOfBM: {
     //     $gte: moment().startOf("year").toDate(),
     //     $lt: moment().startOf("year").add(1, "year").toDate(),
     //   },
@@ -6725,7 +6727,7 @@ router.get(
 
       {
         $match: {
-          sheetIssuedDateAndTimeOfBM: {
+          problemOccurredDateAndTimeOfBM: {
             $gte: moment().startOf("month").toDate(),
             $lt: moment().startOf("month").add(1, "month").toDate(),
           },
@@ -6810,14 +6812,14 @@ router.get(
 
     // queryObj = {
     //   cellRef: mongoose.Types.ObjectId(req.params.cellId),
-    //   sheetIssuedDateAndTimeOfBM: {
+    //   problemOccurredDateAndTimeOfBM: {
     //     $gte: moment().startOf("month").toDate(),
     //     $lt: moment().startOf("month").add(1, "month").toDate(),
     //   },
     // };
     // queryObj2 = {
     //   cellRef: mongoose.Types.ObjectId(req.params.cellId),
-    //   sheetIssuedDateAndTimeOfBM: {
+    //   problemOccurredDateAndTimeOfBM: {
     //     $gte: moment().startOf("year").toDate(),
     //     $lt: moment().startOf("year").add(1, "year").toDate(),
     //   },
@@ -6830,7 +6832,7 @@ router.get(
 
       {
         $match: {
-          sheetIssuedDateAndTimeOfBM: {
+          problemOccurredDateAndTimeOfBM: {
             $gte: moment().startOf("year").toDate(),
             $lt: moment().startOf("year").add(1, "year").toDate(),
           },
@@ -6915,7 +6917,7 @@ router.get(
 
 //     queryObj = {
 //       sectionRef: mongoose.Types.ObjectId(req.params.sectionId),
-//       sheetIssuedDateAndTimeOfBM: {
+//       problemOccurredDateAndTimeOfBM: {
 //         $gte: moment().startOf("month").toDate(),
 //         $lt: moment().startOf("month").add(1, "month").toDate(),
 //       },
