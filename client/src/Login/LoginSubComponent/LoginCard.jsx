@@ -5,8 +5,10 @@ import {
   Button,
   useNavigate,
   useState,
+  denso_logo,
 } from "../../modules/LoginModules";
 import "../Login.scss";
+import { IconButton } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Row, Col, Form } from "react-bootstrap";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -14,7 +16,7 @@ import { Alert, AlertTitle } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
-const LoginCard = ({ scannedMachineId }) => {
+const LoginCard = ({ scannedMachineId, windowWidth }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [invalid, setInvalid] = useState();
   const navigate = useNavigate();
@@ -57,10 +59,10 @@ const LoginCard = ({ scannedMachineId }) => {
         // window.alert("Login Successful");
         if (scannedMachineId) {
           //call request-sheet component
-          navigate(`/bm/request-sheet/scanned/${scannedMachineId}`);
+          navigate(`/bm/check-sheet/scanned/${scannedMachineId}`);
           // refreshPage();
         } else {
-          navigate("/bm", { replace: true });
+          navigate("/pm", { replace: true });
           // refreshPage();
         }
       }
@@ -71,15 +73,28 @@ const LoginCard = ({ scannedMachineId }) => {
     <>
       {scannedMachineId && (
         <div>
-          <button
+          <IconButton
+            color="primaryText"
+            aria-label="back"
             onClick={() => {
               navigate("/");
             }}
-            className="border-0"
           >
             <ArrowBackIcon />
-          </button>
+          </IconButton>
         </div>
+      )}
+
+      {windowWidth && windowWidth > 820 && (
+        <center>
+          <img
+            style={{ textAlign: "center", marginBottom: "1rem" }}
+            className="denso_logo"
+            src={denso_logo}
+            alt=""
+            srcSet=""
+          />
+        </center>
       )}
 
       <div className="headings">
@@ -165,12 +180,13 @@ const LoginCard = ({ scannedMachineId }) => {
           )}
         </Row>
 
-        <div className="pwd-container">
+        <div className="pwd-container mt-1 ps-1">
           <Link
             to="/resetPasswordPage"
-            style={{ 
-            //  fontSize: "14px",
-             color: "#263A4A" }}
+            style={{
+              fontSize: "12px",
+              color: "#263A4A",
+            }}
           >
             Forgot password ?
           </Link>
