@@ -1,11 +1,14 @@
 import { Box, Button, ButtonGroup } from "@mui/material";
 import React from "react";
 import pptxgen from "pptxgenjs";
-import { chartColors, MONTH_LABELS } from "../../../Utils/ChartUtils/chartEnums";
+import {
+  chartColors,
+  MONTH_LABELS,
+} from "../../../Utils/ChartUtils/chartEnums";
 import DownloadMenu from "./DownloadMenu";
 import LineSelectionDropdown from "./LineSelectionDropdown";
 
-const ChartsToolbar = () => {
+const ChartsToolbar = ({ reduceState, reducerDispatch, ACTION }) => {
   const generatePPT = () => {
     const pptx = new pptxgen();
     const slide = pptx.addSlide();
@@ -75,7 +78,11 @@ const ChartsToolbar = () => {
         gap: "12px",
       }}
     >
-      <LineSelectionDropdown />
+      <LineSelectionDropdown
+        {...reduceState}
+        reducerDispatch={reducerDispatch}
+        ACTION={ACTION}
+      />
 
       <ButtonGroup
         size="small"
