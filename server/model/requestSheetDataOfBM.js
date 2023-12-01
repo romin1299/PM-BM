@@ -113,13 +113,18 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: String,
   },
 
-  assignOperator: {
+  assignUser: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
 
   handOverUser: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+  },
+
+  supportingTM: {
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "Users",
   },
 

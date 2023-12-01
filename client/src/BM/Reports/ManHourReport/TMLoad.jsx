@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Chart } from "react-chartjs-2";
 import { Box, Divider, Paper, Typography } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
@@ -53,18 +53,30 @@ export const options = {
         maxRotation: 90,
         minRotation: 90,
         // padding: 10,
-        color:'black',
+        color: "black",
       },
     },
-    y: {
+    y1: {
+      stacked: true,
+      position: "right",
+
+      title: {
+        display: true,
+        text: "Hours",
+      },
+      ticks: {
+        color: "black",
+      },
+    },
+    y2: {
       stacked: true,
       title: {
         display: true,
         text: "Hours",
       },
       ticks: {
-        color: 'black'
-    },
+        color: "black",
+      },
     },
   },
 };
@@ -84,51 +96,129 @@ const TM_Names = [
   "Shreekant",
 ];
 
-export const data = {
-  labels: TM_Names,
-  datasets: [
-    {
-      type: "line",
-      label: "Dataset 1",
-      data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-      borderColor: chartColors.blue[1],
-      borderWidth: 2,
-      fill: false,
-      backgroundColor: chartColors.blue[1],
-      pointBorderColor: chartColors.blue[1],
-    },
-    {
-      type: "bar",
-      stack: "bar-stacked",
-      label: "Dataset 2",
-      data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-      backgroundColor: chartColors.brown[0],
-      borderColor: chartColors.brown[0],
-      borderWidth: 0,
-      pointStyle:'rect',
-    },
-    {
-      type: "bar",
-      stack: "bar-stacked",
-      label: "Dataset 3",
-      data: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
-      backgroundColor: chartColors.red[0],
-      borderColor: chartColors.red[0],
-      borderWidth: 0,
-      pointStyle:'rect',
-    },
-  ],
-};
+// export const data = {
+//   labels: TM_Names,
+//   datasets: [
+//     {
+//       type: "line",
+//       label: "Dataset 1",
+//       data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
+//       borderColor: chartColors.blue[1],
+//       borderWidth: 2,
+//       fill: false,
+//       backgroundColor: chartColors.blue[1],
+//       pointBorderColor: chartColors.blue[1],
+//     },
+//     {
+//       type: "bar",
+//       stack: "bar-stacked",
+//       label: "Dataset 2",
+//       data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
+//       backgroundColor: chartColors.brown[0],
+//       borderColor: chartColors.brown[0],
+//       borderWidth: 0,
+//       pointStyle:'rect',
+//     },
+//     {
+//       type: "bar",
+//       stack: "bar-stacked",
+//       label: "Dataset 3",
+//       data: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
+//       backgroundColor: chartColors.red[0],
+//       borderColor: chartColors.red[0],
+//       borderWidth: 0,
+//       pointStyle:'rect',
+//     },
+//   ],
+// };
 
-const TMLoad = () => {
+const TMLoad = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  selectedMonth,
+}) => {
+  const [tmLoadData, setTmLoadData] = useState({
+    tm_names: [],
+    totalSumOf_PM: [],
+    totalSumOf_BM: [],
+    percentage: [],
+  });
+
+  const getTmLoadData = async () => {
+    try {
+      const res = await fetch(
+        // `/manHourReport/tmLoad/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
+        `/manHourReport/tmLoad/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, tmLoadData } = await res.json();
+
+      if (res?.status === 201) {
+        setTmLoadData(tmLoadData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedValue && flagForTogglingFilter !== "based-on-line") {
+      getTmLoadData();
+    }
+  }, [selectedValue, selectedYear, selectedMonth]);
+
+  const data = {
+    labels: tmLoadData?.tm_names,
+    datasets: [
+      {
+        type: "line",
+        label: "%",
+        data: tmLoadData?.percentage,
+        borderColor: chartColors.blue[1],
+        borderWidth: 2,
+        fill: false,
+        backgroundColor: chartColors.blue[1],
+        pointBorderColor: chartColors.blue[1],
+        yAxisID: "y1",
+      },
+      {
+        type: "bar",
+        stack: "bar-stacked",
+        label: "BM",
+        data: tmLoadData?.totalSumOf_BM,
+        backgroundColor: chartColors.brown[0],
+        borderColor: chartColors.brown[0],
+        borderWidth: 0,
+        pointStyle: "rect",
+        yAxisID: "y2",
+      },
+      {
+        type: "bar",
+        stack: "bar-stacked",
+        label: "PM",
+        data: tmLoadData?.totalSumOf_PM,
+        backgroundColor: chartColors.red[0],
+        borderColor: chartColors.red[0],
+        borderWidth: 0,
+        pointStyle: "rect",
+        yAxisID: "y2",
+      },
+    ],
+  };
+
   return (
     <Box className="cell p-3">
       <Row style={{ marginBottom: "1rem" }}>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-        >
+        <Typography className="col" variant="h5" component="h5">
           TM Load
         </Typography>
 

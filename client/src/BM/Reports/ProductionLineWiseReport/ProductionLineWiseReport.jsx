@@ -214,7 +214,10 @@ const ProductionLineWiseReport = () => {
           />
         </Col>
         <Col>
-          <MTBFComponent />
+          <MTBFComponent
+            selectedValue={reduceState?.selectedValue}
+            flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+          />
         </Col>
       </Row>
       <Row>

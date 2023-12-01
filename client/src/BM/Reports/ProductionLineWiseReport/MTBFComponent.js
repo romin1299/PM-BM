@@ -1,21 +1,30 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
-const MTBFComponent = () => {
+const MTBFComponent = ({ selectedValue, flagForCellAndLineToggle }) => {
+  const [mtbfData, setMtbfData] = useState({
+    labels: [],
+    data: [],
+    target: [],
+  });
   const getMTBFChartData = async () => {
     try {
-      const res = await fetch("/getMtbfData?cellId=632c41261d1becfedab325f9", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        `/getMtbfData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
+        // `/getMtbfData/${flagForCellAndLineToggle}/${selectedValue}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
 
-      const data = await res.json();
+      const { message, getMtbf } = await res.json();
 
       if (res?.status === 201) {
-        console.log(data);
+        console.log(getMtbf);
       }
     } catch (error) {
       console.log(error);
