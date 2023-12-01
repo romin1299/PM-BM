@@ -152,7 +152,7 @@ const Plant = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/"></NavLink> Section Dashboard
+              <NavLink to="/pm/"></NavLink> Section Dashboard
             </MenuItem>
 
             <MenuItem
@@ -171,7 +171,7 @@ const Plant = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/summeryDashboard"></NavLink> Plant Dashboard
+              <NavLink to="/pm/summeryDashboard"></NavLink> Plant Dashboard
             </MenuItem>
           </SubMenu>
 
@@ -195,7 +195,7 @@ const Plant = ({ userData, userDepartment }) => {
                   />
                 }
               >
-                <NavLink to="/creationDashboard"></NavLink>
+                <NavLink to="/pm/creationDashboard"></NavLink>
                 Creation Dashboard
               </MenuItem>
               <MenuItem
@@ -211,7 +211,7 @@ const Plant = ({ userData, userDepartment }) => {
                   />
                 }
               >
-                <NavLink to="/userAssign"></NavLink>
+                <NavLink to="/pm/userAssign"></NavLink>
                 User Assign
               </MenuItem>
             </SubMenu>
@@ -239,7 +239,7 @@ const Plant = ({ userData, userDepartment }) => {
                   />
                 }
               >
-                <NavLink to="/sixMonthApprovalDashboard"></NavLink>
+                <NavLink to="/pm/sixMonthApprovalDashboard"></NavLink>
                 Implementation Approval
               </MenuItem>
               <MenuItem
@@ -255,7 +255,7 @@ const Plant = ({ userData, userDepartment }) => {
                   />
                 }
               >
-                <NavLink to="/annualPMSchedule"></NavLink>
+                <NavLink to="/pm/annualPMSchedule"></NavLink>
                 Annual PM Schedule
               </MenuItem>
               <MenuItem
@@ -271,7 +271,7 @@ const Plant = ({ userData, userDepartment }) => {
                   />
                 }
               >
-                <NavLink to="/machineWisePmMonthlyReport"></NavLink>
+                <NavLink to="/pm/machineWisePmMonthlyReport"></NavLink>
                 Monthly Report (Machine)
               </MenuItem>
             </SubMenu>
@@ -296,7 +296,7 @@ const Plant = ({ userData, userDepartment }) => {
                   />
                 }
               >
-                <NavLink to="/machineWisePmMonthlyReport"></NavLink>
+                <NavLink to="/pm/machineWisePmMonthlyReport"></NavLink>
                 Monthly Report (Machine)
               </MenuItem>
             </SubMenu>
@@ -322,7 +322,7 @@ const Plant = ({ userData, userDepartment }) => {
               }
               href="/pmSheetApproval"
             >
-              <NavLink to="/pmSheetApproval"></NavLink>
+              <NavLink to="/pm/pmSheetApproval"></NavLink>
               Preparation / Planning
             </MenuItem>
 
@@ -339,7 +339,7 @@ const Plant = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pmSheetApprovalOfImplementationPhase"></NavLink>
+              <NavLink to="/pm/pmSheetApprovalOfImplementationPhase"></NavLink>
               PM Plan vs Actual Approval
             </MenuItem>
           </SubMenu>
@@ -363,7 +363,7 @@ const Plant = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/logHistory"></NavLink>
+              <NavLink to="/pm/logHistory"></NavLink>
               PM Log
             </MenuItem>
 
@@ -380,7 +380,7 @@ const Plant = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pendingPMLogHistory"></NavLink>
+              <NavLink to="/pm/pendingPMLogHistory"></NavLink>
               Pending PM Log History
             </MenuItem>
           </SubMenu>
@@ -404,7 +404,7 @@ const Plant = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/machineWisePmMonthlyReport"></NavLink>
+              <NavLink to="/pm/machineWisePmMonthlyReport"></NavLink>
               Monthly Report (Machine)
             </MenuItem>
 
@@ -421,7 +421,7 @@ const Plant = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/lineWisePmMonthlyReport"></NavLink>
+              <NavLink to="/pm/lineWisePmMonthlyReport"></NavLink>
               Monthly Report (Line)
             </MenuItem>
             <MenuItem
@@ -437,7 +437,7 @@ const Plant = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/annualPMSchedule"></NavLink>
+              <NavLink to="/pm/annualPMSchedule"></NavLink>
               Annual PM Schedule
             </MenuItem>
             <MenuItem
@@ -453,7 +453,7 @@ const Plant = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/annualPmStatus"></NavLink>
+              <NavLink to="/pm/annualPmStatus"></NavLink>
               Annual PM PM vs Actual
             </MenuItem>
             <MenuItem
@@ -469,7 +469,7 @@ const Plant = ({ userData, userDepartment }) => {
                 />
               }
             >
-              <NavLink to="/pmTimeMonitoringReport"></NavLink>
+              <NavLink to="/pm/pmTimeMonitoringReport"></NavLink>
               PM Time Monitoring
             </MenuItem>
           </SubMenu>
@@ -481,7 +481,7 @@ const Plant = ({ userData, userDepartment }) => {
             data-placement="right"
             title="Open Abnormality Tracking"
           >
-            <NavLink to="/openAbnormalityTrack"></NavLink>
+            <NavLink to="/pm/openAbnormalityTrack"></NavLink>
             Open Abnormality Tracking
           </Menuitem>
 
@@ -492,7 +492,7 @@ const Plant = ({ userData, userDepartment }) => {
             data-placement="right"
             title="Spare Log"
           >
-            <NavLink to="/sparePartUsageHistory"></NavLink>
+            <NavLink to="/pm/sparePartUsageHistory"></NavLink>
             Spare Log
           </Menuitem>
 
@@ -503,7 +503,7 @@ const Plant = ({ userData, userDepartment }) => {
             data-placement="right"
             title="Spare Report"
           >
-            <NavLink to="/spareReportDashboard"></NavLink>
+            <NavLink to="/pm/spareReportDashboard"></NavLink>
             Spare Report
           </Menuitem>
         </Menu>
