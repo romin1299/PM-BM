@@ -11,11 +11,9 @@ import {
 import { Chart } from "react-chartjs-2";
 import { Box, Paper, Typography } from "@mui/material";
 import { Row, Container } from "react-bootstrap";
-import {
-  MONTH_LABELS,
-  chartColors,
-} from "../../Utils/ChartUtils/chartEnums";
+import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import axios from "axios";
 
 ChartJS.register(
   CategoryScale,
@@ -40,9 +38,6 @@ export const options = {
       },
     },
     datalabels: {
-      formatter: (value, context) => {
-        return value > 30 ? value : "";
-      },
       formatter: (value, context) => {
         if (context.dataset.type === "bar") {
           return value > 30 ? value : "";
@@ -73,121 +68,165 @@ export const options = {
         text: "Months",
       },
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
     y: {
       stacked: true,
       position: "left",
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
     y2: {
       position: "right",
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
   },
 };
 
-const daysLabels = Array.from({ length: 30 }, (_, i) => (i + 1).toString());
-
 const getRandomDataArray = (max = 30) => {
   return Array.from({ length: 8 }, () => Math.floor(Math.random() * max));
 };
 
-const dataset = [
-  {
-    type: "line",
-    label: "Total Count",
-    data: getRandomDataArray(30),
-    borderColor: chartColors.magenta[1],
-    borderWidth: 2,
-    backgroundColor: 'chartColors.magenta[1]',
-    pointStyle: 'rectRot',
-    yAxisID: "y2",
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "< 60",
-    data: getRandomDataArray(60),
-    yAxisID: "y",
-    pointStyle: 'rect'
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "< 120",
-    data: getRandomDataArray(120),
-    yAxisID: "y",
-    pointStyle: 'rect'
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "> 120",
-    data: getRandomDataArray(140),
-    yAxisID: "y",
-    pointStyle: 'rect'
-  },
-];
+const MonthlyBDTrendChart = ({ filter, currentTabViewName, sectionId }) => {
+  const [resData, setResData] = useState({});
+  const [chartDatasets, setChartDatasets] = useState([]);
 
-export const data = {
-  labels: MONTH_LABELS,
-  datasets: dataset.map((dataset, i) => ({
-    ...dataset,
-    // backgroundColor: chartColors[i - 1],
-    backgroundColor: i === 0 ? chartColors.magenta[1] : dataset.label === "< 60" ? chartColors.blue[3] : dataset.label === "< 120" ? chartColors.green[3] : dataset.label === "> 120" ? chartColors.orange[2] : chartColors[i - 1],
-  })),
-};
+  const fetchChartData = async () => {
+    const url =
+      currentTabViewName === "Plant"
+        ? `/${filter}MonthlyBdTrendForPlant`
+        : `/${filter}MonthlyBdTrendForSection/${sectionId}`;
 
-const MonthlyBDTrendChart = () => {
-  const [filteredData, setFilteredData] = useState(data);
+    try {
+      const res = await axios.get(url, {
+        withCredentials: true,
+        credentials: "include",
+      });
 
-  const [filterOptions, setFilterOptions] = useState({
-    lessThan60: false,
-    lessThan120: false,
-    greaterThan120: false,
-  });
+      // setResData(res.data.monthlyBDTrendHourly);
 
-  const handleCheckboxChange = (option) => {
-    setFilterOptions((prevOptions) => ({
-      ...prevOptions,
-      [option]: !prevOptions[option],
-    }));
+      if (currentTabViewName === "Plant") {
+        if (filter === "hourly") {
+          console.log("plant hourly res:", res.data.monthlyBDTrendHourly);
+
+          // let object = {
+          //   labels: ["Apr", "May", "Mar"],
+          //   lessThanOne: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          //   lessThanTwo: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          //   greaterThanTwo: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          // };
+
+          // let hourlyArray = [
+          //   {
+          //     label: "< 1",
+          //     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          //   },
+          //   {
+          //     label: "< 2",
+          //     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          //   },
+          // ];
+        } else {
+          console.log("plant section res:", res.data.monthlyBDTrendSection);
+
+          // let sectionArray = [
+          //   {
+          //     label: "Parts",
+          //     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          //   },
+          //   {
+          //     label: "Gasoline",
+          //     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          //   },
+          // ];
+        }
+      } else {
+        console.log("section res:", res);
+      }
+    } catch (error) {
+      console.log("error:", error);
+    }
   };
 
-  //   const filterData = () => {
-  //     // Implement filtering logic here based on checkbox states
-  //   };
+  useEffect(() => {
+    fetchChartData();
+  }, [currentTabViewName, sectionId, filter]);
 
-  //   useEffect(() => {
-  //     filterData();
-  //   }, [filterOptions]);
+  const dummyDatasets = [
+    {
+      type: "bar",
+      stack: "bar-stacked",
+      label: "< 1",
+      // data: getRandomDataArray(10),
+      data: resData?.lessThanOne,
+      backgroundColor: chartColors.palettes[0][0],
+    },
+    {
+      type: "bar",
+      stack: "bar-stacked",
+      label: "< 2",
+      // data: getRandomDataArray(10),
+      data: resData?.lessThanTwo,
+      backgroundColor: chartColors.palettes[0][1],
+    },
+    {
+      type: "bar",
+      stack: "bar-stacked",
+      label: "> 2",
+      // data: getRandomDataArray(10),
+      data: resData?.greaterThanTwo,
+      backgroundColor: chartColors.palettes[0][2],
+    },
+  ];
+
+  function convertToChartDatasets(resData) {
+    const chartDatasets = [];
+
+    Object.keys(resData).forEach((key, index) => {
+      chartDatasets.push({
+        type: "bar",
+        stack: "bar-stacked",
+        label: key.replace("lessThan", "< ").replace("greaterThan", "> "),
+        data: resData[key],
+        backgroundColor: chartColors.palettes[0][index],
+      });
+    });
+
+    return chartDatasets;
+  }
+
+  // useEffect(() => {
+  //   const { labels, _id, ...resDatasets } = resData;
+
+  //   setChartDatasets(convertToChartDatasets(resDatasets));
+  // }, [resData]);
+
+  const chartData = {
+    labels: MONTH_LABELS,
+    datasets: dummyDatasets,
+  };
 
   return (
-    <Container fluid>
-      <Box className="cell p-3 mt-3">
-        <Row>
-          <Typography
-            className="col"
-            variant="h5"
-            component="h5"
-            sx={{ fontWeight: "500" }}
-          >
-            Electronics: Monthly Breakdown Trend
-          </Typography>
-        </Row>
+    <Box className="container-fluid cell p-3 mt-1">
+      <Row>
+        <Typography
+          className="col"
+          variant="h5"
+          component="h5"
+          sx={{ fontWeight: "500" }}
+        >
+          Electronics: Monthly Breakdown Trend
+        </Typography>
+      </Row>
 
-        <div style={{ width: "100%", height: "300px" }}>
-          <Chart data={data} options={options} />
-        </div>
-      </Box>
-    </Container>
-
+      <div style={{ width: "100%", height: "300px" }}>
+        <Chart data={chartData} options={options} />
+      </div>
+    </Box>
   );
 };
 

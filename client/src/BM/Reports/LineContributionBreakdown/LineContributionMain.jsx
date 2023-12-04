@@ -1,12 +1,17 @@
-import React from 'react'
-import { Container, Row, Col } from 'react-bootstrap'
-import PlantLineContribution from "./PlantLineContribution"
-import SectionLineContribution from "./SectionLineContribution"
+import React, { useState } from "react";
+import { Container, Row, Col } from "react-bootstrap";
+import PlantLineContribution from "./PlantLineContribution";
+import SectionLineContribution from "./SectionLineContribution";
 import { Box, Paper, Typography } from "@mui/material";
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
-
+import YearMonthDropdown from "./YearMonthDropdown";
 
 const LineContributionMain = () => {
+  const [selectedFilters, setSelectedFilters] = useState({
+    month: "",
+    year: "",
+  });
+
   return (
     <Container fluid>
       <Box className="cell p-3 mt-3">
@@ -17,21 +22,24 @@ const LineContributionMain = () => {
             </Typography>
           </Col>
 
-          <ChartsToolbar />
+          <Col className="col-auto">
+            <YearMonthDropdown
+              selectedFilters={selectedFilters}
+              setSelectedFilters={setSelectedFilters}
+            />
+          </Col>
         </Row>
 
         <Row className="mt-3">
-          <Col lg={12} md={12} sm={12}>
+          <Col lg={12}>
             <PlantLineContribution />
           </Col>
 
-          <Col lg={12} md={12} sm={12}>
+          <Col lg={12}>
             <SectionLineContribution />
           </Col>
-
         </Row>
       </Box>
-
     </Container>
     // <Container fluid>
     //     <Box className="cell p-3 mt-3">
@@ -56,7 +64,7 @@ const LineContributionMain = () => {
     //     </Box>
 
     // </Container>
-  )
-}
+  );
+};
 
-export default LineContributionMain
+export default LineContributionMain;

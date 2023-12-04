@@ -143,8 +143,8 @@ const YearlyTrendChart = () => {
   //   }, [filterOptions]);
 
   return (
-    <Box className="cell p-3 mt-3">
-      <Row style={{ marginBottom: "1rem" }}>
+    <Box className="cell p-3 mt-1">
+      <Row>
         <Typography
           className="col"
           variant="h5"
