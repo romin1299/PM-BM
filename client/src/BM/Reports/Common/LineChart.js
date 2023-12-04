@@ -26,18 +26,18 @@ const LineChart = ({ title, dataset, setValue, clearErrors }) => {
 
   const options = {
     plugins: {
-      annotation: {
-        annotations: {
-          line1: {
-            // Indicates the type of annotation
-            type: "line",
-            yMin: 1,
-            yMax: 1,
-            borderColor: chartColors[3],
-            borderWidth: 2,
-          },
-        },
-      },
+      // annotation: {
+      //   annotations: {
+      //     line1: {
+      //       // Indicates the type of annotation
+      //       type: "line",
+      //       yMin: 1,
+      //       yMax: 1,
+      //       borderColor: chartColors[3],
+      //       borderWidth: 2,
+      //     },
+      //   },
+      // },
       legend: {
         align: "end",
         display: false,

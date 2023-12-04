@@ -31,7 +31,7 @@ import MTBFDashboard from "./Reports/MTBFReport/MTBFDashboard";
 
 import ApprovalDashboardOfRequestSheet from "./ApprovalDashboards/ApprovalDashboardOfRequestSheet";
 import LineContributionBD from "./Reports/LineContributionBreakdown/LineContributionMain";
-import TMMTR from "./Reports/TMMTTRSkill/TMMTRDashboard"
+import TMMTR from "./Reports/TMMTTRSkill/TMMTRDashboard";
 
 import ApprovalLogs from "./ApprovalLogs/ApprovalLogs";
 
@@ -79,6 +79,7 @@ const userRoutes = [
       { path: "/bm/customizedDashboard", element: <MainCustomized /> },
 
       { path: "/bm/profile", element: <Profile /> },
+      { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
 
       { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
       {
@@ -106,6 +107,7 @@ const userRoutes = [
         path: "/bm/request-sheet/:generateType/:machine_code",
         element: <RequestSheet />,
       },
+      { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
       { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
       {
         path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
@@ -143,7 +145,14 @@ const userRoutes = [
   {
     user_type: "TL/HOSS",
     routes: [
-      { path: "/bm", element: <h1><BMTabDashboard/></h1> },
+      {
+        path: "/bm",
+        element: (
+          <h1>
+            <BMTabDashboard />
+          </h1>
+        ),
+      },
       { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
       { path: "/bm/userAssign", element: <h1>Users</h1> },
       { path: "/bm/customizedDashboard", element: <MainCustomized /> },
@@ -187,6 +196,8 @@ const userRoutes = [
       {
         path: "/bm/report/mtbf-report",
         element: <MTBFReportDashboard />,
+      },
+      {
         path: "/bm/report/line-contribution-breakdown-trend",
         element: <LineContributionBD />,
       },

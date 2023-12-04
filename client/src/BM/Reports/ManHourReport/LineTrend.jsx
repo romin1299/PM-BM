@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Chart } from "react-chartjs-2";
 import { Box, Divider, Paper, Typography } from "@mui/material";
-import { Row, Col } from "react-bootstrap"
+import { Row, Col } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { FilterMenu } from "./SubComponents/FilterMenu";
 import {
@@ -54,18 +54,31 @@ export const options = {
         maxRotation: 90,
         minRotation: 90,
         // padding: 10,
-        color:'black',
+        color: "black",
       },
     },
-    y: {
+
+    y1: {
+      stacked: true,
+      position: "right",
+
+      title: {
+        display: true,
+        text: "Hours",
+      },
+      ticks: {
+        color: "black",
+      },
+    },
+    y2: {
       stacked: true,
       title: {
         display: true,
         text: "Hours",
       },
       ticks: {
-        color: 'black'
-    },
+        color: "black",
+      },
     },
   },
 };
@@ -85,54 +98,115 @@ const machineNames = [
   "AWQ4",
 ];
 
-export const data = {
-  labels: machineNames,
-  datasets: [
-    {
-      type: "line",
-      label: "Total",
-      data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-      borderColor: chartColors.magenta[1],
-      borderWidth: 2,
-      fill: false,
-      backgroundColor: chartColors.magenta[1],
-      pointStyle: 'rectRot',
-      pointRadius: 5,
-      pointBorderColor: 'rgb(204, 41, 46)'
-    },
-    {
-      type: "bar",
-      stack: "bar-stacked",
-      label: "BM",
-      data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-      backgroundColor: chartColors.yellow[1],
-      pointStyle:'rect'
-    },
-    {
-      type: "bar",
-      stack: "bar-stacked",
-      label: "PM",
-      data: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
-      backgroundColor: chartColors.green[1],
-      pointStyle:'rect'
-    },
-  ],
-};
+const LineTrend = ({ selectedValue, flagForTogglingFilter,selectedYear,selectedMonth }) => {
+  const [labels, setLabels] = useState([]);
 
-const LineTrend = () => {
+  const [lineTrendData, setLineTrendData] = useState({
+    lines: [],
+    totalSumOf_PM: [],
+    totalSumOf_BM: [],
+    percentage: [],
+  });
+
+  const getLineTrendData = async () => {
+    try {
+      const res = await fetch(
+        // `/manHourReport/lineTrend/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
+        `/manHourReport/lineTrend/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, BMLineTrend } = await res.json();
+
+      if (res?.status === 201) {
+        setLineTrendData(BMLineTrend);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedValue && flagForTogglingFilter !== "based-on-line") {
+      getLineTrendData();
+    }
+  }, [selectedValue,selectedYear,selectedMonth]);
+
+  const data = {
+    labels: lineTrendData?.lines,
+    datasets: [
+      {
+        type: "line",
+        label: "%",
+        data: lineTrendData?.percentage,
+        borderColor: chartColors.magenta[1],
+        borderWidth: 2,
+        fill: false,
+        backgroundColor: chartColors.magenta[1],
+        pointStyle: "rectRot",
+        pointRadius: 5,
+        pointBorderColor: "rgb(204, 41, 46)",
+        yAxisID: "y1",
+      },
+      {
+        type: "bar",
+        stack: "bar-stacked",
+        label: "BM",
+        data: lineTrendData?.totalSumOf_BM,
+        backgroundColor: chartColors.yellow[1],
+        pointStyle: "rect",
+        yAxisID: "y2",
+      },
+      {
+        type: "bar",
+        stack: "bar-stacked",
+        label: "PM",
+        data: lineTrendData?.totalSumOf_PM,
+        backgroundColor: chartColors.green[1],
+        pointStyle: "rect",
+        yAxisID: "y2",
+      },
+    ],
+  };
+
+  const dummyAPI = async () => {
+    try {
+      const res = await fetch(`/dummyAPI`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      const { message } = await res.json();
+
+      if (res?.status === 201) {
+        console.log(message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Box className="cell p-3">
       <Row style={{ marginBottom: "1rem" }}>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-        >
+        <Typography className="col" variant="h5" component="h5">
           Line Trend
         </Typography>
 
         <Col className="col-auto d-flex">
           <FilterMenu DropdownValue="hour" />
+          {/* <button onClick={dummyAPI}>dummy</button> */}
         </Col>
       </Row>
       <Divider sx={{ mb: 4, borderColor: "black" }} />

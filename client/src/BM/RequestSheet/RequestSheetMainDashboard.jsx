@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import { RadioGroup } from "@mui/material";
 import TextField from "@material-ui/core/TextField";
-import { Multiselect } from "multiselect-react-dropdown";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";

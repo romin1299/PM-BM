@@ -124,6 +124,11 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     ref: "Users",
   },
 
+  supportingTM: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Users",
+  },
+
   finalActivity: {
     type: String,
   },
