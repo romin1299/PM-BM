@@ -7,7 +7,6 @@ const Machine = require("../model/machineSchema");
 const User = require("../model/userSchema");
 const Section = require("../model/sectionSchema");
 const SubSection = require("../model/subSectionSchema");
-const Line = require("../model/lineSchema");
 const Cell = require("../model/cellSchema");
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
@@ -2997,22 +2996,38 @@ router.patch(
 );
 const filterMiddleware = async (req, res, next) => {
   try {
-    let queryObj = {};
+    let queryObj = {
+      "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+        req.query?.selectedYear,
+    };
+
+    if (req.query?.selectedMonth) {
+      queryObj = {
+        ...queryObj,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      };
+    }
+
     if (req.params?.filter === "based-on-section") {
       queryObj = {
+        ...queryObj,
         sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
     } else if (req.params?.filter === "based-on-subSection") {
       queryObj = {
+        ...queryObj,
         subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
     } else if (req.params?.filter === "based-on-cell") {
       queryObj = {
+        ...queryObj,
         cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
         // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
       };
     } else {
       queryObj = {
+        ...queryObj,
         lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
         // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
       };
@@ -8196,11 +8211,23 @@ router.get("/getApprovalLogDetails", async (req, res, next) => {
 
 const filtrationMiddleware = async (req, res, next) => {
   try {
-    let queryObjForBM = {};
+    let queryObjForBM = {
+      "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+        req.query?.selectedYear,
+    };
     let queryObjForPM = {};
+
+    if (req.query?.selectedMonth) {
+      queryObjForBM = {
+        ...queryObjForBM,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      };
+    }
 
     if (req.params?.filter === "based-on-section") {
       queryObjForBM = {
+        ...queryObjForBM,
         sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
       queryObjForPM = {
@@ -8208,6 +8235,7 @@ const filtrationMiddleware = async (req, res, next) => {
       };
     } else if (req.params?.filter === "based-on-subSection") {
       queryObjForBM = {
+        ...queryObjForBM,
         subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
       queryObjForPM = {
@@ -8215,6 +8243,7 @@ const filtrationMiddleware = async (req, res, next) => {
       };
     } else if (req.params?.filter === "based-on-cell") {
       queryObjForBM = {
+        ...queryObjForBM,
         cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
       queryObjForPM = {
@@ -8222,6 +8251,7 @@ const filtrationMiddleware = async (req, res, next) => {
       };
     } else if (req.params?.filter === "based-on-line") {
       queryObjForBM = {
+        ...queryObjForBM,
         lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
       queryObjForPM = {
@@ -8238,7 +8268,7 @@ const filtrationMiddleware = async (req, res, next) => {
   }
 };
 router.get(
-  "/manHourReport/hourTrend/:filter/:selectedId/:selectedYear",
+  "/manHourReport/hourTrend/:filter/:selectedId",
   filtrationMiddleware,
   async (req, res, next) => {
     try {
@@ -8334,7 +8364,7 @@ router.get(
         },
         {
           $match: {
-            "checkSheet_data.current_year": req.params?.selectedYear,
+            "checkSheet_data.current_year": req.query?.selectedYear,
           },
         },
         {
@@ -8403,7 +8433,7 @@ router.get(
 );
 
 router.get(
-  "/manHourReport/manHourTrend/:filter/:selectedId/:selectedYear",
+  "/manHourReport/manHourTrend/:filter/:selectedId",
   filtrationMiddleware,
   async (req, res, next) => {
     try {
@@ -8545,7 +8575,7 @@ router.get(
         },
         {
           $match: {
-            "checkSheet_data.current_year": req.params?.selectedYear,
+            "checkSheet_data.current_year": req.query?.selectedYear,
           },
         },
         {
@@ -8764,7 +8794,18 @@ router.get(
       // ]);
 
       let matchQuery_PM = {},
-        matchQuery_BM = {};
+        matchQuery_BM = {
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            req.query?.selectedYear,
+        };
+
+      if (req.query?.selectedMonth) {
+        matchQuery_BM = {
+          ...matchQuery_BM,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+            req.query?.selectedMonth,
+        };
+      }
 
       if (req.params?.filter === "based-on-section") {
         matchQuery_PM = {
@@ -8772,6 +8813,7 @@ router.get(
         };
 
         matchQuery_BM = {
+          ...matchQuery_BM,
           sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
         };
       } else if (req.params?.filter === "based-on-subSection") {
@@ -8780,6 +8822,7 @@ router.get(
         };
 
         matchQuery_BM = {
+          ...matchQuery_BM,
           subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
         };
       } else if (req.params?.filter === "based-on-cell") {
@@ -8788,6 +8831,7 @@ router.get(
         };
 
         matchQuery_BM = {
+          ...matchQuery_BM,
           lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
         };
       }
@@ -8927,6 +8971,9 @@ router.get(
             localField: "_id",
             foreignField: "lineRef",
             pipeline: [
+              {
+                $match: matchQuery_BM,
+              },
               {
                 $group: {
                   _id: null,
@@ -9093,7 +9140,18 @@ router.get(
 
       let queryPipelineForUser = [],
         matchQuery_PM = {},
-        matchQuery_BM = {};
+        matchQuery_BM = {
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            req.query?.selectedYear,
+        };
+
+      if (req.query?.selectedMonth) {
+        matchQuery_BM = {
+          ...matchQuery_BM,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+            req.query?.selectedMonth,
+        };
+      }
 
       if (req.params?.filter === "based-on-section") {
         const section = await Section.findOne(findObject);
@@ -9111,6 +9169,7 @@ router.get(
         };
 
         matchQuery_BM = {
+          ...matchQuery_BM,
           sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
         };
       } else if (req.params?.filter === "based-on-subSection") {
@@ -9129,6 +9188,7 @@ router.get(
         };
 
         matchQuery_BM = {
+          ...matchQuery_BM,
           subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
         };
       } else if (req.params?.filter === "based-on-cell") {
@@ -9147,6 +9207,7 @@ router.get(
         };
 
         matchQuery_BM = {
+          ...matchQuery_BM,
           lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
         };
       }

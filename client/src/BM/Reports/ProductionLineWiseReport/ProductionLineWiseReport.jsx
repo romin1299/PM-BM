@@ -137,8 +137,8 @@ const ProductionLineWiseReport = () => {
   const getRequestSheetDataBasedOnSelectedDate = async (data) => {
     try {
       const res = await fetch(
-        `/getRequestSheetDataBasedOnSelectedDate/${reduceState?.flagForCellAndLineToggle}/632c41261d1becfedab325f9/${data?.selectedDate}`,
-        // `/getMTTRGraphData/${reduceState?.flagForCellAndLineToggle}/${reduceState?.selectedValue}/${data?.selectedDate}`,
+        `/getRequestSheetDataBasedOnSelectedDate/${reduceState?.flagForCellAndLineToggle}/632c41261d1becfedab325f9/${data?.selectedDate}/?selectedYear=2023-2024`,
+        // `/getMTTRGraphData/${reduceState?.flagForCellAndLineToggle}/${reduceState?.selectedValue}/${data?.selectedDate}/?selectedYear=2023-2024`,
         {
           method: "GET",
           headers: {
