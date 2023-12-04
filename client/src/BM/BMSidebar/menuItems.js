@@ -24,6 +24,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 
+
 export const menuItems = [
   {
     title: "Dashboard",
@@ -68,6 +69,12 @@ export const menuItems = [
     title: "Approval Dashboard",
     icon: <FactCheckIcon className="text-white" />,
     route: "/bm/approval",
+    allowedRoles: ["TL/HOSS", "Plant-Admin","Section-Admin"],
+  },
+  {
+    title: "Approval Logs",
+    icon: <AssignmentTurnedInIcon className="text-white" />,
+    route: "/bm/approvalLogs",
     allowedRoles: ["TL/HOSS", "Plant-Admin","Section-Admin", "Operator"],
   },
   {

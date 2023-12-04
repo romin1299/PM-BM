@@ -75,7 +75,7 @@ const ActionList = ({ actions, setActions }) => {
           lg={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <b>ACTIONS</b>
+          <b>UPDATE</b>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
         </Col>
       </Row>
@@ -143,7 +143,7 @@ const ActionList = ({ actions, setActions }) => {
               </>
             ) : (
               <>
-                <button onClick={() => setEditedAction({ ...action })}>
+                <button type="button" onClick={() => setEditedAction({ ...action })}>
                   Edit
                 </button>
                 <button onClick={() => deleteAction(action.id)}>Delete</button>
