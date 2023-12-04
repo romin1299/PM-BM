@@ -7,7 +7,6 @@ const Machine = require("../model/machineSchema");
 const User = require("../model/userSchema");
 const Section = require("../model/sectionSchema");
 const SubSection = require("../model/subSectionSchema");
-const Line = require("../model/lineSchema");
 const Cell = require("../model/cellSchema");
 const Line = require("../model/lineSchema");
 const authenticate = require("../middleware/authenticate");
@@ -1337,17 +1336,15 @@ const queryObjectMiddlewareFunction = async (req, res, next) => {
       sectionRef: req.section?._id,
     };
 
-    
-
     if (req.query?.subSectionRef) {
       queryObj = {
         subSectionRef: mongoose.Types.ObjectId(req.query?.subSectionRef),
       };
-     
+
       const cellData = await Cell.find({
         subSection_names: mongoose.Types.ObjectId(req.query?.subSectionRef),
       }).sort({ cell_sequence: 1 });
-     
+
       req.cellData = cellData;
     } else if (req.query?.cellRef) {
       queryObj = {
@@ -3000,22 +2997,38 @@ router.patch(
 );
 const filterMiddleware = async (req, res, next) => {
   try {
-    let queryObj = {};
+    let queryObj = {
+      "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+        req.query?.selectedYear,
+    };
+
+    if (req.query?.selectedMonth) {
+      queryObj = {
+        ...queryObj,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      };
+    }
+
     if (req.params?.filter === "based-on-section") {
       queryObj = {
+        ...queryObj,
         sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
     } else if (req.params?.filter === "based-on-subSection") {
       queryObj = {
+        ...queryObj,
         subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
     } else if (req.params?.filter === "based-on-cell") {
       queryObj = {
+        ...queryObj,
         cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
         // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
       };
     } else {
       queryObj = {
+        ...queryObj,
         lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
         // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
       };
@@ -4887,7 +4900,6 @@ router.get(
   "/getMtbfData/:filter/:selectedId",
   filterMiddleware,
   async (req, res, next) => {
-
     const getMtbf = await RequestSheetOfBM.aggregate([
       {
         $match: req.queryObj,
@@ -4969,10 +4981,8 @@ router.get(
           labels: { $push: "$month" },
 
           data: {
-            $push: { $trunc: ["$value.hours",1] },
+            $push: { $trunc: ["$value.hours", 1] },
           },
-
-         
         },
       },
     ]);
@@ -5003,13 +5013,10 @@ router.get("/getSectionsDropdownForBdTrend", async (req, res, next) => {
           ),
         },
       });
-     
     } else {
-
       subSectionsData = await SubSection.find({
         section_names: section?._id,
       });
-      
     }
 
     return res.status(201).json({
@@ -5027,8 +5034,7 @@ router.get(
   "/hourlyMonthlyBdTrendForPlant",
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
-    
-let queryObj = {};
+    let queryObj = {};
 
     const plant = await Plant.findOne({
       plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
@@ -5151,7 +5157,6 @@ router.get(
   "/sectionMonthlyBdTrendForPlant",
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
-    
     let dateObj = {
       $dateToString: {
         format: "%m",
@@ -5482,7 +5487,6 @@ router.get(
           },
         },
       },
-      
     ]);
 
     return res.status(200).json({
@@ -6149,7 +6153,6 @@ router.get(
   "/majorBDCountForPlant",
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
-    
     let dateObj = {
       $dateToString: {
         format: "%m",
@@ -6166,8 +6169,6 @@ router.get(
     queryObj = {
       plantRef: mongoose.Types.ObjectId(plant._id),
     };
-
-   
 
     const bdTrend = await RequestSheetOfBM.aggregate([
       {
@@ -6188,12 +6189,12 @@ router.get(
       {
         $group: {
           _id: {
-            date : dateObj,
+            date: dateObj,
 
             sectionRef: "$section_data.section_name",
           },
 
-          count : {$sum : 1},
+          count: { $sum: 1 },
           // bdTimeSum: { $sum: "$bdTime" },
         },
       },
@@ -6218,7 +6219,9 @@ router.get(
               as: "month",
               in: {
                 $cond: [
-                  { $in: ["$$month.monthInDecimal", "$sectionWiseTotal.month"] },
+                  {
+                    $in: ["$$month.monthInDecimal", "$sectionWiseTotal.month"],
+                  },
                   {
                     $arrayElemAt: [
                       "$sectionWiseTotal.mbdCount",
@@ -6230,23 +6233,18 @@ router.get(
                       },
                     ],
                   },
-                 0
+                  0,
                 ],
               },
             },
           },
         },
       },
-   
-     
-
-      
-  
-]);
+    ]);
 
     return res.status(200).json({
       message: "Mbd Count data get successfully",
-     
+
       bdTrend: bdTrend,
     });
   }
@@ -6273,8 +6271,6 @@ router.get(
       // },
     };
 
-   
-
     const bdTrend = await RequestSheetOfBM.aggregate([
       {
         $match: queryObj,
@@ -6294,12 +6290,12 @@ router.get(
       {
         $group: {
           _id: {
-            date : dateObj,
+            date: dateObj,
 
             cellRef: "$cell_data.cell_name",
           },
 
-          count : {$sum : 1},
+          count: { $sum: 1 },
           // bdTimeSum: { $sum: "$bdTime" },
         },
       },
@@ -6336,19 +6332,18 @@ router.get(
                       },
                     ],
                   },
-                 0
+                  0,
                 ],
               },
             },
           },
         },
       },
-  
-]);
+    ]);
 
     return res.status(200).json({
       message: "Mbd Count data get successfully",
-     
+
       bdTrend: bdTrend,
     });
   }
@@ -8215,13 +8210,10 @@ router.get("/getApprovalLogDetails", async (req, res, next) => {
                 timezone: "Asia/Kolkata",
               },
             },
-  
           },
         },
       ]
     );
-
-    
 
     res.status(201).json({
       message: "Get approval data successfully",
@@ -8239,11 +8231,23 @@ router.get("/getApprovalLogDetails", async (req, res, next) => {
 
 const filtrationMiddleware = async (req, res, next) => {
   try {
-    let queryObjForBM = {};
+    let queryObjForBM = {
+      "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+        req.query?.selectedYear,
+    };
     let queryObjForPM = {};
+
+    if (req.query?.selectedMonth) {
+      queryObjForBM = {
+        ...queryObjForBM,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      };
+    }
 
     if (req.params?.filter === "based-on-section") {
       queryObjForBM = {
+        ...queryObjForBM,
         sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
       queryObjForPM = {
@@ -8251,6 +8255,7 @@ const filtrationMiddleware = async (req, res, next) => {
       };
     } else if (req.params?.filter === "based-on-subSection") {
       queryObjForBM = {
+        ...queryObjForBM,
         subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
       queryObjForPM = {
@@ -8258,6 +8263,7 @@ const filtrationMiddleware = async (req, res, next) => {
       };
     } else if (req.params?.filter === "based-on-cell") {
       queryObjForBM = {
+        ...queryObjForBM,
         cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
       queryObjForPM = {
@@ -8265,6 +8271,7 @@ const filtrationMiddleware = async (req, res, next) => {
       };
     } else if (req.params?.filter === "based-on-line") {
       queryObjForBM = {
+        ...queryObjForBM,
         lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
       queryObjForPM = {
@@ -8281,7 +8288,7 @@ const filtrationMiddleware = async (req, res, next) => {
   }
 };
 router.get(
-  "/manHourReport/hourTrend/:filter/:selectedId/:selectedYear",
+  "/manHourReport/hourTrend/:filter/:selectedId",
   filtrationMiddleware,
   async (req, res, next) => {
     try {
@@ -8377,7 +8384,7 @@ router.get(
         },
         {
           $match: {
-            "checkSheet_data.current_year": req.params?.selectedYear,
+            "checkSheet_data.current_year": req.query?.selectedYear,
           },
         },
         {
@@ -8446,7 +8453,7 @@ router.get(
 );
 
 router.get(
-  "/manHourReport/manHourTrend/:filter/:selectedId/:selectedYear",
+  "/manHourReport/manHourTrend/:filter/:selectedId",
   filtrationMiddleware,
   async (req, res, next) => {
     try {
@@ -8588,7 +8595,7 @@ router.get(
         },
         {
           $match: {
-            "checkSheet_data.current_year": req.params?.selectedYear,
+            "checkSheet_data.current_year": req.query?.selectedYear,
           },
         },
         {
@@ -8807,7 +8814,18 @@ router.get(
       // ]);
 
       let matchQuery_PM = {},
-        matchQuery_BM = {};
+        matchQuery_BM = {
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            req.query?.selectedYear,
+        };
+
+      if (req.query?.selectedMonth) {
+        matchQuery_BM = {
+          ...matchQuery_BM,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+            req.query?.selectedMonth,
+        };
+      }
 
       if (req.params?.filter === "based-on-section") {
         matchQuery_PM = {
@@ -8815,6 +8833,7 @@ router.get(
         };
 
         matchQuery_BM = {
+          ...matchQuery_BM,
           sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
         };
       } else if (req.params?.filter === "based-on-subSection") {
@@ -8823,6 +8842,7 @@ router.get(
         };
 
         matchQuery_BM = {
+          ...matchQuery_BM,
           subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
         };
       } else if (req.params?.filter === "based-on-cell") {
@@ -8831,6 +8851,7 @@ router.get(
         };
 
         matchQuery_BM = {
+          ...matchQuery_BM,
           lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
         };
       }
@@ -8970,6 +8991,9 @@ router.get(
             localField: "_id",
             foreignField: "lineRef",
             pipeline: [
+              {
+                $match: matchQuery_BM,
+              },
               {
                 $group: {
                   _id: null,
@@ -9136,7 +9160,18 @@ router.get(
 
       let queryPipelineForUser = [],
         matchQuery_PM = {},
-        matchQuery_BM = {};
+        matchQuery_BM = {
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            req.query?.selectedYear,
+        };
+
+      if (req.query?.selectedMonth) {
+        matchQuery_BM = {
+          ...matchQuery_BM,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+            req.query?.selectedMonth,
+        };
+      }
 
       if (req.params?.filter === "based-on-section") {
         const section = await Section.findOne(findObject);
@@ -9154,6 +9189,7 @@ router.get(
         };
 
         matchQuery_BM = {
+          ...matchQuery_BM,
           sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
         };
       } else if (req.params?.filter === "based-on-subSection") {
@@ -9172,6 +9208,7 @@ router.get(
         };
 
         matchQuery_BM = {
+          ...matchQuery_BM,
           subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
         };
       } else if (req.params?.filter === "based-on-cell") {
@@ -9190,6 +9227,7 @@ router.get(
         };
 
         matchQuery_BM = {
+          ...matchQuery_BM,
           lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
         };
       }

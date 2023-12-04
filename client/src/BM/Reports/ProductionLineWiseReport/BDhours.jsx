@@ -41,8 +41,8 @@ const BDhours = ({ selectedValue, flagForCellAndLineToggle }) => {
   const getBDHours = async () => {
     try {
       const res = await fetch(
-        `/getBDHoursGraphData/by-default/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
-        // `/getBDHoursGraphData/${flagForCellAndLineToggle}/${selectedValue}`,
+        `/getBDHoursGraphData/by-default/${flagForCellAndLineToggle}/632c41261d1becfedab325f9/?selectedYear=2023-2024`,
+        // `/getBDHoursGraphData/${flagForCellAndLineToggle}/${selectedValue}/?selectedYear=2023-2024`,
         {
           method: "GET",
           headers: {
