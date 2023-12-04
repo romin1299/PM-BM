@@ -91,6 +91,27 @@ const allMonths = [
   },
 ];
 
+const monthKeyArray = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "June",
+  "July",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+let currentMonth = monthKeyArray[new Date().getMonth()];
+let currentYear =
+  new Date().getMonth() < 3
+    ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+    : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
 router.get(
   "/getDataBasedOnScanningRequest/:sheetType/:machineCode",
   async (req, res, next) => {
@@ -1552,7 +1573,7 @@ router.get(
               _id: {
                 $dateToString: {
                   format: "%m",
-                  date: "$sheetIssuedDateAndTimeOfBM",
+                  date: "$problemOccurredDateAndTimeOfBM",
                   timezone: timezone,
                 },
               },
@@ -2925,16 +2946,23 @@ router.patch(
 const filterMiddleware = async (req, res, next) => {
   try {
     let queryObj = {};
-
-    if (req.params?.filter === "based-on-cell") {
+    if (req.params?.filter === "based-on-section") {
+      queryObj = {
+        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-subSection") {
+      queryObj = {
+        subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-cell") {
       queryObj = {
         cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
-        sheetCompletedDateAndTime: { $ne: null },
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
       };
     } else {
       queryObj = {
         lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
-        sheetCompletedDateAndTime: { $ne: null },
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
       };
     }
 
@@ -2962,7 +2990,7 @@ router.get(
 
       const matchObj = {
         ...req.queryObj,
-        sheetIssuedDateAndTimeOfBM: {
+        problemOccurredDateAndTimeOfBM: {
           $gte: startDate.toDate(),
           $lte: endDate.toDate(),
         },
@@ -2981,15 +3009,7 @@ router.get(
           {
             $addFields: {
               BDhour: {
-                $divide: [
-                  {
-                    $subtract: [
-                      "$sheetCompletedDateAndTime",
-                      "$sheetIssuedDateAndTimeOfBM",
-                    ],
-                  },
-                  3600000,
-                ],
+                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
               },
             },
           },
@@ -3003,7 +3023,7 @@ router.get(
               _id: {
                 $dateToString: {
                   format: "%d",
-                  date: "$sheetIssuedDateAndTimeOfBM",
+                  date: "$problemOccurredDateAndTimeOfBM",
                   timezone: timezone,
                 },
               },
@@ -3096,7 +3116,7 @@ router.get(
             _id: {
               $dateToString: {
                 format: "%d",
-                date: "$sheetIssuedDateAndTimeOfBM",
+                date: "$problemOccurredDateAndTimeOfBM",
                 timezone: timezone,
               },
             },
@@ -3433,7 +3453,7 @@ router.get(
 
       req.queryObj = {
         ...req.queryObj,
-        sheetIssuedDateAndTimeOfBM: {
+        problemOccurredDateAndTimeOfBM: {
           $gte: new Date(req.params.date),
           $lt: nextDate,
         },
@@ -3464,7 +3484,7 @@ router.get(
             _id: {
               $dateToString: {
                 format: "%m",
-                date: "$sheetIssuedDateAndTimeOfBM",
+                date: "$problemOccurredDateAndTimeOfBM",
                 timezone: timezone,
               },
             },
@@ -3472,16 +3492,16 @@ router.get(
             hours: {
               $sum: {
                 $cond: [
-                  { $gt: ["$sheetCompletedDateAndTime", null] },
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
                   {
                     $divide: [
-                      {
-                        $subtract: [
-                          "$sheetCompletedDateAndTime",
-                          "$sheetIssuedDateAndTimeOfBM",
-                        ],
-                      },
-                      3600000,
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
                     ],
                   },
                   0,
@@ -3491,16 +3511,16 @@ router.get(
             target: {
               $sum: {
                 $cond: [
-                  { $gt: ["$sheetCompletedDateAndTime", null] },
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
                   {
                     $divide: [
-                      {
-                        $subtract: [
-                          "$sheetCompletedDateAndTime",
-                          "$sheetIssuedDateAndTimeOfBM",
-                        ],
-                      },
-                      3600000,
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
                     ],
                   },
                   0,
@@ -3614,34 +3634,18 @@ router.get(
             _id: {
               $dateToString: {
                 format: "%m",
-                date: "$sheetIssuedDateAndTimeOfBM",
+                date: "$problemOccurredDateAndTimeOfBM",
                 timezone: timezone,
               },
             },
             hours: {
               $sum: {
-                $divide: [
-                  {
-                    $subtract: [
-                      "$sheetCompletedDateAndTime",
-                      "$sheetIssuedDateAndTimeOfBM",
-                    ],
-                  },
-                  3600000,
-                ],
+                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
               },
             },
             target: {
               $sum: {
-                $divide: [
-                  {
-                    $subtract: [
-                      "$sheetCompletedDateAndTime",
-                      "$sheetIssuedDateAndTimeOfBM",
-                    ],
-                  },
-                  3600000,
-                ],
+                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
               },
             },
           },
@@ -3716,7 +3720,6 @@ router.get(
           },
         },
       ]);
-
 
       return res.status(201).json({
         message: "BDHours graph data get successfully",
@@ -4216,24 +4219,21 @@ router.post(
             pipeline: [
               {
                 $match: {
-                  sheetCompletedDateAndTime: { $ne: null },
+                  "maintenanceReportFilledByMTD.workEndedDateOfBM": {
+                    $ne: null,
+                  },
                 },
               },
               {
                 $project: {
                   machineRef: 1,
                   requestSheetNoOfBM: 1,
-                  sheetIssuedDateAndTimeOfBM: 1,
-                  sheetCompletedDateAndTime: 1,
+                  // sheetIssuedDateAndTimeOfBM: 1,
+                  // sheetCompletedDateAndTime: 1,
                   BDhours: {
                     $divide: [
-                      {
-                        $subtract: [
-                          "$sheetCompletedDateAndTime",
-                          "$sheetIssuedDateAndTimeOfBM",
-                        ],
-                      },
-                      3600000,
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
                     ],
                   },
                 },
@@ -4471,7 +4471,7 @@ router.get("/getRequestSheetDataLineWise", async (req, res, next) => {
     if (req.query.lineId) {
       queryObj = {
         lineRef: mongoose.Types.ObjectId(req.query.lineId),
-        sheetIssuedDateAndTimeOfBM: {
+        problemOccurredDateAndTimeOfBM: {
           $gte: startDate.toDate(),
           $lte: endDate.toDate(),
         },
@@ -4651,9 +4651,8 @@ router.get(
 
       {
         $group: {
-          _id:
-             "$problemCategory",
-         
+          _id: "$problemCategory",
+
           bdtime: { $sum: "$bdTime" },
           count: { $sum: 1 },
         },
@@ -4665,10 +4664,10 @@ router.get(
           labels: { $push: "$_id" },
           // target: { $push: "$value.target" },
           hours: {
-            $push:  "$bdtime" ,
+            $push: "$bdtime",
           },
           count: {
-            $push: "$count" ,
+            $push: "$count",
           },
         },
       },
@@ -4705,10 +4704,10 @@ router.get(
           labels: { $push: "$_id" },
 
           hours: {
-            $push:  "$bdtime" ,
+            $push: "$bdtime",
           },
           count: {
-            $push: "$count" ,
+            $push: "$count",
           },
         },
       },
@@ -4726,7 +4725,6 @@ router.get(
   "/getBdPercentage/:filter/:selectedId",
   filterMiddleware,
   async (req, res, next) => {
-
     const getBdPercentage = await RequestSheetOfBM.aggregate([
       {
         $match: req.queryObj,
@@ -4935,8 +4933,7 @@ router.get(
   "/hourlyMonthlyBdTrendForPlant/:plantId",
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
-
-    console.log(req.rootUser)
+    console.log(req.rootUser);
     let queryObj = {};
 
     queryObj = {
@@ -4948,108 +4945,105 @@ router.get(
     };
 
     const monthlyBDTrendHourly = await RequestSheetOfBM.aggregate([
-     
-            {
-              $match: queryObj,
+      {
+        $match: queryObj,
+      },
+
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%m",
+              date: "$sheetIssuedDateAndTimeOfBM",
+              timezone: timezone,
             },
+          },
 
-            {
-              $group: {
-                _id: {
-                  $dateToString: {
-                    format: "%m",
-                    date: "$sheetIssuedDateAndTimeOfBM",
-                    timezone: timezone,
-                  },
-                },
-
-                lessThanOne: {
-                  $sum: {
-                    $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
-                  },
-                },
-                lessThanTwo: {
-                  $sum: {
-                    $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
-                  },
-                },
-                greaterThanTwo: {
-                  $sum: {
-                    $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
-                  },
-                },
-              },
+          lessThanOne: {
+            $sum: {
+              $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
             },
-
-            {
-              $group: {
-                _id: null,
-                array: { $push: "$$ROOT" },
-              },
+          },
+          lessThanTwo: {
+            $sum: {
+              $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
             },
+          },
+          greaterThanTwo: {
+            $sum: {
+              $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
+            },
+          },
+        },
+      },
 
-            {
-              $project: {
-                _id: 0,
-                array: {
-                  $map: {
-                    input: allMonths,
-                    as: "month",
-                    in: {
-                      $cond: [
-                        { $in: ["$$month.monthInDecimal", "$array._id"] },
+      {
+        $group: {
+          _id: null,
+          array: { $push: "$$ROOT" },
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          array: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  { $in: ["$$month.monthInDecimal", "$array._id"] },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      $arrayElemAt: [
+                        "$array",
                         {
-                          month: "$$month.monthName",
-                          value: {
-                            $arrayElemAt: [
-                              "$array",
-                              {
-                                $indexOfArray: [
-                                  "$array._id",
-                                  "$$month.monthInDecimal",
-                                ],
-                              },
-                            ],
-                          },
-                        },
-                        {
-                          month: "$$month.monthName",
-                          value: {
-                            _id: "$$month.monthInDecimal",
-                            lessThanOne: 0,
-                            lessThanTwo: 0,
-                            greaterThanTwo: 0,
-                          },
+                          $indexOfArray: [
+                            "$array._id",
+                            "$$month.monthInDecimal",
+                          ],
                         },
                       ],
                     },
                   },
-                },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      _id: "$$month.monthInDecimal",
+                      lessThanOne: 0,
+                      lessThanTwo: 0,
+                      greaterThanTwo: 0,
+                    },
+                  },
+                ],
               },
             },
-            { $unwind: "$array" },
-            {
-              $replaceRoot: { newRoot: "$array" },
-            },
-            {
-              $group: {
-                _id: null,
-                labels: { $push: "$month" },
-                // target: { $push: "$value.target" },
-                lessThanOne: {
-                  $push: "$value.lessThanOne",
-                },
-                lessThanTwo: {
-                  $push: "$value.lessThanTwo",
-                },
-                greaterThanTwo: {
-                  $push: "$value.greaterThanTwo",
-                },
-              },
-            },
-          ],
-        
-    );
+          },
+        },
+      },
+      { $unwind: "$array" },
+      {
+        $replaceRoot: { newRoot: "$array" },
+      },
+      {
+        $group: {
+          _id: null,
+          labels: { $push: "$month" },
+          // target: { $push: "$value.target" },
+          lessThanOne: {
+            $push: "$value.lessThanOne",
+          },
+          lessThanTwo: {
+            $push: "$value.lessThanTwo",
+          },
+          greaterThanTwo: {
+            $push: "$value.greaterThanTwo",
+          },
+        },
+      },
+    ]);
 
     return res.status(200).json({
       message: "PlantWise Monthly BD trend data get successfully",
@@ -5106,7 +5100,7 @@ router.get(
         },
       },
 
-      { 
+      {
         $group: {
           _id: "$_id.sectionRef",
           sectionWiseTotal: {
@@ -5127,7 +5121,9 @@ router.get(
               as: "month",
               in: {
                 $cond: [
-                  { $in: ["$$month.monthInDecimal", "$sectionWiseTotal.month"] },
+                  {
+                    $in: ["$$month.monthInDecimal", "$sectionWiseTotal.month"],
+                  },
                   {
                     $arrayElemAt: [
                       "$sectionWiseTotal.bdTimeSum",
@@ -5139,14 +5135,13 @@ router.get(
                       },
                     ],
                   },
-                 0
+                  0,
                 ],
               },
             },
           },
         },
       },
-      
 
       // // { $unwind: "$array" },
       // // {
@@ -5165,7 +5160,6 @@ router.get(
       //     },
       //   },
       // },
-   
     ]);
 
     return res.status(200).json({
@@ -5387,7 +5381,7 @@ router.get(
                       },
                     ],
                   },
-                 0
+                  0,
                 ],
               },
             },
@@ -5419,8 +5413,6 @@ router.get(
 );
 
 // ---------------- Yearly BD Trend Chart -------------------
-
-
 
 router.get(
   "/hourlyYearlyBdTrendForPlant/:plantId",
@@ -5628,7 +5620,7 @@ router.get(
                 as: "section_data",
               },
             },
-      
+
             {
               $unwind: "$section_data",
             },
@@ -5654,36 +5646,34 @@ router.get(
               },
             },
 
-
-            
-      // {
-      //   $project: {
-      //     // _id: 0,
-      //     array: {
-      //       $map: {
-      //         input: allMonths,
-      //         as: "month",
-      //         in: {
-      //           $cond: [
-      //             { $in: ["$$month.monthInDecimal", "$sectionWiseTotal.year"] },
-      //             {
-      //               $arrayElemAt: [
-      //                 "$sectionWiseTotal.bdTimeSum",
-      //                 {
-      //                   $indexOfArray: [
-      //                     "$sectionWiseTotal.year",
-      //                     "$$month.monthInDecimal",
-      //                   ],
-      //                 },
-      //               ],
-      //             },
-      //            0
-      //           ],
-      //         },
-      //       },
-      //     },
-      //   },
-      // },
+            // {
+            //   $project: {
+            //     // _id: 0,
+            //     array: {
+            //       $map: {
+            //         input: allMonths,
+            //         as: "month",
+            //         in: {
+            //           $cond: [
+            //             { $in: ["$$month.monthInDecimal", "$sectionWiseTotal.year"] },
+            //             {
+            //               $arrayElemAt: [
+            //                 "$sectionWiseTotal.bdTimeSum",
+            //                 {
+            //                   $indexOfArray: [
+            //                     "$sectionWiseTotal.year",
+            //                     "$$month.monthInDecimal",
+            //                   ],
+            //                 },
+            //               ],
+            //             },
+            //            0
+            //           ],
+            //         },
+            //       },
+            //     },
+            //   },
+            // },
 
             // {
             //   $group: {
@@ -5719,7 +5709,7 @@ router.get(
                 as: "section_data",
               },
             },
-      
+
             {
               $unwind: "$section_data",
             },
@@ -5733,7 +5723,6 @@ router.get(
               },
             },
 
-            
             {
               $group: {
                 _id: "$_id.sectionRef",
@@ -5746,7 +5735,7 @@ router.get(
               },
             },
             { $unwind: "$sectionWiseTotal" },
-           
+
             {
               $group: {
                 _id: null,
@@ -5974,7 +5963,7 @@ router.get(
                 as: "cell_data",
               },
             },
-      
+
             {
               $unwind: "$cell_data",
             },
@@ -6000,7 +5989,7 @@ router.get(
               },
             },
             { $unwind: "$cellWiseTotal" },
-            
+
             {
               $group: {
                 _id: null,
@@ -6025,7 +6014,7 @@ router.get(
                 as: "cell_data",
               },
             },
-      
+
             {
               $unwind: "$cell_data",
             },
@@ -6051,7 +6040,7 @@ router.get(
               },
             },
             { $unwind: "$sectionWiseTotal" },
-            
+
             {
               $group: {
                 _id: null,
@@ -6073,9 +6062,6 @@ router.get(
     });
   }
 );
-
-
-
 
 // ---------------- Major BD Count Chart -------------------
 // router.get(
@@ -6279,7 +6265,6 @@ router.get(
 
 // ---------------- LineWise BD Contribution Charts -------------------
 
-
 router.get(
   "/monthlyLineWiseBdContributionForPlant/:plantId",
   // BdTrendFilterMiddleware,
@@ -6293,7 +6278,6 @@ router.get(
         $lt: moment().startOf("month").add(1, "month").toDate(),
       },
     };
-
 
     const monthlyLineWiseBDContribution = await RequestSheetOfBM.aggregate([
       {
@@ -7208,7 +7192,6 @@ router.get(
 //   }
 // );
 
-
 router.get("/getApprovalRequestSheetData", async (req, res, next) => {
   try {
     const findLoggedUserPlantData = await Plant.findOne({
@@ -7283,14 +7266,15 @@ const middlewareForFindingTrendData = async (req, res, next) => {
   try {
     const TrendData = await RequestSheetOfBM.aggregate([
       {
-        $match: {},
+        // $match: {},
+        $match: req.queryObj,
       },
       {
         $group: {
           _id: {
             $dateToString: {
               format: "%m",
-              date: "$sheetIssuedDateAndTimeOfBM",
+              date: "$problemOccurredDateAndTimeOfBM",
               timezone: timezone,
             },
           },
@@ -7298,17 +7282,14 @@ const middlewareForFindingTrendData = async (req, res, next) => {
           hours: {
             $sum: {
               $cond: [
-                { $gt: ["$sheetCompletedDateAndTime", null] },
                 {
-                  $divide: [
-                    {
-                      $subtract: [
-                        "$sheetCompletedDateAndTime",
-                        "$sheetIssuedDateAndTimeOfBM",
-                      ],
-                    },
-                    3600000,
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
                   ],
+                },
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
                 },
                 0,
               ],
@@ -7317,17 +7298,14 @@ const middlewareForFindingTrendData = async (req, res, next) => {
           target: {
             $sum: {
               $cond: [
-                { $gt: ["$sheetCompletedDateAndTime", null] },
                 {
-                  $divide: [
-                    {
-                      $subtract: [
-                        "$sheetCompletedDateAndTime",
-                        "$sheetIssuedDateAndTimeOfBM",
-                      ],
-                    },
-                    3600000,
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
                   ],
+                },
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
                 },
                 0,
               ],
@@ -7427,7 +7405,7 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
   try {
     const TrendData = await RequestSheetOfBM.aggregate([
       {
-        $match: {},
+        $match: req.queryObj,
       },
       {
         $lookup: {
@@ -7452,17 +7430,14 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
           hours: {
             $sum: {
               $cond: [
-                { $gt: ["$sheetCompletedDateAndTime", null] },
                 {
-                  $divide: [
-                    {
-                      $subtract: [
-                        "$sheetCompletedDateAndTime",
-                        "$sheetIssuedDateAndTimeOfBM",
-                      ],
-                    },
-                    3600000,
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
                   ],
+                },
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
                 },
                 0,
               ],
@@ -7471,17 +7446,14 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
           target: {
             $sum: {
               $cond: [
-                { $gt: ["$sheetCompletedDateAndTime", null] },
                 {
-                  $divide: [
-                    {
-                      $subtract: [
-                        "$sheetCompletedDateAndTime",
-                        "$sheetIssuedDateAndTimeOfBM",
-                      ],
-                    },
-                    3600000,
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
                   ],
+                },
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
                 },
                 0,
               ],
@@ -7523,7 +7495,7 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
 const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
   const TrendData = await RequestSheetOfBM.aggregate([
     {
-      $match: {},
+      $match: req.queryObj,
     },
     {
       $lookup: {
@@ -7548,17 +7520,11 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
         hours: {
           $sum: {
             $cond: [
-              { $gt: ["$sheetCompletedDateAndTime", null] },
               {
-                $divide: [
-                  {
-                    $subtract: [
-                      "$sheetCompletedDateAndTime",
-                      "$sheetIssuedDateAndTimeOfBM",
-                    ],
-                  },
-                  3600000,
-                ],
+                $gt: ["$maintenanceReportFilledByMTD.workEndedDateOfBM", null],
+              },
+              {
+                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
               },
               0,
             ],
@@ -7645,6 +7611,7 @@ const responseMiddlewareForReport = async (req, res, next) => {
 
 router.get(
   "/getTrendData/MTTR/:filter/:selectedId",
+  filterMiddleware,
   filterMiddlewareForMTTRReport,
   middlewareForFindingTrendData,
   async (req, res, next) => {
@@ -7656,6 +7623,7 @@ router.get(
 
 router.get(
   "/getLineWiseMTTRTrendData/:filter/:selectedId",
+  filterMiddleware,
   filterMiddlewareForMTTRReport,
   middlewareForFindingLineWiseTrendData,
   async (req, res, next) => {
@@ -7667,6 +7635,7 @@ router.get(
 
 router.get(
   "/getMachineWiseMTTRTrendData/:filter/:selectedId",
+  filterMiddleware,
   filterMiddlewareForMTTRReport,
   async (req, res, next) => {
     req.sort = -1;
@@ -7689,7 +7658,7 @@ router.get(
 
       req.queryObj = {
         machineRef: mongoose.Types.ObjectId(req.params?.machineCode),
-        sheetIssuedDateAndTimeOfBM: {
+        problemOccurredDateAndTimeOfBM: {
           $gte: new Date(req.params.date),
           $lt: nextDate,
         },
@@ -7705,6 +7674,7 @@ router.get(
 
 router.get(
   "/getTrendData/MTBF/:filter/:selectedId",
+  filterMiddleware,
   filterMiddlewareForMTBFReport,
   middlewareForFindingTrendData,
   async (req, res, next) => {
@@ -7716,6 +7686,7 @@ router.get(
 
 router.get(
   "/getLineWiseMTBFTrendData/:filter/:selectedId",
+  filterMiddleware,
   filterMiddlewareForMTBFReport,
   middlewareForFindingLineWiseTrendData,
   async (req, res, next) => {
@@ -7727,6 +7698,7 @@ router.get(
 
 router.get(
   "/getMachineWiseMTBFTrendDataData/:filter/:selectedId",
+  filterMiddleware,
   filterMiddlewareForMTBFReport,
   async (req, res, next) => {
     req.sort = 1;
@@ -7801,23 +7773,23 @@ router.get(
             _id: {
               $dateToString: {
                 format: "%m",
-                date: "$sheetIssuedDateAndTimeOfBM",
+                date: "$problemOccurredDateAndTimeOfBM",
                 timezone: timezone,
               },
             },
             hours: {
               $sum: {
                 $cond: [
-                  { $gt: ["$sheetCompletedDateAndTime", null] },
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
                   {
                     $divide: [
-                      {
-                        $subtract: [
-                          "$sheetCompletedDateAndTime",
-                          "$sheetIssuedDateAndTimeOfBM",
-                        ],
-                      },
-                      3600000,
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
                     ],
                   },
                   0,
@@ -7966,7 +7938,7 @@ router.get(
             _id: {
               $dateToString: {
                 format: "%m",
-                date: "$sheetIssuedDateAndTimeOfBM",
+                date: "$problemOccurredDateAndTimeOfBM",
                 timezone: timezone,
               },
             },
@@ -7975,13 +7947,8 @@ router.get(
                 $multiply: [
                   {
                     $divide: [
-                      {
-                        $subtract: [
-                          "$sheetCompletedDateAndTime",
-                          "$sheetIssuedDateAndTimeOfBM",
-                        ],
-                      },
-                      3600000,
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
                     ],
                   },
                   {
@@ -8160,10 +8127,10 @@ router.get(
 
       return res.status(201).json({
         message: "HourTrend data get successfully",
-        manHourTrendData:{
+        manHourTrendData: {
           BMManHourTrend: BMManHourTrend?.[0]?.array,
           PMManHourTrend: PMManHourTrend?.[0]?.data,
-        }
+        },
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -8413,16 +8380,16 @@ router.get(
             totalSumOf_BM: {
               $sum: {
                 $cond: [
-                  { $gt: ["$sheetCompletedDateAndTime", null] },
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
                   {
                     $divide: [
-                      {
-                        $subtract: [
-                          "$sheetCompletedDateAndTime",
-                          "$sheetIssuedDateAndTimeOfBM",
-                        ],
-                      },
-                      3600000,
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
                     ],
                   },
                   0,
@@ -8432,7 +8399,6 @@ router.get(
           },
         },
       ]);
-
 
       const totalSum =
         (PM_TotalSum?.[0]?.totalSumOf_PM || 0) +
@@ -8489,16 +8455,16 @@ router.get(
                   totalSumOf_BM: {
                     $sum: {
                       $cond: [
-                        { $gt: ["$sheetCompletedDateAndTime", null] },
+                        {
+                          $gt: [
+                            "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                            null,
+                          ],
+                        },
                         {
                           $divide: [
-                            {
-                              $subtract: [
-                                "$sheetCompletedDateAndTime",
-                                "$sheetIssuedDateAndTimeOfBM",
-                              ],
-                            },
-                            3600000,
+                            "$maintenanceReportFilledByMTD.breakDownTime",
+                            60,
                           ],
                         },
                         0,
@@ -8853,16 +8819,16 @@ router.get(
             totalSumOf_BM: {
               $sum: {
                 $cond: [
-                  { $gt: ["$sheetCompletedDateAndTime", null] },
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
                   {
                     $divide: [
-                      {
-                        $subtract: [
-                          "$sheetCompletedDateAndTime",
-                          "$sheetIssuedDateAndTimeOfBM",
-                        ],
-                      },
-                      3600000,
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
                     ],
                   },
                   0,
@@ -8935,16 +8901,16 @@ router.get(
                   sumOfBM: {
                     $sum: {
                       $cond: [
-                        { $gt: ["$sheetCompletedDateAndTime", null] },
+                        {
+                          $gt: [
+                            "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                            null,
+                          ],
+                        },
                         {
                           $divide: [
-                            {
-                              $subtract: [
-                                "$sheetCompletedDateAndTime",
-                                "$sheetIssuedDateAndTimeOfBM",
-                              ],
-                            },
-                            3600000,
+                            "$maintenanceReportFilledByMTD.breakDownTime",
+                            60,
                           ],
                         },
                         0,
@@ -9423,4 +9389,3 @@ router.get("/dummyAPI", async (req, res, next) => {
   }
 });
 module.exports = router;
-

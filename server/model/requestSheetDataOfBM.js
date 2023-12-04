@@ -12,6 +12,16 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   priorityCode: {
     type: String,
   },
+
+  timeStamp: {
+    requestSheet_year: {
+      type: String,
+    },
+    requestSheet_month: {
+      type: String,
+    },
+  },
+
   problemOccurredDateAndTimeOfBM: {
     type: Date,
   },

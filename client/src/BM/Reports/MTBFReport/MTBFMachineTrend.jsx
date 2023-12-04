@@ -6,7 +6,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import BarChart from "./Chart/BarChart";
 import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
 
-const MTBFMachineTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
+const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
   const {
     register,
     handleSubmit,
@@ -73,8 +73,8 @@ const MTBFMachineTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
   const getMachineWiseMTBFTrendDataData = async () => {
     try {
       const res = await fetch(
-        `/getMachineWiseMTBFTrendDataData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
-        // `/getMachineWiseMTBFTrendDataData/${flagForCellAndLineToggle}/${selectedValue}`,
+        // `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
+        `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/${selectedValue}`,
         {
           method: "GET",
           headers: {
@@ -86,6 +86,8 @@ const MTBFMachineTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
       );
 
       const { message, data } = await res.json();
+
+      console.log(data);
 
       if (res?.status === 201) {
         reducerDispatch({
@@ -100,8 +102,8 @@ const MTBFMachineTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
   };
 
   useEffect(() => {
-    getMachineWiseMTBFTrendDataData();
     if (selectedValue) {
+      getMachineWiseMTBFTrendDataData();
     }
   }, [selectedValue]);
 
@@ -138,6 +140,7 @@ const MTBFMachineTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
       console.log(error);
     }
   };
+
 
   return (
     <Container fluid>
