@@ -25,13 +25,13 @@ export const APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM = [
     sequenceNo: 5,
   },
   {
-    key: "PRD_HOD",
-    value: "PRD HOD",
+    key: "MTD_HOD",
+    value: "MTD HOD",
     sequenceNo: 6,
   },
   {
-    key: "MTD_HOD",
-    value: "MTD HOD",
+    key: "PRD_HOD",
+    value: "PRD HOD",
     sequenceNo: 7,
   },
 ];

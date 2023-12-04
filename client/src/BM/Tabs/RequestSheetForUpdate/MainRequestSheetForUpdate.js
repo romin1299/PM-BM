@@ -50,7 +50,7 @@ function MyTable() {
   const getRequestSheetDetails = async () => {
     try {
       const res = await fetch(
-        `/getMachineRequestSheetDetails/${machine_code}/${requestSheetNoOfBM}`,
+        `/getMachineRequestSheetDetails/?requestSheetNoOfBM=${requestSheetNoOfBM}`,
         {
           method: "GET",
           headers: {
@@ -65,7 +65,7 @@ function MyTable() {
         console.log("error", data?.message);
       } else {
         console.log(data?.requestSheetData);
-        setRequestSheetDataOfBM(data?.requestSheetData)
+        setRequestSheetDataOfBM(data?.requestSheetData?.[0])
       }
     } catch (error) {
       console.log(error);

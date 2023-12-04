@@ -28,6 +28,7 @@ function MyTable({
   approvalListOfBM,
   requestSheetDataOfBM,
 }) {
+  console.log(requestSheetDataOfBM);
   const loggedUserDetails = useContext(RoutingContext);
 
   const navigate = useNavigate();
@@ -72,7 +73,6 @@ function MyTable({
     requestSheetData.minorBD = timeDifferenceMinutes <= 120 ? "Yes" : "No";
     requestSheetData.majorBD = timeDifferenceMinutes > 120 ? "Yes" : "No";
     requestSheetData.changedParts = parts;
-    console.log(requestSheetData);
     try {
       const res = await fetch(
         `/newRequestSheetRegistration/?reqId=${requestSheetNoOfBM}&&machineRef=${machine_code}`,
@@ -99,8 +99,6 @@ function MyTable({
   };
 
   const sendApprovalForRequestSheetOfBM = async (assignApprovalList) => {
-    console.log(assignApprovalList);
-
     try {
       const res = await fetch(
         `/sendApprovalForRequestSheetOfBM/${requestSheetNoOfBM}/${machine_code}`,
@@ -111,16 +109,86 @@ function MyTable({
           },
           body: JSON.stringify({
             assignApprovalList: {
-              MTD_TL: assignApprovalList?.MTD_TL,
-              MTD_HOSS: assignApprovalList?.MTD_HOSS,
-              PRD_TL: assignApprovalList?.PRD_TL,
-              PRD_HOS: assignApprovalList?.PRD_HOS,
-              MTD_HOS: assignApprovalList?.MTD_HOS,
-              PRD_HOD: assignApprovalList?.PRD_HOD,
-              MTD_HOD: assignApprovalList?.MTD_HOD,
-              minorBD: assignApprovalList?.minorBD,
-              majorBD: assignApprovalList?.majorBD,
+              MTD_TL: {
+                id: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]?._id,
+                name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]
+                  ?.tm_name,
+              },
+              MTD_HOSS: {
+                id: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
+                  ?._id,
+                name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
+                  ?.tm_name,
+              },
+              PRD_TL: {
+                id: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]?._id,
+                name: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
+                  ?.tm_name,
+              },
+              PRD_HOS: {
+                id: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
+                  ?._id,
+                name: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
+                  ?.tm_name,
+              },
+              MTD_HOS: {
+                id: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
+                  ?._id,
+                name: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
+                  ?.tm_name,
+              },
+              PRD_HOD: {
+                id: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
+                  ?._id,
+                name: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
+                  ?.tm_name,
+              },
+              MTD_HOD: {
+                id: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
+                  ?._id,
+                name: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
+                  ?.tm_name,
+              },
             },
+            requestSheetDataOfBM,
+            minorBD: assignApprovalList?.minorBD,
+            majorBD: assignApprovalList?.majorBD,
+            approvalOfRequestSheet: assignApprovalList?.approvalOfRequestSheet,
+            rejectedRemarksOfRequestSheet:
+              assignApprovalList?.rejectedRemarksOfRequestSheet,
+          }),
+        }
+      );
+      const data = await res.json();
+      if (res.status === 201) {
+        SuccessToast(data?.message);
+        if (requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id) {
+          navigate("/bm/requestListDashboard", { replace: true });
+        } else {
+          navigate("/bm/approval", { replace: true });
+        }
+      } else {
+        WarningToast(data?.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const approveRequestSheetFromHigherAuthority = async () => {
+    try {
+      const res = await fetch(
+        `/approveRequestSheetFromHigherAuthority/${requestSheetNoOfBM}/${machine_code}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            approvalOfRequestSheet: watch("approvalOfRequestSheet"),
+            rejectedRemarksOfRequestSheet: watch(
+              "rejectedRemarksOfRequestSheet"
+            ),
             requestSheetDataOfBM,
           }),
         }
@@ -128,7 +196,7 @@ function MyTable({
       const data = await res.json();
       if (res.status === 201) {
         SuccessToast(data?.message);
-        navigate("/bm/requestListDashboard", { replace: true });
+        navigate("/bm/approval", { replace: true });
       } else {
         WarningToast(data?.message);
       }
@@ -243,11 +311,6 @@ function MyTable({
     }
   }, [timeDifferenceMinutes]);
 
-  console.log(
-    requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id,
-    requestSheetDataOfBM?.approvalOfMTD_TL?._id !== loggedUserDetails?._id
-  );
-
   return (
     <form>
       <Table bordered className="mb-5">
@@ -277,7 +340,9 @@ function MyTable({
                       requestSheetDataOfBM?.approvalOfMTD_TL?.length - 1
                     ]?.tm_name
                   ) : ( */}
-                  {requestSheetDataOfBM?.approvalOfMTD_TL ? (
+                  {requestSheetDataOfBM?.approvalOfMTD_TL &&
+                  requestSheetDataOfBM?.approvalStatusOfMTD_TL !==
+                    "Rejected" ? (
                     requestSheetDataOfBM?.approvalOfMTD_TL?.tm_name
                   ) : (
                     <DropdownElem
@@ -457,7 +522,10 @@ function MyTable({
                       }
                     </p>
                   ) : ( */}
-                  {requestSheetDataOfBM?.approvalOfMTD_HOSS ? (
+                  {requestSheetDataOfBM?.approvalOfMTD_HOSS &&
+                  requestSheetDataOfBM?.approvalStatusOfMTD_HOSS ===
+                    "Accepted" &&
+                  requestSheetDataOfBM?.requestSheetStatus !== "Rejected" ? (
                     <p>{requestSheetDataOfBM?.approvalOfMTD_HOSS?.tm_name}</p>
                   ) : (
                     <DropdownElem
@@ -470,9 +538,8 @@ function MyTable({
                           ?.approvalListOfMinorAndMajor
                       }
                       displayOrNot={
-                        requestSheetDataOfBM?.approvalOfMTD_TL?.[
-                          requestSheetDataOfBM?.approvalOfMTD_TL?.length - 1
-                        ]?._id === loggedUserDetails?._id
+                        requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
+                        loggedUserDetails?._id
                       }
                       options={approvalListOfBM?.mtdTL}
                       register={register}
@@ -498,7 +565,10 @@ function MyTable({
                       requestSheetDataOfBM?.approvalOfMTD_HOS?.length - 1
                     ]?.tm_name
                   ) : ( */}
-                  {requestSheetDataOfBM?.approvalOfMTD_HOS ? (
+                  {requestSheetDataOfBM?.approvalOfMTD_HOS &&
+                  requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
+                    "Accepted" &&
+                  requestSheetDataOfBM?.requestSheetStatus !== "Rejected" ? (
                     requestSheetDataOfBM?.approvalOfMTD_HOS?.tm_name
                   ) : (
                     <DropdownElem
@@ -511,9 +581,8 @@ function MyTable({
                           ?.approvalListOfMinorAndMajor
                       }
                       displayOrNot={
-                        requestSheetDataOfBM?.approvalOfMTD_TL?.[
-                          requestSheetDataOfBM?.approvalOfMTD_TL?.length - 1
-                        ]?._id === loggedUserDetails?._id
+                        requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
+                        loggedUserDetails?._id
                       }
                       options={approvalListOfBM?.mtdHOS}
                       register={register}
@@ -1178,7 +1247,11 @@ function MyTable({
                             requestSheetDataOfBM?.approvalOfMTD_HOD?.length - 1
                           ]?.tm_name
                         ) : ( */}
-                        {requestSheetDataOfBM?.approvalOfMTD_HOD ? (
+                        {requestSheetDataOfBM?.approvalOfMTD_HOD &&
+                        requestSheetDataOfBM?.approvalStatusOfMTD_HOD ===
+                          "Accepted" &&
+                        requestSheetDataOfBM?.requestSheetStatus !==
+                          "Rejected" ? (
                           requestSheetDataOfBM?.approvalOfMTD_HOD?.tm_name
                         ) : (
                           <DropdownElem
@@ -1191,10 +1264,8 @@ function MyTable({
                                 ?.approvalListOfMinorAndMajor
                             }
                             displayOrNot={
-                              requestSheetDataOfBM?.approvalOfMTD_TL?.[
-                                requestSheetDataOfBM?.approvalOfMTD_TL?.length -
-                                  1
-                              ]?._id === loggedUserDetails?._id
+                              requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
+                              loggedUserDetails?._id
                             }
                             options={approvalListOfBM?.mtdHOD}
                             register={register}
@@ -1223,7 +1294,11 @@ function MyTable({
                             requestSheetDataOfBM?.approvalOfPRD_HOD?.length - 1
                           ].tm_name
                         ) : ( */}
-                        {requestSheetDataOfBM?.approvalOfPRD_HOD ? (
+                        {requestSheetDataOfBM?.approvalOfPRD_HOD &&
+                        requestSheetDataOfBM?.approvalStatusOfPRD_HOD ===
+                          "Accepted" &&
+                        requestSheetDataOfBM?.requestSheetStatus !==
+                          "Rejected" ? (
                           requestSheetDataOfBM?.approvalOfPRD_HOD?.tm_name
                         ) : (
                           <DropdownElem
@@ -1236,10 +1311,8 @@ function MyTable({
                                 ?.approvalListOfMinorAndMajor
                             }
                             displayOrNot={
-                              requestSheetDataOfBM?.approvalOfMTD_TL?.[
-                                requestSheetDataOfBM?.approvalOfMTD_TL?.length -
-                                  1
-                              ]?._id === loggedUserDetails?._id
+                              requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
+                              loggedUserDetails?._id
                             }
                             options={approvalListOfBM?.prdHOD}
                             register={register}
@@ -1268,7 +1341,11 @@ function MyTable({
                             requestSheetDataOfBM?.approvalOfPRD_HOS?.length - 1
                           ]?.tm_name
                         ) : ( */}
-                        {requestSheetDataOfBM?.approvalOfPRD_HOS ? (
+                        {requestSheetDataOfBM?.approvalOfPRD_HOS &&
+                        requestSheetDataOfBM?.approvalStatusOfPRD_HOS ===
+                          "Accepted" &&
+                        requestSheetDataOfBM?.requestSheetStatus !==
+                          "Rejected" ? (
                           requestSheetDataOfBM?.approvalOfPRD_HOS?.tm_name
                         ) : (
                           <DropdownElem
@@ -1281,10 +1358,8 @@ function MyTable({
                                 ?.approvalListOfMinorAndMajor
                             }
                             displayOrNot={
-                              requestSheetDataOfBM?.approvalOfMTD_TL?.[
-                                requestSheetDataOfBM?.approvalOfMTD_TL?.length -
-                                  1
-                              ]?._id === loggedUserDetails?._id
+                              requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
+                              loggedUserDetails?._id
                             }
                             options={approvalListOfBM?.prdHOS}
                             register={register}
@@ -1313,7 +1388,11 @@ function MyTable({
                             requestSheetDataOfBM?.approvalOfPRD_TL?.length - 1
                           ]?.tm_name
                         ) : ( */}
-                        {requestSheetDataOfBM?.approvalOfPRD_TL ? (
+                        {requestSheetDataOfBM?.approvalOfPRD_TL &&
+                        requestSheetDataOfBM?.approvalStatusOfPRD_TL ===
+                          "Accepted" &&
+                        requestSheetDataOfBM?.requestSheetStatus !==
+                          "Rejected" ? (
                           requestSheetDataOfBM?.approvalOfPRD_TL?.tm_name
                         ) : (
                           <DropdownElem
@@ -1355,22 +1434,13 @@ function MyTable({
             </td>
           </tr>
         </tbody>
-        {(requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
-          (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
-            requestSheetDataOfBM?.requestSheetStatus === "Pending" ||
-            requestSheetDataOfBM?.requestSheetStatus === "Closed" ||
-            requestSheetDataOfBM?.approvalStatusOfMTD_TL === "Rejected")) ||
-        (requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-          loggedUserDetails?._id &&
-          (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
-            requestSheetDataOfBM?.requestSheetStatus === "Pending" ||
-            requestSheetDataOfBM?.requestSheetStatus === "Closed" ||
-            requestSheetDataOfBM?.approvalStatusOfMTD_HOSS === "Rejected" ||
-            requestSheetDataOfBM?.approvalStatusOfMTD_HOS === "Rejected" ||
-            requestSheetDataOfBM?.approvalStatusOfPRD_TL === "Rejected" ||
-            requestSheetDataOfBM?.approvalStatusOfPRD_HOS === "Rejected" ||
-            requestSheetDataOfBM?.approvalStatusOfPRD_HOD === "Rejected" ||
-            requestSheetDataOfBM?.approvalStatusOfMTD_HOD === "Rejected")) ? (
+
+        {/* for Assign user send for approval */}
+        {requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
+        (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
+          requestSheetDataOfBM?.requestSheetStatus === "Work Order Pending" ||
+          requestSheetDataOfBM?.requestSheetStatus === "Work Order Closed" ||
+          requestSheetDataOfBM?.approvalStatusOfMTD_TL === "Rejected") ? (
           <Row>
             <Col>
               <button
@@ -1397,9 +1467,91 @@ function MyTable({
           ""
         )}
 
-        {(requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
-          requestSheetDataOfBM?.requestSheetStatus === "Pending" ||
-          requestSheetDataOfBM?.requestSheetStatus === "Closed") &&
+        {/* for MTD TL send for approval or rejection */}
+        {requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
+          loggedUserDetails?._id ||
+        requestSheetDataOfBM?.approvalStatusOfMTD_HOSS === "Rejected" ||
+        requestSheetDataOfBM?.approvalStatusOfMTD_HOS === "Rejected" ||
+        requestSheetDataOfBM?.approvalStatusOfPRD_TL === "Rejected" ||
+        requestSheetDataOfBM?.approvalStatusOfPRD_HOS === "Rejected" ||
+        requestSheetDataOfBM?.approvalStatusOfPRD_HOD === "Rejected" ||
+        requestSheetDataOfBM?.approvalStatusOfMTD_HOD === "Rejected" ? (
+          <Row>
+            <Col>
+              <p>Do you want to send for approval the request sheet?</p>
+              <Form>
+                <div className="d-flex">
+                  <Form.Check
+                    flex
+                    label="Yes"
+                    name="approvalOfRequestSheet"
+                    type="radio"
+                    value="Yes"
+                    id="approvalOfRequestSheet"
+                    {...register("approvalOfRequestSheet", {
+                      required: "This field is required",
+                    })}
+                    // onChange={handleQuality}
+                  />
+                  <Form.Check
+                    flex
+                    label="No"
+                    name="approvalOfRequestSheet"
+                    type="radio"
+                    value="No"
+                    id="approvalOfRequestSheet"
+                    {...register("approvalOfRequestSheet", {
+                      required: "This field is required",
+                    })}
+                    // onChange={handleQuality}
+                  />
+                </div>
+                {errors?.["approvalOfRequestSheet"] && (
+                  <p className="text-error">
+                    {errors?.["approvalOfRequestSheet"]?.message}
+                  </p>
+                )}
+                {watch("approvalOfRequestSheet") === "No" ? (
+                  <>
+                    <input
+                      type="text"
+                      name="rejectedRemarksOfRequestSheet"
+                      placeholder="Enter rejected remarks"
+                      className="p-1 m-1"
+                      {...register("rejectedRemarksOfRequestSheet", {
+                        required: "Please fill rejected remarks",
+                      })}
+                    />
+                    {errors?.["rejectedRemarksOfRequestSheet"] && (
+                      <p className="text-error">
+                        {errors?.["rejectedRemarksOfRequestSheet"]?.message}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  ""
+                )}
+                &nbsp;
+                <button
+                  type="submit"
+                  className="btn bg-button"
+                  onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
+                >
+                  {watch("approvalOfRequestSheet") === "No"
+                    ? "Reject"
+                    : "Send for approval"}
+                </button>
+              </Form>
+            </Col>
+          </Row>
+        ) : (
+          ""
+        )}
+
+        {/* for higher authority approval */}
+        {requestSheetDataOfBM?.requestSheetStatus !== "Fill Sheet" &&
+        requestSheetDataOfBM?.requestSheetStatus !== "Work Order Pending" &&
+        requestSheetDataOfBM?.requestSheetStatus !== "Work Order Closed" &&
         requestSheetDataOfBM?.approvalOfMTD_TL?._id !==
           loggedUserDetails?._id &&
         requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id ? (
@@ -1411,11 +1563,11 @@ function MyTable({
                   <Form.Check
                     flex
                     label="Yes"
-                    name="ApprovalOfRequestSheet"
+                    name="approvalOfRequestSheet"
                     type="radio"
                     value="Yes"
-                    id="ApprovalOfRequestSheet"
-                    {...register("ApprovalOfRequestSheet", {
+                    id="approvalOfRequestSheet"
+                    {...register("approvalOfRequestSheet", {
                       required: "This field is required",
                     })}
                     // onChange={handleQuality}
@@ -1423,22 +1575,22 @@ function MyTable({
                   <Form.Check
                     flex
                     label="No"
-                    name="ApprovalOfRequestSheet"
+                    name="approvalOfRequestSheet"
                     type="radio"
                     value="No"
-                    id="ApprovalOfRequestSheet"
-                    {...register("ApprovalOfRequestSheet", {
+                    id="approvalOfRequestSheet"
+                    {...register("approvalOfRequestSheet", {
                       required: "This field is required",
                     })}
                     // onChange={handleQuality}
                   />
                 </div>
-                {errors?.["ApprovalOfRequestSheet"] && (
+                {errors?.["approvalOfRequestSheet"] && (
                   <p className="text-error">
-                    {errors?.["ApprovalOfRequestSheet"]?.message}
+                    {errors?.["approvalOfRequestSheet"]?.message}
                   </p>
                 )}
-                {watch("ApprovalOfRequestSheet") === "No" ? (
+                {watch("approvalOfRequestSheet") === "No" ? (
                   <>
                     <input
                       type="text"
@@ -1462,7 +1614,7 @@ function MyTable({
                 <button
                   type="submit"
                   className="btn bg-button"
-                  // onClick={handleSubmit(newRequestSheetRegistration)}
+                  onClick={handleSubmit(approveRequestSheetFromHigherAuthority)}
                 >
                   Submit
                 </button>

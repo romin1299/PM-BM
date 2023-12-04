@@ -8,7 +8,7 @@ const User = require("../model/userSchema");
 const Section = require("../model/sectionSchema");
 const SubSection = require("../model/subSectionSchema");
 const Cell = require("../model/cellSchema");
-
+const Line = require("../model/lineSchema");
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
@@ -21,9 +21,6 @@ router.use(cookieParser());
 router.use(authenticate);
 
 const {
-  PENDING_APPROVAL_LIST,
-  APPROVED_APPROVAL_LIST,
-  REJECTED_APPROVAL_LIST,
   APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM,
 } = require("../GlobalData/RequestSheetApprovalStatus");
 
@@ -33,7 +30,7 @@ const statusArray = [
   "Work Order Open",
   "Work Order Pending",
   "Work Order Closed",
-  "Fill sheet",
+  "Fill Sheet",
   "Under MTD TL approval",
   "Under MTD HOSS approval",
   "Under MTD HOS approval",
@@ -166,10 +163,9 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
         plantRef:
           machine.line_names.cell_names.subSection_names.section_names
             .plant_names._id,
-      }
+      };
 
-    let requestSheet;
-
+      let requestSheet;
 
       if (
         req.rootUser.user_type === "Operator" ||
@@ -324,10 +320,6 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
     } else {
       res.status(404).json({ message: "Request-sheet not generated" });
     }
-
-    res
-      .status(201)
-      .json({ message: "Request-sheet generated successfully", requestSheet });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
@@ -827,7 +819,6 @@ router.patch(
           work_order_status: req.body?.work_order_status,
         };
       }
-
       await RequestSheetOfBM.findOneAndUpdate(
         req.query,
         {
@@ -1476,7 +1467,7 @@ router.get(
         //     total_work_order_open: functionForQueryObject(statusArray[2]), // "Work Order Open",
         //     total_work_order_pending: functionForQueryObject(statusArray[3]), // "Work Order Pending",
         //     total_work_order_closed: functionForQueryObject(statusArray[4]), // "Work Order Closed",
-        //     // "Fill sheet",
+        //     // "Fill Sheet",
         //     // "Under MTD TL approval",
         //     // "Under MTD HOSS approval",
         //     // "Under MTD HOS approval",
@@ -2333,339 +2324,373 @@ router.get(
 //   }
 // );
 
+const getRequestSheetData = async (req, res, next) => {
+  try {
+    let queryObj = {};
+
+    if (req.query?.requestSheetNoOfBM) {
+      queryObj = {
+        requestSheetNoOfBM: req.query?.requestSheetNoOfBM,
+      };
+    }
+
+    if (req.query?.getDataForApprovalDashboardId) {
+      queryObj = {
+        "getDataForApprovalDashboard.Id": mongoose.Types.ObjectId(
+          req.query.getDataForApprovalDashboardId
+        ),
+      };
+    }
+
+    const requestSheetData = await RequestSheetOfBM.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          as: "machines",
+        },
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineRef",
+          foreignField: "_id",
+          // pipeline: [
+          //   {
+          //     $project: {
+          //       line_name: 1,
+          //     },
+          //   },
+          // ],
+          as: "lines",
+        },
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cellRef",
+          foreignField: "_id",
+          // pipeline: [
+          //   {
+          //     $project: {
+          //       cell_name: 1,
+          //     },
+          //   },
+          // ],
+          as: "cells",
+        },
+      },
+      {
+        $lookup: {
+          from: "subSections",
+          localField: "subSectionRef",
+          foreignField: "_id",
+          // pipeline: [
+          //   {
+          //     $project: {
+          //       subSection_name: 1,
+          //     },
+          //   },
+          // ],
+          as: "subSections",
+        },
+      },
+      {
+        $lookup: {
+          from: "sections",
+          localField: "sectionRef",
+          foreignField: "_id",
+          // pipeline: [
+          //   {
+          //     $project: {
+          //       section_name: 1,
+          //     },
+          //   },
+          // ],
+          as: "sections",
+        },
+      },
+      {
+        $lookup: {
+          from: "plants",
+          localField: "plantRef",
+          foreignField: "_id",
+          // pipeline: [
+          //   {
+          //     $project: {
+          //       plant_name: 1,
+          //     },
+          //   },
+          // ],
+          as: "plants",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "partQualityCheckedByPRD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+              },
+            },
+          ],
+          as: "namesPRD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "partQualityCheckedByMTD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+              },
+            },
+          ],
+          as: "namesMTD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignUser",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_name: 1,
+              },
+            },
+          ],
+          as: "namesOperators",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "handOverUser",
+          foreignField: "_id",
+          as: "handoverUserDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "approvalOfMTD_TL",
+          foreignField: "_id",
+          as: "approvalOfMTD_TL",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "approvalOfMTD_HOSS",
+          foreignField: "_id",
+          as: "approvalOfMTD_HOSS",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "approvalOfMTD_HOS",
+          foreignField: "_id",
+          as: "approvalOfMTD_HOS",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "approvalOfPRD_TL",
+          foreignField: "_id",
+          as: "approvalOfPRD_TL",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "approvalOfPRD_HOS",
+          foreignField: "_id",
+          as: "approvalOfPRD_HOS",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "approvalOfPRD_HOD",
+          foreignField: "_id",
+          as: "approvalOfPRD_HOD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "approvalOfMTD_HOD",
+          foreignField: "_id",
+          as: "approvalOfMTD_HOD",
+        },
+      },
+      {
+        $project: {
+          requestSheetNoOfBM: 1,
+          maintenanceType: 1,
+          priorityCode: 1,
+          problemOccurredDateAndTimeOfBM: 1,
+          sheetIssuedDateAndTimeOfBM: 1,
+          breakDownBasicDataFilledByPRD: 1,
+          maintenanceReportFilledByMTD: 1,
+          shiftOfBM: 1,
+          qualityRelated: 1,
+          requestSheetCreatedBy: 1,
+          breakDownAttendedBy: 1,
+
+          //only for material table purpose
+          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
+          line: { $arrayElemAt: ["$lines.line_name", 0] },
+          machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
+          machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
+          problem: "$breakDownBasicDataFilledByPRD.problemFaced",
+          lossTime: "$maintenanceReportFilledByMTD.breakDownTime",
+          problemOccurredDateAndTimeOfBMForTable: {
+            $dateToString: {
+              format: "%Y-%m-%d %H:%M:%S",
+              date: "$problemOccurredDateAndTimeOfBM",
+              timezone: "Asia/Kolkata",
+            },
+          },
+
+          assignUser: {
+            $arrayElemAt: ["$namesOperators", 0],
+          },
+          handOverUser: {
+            $arrayElemAt: ["$handoverUserDetails", 0],
+          },
+          finalActivity: 1,
+          work_order_status: 1,
+          rejectedRemarksOfRequestSheet: 1,
+          feedbackMTD_HOS: 1,
+          qualityConfirmed: 1,
+
+          approvalOfMTD_TL: {
+            $arrayElemAt: ["$approvalOfMTD_TL", -1],
+          },
+          approvalStatusOfMTD_TL: {
+            $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
+          },
+          approvalDateAndTimeOfMTD_TL: {
+            $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
+          },
+
+          approvalOfMTD_HOSS: {
+            $arrayElemAt: ["$approvalOfMTD_HOSS", -1],
+          },
+          approvalStatusOfMTD_HOSS: {
+            $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
+          },
+          approvalDateAndTimeOfMTD_HOSS: {
+            $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
+          },
+
+          approvalOfMTD_HOS: {
+            $arrayElemAt: ["$approvalOfMTD_HOS", -1],
+          },
+          approvalStatusOfMTD_HOS: {
+            $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
+          },
+          approvalDateAndTimeOfMTD_HOS: {
+            $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
+          },
+
+          approvalOfPRD_TL: {
+            $arrayElemAt: ["$approvalOfPRD_TL", -1],
+          },
+          approvalStatusOfPRD_TL: {
+            $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
+          },
+          approvalDateAndTimeOfPRD_TL: {
+            $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
+          },
+
+          approvalOfPRD_HOS: {
+            $arrayElemAt: ["$approvalOfPRD_HOS", -1],
+          },
+          approvalStatusOfPRD_HOS: {
+            $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
+          },
+          approvalDateAndTimeOfPRD_HOS: {
+            $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
+          },
+
+          approvalOfPRD_HOD: {
+            $arrayElemAt: ["$approvalOfPRD_HOD", -1],
+          },
+          approvalStatusOfPRD_HOD: {
+            $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
+          },
+          approvalDateAndTimeOfPRD_HOD: {
+            $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
+          },
+
+          approvalOfMTD_HOD: {
+            $arrayElemAt: ["$approvalOfMTD_HOD", -1],
+          },
+          approvalStatusOfMTD_HOD: {
+            $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
+          },
+          approvalDateAndTimeOfMTD_HOD: {
+            $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
+          },
+
+          partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
+          partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
+
+          dataSheetOfBM: 1,
+          drawingOfBM: 1,
+          sparePartUsedOrNot: 1,
+          changedParts: 1,
+
+          machineRef: { $arrayElemAt: ["$machines", 0] },
+          lineRef: { $arrayElemAt: ["$lines", 0] },
+          cellRef: { $arrayElemAt: ["$cells", 0] },
+          subSectionRef: { $arrayElemAt: ["$subSections", 0] },
+          sectionRef: { $arrayElemAt: ["$sections", 0] },
+          plantRef: { $arrayElemAt: ["$plants", 0] },
+
+          requestSheetStatus: 1,
+          getDataForApprovalDashboard: 1,
+        },
+      },
+    ]);
+
+    req.requestSheetData = requestSheetData;
+    if (requestSheetData?.length === 0) {
+      return res.status(400).json({
+        message: "No data to display",
+      });
+    }
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error: new Error(error) });
+  }
+};
+
 router.get(
-  "/getMachineRequestSheetDetails/:machine_code/:requestSheetNoOfBM",
+  "/getMachineRequestSheetDetails",
+  getRequestSheetData,
   async (req, res, next) => {
     try {
-      let queryObj = {};
-
-      if (req.params?.requestSheetNoOfBM) {
-        queryObj = {
-          requestSheetNoOfBM: req.params?.requestSheetNoOfBM,
-        };
-      }
-
-      const requestSheetData = await RequestSheetOfBM.aggregate([
-        {
-          $match: queryObj,
-        },
-        {
-          $lookup: {
-            from: "machinesalldatas",
-            localField: "machineRef",
-            foreignField: "_id",
-            as: "machines",
-          },
-        },
-        {
-          $lookup: {
-            from: "lines",
-            localField: "lineRef",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  line_name: 1,
-                },
-              },
-            ],
-            as: "lines",
-          },
-        },
-        {
-          $lookup: {
-            from: "cells",
-            localField: "cellRef",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  cell_name: 1,
-                },
-              },
-            ],
-            as: "cells",
-          },
-        },
-        {
-          $lookup: {
-            from: "subSections",
-            localField: "subSectionRef",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  subSection_name: 1,
-                },
-              },
-            ],
-            as: "subSections",
-          },
-        },
-        {
-          $lookup: {
-            from: "sections",
-            localField: "sectionRef",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  section_name: 1,
-                },
-              },
-            ],
-            as: "sections",
-          },
-        },
-        {
-          $lookup: {
-            from: "plants",
-            localField: "plantRef",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  plant_name: 1,
-                },
-              },
-            ],
-            as: "plants",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "partQualityCheckedByPRD",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  tm_name: 1,
-                },
-              },
-            ],
-            as: "namesPRD",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "partQualityCheckedByMTD",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  tm_name: 1,
-                },
-              },
-            ],
-            as: "namesMTD",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "assignUser",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  user_type: 1,
-                  tm_name: 1,
-                },
-              },
-            ],
-            as: "namesOperators",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "handOverUser",
-            foreignField: "_id",
-            as: "handoverUserDetails",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "approvalOfMTD_TL",
-            foreignField: "_id",
-            as: "approvalOfMTD_TL",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "approvalOfMTD_HOSS",
-            foreignField: "_id",
-            as: "approvalOfMTD_HOSS",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "approvalOfMTD_HOS",
-            foreignField: "_id",
-            as: "approvalOfMTD_HOS",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "approvalOfPRD_TL",
-            foreignField: "_id",
-            as: "approvalOfPRD_TL",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "approvalOfPRD_HOS",
-            foreignField: "_id",
-            as: "approvalOfPRD_HOS",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "approvalOfPRD_HOD",
-            foreignField: "_id",
-            as: "approvalOfPRD_HOD",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "approvalOfMTD_HOD",
-            foreignField: "_id",
-            as: "approvalOfMTD_HOD",
-          },
-        },
-        {
-          $project: {
-            requestSheetNoOfBM: 1,
-            maintenanceType: 1,
-            priorityCode: 1,
-            problemOccurredDateAndTimeOfBM: 1,
-            sheetIssuedDateAndTimeOfBM: 1,
-            breakDownBasicDataFilledByPRD: 1,
-            maintenanceReportFilledByMTD: 1,
-            shiftOfBM: 1,
-            qualityRelated: 1,
-            requestSheetCreatedBy: 1,
-            breakDownAttendedBy: 1,
-            assignUser: {
-              $arrayElemAt: ["$namesOperators", 0],
-            },
-            handOverUser: {
-              $arrayElemAt: ["$handoverUserDetails", 0],
-            },
-            finalActivity: 1,
-            work_order_status: 1,
-            rejectedRemarksOfRequestSheet: 1,
-            feedbackMTD_HOS: 1,
-            qualityConfirmed: 1,
-
-            approvalOfMTD_TL: {
-              $arrayElemAt: ["$approvalOfMTD_TL", -1],
-            },
-            approvalStatusOfMTD_TL: {
-              $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
-            },
-            approvalDateAndTimeOfMTD_TL: {
-              $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
-            },
-
-            approvalOfMTD_HOSS: {
-              $arrayElemAt: ["$approvalOfMTD_HOSS", -1],
-            },
-            approvalStatusOfMTD_HOSS: {
-              $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
-            },
-            approvalDateAndTimeOfMTD_HOSS: {
-              $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
-            },
-
-            approvalOfMTD_HOS: {
-              $arrayElemAt: ["$approvalOfMTD_HOS", -1],
-            },
-            approvalStatusOfMTD_HOS: {
-              $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
-            },
-            approvalDateAndTimeOfMTD_HOS: {
-              $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
-            },
-
-            approvalOfPRD_TL: {
-              $arrayElemAt: ["$approvalOfPRD_TL", -1],
-            },
-            approvalStatusOfPRD_TL: {
-              $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
-            },
-            approvalDateAndTimeOfPRD_TL: {
-              $arrayElemAt: ["$approvalOfPRD_TL", -1],
-            },
-
-            approvalOfPRD_HOS: {
-              $arrayElemAt: ["$approvalOfPRD_HOS", -1],
-            },
-            approvalStatusOfPRD_HOS: {
-              $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
-            },
-            approvalDateAndTimeOfPRD_HOS: {
-              $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
-            },
-
-            approvalOfPRD_HOD: {
-              $arrayElemAt: ["$approvalOfPRD_HOD", -1],
-            },
-            approvalStatusOfPRD_HOD: {
-              $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
-            },
-            approvalDateAndTimeOfPRD_HOD: {
-              $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
-            },
-
-            approvalOfMTD_HOD: {
-              $arrayElemAt: ["$approvalOfMTD_HOD", -1],
-            },
-            approvalStatusOfMTD_HOD: {
-              $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
-            },
-            approvalDateAndTimeOfMTD_HOD: {
-              $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
-            },
-
-            partQualityStatusOfMTD: { $arrayElemAt: ["$namesMTD", 0] },
-            partQualityStatusOfPRD: { $arrayElemAt: ["$namesPRD", 0] },
-
-            dataSheetOfBM: 1,
-            drawingOfBM: 1,
-            sparePartUsedOrNot: 1,
-            changedParts: 1,
-
-            machineRef: { $arrayElemAt: ["$machines", 0] },
-            lineRef: { $arrayElemAt: ["$lines", 0] },
-            cellRef: { $arrayElemAt: ["$cells", 0] },
-            subSectionRef: { $arrayElemAt: ["$subSections", 0] },
-            sectionRef: { $arrayElemAt: ["$sections", 0] },
-            plantRef: { $arrayElemAt: ["$plants", 0] },
-
-            requestSheetStatus: 1,
-          },
-        },
-      ]);
-
-      if (requestSheetData?.length === 0) {
-        return res.status(400).json({
-          message: "No data to display",
-        });
-      }
-
       res.status(201).json({
         message: "Request-sheet data get successfully",
-        requestSheetData: requestSheetData?.[0],
+        requestSheetData: req.requestSheetData,
       });
     } catch (error) {
       console.log(error);
@@ -2760,10 +2785,17 @@ router.patch(
   "/sendApprovalForRequestSheetOfBM/:reqId/:machineRef",
   async (req, res, next) => {
     try {
-      let { assignApprovalList, requestSheetDataOfBM } = req.body;
+      let {
+        assignApprovalList,
+        requestSheetDataOfBM,
+        minorBD,
+        majorBD,
+        approvalOfRequestSheet,
+        rejectedRemarksOfRequestSheet,
+      } = req.body;
 
       if (
-        !assignApprovalList?.MTD_TL &&
+        !assignApprovalList?.MTD_TL?.id &&
         requestSheetDataOfBM?.assignUser?._id ===
           (req?.rootUser?._id).toString()
       ) {
@@ -2784,14 +2816,16 @@ router.patch(
             },
             {
               $set: {
-                // approvalOfMTD_TL: assignApprovalList?.MTD_TL,
-                // approvalStatusOfMTD_TL: "Pending",
-                // approvalDateAndTimeOfMTD_TL: new Date(),
                 requestSheetStatus: "Under MTD TL Approval",
+                "getDataForApprovalDashboard.Id":
+                  assignApprovalList?.MTD_TL?.id,
+                "getDataForApprovalDashboard.departmentAndGradeOfUser":
+                  "MTD TL",
               },
               $push: {
-                approvalOfMTD_TL: assignApprovalList?.MTD_TL,
+                approvalOfMTD_TL: assignApprovalList?.MTD_TL?.id,
                 approvalStatusOfMTD_TL: "Pending",
+                approverNameLogOfMTD_TL: assignApprovalList?.MTD_TL?.name,
               },
             },
             { new: true }
@@ -2804,34 +2838,30 @@ router.patch(
           });
         }
       }
-
-      Object.keys(assignApprovalList).forEach(
-        (key) =>
-          assignApprovalList[key] === "" && delete assignApprovalList[key]
-      );
+      //remove first approver (MTD TL)
+      Object.keys(assignApprovalList).forEach((key) => {
+        const formattedKey =
+          requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser?.replace(
+            " ",
+            "_"
+          );
+        Object.keys(assignApprovalList[formattedKey])?.length === 0 &&
+          delete assignApprovalList[key];
+      });
 
       const updateTheStatusOfBMSheetApprover = async (
         keyOfDepartment,
-        assignApprovalList
+        assignUser
       ) => {
-        let queryObjForUpdate = {},
-          queryObjForPush = {};
-
-        queryObjForUpdate = {
-          ...queryObjForUpdate,
-          [`approvalOf${keyOfDepartment}`]: assignApprovalList[keyOfDepartment],
-          [`approvalStatusOf${keyOfDepartment}`]: `${keyOfDepartment.replace(
-            "_",
-            " "
-          )} Approval Pending`,
-          [`approvalDateAndTimeOf${keyOfDepartment}`]: new Date(),
-        };
+        let queryObjForPush = {};
 
         queryObjForPush = {
           ...queryObjForPush,
-          [`approvalOf${keyOfDepartment}`]: assignApprovalList[keyOfDepartment],
-          [`approvalStatusOf${keyOfDepartment}`]: "Pending",
-          approvalDateAndTimeOfMTD_TL: newDate(),
+          [`approvalOf${keyOfDepartment}`]: assignUser?.id || null,
+          [`approvalStatusOf${keyOfDepartment}`]: assignUser?.id
+            ? "Pending"
+            : "",
+          [`approverNameLogOf${keyOfDepartment}`]: assignUser?.name || "",
         };
 
         let resultOfUpdateStatusOfApprover =
@@ -2840,84 +2870,105 @@ router.patch(
               requestSheetNoOfBM: req.params?.reqId,
             },
             {
-              // $set: {
-              //   ...queryObjForUpdate,
-              //   requestSheetStatus: "MTD TL Approval Approved",
-              // },
-              $set: { "approvalStatusOfMTD_TL.$[-1]": "Accepted" },
-              arrayFilters: [{ i: { $eq: -1 } }],
               $push: {
                 ...queryObjForPush,
               },
             },
-
-            { new: true }
+            {
+              new: true,
+            }
           );
       };
 
-      if (assignApprovalList?.minorBD === "Yes") {
+      const minorListForTheApprovalOfPlant =
+        requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
+          ?.minorApprovalList;
+      const majorListForTheApprovalOfPlant =
+        requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
+          ?.majorApprovalList;
+
+      Object.keys(assignApprovalList).forEach((key) => {
+        if (
+          [
+            ...new Set([
+              ...minorListForTheApprovalOfPlant,
+              ...majorListForTheApprovalOfPlant,
+            ]),
+          ]?.includes(key.replace("_", " "))
+        ) {
+          updateTheStatusOfBMSheetApprover(key, assignApprovalList[key]);
+        }
+      });
+
+      //request-sheet is approved/accepted
+      if (approvalOfRequestSheet === "Yes") {
         let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
           {
             requestSheetNoOfBM: req?.params?.reqId,
+            approvalStatusOfMTD_TL: "Pending",
           },
           {
             $set: {
-              requestSheetStatus: `Under ${requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.minorApprovalList?.[1]} Approval`,
+              requestSheetStatus: `Under ${
+                requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+                  minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
+                ]?.[1]
+              } Approval`,
+              "getDataForApprovalDashboard.Id":
+                assignApprovalList?.[
+                  (requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+                    minorBD === "Yes"
+                      ? "minorApprovalList"
+                      : "majorApprovalList"
+                  ]?.[1]).replace(" ", "_")
+                ]?.id,
+              "getDataForApprovalDashboard.departmentAndGradeOfUser":
+                requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+                  minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
+                ]?.[1],
+              "approvalStatusOfMTD_TL.$": "Accepted",
+            },
+            $push: {
+              approvalDateAndTimeOfMTD_TL: new Date(),
             },
           },
           { new: true }
         );
-        Object.keys(assignApprovalList).forEach((key) => {
-          if (
-            requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-              key.replace("_", " ")
-            )
-          ) {
-            updateTheStatusOfBMSheetApprover(key, assignApprovalList);
-          }
-        });
-        if (updateRequestSheetStatus)
-          return res.status(201).json({
-            message: `${req?.params?.reqId} Request-sheet approval send !!`,
-          });
-      } else {
-        let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
-          {
-            requestSheetNoOfBM: req?.params?.reqId,
-          },
-          {
-            $set: {
-              requestSheetStatus: `Under ${requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.majorApprovalList?.[1]} Approval`,
-            },
-          },
-          { new: true }
-        );
-        Object.keys(assignApprovalList).forEach((key) => {
-          if (
-            requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-              key.replace("_", " ")
-            )
-          ) {
-            updateTheStatusOfBMSheetApprover(key, assignApprovalList);
-          }
-        });
         if (updateRequestSheetStatus)
           return res.status(201).json({
             message: `${req.params?.reqId} Request-sheet approval send !!`,
           });
+      } else {
+        //request-sheet is rejected
+        let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
+          {
+            requestSheetNoOfBM: req?.params?.reqId,
+            approvalStatusOfMTD_TL: "Pending",
+          },
+          {
+            $set: {
+              requestSheetStatus: "Rejected",
+              "approvalStatusOfMTD_TL.$": "Rejected",
+            },
+            $unset: {
+              getDataForApprovalDashboard: "",
+            },
+            $push: {
+              approvalDateAndTimeOfMTD_TL: new Date(),
+              rejectedRemarksOfRequestSheet,
+            },
+          },
+          { new: true }
+        );
+        if (updateRequestSheetStatus)
+          return res.status(201).json({
+            message: `${req.params?.reqId} Request-sheet is rejected !!`,
+          });
       }
-
-      console.log(resultOfUpdateStatusOfApprover);
-
-      // if (resultOfUpdateStatusOfApprover) {
-      //   res.status(201).json({ message: "Request-sheet approval send !!" });
-      // } else {
-      //   console.error();
-      //   res.status(400).json({ message: "Approval not send" });
-      // }
       //send email of approval to MTD TL (Remaining)
     } catch (error) {
       console.log(error);
+      res.status(500).json({ message: error?.message, error });
     }
   }
 );
@@ -5052,24 +5103,70 @@ router.get("/getApprovalRequestSheetData", async (req, res, next) => {
       plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
     });
 
-    const getApprovalData = await RequestSheetOfBM.aggregate([
-      {
-        $match: {
-          plantRef: findLoggedUserPlantData?._id,
-        },
-      },
-      {
-        $lookup: {
-          from: "plants",
-          localField: "plantRef",
-          foreignField: "_id",
-          as: "plants",
-        },
-      },
-      { $unwind: "$plants" },
-    ]);
+    console.log(
+      `${req?.rootUser?.tm_department} ${
+        req?.rootUser?.user_type.split("/")[0]
+      }`
+    );
 
-    console.log(getApprovalData);
+    // const getApprovalData = await RequestSheetOfBM.aggregate([
+    //   {
+    //     $match: {
+    //       plantRef: findLoggedUserPlantData?._id,
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "plants",
+    //       localField: "plantRef",
+    //       foreignField: "_id",
+    //       as: "plants",
+    //     },
+    //   },
+    //   { $unwind: "$plants" },
+    //   {
+    //     $project: {
+    //       minorAndMajorList: {
+    //         $cond: [
+    //           { $eq: ["$maintenanceReportFilledByMTD.minorBD", "Yes"] },
+    //           {
+    //             $cond: [
+    //               {
+    //                 $in: [
+    //                   "$plants.approvalListOfMinorAndMajor.minorApprovalList",
+    //                   `${req?.rootUser?.tm_department} ${
+    //                     req?.rootUser?.user_type.split("/")[0]
+    //                   }`,
+    //                 ],
+    //               },
+
+    //               {
+    //                 month: "$$month.monthName",
+    //                 value: {
+    //                   $arrayElemAt: [
+    //                     "$array",
+    //                     {
+    //                       $indexOfArray: [
+    //                         "$array._id",
+    //                         "$$month.monthInDecimal",
+    //                       ],
+    //                     },
+    //                   ],
+    //                 },
+    //               },
+
+    //               "",
+    //             ],
+    //           },
+
+    //           "",
+    //         ],
+    //       },
+    //     },
+    //   },
+    // ]);
+
+    // console.log(getApprovalData);
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
@@ -5569,5 +5666,389 @@ router.get(
   responseMiddlewareForReport
 );
 
+router.patch(
+  "/approveRequestSheetFromHigherAuthority/:reqId/:machineRef",
+  async (req, res, next) => {
+    try {
+      const {
+        approvalOfRequestSheet,
+        rejectedRemarksOfRequestSheet,
+        requestSheetDataOfBM,
+      } = req.body;
+
+      const minorListForTheApprovalOfPlant =
+        requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
+          ?.minorApprovalList;
+      const majorListForTheApprovalOfPlant =
+        requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
+          ?.majorApprovalList;
+
+      let keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition = `approvalStatusOf${(requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser).replace(
+        " ",
+        "_"
+      )}`;
+
+      let keyOfUpdateApprovalStatusAsAcceptedOrRejected = `approvalStatusOf${(requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser).replace(
+        " ",
+        "_"
+      )}.$`;
+
+      let keyOfApprovalDateAndTimeOfAcceptedOrRejected = `approvalDateAndTimeOf${(requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser).replace(
+        " ",
+        "_"
+      )}`;
+
+      //Approver approve the request-sheet
+      if (approvalOfRequestSheet === "Yes") {
+        let getNextApproverDepartmentAndGradeOfUser;
+        //For under Minor Request-sheet
+        if (
+          requestSheetDataOfBM?.maintenanceReportFilledByMTD?.minorBD === "Yes"
+        ) {
+          //get next approval user
+          getNextApproverDepartmentAndGradeOfUser =
+            minorListForTheApprovalOfPlant[
+              minorListForTheApprovalOfPlant.indexOf(
+                requestSheetDataOfBM?.getDataForApprovalDashboard
+                  ?.departmentAndGradeOfUser
+              ) + 1
+            ];
+        }
+        //For under Major Request-sheet
+        else {
+          getNextApproverDepartmentAndGradeOfUser =
+            majorListForTheApprovalOfPlant[
+              majorListForTheApprovalOfPlant.indexOf(
+                requestSheetDataOfBM?.getDataForApprovalDashboard
+                  ?.departmentAndGradeOfUser
+              ) + 1
+            ];
+        }
+        if (getNextApproverDepartmentAndGradeOfUser) {
+          //Further approval is required
+
+          let valueOfGetDataForApprovalDashboardId =
+            requestSheetDataOfBM?.[
+              `approvalOf${getNextApproverDepartmentAndGradeOfUser.replace(
+                " ",
+                "_"
+              )}`
+            ]?._id;
+
+          let updateApprovalStatusOfRequestSheet =
+            await RequestSheetOfBM.findOneAndUpdate(
+              {
+                requestSheetNoOfBM: req?.params?.reqId,
+                [keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition]:
+                  "Pending",
+              },
+              {
+                $set: {
+                  requestSheetStatus: `Under ${getNextApproverDepartmentAndGradeOfUser} Approval`,
+                  "getDataForApprovalDashboard.Id":
+                    valueOfGetDataForApprovalDashboardId,
+                  "getDataForApprovalDashboard.departmentAndGradeOfUser":
+                    getNextApproverDepartmentAndGradeOfUser,
+                  [keyOfUpdateApprovalStatusAsAcceptedOrRejected]: "Accepted",
+                },
+                $push: {
+                  [keyOfApprovalDateAndTimeOfAcceptedOrRejected]: new Date(),
+                },
+              },
+              { new: true }
+            );
+          if (updateApprovalStatusOfRequestSheet)
+            return res.status(201).json({
+              message: `${req?.params?.reqId} Request-sheet is approve !!`,
+            });
+        } else {
+          //No further approver is required
+          let updateApprovalStatusOfRequestSheet =
+            await RequestSheetOfBM.findOneAndUpdate(
+              {
+                requestSheetNoOfBM: req?.params?.reqId,
+                [keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition]:
+                  "Pending",
+              },
+              {
+                $set: {
+                  requestSheetStatus: "Completed",
+                  [keyOfUpdateApprovalStatusAsAcceptedOrRejected]: "Accepted",
+                },
+                $unset: {
+                  getDataForApprovalDashboard: "",
+                },
+                $push: {
+                  [keyOfApprovalDateAndTimeOfAcceptedOrRejected]: new Date(),
+                },
+              },
+              { new: true }
+            );
+
+          if (updateApprovalStatusOfRequestSheet)
+            return res.status(201).json({
+              message: `${req?.params?.reqId} Request-sheet is approve !!`,
+            });
+        }
+      }
+      //Approver reject the request-sheet
+      else {
+        let updateApprovalStatusOfRequestSheet =
+          await RequestSheetOfBM.findOneAndUpdate(
+            {
+              requestSheetNoOfBM: req?.params?.reqId,
+              [keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition]:
+                "Pending",
+            },
+            {
+              $set: {
+                requestSheetStatus: "Rejected",
+                [keyOfUpdateApprovalStatusAsAcceptedOrRejected]: "Rejected",
+                "getDataForApprovalDashboard.Id":
+                  requestSheetDataOfBM?.approvalOfMTD_TL?._id,
+                "getDataForApprovalDashboard.departmentAndGradeOfUser":
+                  "MTD TL",
+              },
+
+              $push: {
+                [keyOfApprovalDateAndTimeOfAcceptedOrRejected]: new Date(),
+                approvalOfMTD_TL: requestSheetDataOfBM?.approvalOfMTD_TL?._id,
+                approvalStatusOfMTD_TL: "Pending",
+                rejectedRemarksOfRequestSheet,
+              },
+            },
+            { new: true }
+          );
+        if (updateApprovalStatusOfRequestSheet)
+          return res.status(201).json({
+            message: `${req.params?.reqId} Request-sheet is rejected !!`,
+          });
+      }
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+//Getting data of approval log
+router.get("/getApprovalLogDetails", async (req, res, next) => {
+  try {
+    const findLoggedUserPlantData = await Plant.findOne({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+
+    const minorListForTheApprovalOfPlant =
+      findLoggedUserPlantData?.approvalListOfMinorAndMajor?.minorApprovalList;
+    const majorListForTheApprovalOfPlant =
+      findLoggedUserPlantData?.approvalListOfMinorAndMajor?.majorApprovalList;
+
+    // Merge arrays x and y without duplicates
+    let mergedApprovalListArray = [
+      ...new Set([
+        ...minorListForTheApprovalOfPlant,
+        ...majorListForTheApprovalOfPlant,
+      ]),
+    ];
+
+    // Sort mergedArray based on the priority in the z array
+    mergedApprovalListArray.sort((a, b) => {
+      let priorityA =
+        APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.find((item) => item.value === a)
+          ?.priority || 0;
+      let priorityB =
+        APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.find((item) => item.value === b)
+          ?.priority || 0;
+      return priorityA - priorityB;
+    });
+
+    const getDataOfRequestSheetApprovalLogs = await RequestSheetOfBM?.aggregate(
+      [
+        {
+          $match: {
+            $and: [
+              {
+                requestSheetStatus: { $ne: "Generated" },
+              },
+              {
+                requestSheetStatus: { $ne: "Assigned" },
+              },
+              {
+                requestSheetStatus: { $ne: "Work Order Open" },
+              },
+              {
+                requestSheetStatus: { $ne: "Work Order Pending" },
+              },
+              {
+                requestSheetStatus: { $ne: "Work Order Closed" },
+              },
+              {
+                requestSheetStatus: { $ne: "Fill Sheet" },
+              },
+            ],
+          },
+        },
+
+        {
+          $lookup: {
+            from: "machinesalldatas",
+            localField: "machineRef",
+            foreignField: "_id",
+            as: "machines",
+          },
+        },
+        {
+          $lookup: {
+            from: "lines",
+            localField: "lineRef",
+            foreignField: "_id",
+            as: "lines",
+          },
+        },
+
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignUser",
+            foreignField: "_id",
+            pipeline: [
+              {
+                $project: {
+                  user_type: 1,
+                  tm_name: 1,
+                },
+              },
+            ],
+            as: "namesOperators",
+          },
+        },
+        // {
+        //   $lookup: {
+        //     from: "users",
+        //     localField: "approvalOfMTD_HOSS",
+        //     foreignField: "_id",
+        //     as: "approvalOfMTD_HOSS",
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "users",
+        //     localField: "approvalOfMTD_HOS",
+        //     foreignField: "_id",
+        //     as: "approvalOfMTD_HOS",
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "users",
+        //     localField: "approvalOfPRD_TL",
+        //     foreignField: "_id",
+        //     as: "approvalOfPRD_TL",
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "users",
+        //     localField: "approvalOfPRD_HOS",
+        //     foreignField: "_id",
+        //     as: "approvalOfPRD_HOS",
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "users",
+        //     localField: "approvalOfPRD_HOD",
+        //     foreignField: "_id",
+        //     as: "approvalOfPRD_HOD",
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "users",
+        //     localField: "approvalOfMTD_HOD",
+        //     foreignField: "_id",
+        //     as: "approvalOfMTD_HOD",
+        //   },
+        // },
+        {
+          $project: {
+            requestSheetNoOfBM: 1,
+            problemOccurredDateAndTimeOfBM: 1,
+            assignUser: 1,
+
+            approvalOfMTD_TL: 1,
+            approvalStatusOfMTD_TL: 1,
+            approvalDateAndTimeOfMTD_TL: 1,
+
+            approvalOfMTD_HOSS: 1,
+            approvalStatusOfMTD_HOSS: 1,
+            approvalDateAndTimeOfMTD_HOSS: 1,
+
+            approvalOfMTD_HOS: 1,
+            approvalStatusOfMTD_HOS: 1,
+            approvalDateAndTimeOfMTD_HOS: 1,
+
+            approvalOfPRD_TL: 1,
+            approvalStatusOfPRD_TL: 1,
+            approvalDateAndTimeOfPRD_TL: 1,
+
+            rejectedRemarksOfRequestSheet: 1,
+
+            approvalOfPRD_HOS: 1,
+            approvalStatusOfPRD_HOS: 1,
+            approvalDateAndTimeOfPRD_HOS: 1,
+
+            approvalOfPRD_HOD: 1,
+            approvalStatusOfPRD_HOD: 1,
+            approvalDateAndTimeOfPRD_HOD: 1,
+
+            approvalOfMTD_HOD: 1,
+            approvalStatusOfMTD_HOD: 1,
+            approvalDateAndTimeOfMTD_HOD: 1,
+
+            approverNameLogOfMTD_TL: 1,
+            approverNameLogOfMTD_HOSS: 1,
+            approverNameLogOfMTD_HOS: 1,
+            approverNameLogOfPRD_TL: 1,
+            approverNameLogOfPRD_HOS: 1,
+            approverNameLogOfPRD_HOD: 1,
+            approverNameLogOfMTD_HOD: 1,
+
+            requestSheetStatus: 1,
+
+            machineRef: { $arrayElemAt: ["$machines", 0] },
+            lineRef: { $arrayElemAt: ["$lines", 0] },
+
+            line: { $arrayElemAt: ["$lines.line_name", 0] },
+            machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
+            machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
+            assignUser: {
+              $arrayElemAt: ["$namesOperators.tm_name", 0],
+            },
+
+            problemOccurredDateAndTimeOfBMForTable: {
+              $dateToString: {
+                format: "%Y-%m-%d %H:%M",
+                date: "$problemOccurredDateAndTimeOfBM",
+                timezone: "Asia/Kolkata",
+              },
+            },
+  
+          },
+        },
+      ]
+    );
+
+    
+
+    res.status(201).json({
+      message: "Get approval data successfully",
+      approvalDataLogs: getDataOfRequestSheetApprovalLogs,
+      mergedApprovalListArray,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error?.message, error: new Error(error) });
+  }
+});
 
 module.exports = router;

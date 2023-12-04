@@ -1,10 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import tableIcons from "../../components/MatrialTableIcon";
+import DescriptionIcon from "@mui/icons-material/Description";
 import MaterialTable from "@material-table/core";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
+import RoutingContext from "../../context/routing/RoutingContext";
+import { useNavigate } from "react-router-dom";
 
 const ApprovalDashboardOfRequestSheet = () => {
+  const loggedUserDetails = useContext(RoutingContext);
+  const navigate = useNavigate();
+
+  const [approvalRequestSheetDataOfBM, setApprovalRequestSheetDataOfBM] =
+    useState([]);
+
   const approvalDashboardHeader = [
     {
       title: "Sr. No.",
@@ -44,7 +53,7 @@ const ApprovalDashboardOfRequestSheet = () => {
     },
     {
       title: "Date-time",
-      field: "problemOccurredDateAndTimeOfBM",
+      field: "problemOccurredDateAndTimeOfBMForTable",
       editable: false,
     },
 
@@ -62,7 +71,7 @@ const ApprovalDashboardOfRequestSheet = () => {
     },
     {
       title: "Loss Time",
-      field: "breakDownTime",
+      field: "lossTime",
     },
     {
       title: "WO Status",
@@ -84,12 +93,28 @@ const ApprovalDashboardOfRequestSheet = () => {
         console.log("----------", selectedRow);
       },
     },
+    (row) => ({
+      icon: () => <DescriptionIcon />,
+      tooltip: "Update Action",
+      position: "row",
+      // disabled:
+      //   row?.assignUserId === context?._id &&
+      //   (row?.work_order_status === "Pending" ||
+      //     row?.work_order_status === "Closed")
+      //     ? false
+      //     : true,
+      onClick: (event, selectedRow) => {
+        navigate(
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`
+        );
+      },
+    }),
   ];
 
   const getApprovalRequestSheetData = async () => {
     try {
       const res = await fetch(
-        `/getApprovalRequestSheetData`,
+        `/getMachineRequestSheetDetails/?getDataForApprovalDashboardId=${loggedUserDetails?._id}`,
         {
           method: "GET",
           headers: {
@@ -104,7 +129,7 @@ const ApprovalDashboardOfRequestSheet = () => {
         console.log("error", data?.message);
       } else {
         console.log(data?.requestSheetData);
-        // setRequestSheetDataOfBM(data?.requestSheetData)
+        setApprovalRequestSheetDataOfBM(data?.requestSheetData);
       }
     } catch (error) {
       console.log(error);
@@ -138,16 +163,16 @@ const ApprovalDashboardOfRequestSheet = () => {
             actions={requestSheetApprovalAction}
             icons={tableIcons}
             columns={approvalDashboardHeader}
-            // data={reduceState?.requestSheetData}
+            data={approvalRequestSheetDataOfBM}
             // title="User Management"
             // tableRef={this.tableRef.current.onQueryChange()}
 
             editable={{
-              onRowUpdate: (updatedRow, oldRow) =>
-                new Promise(async (resolve, reject) => {
-                  //   await updateRequestSheet(updatedRow);
-                  resolve();
-                }),
+              // onRowUpdate: (updatedRow, oldRow) =>
+              // new Promise(async (resolve, reject) => {
+              //   //   await updateRequestSheet(updatedRow);
+              //   resolve();
+              // }),
             }}
             options={{
               showTitle: false,

@@ -20,6 +20,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "antd": "^5.11.5",
     "axios": "^0.27.2",
     "bootstrap": "^5.2.0",
     "chart.js": "^4.0.1",
@@ -66,7 +67,7 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "start": "set HTTPS=true&&set SSL_CRT_FILE=D:\\certificate\\cert.crt&&set SSL_KEY_FILE=D:\\certificate\\cert.key&&react-scripts start",
+    "start": "set HTTPS=true&&set SSL_CRT_FILE=C:\\certificate\\cert.crt&&set SSL_KEY_FILE=C:\\certificate\\cert.key&&react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
