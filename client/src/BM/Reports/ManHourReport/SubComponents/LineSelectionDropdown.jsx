@@ -10,6 +10,8 @@ import { useState, useEffect, useContext } from "react";
 import RoutingContext from "../../../../context/routing/RoutingContext";
 import { fetchFinancialYears } from "../../../../Integration/APIExports";
 
+import { ACTION, getFiltrationValue } from "./CommonFiltrationComponent";
+
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -51,7 +53,6 @@ export default function LineSelectionDropdown({
   selectedMonth,
 
   reducerDispatch,
-  ACTION,
 }) {
   const context = useContext(RoutingContext);
 
@@ -103,6 +104,131 @@ export default function LineSelectionDropdown({
     "Mar",
   ];
 
+  const getFiltrationValueBasedOnSection = async ({ section }) => {
+    try {
+      const { res, data } = await getFiltrationValue({
+        url: `/getFiltrationValue/sectionBased/${section}`,
+      });
+
+      const {
+        message,
+
+        flagForTogglingFilter,
+        selectedValue,
+
+        selectedSubSection,
+        subSections,
+        selectedCell,
+        cells,
+        selectedLine,
+        lines,
+      } = data;
+
+      if (res?.status === 201) {
+        reducerDispatch({
+          type: ACTION.GET_DATA_BASED_ON_SECTION,
+
+          flagForTogglingFilter,
+          selectedValue,
+
+          selectedSubSection,
+          subSections,
+          cells,
+          selectedCell,
+          selectedLine,
+          lines,
+          message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getFiltrationValueBasedOnSubSection = async ({ subSection }) => {
+    try {
+      const { res, data } = await getFiltrationValue({
+        url: `/getFiltrationValue/subSectionBased/${subSection}`,
+      });
+
+      const { message, cells, selectedLine, lines } = data;
+
+      if (res?.status === 201) {
+        reducerDispatch({
+          type: ACTION.GET_DATA_BASED_ON_SUBSECTION,
+
+          cells,
+          selectedLine,
+          lines,
+          message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getFiltrationValueBasedOnCell = async ({ cell }) => {
+    try {
+      const { res, data } = await getFiltrationValue({
+        url: `/getFiltrationValue/cellBased/${cell}`,
+      });
+      const { message, lines } = data;
+
+      if (res?.status === 201) {
+        reducerDispatch({
+          type: ACTION.GET_DATA_BASED_ON_CELL,
+
+          lines,
+          message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      const { res, data } = await getFiltrationValue({
+        url: "/getFiltrationValue/byDefault",
+      });
+
+      const {
+        message,
+
+        flagForTogglingFilter,
+        selectedValue,
+
+        selectedSection,
+        sections,
+        selectedSubSection,
+        subSections,
+        selectedCell,
+        cells,
+      } = data;
+
+      if (res?.status === 201) {
+        reducerDispatch({
+          type: ACTION.GET_DATA,
+
+          flagForTogglingFilter,
+          selectedValue,
+
+          selectedSection,
+          sections,
+          selectedSubSection,
+          subSections,
+          cells,
+          selectedCell,
+          message,
+        });
+      }
+
+      console.log(data);
+    })();
+  }, []);
+
   return (
     <FormControl
       size="small"
@@ -118,6 +244,7 @@ export default function LineSelectionDropdown({
               flagForTogglingFilter: "based-on-section",
               selectedSection: e.target.value,
             });
+            getFiltrationValueBasedOnSection({ section: e.target.value });
           }}
           input={<OutlinedInput />}
           // renderValue={(selected) => <strong>{selected}</strong>}
@@ -145,10 +272,14 @@ export default function LineSelectionDropdown({
           displayEmpty
           value={selectedSubSection}
           onChange={(e) => {
+            console.count("onchange .......");
             reducerDispatch({
               type: ACTION.HANDLE_SELECT_SUBSECTION,
               flagForTogglingFilter: "based-on-subSection",
               selectedSubSection: e.target.value,
+            });
+            getFiltrationValueBasedOnSubSection({
+              subSection: e.target.value,
             });
           }}
           input={<OutlinedInput />}
@@ -187,6 +318,7 @@ export default function LineSelectionDropdown({
               flagForTogglingFilter: "based-on-cell",
               selectedCell: e.target.value,
             });
+            getFiltrationValueBasedOnCell({ cell: e.target.value });
           }}
           input={<OutlinedInput />}
           sx={{

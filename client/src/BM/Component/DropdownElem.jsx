@@ -34,8 +34,8 @@ const DropdownElem = ({
         <option selected disabled value="">
           Please select
         </option>
-        {options?.map((obj) => (
-          <option value={obj?._id}>{obj?.tm_name}</option>
+        {options?.map((obj, idx) => (
+          <option value={idx}>{obj?.tm_name}</option>
         ))}
       </select>
       {errors?.[name] && (

@@ -33,6 +33,8 @@ import ApprovalDashboardOfRequestSheet from "./ApprovalDashboards/ApprovalDashbo
 import LineContributionBD from "./Reports/LineContributionBreakdown/LineContributionMain";
 import TMMTR from "./Reports/TMMTTRSkill/TMMTRDashboard";
 
+import ApprovalLogs from "./ApprovalLogs/ApprovalLogs";
+
 // Define an array of routes for each user type
 const userRoutes = [
   {
@@ -80,6 +82,12 @@ const userRoutes = [
       { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
 
       { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
+      {
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
+        element: <RequestSheetUpdate />,
+      },
+      { path: "/bm/approvalLogs", element: <ApprovalLogs /> },
+
     ],
   },
   {
@@ -101,6 +109,12 @@ const userRoutes = [
       },
       { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
       { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
+      {
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
+        element: <RequestSheetUpdate />,
+      },
+      { path: "/bm/approvalLogs", element: <ApprovalLogs /> },
+
     ],
   },
   {
@@ -124,6 +138,8 @@ const userRoutes = [
         path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
         element: <RequestSheetUpdate />,
       },
+      { path: "/bm/approvalLogs", element: <ApprovalLogs /> },
+
     ],
   },
   {
@@ -198,6 +214,8 @@ const userRoutes = [
         element: <MTBFDashboard />,
       },
       { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
+      { path: "/bm/approvalLogs", element: <ApprovalLogs /> },
+
     ],
   },
 ];

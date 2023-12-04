@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import LineBarChart from "../Common/LineBarChart";
 
-const MTTRTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
+const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   const [MTTRTrendData, setMTTRTrendData] = useState({
     labels: [],
     data: [],
@@ -12,8 +12,8 @@ const MTTRTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
   const getMTTRTrendData = async () => {
     try {
       const res = await fetch(
-        `/getTrendData/MTTR/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
-        // `/getTrendData/MTTR/${flagForCellAndLineToggle}/${selectedValue}`,
+        // `/getTrendData/MTTR/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
+        `/getTrendData/MTTR/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -36,10 +36,10 @@ const MTTRTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
   };
 
   useEffect(() => {
-    getMTTRTrendData();
     if (selectedValue) {
+      getMTTRTrendData();
     }
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear]);
 
   return (
     <>

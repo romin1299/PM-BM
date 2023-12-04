@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import LineBarChart from "../Common/LineBarChart";
 
-const LineTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
+const LineTrend = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  selectedMonth,
+}) => {
   const [lineWiseMTTRTrend, setLineWiseMTTRTrend] = useState({
     labels: [],
     data: [],
@@ -11,8 +16,8 @@ const LineTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
   const getLineWiseMTTRTrendData = async () => {
     try {
       const res = await fetch(
-        `/getLineWiseMTTRTrendData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
-        // `/getLineWiseMTTRTrendData/${flagForCellAndLineToggle}/${selectedValue}`,
+        // `/getLineWiseMTTRTrendData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
+        `/getLineWiseMTTRTrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
         {
           method: "GET",
           headers: {
@@ -34,10 +39,10 @@ const LineTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
   };
 
   useEffect(() => {
-    getLineWiseMTTRTrendData();
-    if (selectedValue) {
+    if (selectedValue && flagForTogglingFilter !== "based-on-line") {
+      getLineWiseMTTRTrendData();
     }
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear, selectedMonth]);
 
   return (
     <>
