@@ -76,7 +76,7 @@ const ManHourTrend = ({ selectedValue, flagForTogglingFilter,selectedYear }) => 
     try {
       const res = await fetch(
         // `/manHourReport/manHourTrend/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
-        `/manHourReport/manHourTrend/${flagForTogglingFilter}/${selectedValue}/${selectedYear}`,
+        `/manHourReport/manHourTrend/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
         {
           method: "GET",
           headers: {

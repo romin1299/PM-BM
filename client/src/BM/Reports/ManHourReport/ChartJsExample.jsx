@@ -121,7 +121,7 @@ const ChartToPPTExample = ({
     try {
       const res = await fetch(
         // `/manHourReport/hourTrend/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
-        `/manHourReport/hourTrend/${flagForTogglingFilter}/${selectedValue}/${selectedYear}`,
+        `/manHourReport/hourTrend/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
         {
           method: "GET",
           headers: {

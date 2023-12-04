@@ -22,7 +22,7 @@ const MTBFReportDashboard = () => {
         <Row>
           <Col className="d-flex align-items-center">
             <Typography variant="h4" component="h4">
-              MTTR Report
+              MTBF Report
             </Typography>
           </Col>
 
@@ -36,12 +36,15 @@ const MTBFReportDashboard = () => {
             <MTBFTrend
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
             />
           </Col>
           <Col>
             <MTBFLineTrend
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
+              selectedMonth={reduceState?.selectedMonth}
             />
           </Col>
         </Row>
@@ -50,6 +53,8 @@ const MTBFReportDashboard = () => {
             <MTBFMachineTrend
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
+              selectedMonth={reduceState?.selectedMonth}
             />
           </Col>
         </Row>

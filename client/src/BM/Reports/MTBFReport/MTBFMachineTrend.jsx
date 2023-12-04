@@ -6,7 +6,12 @@ import { Container, Row, Col } from "react-bootstrap";
 import BarChart from "./Chart/BarChart";
 import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
 
-const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
+const MTBFMachineTrend = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  selectedMonth,
+}) => {
   const {
     register,
     handleSubmit,
@@ -74,7 +79,7 @@ const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
     try {
       const res = await fetch(
         // `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
-        `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/${selectedValue}`,
+        `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
         {
           method: "GET",
           headers: {
@@ -105,7 +110,7 @@ const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
     if (selectedValue) {
       getMachineWiseMTBFTrendDataData();
     }
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear, selectedMonth]);
 
   const getRequestSheetDataBasedOnSelectedMachine = async (data) => {
     try {
@@ -140,7 +145,6 @@ const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
       console.log(error);
     }
   };
-
 
   return (
     <Container fluid>
