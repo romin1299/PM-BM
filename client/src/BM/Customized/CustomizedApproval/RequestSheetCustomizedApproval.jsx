@@ -79,7 +79,7 @@ const RequestSheetCustomizedApproval = () => {
           <h4>Approval selection </h4>
           <Row>
             <Col className="cell m-2">
-              <p>Minor BD Approval Selection</p>
+              <p>Minor BD Approval Selection ({"<"} 2 Hrs.)</p>
               {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
                 return (
                   <>
@@ -102,7 +102,7 @@ const RequestSheetCustomizedApproval = () => {
               )}
             </Col>
             <Col className="cell m-2">
-              <p>Major BD Approval Selection</p>
+              <p>Major BD Approval Selection ({">"} 2 Hrs.)</p>
               {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
                 return (
                   <>

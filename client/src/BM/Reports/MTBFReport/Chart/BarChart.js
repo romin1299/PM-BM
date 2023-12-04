@@ -51,10 +51,10 @@ const BarChart = ({ title, dataset, setValue, clearErrors }) => {
           text: "Machines",
         },
       },
-      y: {
-        min: 0,
-        max: 3,
-      },
+      // y: {
+      //   min: 0,
+      //   max: 3,
+      // },
     },
 
     onClick: (event, element) => {

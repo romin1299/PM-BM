@@ -5,7 +5,12 @@ import { Container, Row, Col } from "react-bootstrap";
 
 import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
 
-const MachineTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
+const MachineTrend = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  selectedMonth,
+}) => {
   const {
     register,
     handleSubmit,
@@ -72,8 +77,8 @@ const MachineTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
   const getMachineWiseMTTRTrendData = async () => {
     try {
       const res = await fetch(
-        `/getMachineWiseMTTRTrendData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
-        // `/getMachineWiseMTTRTrendData/${flagForCellAndLineToggle}/${selectedValue}`,
+        // `/getMachineWiseMTTRTrendData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
+        `/getMachineWiseMTTRTrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
         {
           method: "GET",
           headers: {
@@ -99,14 +104,13 @@ const MachineTrend = ({ selectedValue, flagForCellAndLineToggle }) => {
   };
 
   useEffect(() => {
-    getMachineWiseMTTRTrendData();
     if (selectedValue) {
+      getMachineWiseMTTRTrendData();
     }
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear, selectedMonth]);
 
   const getRequestSheetDataBasedOnSelectedMachine = async (data) => {
     try {
-
       if (data?.selectedMachine?._id === "") {
         return setError("selectedMachine", {
           type: "required",
