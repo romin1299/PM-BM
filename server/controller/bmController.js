@@ -5334,7 +5334,7 @@ router.get(
       return res.status(200).json({
         message: "PlantWise Monthly BD trend data for Section get successfully",
 
-       bdTrendData,
+        bdTrendData,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -5469,11 +5469,11 @@ router.get(
         message:
           "Section Wise Monthly BD trend data for hourly get successfully",
 
-          hourlyArray: [
-            { label: "<1", data: bdTrendData?.[0].lessThanOne },
-            { label: "<2", data: bdTrendData?.[0].lessThanTwo },
-            { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
-          ],
+        hourlyArray: [
+          { label: "<1", data: bdTrendData?.[0].lessThanOne },
+          { label: "<2", data: bdTrendData?.[0].lessThanTwo },
+          { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
+        ],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -5575,7 +5575,7 @@ router.get(
       return res.status(200).json({
         message: "Section Wise Monthly BD trend data for cell get successfully",
 
-         bdTrendData,
+        bdTrendData,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -5615,7 +5615,10 @@ router.get(
         },
       };
 
-      const yearlyBDTrendHourly = await RequestSheetOfBM.aggregate([
+      // let nextYear = moment().startOf("year").add(2, "year").toDate();
+
+      // console.log(nextYear);
+      const bdTrendData = await RequestSheetOfBM.aggregate([
         {
           $facet: {
             currentYear: [
@@ -5744,7 +5747,24 @@ router.get(
       return res.status(200).json({
         message: "Plant Wise Yearly BD trend data get successfully",
 
-        yearlyBDTrendHourly: yearlyBDTrendHourly?.[0],
+        yearlyArray: [
+          {
+            label: `${bdTrendData?.[0].currentYear[0].labels} - ${bdTrendData?.[0].currentYear[0].labels}`,
+            data: [
+              bdTrendData?.[0].currentYear[0].lessThanOne[0],
+              bdTrendData?.[0].currentYear[0].lessThanTwo[0],
+              bdTrendData?.[0].currentYear[0].greaterThanTwo[0],
+            ],
+          },
+          {
+            label: `${bdTrendData?.[0].finacialYear[0].labels} - ${bdTrendData?.[0].finacialYear[0].labels}`,
+            data: [
+              bdTrendData?.[0].finacialYear[0].lessThanOne[0],
+              bdTrendData?.[0].finacialYear[0].lessThanTwo[0],
+              bdTrendData?.[0].finacialYear[0].greaterThanTwo[0],
+            ],
+          }, 
+        ],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
