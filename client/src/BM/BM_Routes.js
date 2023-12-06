@@ -91,6 +91,14 @@ const userRoutes = [
         path: "/bm/requestSheetMonitoring",
         element: <RequestSheetMonitoring />,
       },
+      {
+        path: "/bm/report/mttr-report",
+        element: <MTTRReportDashboard />,
+      },
+      {
+        path: "/bm/report/mtbf-report",
+        element: <MTBFReportDashboard />,
+      },
     ],
   },
   {

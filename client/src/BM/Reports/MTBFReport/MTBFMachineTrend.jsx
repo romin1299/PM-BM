@@ -39,6 +39,8 @@ const MTBFMachineTrend = ({
 
     requestSheetData: [],
 
+    documentLimitInTheGraph: 20,
+
     message: "",
     isLoading: true,
     isError: false,
@@ -48,6 +50,7 @@ const MTBFMachineTrend = ({
     GET_MACHINE_MTTR: "get-machineWise-MTTR-data",
     GET_RS_DATA: "get-requestSheet-data-based-on-selectedMachine",
     HANDLE_SELECTED_MACHINE: "handle-selected-machine",
+    HANDLE_CHANGE_LIMIT: "handle-change-of-document-limit",
   };
 
   const reducer = (state, action) => {
@@ -68,6 +71,12 @@ const MTBFMachineTrend = ({
           requestSheetData: action?.requestSheetData,
         };
 
+      case ACTION?.HANDLE_CHANGE_LIMIT:
+        return {
+          ...state,
+          documentLimitInTheGraph: action?.documentLimitInTheGraph,
+        };
+
       default:
         return state;
     }
@@ -79,7 +88,7 @@ const MTBFMachineTrend = ({
     try {
       const res = await fetch(
         // `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
-        `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}&&documentLimitInTheGraph=${reduceState?.documentLimitInTheGraph}`,
         {
           method: "GET",
           headers: {
@@ -91,8 +100,6 @@ const MTBFMachineTrend = ({
       );
 
       const { message, data } = await res.json();
-
-      console.log(data);
 
       if (res?.status === 201) {
         reducerDispatch({
@@ -149,6 +156,26 @@ const MTBFMachineTrend = ({
   return (
     <Container fluid>
       <Row>
+        <Col>
+          Top : &nbsp;
+          <input
+            type="number"
+            value={reduceState?.documentLimitInTheGraph}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_CHANGE_LIMIT,
+                documentLimitInTheGraph: e.target.value,
+              });
+            }}
+          />
+          &nbsp;
+          <button
+            className="btn bg-button"
+            onClick={getMachineWiseMTBFTrendDataData}
+          >
+            Go
+          </button>
+        </Col>
         <BarChart
           title="Machine Trend"
           dataset={reduceState?.MachineWiseMTBFTrendData}

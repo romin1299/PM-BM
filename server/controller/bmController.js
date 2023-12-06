@@ -6024,7 +6024,6 @@ router.get(
 
       // console.log(nextYear);
 
-      
       const bdTrendData = await RequestSheetOfBM.aggregate([
         {
           $facet: {
@@ -6410,7 +6409,7 @@ router.get(
 
 //       labels: [`FY${bdTrendData?.[0].financialYear[0].label}`,
 //       `FY${bdTrendData?.[0].currentYear[0].label}`,
-     
+
 //     ],
 //     hourlyData: [
 //       {
@@ -6436,7 +6435,6 @@ router.get(
 //       },
 //     ],
 
-      
 //     } catch (error) {
 //       res.status(500).json({ message: error?.message, error });
 //     }
@@ -6598,9 +6596,9 @@ router.get(
       return res.status(200).json({
         message: "Section Wise Yearly BD trend data get successfully",
         // bdTrendData,
-        labels: [`FY${bdTrendData?.[0].financialYear[0].label}`,
+        labels: [
+          `FY${bdTrendData?.[0].financialYear[0].label}`,
           `FY${bdTrendData?.[0].currentYear[0].label}`,
-         
         ],
         hourlyData: [
           {
@@ -6625,7 +6623,6 @@ router.get(
             ],
           },
         ],
-        
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -8188,6 +8185,18 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
   }
 };
 
+const middlewareForLimitValidation = async (req, res, next) => {
+  try {
+    if (req.query?.documentLimitInTheGraph * 1 < 1) {
+      return res.status(400).json({
+        message: "Limit should be greater than one",
+      });
+    }
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
 const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
   const TrendData = await RequestSheetOfBM.aggregate([
     {
@@ -8240,7 +8249,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
       },
     },
     {
-      $limit: 20,
+      $limit: req.query?.documentLimitInTheGraph * 1,
     },
     {
       $group: {
@@ -8331,6 +8340,7 @@ router.get(
 
 router.get(
   "/getMachineWiseMTTRTrendData/:filter/:selectedId",
+  middlewareForLimitValidation,
   filterMiddleware,
   filterMiddlewareForMTTRReport,
   async (req, res, next) => {
@@ -8394,6 +8404,7 @@ router.get(
 
 router.get(
   "/getMachineWiseMTBFTrendDataData/:filter/:selectedId",
+  middlewareForLimitValidation,
   filterMiddleware,
   filterMiddlewareForMTBFReport,
   async (req, res, next) => {
@@ -10773,7 +10784,6 @@ router.get("/dummyAPI", async (req, res, next) => {
   }
 });
 module.exports = router;
-
 
 // labels: [
 //   `${bdTrendData?.[0].financialYear[0].labels}`,
