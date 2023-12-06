@@ -12,7 +12,9 @@ import { Chart } from "react-chartjs-2";
 import { Box, Paper, Typography } from "@mui/material";
 import { Row } from "react-bootstrap";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { chartColors } from "../../Utils/ChartUtils/chartEnums";
+import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
+import axios from "axios";
+import DataNotFound from "../Common/DataNotFound";
 
 ChartJS.register(
   CategoryScale,
@@ -23,12 +25,10 @@ ChartJS.register(
   Legend
 );
 
-// Register the plugin to all charts:
-ChartJS.register(ChartDataLabels);
-
 export const options = {
   maintainAspectRatio: false,
   responsive: true,
+  maxBarThickness: 100,
   plugins: {
     legend: {
       align: "end",
@@ -38,27 +38,14 @@ export const options = {
     },
     datalabels: {
       formatter: (value, context) => {
-        return value > 30 ? value : "";
-      },
-      formatter: (value, context) => {
         if (context.dataset.type === "bar") {
           return value > 30 ? value : "";
         }
         return value;
       },
       font: { weight: "bold", size: 8 },
-      // color: (context) => context.dataset.type === "line" ? chartColors[3] : "gray",
-      anchor: (context) => (context.dataset.type === "line" ? "end" : "center"),
-      align: (context) => (context.dataset.type === "line" ? "top" : "center"),
-      offset: (context) => (context.dataset.type === "line" ? -2 : 0),
     },
   },
-  // elements: {
-  //   bar: {
-  //     borderColor: "000",
-  //     borderWidth: 1,
-  //   },
-  // },
   scales: {
     x: {
       stacked: true,
@@ -70,77 +57,80 @@ export const options = {
         text: "Months",
       },
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
     y: {
       stacked: true,
       position: "left",
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
   },
 };
 
-const dataset = [
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "< 60",
-    data: [35, 41],
-    yAxisID: "y",
-    pointStyle: 'rect',
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "< 120",
-    data: [68, 35],
-    yAxisID: "y",
-    pointStyle: 'rect',
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "> 120",
-    data: [126, 215],
-    yAxisID: "y",
-    pointStyle: 'rect',
-  },
-];
-
-export const data = {
-  labels: ["Fy22", "Fy23Cumm"],
-  datasets: dataset.map((dataset, i) => ({
-    ...dataset,
-    backgroundColor: chartColors[i - 1],
-  })),
-};
-
-const YearlyTrendChart = () => {
-  const [filteredData, setFilteredData] = useState(data);
-
-  const [filterOptions, setFilterOptions] = useState({
-    lessThan60: false,
-    lessThan120: false,
-    greaterThan120: false,
+const YearlyTrendChart = ({
+  currentTabViewName,
+  sectionId,
+  filter,
+  setFilter,
+}) => {
+  const [data, setData] = React.useState({});
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [],
   });
 
-  const handleCheckboxChange = (option) => {
-    setFilterOptions((prevOptions) => ({
-      ...prevOptions,
-      [option]: !prevOptions[option],
-    }));
+  // Register the data-labels plugin to this component:
+  ChartJS.register(ChartDataLabels);
+
+  React.useEffect(() => {
+    if (currentTabViewName === "Plant" && filter === "cell")
+      setFilter("section");
+    else if (currentTabViewName === "Section" && filter === "section")
+      setFilter("cell");
+  }, [currentTabViewName]);
+
+  const fetchChartData = async () => {
+    const url =
+      currentTabViewName === "Plant"
+        ? `/${filter}YearlyBdTrendForPlant`
+        : `/${filter}YearlyBdTrendForSection/based-on-subSection/${sectionId}`;
+
+    try {
+      const res = await axios.get(url, {
+        withCredentials: true,
+        credentials: "include",
+      });
+
+      // console.log("yearly hourly res:", res);
+      setData(res.data);
+    } catch (error) {
+      console.log("error:", error);
+    }
   };
 
-  //   const filterData = () => {
-  //     // Implement filtering logic here based on checkbox states
-  //   };
+  React.useEffect(() => {
+    fetchChartData();
+  }, [currentTabViewName, sectionId, filter]);
 
-  //   useEffect(() => {
-  //     filterData();
-  //   }, [filterOptions]);
+  // React.useEffect(() => {
+  //   console.log("yearly data:", data);
+  // }, [data]);
+
+  React.useEffect(() => {
+    setChartData({
+      labels: data?.labels,
+      datasets: data?.hourlyData?.map((item, index) => ({
+        type: "bar",
+        stack: "bar-stacked",
+        label: item?.label || item?._id,
+        data: item?.data,
+        backgroundColor: chartColors.palettes[0][index],
+      })),
+    });
+  }, [data]);
 
   return (
     <Box className="cell p-3 mt-1">
@@ -155,9 +145,13 @@ const YearlyTrendChart = () => {
         </Typography>
       </Row>
 
-      <div style={{ width: "100%", height: "300px" }}>
-        <Chart data={data} options={options} />
-      </div>
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {data?.hourlyData?.length < 0 ? (
+          <DataNotFound />
+        ) : (
+          <Chart options={options} data={chartData} />
+        )}
+      </Box>
     </Box>
   );
 };

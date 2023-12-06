@@ -5,9 +5,10 @@ import {
   OutlinedInput,
   Select,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { fetchFinancialYears } from "../../../Integration/APIExports";
 import { MONTH_LABELS } from "../../Utils/ChartUtils/chartEnums";
+import { ACTION } from "../ManHourReport/SubComponents/CommonFiltrationComponent";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -20,8 +21,12 @@ const MenuProps = {
   },
 };
 
-const YearMonthDropdown = ({ selectedFilters, setSelectedFilters }) => {
-  const [financialYears, setFinancialYears] = useState([]);
+const YearMonthDropdown = ({
+  selectedYear,
+  selectedMonth,
+  reducerDispatch,
+}) => {
+  const [financialYears, setFinancialYears] = useState([selectedYear]);
 
   const fetchFYYearData = async () => {
     const { financialYears } = await fetchFinancialYears();
@@ -30,22 +35,24 @@ const YearMonthDropdown = ({ selectedFilters, setSelectedFilters }) => {
 
   useEffect(() => {
     fetchFYYearData();
+    // reducerDispatch({
+    //   type: ACTION.HANDLE_SELECT_YEAR,
+    //   selectedYear: "",
+    // });
   }, []);
-
-  function handleYearSelect(event) {
-    setSelectedFilters((prev) => ({ ...prev, year: event.target.value }));
-  }
-  function handleMonthSelect(event) {
-    setSelectedFilters((prev) => ({ ...prev, month: event.target.value }));
-  }
 
   return (
     <Box sx={{ display: "flex", gap: 1 }}>
       <FormControl>
         <Select
           displayEmpty
-          value={selectedFilters?.year}
-          onChange={handleYearSelect}
+          value={selectedYear}
+          onChange={(e) => {
+            reducerDispatch({
+              type: ACTION.HANDLE_SELECT_YEAR,
+              selectedYear: e.target.value,
+            });
+          }}
           input={<OutlinedInput />}
           sx={{
             width: 130,
@@ -55,11 +62,15 @@ const YearMonthDropdown = ({ selectedFilters, setSelectedFilters }) => {
             if (value) return value;
             return "Year";
           }}
-          inputProps={{ "aria-label": "Without label" }}
           MenuProps={MenuProps}
+          inputProps={{ "aria-label": "Without label" }}
         >
+          {/* <MenuItem sx={{ color: "gray" }} value="">
+            <em>reset</em>
+          </MenuItem> */}
+
           {financialYears.map((item) => (
-            <MenuItem key={item} value={item} style={{}}>
+            <MenuItem key={item} value={item}>
               {item}
             </MenuItem>
           ))}
@@ -69,8 +80,13 @@ const YearMonthDropdown = ({ selectedFilters, setSelectedFilters }) => {
       <FormControl>
         <Select
           displayEmpty
-          value={selectedFilters.month}
-          onChange={handleMonthSelect}
+          value={selectedMonth}
+          onChange={(e) => {
+            reducerDispatch({
+              type: ACTION.HANDLE_SELECT_MONTH,
+              selectedMonth: e.target.value,
+            });
+          }}
           input={<OutlinedInput />}
           sx={{
             width: 130,
@@ -80,11 +96,15 @@ const YearMonthDropdown = ({ selectedFilters, setSelectedFilters }) => {
             if (value) return value;
             return "Month";
           }}
-          inputProps={{ "aria-label": "Without label" }}
           MenuProps={MenuProps}
+          inputProps={{ "aria-label": "Without label" }}
         >
+          <MenuItem sx={{ color: "gray" }} value="">
+            <em>reset</em>
+          </MenuItem>
+
           {MONTH_LABELS.map((item) => (
-            <MenuItem key={item} value={item} style={{}}>
+            <MenuItem key={item} value={item}>
               {item}
             </MenuItem>
           ))}

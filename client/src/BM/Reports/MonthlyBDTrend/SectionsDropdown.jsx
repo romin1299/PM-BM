@@ -25,15 +25,17 @@ export default function SectionsDropdown({ sectionId, setSectionId }) {
   };
 
   const fetchValues = async () => {
-    const url = `/getSectionsDropdownForBdTrend`;
+    const url = `/getFiltrationValue/byDefault`;
     try {
       const res = await axios.get(url, {
         withCredentials: true,
         credentials: "include",
       });
 
-      setsectionValues(res.data.subSectionsData);
-      setSectionId(res.data.subSectionsData[0]?._id);
+      console.log("section dropdown res:", res.data.subSections);
+
+      setsectionValues(res.data.subSections);
+      setSectionId(res.data.subSections[0]?._id);
     } catch (error) {
       console.log("error:", error);
     }
@@ -59,6 +61,9 @@ export default function SectionsDropdown({ sectionId, setSectionId }) {
         input={<OutlinedInput />}
         onChange={handleChange}
       >
+        <MenuItem disabled sx={{ pt: 0 , pb:0}}>
+          <em>Sub Sections</em>
+        </MenuItem>
         {sectionValues &&
           sectionValues.map((section, index) => (
             <MenuItem key={index} value={section._id}>

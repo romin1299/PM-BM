@@ -1,6 +1,6 @@
-import React, { useContext, useState } from "react";
+import React from "react";
 import { Col, Container, Row } from "react-bootstrap";
-import { Box, Button, ButtonGroup } from "@mui/material";
+import { Box } from "@mui/material";
 import MonthlyBDTrendChart from "./MonthlyBDTrendChart";
 import YearlyTrendChart from "./YearlyTrendChart";
 import MajorBDCount from "./MajorBDCount";
@@ -10,7 +10,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import SectionsDropdown from "./SectionsDropdown";
 import FilterSwitchButtons from "./FilterSwitchButtons";
-import RoutingContext from "../../../context/routing/RoutingContext.js";
+
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -46,8 +46,8 @@ const MonthlyBDTDashboard = () => {
   const [filter, setFilter] = React.useState("hourly");
   const currentTabViewName = currentTabView === 0 ? "Plant" : "Section";
 
-  const context = useContext(RoutingContext);
-  console.log("context:", context);
+  // const context = useContext(RoutingContext);
+  // console.log("context:", context);
 
   const handleChange = (event, newValue) => {
     setCurrentTabView(newValue);
@@ -116,15 +116,26 @@ const MonthlyBDTDashboard = () => {
           <Col md={12} lg={9}>
             <MonthlyBDTrendChart
               filter={filter}
+              setFilter={setFilter}
               currentTabViewName={currentTabViewName}
               sectionId={sectionId}
             />
           </Col>
           <Col md={12} lg={3}>
-            <YearlyTrendChart />
+            <YearlyTrendChart
+              filter={filter}
+              setFilter={setFilter}
+              currentTabViewName={currentTabViewName}
+              sectionId={sectionId}
+            />
           </Col>
         </Row>
-        <MajorBDCount />
+        <MajorBDCount
+          filter={filter}
+          setFilter={setFilter}
+          currentTabViewName={currentTabViewName}
+          sectionId={sectionId}
+        />
       </Box>
     </Container>
   );

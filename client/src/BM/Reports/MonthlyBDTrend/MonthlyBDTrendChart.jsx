@@ -14,6 +14,7 @@ import { Row, Container } from "react-bootstrap";
 import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
+import DataNotFound from "../Common/DataNotFound";
 
 ChartJS.register(
   CategoryScale,
@@ -24,12 +25,10 @@ ChartJS.register(
   Legend
 );
 
-// Register the plugin to all charts:
-ChartJS.register(ChartDataLabels);
-
 export const options = {
   maintainAspectRatio: false,
   responsive: true,
+  maxBarThickness: 100,
   plugins: {
     legend: {
       align: "end",
@@ -91,15 +90,33 @@ const getRandomDataArray = (max = 30) => {
   return Array.from({ length: 8 }, () => Math.floor(Math.random() * max));
 };
 
-const MonthlyBDTrendChart = ({ filter, currentTabViewName, sectionId }) => {
-  const [resData, setResData] = useState({});
-  const [chartDatasets, setChartDatasets] = useState([]);
+const MonthlyBDTrendChart = ({
+  currentTabViewName,
+  sectionId,
+  filter,
+  setFilter,
+}) => {
+  const [data, setData] = useState([]);
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [],
+  });
+
+  // Register the plugin to all charts:
+  ChartJS.register(ChartDataLabels);
+
+  useEffect(() => {
+    if (currentTabViewName === "Plant" && filter === "cell")
+      setFilter("section");
+    else if (currentTabViewName === "Section" && filter === "section")
+      setFilter("cell");
+  }, [currentTabViewName]);
 
   const fetchChartData = async () => {
     const url =
       currentTabViewName === "Plant"
         ? `/${filter}MonthlyBdTrendForPlant`
-        : `/${filter}MonthlyBdTrendForSection/${sectionId}`;
+        : `/${filter}MonthlyBdTrendForSection/based-on-subSection/${sectionId}`;
 
     try {
       const res = await axios.get(url, {
@@ -107,45 +124,12 @@ const MonthlyBDTrendChart = ({ filter, currentTabViewName, sectionId }) => {
         credentials: "include",
       });
 
-      // setResData(res.data.monthlyBDTrendHourly);
-
-      if (currentTabViewName === "Plant") {
-        if (filter === "hourly") {
-          console.log("plant hourly res:", res.data.monthlyBDTrendHourly);
-
-          // let object = {
-          //   labels: ["Apr", "May", "Mar"],
-          //   lessThanOne: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-          //   lessThanTwo: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-          //   greaterThanTwo: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-          // };
-
-          // let hourlyArray = [
-          //   {
-          //     label: "< 1",
-          //     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-          //   },
-          //   {
-          //     label: "< 2",
-          //     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-          //   },
-          // ];
-        } else {
-          console.log("plant section res:", res.data.monthlyBDTrendSection);
-
-          // let sectionArray = [
-          //   {
-          //     label: "Parts",
-          //     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-          //   },
-          //   {
-          //     label: "Gasoline",
-          //     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-          //   },
-          // ];
-        }
+      if (filter === "hourly") {
+        // console.log("Monthly hourly res:", res?.data?.hourlyArray);
+        setData(res.data.hourlyArray);
       } else {
-        console.log("section res:", res);
+        // console.log("Monthly section res:", res?.data?.bdTrendData);
+        setData(res.data.bdTrendData);
       }
     } catch (error) {
       console.log("error:", error);
@@ -156,59 +140,22 @@ const MonthlyBDTrendChart = ({ filter, currentTabViewName, sectionId }) => {
     fetchChartData();
   }, [currentTabViewName, sectionId, filter]);
 
-  const dummyDatasets = [
-    {
-      type: "bar",
-      stack: "bar-stacked",
-      label: "< 1",
-      // data: getRandomDataArray(10),
-      data: resData?.lessThanOne,
-      backgroundColor: chartColors.palettes[0][0],
-    },
-    {
-      type: "bar",
-      stack: "bar-stacked",
-      label: "< 2",
-      // data: getRandomDataArray(10),
-      data: resData?.lessThanTwo,
-      backgroundColor: chartColors.palettes[0][1],
-    },
-    {
-      type: "bar",
-      stack: "bar-stacked",
-      label: "> 2",
-      // data: getRandomDataArray(10),
-      data: resData?.greaterThanTwo,
-      backgroundColor: chartColors.palettes[0][2],
-    },
-  ];
-
-  function convertToChartDatasets(resData) {
-    const chartDatasets = [];
-
-    Object.keys(resData).forEach((key, index) => {
-      chartDatasets.push({
+  useEffect(() => {
+    setChartData({
+      labels: MONTH_LABELS,
+      datasets: data?.map((item, index) => ({
         type: "bar",
         stack: "bar-stacked",
-        label: key.replace("lessThan", "< ").replace("greaterThan", "> "),
-        data: resData[key],
+        label: item?.label || item?._id,
+        data: item?.data,
         backgroundColor: chartColors.palettes[0][index],
-      });
+      })),
     });
+  }, [data]);
 
-    return chartDatasets;
-  }
-
-  // useEffect(() => {
-  //   const { labels, _id, ...resDatasets } = resData;
-
-  //   setChartDatasets(convertToChartDatasets(resDatasets));
-  // }, [resData]);
-
-  const chartData = {
-    labels: MONTH_LABELS,
-    datasets: dummyDatasets,
-  };
+  // React.useEffect(() => {
+  //   console.log("plant data:", data);
+  // }, [data]);
 
   return (
     <Box className="container-fluid cell p-3 mt-1">
@@ -223,9 +170,13 @@ const MonthlyBDTrendChart = ({ filter, currentTabViewName, sectionId }) => {
         </Typography>
       </Row>
 
-      <div style={{ width: "100%", height: "300px" }}>
-        <Chart data={chartData} options={options} />
-      </div>
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {data?.length <= 0 ? (
+          <DataNotFound />
+        ) : (
+          <Chart options={options} data={chartData} />
+        )}
+      </Box>
     </Box>
   );
 };

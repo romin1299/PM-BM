@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import PlantLineContribution from "./PlantLineContribution";
 import SectionLineContribution from "./SectionLineContribution";
@@ -6,11 +6,13 @@ import { Box, Paper, Typography } from "@mui/material";
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
 import YearMonthDropdown from "./YearMonthDropdown";
 
+import {
+  initialState,
+  reducer,
+} from "../ManHourReport/SubComponents/CommonFiltrationComponent";
+
 const LineContributionMain = () => {
-  const [selectedFilters, setSelectedFilters] = useState({
-    month: "",
-    year: "",
-  });
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   return (
     <Container fluid>
@@ -24,19 +26,22 @@ const LineContributionMain = () => {
 
           <Col className="col-auto">
             <YearMonthDropdown
-              selectedFilters={selectedFilters}
-              setSelectedFilters={setSelectedFilters}
+              {...reduceState}
+              reducerDispatch={reducerDispatch}
             />
           </Col>
         </Row>
 
         <Row className="mt-3">
           <Col lg={12}>
-            <PlantLineContribution />
+            <PlantLineContribution {...reduceState} />
           </Col>
 
           <Col lg={12}>
-            <SectionLineContribution />
+            <SectionLineContribution
+              reduceState={reduceState}
+              reducerDispatch={reducerDispatch}
+            />
           </Col>
         </Row>
       </Box>

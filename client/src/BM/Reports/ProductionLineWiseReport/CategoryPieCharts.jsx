@@ -60,22 +60,23 @@ const CategoryPieCharts = ({ flagForCellAndLineToggle, selectedValue }) => {
         } else {
           resData = res?.data?.problemCategoriesPieChart;
         }
-        setData(resData);
+        // setData(resData);
       } catch (error) {
         console.log("error:", error);
       }
     };
 
     const chartData = {
-      labels: data.labels,
+      labels: data?.labels,
       datasets: [
         {
           label: "count",
           data: data?.count,
-          backgroundColor: Array.from(
-            { length: data.labels.length },
-            (_, i) => chartColors[i]
-          ),
+          // backgroundColor: Array.from(
+          //   { length: data?.labels?.length },
+          //   (_, i) => chartColors[i]
+          // ),
+          backgroundColor: data?.labels?.map((item, i) => chartColors[i]),
         },
       ],
     };
