@@ -53,21 +53,11 @@ export default function LineSelectionDropdown({
   selectedMonth,
 
   reducerDispatch,
+  baseUrlForFiltering,
 }) {
   const context = useContext(RoutingContext);
 
   const theme = useTheme();
-  // const [personName, setPersonName] = React.useState([]);
-
-  // const handleChange = (event) => {
-  //   const {
-  //     target: { value },
-  //   } = event;
-  //   setPersonName(
-  //     // On autofill we get a stringified value.
-  //     typeof value === "string" ? value.split(",") : value
-  //   );
-  // };
 
   const [financialYears, setFinancialYears] = useState([]);
 
@@ -107,7 +97,7 @@ export default function LineSelectionDropdown({
   const getFiltrationValueBasedOnSection = async ({ section }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `/getFiltrationValue/sectionBased/${section}`,
+        url: `${baseUrlForFiltering}/sectionBased/${section}`,
       });
 
       const {
@@ -148,15 +138,16 @@ export default function LineSelectionDropdown({
   const getFiltrationValueBasedOnSubSection = async ({ subSection }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `/getFiltrationValue/subSectionBased/${subSection}`,
+        url: `${baseUrlForFiltering}/subSectionBased/${subSection}`,
       });
 
-      const { message, cells, selectedLine, lines } = data;
+      const { message,selectedCell, cells, selectedLine, lines } = data;
 
       if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_SUBSECTION,
 
+          selectedCell,
           cells,
           selectedLine,
           lines,
@@ -171,7 +162,7 @@ export default function LineSelectionDropdown({
   const getFiltrationValueBasedOnCell = async ({ cell }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `/getFiltrationValue/cellBased/${cell}`,
+        url: `${baseUrlForFiltering}/cellBased/${cell}`,
       });
       const { message, lines } = data;
 
@@ -191,7 +182,7 @@ export default function LineSelectionDropdown({
   useEffect(() => {
     (async () => {
       const { res, data } = await getFiltrationValue({
-        url: "/getFiltrationValue/byDefault",
+        url: `${baseUrlForFiltering}/byDefault`,
       });
 
       const {
@@ -206,6 +197,8 @@ export default function LineSelectionDropdown({
         subSections,
         selectedCell,
         cells,
+        selectedLine,
+        lines,
       } = data;
 
       if (res?.status === 201) {
@@ -221,11 +214,12 @@ export default function LineSelectionDropdown({
           subSections,
           cells,
           selectedCell,
+          selectedLine,
+          lines,
+
           message,
         });
       }
-
-      console.log(data);
     })();
   }, []);
 
