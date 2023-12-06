@@ -1280,6 +1280,52 @@ router.get("/getMtdUserDetails", async (req, res, next) => {
 //        Monitoring RequestSheet APIS
 // -------------------------------------------------------------------------------
 
+const filterMiddleware = async (req, res, next) => {
+  try {
+    let queryObj = {
+      "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+        req.query?.selectedYear,
+    };
+
+    if (req.query?.selectedMonth) {
+      queryObj = {
+        ...queryObj,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      };
+    }
+
+    if (req.params?.filter === "based-on-section") {
+      queryObj = {
+        ...queryObj,
+        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-subSection") {
+      queryObj = {
+        ...queryObj,
+        subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-cell") {
+      queryObj = {
+        ...queryObj,
+        cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    } else {
+      queryObj = {
+        ...queryObj,
+        lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    }
+
+    req.queryObj = queryObj;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 const middlewareForGettingAllDropdownList = async (req, res, next) => {
   try {
     if (Object.keys(req.query)?.length !== 0) {
@@ -1369,16 +1415,17 @@ const queryObjectMiddlewareFunction = async (req, res, next) => {
   }
 };
 
+// ---------------- not using this API
 router.get(
   "/getRequestSheetMonitoringData",
   middlewareForGettingAllDropdownList,
   queryObjectMiddlewareFunction,
   async (req, res, next) => {
-    // const functionForQueryObject = (status) => ({
-    //   $sum: {
-    //     $cond: [{ $eq: ["$requestSheetStatus", status] }, 1, 0],
-    //   },
-    // });
+    const functionForQueryObject = (status) => ({
+      $sum: {
+        $cond: [{ $eq: ["$requestSheetStatus", status] }, 1, 0],
+      },
+    });
     try {
       const allStatusCounterForGraph = await RequestSheetOfBM.aggregate([
         {
@@ -1924,6 +1971,336 @@ router.get(
         allMonths,
         generatedAndCompletedStatusMonthlyData:
           generatedAndCompletedStatusMonthlyData?.[0],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getRequestSheetMonitoringData/status-chart-data/:filter/:selectedId",
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      const allStatusCounterForGraph = await RequestSheetOfBM.aggregate([
+        {
+          $match: {
+            ...req.queryObj,
+            $expr: {
+              $ne: ["$requestSheetStatus", "Generated"],
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$requestSheetStatus",
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            label: "$_id",
+            // data: [0, "$count"],
+            data: {
+              $cond: [
+                { $eq: ["$_id", "Completed"] },
+                [0, 0, "$count"],
+                [0, "$count"],
+              ],
+            },
+          },
+        },
+      ]);
+
+      const generatedStatusCount = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+      return res.status(201).json({
+        message: "Monitoring request-sheet chart data get successfully",
+        allStatusCounterForGraph: [
+          {
+            label: "Generated",
+            data: [generatedStatusCount?.[0]?.count],
+          },
+          ...allStatusCounterForGraph,
+        ],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getRequestSheetMonitoringData/generated-and-completed-count/:filter/:selectedId",
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      let queryPipeline = [
+        {
+          $group: {
+            _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            array: { $push: "$$ROOT" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            countArray: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthName", "$array._id"] },
+                    {
+                      $arrayElemAt: [
+                        "$array.count",
+                        {
+                          $indexOfArray: ["$array._id", "$$month.monthName"],
+                        },
+                      ],
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        },
+      ];
+
+      const completedStatusMonthlyData = await RequestSheetOfBM.aggregate([
+        {
+          $match: {
+            ...req.queryObj,
+            $expr: {
+              $eq: ["$requestSheetStatus", "Completed"],
+            },
+          },
+        },
+        ...queryPipeline,
+      ]);
+
+      const generatedStatusMonthlyData = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
+        ...queryPipeline,
+      ]);
+
+      let arr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+      return res.status(201).json({
+        message:
+          "Monitoring request-sheet monthly-counter data get successfully",
+        generatedAndCompletedStatusMonthlyData: [
+          {
+            label: "Generated",
+            data: generatedStatusMonthlyData?.[0]?.countArray || arr,
+          },
+          {
+            label: "Completed",
+            data: completedStatusMonthlyData?.[0]?.countArray || arr,
+          },
+        ],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getRequestSheetMonitoringData/user-wise-pending-count/:filter/:selectedId",
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      const UserWisePendingApprovalCount = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
+        {
+          $project: {
+            preAggregationTimeStampOfRequestSheet: 1,
+            userWithStatusInfo: [
+              {
+                userType: "MTD TL",
+                userId: { $arrayElemAt: ["$approvalOfMTD_TL", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfMTD_TL", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
+                },
+              },
+              {
+                userType: "MTD HOSS",
+                userId: { $arrayElemAt: ["$approvalOfMTD_HOSS", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfMTD_HOSS", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
+                },
+              },
+              {
+                userType: "MTD HOS",
+                userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfMTD_HOS", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
+                },
+              },
+              {
+                userType: "PRD TL",
+                userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfPRD_TL", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
+                },
+              },
+              {
+                userType: "PRD HOS",
+                userId: { $arrayElemAt: ["$approvalOfPRD_HOS", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfPRD_HOS", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
+                },
+              },
+              {
+                userType: "PRD HOD",
+                userId: { $arrayElemAt: ["$approvalOfPRD_HOD", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfPRD_HOD", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
+                },
+              },
+              {
+                userType: "MTD HOD",
+                userId: { $arrayElemAt: ["$approvalOfMTD_HOD", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfMTD_HOD", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: "$userWithStatusInfo",
+        },
+        {
+          $match: {
+            "userWithStatusInfo.status": "Pending",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              month:
+                "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+              userId: "$userWithStatusInfo.userId",
+              userName: "$userWithStatusInfo.userName",
+              userType: "$userWithStatusInfo.userType",
+            },
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              userId: "$_id.userId",
+              userName: "$_id.userName",
+              userType: "$_id.userType",
+            },
+            array: {
+              $push: {
+                month: { $toString: "$_id.month" },
+                count: "$count",
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            array: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthName", "$array.month"] },
+                    {
+                      $arrayElemAt: [
+                        "$array",
+                        {
+                          $indexOfArray: ["$array.month", "$$month.monthName"],
+                        },
+                      ],
+                    },
+                    {
+                      month: "$$month.monthName",
+                      count: 0,
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.userType",
+            data: {
+              $push: {
+                userId: "$_id.userId",
+                userName: "$_id.userName",
+                array: "$array",
+              },
+            },
+          },
+        },
+      ]);
+
+      return res.status(201).json({
+        message:
+          "Monitoring request-sheet UserWise pending data get successfully",
+        UserWisePendingApprovalCount,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -2994,51 +3371,6 @@ router.patch(
     }
   }
 );
-const filterMiddleware = async (req, res, next) => {
-  try {
-    let queryObj = {
-      "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-        req.query?.selectedYear,
-    };
-
-    if (req.query?.selectedMonth) {
-      queryObj = {
-        ...queryObj,
-        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-          req.query?.selectedMonth,
-      };
-    }
-
-    if (req.params?.filter === "based-on-section") {
-      queryObj = {
-        ...queryObj,
-        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
-      };
-    } else if (req.params?.filter === "based-on-subSection") {
-      queryObj = {
-        ...queryObj,
-        subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
-      };
-    } else if (req.params?.filter === "based-on-cell") {
-      queryObj = {
-        ...queryObj,
-        cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
-        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
-      };
-    } else {
-      queryObj = {
-        ...queryObj,
-        lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
-        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
-      };
-    }
-
-    req.queryObj = queryObj;
-    next();
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
 
 //          Daily breakdown trend
 router.get(
@@ -5692,7 +6024,6 @@ router.get(
 
       // console.log(nextYear);
 
-      
       const bdTrendData = await RequestSheetOfBM.aggregate([
         {
           $facet: {
@@ -6078,7 +6409,7 @@ router.get(
 
 //       labels: [`FY${bdTrendData?.[0].financialYear[0].label}`,
 //       `FY${bdTrendData?.[0].currentYear[0].label}`,
-     
+
 //     ],
 //     hourlyData: [
 //       {
@@ -6104,7 +6435,6 @@ router.get(
 //       },
 //     ],
 
-      
 //     } catch (error) {
 //       res.status(500).json({ message: error?.message, error });
 //     }
@@ -6266,9 +6596,9 @@ router.get(
       return res.status(200).json({
         message: "Section Wise Yearly BD trend data get successfully",
         // bdTrendData,
-        labels: [`FY${bdTrendData?.[0].financialYear[0].label}`,
+        labels: [
+          `FY${bdTrendData?.[0].financialYear[0].label}`,
           `FY${bdTrendData?.[0].currentYear[0].label}`,
-         
         ],
         hourlyData: [
           {
@@ -6293,7 +6623,6 @@ router.get(
             ],
           },
         ],
-        
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -7856,6 +8185,18 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
   }
 };
 
+const middlewareForLimitValidation = async (req, res, next) => {
+  try {
+    if (req.query?.documentLimitInTheGraph * 1 < 1) {
+      return res.status(400).json({
+        message: "Limit should be greater than one",
+      });
+    }
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
 const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
   const TrendData = await RequestSheetOfBM.aggregate([
     {
@@ -7908,7 +8249,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
       },
     },
     {
-      $limit: 20,
+      $limit: req.query?.documentLimitInTheGraph * 1,
     },
     {
       $group: {
@@ -7999,6 +8340,7 @@ router.get(
 
 router.get(
   "/getMachineWiseMTTRTrendData/:filter/:selectedId",
+  middlewareForLimitValidation,
   filterMiddleware,
   filterMiddlewareForMTTRReport,
   async (req, res, next) => {
@@ -8062,6 +8404,7 @@ router.get(
 
 router.get(
   "/getMachineWiseMTBFTrendDataData/:filter/:selectedId",
+  middlewareForLimitValidation,
   filterMiddleware,
   filterMiddlewareForMTBFReport,
   async (req, res, next) => {
@@ -9810,16 +10153,8 @@ router.get(
 );
 
 // -------------------------------------------------------------------------------
-//        Filter API based on logged user
+//        Filter API based on logged user (All filtration Options)
 // -------------------------------------------------------------------------------
-
-// const middlewareForCheckingLoggedUserType = async (req,res,next)=>{
-//   try {
-
-//   } catch (error) {
-//     res.status(500).json({ message: error?.message, error });
-//   }
-// }
 
 const plantFiltrationMiddleware = async (req, res, next) => {
   try {
@@ -9865,9 +10200,13 @@ const subSectionFiltrationMiddleware = async (req, res, next) => {
     const subSections = await SubSection.find(req.subSectionQuery);
 
     if (req.section.dashboardLevel === "No") {
+      let subSection = subSections?.[0];
+
       req.cellQuery = {
-        subSection_names: subSections?.[0]?._id,
+        subSection_names: subSection?._id,
       };
+
+      req.subSection = subSection;
     } else {
       req.cellQuery = {
         subSection_names: { $in: subSections },
@@ -9892,11 +10231,11 @@ const cellFiltrationMiddleware = async (req, res, next) => {
           message: "SubSections get successfully",
 
           flagForTogglingFilter: "based-on-subSection",
-          selectedValue: req.subSections?.[0]?._id,
+          selectedValue: req.subSection?._id,
 
           selectedSection: req.section?._id,
           sections: req.sections,
-          selectedSubSection: req.subSections?.[0]?._id,
+          selectedSubSection: req.subSection?._id,
           subSections: req.subSections,
           selectedCell: "",
           cells,
@@ -9927,11 +10266,11 @@ const cellFiltrationMiddleware = async (req, res, next) => {
         message: "SubSections get successfully",
 
         flagForTogglingFilter: "based-on-subSection",
-        selectedValue: req.subSections?.[0]?._id,
+        selectedValue: req.subSection?._id,
 
         selectedSection: "",
         sections: [],
-        selectedSubSection: req.subSections?.[0]?._id,
+        selectedSubSection: req.subSection?._id,
         subSections: req.subSections,
         selectedCell: "",
         cells,
@@ -9960,22 +10299,24 @@ const cellFiltrationMiddleware = async (req, res, next) => {
   }
 };
 
-router.get(
-  "/getFiltrationValue/byDefault",
-  plantFiltrationMiddleware,
-  (req, res, next) => {
-    try {
-      if (req.section) {
-        return next();
-      }
-      req.sectionQuery = {
-        section_id: req?.rootUser?.section_data?.split("-")?.[0],
-      };
-      next();
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
+const conditionMiddlewareForSectionQuery = async (req, res, next) => {
+  try {
+    if (req.section) {
+      return next();
     }
-  },
+    req.sectionQuery = {
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    };
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+router.get(
+  "/getFiltrationValue/all-filtration/byDefault",
+  plantFiltrationMiddleware,
+  conditionMiddlewareForSectionQuery,
   sectionFiltrationMiddleware,
   (req, res, next) => {
     try {
@@ -9987,14 +10328,16 @@ router.get(
             message: "Sections get successfully",
 
             flagForTogglingFilter: "based-on-section",
-            selectedValue: req.section?.[0]?._id,
+            selectedValue: req.section?._id,
 
-            selectedSection: req.section?.[0]?._id,
+            selectedSection: req.section?._id,
             sections: req.sections,
             selectedSubSection: "",
             subSections: [],
             selectedCell: "",
             cells: [],
+            selectedLine: "",
+            lines: [],
           });
         }
 
@@ -10028,7 +10371,7 @@ router.get(
 );
 
 router.get(
-  "/getFiltrationValue/sectionBased/:id",
+  "/getFiltrationValue/all-filtration/sectionBased/:id",
   (req, res, next) => {
     try {
       req.sectionQuery = {
@@ -10055,7 +10398,7 @@ router.get(
 );
 
 router.get(
-  "/getFiltrationValue/subSectionBased/:id",
+  "/getFiltrationValue/all-filtration/subSectionBased/:id",
   async (req, res, next) => {
     try {
       const cells = await Cell.find({
@@ -10072,20 +10415,281 @@ router.get(
   }
 );
 
-router.get("/getFiltrationValue/cellBased/:id", async (req, res, next) => {
-  try {
-    const lines = await Line.find({
-      cell_names: mongoose.Types.ObjectId(req.params?.id),
-    });
+router.get(
+  "/getFiltrationValue/all-filtration/cellBased/:id",
+  async (req, res, next) => {
+    try {
+      const lines = await Line.find({
+        cell_names: mongoose.Types.ObjectId(req.params?.id),
+      });
 
-    return res.status(201).json({
-      message: "Line dropdown value get successfully",
-      lines,
-    });
+      return res.status(201).json({
+        message: "Line dropdown value get successfully",
+        lines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+// -------------------------------------------------------------------------------
+//        Filter API based on logged user (Cell/Line filtration Options)
+// -------------------------------------------------------------------------------
+
+const cellFilterMiddleware = async (req, res, next) => {
+  try {
+    const cells = await Cell.find(req.cellQuery);
+
+    req.cellID = cells?.[0]?._id;
+    req.cells = cells;
+
+    return next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
-});
+};
+
+const lineFiltrationMiddleware = async (req, res, next) => {
+  try {
+    const lines = await Line.find({
+      cell_names: mongoose.Types.ObjectId(req.cellID),
+    });
+
+    req.lines = lines;
+    return next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+router.get(
+  "/getFiltrationValue/cell-level-filtration/byDefault",
+  plantFiltrationMiddleware,
+  conditionMiddlewareForSectionQuery,
+  sectionFiltrationMiddleware,
+  (req, res, next) => {
+    try {
+      let subSectionQuery = {
+        section_names: req.section?._id,
+      };
+      if (
+        req.section.dashboardLevel === "No" &&
+        req.rootUser?.tm_grade !== "HOD"
+      ) {
+        subSectionQuery = {
+          subSection_id: {
+            $in: req.rootUser?.subSection_data?.map(
+              (item) => item?.split("-")?.[0]
+            ),
+          },
+        };
+      }
+      req.subSectionQuery = subSectionQuery;
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  subSectionFiltrationMiddleware,
+  cellFilterMiddleware,
+  lineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.rootUser?.tm_grade === "HOD") {
+        if (req.section.dashboardLevel === "No") {
+          return res.status(201).json({
+            message: "Data get successfully",
+
+            flagForTogglingFilter: "based-on-cell",
+            selectedValue: req.cellID,
+
+            selectedSection: req.section?._id,
+            sections: req.sections,
+            selectedSubSection: req.subSection?._id,
+            subSections: req.subSections,
+            selectedCell: req.cellID,
+            cells: req.cells,
+            selectedLine: "",
+            lines: req.lines,
+          });
+        }
+
+        return res.status(201).json({
+          message: "Data get successfully",
+
+          flagForTogglingFilter: "based-on-cell",
+          selectedValue: req.cellID,
+
+          selectedSection: req.section?._id,
+          sections: req.sections,
+          selectedSubSection: "",
+          subSections: [],
+          selectedCell: req.cellID,
+          cells: req.cells,
+          selectedLine: "",
+          lines: req.lines,
+        });
+      }
+
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "Data get successfully",
+
+          flagForTogglingFilter: "based-on-cell",
+          selectedValue: req.cellID,
+
+          selectedSection: "",
+          sections: [],
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: req.cellID,
+          cells: req.cells,
+          selectedLine: "",
+          lines: req.lines,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Data get successfully",
+
+        flagForTogglingFilter: "based-on-cell",
+        selectedValue: req.cellID,
+
+        selectedSection: "",
+        sections: [],
+        selectedSubSection: "",
+        subSections: [],
+        selectedCell: req.cellID,
+        cells: req.cells,
+        selectedLine: "",
+        lines: req.lines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/cell-level-filtration/sectionBased/:id",
+  (req, res, next) => {
+    try {
+      req.sectionQuery = {
+        _id: mongoose.Types.ObjectId(req.params?.id),
+      };
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  sectionFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      req.subSectionQuery = {
+        section_names: req.section?._id,
+      };
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  subSectionFiltrationMiddleware,
+  cellFilterMiddleware,
+  lineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "Data get successfully",
+
+          flagForTogglingFilter: "based-on-cell",
+          selectedValue: req.cellID,
+
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: req.cellID,
+          cells: req.cells,
+          selectedLine: "",
+          lines: req.lines,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Data get successfully",
+
+        flagForTogglingFilter: "based-on-cell",
+        selectedValue: req.cellID,
+
+        selectedSubSection: "",
+        subSections: [],
+        selectedCell: req.cellID,
+        cells: req.cells,
+        selectedLine: "",
+        lines: req.lines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/cell-level-filtration/subSectionBased/:id",
+  async (req, res, next) => {
+    try {
+      req.cellQuery = {
+        subSection_names: mongoose.Types.ObjectId(req.params?.id),
+      };
+      return next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  cellFilterMiddleware,
+  lineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      return res.status(201).json({
+        message: "Data get successfully",
+
+        flagForTogglingFilter: "based-on-cell",
+        selectedValue: req.cellID,
+
+        selectedCell: req.cellID,
+        cells: req.cells,
+        selectedLine: "",
+        lines: req.lines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/cell-level-filtration/cellBased/:id",
+  async (req, res, next) => {
+    try {
+      req.cellID = mongoose.Types.ObjectId(req.params?.id);
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  lineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      return res.status(201).json({
+        message: "Line dropdown value get successfully",
+        lines: req.lines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
 
 router.get("/dummyAPI", async (req, res, next) => {
   try {
@@ -10180,7 +10784,6 @@ router.get("/dummyAPI", async (req, res, next) => {
   }
 });
 module.exports = router;
-
 
 // labels: [
 //   `${bdTrendData?.[0].financialYear[0].labels}`,

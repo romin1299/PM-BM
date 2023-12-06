@@ -8,7 +8,12 @@ import {
 import DownloadMenu from "./DownloadMenu";
 import LineSelectionDropdown from "./LineSelectionDropdown";
 
-const ChartsToolbar = ({ reduceState, reducerDispatch, ACTION }) => {
+const ChartsToolbar = ({
+  baseUrlForFiltering,
+  reduceState,
+  reducerDispatch,
+  ACTION,
+}) => {
   const generatePPT = () => {
     const pptx = new pptxgen();
     const slide = pptx.addSlide();
@@ -80,6 +85,7 @@ const ChartsToolbar = ({ reduceState, reducerDispatch, ACTION }) => {
     >
       <LineSelectionDropdown
         {...reduceState}
+        baseUrlForFiltering={baseUrlForFiltering}
         reducerDispatch={reducerDispatch}
         ACTION={ACTION}
       />

@@ -14,6 +14,7 @@ import {
 
 const MTTRReportDashboard = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   return (
     <Container fluid>
@@ -26,6 +27,7 @@ const MTTRReportDashboard = () => {
           </Col>
 
           <ChartsToolbar
+            baseUrlForFiltering={baseUrlForFiltering}
             reduceState={reduceState}
             reducerDispatch={reducerDispatch}
           />
