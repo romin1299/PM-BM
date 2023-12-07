@@ -142,15 +142,15 @@ const ProductionLineWiseReport = () => {
   // }, []);
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
-  const baseUrlForFiltering = "/getFiltrationValue/cell-level-filtration";
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const [requestSheetData, setRequestSheetData] = useState([]);
 
   const getRequestSheetDataBasedOnSelectedDate = async (data) => {
     try {
       const res = await fetch(
-        `/getRequestSheetDataBasedOnSelectedDate/${reduceState?.flagForTogglingFilter}/632c41261d1becfedab325f9/${data?.selectedDate}/?selectedYear=${reduceState?.selectedYear}`,
-        // `/getMTTRGraphData/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/${data?.selectedDate}/?selectedYear=${reduceState?.selectedYear}`,
+        // `/getRequestSheetDataBasedOnSelectedDate/${reduceState?.flagForTogglingFilter}/632c41261d1becfedab325f9/${data?.selectedDate}/?selectedYear=${reduceState?.selectedYear}`,
+        `/getRequestSheetDataBasedOnSelectedDate/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/${data?.selectedDate}`,
         {
           method: "GET",
           headers: {

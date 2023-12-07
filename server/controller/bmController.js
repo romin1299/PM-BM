@@ -267,7 +267,7 @@ router.post(
             category: key,
             subCategory: requestSheetDataFilledByMTDUser?.categories[key],
           }));
-          
+
           let queryObj = {
             // ...req.body,
             ..._idObject,
@@ -329,7 +329,7 @@ router.post(
             attachedDataSheets: dataSheet?.attachedDataSheets?.[0]?.filename,
             drawingOfRequestSheet:
               requestSheetDataFilledByMTDUser?.drawingOfRequestSheet,
-            supportingTM : requestSheetDataFilledByMTDUser?.supportingTM,
+            supportingTM: requestSheetDataFilledByMTDUser?.supportingTM,
             categoriesOfRequestSheet: convertedData,
           };
 
@@ -3206,7 +3206,7 @@ const getRequestSheetData = async (req, res, next) => {
           supportingTM: 1,
           attachedDataSheets: 1,
           attachedDrawings: 1,
-          categoriesOfRequestSheet: 1
+          categoriesOfRequestSheet: 1,
         },
       },
     ]);
@@ -3513,45 +3513,73 @@ router.patch(
   }
 );
 
+const monthValidationMiddleware = async (req, res, next) => {
+  try {
+    if (currentYear === req.query?.selectedYear) {
+      if (
+        moment().tz(timezone).month(req.query.selectedMonth).month() >
+          moment().tz(timezone).month() ||
+        [0, 1, 2].includes(
+          moment().tz(timezone).month(req.query.selectedMonth).month()
+        )
+      ) {
+        return res
+          .status(400)
+          .json({ message: "You can't selected the future month!!!" });
+      }
+    }
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 //          Daily breakdown trend
 router.get(
   "/getDailyBreakdownTrendData/:filter/:selectedId",
+  monthValidationMiddleware,
   filterMiddleware,
   async (req, res, next) => {
     try {
-      console.log(req.query);
+      let year, endDate;
+      const spiltArrayOfYear = req.query?.selectedYear?.split("-");
 
-      const startDate = moment(new Date()).tz(timezone).startOf("month");
+      if (["Jan", "Feb", "Mar"]?.includes(req.query.selectedMonth)) {
+        year = spiltArrayOfYear[1];
+      } else {
+        year = spiltArrayOfYear[0];
+      }
 
-      const endDate = moment(new Date()).tz(timezone).endOf("day");
+      if (
+        currentYear === req.query?.selectedYear &&
+        moment().tz(timezone).month(req.query.selectedMonth).month() ===
+          moment().tz(timezone).month()
+      ) {
+        endDate = moment().tz(timezone).endOf("day");
+      } else {
+        endDate = moment()
+          .tz(timezone)
+          .year(year)
+          .month(req.query.selectedMonth)
+          .endOf("month");
+      }
+
+      const startDate = moment()
+        .tz(timezone)
+        .year(year)
+        .month(req.query.selectedMonth)
+        .startOf("month");
 
       const allDatesInMonth = Array.from(
         { length: endDate.date() },
         (_, index) => startDate.clone().add(index, "days").format("DD")
       );
 
-      // console.log(req.query?.selectedYear?.split("-"));
-
-      // if (["Jan"]?.req.query.selectedMonth) {
-      //   console.log(req.query.selectedMonth);
-      // } else {
-      //   console.log(";");
-      // }
-
-      // console.log(moment().year("2022").month(req.query.selectedMonth));
-
-      const matchObj = {
-        ...req.queryObj,
-        problemOccurredDateAndTimeOfBM: {
-          $gte: startDate.toDate(),
-          $lte: endDate.toDate(),
-        },
-      };
-
       const queryFunction = async ({ conditionObj }) =>
         RequestSheetOfBM.aggregate([
           {
-            $match: matchObj,
+            $match: req.queryObj,
           },
           {
             $sort: {
@@ -3656,7 +3684,7 @@ router.get(
 
       const dayWiseCount = await RequestSheetOfBM.aggregate([
         {
-          $match: matchObj,
+          $match: req.queryObj,
         },
         {
           $sort: {
@@ -4287,239 +4315,45 @@ router.post(
   "/getBDhoursVsCountDataFunction/:purpose/:filter/:selectedId",
   async (req, res, next) => {
     try {
-      // let arr = [
-      //   {
-      //     str: "half",
-      //     int: 0.5,
-      //   },
-      //   {
-      //     str: "one",
-      //     int: 1,
-      //   },
-      //   {
-      //     str: "two",
-      //     int: 2,
-      //   },
-      //   {
-      //     str: "three",
-      //     int: 3,
-      //   },
-      // ];
-
-      // let facetQueryObj = {};
-
-      // let groupObj = {
-      //   $group: {
-      //     _id: {
-      //       machine: "$machine._id",
-      //       machine_code: "$machine.machine_code",
-      //       machine_name: "$machine.machine_name",
-      //     },
-      //     count: { $sum: 1 },
-      //     hours: {
-      //       $sum: "$BDhours",
-      //     },
-      //   },
-      // };
-      // for (let i = 0; i < arr.length; i++) {
-      //   let matchObj = {};
-
-      //   if (i === 0) {
-      //     matchObj = {
-      //       BDhours: { $lte: arr[i]?.int },
-      //     };
-      //   } else if (i === arr?.length - 1) {
-      //     matchObj = {
-      //       BDhours: { $gte: arr[i]?.int },
-      //     };
-      //   } else {
-      //     matchObj = {
-      //       $and: [
-      //         { BDhours: { $gt: arr[i - 1]?.int } },
-      //         { BDhours: { $lte: arr[i]?.int } },
-      //       ],
-      //     };
-      //   }
-      //   facetQueryObj[arr[i]?.str] = [
-      //     {
-      //       $match: matchObj,
-      //     },
-      //     groupObj,
-      //   ];
-      // }
-      // const BDHoursVsCountData = await RequestSheetOfBM.aggregate([
-      //   // {
-      //   //   $match: req.queryObj,
-      //   // },
-
-      //   {
-      //     $match: {
-      //       sheetCompletedDateAndTime: { $ne: null },
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "machinesalldatas",
-      //       localField: "machineRef",
-      //       foreignField: "_id",
-      //       pipeline: [
-      //         {
-      //           $project: {
-      //             machine_code: 1,
-      //             machine_name: 1,
-      //           },
-      //         },
-      //       ],
-      //       as: "machine",
-      //     },
-      //   },
-      //   {
-      //     $unwind: "$machine",
-      //   },
-      //   {
-      //     $project: {
-      //       requestSheetNoOfBM: 1,
-      //       machine: 1,
-      //       BDhours: {
-      //         $divide: [
-      //           {
-      //             $subtract: [
-      //               "$sheetCompletedDateAndTime",
-      //               "$sheetIssuedDateAndTimeOfBM",
-      //             ],
-      //           },
-      //           3600000,
-      //         ],
-      //       },
-      //     },
-      //   },
-      //   {
-      //     $bucket: {
-      //       groupBy: "$BDhours",
-      //       boundaries: [0, 2, 3], // 0 <= value < 2, 2<= value < 3
-      //       // boundaries: [0, 3], // 0 <= value < 3
-      //       default: "Other",
-      //       output: {
-      //         count: { $sum: 1 },
-      //         sumOfBDhours: { $sum: "$BDhours" },
-      //         machine: { $push: "$machine" },
-      //       },
-      //     },
-      //   },
-      //   {
-      //     $group: {
-      //       _id: null,
-      //       array: { $push: "$$ROOT" },
-      //     },
-      //   },
-      //   {
-      //     $project: {
-      //       _id: 0,
-      //       data: {
-      //         $map: {
-      //           input: [
-      //             {
-      //               id: 0,
-      //               key: "<2",
-      //             },
-      //             {
-      //               id: 2,
-      //               key: "<3",
-      //             },
-      //             // {
-      //             //   id:3,
-      //             //   key:"<Other"
-      //             // }
-      //           ],
-      //           as: "item",
-      //           in: {
-      //             $cond: [
-      //               { $in: ["$$item.id", "$array._id"] },
-      //               {
-      //                 _id: "$$item.key",
-      //                 machine: "$array.machine",
-      //                 count: {
-      //                   $arrayElemAt: [
-      //                     "$array.count",
-      //                     {
-      //                       $indexOfArray: ["$array._id", "$$item.id"],
-      //                     },
-      //                   ],
-      //                 },
-      //                 sumOfBDhours: {
-      //                   $arrayElemAt: [
-      //                     "$array.sumOfBDhours",
-      //                     {
-      //                       $indexOfArray: ["$array._id", "$$item.id"],
-      //                     },
-      //                   ],
-      //                 },
-      //               },
-      //               {
-      //                 _id: "$$item.key",
-      //                 count: 0,
-      //                 sumOfBDhours: 0,
-      //               },
-      //             ],
-      //           },
-      //         },
-      //       },
-      //     },
-      //   },
-      //   {
-      //     $unwind: "$data",
-      //   },
-      //   {
-      //     $replaceRoot: { newRoot: "$data" },
-      //   },
-      //   {
-      //     $project: {
-      //       _id: 0,
-      //       machine: 1,
-      //       groupId: "$_id",
-      //       count: "$count",
-      //       sumOfBDhours: "$sumOfBDhours",
-      //     },
-      //   },
-      // ]);
-
-      if (req.params?.filter === "based-on-cell") {
-        queryPipeline = [
-          {
-            $lookup: {
-              from: "lines",
-              localField: "line_names",
-              foreignField: "_id",
-              pipeline: [
-                {
-                  $project: {
-                    line_name: 1,
-                    cell_names: 1,
-                  },
-                },
-              ],
-              as: "line",
-            },
+      let queryObjForPM = {},
+        queryObjForBM = {
+          "maintenanceReportFilledByMTD.workEndedDateOfBM": {
+            $ne: null,
           },
-          {
-            $unwind: "$line",
-          },
-          {
-            $match: {
-              "line.cell_names": mongoose.Types.ObjectId(
-                req.params?.selectedId
-              ),
-            },
-          },
-        ];
-      } else {
-        queryPipeline = [
-          {
-            $match: {
-              line_names: mongoose.Types.ObjectId(req.params?.selectedId),
-            },
-          },
-        ];
+        };
+
+      if (req.params?.filter === "based-on-section") {
+        queryObjForPM = {
+          section_names: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-subSection") {
+        queryObjForPM = {
+          subSection_names: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-cell") {
+        queryObjForPM = {
+          cell_names: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-line") {
+        queryObjForPM = {
+          line_names: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      }
+
+      if (req.query?.selectedYear) {
+        queryObjForBM = {
+          ...queryObjForBM,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            req.query?.selectedYear,
+        };
+      }
+
+      if (req.query?.selectedMonth !== "undefined") {
+        queryObjForBM = {
+          ...queryObjForBM,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+            req.query?.selectedMonth,
+        };
       }
 
       let boundaries = [0, Infinity]; // total data,
@@ -4756,12 +4590,8 @@ router.post(
       }
 
       const BDHoursVsCountData = await Machine.aggregate([
-        // ...queryPipeline,
         {
-          $project: {
-            machine_code: 1,
-            machine_name: 1,
-          },
+          $match: queryObjForPM,
         },
         {
           $lookup: {
@@ -4770,11 +4600,7 @@ router.post(
             foreignField: "machineRef",
             pipeline: [
               {
-                $match: {
-                  "maintenanceReportFilledByMTD.workEndedDateOfBM": {
-                    $ne: null,
-                  },
-                },
+                $match: queryObjForBM,
               },
               {
                 $project: {

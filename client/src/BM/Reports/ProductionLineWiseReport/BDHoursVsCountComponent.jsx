@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useState, useReducer } from "react";
 
 import { Container, Row, Col } from "reactstrap";
 
@@ -6,12 +6,16 @@ import BDHoursVsCountChart from "./Charts/BDHoursVsCountChart";
 import FilterComponent from "./FilterComponent";
 import { Box, Divider, Typography } from "@mui/material";
 
+import { MonthDropdown } from "../ManHourReport/SubComponents/LineSelectionDropdown";
+
 const BDHoursVsCountComponent = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
-  selectedMonth,
+  // selectedMonth,
 }) => {
+  const [selectedMonth, setSelectedMonth] = useState();
+
   const initialState = {
     labels: [],
 
@@ -61,6 +65,12 @@ const BDHoursVsCountComponent = ({
           obj = {
             totalBDCount: action?.BDHoursVsCountData?.BDCount,
             BDhours: action?.BDHoursVsCountData?.BDhours,
+            BDCount: [
+              {
+                groupId: "",
+                count: [],
+              },
+            ],
           };
         }
         return {
@@ -129,8 +139,16 @@ const BDHoursVsCountComponent = ({
 
       <Divider sx={{ mb: 2, borderColor: "black" }} />
 
+      <MonthDropdown
+        selectedMonth={selectedMonth}
+        setSelectedMonth={setSelectedMonth}
+      />
+
       <FilterComponent
         getBDhoursVsCountReportData={getBDhoursVsCountReportData}
+        selectedValue={selectedValue}
+        selectedYear={selectedYear}
+        selectedMonth={selectedMonth}
       />
 
       <BDHoursVsCountChart

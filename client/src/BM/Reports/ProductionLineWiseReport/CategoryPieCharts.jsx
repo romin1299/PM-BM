@@ -66,7 +66,7 @@ const CategoryPieCharts = ({
         } else {
           resData = res?.data?.problemCategoriesPieChart;
         }
-        // setData(resData);
+        setData(resData);
       } catch (error) {
         console.log("error:", error);
       }
