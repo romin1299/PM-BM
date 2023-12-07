@@ -1,5 +1,3 @@
-// import React from "react";
-// import Table from "react-bootstrap/Table";
 import denso_log from "../../../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
 import { DropdownButton, Dropdown } from "react-bootstrap";
@@ -10,12 +8,13 @@ import { AddBoxIcon } from "../../../modules/PageModules";
 import ProblemList from "./SubComponents/ProblemList";
 import ActionList from "./SubComponents/ActionList";
 import PartList from "./SubComponents/PartList";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import moment from "moment";
 import DropdownElem from "../../Component/DropdownElem";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
+import Multiselect from "multiselect-react-dropdown";
 const list = [
   { key: "A", value: "A" },
   { key: "B", value: "B" },
@@ -28,12 +27,13 @@ function MyTable({
   approvalListOfBM,
   requestSheetDataOfBM,
 }) {
-  console.log(requestSheetDataOfBM);
   const loggedUserDetails = useContext(RoutingContext);
 
   const navigate = useNavigate();
 
   const { machine_code, requestSheetNoOfBM, generateType } = useParams();
+
+  const locationSupportingTM = useLocation();
 
   const [actions, setActions] = useState([]);
   const [problems, setProblems] = useState([]);
@@ -41,12 +41,15 @@ function MyTable({
   const [selectedMinor, setSelectedMinor] = useState();
   const [selectedMajor, setSelectedMajor] = useState();
 
+  const [selectedSupportedTM, setSelectedSupportedTM] = useState([]);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
     setValue,
+    control,
     // reset,
   } = useForm({
     defaultValues: {
@@ -73,17 +76,39 @@ function MyTable({
     requestSheetData.minorBD = timeDifferenceMinutes <= 120 ? "Yes" : "No";
     requestSheetData.majorBD = timeDifferenceMinutes > 120 ? "Yes" : "No";
     requestSheetData.changedParts = parts;
+    requestSheetData.supportingTM = selectedSupportedTM?.map((obj) => obj?._id);
+    requestSheetData.partQualityCheckedByPRD =
+      approvalListOfBM?.prdTL?.[requestSheetData?.partQualityCheckedByPRD]?._id;
+    requestSheetData.partQualityCheckedByMTD =
+      approvalListOfBM?.mtdTL?.[requestSheetData?.partQualityCheckedByMTD]?._id;
+
+    const formData = new FormData();
+    const { ...otherFields } = requestSheetData;
+
+    // Append the file field
+    formData.append(
+      "attachedDataSheets",
+      requestSheetData?.attachedDataSheets?.[0]
+    );
+
+    for (let i = 0; i < requestSheetData?.attachedDrawings?.length; i++) {
+      formData.append(
+        "attachedDrawings",
+        requestSheetData?.attachedDrawings[i]
+      );
+    }
+
+    formData.append("otherData", JSON.stringify(otherFields));
+
     try {
       const res = await fetch(
         `/newRequestSheetRegistration/?reqId=${requestSheetNoOfBM}&&machineRef=${machine_code}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...requestSheetData,
-          }),
+          // headers: {
+          //   "Content-Type": "application/json",
+          // },
+          body: formData,
         }
       );
       const data = await res.json();
@@ -290,6 +315,26 @@ function MyTable({
         "partQualityCheckedByMTD",
         requestSheetDataOfBM?.partQualityCheckedByMTD
       );
+
+      setValue(
+        "dataSheetOfRequestSheet",
+        requestSheetDataOfBM?.dataSheetOfRequestSheet
+      );
+
+      setValue(
+        "drawingOfRequestSheet",
+        requestSheetDataOfBM?.drawingOfRequestSheet
+      );
+
+      setValue(
+        "actionTemporaryOrNot",
+        requestSheetDataOfBM?.actionTemporaryOrNot
+      );
+
+      requestSheetDataOfBM?.categoriesOfRequestSheet?.map((obj) => {
+        setValue(`categories.${obj?.category}`, obj?.subCategory);
+      });
+
       setProblems(
         requestSheetDataOfBM?.maintenanceReportFilledByMTD?.problemsOfBM
       );
@@ -1088,28 +1133,69 @@ function MyTable({
                 </Col>
                 <Col className="border p-2 d-flex align-items-center">
                   <Form>
-                    {["radio"].map((type) => (
-                      <div key={`inline-${type}`} className="d-flex">
-                        <Form.Check
-                          flex
-                          label="Yes"
-                          name="group1"
-                          type={type}
-                          value="Yes"
-                          id={`inline-${type}-1`}
-                          // onChange={handleDataSheet}
+                    <div className="d-flex">
+                      <Form.Check
+                        flex
+                        label="Yes"
+                        name="dataSheetOfRequestSheet"
+                        type="radio"
+                        value="Yes"
+                        id="dataSheetOfRequestSheet"
+                        checked={
+                          timeDifferenceMinutes > 120
+                            ? true
+                            : watch("dataSheetOfRequestSheet") === "Yes"
+                            ? true
+                            : false
+                        }
+                        // onChange={handledataSheetOfRequestSheet}
+                        {...register("dataSheetOfRequestSheet", {
+                          required: "This field is required",
+                        })}
+                      />
+                      <Form.Check
+                        flex
+                        label="No"
+                        name="dataSheetOfRequestSheet"
+                        type="radio"
+                        value="No"
+                        id="dataSheetOfRequestSheet"
+                        disabled={timeDifferenceMinutes > 120 && true}
+                        // onChange={handledataSheetOfRequestSheet}
+                        {...register("dataSheetOfRequestSheet", {
+                          required: "This field is required",
+                        })}
+                      />
+                    </div>
+                    {errors?.["dataSheetOfRequestSheet"] && (
+                      <p className="text-error">
+                        {errors?.["dataSheetOfRequestSheet"]?.message}
+                      </p>
+                    )}
+                    {requestSheetDataOfBM?.attachedDataSheets ? (
+                      <p>{requestSheetDataOfBM?.attachedDataSheets}</p>
+                    ) : timeDifferenceMinutes > 120 ||
+                      watch("dataSheetOfRequestSheet") === "Yes" ? (
+                      <Form.Group controlId="formFileMultiple" className="mb-3">
+                        <Form.Control
+                          type="file"
+                          {...register("attachedDataSheets", {
+                            required:
+                              timeDifferenceMinutes > 120 ||
+                              watch("dataSheetOfRequestSheet") === "Yes"
+                                ? true
+                                : false,
+                          })}
                         />
-                        <Form.Check
-                          flex
-                          label="No"
-                          name="group1"
-                          type={type}
-                          value="No"
-                          id={`inline-${type}-2`}
-                          // onChange={handleDataSheet}
-                        />
-                      </div>
-                    ))}
+                        {errors?.["attachedDataSheets"] && (
+                          <p className="text-error">
+                            {"This field is required"}
+                          </p>
+                        )}
+                      </Form.Group>
+                    ) : (
+                      ""
+                    )}
                   </Form>
                 </Col>
               </Row>
@@ -1121,28 +1207,54 @@ function MyTable({
                 </Col>
                 <Col className="border p-2 d-flex align-items-center">
                   <Form>
-                    {["radio"].map((type) => (
-                      <div key={`inline-${type}`} className="d-flex">
-                        <Form.Check
-                          flex
-                          label="Yes"
-                          name="group1"
-                          type={type}
-                          value="Yes"
-                          id={`inline-${type}-1`}
-                          // onChange={handleDrawing}
+                    <div className="d-flex">
+                      <Form.Check
+                        flex
+                        label="Yes"
+                        name="drawingOfRequestSheet"
+                        type="radio"
+                        value="Yes"
+                        id="drawingOfRequestSheet"
+                        // onChange={handledrawingOfRequestSheet}
+                        {...register("drawingOfRequestSheet")}
+                      />
+                      <Form.Check
+                        flex
+                        label="No"
+                        name="drawingOfRequestSheet"
+                        type="radio"
+                        value="No"
+                        id="drawingOfRequestSheet"
+                        // onChange={handledrawingOfRequestSheet}
+                        {...register("drawingOfRequestSheet")}
+                      />
+                    </div>
+
+                    {requestSheetDataOfBM?.attachedDrawings ? (
+                      <p>
+                        {(requestSheetDataOfBM?.attachedDrawings).join("\r\n")}
+                      </p>
+                    ) : watch("drawingOfRequestSheet") === "Yes" ? (
+                      <Form.Group controlId="formFileMultiple" className="mb-3">
+                        <Form.Control
+                          type="file"
+                          multiple
+                          {...register("attachedDrawings", {
+                            required:
+                              watch("dataSheetOfRequestSheet") === "Yes"
+                                ? true
+                                : false,
+                          })}
                         />
-                        <Form.Check
-                          flex
-                          label="No"
-                          name="group1"
-                          type={type}
-                          value="No"
-                          id={`inline-${type}-2`}
-                          // onChange={handleDrawing}
-                        />
-                      </div>
-                    ))}
+                        {errors?.["attachedDrawings"] && (
+                          <p className="text-error">
+                            {"This field is required"}
+                          </p>
+                        )}
+                      </Form.Group>
+                    ) : (
+                      ""
+                    )}
                   </Form>
                 </Col>
               </Row>
@@ -1160,7 +1272,21 @@ function MyTable({
                 </Col>
               </Row>
               <Row className="m-0 p-1 border">
-                <AddBoxIcon onClick={() => {}} />
+                <input
+                  type="text"
+                  id="preventive_corrective_maintenance"
+                  name="preventive_corrective_maintenance"
+                  style={{ width: "100%" }}
+                  {...register("preventive_corrective_maintenance", {
+                    required: "This field is required",
+                  })}
+                />
+                {errors?.["preventive_corrective_maintenance"] && (
+                  <p className="text-error">
+                    {errors?.["preventive_corrective_maintenance"]?.message}
+                  </p>
+                )}
+                {/* <AddBoxIcon onClick={() => {}} /> */}
               </Row>
               <Row className="m-0 p-1 border">
                 <AddBoxIcon onClick={() => {}} />
@@ -1176,6 +1302,135 @@ function MyTable({
               <Row className="m-0 p-1 border">
                 <AddBoxIcon onClick={() => {}} />
               </Row>
+            </td>
+          </tr>
+
+          <tr>
+            <td colSpan={8}>
+              <Row className="m-0">
+                <Col className="border p-2">
+                  <p className="mb-0 d-flex align-items-center justify-content-start">
+                    <b>Is Action Temporary?</b>&nbsp;&nbsp;&nbsp;
+                  </p>
+                </Col>
+                <Col className="border p-2 d-flex align-items-center">
+                  <Form>
+                    <div className="d-flex">
+                      <Form.Check
+                        flex
+                        label="Yes"
+                        name="actionTemporaryOrNot"
+                        type="radio"
+                        value="Yes"
+                        id="actionTemporaryOrNot"
+                        // onChange={handleactionTemporaryOrNot}
+                        {...register("actionTemporaryOrNot", {
+                          required: "This field is required",
+                        })}
+                      />
+                      <Form.Check
+                        flex
+                        label="No"
+                        name="actionTemporaryOrNot"
+                        type="radio"
+                        value="No"
+                        id="actionTemporaryOrNot"
+                        // onChange={handleactionTemporaryOrNot}
+                        {...register("actionTemporaryOrNot", {
+                          required: "This field is required",
+                        })}
+                      />
+                    </div>
+                    {errors?.["actionTemporaryOrNot"] && (
+                      <p className="text-error">
+                        {errors?.["actionTemporaryOrNot"]?.message}
+                      </p>
+                    )}
+                  </Form>
+                </Col>
+              </Row>
+              <Row className="m-0">
+                <Col className="border p-2">
+                  <p className="mb-0 d-flex align-items-center justify-content-start">
+                    <b>No. Of TM Attended.</b>&nbsp;&nbsp;&nbsp;
+                  </p>
+                </Col>
+                <Col className="border p-2 d-flex align-items-center">
+                  <Controller
+                    name="supportingTM"
+                    control={control}
+                    render={({ field }) => (
+                      <Multiselect
+                        {...field}
+                        displayValue="tm_name"
+                        className="col-9 "
+                        options={locationSupportingTM.state.supportingTM} // Options to display in the dropdown
+                        // selectedValues={departmentList} // Preselected value to persist in dropdown
+                        onSelect={async (selectedList) => {
+                          await setSelectedSupportedTM(selectedList);
+                        }} // Function will trigger on select event
+                        onRemove={async (selectedList) => {
+                          await setSelectedSupportedTM(selectedList);
+                        }} // Function will trigger on remove event
+                        style={{
+                          multiselectContainer: {
+                            width: "15rem",
+                          },
+                        }}
+                        selectedValues={requestSheetDataOfBM?.supportingTM}
+                      />
+                    )}
+                  />
+                </Col>
+              </Row>
+            </td>
+            <td colSpan={8}>
+              {requestSheetDataOfBM?.plantRef?.categories?.map(
+                (categoryObj, idxOfCategory) => (
+                  <>
+                    <Row className="m-0">
+                      <Col lg={4} className="border p-2">
+                        <p className="mb-0 d-flex align-items-center justify-content-start">
+                          <b>{categoryObj?.name}</b>&nbsp;&nbsp;&nbsp;
+                        </p>
+                      </Col>
+
+                      <Col className="border p-2 d-flex align-items-center">
+                        <Form>
+                          <div className="d-flex">
+                            {categoryObj?.subCategories?.map(
+                              (subCategoryObj, idxOfSubCategory) => (
+                                <Form.Check
+                                  flex
+                                  label={subCategoryObj?.name}
+                                  type="radio"
+                                  value={subCategoryObj?.name}
+                                  name={`categories`}
+                                  // onChange={handleactionTemporaryOrNot}
+                                  {...register(
+                                    `categories.${categoryObj?.name}`,
+                                    {
+                                      required: "This field is required",
+                                    }
+                                  )}
+                                />
+                              )
+                            )}
+                          </div>
+                          {errors?.[`categories`]?.[`${categoryObj?.name}`] && (
+                            <p className="text-error">
+                              {
+                                errors?.[`categories`]?.[`${categoryObj?.name}`]
+                                  ?.message
+                              }
+                            </p>
+                          )}
+                        </Form>
+                      </Col>
+                    </Row>
+                  </>
+                )
+              )}
             </td>
           </tr>
 

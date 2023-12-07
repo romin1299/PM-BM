@@ -73,15 +73,16 @@ const CategoryPieCharts = ({
     };
 
     const chartData = {
-      labels: data.labels,
+      labels: data?.labels,
       datasets: [
         {
           label: "count",
           data: data?.count,
-          backgroundColor: Array.from(
-            { length: data.labels.length },
-            (_, i) => chartColors[i]
-          ),
+          // backgroundColor: Array.from(
+          //   { length: data?.labels?.length },
+          //   (_, i) => chartColors[i]
+          // ),
+          backgroundColor: data?.labels?.map((item, i) => chartColors[i]),
         },
       ],
     };

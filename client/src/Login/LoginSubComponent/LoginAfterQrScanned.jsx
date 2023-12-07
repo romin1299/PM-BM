@@ -1,6 +1,6 @@
 import React from "react";
-import LoginComponent from "./LoginComponent";
 import { useParams } from "react-router-dom";
+import LoginCard from "./LoginCard";
 
 const LoginAfterQrScanned = () => {
   const { machineId } = useParams();
@@ -8,7 +8,14 @@ const LoginAfterQrScanned = () => {
   return (
     <>
       <main className="mains">
-        <LoginComponent scannedMachineId={machineId} />
+        <div className="containers">
+          <div
+            className="wrappers"
+            style={{ maxWidth: "350px", padding: "20px" }}
+          >
+            <LoginCard scannedMachineId={machineId} />
+          </div>
+        </div>
       </main>
     </>
   );

@@ -13,7 +13,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: String,
   },
 
-  timeStamp: {
+  preAggregationTimeStampOfRequestSheet: {
     requestSheet_year: {
       type: String,
     },
@@ -287,11 +287,18 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: Date, //If need String change it.
   },
 
-  dataSheetOfBM: {
+  dataSheetOfRequestSheet: {
     type: String,
   },
-  drawingOfBM: {
+  attachedDataSheets: {
     type: String,
+  },
+
+  drawingOfRequestSheet: {
+    type: String,
+  },
+  attachedDrawings: {
+    type: [String],
   },
 
   //Spare parts related fields
@@ -381,6 +388,10 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   //Need to add activity,problem background, frequency, category.
   //With multi lines and machines selection. (Need to discussion on it).
 
+  actionTemporaryOrNot: {
+    type: String,
+  },
+
   machineRef: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "MachinesAllData",
@@ -414,12 +425,19 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   getDataForApprovalDashboard: {
     Id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Plants"
+      ref: "Plants",
     },
     departmentAndGradeOfUser: {
-      type: String
-    }
+      type: String,
+    },
   },
+
+  categoriesOfRequestSheet: [
+    {
+      category: { type: String },
+      subCategory: { type: String },
+    },
+  ],
 
   // assignOperator: {
   //   type: mongoose.Schema.Types.ObjectId,

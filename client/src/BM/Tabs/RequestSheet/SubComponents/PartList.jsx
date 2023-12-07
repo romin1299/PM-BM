@@ -13,7 +13,7 @@ const PartList = ({ parts, setParts }) => {
     quantity: "",
     cost: "",
   });
-  
+
   const addPart = () => {
     if (
       newPart.partNo &&
@@ -96,7 +96,7 @@ const PartList = ({ parts, setParts }) => {
           className="border"
           // className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <b>ACTIONS</b>
+          <b>UPDATE</b>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
         </Col>
       </Row>

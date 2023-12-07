@@ -59,10 +59,7 @@ function MyTable({ selectedMachineDetails }) {
       // }),
     },
   });
-  console.log(new Date());
   const selectedRequestSheetData = useLocation();
-
-  console.log(selectedRequestSheetData?.state?.selectedRow);
 
   const [selectedShift, setSelectedShift] = useState("");
   // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
@@ -350,7 +347,7 @@ function MyTable({ selectedMachineDetails }) {
                           ?.toUpperCase()}
                     _{selectedMachineDetails?.line_names?.line_name}_
                     {startedDate}_
-                    {selectedMachineDetails?.line_names?.requestSheetNos + 1}
+                    {selectedMachineDetails?.line_names?.requestSheetNos + 1 || 1}
                   </p>
                   <Row className="m-0">
                     <Col className="border">
@@ -784,7 +781,7 @@ function MyTable({ selectedMachineDetails }) {
                 className="btn bg-button"
                 style={{ marginTop: "1rem" }}
               >
-                Register
+                Submit Request-Sheet
               </button>
             </Col>
           </Row>

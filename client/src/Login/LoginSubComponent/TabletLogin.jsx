@@ -66,72 +66,68 @@ const TabletLogin = () => {
   };
 
   return (
-    <div className="containers">
-      <div className="wrappers" style={{ maxWidth: "350px", padding: "20px" }}>
-        <Box
-          sx={{
-            width: "100%",
-            bgcolor: "background.paper",
-            borderRadius: "8px",
-          }}
-        >
-          <center>
-            <img
-              style={{ textAlign: "center", marginBottom: "1rem" }}
-              className="denso_logo"
-              src={denso_logo}
-              alt=""
-              srcSet=""
-            />
-          </center>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            indicatorColor="#004B5B"
-            variant="fullWidth"
-            // sx={{ borderRadius: "8px 8px 0px 0px" }}
-            sx={{
-              borderRadius: "8px",
-              boxShadow: "inset 0px 0px 0px 1px #004B5B",
-              MozBoxShadow: "inset 0px 0px 0px 1px #004B5B",
-              WebkitBoxShadow: "inset 0px 0px 0px 1px #004B5B",
+    <Box
+      sx={{
+        width: "100%",
+        bgcolor: "background.paper",
+        borderRadius: "8px",
+      }}
+    >
+      <center>
+        <img
+          style={{ textAlign: "center", marginBottom: "1rem" }}
+          className="denso_logo"
+          src={denso_logo}
+          alt=""
+          srcSet=""
+        />
+      </center>
+      <Tabs
+        value={value}
+        onChange={handleChange}
+        indicatorColor="#004B5B"
+        variant="fullWidth"
+        // sx={{ borderRadius: "8px 8px 0px 0px" }}
+        sx={{
+          borderRadius: "8px",
+          boxShadow: "inset 0px 0px 0px 1px #004B5B",
+          MozBoxShadow: "inset 0px 0px 0px 1px #004B5B",
+          WebkitBoxShadow: "inset 0px 0px 0px 1px #004B5B",
+        }}
+        centered
+      >
+        <Tab sx={tabStyles} label="Scan" />
+        <Tab sx={tabStyles} label="Login" />
+      </Tabs>
+      <TabPanel value={value} index={0}>
+        <p>{scanData}</p>
+        <div className="headings">
+          <h2
+            style={{
+              fontWeight: "600",
+              textAlign: "center",
+              margin: "1rem 0px 2rem 0px",
+              // textTransform: "uppercase",
             }}
-            centered
+            className="text text-medium color-text"
           >
-            <Tab sx={tabStyles} label="Scan" />
-            <Tab sx={tabStyles} label="Login" />
-          </Tabs>
-          <TabPanel value={value} index={0}>
-            <p>{scanData}</p>
-            <div className="headings">
-              <h2
-                style={{
-                  fontWeight: "600",
-                  textAlign: "center",
-                  margin: "1rem 0px 2rem 0px",
-                  // textTransform: "uppercase",
-                }}
-                className="text text-medium color-text"
-              >
-                Scan QR
-              </h2>
-            </div>
-            {scanData && (
-              <QrReader
-                facingMode="environment"
-                delay={1000}
-                onScan={handleScan}
-                onError={handleError}
-                style={{ width: "100", height: "150"}}
-              />
-            )}
-          </TabPanel>
-          <TabPanel value={value} index={1}>
-            <LoginCard />
-          </TabPanel>
-        </Box>
-      </div>
-    </div>
+            Scan QR
+          </h2>
+        </div>
+        {scanData && (
+          <QrReader
+            facingMode="environment"
+            delay={1000}
+            onScan={handleScan}
+            onError={handleError}
+            style={{ width: "100", height: "150" }}
+          />
+        )}
+      </TabPanel>
+      <TabPanel value={value} index={1}>
+        <LoginCard />
+      </TabPanel>
+    </Box>
   );
 };
 

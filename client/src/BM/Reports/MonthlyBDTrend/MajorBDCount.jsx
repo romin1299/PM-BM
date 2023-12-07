@@ -1,12 +1,14 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 import React from "react";
 import { Col, Row } from "react-bootstrap";
 import { Bar } from "react-chartjs-2";
-import { chartColors } from "../../Utils/ChartUtils/chartEnums";
+import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
+import axios from "axios";
+import DataNotFound from "../Common/DataNotFound";
 
 const sectionBoxStyle = {
   p: 1,
-  width: "100%",
+  // width: "100%",
 };
 
 const sectionBodyBoxStyle = {
@@ -19,65 +21,8 @@ const sectionBodyBoxStyle = {
   backgroundColor: "#c6efce", //alternative color #deebf7
 };
 
-const MajorBDCount = () => {
-  return (
-    <Box className="cell p-3 mt-3">
-      <Row className="mb-3">
-        <Col md={12} lg={6} >
-          <Typography
-            variant="h5"
-            component="h5"
-            sx={{ fontWeight: "500", textDecoration: "underline" }}
-          >
-            Major Breakdown Count
-          </Typography>
-
-          <Typography variant="h6" component="h6" className="mt-3">
-            FY 23:
-          </Typography>
-
-          <Typography variant="h6" component="h6" className="mt-3">
-            <b>Target →</b> 12 Nos/Year
-          </Typography>
-
-          <Box className="cell" sx={{ mt: 3, display: "flex" }}>
-            <Box sx={sectionBoxStyle}>
-              <Typography variant="h6" textAlign="center" fontWeight={600}>
-                Mounting MBD Count
-              </Typography>
-              <Box sx={sectionBodyBoxStyle}>
-                <Typography variant="h4" textAlign="center" fontWeight={600}>
-                  1
-                </Typography>
-              </Box>
-            </Box>
-
-            <Box sx={{ ...sectionBoxStyle, borderLeft: "none" }}>
-              <Typography variant="h6" textAlign="center" fontWeight={600}>
-                Final MBD Count
-              </Typography>
-              <Box sx={sectionBodyBoxStyle}>
-                <Typography variant="h4" textAlign="center" fontWeight={600}>
-                  3
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-        </Col>
-
-        <Col md={12} lg={6} style={{ borderLeft: "1px solid lightgray" }}>
-
-          <Bar options={options} data={data} />
-
-
-        </Col>
-      </Row>
-    </Box>
-  );
-};
-
 export const options = {
-  // maintainAspectRatio: false,
+  maintainAspectRatio: false,
   responsive: true,
   plugins: {
     title: {
@@ -105,7 +50,7 @@ export const options = {
         // autoSkip: false,
         maxRotation: 90,
         minRotation: 90,
-        color: 'black',
+        color: "black",
       },
     },
     y: {
@@ -115,8 +60,8 @@ export const options = {
         text: "Nos",
       },
       ticks: {
-        color: 'black',
-      }
+        color: "black",
+      },
     },
   },
 };
@@ -136,22 +81,120 @@ const labels = [
   "Mar-24",
 ];
 
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: "MA",
-      data: [1, 0, 0, 2, 0, 0],
-      backgroundColor: chartColors.orange[2],
-      pointStyle: 'rect',
-    },
-    {
-      label: "FA",
-      data: [1, 1, 0, 0, 1, 0],
-      backgroundColor: chartColors.aqua[1],
-      pointStyle: 'rect',
-    },
-  ],
+const MajorBDCount = ({ currentTabViewName, sectionId }) => {
+  const [data, setData] = React.useState([]);
+  const [chartData, setChartData] = React.useState({
+    labels: [],
+    datasets: [],
+  });
+
+  // const d = new Date();
+  // let year = d.getFullYear().toString().slice(-2);
+  // let month = d.getMonth().toString();
+
+  const fetchChartData = async () => {
+    const url =
+      currentTabViewName === "Plant"
+        ? `/majorBDCountForPlant`
+        : `/majorBDCountForSection/based-on-subSection/${sectionId}`;
+
+    // /majorBDCountForPlant
+    // /majorBDCountForSection/based-on-subSection/6322e5dffdb4a3119153b9e7
+
+    try {
+      const res = await axios.get(url, {
+        withCredentials: true,
+        credentials: "include",
+      });
+
+      // console.log("BD count res:", res?.data?.bdTrendData);
+      setData(res?.data?.bdTrendData);
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchChartData();
+  }, [currentTabViewName, sectionId]);
+
+  React.useEffect(() => {
+    setChartData({
+      labels: labels,
+      datasets: data?.map((item, index) => ({
+        type: "bar",
+        stack: "bar-stacked",
+        label: item?.label || item?._id,
+        data: item?.data,
+        backgroundColor: chartColors.palettes[0][index],
+      })),
+    });
+  }, [data]);
+
+  function sumOfArray(array) {
+    return array?.reduce((accumulator, currentValue) => {
+      return accumulator + currentValue;
+    }, 0);
+  }
+
+  return (
+    <Box className="cell p-3 mt-3">
+      <Row className="mb-3 gy-3">
+        <Col md={12} lg={6}>
+          <Typography
+            variant="h5"
+            component="h5"
+            sx={{ fontWeight: "500", textDecoration: "underline" }}
+          >
+            Major Breakdown Count
+          </Typography>
+
+          <Typography variant="h6" component="h6" className="mt-3">
+            FY 23:
+          </Typography>
+
+          <Typography variant="h6" component="h6" className="mt-3">
+            <b>Target →</b> 12 Nos/Year
+          </Typography>
+
+          <Box className="row cell" sx={{ m: 0, mt: 3, display: "flex" }}>
+            {data?.map((item, index) => (
+              <Box className="col col-4" sx={sectionBoxStyle} key={index}>
+                <Typography variant="h6" textAlign="center" fontWeight={600}>
+                  {item.label}
+                </Typography>
+                <Box sx={sectionBodyBoxStyle}>
+                  <Typography variant="h4" textAlign="center" fontWeight={600}>
+                    {sumOfArray(item?.data)}
+                  </Typography>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Col>
+
+        <Col md={12} lg={6}>
+          <Paper variant="outlined" className="cell p-3">
+            <Typography
+              className="col"
+              variant="h5"
+              component="h5"
+              sx={{ fontWeight: "500" }}
+            >
+              Sections
+            </Typography>
+            <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+              {data?.hourlyData?.length < 0 ? (
+                <DataNotFound />
+              ) : (
+                <Bar options={options} data={chartData} />
+              )}
+            </Box>
+          </Paper>
+        </Col>
+      </Row>
+    </Box>
+  );
 };
 
 export default MajorBDCount;

@@ -6,7 +6,7 @@ import {
 
   // RoutingContext,
   // NoteAddIcon,
-  DashboardIcon
+  DashboardIcon,
 } from "./ImportModules";
 
 import Logout from "../../Integration/Logout/Logout";
@@ -26,17 +26,10 @@ import "react-pro-sidebar/dist/css/styles.css";
 import styled from "styled-components";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
-import {
-
-  FiArrowLeftCircle,
-  FiArrowRightCircle,
-} from "react-icons/fi";
+import { FiArrowLeftCircle, FiArrowRightCircle } from "react-icons/fi";
 
 import LogoutIcon from "@mui/icons-material/Logout";
 import BackupTableIcon from "@mui/icons-material/BackupTable";
-
-
-
 
 const Menuitem = styled(MenuItem)`
   :hover {
@@ -95,7 +88,6 @@ const Admin = ({ userData }) => {
                     alt=""
                     style={{ width: "100%", padding: "5px" }}
                     className="bg-white"
-
                   />
                 ) : (
                   <img
@@ -136,9 +128,7 @@ const Admin = ({ userData }) => {
           >
             <NavLink to="/pm/"></NavLink> Dashboard
           </Menuitem>
-          
 
-         
           <Menuitem
             className="text-white"
             icon={<PersonAddIcon className="text-white" />}
@@ -149,14 +139,18 @@ const Admin = ({ userData }) => {
             <NavLink to="/pm/adminDashboard"></NavLink>
             Admin Dashboard
           </Menuitem>
-          
         </Menu>
       </SidebarContent>
       <SidebarFooter fixed="bottom">
         <Menu iconShape="square">
           <MenuItem
             className="text"
-            icon={<LogoutIcon className="text-white" style={{ transform: "rotate(180deg)" }}/>}
+            icon={
+              <LogoutIcon
+                className="text-white"
+                style={{ transform: "rotate(180deg)" }}
+              />
+            }
             data-toggle="tooltip"
             data-placement="right"
             title="Logout"

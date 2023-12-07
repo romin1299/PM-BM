@@ -11,11 +11,10 @@ import {
 import { Chart } from "react-chartjs-2";
 import { Box, Paper, Typography } from "@mui/material";
 import { Row, Container } from "react-bootstrap";
-import {
-  MONTH_LABELS,
-  chartColors,
-} from "../../Utils/ChartUtils/chartEnums";
+import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import axios from "axios";
+import DataNotFound from "../Common/DataNotFound";
 
 ChartJS.register(
   CategoryScale,
@@ -26,12 +25,10 @@ ChartJS.register(
   Legend
 );
 
-// Register the plugin to all charts:
-ChartJS.register(ChartDataLabels);
-
 export const options = {
   maintainAspectRatio: false,
   responsive: true,
+  maxBarThickness: 100,
   plugins: {
     legend: {
       align: "end",
@@ -40,9 +37,6 @@ export const options = {
       },
     },
     datalabels: {
-      formatter: (value, context) => {
-        return value > 30 ? value : "";
-      },
       formatter: (value, context) => {
         if (context.dataset.type === "bar") {
           return value > 30 ? value : "";
@@ -73,121 +67,117 @@ export const options = {
         text: "Months",
       },
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
     y: {
       stacked: true,
       position: "left",
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
     y2: {
       position: "right",
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
   },
 };
 
-const daysLabels = Array.from({ length: 30 }, (_, i) => (i + 1).toString());
-
 const getRandomDataArray = (max = 30) => {
   return Array.from({ length: 8 }, () => Math.floor(Math.random() * max));
 };
 
-const dataset = [
-  {
-    type: "line",
-    label: "Total Count",
-    data: getRandomDataArray(30),
-    borderColor: chartColors.magenta[1],
-    borderWidth: 2,
-    backgroundColor: 'chartColors.magenta[1]',
-    pointStyle: 'rectRot',
-    yAxisID: "y2",
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "< 60",
-    data: getRandomDataArray(60),
-    yAxisID: "y",
-    pointStyle: 'rect'
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "< 120",
-    data: getRandomDataArray(120),
-    yAxisID: "y",
-    pointStyle: 'rect'
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-    label: "> 120",
-    data: getRandomDataArray(140),
-    yAxisID: "y",
-    pointStyle: 'rect'
-  },
-];
-
-export const data = {
-  labels: MONTH_LABELS,
-  datasets: dataset.map((dataset, i) => ({
-    ...dataset,
-    // backgroundColor: chartColors[i - 1],
-    backgroundColor: i === 0 ? chartColors.magenta[1] : dataset.label === "< 60" ? chartColors.blue[3] : dataset.label === "< 120" ? chartColors.green[3] : dataset.label === "> 120" ? chartColors.orange[2] : chartColors[i - 1],
-  })),
-};
-
-const MonthlyBDTrendChart = () => {
-  const [filteredData, setFilteredData] = useState(data);
-
-  const [filterOptions, setFilterOptions] = useState({
-    lessThan60: false,
-    lessThan120: false,
-    greaterThan120: false,
+const MonthlyBDTrendChart = ({
+  currentTabViewName,
+  sectionId,
+  filter,
+  setFilter,
+}) => {
+  const [data, setData] = useState([]);
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [],
   });
 
-  const handleCheckboxChange = (option) => {
-    setFilterOptions((prevOptions) => ({
-      ...prevOptions,
-      [option]: !prevOptions[option],
-    }));
+  // Register the plugin to all charts:
+  ChartJS.register(ChartDataLabels);
+
+  useEffect(() => {
+    if (currentTabViewName === "Plant" && filter === "cell")
+      setFilter("section");
+    else if (currentTabViewName === "Section" && filter === "section")
+      setFilter("cell");
+  }, [currentTabViewName]);
+
+  const fetchChartData = async () => {
+    const url =
+      currentTabViewName === "Plant"
+        ? `/${filter}MonthlyBdTrendForPlant`
+        : `/${filter}MonthlyBdTrendForSection/based-on-subSection/${sectionId}`;
+
+    try {
+      const res = await axios.get(url, {
+        withCredentials: true,
+        credentials: "include",
+      });
+
+      if (filter === "hourly") {
+        // console.log("Monthly hourly res:", res?.data?.hourlyArray);
+        setData(res.data.hourlyArray);
+      } else {
+        // console.log("Monthly section res:", res?.data?.bdTrendData);
+        setData(res.data.bdTrendData);
+      }
+    } catch (error) {
+      console.log("error:", error);
+    }
   };
 
-  //   const filterData = () => {
-  //     // Implement filtering logic here based on checkbox states
-  //   };
+  useEffect(() => {
+    fetchChartData();
+  }, [currentTabViewName, sectionId, filter]);
 
-  //   useEffect(() => {
-  //     filterData();
-  //   }, [filterOptions]);
+  useEffect(() => {
+    setChartData({
+      labels: MONTH_LABELS,
+      datasets: data?.map((item, index) => ({
+        type: "bar",
+        stack: "bar-stacked",
+        label: item?.label || item?._id,
+        data: item?.data,
+        backgroundColor: chartColors.palettes[0][index],
+      })),
+    });
+  }, [data]);
+
+  // React.useEffect(() => {
+  //   console.log("plant data:", data);
+  // }, [data]);
 
   return (
-    <Container fluid>
-      <Box className="cell p-3 mt-3">
-        <Row>
-          <Typography
-            className="col"
-            variant="h5"
-            component="h5"
-            sx={{ fontWeight: "500" }}
-          >
-            Electronics: Monthly Breakdown Trend
-          </Typography>
-        </Row>
+    <Box className="container-fluid cell p-3 mt-1">
+      <Row>
+        <Typography
+          className="col"
+          variant="h5"
+          component="h5"
+          sx={{ fontWeight: "500" }}
+        >
+          Electronics: Monthly Breakdown Trend
+        </Typography>
+      </Row>
 
-        <div style={{ width: "100%", height: "300px" }}>
-          <Chart data={data} options={options} />
-        </div>
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {data?.length <= 0 ? (
+          <DataNotFound />
+        ) : (
+          <Chart options={options} data={chartData} />
+        )}
       </Box>
-    </Container>
-
+    </Box>
   );
 };
 
