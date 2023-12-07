@@ -42,8 +42,8 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
   const getMTTRReportData = async () => {
     try {
       const res = await fetch(
-        `/getMTTRGraphData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
-        // `/getMTTRGraphData/${flagForCellAndLineToggle}/${selectedValue}`,
+        `/getMTTRGraphData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9/?selectedYear=2023-2024`,
+        // `/getMTTRGraphData/${flagForCellAndLineToggle}/${selectedValue}/?selectedYear=2023-2024`,
         {
           method: "GET",
           headers: {

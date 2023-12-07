@@ -1,136 +1,204 @@
 import React, { useEffect, useReducer } from "react";
 import { Container, Row, Col, Table } from "reactstrap";
+import { Box, Typography } from "@mui/material";
 
 import DropdownElem from "../Component/DropdownElem";
 
 import RequestSheetMonitoringBarChart from "./RequestSheetMonitoringBarChart";
+import MonthlyGeneratedAndCompletedCount from "./MonthlyGeneratedAndCompletedCount";
+import UserWisePendingCount from "./UserWisePendingCount";
+
+import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
+
+import {
+  initialState,
+  reducer,
+} from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 
 const RequestSheetMonitoring = () => {
-  const baseUrl = "/getRequestSheetMonitoringData";
-  const initialState = {
-    allStatusCounterForGraph: [
-      {
-        label: "",
-        count: [],
-      },
-    ],
-    allMonths: [
-      {
-        monthName: "",
-        monthInDecimal: 0,
-      },
-    ],
-    generatedAndCompletedStatusMonthlyData: {
-      generatedCounterData: [
-        {
-          month: "",
-          value: 0,
-        },
-      ],
-      completedCounterData: [
-        {
-          month: "",
-          value: 0,
-        },
-      ],
-    },
+  // const baseUrl = "/getRequestSheetMonitoringData";
 
-    userBasedApprovalPending: {},
+  // const initialState = {
+  //   allStatusCounterForGraph: [
+  //     {
+  //       label: "",
+  //       count: [],
+  //     },
+  //   ],
+  //   allMonths: [
+  //     {
+  //       monthName: "",
+  //       monthInDecimal: 0,
+  //     },
+  //   ],
+  //   generatedAndCompletedStatusMonthlyData: {
+  //     generatedCounterData: [
+  //       {
+  //         month: "",
+  //         value: 0,
+  //       },
+  //     ],
+  //     completedCounterData: [
+  //       {
+  //         month: "",
+  //         value: 0,
+  //       },
+  //     ],
+  //   },
 
-    // generatedAndCompletedStatusMonthlyData: [
-    //   {
-    //     month: "",
-    //     data: {
-    //       _id: "",
-    //       generated: 0,
-    //       completed: 0,
-    //     },
-    //   },
-    // ],
+  //   userBasedApprovalPending: {},
 
-    section: {},
+  //   // generatedAndCompletedStatusMonthlyData: [
+  //   //   {
+  //   //     month: "",
+  //   //     data: {
+  //   //       _id: "",
+  //   //       generated: 0,
+  //   //       completed: 0,
+  //   //     },
+  //   //   },
+  //   // ],
 
-    subSectionsData: [],
-    selectedSubSection: "",
+  //   section: {},
 
-    cellData: [],
-    selectedCell: "",
+  //   subSectionsData: [],
+  //   selectedSubSection: "",
 
-    lineData: [],
-    selectedLine: "",
+  //   cellData: [],
+  //   selectedCell: "",
 
-    message: "",
-    isLoading: true,
-    isError: false,
-  };
+  //   lineData: [],
+  //   selectedLine: "",
 
-  const ACTION = {
-    GET: "get-request-sheet-monitoring-dashboard-data",
+  //   message: "",
+  //   isLoading: true,
+  //   isError: false,
+  // };
 
-    SELECT_SUBSECTION: "handle-selected-subSection",
-    SELECT_CELL: "handle-selected-cell",
-    SELECT_LINE: "handle-selected-line",
+  // const ACTION = {
+  //   GET: "get-request-sheet-monitoring-dashboard-data",
 
-    RESET_DROPDOWN_VALUE: "handle-reset-all-selected-value",
-  };
+  //   SELECT_SUBSECTION: "handle-selected-subSection",
+  //   SELECT_CELL: "handle-selected-cell",
+  //   SELECT_LINE: "handle-selected-line",
 
-  const reducer = (state, action) => {
-    switch (action?.type) {
-      case ACTION?.GET:
-        return {
-          ...state,
-          isLoading: false,
-          message: action?.message,
-          allStatusCounterForGraph: action?.allStatusCounterForGraph,
-          allMonths: action?.allMonths,
-          userBasedApprovalPending: action?.userBasedApprovalPending,
-          generatedAndCompletedStatusMonthlyData:
-            action?.generatedAndCompletedStatusMonthlyData,
-          section: action?.section || state?.section,
-          subSectionsData: action?.subSectionsData || state?.subSectionsData,
-          cellData: action?.cellData || state?.cellData,
-          lineData: action?.lineData || state?.lineData,
-        };
+  //   RESET_DROPDOWN_VALUE: "handle-reset-all-selected-value",
+  // };
 
-      case ACTION?.SELECT_SUBSECTION:
-        return {
-          ...state,
-          selectedSubSection: action?.selectedSubSection,
-          selectedCell: "",
-          selectedLine: "",
-        };
+  // const reducer = (state, action) => {
+  //   switch (action?.type) {
+  //     case ACTION?.GET:
+  //       return {
+  //         ...state,
+  //         isLoading: false,
+  //         message: action?.message,
+  //         allStatusCounterForGraph: action?.allStatusCounterForGraph,
+  //         allMonths: action?.allMonths,
+  //         userBasedApprovalPending: action?.userBasedApprovalPending,
+  //         generatedAndCompletedStatusMonthlyData:
+  //           action?.generatedAndCompletedStatusMonthlyData,
+  //         section: action?.section || state?.section,
+  //         subSectionsData: action?.subSectionsData || state?.subSectionsData,
+  //         cellData: action?.cellData || state?.cellData,
+  //         lineData: action?.lineData || state?.lineData,
+  //       };
 
-      case ACTION?.SELECT_CELL:
-        return {
-          ...state,
-          selectedCell: action?.selectedCell,
-          selectedLine: "",
-        };
+  //     case ACTION?.SELECT_SUBSECTION:
+  //       return {
+  //         ...state,
+  //         selectedSubSection: action?.selectedSubSection,
+  //         selectedCell: "",
+  //         selectedLine: "",
+  //       };
 
-      case ACTION?.SELECT_LINE:
-        return {
-          ...state,
-          selectedLine: action?.selectedCell,
-        };
+  //     case ACTION?.SELECT_CELL:
+  //       return {
+  //         ...state,
+  //         selectedCell: action?.selectedCell,
+  //         selectedLine: "",
+  //       };
 
-      case ACTION?.RESET_DROPDOWN_VALUE:
-        return {
-          ...state,
-          selectedSubSection: "",
-          selectedCell: "",
-          selectedLine: "",
-        };
+  //     case ACTION?.SELECT_LINE:
+  //       return {
+  //         ...state,
+  //         selectedLine: action?.selectedCell,
+  //       };
 
-      default:
-        return state;
-    }
-  };
+  //     case ACTION?.RESET_DROPDOWN_VALUE:
+  //       return {
+  //         ...state,
+  //         selectedSubSection: "",
+  //         selectedCell: "",
+  //         selectedLine: "",
+  //       };
+
+  //     default:
+  //       return state;
+  //   }
+  // };
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
-  const getRequestSheetMonitoringData = async ({ url }) => {
+  const allMonths = [
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+  ];
+  // const getRequestSheetMonitoringData = async ({ url }) => {
+  //   try {
+  //     const res = await fetch(url, {
+  //       method: "GET",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
+  //       credentials: "include",
+  //     });
+
+  //     const {
+  //       message,
+  //       allStatusCounterForGraph,
+  //       allMonths,
+  //       generatedAndCompletedStatusMonthlyData,
+  //       section,
+  //       subSectionsData,
+  //       cellData,
+  //       lineData,
+  //       userBasedApprovalPending,
+  //     } = await res.json();
+
+  //     if (res?.status === 201) {
+  //       // reducerDispatch({
+  //       //   type: ACTION.GET,
+  //       //   message,
+  //       //   allStatusCounterForGraph,
+  //       //   allMonths,
+  //       //   generatedAndCompletedStatusMonthlyData,
+  //       //   section,
+  //       //   subSectionsData,
+  //       //   cellData,
+  //       //   lineData,
+  //       //   userBasedApprovalPending,
+  //       // });
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  const getFiltrationValue = async () => {
     try {
-      const res = await fetch(url, {
+      const res = await fetch("/getFiltrationValue/cell-level", {
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -139,46 +207,22 @@ const RequestSheetMonitoring = () => {
         credentials: "include",
       });
 
-      const {
-        message,
-        allStatusCounterForGraph,
-        allMonths,
-        generatedAndCompletedStatusMonthlyData,
-        section,
-        subSectionsData,
-        cellData,
-        lineData,
-        userBasedApprovalPending,
-      } = await res.json();
-
-      if (res?.status === 201) {
-        reducerDispatch({
-          type: ACTION.GET,
-          message,
-          allStatusCounterForGraph,
-          allMonths,
-          generatedAndCompletedStatusMonthlyData,
-          section,
-          subSectionsData,
-          cellData,
-          lineData,
-          userBasedApprovalPending,
-        });
-      }
+      const data = await res.json();
     } catch (error) {
       console.log(error);
     }
   };
-  useEffect(() => {
-    getRequestSheetMonitoringData({
-      url: baseUrl,
-    });
-  }, []);
 
+  useEffect(() => {
+    // getRequestSheetMonitoringData({
+    //   url: baseUrl,
+    // });
+    getFiltrationValue();
+  }, []);
 
   return (
     <Container fluid className="p-2">
-      <Row>
+      {/* <Row>
         <Col className="border" lg={1}>
           <div className="p-1">
             <button
@@ -274,65 +318,57 @@ const RequestSheetMonitoring = () => {
             </select>
           </div>
         </Col>
-      </Row>
-      <Row>
-        <Col style={{ height: "35rem" }} sm={12} md={6} lg={4} className="p-2">
-          <RequestSheetMonitoringBarChart
-            allStatusCounterForGraph={reduceState?.allStatusCounterForGraph}
-          />
-        </Col>
-        <Col className="p-2">
-          <Row>
-            <Col>
-              <Table striped bordered hover>
-                <tr>
-                  <th></th>
-                  {reduceState?.allMonths?.map((item) => (
-                    <th>{item?.monthName}</th>
-                  ))}
-                </tr>
-                <tr>
-                  <th>Generated</th>
-                  {reduceState?.generatedAndCompletedStatusMonthlyData?.generatedCounterData?.map(
-                    (item) => (
-                      <td>{item?.value}</td>
-                    )
-                  )}
-                </tr>
-                <tr>
-                  <th>Completed</th>
-                  {reduceState?.generatedAndCompletedStatusMonthlyData?.completedCounterData?.map(
-                    (item) => (
-                      <td>{item?.value}</td>
-                    )
-                  )}
-                </tr>
-              </Table>
-            </Col>
-          </Row>
-          <Row className="d-flex align-items-center justify-content-center">
-            <Col className="d-flex align-items-center justify-content-center">
-              <Table striped bordered hover>
-                <tr>
-                  <th></th>
-                  {reduceState?.allMonths?.map((item) => (
-                    <th>{item?.monthName}</th>
-                  ))}
-                </tr>
+      </Row> */}
 
-                {/* <tr>
-              <td rowSpan={2}>abcd</td>
-              <td>afs</td>
-            </tr>
-            <tr>
-              <td>abcd</td>
-              <td>afs</td>
-            </tr> */}
-              </Table>
-            </Col>
-          </Row>
-        </Col>
-        {/* 
+      <Box className="cell p-3 mt-3">
+        <Row>
+          <Col className="d-flex align-items-center">
+            <Typography variant="h4" component="h4">
+              Request-sheet Monitoring
+            </Typography>
+          </Col>
+          <ChartsToolbar
+            baseUrlForFiltering={baseUrlForFiltering}
+            reduceState={reduceState}
+            reducerDispatch={reducerDispatch}
+          />
+        </Row>
+        <Row>
+          <Col
+            style={{ height: "35rem" }}
+            sm={12}
+            md={6}
+            lg={4}
+            className="p-2"
+          >
+            <RequestSheetMonitoringBarChart
+              selectedValue={reduceState?.selectedValue}
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
+              selectedMonth={reduceState?.selectedMonth}
+            />
+          </Col>
+          <Col className="p-2">
+            <Row>
+              <MonthlyGeneratedAndCompletedCount
+                selectedValue={reduceState?.selectedValue}
+                flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                selectedYear={reduceState?.selectedYear}
+                allMonths={allMonths}
+              />
+            </Row>
+            <Row className="d-flex align-items-center justify-content-center">
+              <Col className="d-flex align-items-center justify-content-center">
+                <UserWisePendingCount
+                  selectedValue={reduceState?.selectedValue}
+                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                  selectedYear={reduceState?.selectedYear}
+                  allMonths={allMonths}
+                />
+              </Col>
+            </Row>
+          </Col>
+          {/* 
         <Col className="p-2">
           <Table striped bordered hover>
             <tr>
@@ -344,7 +380,8 @@ const RequestSheetMonitoring = () => {
             </tr>
           </Table>
         </Col> */}
-      </Row>
+        </Row>
+      </Box>
     </Container>
   );
 };

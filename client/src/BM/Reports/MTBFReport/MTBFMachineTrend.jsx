@@ -6,7 +6,12 @@ import { Container, Row, Col } from "react-bootstrap";
 import BarChart from "./Chart/BarChart";
 import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
 
-const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
+const MTBFMachineTrend = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  selectedMonth,
+}) => {
   const {
     register,
     handleSubmit,
@@ -34,6 +39,8 @@ const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
 
     requestSheetData: [],
 
+    documentLimitInTheGraph: 20,
+
     message: "",
     isLoading: true,
     isError: false,
@@ -43,6 +50,7 @@ const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
     GET_MACHINE_MTTR: "get-machineWise-MTTR-data",
     GET_RS_DATA: "get-requestSheet-data-based-on-selectedMachine",
     HANDLE_SELECTED_MACHINE: "handle-selected-machine",
+    HANDLE_CHANGE_LIMIT: "handle-change-of-document-limit",
   };
 
   const reducer = (state, action) => {
@@ -63,6 +71,12 @@ const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
           requestSheetData: action?.requestSheetData,
         };
 
+      case ACTION?.HANDLE_CHANGE_LIMIT:
+        return {
+          ...state,
+          documentLimitInTheGraph: action?.documentLimitInTheGraph,
+        };
+
       default:
         return state;
     }
@@ -74,7 +88,7 @@ const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
     try {
       const res = await fetch(
         // `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
-        `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/${selectedValue}`,
+        `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}&&documentLimitInTheGraph=${reduceState?.documentLimitInTheGraph}`,
         {
           method: "GET",
           headers: {
@@ -86,8 +100,6 @@ const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
       );
 
       const { message, data } = await res.json();
-
-      console.log(data);
 
       if (res?.status === 201) {
         reducerDispatch({
@@ -105,7 +117,7 @@ const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
     if (selectedValue) {
       getMachineWiseMTBFTrendDataData();
     }
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear, selectedMonth]);
 
   const getRequestSheetDataBasedOnSelectedMachine = async (data) => {
     try {
@@ -141,10 +153,29 @@ const MTBFMachineTrend = ({ selectedValue, flagForTogglingFilter }) => {
     }
   };
 
-
   return (
     <Container fluid>
       <Row>
+        <Col>
+          Top : &nbsp;
+          <input
+            type="number"
+            value={reduceState?.documentLimitInTheGraph}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_CHANGE_LIMIT,
+                documentLimitInTheGraph: e.target.value,
+              });
+            }}
+          />
+          &nbsp;
+          <button
+            className="btn bg-button"
+            onClick={getMachineWiseMTBFTrendDataData}
+          >
+            Go
+          </button>
+        </Col>
         <BarChart
           title="Machine Trend"
           dataset={reduceState?.MachineWiseMTBFTrendData}

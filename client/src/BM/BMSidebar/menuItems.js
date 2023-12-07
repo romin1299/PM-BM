@@ -23,7 +23,7 @@ import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
-
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 
 export const menuItems = [
   {
@@ -79,7 +79,7 @@ export const menuItems = [
   },
   {
     title: "Reports",
-    icon: <AccessTimeFilledIcon className="text-white" />,
+    icon: <AnalyticsIcon className="text-white" />,
     allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
     subItems: [
       {

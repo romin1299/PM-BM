@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import LineBarChart from "../Common/LineBarChart";
 
-const MTBFLineTrend = ({ selectedValue, flagForTogglingFilter }) => {
+const MTBFLineTrend = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  selectedMonth,
+}) => {
   const [lineWiseMTBFTrend, setLineWiseMTBFTrend] = useState({
     labels: [],
     data: [],
@@ -12,7 +17,7 @@ const MTBFLineTrend = ({ selectedValue, flagForTogglingFilter }) => {
     try {
       const res = await fetch(
         // `/getLineWiseMTBFTrendData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
-        `/getLineWiseMTBFTrendData/${flagForTogglingFilter}/${selectedValue}`,
+        `/getLineWiseMTBFTrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
         {
           method: "GET",
           headers: {
@@ -37,7 +42,7 @@ const MTBFLineTrend = ({ selectedValue, flagForTogglingFilter }) => {
     if (selectedValue) {
       getLineWiseMTBFTrendData();
     }
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear, selectedMonth]);
 
   return (
     <>

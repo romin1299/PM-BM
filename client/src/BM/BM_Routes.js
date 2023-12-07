@@ -87,7 +87,18 @@ const userRoutes = [
         element: <RequestSheetUpdate />,
       },
       { path: "/bm/approvalLogs", element: <ApprovalLogs /> },
-
+      {
+        path: "/bm/requestSheetMonitoring",
+        element: <RequestSheetMonitoring />,
+      },
+      {
+        path: "/bm/report/mttr-report",
+        element: <MTTRReportDashboard />,
+      },
+      {
+        path: "/bm/report/mtbf-report",
+        element: <MTBFReportDashboard />,
+      },
     ],
   },
   {
@@ -114,7 +125,6 @@ const userRoutes = [
         element: <RequestSheetUpdate />,
       },
       { path: "/bm/approvalLogs", element: <ApprovalLogs /> },
-
     ],
   },
   {
@@ -139,7 +149,6 @@ const userRoutes = [
         element: <RequestSheetUpdate />,
       },
       { path: "/bm/approvalLogs", element: <ApprovalLogs /> },
-
     ],
   },
   {
@@ -215,7 +224,6 @@ const userRoutes = [
       },
       { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
       { path: "/bm/approvalLogs", element: <ApprovalLogs /> },
-
     ],
   },
 ];

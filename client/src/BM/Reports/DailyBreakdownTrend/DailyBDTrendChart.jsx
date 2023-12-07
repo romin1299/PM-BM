@@ -115,8 +115,8 @@ const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
   const getDailyBreakdownTrendData = async () => {
     try {
       const res = await fetch(
-        `/getDailyBreakdownTrendData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
-        // `/getMTTRGraphData/${flagForCellAndLineToggle}/${selectedValue}`,
+        `/getDailyBreakdownTrendData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9/?selectedYear=2023-2024`,
+        // `/getMTTRGraphData/${flagForCellAndLineToggle}/${selectedValue}/?selectedYear=2023-2024`,
         {
           method: "GET",
           headers: {
