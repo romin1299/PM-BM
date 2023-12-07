@@ -31,7 +31,7 @@ const ProblemList = ({ problems, setProblems }) => {
   };
 
   const cancelEdit = () => {
-    setEditedProblem(null); 
+    setEditedProblem(null);
   };
 
   const cancelAdd = () => {
@@ -57,7 +57,7 @@ const ProblemList = ({ problems, setProblems }) => {
           style={{ cursor: "pointer" }}
           className="border col-auto d-flex gap-1 p-1"
         >
-          <b>ACTIONS </b>
+          <b>UPDATE</b>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
           {/* <button onClick={() => setIsAdding(true)}>Add New Entry</button> */}
         </Col>
