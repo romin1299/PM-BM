@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useState, useReducer } from "react";
 import { Container, Row, Col } from "reactstrap";
 import { useForm } from "react-hook-form";
 
@@ -12,6 +12,13 @@ import { Box, Typography } from "@mui/material";
 import BDPercentageChart from "./BDPercentage.jsx";
 import CategoryPieCharts from "./CategoryPieCharts.jsx";
 
+import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
+
+import {
+  initialState,
+  reducer,
+} from "../ManHourReport/SubComponents/CommonFiltrationComponent";
+
 const ProductionLineWiseReport = () => {
   const {
     register,
@@ -19,126 +26,131 @@ const ProductionLineWiseReport = () => {
     formState: { errors },
   } = useForm({});
 
-  const initialState = {
-    cellData: [],
+  // const initialState = {
+  //   cellData: [],
 
-    selectedValue: "",
-    flagForCellAndLineToggle: "based-on-cell",
+  //   selectedValue: "",
+  //   flagForCellAndLineToggle: "based-on-cell",
 
-    requestSheetData: [],
+  //   requestSheetData: [],
 
-    message: "",
-    isLoading: true,
-    isError: false,
-  };
+  //   message: "",
+  //   isLoading: true,
+  //   isError: false,
+  // };
 
-  const ACTION = {
-    GET_CELL_INFO: "get-cell-dropdown-data",
-    GET_RS_DATA: "get-requestSheet-data-based-on-selected-date",
-  };
+  // const ACTION = {
+  //   GET_CELL_INFO: "get-cell-dropdown-data",
+  //   GET_RS_DATA: "get-requestSheet-data-based-on-selected-date",
+  // };
 
-  const reducer = (state, action) => {
-    switch (action?.type) {
-      case ACTION?.GET_CELL_INFO:
-        return {
-          ...state,
-          isLoading: false,
-          message: action?.message,
-          cellData: action?.cellData,
-          selectedValue: action?.selectedCell,
-        };
+  // const reducer = (state, action) => {
+  //   switch (action?.type) {
+  //     case ACTION?.GET_CELL_INFO:
+  //       return {
+  //         ...state,
+  //         isLoading: false,
+  //         message: action?.message,
+  //         cellData: action?.cellData,
+  //         selectedValue: action?.selectedCell,
+  //       };
 
-      case ACTION?.GET_RS_DATA:
-        return {
-          ...state,
-          requestSheetData: action?.requestSheetData,
-        };
+  //     case ACTION?.GET_RS_DATA:
+  //       return {
+  //         ...state,
+  //         requestSheetData: action?.requestSheetData,
+  //       };
 
-      // case ACTION?.SELECT_CELL:
-      //   return {
-      //     ...state,
-      //     selectedCell: action?.selectedCell,
-      //     selectedValue: action?.selectedCell,
-      //     selectedLine: "",
-      //   };
+  //     // case ACTION?.SELECT_CELL:
+  //     //   return {
+  //     //     ...state,
+  //     //     selectedCell: action?.selectedCell,
+  //     //     selectedValue: action?.selectedCell,
+  //     //     selectedLine: "",
+  //     //   };
 
-      // case ACTION?.SELECT_LINE:
-      //   return {
-      //     ...state,
-      //     selectedLine: action?.selectedLine,
-      //     selectedValue: action?.selectedLine,
-      //   };
+  //     // case ACTION?.SELECT_LINE:
+  //     //   return {
+  //     //     ...state,
+  //     //     selectedLine: action?.selectedLine,
+  //     //     selectedValue: action?.selectedLine,
+  //     //   };
 
-      // case ACTION?.SELECT_SUBSECTION:
-      //   return {
-      //     ...state,
-      //     selectedSubSection: action?.selectedSubSection,
-      //     selectedCell: "",
-      //     selectedLine: "",
-      //   };
+  //     // case ACTION?.SELECT_SUBSECTION:
+  //     //   return {
+  //     //     ...state,
+  //     //     selectedSubSection: action?.selectedSubSection,
+  //     //     selectedCell: "",
+  //     //     selectedLine: "",
+  //     //   };
 
-      // case ACTION?.SELECT_CELL:
-      //   return {
-      //     ...state,
-      //     selectedCell: action?.selectedCell,
-      //     selectedLine: "",
-      //   };
+  //     // case ACTION?.SELECT_CELL:
+  //     //   return {
+  //     //     ...state,
+  //     //     selectedCell: action?.selectedCell,
+  //     //     selectedLine: "",
+  //     //   };
 
-      // case ACTION?.SELECT_LINE:
-      //   return {
-      //     ...state,
-      //     selectedLine: action?.selectedCell,
-      //   };
+  //     // case ACTION?.SELECT_LINE:
+  //     //   return {
+  //     //     ...state,
+  //     //     selectedLine: action?.selectedCell,
+  //     //   };
 
-      // case ACTION?.RESET_DROPDOWN_VALUE:
-      //   return {
-      //     ...state,
-      //     selectedSubSection: "",
-      //     selectedCell: "",
-      //     selectedLine: "",
-      //   };
+  //     // case ACTION?.RESET_DROPDOWN_VALUE:
+  //     //   return {
+  //     //     ...state,
+  //     //     selectedSubSection: "",
+  //     //     selectedCell: "",
+  //     //     selectedLine: "",
+  //     //   };
 
-      default:
-        return state;
-    }
-  };
+  //     default:
+  //       return state;
+  //   }
+  // };
+
+  // const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+
+  // const getProductionLineWiseReportData = async () => {
+  //   try {
+  //     const res = await fetch("/getCellDropdownValueBasedOnDashboardLevel", {
+  //       method: "GET",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
+  //       credentials: "include",
+  //     });
+
+  //     const { message, selectedCell, cellData } = await res.json();
+
+  //     if (res?.status === 201) {
+  //       reducerDispatch({
+  //         type: ACTION.GET_CELL_INFO,
+  //         cellData,
+  //         selectedCell,
+  //         message,
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   getProductionLineWiseReportData();
+  // }, []);
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const baseUrlForFiltering = "/getFiltrationValue/cell-level-filtration";
 
-  const getProductionLineWiseReportData = async () => {
-    try {
-      const res = await fetch("/getCellDropdownValueBasedOnDashboardLevel", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      const { message, selectedCell, cellData } = await res.json();
-
-      if (res?.status === 201) {
-        reducerDispatch({
-          type: ACTION.GET_CELL_INFO,
-          cellData,
-          selectedCell,
-          message,
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    getProductionLineWiseReportData();
-  }, []);
+  const [requestSheetData, setRequestSheetData] = useState([]);
 
   const getRequestSheetDataBasedOnSelectedDate = async (data) => {
     try {
       const res = await fetch(
-        `/getRequestSheetDataBasedOnSelectedDate/${reduceState?.flagForCellAndLineToggle}/632c41261d1becfedab325f9/${data?.selectedDate}/?selectedYear=2023-2024`,
-        // `/getMTTRGraphData/${reduceState?.flagForCellAndLineToggle}/${reduceState?.selectedValue}/${data?.selectedDate}/?selectedYear=2023-2024`,
+        `/getRequestSheetDataBasedOnSelectedDate/${reduceState?.flagForTogglingFilter}/632c41261d1becfedab325f9/${data?.selectedDate}/?selectedYear=${reduceState?.selectedYear}`,
+        // `/getMTTRGraphData/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/${data?.selectedDate}/?selectedYear=${reduceState?.selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -152,11 +164,7 @@ const ProductionLineWiseReport = () => {
       const { message, requestSheetData } = await res.json();
 
       if (res?.status === 201) {
-        reducerDispatch({
-          type: ACTION.GET_RS_DATA,
-          requestSheetData,
-          message,
-        });
+        setRequestSheetData(requestSheetData);
       }
     } catch (error) {
       console.log(error);
@@ -172,6 +180,12 @@ const ProductionLineWiseReport = () => {
               Product/Line Wise KPI
             </Typography>
           </Col>
+
+          <ChartsToolbar
+            baseUrlForFiltering={baseUrlForFiltering}
+            reduceState={reduceState}
+            reducerDispatch={reducerDispatch}
+          />
 
           <Col className="col-auto">
             <form
@@ -204,34 +218,40 @@ const ProductionLineWiseReport = () => {
 
         <DailyBDTrendChart
           selectedValue={reduceState?.selectedValue}
-          flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+          selectedYear={reduceState?.selectedYear}
+          selectedMonth={reduceState?.selectedMonth}
         />
 
-        <BDRequestSheetTable requestSheetData={reduceState?.requestSheetData} />
+        <BDRequestSheetTable requestSheetData={requestSheetData} />
 
         <Row className="mt-3 g-2">
           <Col lg={3} md={6}>
             <BDhours
               selectedValue={reduceState?.selectedValue}
-              flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
             />
           </Col>
           <Col lg={3} md={6}>
             <MTTRComponent
               selectedValue={reduceState?.selectedValue}
-              flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
             />
           </Col>
           <Col lg={3} md={6}>
             <MTBFComponent
               selectedValue={reduceState?.selectedValue}
-              flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
             />
           </Col>
           <Col lg={3} md={6}>
             <BDPercentageChart
               selectedValue={reduceState?.selectedValue}
-              flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
             />
           </Col>
         </Row>
@@ -240,13 +260,17 @@ const ProductionLineWiseReport = () => {
           <Col lg={6}>
             <BDHoursVsCountComponent
               selectedValue={reduceState?.selectedValue}
-              flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
+              selectedMonth={reduceState?.selectedMonth}
             />
           </Col>
           <Col lg={6}>
             <CategoryPieCharts
               selectedValue={reduceState?.selectedValue}
-              flagForCellAndLineToggle={reduceState?.flagForCellAndLineToggle}
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
+              selectedMonth={reduceState?.selectedMonth}
             />
           </Col>
         </Row>

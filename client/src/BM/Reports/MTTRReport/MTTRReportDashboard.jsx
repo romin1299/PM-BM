@@ -30,6 +30,7 @@ const MTTRReportDashboard = () => {
             baseUrlForFiltering={baseUrlForFiltering}
             reduceState={reduceState}
             reducerDispatch={reducerDispatch}
+            monthFiltration
           />
         </Row>
         <Row>

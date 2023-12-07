@@ -40,6 +40,21 @@ function getStyles(name, personName, theme) {
   };
 }
 
+const Months = [
+  "Apr",
+  "May",
+  "June",
+  "July",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+];
+
 export default function LineSelectionDropdown({
   selectedSection,
   sections,
@@ -54,6 +69,7 @@ export default function LineSelectionDropdown({
 
   reducerDispatch,
   baseUrlForFiltering,
+  monthFiltration,
 }) {
   const context = useContext(RoutingContext);
 
@@ -78,21 +94,6 @@ export default function LineSelectionDropdown({
   useEffect(() => {
     fetchFYYearData();
   }, []);
-
-  const Months = [
-    "Apr",
-    "May",
-    "June",
-    "July",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-    "Jan",
-    "Feb",
-    "Mar",
-  ];
 
   const getFiltrationValueBasedOnSection = async ({ section }) => {
     try {
@@ -141,7 +142,7 @@ export default function LineSelectionDropdown({
         url: `${baseUrlForFiltering}/subSectionBased/${subSection}`,
       });
 
-      const { message,selectedCell, cells, selectedLine, lines } = data;
+      const { message, selectedCell, cells, selectedLine, lines } = data;
 
       if (res?.status === 201) {
         reducerDispatch({
@@ -382,7 +383,10 @@ export default function LineSelectionDropdown({
         input={<OutlinedInput />}
         sx={{
           width: 130,
-          "& .MuiSelect-select": { paddingTop: "5px", paddingBottom: "5px" },
+          "& .MuiSelect-select": {
+            paddingTop: "5px",
+            paddingBottom: "5px",
+          },
         }}
         renderValue={(value) => {
           if (value) {
@@ -408,19 +412,78 @@ export default function LineSelectionDropdown({
         ))}
       </Select>
 
+      {monthFiltration && (
+        <Select
+          displayEmpty
+          value={selectedMonth}
+          onChange={(e) => {
+            reducerDispatch({
+              type: ACTION.HANDLE_SELECT_MONTH,
+              selectedMonth: e.target.value,
+            });
+          }}
+          input={<OutlinedInput />}
+          sx={{
+            width: 130,
+            "& .MuiSelect-select": {
+              paddingTop: "5px",
+              paddingBottom: "5px",
+            },
+          }}
+          renderValue={(value) => {
+            if (value) {
+              return value;
+            }
+            return "Month";
+          }}
+          MenuProps={MenuProps}
+          inputProps={{ "aria-label": "Without label" }}
+        >
+          {Months.map((item) => (
+            <MenuItem
+              key={item}
+              value={item}
+              style={getStyleForSelectedValue(
+                item,
+                selectedMonth,
+                "for-array-value"
+              )}
+            >
+              {item}
+            </MenuItem>
+          ))}
+        </Select>
+      )}
+    </FormControl>
+  );
+}
+export const MonthDropdown = ({ selectedMonth, setSelectedMonth }) => {
+  const theme = useTheme();
+
+  const getStyleForSelectedValue = async (item, selectedItem) => {
+    return {
+      fontWeight:
+        item === selectedItem
+          ? theme.typography.fontWeightMedium
+          : theme.typography.fontWeightRegular,
+    };
+  };
+
+  return (
+    <>
       <Select
         displayEmpty
         value={selectedMonth}
         onChange={(e) => {
-          reducerDispatch({
-            type: ACTION.HANDLE_SELECT_MONTH,
-            selectedMonth: e.target.value,
-          });
+          setSelectedMonth(e.target.value);
         }}
         input={<OutlinedInput />}
         sx={{
           width: 130,
-          "& .MuiSelect-select": { paddingTop: "5px", paddingBottom: "5px" },
+          "& .MuiSelect-select": {
+            paddingTop: "5px",
+            paddingBottom: "5px",
+          },
         }}
         renderValue={(value) => {
           if (value) {
@@ -435,20 +498,15 @@ export default function LineSelectionDropdown({
           <MenuItem
             key={item}
             value={item}
-            style={getStyleForSelectedValue(
-              item,
-              selectedMonth,
-              "for-array-value"
-            )}
+            style={getStyleForSelectedValue(item, selectedMonth)}
           >
             {item}
           </MenuItem>
         ))}
       </Select>
-    </FormControl>
+    </>
   );
-}
-
+};
 {
   /* <Select
 displayEmpty

@@ -19,13 +19,18 @@ const initialData = {
   ],
 };
 
-const CategoryPieCharts = ({ flagForCellAndLineToggle, selectedValue }) => {
+const CategoryPieCharts = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  selectedMonth,
+}) => {
   const ChartCard = ({ category }) => {
     const [data, setData] = useState(initialData);
 
     useEffect(() => {
       fetchChartData();
-    }, []);
+    }, [selectedValue, selectedYear, selectedMonth]);
 
     const options = {
       plugins: {
@@ -47,7 +52,8 @@ const CategoryPieCharts = ({ flagForCellAndLineToggle, selectedValue }) => {
     const fetchChartData = async () => {
       try {
         const res = await axios.get(
-          `/get${category}CategoryPieChart/${flagForCellAndLineToggle}/6322e5b1fdb4a3119153b9d9`,
+          // `/get${category}CategoryPieChart/${flagForTogglingFilter}/6322e5b1fdb4a3119153b9d9`,
+          `/get${category}CategoryPieChart/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
           {
             withCredentials: true,
             credentials: "include",
@@ -60,7 +66,7 @@ const CategoryPieCharts = ({ flagForCellAndLineToggle, selectedValue }) => {
         } else {
           resData = res?.data?.problemCategoriesPieChart;
         }
-        setData(resData);
+        // setData(resData);
       } catch (error) {
         console.log("error:", error);
       }

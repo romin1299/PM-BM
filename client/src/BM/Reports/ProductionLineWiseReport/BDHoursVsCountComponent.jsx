@@ -7,8 +7,10 @@ import FilterComponent from "./FilterComponent";
 import { Box, Divider, Typography } from "@mui/material";
 
 const BDHoursVsCountComponent = ({
-  flagForCellAndLineToggle,
   selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  selectedMonth,
 }) => {
   const initialState = {
     labels: [],
@@ -79,8 +81,8 @@ const BDHoursVsCountComponent = ({
   const getBDhoursVsCountReportData = async ({ purpose, data }) => {
     try {
       const res = await fetch(
-        `/getBDhoursVsCountDataFunction/${purpose}/${flagForCellAndLineToggle}/63317dbe1d1becfedab337e4`,
-        // `/getBDhoursVsCountDataFunction/${flagForCellAndLineToggle}/${selectedValue}`,
+        // `/getBDhoursVsCountDataFunction/${purpose}/${flagForTogglingFilter}/63317dbe1d1becfedab337e4/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        `/getBDhoursVsCountDataFunction/${purpose}/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
         {
           method: "POST",
           headers: {
@@ -117,7 +119,7 @@ const BDHoursVsCountComponent = ({
         data: {},
       });
     }
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear, selectedMonth]);
 
   return (
     <Box className="cell p-3">

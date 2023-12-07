@@ -334,6 +334,7 @@ const ManHourDashboard = () => {
             baseUrlForFiltering={baseUrlForFiltering}
             reduceState={reduceState}
             reducerDispatch={reducerDispatch}
+            monthFiltration
           />
         </Row>
 

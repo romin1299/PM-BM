@@ -4,7 +4,11 @@ import { Container, Row, Col } from "reactstrap";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
 import { Box, Divider, Typography } from "@mui/material";
 
-const MTBFComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
+const MTBFComponent = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+}) => {
   const initialState = {
     MTBFReportData: {
       labels: [],
@@ -42,7 +46,8 @@ const MTBFComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
   const getMTBFReportData = async () => {
     try {
       const res = await fetch(
-        `/getMtbfData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
+        // `/getMtbfData/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}`,
+        `/getMtbfData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -71,7 +76,7 @@ const MTBFComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
     if (selectedValue) {
       getMTBFReportData();
     }
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear]);
 
   return (
     <Box className="cell p-3">

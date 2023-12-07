@@ -11,6 +11,7 @@ const Cell = require("../model/cellSchema");
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
+const Line = require("../model/lineSchema");
 const factory = require("./handleFactory");
 
 const moment = require("moment-timezone");
@@ -1282,10 +1283,14 @@ router.get("/getMtdUserDetails", async (req, res, next) => {
 
 const filterMiddleware = async (req, res, next) => {
   try {
-    let queryObj = {
-      "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-        req.query?.selectedYear,
-    };
+    let queryObj = {};
+
+    if (req.query?.selectedYear) {
+      queryObj = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+      };
+    }
 
     if (req.query?.selectedMonth) {
       queryObj = {
@@ -3378,14 +3383,26 @@ router.get(
   filterMiddleware,
   async (req, res, next) => {
     try {
-      const startDate = moment().tz(timezone).startOf("month");
+      console.log(req.query);
 
-      const endDate = moment().tz(timezone).endOf("day");
+      const startDate = moment(new Date()).tz(timezone).startOf("month");
+
+      const endDate = moment(new Date()).tz(timezone).endOf("day");
 
       const allDatesInMonth = Array.from(
         { length: endDate.date() },
         (_, index) => startDate.clone().add(index, "days").format("DD")
       );
+
+      // console.log(req.query?.selectedYear?.split("-"));
+
+      // if (["Jan"]?.req.query.selectedMonth) {
+      //   console.log(req.query.selectedMonth);
+      // } else {
+      //   console.log(";");
+      // }
+
+      // console.log(moment().year("2022").month(req.query.selectedMonth));
 
       const matchObj = {
         ...req.queryObj,
@@ -4020,7 +4037,7 @@ router.get(
 );
 
 router.get(
-  "/getBDHoursGraphData/:purpose/:filter/:selectedId",
+  "/getBDHoursGraphData/:filter/:selectedId",
   filterMiddleware,
   async (req, res, next) => {
     try {

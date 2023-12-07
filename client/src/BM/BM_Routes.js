@@ -92,6 +92,10 @@ const userRoutes = [
         element: <RequestSheetMonitoring />,
       },
       {
+        path: "/bm/report/productionLineWiseReport",
+        element: <ProductionLineWiseReport />,
+      },
+      {
         path: "/bm/report/mttr-report",
         element: <MTTRReportDashboard />,
       },

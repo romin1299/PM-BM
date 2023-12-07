@@ -13,6 +13,7 @@ const ChartsToolbar = ({
   reduceState,
   reducerDispatch,
   ACTION,
+  monthFiltration,
 }) => {
   const generatePPT = () => {
     const pptx = new pptxgen();
@@ -88,6 +89,7 @@ const ChartsToolbar = ({
         baseUrlForFiltering={baseUrlForFiltering}
         reducerDispatch={reducerDispatch}
         ACTION={ACTION}
+        monthFiltration={monthFiltration}
       />
 
       <ButtonGroup

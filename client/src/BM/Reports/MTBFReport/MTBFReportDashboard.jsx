@@ -31,6 +31,7 @@ const MTBFReportDashboard = () => {
             baseUrlForFiltering={baseUrlForFiltering}
             reduceState={reduceState}
             reducerDispatch={reducerDispatch}
+            monthFiltration
           />
         </Row>
         <Row>
