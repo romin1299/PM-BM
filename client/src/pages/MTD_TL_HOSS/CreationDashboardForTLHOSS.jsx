@@ -36,7 +36,75 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import ViewGeneratedQROfMachine from "../../Popups/ViewGeneratedQROfMachine";
 
+const QRCodePopup = ({ onClose, onDownload }) => {
+  const [rows, setRows] = useState('');
+  const [columns, setColumns] = useState('');
+  const [cellWidth, setCellWidth] = useState('');
+  const [cellHeight, setCellHeight] = useState('');
+
+  const handleDownload = () => {
+    const parsedRows = parseInt(rows);
+    const parsedColumns = parseInt(columns);
+    const parsedCellWidth = parseInt(cellWidth);
+    const parsedCellHeight = parseInt(cellHeight);
+
+    if (!isNaN(parsedRows) && !isNaN(parsedColumns) && !isNaN(parsedCellWidth) && !isNaN(parsedCellHeight)) {
+      onDownload(parsedRows, parsedColumns, parsedCellWidth, parsedCellHeight);
+      onClose();
+    } else {
+      alert("Invalid input. Please enter valid numbers.");
+    }
+  };
+
+  return (
+    <div className="qr-code-popup">
+      <label>
+        Rows:
+        <input type="number" value={rows} onChange={(e) => setRows(e.target.value)} />
+      </label>
+      <label>
+        Columns:
+        <input type="number" value={columns} onChange={(e) => setColumns(e.target.value)} />
+      </label>
+      <label>
+        Cell Width:
+        <input type="number" value={cellWidth} onChange={(e) => setCellWidth(e.target.value)} />
+      </label>
+      <label>
+        Cell Height:
+        <input type="number" value={cellHeight} onChange={(e) => setCellHeight(e.target.value)} />
+      </label>
+      <button onClick={handleDownload}>Download QR Code</button>
+    </div>
+  );
+};
+
 const CreationDashboardForTLHOSS = () => {
+  const [showModal, setShowModal] = useState(false);
+
+  const handleModalClose = () => setShowModal(false);
+
+  const showPopup = () => setShowModal(true);
+
+  const [inputData, setInputData] = useState({
+    rows: 0,
+    columns: 0,
+    cellWidth: 0,
+    cellHeight: 0,
+  });
+
+
+  const handleModalSave = () => {
+    const { rows, columns, cellWidth, cellHeight } = inputData;
+
+    if (!isNaN(rows) && !isNaN(columns) && !isNaN(cellWidth) && !isNaN(cellHeight)) {
+      downloadQRCodeOfMachineData(rows, columns, cellWidth, cellHeight);
+      setShowModal(false);
+    } else {
+      alert("Invalid input. Please enter valid numbers.");
+    }
+  };
+
   const [cell, setCell] = useState();
   const [line, setLine] = useState();
 
@@ -340,14 +408,12 @@ const CreationDashboardForTLHOSS = () => {
     doc.save(`Machine_Data_${timeStamp()}`);
   };
 
-  const downloadQRCodeOfMachineData = async () => {
+  const downloadQRCodeOfMachineData = async (rows, columns, cellWidth, cellHeight) => {
     const doc = new jsPDF();
 
-    // Define the dimensions for the 4x3 table
+    // Define the dimensions for the table
     const startX = 5;
     const startY = 5;
-    const cellWidth = 45;
-    const cellHeight = 45;
     const spacing = 5;
 
     const startTextX = 14;
@@ -373,28 +439,27 @@ const CreationDashboardForTLHOSS = () => {
 
     // Iterate through QR code data using forEach
     for (let index = 0; index < machine.length; index++) {
-      console.log(machine?.length);
-
       const data = machine[index]?.machine_code;
-      const col = index % 4;
-      const row = Math.floor(index / 4);
+      const col = index % columns;
+      const row = Math.floor(index / columns);
       const x = startX + col * (cellWidth + spacing);
       const y = startY + row * (cellHeight + spacing);
 
       const textX = startTextX + col * (cellWidth + textSpacing);
       const textY = startTextY + row * (cellHeight + textSpacing);
 
-      // if (index >= 24) {
-      //   doc.addPage();
-      // }
       // Generate the QR code as a data URL and add to the PDF
       const qrCodeDataURL = await generateQRCode(data);
       doc.text(data, textX, textY);
       doc.addImage(qrCodeDataURL, "JPEG", x, y, cellWidth, cellHeight);
     }
-    if (machine?.length >= 24) {
+
+    // Add a new page if needed
+    if (machine?.length >= rows * columns) {
       doc.addPage();
     }
+
+    // Save the PDF
     doc.save(`Machine_QR_${timeStamp()}`);
   };
 
@@ -533,14 +598,29 @@ const CreationDashboardForTLHOSS = () => {
     {
       icon: () => (
         <button className="border-0">
-          <QrCodeIcon />
+          <QrCodeIcon onClick={showPopup} />
         </button>
       ),
       tooltip: "Download All QR",
       isFreeAction: true,
       onClick: (event, selectedRow) => {
-        downloadQRCodeOfMachineData();
+        const showPopup = () => {
+          const rows = parseInt(prompt("Enter the number of rows:"));
+          const columns = parseInt(prompt("Enter the number of columns:"));
+          const cellWidth = parseInt(prompt("Enter the cell width:"));
+          const cellHeight = parseInt(prompt("Enter the cell height:"));
+
+          if (!isNaN(rows) && !isNaN(columns) && !isNaN(cellWidth) && !isNaN(cellHeight)) {
+            downloadQRCodeOfMachineData(rows, columns, cellWidth, cellHeight);
+          } else {
+            alert("Invalid input. Please enter valid numbers.");
+          }
+        };
+
+        showPopup();
       },
+
+
     },
   ];
 
@@ -622,8 +702,8 @@ const CreationDashboardForTLHOSS = () => {
                     </option>
                     {lineList !== ""
                       ? lineList?.lineArray?.map((option) => {
-                          return <option value={option}>{option}</option>;
-                        })
+                        return <option value={option}>{option}</option>;
+                      })
                       : ""}
                   </select>
                 </Col>
