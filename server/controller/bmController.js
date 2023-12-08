@@ -5560,11 +5560,7 @@ router.get(
         message: "PlantWise Monthly BD trend data get successfully",
         bdTrendData: bdTrendData?.[0].hourlyArray,
 
-        // hourlyArray: [
-        //   { label: "<1", data: bdTrendData[0]?.lessThanOne },
-        //   { label: "<2", data: bdTrendData[0]?.lessThanTwo },
-        //   { label: ">2", data: bdTrendData[0]?.greaterThanTwo },
-        // ],
+  
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -6950,24 +6946,45 @@ router.get(
   }
 );
 
-router.get("/getHistoryCard/:machineId", async (req, res, next) => {
+router.get("/getHistoryCard/:machineId",filterMiddleware, async (req, res, next) => {
   try {
     let queryObj = {};
 
-    queryObj = {
+    if (req.query?.selectedYear) {
+      queryObj = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
       machineRef: mongoose.Types.ObjectId(req.params.machineId),
 
-      // problemOccurredDateAndTimeOfBM: {
-      //   $gte: moment().startOf("year").toDate(),
-      //   $lt: moment().startOf("year").add(1, "year").toDate(),
-      // },
-    };
+      };
+    }
+
+    if (req.query?.selectedMonth) {
+      queryObj = {
+        ...queryObj,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      machineRef: mongoose.Types.ObjectId(req.params.machineId),
+
+      };
+    }
+    let queryObj2 = {};
+
+    if (req.query?.selectedYear) {
+      queryObj2 = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+      machineRef: mongoose.Types.ObjectId(req.params.machineId),
+
+      };
+    }
 
     const historyCard = await RequestSheetOfBM.aggregate([
-      { $match: queryObj },
+     
       {
         $facet: {
           bdTime: [
+            { $match: queryObj },
             {
               $group: {
                 _id: null,
@@ -6984,6 +7001,7 @@ router.get("/getHistoryCard/:machineId", async (req, res, next) => {
           ],
 
           bdCount: [
+            { $match: queryObj },
             {
               $group: {
                 _id: null,
@@ -6999,6 +7017,7 @@ router.get("/getHistoryCard/:machineId", async (req, res, next) => {
           ],
 
           mttrData: [
+            { $match: queryObj },
             {
               $group: {
                 _id: null,
@@ -7032,6 +7051,7 @@ router.get("/getHistoryCard/:machineId", async (req, res, next) => {
           ],
 
           mtbf: [
+            { $match: queryObj },
             {
               $group: {
                 _id: null,
@@ -7066,6 +7086,8 @@ router.get("/getHistoryCard/:machineId", async (req, res, next) => {
           ],
 
           bdHourTrend: [
+            { $match: queryObj2 },
+
             {
               $group: {
                 _id: {
@@ -7216,9 +7238,26 @@ router.get("/getHistoryCard/:machineId", async (req, res, next) => {
 
 const filterSummary = async (req, res, next) => {
   try {
-    let queryObj = {
+    let queryObj = {};
+
+    if (req.query?.selectedYear) {
+      queryObj = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
       machineRef: mongoose.Types.ObjectId(req.params.machineId),
-    };
+
+      };
+    }
+
+    if (req.query?.selectedMonth) {
+      queryObj = {
+        ...queryObj,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      machineRef: mongoose.Types.ObjectId(req.params.machineId),
+
+      };
+    }
 
     if (req.params?.filter === "based-on-section") {
       queryObj = {
@@ -7262,6 +7301,9 @@ router.get(
         timezone: timezone,
       },
     };
+
+
+
     try {
       const summaryCard = await RequestSheetOfBM.aggregate([
         { $match: req.queryObj },
@@ -7364,35 +7406,23 @@ router.get(
               // {
               //   $match: queryObj,
               // },
-
-              // {
-              //   $group :{ _id:  "$cell_data.cell_name"}
-              // },
-              // { $match: req.queryObj },
-
-              // {
-              //   $lookup: {
-              //     from: "cells",
-              //     localField: "cellRef",
-              //     foreignField: "_id",
-              //     as: "cell_data",
-              //   },
-              // },
-
-              // {
-              //   $unwind: "$cell_data",
-              // },
+              {
+                $lookup: {
+                  from: "cells",
+                  localField: "cellRef",
+                  foreignField: "_id",
+                  as: "cell_data",
+                },
+              },
+      
+              {
+                $unwind: "$cell_data",
+              },
+      
               {
                 $group: {
-                  _id: { date: dateObj, cell: "$cell_data.cell_name" },
-                  // $dateToString: {
-                  //   format: "%m",
-                  //   date: "$problemOccurredDateAndTimeOfBM",
-                  //   timezone: timezone,
-                  // },
-
-                  // },
-
+                  _id:{ date : dateObj, cell : "$cell_data.cell_name"},
+      
                   lessThanOne: {
                     $sum: {
                       $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
@@ -7410,26 +7440,26 @@ router.get(
                   },
                 },
               },
-
+      
               {
                 $group: {
                   _id: null,
                   array: { $push: "$$ROOT" },
                 },
               },
-
+      
               {
                 $project: {
                   _id: 0,
+                  labels : "$_id.cell",
+                  labelsssss : "$_id.date",
                   array: {
                     $map: {
                       input: allMonths,
                       as: "month",
                       in: {
                         $cond: [
-                          {
-                            $in: ["$$month.monthInDecimal", "$array._id.date"],
-                          },
+                          { $in: ["$$month.monthInDecimal", "$array._id.date"] },
                           {
                             month: "$$month.monthName",
                             value: {
@@ -7463,10 +7493,11 @@ router.get(
               {
                 $replaceRoot: { newRoot: "$array" },
               },
-
+      
               {
                 $group: {
-                  _id: { date: "$value._id.date", cell: "$value._id.cell" },
+                  _id: null,
+      
                   // labels: { $push: "$month" },
                   // target: { $push: "$value.target" },
                   lessThanOne: {
@@ -7480,41 +7511,41 @@ router.get(
                   },
                 },
               },
-
-              //        {
-              //   $project: {
-              //     _id: 0,
-
-              //     hourlyArray: {
-              //       $map: {
-              //         input: ["<1", "<2", ">2"],
-              //         as: "label",
-              //         in: {
-              //           label: "$$label",
-              //           data: {
-              //             $switch: {
-              //               branches: [
-              //                 {
-              //                   case: { $eq: ["$$label", "<1"] },
-              //                   then: "$lessThanOne",
-              //                 },
-              //                 {
-              //                   case: { $eq: ["$$label", "<2"] },
-              //                   then: "$lessThanTwo",
-              //                 },
-              //                 {
-              //                   case: { $eq: ["$$label", ">2"] },
-              //                   then: "$greaterThanTwo",
-              //                 },
-              //               ],
-              //               default: [],
-              //             },
-              //           },
-              //         },
-              //       },
-              //     },
-              //   },
-              // },
+      
+              {
+                $project: {
+                  _id: 0,
+                  labels : "$_id.cell",
+                  hourlyArray: {
+                    $map: {
+                      input: ["<1", "<2", ">2"],
+                      as: "label",
+                      in: {
+                        label: "$$label",
+                        data: {
+                          $switch: {
+                            branches: [
+                              {
+                                case: { $eq: ["$$label", "<1"] },
+                                then: "$lessThanOne",
+                              },
+                              {
+                                case: { $eq: ["$$label", "<2"] },
+                                then: "$lessThanTwo",
+                              },
+                              {
+                                case: { $eq: ["$$label", ">2"] },
+                                then: "$greaterThanTwo",
+                              },
+                            ],
+                            default: [],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             ],
           },
         },
