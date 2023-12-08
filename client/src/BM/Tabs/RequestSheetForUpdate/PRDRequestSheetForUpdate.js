@@ -208,14 +208,14 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
     <>
       <ToastContainer />
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
-        <Table>
+        <Table className="m-2 mt-3">
           <thead>
             {/* <tr>
               <th colSpan="4">Header with 4 Columns</th>
             </tr> */}
           </thead>
-          <tbody>
-            <tr>
+          <tbody className="m-1 border p-3">
+            <tr class="row "  style={{width:"100vw"}}>
               {/* <td width={100}>
               <img
                 src={denso_log}
@@ -225,14 +225,14 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                 alt="React Bootstrap logo"
               />
             </td> */}
-              <td colSpan={12}>
-                <h2 className="d-flex align-items-center justify-content-center">
+              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0">
+                <h4 className="d-flex align-items-center justify-content-center">
                   MAINTENANCE WORK REQUEST/REPORT
-                </h2>
+                </h4>
               </td>
             </tr>
-            <tr>
-              <td className="mb-0 pb-0 border">
+            <tr className="row m-2" style={{width:"100vw"}}>
+              <td className="mb-0 pb-0 border col-lg-3 col-md-6">
                 <p>
                   <b>MAINT. TYPE</b>
                 </p>
@@ -298,7 +298,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                   )}
                 </Form>
               </td>
-              <td style={{ width: "20%" }} className="mb-0 pb-0 border">
+              <td className="mb-0 pb-0 border col-lg-3 col-md-6">
                 <p>
                   {" "}
                   <b>PRIORITY CODE</b>
@@ -366,9 +366,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                 </Form>
               </td>
               <td
-                colSpan={9}
-                style={{ width: "50%" }}
-                className="mb-0 pb-0 border"
+                className="mb-0 pb-0 border col-lg-3 col-md-6"
               >
                 <div className="mb-2">
                   <h6 className="text-center border p-1">
@@ -454,7 +452,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                 </div>
               </td>
 
-              <td colSpan={2} className="mb-0 pb-0 pt-0">
+              <td  className="mb-0 pb-0 pt-0 col-lg-3 col-md-6">
                 {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
@@ -473,8 +471,8 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                   </p>
                 </Col>
               </Row> */}
-                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
-                  <Col className="border pb-2 pt-1">
+                <Row className="pt-0 mb-0 border col-lg-12 col-md-12 col-sm-12" style={{marginLeft: "-8px"}} >
+                  <Col className="pb-2 pt-1">
                     <p className="mb-0">
                       <b>DEPT./LINE</b>
                     </p>
@@ -482,7 +480,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                     {requestSheetDataOfBM?.lineRef?.line_name}
                   </Col>
                 </Row>
-                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
+                <Row className="pt-0 mb-0 " style={{marginLeft: "-8px"}}>
                   <Col className="border pb-2">
                     <p className="fs-6 mb-0">
                       <b>TL [PRD]</b>
@@ -500,7 +498,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
               </td>
             </tr>
             <tr>
-              <td className="border" colSpan={8}>
+              <td className="border p-3 col-lg-8 col-md-12 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={2}>
                     <p className="mb-0">
@@ -521,7 +519,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>PROBLEM FACED: </b>
                     </p>
                   </Col>
@@ -530,7 +528,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                       type="text"
                       id="prob"
                       name="problemFaced"
-                      className="m-1"
+                     className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("problemFaced", {
                         required: "Please fill this field",
@@ -545,7 +543,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>
                         PRD OBSERVATION FOR THIS PROBLEM BASED ON (5WHY-1HOW){" "}
                       </b>
@@ -556,7 +554,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                       type="text"
                       id="prdobv"
                       name="prdobv"
-                      className="m-1"
+                     className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("PRD_ObservationForProblem_5Why_1How", {
                         required: "Please fill this field",
@@ -574,7 +572,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHY (5M+1E): </b>
                     </p>
                   </Col>
@@ -583,7 +581,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                       type="text"
                       id="why"
                       name="why"
-                      className="m-1"
+                     className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("why_5M_1E", {
                         // required: "Please fill this field",
@@ -596,7 +594,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHERE (Process): </b>
                     </p>
                   </Col>
@@ -605,7 +603,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                       type="text"
                       id="where"
                       name="where"
-                      className="m-1"
+                     className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("where_process", {
                         // required: "Please fill this field",
@@ -618,7 +616,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHEN (Frequency): </b>
                     </p>
                   </Col>
@@ -627,7 +625,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                       type="text"
                       id="when"
                       name="when"
-                      className="m-1"
+                     className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("when_frequency", {
                         // required: "Please fill this field",
@@ -640,7 +638,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHO (Person): </b>
                     </p>
                   </Col>
@@ -649,7 +647,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                       type="text"
                       id="who"
                       name="who"
-                      className="m-1"
+                     className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("who_person", {
                         // required: "Please fill this field",
@@ -662,7 +660,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHICH (Defect Location): </b>
                     </p>
                   </Col>
@@ -671,7 +669,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                       type="text"
                       id="which"
                       name="which"
-                      className="m-1"
+                     className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("which_defectLocation", {
                         // required: "Please fill this field",
@@ -684,7 +682,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>HOW (Detail/ Observation): </b>
                     </p>
                   </Col>
@@ -693,7 +691,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                       type="text"
                       id="how"
                       name="how"
-                      className="m-1"
+                     className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("how_details", {
                         // required: "Please fill this field",
@@ -706,7 +704,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                 </Row>
               </td>
 
-              <td colSpan={4} className="border">
+              <td className="border p-3 col-lg-4 col-md-12 col-sm-12">
                 <Row className="m-0">
                   <Col className="border p-2">
                     <FormControl>
@@ -790,7 +788,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
             <Col>
               <button
                 type="submit"
-                className="btn bg-button"
+                className="btn bg-warning"
                 style={{ marginTop: "1rem" }}
               >
                 Update Filled PRD Data

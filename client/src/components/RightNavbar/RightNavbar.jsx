@@ -103,7 +103,7 @@ const RightNavbar = () => {
       className={styles.container}
       style={{
         backgroundColor:
-          context.user_type === "Operator" ? "#F5F7FA" : "#FAFAFA",
+          context.user_type === "Operator" ? "#ffffff" : "#ffffff",
       }}
     >
       {/* BURGER */}
@@ -117,10 +117,14 @@ const RightNavbar = () => {
       </div> */}
       {/* ACTIONS */}
       <div className={styles.actions}>
-        <div className="mb-1">
-          <b style={{ fontSize: "12px" }}>{context.tm_name}({context.tm_no})</b> &nbsp;
-          <img className="p_img1"
-            name="userPhoto" alt="" src={context.photo == undefined ? userImg : context.photo} onClick={() => navigate('/profile')} />
+        <div className="m-1 d-flex justify-content-center align-items-center">
+          <p className="text-center text-white mb-0">
+            <img className="text-center p_img1 border border-bg border-2"
+              name="userPhoto" alt="" src={context.photo == undefined ? userImg : context.photo} onClick={() => navigate('/profile')} />
+          </p> &nbsp;&nbsp;
+          <b className="text-center mb-0" style={{ fontSize: "10px", color: "#002d37" }}>{context.tm_name}({context.tm_no})</b>
+
+
         </div>
       </div>
       {/* <div className={styles.actions}>

@@ -48,12 +48,12 @@ const ProblemList = ({ problems, setProblems }) => {
 
   return (
     <div className="mtd-problem-section">
-      <Row className="m-0">
-        <Col lg={9} className="border d-flex align-items-center gap-1">
+      <Row className="m-2">
+        <Col lg={9} md={9} sm={9} className="border d-flex align-items-center gap-1">
           <b>PROBLEM</b>
         </Col>
         <Col
-          lg={3}
+          lg={3} md={3} sm={3}
           style={{ cursor: "pointer" }}
           className="border col-auto d-flex gap-1 p-1"
         >
@@ -65,7 +65,7 @@ const ProblemList = ({ problems, setProblems }) => {
 
       {problems.map((problem, index) =>
         editedProblem && editedProblem.id === problem.id ? (
-          <Row key={problem.id} className="m-0">
+          <Row key={problem.id} className="m-2">
             <Col
               lg={9}
               className="border d-flex align-items-center gap-1"
@@ -84,34 +84,34 @@ const ProblemList = ({ problems, setProblems }) => {
               />
             </Col>
             <Col lg={3} className="border col-auto d-flex gap-1 p-1">
-              <button onClick={updateProblem}>Update</button>
-              <button onClick={cancelEdit}>Cancel</button>
+              <button class="bg-info text-white border-0" onClick={updateProblem}>Update</button>
+              <button class="bg-danger text-white border-0" onClick={cancelEdit}>Cancel</button>
             </Col>
           </Row>
         ) : (
           <Row key={problem.id} className="m-0">
             <Col
-              lg={9}
+             lg={9} md={12} sm={12}
               className="border d-flex align-items-center gap-1"
               style={{ fontSize: "14px" }}
             >
               <b>Problem {index + 1}: </b>
               {problem.problem}
             </Col>
-            <Col lg={3} className="border col-auto d-flex gap-1 p-1">
-              <button onClick={() => setEditedProblem({ ...problem })}>
+            <Col lg={3} md={12} sm={12}  className="border col-auto d-flex gap-1 p-1">
+              <button class="bg-warning text-white border-0" onClick={() => setEditedProblem({ ...problem })}>
                 Edit
               </button>
-              <button onClick={() => deleteProblem(problem.id)}>Delete</button>
+              <button class="bg-danger text-white border-0" onClick={() => deleteProblem(problem.id)}>Delete</button>
             </Col>
           </Row>
         )
       )}
 
       {isAdding ? (
-        <Row className="m-0">
+        <Row className="m-2">
           <Col
-            lg={9}
+            lg={9} md={12} sm={12}
             className="border d-flex align-items-center gap-1"
             style={{ fontSize: "14px" }}
           >
@@ -122,19 +122,21 @@ const ProblemList = ({ problems, setProblems }) => {
               onChange={(e) => setNewProblemText(e.target.value)}
             />
           </Col>
-          <Col lg={3} className="border col-auto d-flex gap-1 p-1">
-            <button onClick={addProblem}>Add</button>
-            <button onClick={cancelAdd}>Cancel</button>
+          <Col lg={3} md={12} sm={12} className="border col-auto d-flex gap-1 p-1">
+            <button class="bg-success text-white border-0" onClick={addProblem}>Add</button>
+            <button class="bg-danger text-white border-0" onClick={cancelAdd}>Cancel</button>
           </Col>
         </Row>
       ) : (
         <Row className="m-0  p-1 border">
-          <button onClick={() => setIsAdding(true)}>Add Problem</button>
+          <Col lg={4}>
+          <button class="bg-warning text-white border-0 pt-1 pb-2 mt-1" onClick={() => setIsAdding(true)}>Add Problem</button>
+          </Col>
         </Row>
       )}
 
       {Array.from({ length: 2 - problems.length }).map((_, index) => (
-        <Row key={index} className="m-0 p-1 border">
+        <Row key={index} className="m-2 p-1 border">
           <AddBoxIcon onClick={() => setIsAdding(true)} />
         </Row>
       ))}

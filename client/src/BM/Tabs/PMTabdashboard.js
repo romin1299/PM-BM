@@ -95,7 +95,7 @@ function App() {
         <NavContext.Provider value={value}>
           <Navbar />
           <Container
-            stickyNav={<RightNavbar />}
+            // stickyNav={<RightNavbar />}
             content={
               <Routes>
                 <Route path="/pm/adminDashboard" element={<AdminDashboard />} />
@@ -117,7 +117,7 @@ function App() {
         <NavContext.Provider value={value}>
           <Navbar />
           <Container
-            stickyNav={<RightNavbar />}
+            // stickyNav={<RightNavbar />}
             content={
               <Routes>
                 <Route path="/pm" element={<OperatorDashboard />} />
@@ -231,7 +231,7 @@ function App() {
         <NavContext.Provider value={value}>
           <Navbar />
           <Container
-            stickyNav={<RightNavbar />}
+            // stickyNav={<RightNavbar />}
             content={
               <Routes>
                 <Route path="/pm" element={<OperatorDashboard />} />
@@ -348,7 +348,7 @@ function App() {
         <NavContext.Provider value={value}>
           <Navbar />
           <Container
-            stickyNav={<RightNavbar />}
+            // stickyNav={<RightNavbar />}
             content={
               <Routes>
                 <Route path="/pm" element={<OperatorDashboard />} />
@@ -453,7 +453,7 @@ function App() {
         <NavContext.Provider value={value}>
           <Navbar />
           <Container
-            stickyNav={<RightNavbar />}
+            // stickyNav={<RightNavbar />}
             content={
               <Routes>
                 <Route path="/pm" element={<OperatorDashboard />} />

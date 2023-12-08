@@ -9,6 +9,7 @@ const User = require("../model/userSchema");
 const Section = require("../model/sectionSchema");
 const SubSection = require("../model/subSectionSchema");
 const Cell = require("../model/cellSchema");
+const Line = require("../model/lineSchema");
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
@@ -266,7 +267,7 @@ router.post(
             category: key,
             subCategory: requestSheetDataFilledByMTDUser?.categories[key],
           }));
-          
+
           let queryObj = {
             // ...req.body,
             ..._idObject,
