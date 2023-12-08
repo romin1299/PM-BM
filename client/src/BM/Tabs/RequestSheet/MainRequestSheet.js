@@ -51,16 +51,18 @@ function MyTable() {
 
   return (
     <>
-      <PRDRequestSheet
-        selectedMachineDetails={selectedMachineDetails}
-        // approvalListOfBM={approvalListOfBM}
-      />
-      
+      {context?.tm_department === "PRD" && (
+        <PRDRequestSheet
+          selectedMachineDetails={selectedMachineDetails}
+          // approvalListOfBM={approvalListOfBM}
+        />
+      )}
+
       {/* need to add condition for PRD not able add data on MTD part */}
-      <MTDRequestSheet
+      {/* <MTDRequestSheet
         selectedMachineDetails={selectedMachineDetails}
         approvalListOfBM={approvalListOfBM}
-      />
+      /> */}
     </>
   );
 }

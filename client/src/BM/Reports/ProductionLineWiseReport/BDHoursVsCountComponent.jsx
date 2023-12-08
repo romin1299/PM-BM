@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useState, useReducer } from "react";
 
 import { Container, Row, Col } from "reactstrap";
 
@@ -6,10 +6,16 @@ import BDHoursVsCountChart from "./Charts/BDHoursVsCountChart";
 import FilterComponent from "./FilterComponent";
 import { Box, Divider, Typography } from "@mui/material";
 
+import { MonthDropdown } from "../ManHourReport/SubComponents/LineSelectionDropdown";
+
 const BDHoursVsCountComponent = ({
-  flagForCellAndLineToggle,
   selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  // selectedMonth,
 }) => {
+  const [selectedMonth, setSelectedMonth] = useState();
+
   const initialState = {
     labels: [],
 
@@ -59,6 +65,12 @@ const BDHoursVsCountComponent = ({
           obj = {
             totalBDCount: action?.BDHoursVsCountData?.BDCount,
             BDhours: action?.BDHoursVsCountData?.BDhours,
+            BDCount: [
+              {
+                groupId: "",
+                count: [],
+              },
+            ],
           };
         }
         return {
@@ -79,8 +91,8 @@ const BDHoursVsCountComponent = ({
   const getBDhoursVsCountReportData = async ({ purpose, data }) => {
     try {
       const res = await fetch(
-        `/getBDhoursVsCountDataFunction/${purpose}/${flagForCellAndLineToggle}/63317dbe1d1becfedab337e4`,
-        // `/getBDhoursVsCountDataFunction/${flagForCellAndLineToggle}/${selectedValue}`,
+        // `/getBDhoursVsCountDataFunction/${purpose}/${flagForTogglingFilter}/63317dbe1d1becfedab337e4/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        `/getBDhoursVsCountDataFunction/${purpose}/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
         {
           method: "POST",
           headers: {
@@ -117,7 +129,7 @@ const BDHoursVsCountComponent = ({
         data: {},
       });
     }
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear, selectedMonth]);
 
   return (
     <Box className="cell p-3">
@@ -127,8 +139,16 @@ const BDHoursVsCountComponent = ({
 
       <Divider sx={{ mb: 2, borderColor: "black" }} />
 
+      <MonthDropdown
+        selectedMonth={selectedMonth}
+        setSelectedMonth={setSelectedMonth}
+      />
+
       <FilterComponent
         getBDhoursVsCountReportData={getBDhoursVsCountReportData}
+        selectedValue={selectedValue}
+        selectedYear={selectedYear}
+        selectedMonth={selectedMonth}
       />
 
       <BDHoursVsCountChart

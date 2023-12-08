@@ -42,7 +42,6 @@ export const ACTION = {
 };
 
 export const getFiltrationValue = async ({ url }) => {
-  console.count("fun call.........");
   try {
     const res = await fetch(url, {
       method: "GET",
@@ -81,6 +80,8 @@ export const reducer = (state, action) => {
         subSections: action?.subSections,
         selectedCell: action?.selectedCell,
         cells: action?.cells,
+        selectedLine: action?.selectedLine,
+        lines: action?.lines,
       };
 
     case ACTION?.GET_DATA_BASED_ON_SECTION:
@@ -108,7 +109,8 @@ export const reducer = (state, action) => {
         ...state,
         isLoading: false,
         message: action?.message,
-
+        
+        selectedCell: action?.selectedCell,
         cells: action?.cells,
         selectedLine: action?.selectedLine,
         lines: action?.lines,

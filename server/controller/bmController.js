@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const multer = require("multer");
 
 const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
 const Machine = require("../model/machineSchema");
@@ -11,6 +12,7 @@ const Cell = require("../model/cellSchema");
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
+const Line = require("../model/lineSchema");
 const factory = require("./handleFactory");
 
 const moment = require("moment-timezone");
@@ -149,177 +151,208 @@ router.get(
   }
 );
 
-router.post("/newRequestSheetRegistration", async (req, res, next) => {
-  try {
-    const machine = await Machine.findOne({
-      machine_code: req.query?.machineRef,
-    })
-      .populate({
-        path: "line_names",
-        populate: {
-          path: "cell_names",
+const storageForDataSheetsOfBD = multer.diskStorage({
+  destination: function (req, file, cb) {
+    if (file.fieldname === "attachedDataSheets") cb(null, "./DataSheetOfBD/");
+    else cb(null, "./DrawingsOfBD/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "_" + file.originalname);
+  },
+});
+
+const fileFilterOfDataSheetOfBD = (req, file, cb) => {
+  if (!file.originalname.match(/\.(xls|xlsx|csv)$/)) {
+    return cb(new Error("Only .xls, .xlsx, .csv format allowed!"));
+  } else {
+    cb(null, true);
+  }
+};
+
+const uploadDataSheetsOfBD = multer({
+  storage: storageForDataSheetsOfBD,
+  limits: {
+    fileSize: 1024 * 1024 * 5,
+  },
+  // fileFilter: fileFilterOfDataSheetOfBD,
+});
+
+router.post(
+  "/newRequestSheetRegistration",
+  uploadDataSheetsOfBD.fields([
+    { name: "attachedDataSheets", maxCount: 1 },
+    { name: "attachedDrawings", maxCount: 10 },
+  ]),
+  async (req, res, next) => {
+    try {
+      const dataSheet = req.files;
+
+      const machine = await Machine.findOne({
+        machine_code: req.query?.machineRef,
+      })
+        .populate({
+          path: "line_names",
           populate: {
-            path: "subSection_names",
+            path: "cell_names",
             populate: {
-              path: "section_names",
+              path: "subSection_names",
               populate: {
-                path: "plant_names",
-                model: "Plants",
+                path: "section_names",
+                populate: {
+                  path: "plant_names",
+                  model: "Plants",
+                },
               },
             },
           },
-        },
-      })
-      .exec();
+        })
+        .exec();
 
-    if (machine) {
-      const _idObject = {
-        machineRef: machine._id,
-        lineRef: machine.line_names._id,
-        cellRef: machine.line_names.cell_names._id,
-        subSectionRef: machine.line_names.cell_names.subSection_names._id,
-        sectionRef:
-          machine.line_names.cell_names.subSection_names.section_names._id,
-        plantRef:
-          machine.line_names.cell_names.subSection_names.section_names
-            .plant_names._id,
-      };
-
-      let requestSheet;
-
-      if (
-        req.rootUser.user_type === "Operator" ||
-        req.rootUser.tm_department === "MTD"
-      ) {
-        const {
-          workStartedDateOfBM,
-          workEndedDateOfBM,
-          breakTime,
-          qualityCheckTime,
-          maintenanceTime,
-          problemsOfBM,
-          actionAndCounterMeasureStep,
-          minorBD,
-          majorBD,
-          firstTime,
-          repeat,
-          breakDownTime,
-          why1,
-          why2,
-          why3,
-          why4,
-          why5,
-          changedParts,
-          feedbackMTD_HOS,
-          qualityConfirmed,
-          partQualityCheckedByMTD,
-          partQualityCheckedByPRD,
-        } = req.body;
-
-        let queryObj = {
-          ...req.body,
-          ..._idObject,
-          "maintenanceReportFilledByMTD.workStartedDateOfBM":
-            workStartedDateOfBM,
-          "maintenanceReportFilledByMTD.workEndedDateOfBM": workEndedDateOfBM,
-          "maintenanceReportFilledByMTD.actionAndCounterMeasureStep":
-            actionAndCounterMeasureStep,
-          "maintenanceReportFilledByMTD.problemsOfBM": problemsOfBM,
-          "maintenanceReportFilledByMTD.breakDownTime": breakDownTime,
-          "maintenanceReportFilledByMTD.whyAnalysis.why1": why1,
-          "maintenanceReportFilledByMTD.whyAnalysis.why2": why2,
-          "maintenanceReportFilledByMTD.whyAnalysis.why3": why3,
-          "maintenanceReportFilledByMTD.whyAnalysis.why4": why4,
-          "maintenanceReportFilledByMTD.whyAnalysis.why5": why5,
-          "maintenanceReportFilledByMTD.breakDownTime": breakDownTime,
-          "maintenanceReportFilledByMTD.maintenanceTime": maintenanceTime,
-          "maintenanceReportFilledByMTD.qualityCheckTime": qualityCheckTime,
-          "maintenanceReportFilledByMTD.breakTime": breakTime,
-          "maintenanceReportFilledByMTD.minorBD": minorBD,
-          "maintenanceReportFilledByMTD.majorBD": majorBD,
-          "maintenanceReportFilledByMTD.firstTime": firstTime,
-          "maintenanceReportFilledByMTD.repeat": repeat,
-          sparePartUsedOrNot: changedParts?.length > 0 ? true : false,
-          changedParts,
-          feedbackMTD_HOS,
-          qualityConfirmed,
-          partQualityCheckedByMTD,
-          partQualityCheckedByPRD,
-          requestSheetStatus: "Fill Sheet",
+      if (machine) {
+        const _idObject = {
+          machineRef: machine._id,
+          lineRef: machine.line_names._id,
+          cellRef: machine.line_names.cell_names._id,
+          subSectionRef: machine.line_names.cell_names.subSection_names._id,
+          sectionRef:
+            machine.line_names.cell_names.subSection_names.section_names._id,
+          plantRef:
+            machine.line_names.cell_names.subSection_names.section_names
+              .plant_names._id,
         };
 
-        requestSheet = await RequestSheetOfBM.findOneAndUpdate(
-          { requestSheetNoOfBM: req.query.reqId },
-          {
-            $set: queryObj,
-          },
-          {
-            new: true,
-          }
-        );
-        res.status(201).json({
-          message: "Request-sheet updated successfully",
-          requestSheet,
-        });
-      } else {
-        const {
-          problemFaced,
-          PRD_ObservationForProblem_5Why_1How,
-          why_5M_1E,
-          where_process,
-          when_frequency,
-          who_person,
-          which_defectLocation,
-          how_details,
-          // requestSheetdate,
-          // requestSheettime,
-          // sheetIssuedDate,
-          // sheetIssuedTime,
-          problemOccurredDateAndTimeOfBM,
-          sheetIssuedDateAndTimeOfBM,
-          maintenanceType,
-          priorityCode,
-          qualityRelated,
-          shiftOfBM,
-        } = req.body;
+        let requestSheet;
 
-        let requestSheetNos = machine.line_names.requestSheetNos + 1;
+        if (
+          req.rootUser.user_type === "Operator" ||
+          req.rootUser.tm_department === "MTD"
+        ) {
+          // const {
+          //   workStartedDateOfBM,
+          //   workEndedDateOfBM,
+          //   breakTime,
+          //   qualityCheckTime,
+          //   maintenanceTime,
 
-        let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
-          { _id: machine.line_names._id },
-          // { $set: { $inc: { requestSheetNos: 1 } } },
-          { $set: { requestSheetNos } },
-          { new: true }
-        );
+          //   actionAndCounterMeasureStep,
+          //   minorBD,
+          //   majorBD,
+          //   firstTime,
+          //   repeat,
+          //   breakDownTime,
+          //   why1,
+          //   why2,
+          //   why3,
+          //   why4,
+          //   why5,
+          //   changedParts,
+          //   feedbackMTD_HOS,
+          //   qualityConfirmed,
+          //   partQualityCheckedByMTD,
+          //   partQualityCheckedByPRD,
+          //   supportingTM,
+          //   categories,
+          //   actionTemporaryOrNot,
+          //   dataSheetOfRequestSheet,
+          //   drawingOfRequestSheet,
+          // } = req.body;
 
-        const requestSheetNoOfBM =
-          machine?.line_names?.cell_names?.subSection_names?.section_names
-            ?.dashboardLevel === "Yes"
-            ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
-                .substring(0, 2)
-                .toUpperCase()}_${machine?.line_names?.line_name}_${
-                moment().tz("Asia/Kolkata").month() + 1
-              }_${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim()
-            : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
-                .substring(0, 2)
-                .toUpperCase()}_${machine?.line_names?.line_name}_
-      ${moment().tz("Asia/Kolkata").month() + 1}_
-      ${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim();
+          const requestSheetDataFilledByMTDUser = JSON.parse(
+            req.body.otherData
+          );
 
-        requestSheet = new RequestSheetOfBM({
-          ...req.query,
-          ..._idObject,
-          ...req.body,
-          requestSheetNoOfBM,
-          requestSheetCreatedBy: req.rootUser._id,
-          priorityCode: priorityCode,
-          qualityRelated: qualityRelated,
-          shiftOfBM: shiftOfBM,
-          // breakDownAttendedBy: req.rootUser._id,
-          maintenanceType: maintenanceType || "BM",
-          problemOccurredDateAndTimeOfBM,
-          sheetIssuedDateAndTimeOfBM,
-          breakDownBasicDataFilledByPRD: {
+          const convertedData = Object.keys(
+            requestSheetDataFilledByMTDUser?.categories
+          ).map((key) => ({
+            category: key,
+            subCategory: requestSheetDataFilledByMTDUser?.categories[key],
+          }));
+
+          let queryObj = {
+            // ...req.body,
+            ..._idObject,
+            "maintenanceReportFilledByMTD.workStartedDateOfBM":
+              requestSheetDataFilledByMTDUser?.workStartedDateOfBM,
+            "maintenanceReportFilledByMTD.workEndedDateOfBM":
+              requestSheetDataFilledByMTDUser?.workEndedDateOfBM,
+            "maintenanceReportFilledByMTD.actionAndCounterMeasureStep":
+              requestSheetDataFilledByMTDUser?.actionAndCounterMeasureStep,
+
+            "maintenanceReportFilledByMTD.problemsOfBM":
+              requestSheetDataFilledByMTDUser?.problemsOfBM,
+            "maintenanceReportFilledByMTD.whyAnalysis.why1":
+              requestSheetDataFilledByMTDUser?.why1,
+            "maintenanceReportFilledByMTD.whyAnalysis.why2":
+              requestSheetDataFilledByMTDUser?.why2,
+            "maintenanceReportFilledByMTD.whyAnalysis.why3":
+              requestSheetDataFilledByMTDUser?.why3,
+            "maintenanceReportFilledByMTD.whyAnalysis.why4":
+              requestSheetDataFilledByMTDUser?.why4,
+            "maintenanceReportFilledByMTD.whyAnalysis.why5":
+              requestSheetDataFilledByMTDUser?.why5,
+            "maintenanceReportFilledByMTD.breakDownTime": parseInt(
+              requestSheetDataFilledByMTDUser?.breakDownTime
+            ),
+            "maintenanceReportFilledByMTD.maintenanceTime": parseInt(
+              requestSheetDataFilledByMTDUser?.maintenanceTime
+            ),
+            "maintenanceReportFilledByMTD.qualityCheckTime": parseInt(
+              requestSheetDataFilledByMTDUser?.qualityCheckTime
+            ),
+            "maintenanceReportFilledByMTD.breakTime": parseInt(
+              requestSheetDataFilledByMTDUser?.breakTime
+            ),
+            "maintenanceReportFilledByMTD.minorBD":
+              requestSheetDataFilledByMTDUser?.minorBD,
+            "maintenanceReportFilledByMTD.majorBD":
+              requestSheetDataFilledByMTDUser?.majorBD,
+            "maintenanceReportFilledByMTD.firstTime":
+              requestSheetDataFilledByMTDUser?.firstTime,
+            "maintenanceReportFilledByMTD.repeat":
+              requestSheetDataFilledByMTDUser?.repeat,
+            sparePartUsedOrNot:
+              requestSheetDataFilledByMTDUser?.changedParts?.length > 0
+                ? true
+                : false,
+            changedParts: requestSheetDataFilledByMTDUser?.changedParts,
+            feedbackMTD_HOS: requestSheetDataFilledByMTDUser?.feedbackMTD_HOS,
+            qualityConfirmed: requestSheetDataFilledByMTDUser?.qualityConfirmed,
+            partQualityCheckedByMTD:
+              requestSheetDataFilledByMTDUser?.partQualityCheckedByMTD,
+            partQualityCheckedByPRD:
+              requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
+            requestSheetStatus: "Fill Sheet",
+            actionTemporaryOrNot:
+              requestSheetDataFilledByMTDUser?.actionTemporaryOrNot,
+            dataSheetOfRequestSheet:
+              requestSheetDataFilledByMTDUser?.dataSheetOfRequestSheet,
+            attachedDataSheets: dataSheet?.attachedDataSheets?.[0]?.filename,
+            drawingOfRequestSheet:
+              requestSheetDataFilledByMTDUser?.drawingOfRequestSheet,
+            supportingTM: requestSheetDataFilledByMTDUser?.supportingTM,
+            categoriesOfRequestSheet: convertedData,
+          };
+
+          requestSheet = await RequestSheetOfBM.findOneAndUpdate(
+            { requestSheetNoOfBM: req.query.reqId },
+            {
+              $set: queryObj,
+              $push: {
+                attachedDrawings: dataSheet?.attachedDrawings?.map(
+                  (obj) => obj?.filename
+                ),
+              },
+            },
+            {
+              new: true,
+            }
+          );
+          res.status(201).json({
+            message: "Request-sheet updated successfully",
+            requestSheet,
+          });
+        } else {
+          const {
             problemFaced,
             PRD_ObservationForProblem_5Why_1How,
             why_5M_1E,
@@ -328,22 +361,85 @@ router.post("/newRequestSheetRegistration", async (req, res, next) => {
             who_person,
             which_defectLocation,
             how_details,
-          },
-        });
+            // requestSheetdate,
+            // requestSheettime,
+            // sheetIssuedDate,
+            // sheetIssuedTime,
+            problemOccurredDateAndTimeOfBM,
+            sheetIssuedDateAndTimeOfBM,
+            maintenanceType,
+            priorityCode,
+            qualityRelated,
+            shiftOfBM,
+          } = req.body;
 
-        await requestSheet.save();
-        res.status(201).json({
-          message: "Request-sheet generated successfully",
-          requestSheet,
-        });
+          let requestSheetNos = machine.line_names.requestSheetNos + 1 || 1;
+
+          let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
+            { _id: machine.line_names._id },
+            // { $set: { $inc: { requestSheetNos: 1 } } },
+            { $set: { requestSheetNos } },
+            { new: true }
+          );
+
+          const requestSheetNoOfBM =
+            machine?.line_names?.cell_names?.subSection_names?.section_names
+              ?.dashboardLevel === "Yes"
+              ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
+                  .substring(0, 2)
+                  .toUpperCase()}_${machine?.line_names?.line_name}_${
+                  moment().tz("Asia/Kolkata").month() + 1
+                }_${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim()
+              : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
+                  .substring(0, 2)
+                  .toUpperCase()}_${machine?.line_names?.line_name}_${
+                  moment().tz("Asia/Kolkata").month() + 1
+                }_${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim();
+
+          requestSheet = new RequestSheetOfBM({
+            ...req.query,
+            ..._idObject,
+            ...req.body,
+            requestSheetNoOfBM,
+            requestSheetCreatedBy: req.rootUser._id,
+            priorityCode: priorityCode,
+            qualityRelated: qualityRelated,
+            shiftOfBM: shiftOfBM,
+            // breakDownAttendedBy: req.rootUser._id,
+            maintenanceType: maintenanceType || "BM",
+            problemOccurredDateAndTimeOfBM,
+            sheetIssuedDateAndTimeOfBM: new Date(),
+            breakDownBasicDataFilledByPRD: {
+              problemFaced,
+              PRD_ObservationForProblem_5Why_1How,
+              why_5M_1E,
+              where_process,
+              when_frequency,
+              who_person,
+              which_defectLocation,
+              how_details,
+            },
+            preAggregationTimeStampOfRequestSheet: {
+              requestSheet_year: currentYear,
+              requestSheet_month: currentMonth,
+            },
+          });
+
+          await requestSheet.save();
+          res.status(201).json({
+            message: "Request-sheet generated successfully",
+            requestSheet,
+          });
+        }
+      } else {
+        res.status(404).json({ message: "Request-sheet not generated" });
       }
-    } else {
-      res.status(404).json({ message: "Request-sheet not generated" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: error?.message, error });
     }
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
   }
-});
+);
 
 const findRequestSheetMiddleware = async (req, res, next) => {
   try {
@@ -484,7 +580,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           },
           handOverTime: {
             $dateToString: {
-              format: "%Y-%m-%d %H:%M:%S",
+              format: "%Y-%m-%d %H:%M",
               date: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
               timezone: "Asia/Kolkata",
             },
@@ -496,7 +592,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           // problemOccurredDateAndTimeOfBM:
           problemOccurredDateAndTimeOfBM: {
             $dateToString: {
-              format: "%Y-%m-%d %H:%M:%S",
+              format: "%Y-%m-%d %H:%M",
               date: "$problemOccurredDateAndTimeOfBM",
               timezone: "Asia/Kolkata",
             },
@@ -898,11 +994,36 @@ router.get(
       ]);
 
       let TLHOSS_and_TM_user_list = [];
-      if (req?.rootUser?.tm_department === "MTD" && !req.purpose) {
-        TLHOSS_and_TM_user_list = await User.find({
-          user_type: { $in: ["Operator", "TL/HOSS"] },
-          plant_data: req?.rootUser?.plant_data,
-        });
+      if (
+        (req?.rootUser?.tm_department === "MTD" && !req.purpose) ||
+        req?.rootUser?.user_type === "Operator"
+      ) {
+        TLHOSS_and_TM_user_list = await User.find(
+          {
+            $or: [
+              {
+                user_type: "Operator",
+              },
+              {
+                $and: [
+                  {
+                    user_type: "TL/HOSS",
+                  },
+                  {
+                    tm_department: "MTD",
+                  },
+                ],
+              },
+            ],
+            plant_data: req?.rootUser?.plant_data,
+          },
+          {
+            tm_name: 1,
+            tm_department: 1,
+            tm_grade: 1,
+            user_type: 1,
+          }
+        );
       }
 
       res.status(201).json({
@@ -1280,6 +1401,56 @@ router.get("/getMtdUserDetails", async (req, res, next) => {
 //        Monitoring RequestSheet APIS
 // -------------------------------------------------------------------------------
 
+const filterMiddleware = async (req, res, next) => {
+  try {
+    let queryObj = {};
+
+    if (req.query?.selectedYear) {
+      queryObj = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+      };
+    }
+
+    if (req.query?.selectedMonth) {
+      queryObj = {
+        ...queryObj,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      };
+    }
+
+    if (req.params?.filter === "based-on-section") {
+      queryObj = {
+        ...queryObj,
+        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-subSection") {
+      queryObj = {
+        ...queryObj,
+        subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-cell") {
+      queryObj = {
+        ...queryObj,
+        cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    } else {
+      queryObj = {
+        ...queryObj,
+        lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    }
+
+    req.queryObj = queryObj;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 const middlewareForGettingAllDropdownList = async (req, res, next) => {
   try {
     if (Object.keys(req.query)?.length !== 0) {
@@ -1369,16 +1540,17 @@ const queryObjectMiddlewareFunction = async (req, res, next) => {
   }
 };
 
+// ---------------- not using this API
 router.get(
   "/getRequestSheetMonitoringData",
   middlewareForGettingAllDropdownList,
   queryObjectMiddlewareFunction,
   async (req, res, next) => {
-    // const functionForQueryObject = (status) => ({
-    //   $sum: {
-    //     $cond: [{ $eq: ["$requestSheetStatus", status] }, 1, 0],
-    //   },
-    // });
+    const functionForQueryObject = (status) => ({
+      $sum: {
+        $cond: [{ $eq: ["$requestSheetStatus", status] }, 1, 0],
+      },
+    });
     try {
       const allStatusCounterForGraph = await RequestSheetOfBM.aggregate([
         {
@@ -1924,6 +2096,336 @@ router.get(
         allMonths,
         generatedAndCompletedStatusMonthlyData:
           generatedAndCompletedStatusMonthlyData?.[0],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getRequestSheetMonitoringData/status-chart-data/:filter/:selectedId",
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      const allStatusCounterForGraph = await RequestSheetOfBM.aggregate([
+        {
+          $match: {
+            ...req.queryObj,
+            $expr: {
+              $ne: ["$requestSheetStatus", "Generated"],
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$requestSheetStatus",
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            label: "$_id",
+            // data: [0, "$count"],
+            data: {
+              $cond: [
+                { $eq: ["$_id", "Completed"] },
+                [0, 0, "$count"],
+                [0, "$count"],
+              ],
+            },
+          },
+        },
+      ]);
+
+      const generatedStatusCount = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+      return res.status(201).json({
+        message: "Monitoring request-sheet chart data get successfully",
+        allStatusCounterForGraph: [
+          {
+            label: "Generated",
+            data: [generatedStatusCount?.[0]?.count],
+          },
+          ...allStatusCounterForGraph,
+        ],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getRequestSheetMonitoringData/generated-and-completed-count/:filter/:selectedId",
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      let queryPipeline = [
+        {
+          $group: {
+            _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            array: { $push: "$$ROOT" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            countArray: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthName", "$array._id"] },
+                    {
+                      $arrayElemAt: [
+                        "$array.count",
+                        {
+                          $indexOfArray: ["$array._id", "$$month.monthName"],
+                        },
+                      ],
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        },
+      ];
+
+      const completedStatusMonthlyData = await RequestSheetOfBM.aggregate([
+        {
+          $match: {
+            ...req.queryObj,
+            $expr: {
+              $eq: ["$requestSheetStatus", "Completed"],
+            },
+          },
+        },
+        ...queryPipeline,
+      ]);
+
+      const generatedStatusMonthlyData = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
+        ...queryPipeline,
+      ]);
+
+      let arr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+      return res.status(201).json({
+        message:
+          "Monitoring request-sheet monthly-counter data get successfully",
+        generatedAndCompletedStatusMonthlyData: [
+          {
+            label: "Generated",
+            data: generatedStatusMonthlyData?.[0]?.countArray || arr,
+          },
+          {
+            label: "Completed",
+            data: completedStatusMonthlyData?.[0]?.countArray || arr,
+          },
+        ],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getRequestSheetMonitoringData/user-wise-pending-count/:filter/:selectedId",
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      const UserWisePendingApprovalCount = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
+        {
+          $project: {
+            preAggregationTimeStampOfRequestSheet: 1,
+            userWithStatusInfo: [
+              {
+                userType: "MTD TL",
+                userId: { $arrayElemAt: ["$approvalOfMTD_TL", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfMTD_TL", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
+                },
+              },
+              {
+                userType: "MTD HOSS",
+                userId: { $arrayElemAt: ["$approvalOfMTD_HOSS", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfMTD_HOSS", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
+                },
+              },
+              {
+                userType: "MTD HOS",
+                userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfMTD_HOS", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
+                },
+              },
+              {
+                userType: "PRD TL",
+                userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfPRD_TL", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
+                },
+              },
+              {
+                userType: "PRD HOS",
+                userId: { $arrayElemAt: ["$approvalOfPRD_HOS", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfPRD_HOS", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
+                },
+              },
+              {
+                userType: "PRD HOD",
+                userId: { $arrayElemAt: ["$approvalOfPRD_HOD", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfPRD_HOD", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
+                },
+              },
+              {
+                userType: "MTD HOD",
+                userId: { $arrayElemAt: ["$approvalOfMTD_HOD", -1] },
+                userName: { $arrayElemAt: ["$approverNameLogOfMTD_HOD", -1] },
+                timeStamp: {
+                  $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
+                },
+                status: {
+                  $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: "$userWithStatusInfo",
+        },
+        {
+          $match: {
+            "userWithStatusInfo.status": "Pending",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              month:
+                "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+              userId: "$userWithStatusInfo.userId",
+              userName: "$userWithStatusInfo.userName",
+              userType: "$userWithStatusInfo.userType",
+            },
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              userId: "$_id.userId",
+              userName: "$_id.userName",
+              userType: "$_id.userType",
+            },
+            array: {
+              $push: {
+                month: { $toString: "$_id.month" },
+                count: "$count",
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            array: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthName", "$array.month"] },
+                    {
+                      $arrayElemAt: [
+                        "$array",
+                        {
+                          $indexOfArray: ["$array.month", "$$month.monthName"],
+                        },
+                      ],
+                    },
+                    {
+                      month: "$$month.monthName",
+                      count: 0,
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.userType",
+            data: {
+              $push: {
+                userId: "$_id.userId",
+                userName: "$_id.userName",
+                array: "$array",
+              },
+            },
+          },
+        },
+      ]);
+
+      return res.status(201).json({
+        message:
+          "Monitoring request-sheet UserWise pending data get successfully",
+        UserWisePendingApprovalCount,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -2562,6 +3064,14 @@ const getRequestSheetData = async (req, res, next) => {
         },
       },
       {
+        $lookup: {
+          from: "users",
+          localField: "supportingTM",
+          foreignField: "_id",
+          as: "supportingTM",
+        },
+      },
+      {
         $project: {
           requestSheetNoOfBM: 1,
           maintenanceType: 1,
@@ -2584,7 +3094,7 @@ const getRequestSheetData = async (req, res, next) => {
           lossTime: "$maintenanceReportFilledByMTD.breakDownTime",
           problemOccurredDateAndTimeOfBMForTable: {
             $dateToString: {
-              format: "%Y-%m-%d %H:%M:%S",
+              format: "%Y-%m-%d %H:%M",
               date: "$problemOccurredDateAndTimeOfBM",
               timezone: "Asia/Kolkata",
             },
@@ -2689,6 +3199,14 @@ const getRequestSheetData = async (req, res, next) => {
 
           requestSheetStatus: 1,
           getDataForApprovalDashboard: 1,
+
+          actionTemporaryOrNot: 1,
+          dataSheetOfRequestSheet: 1,
+          drawingOfRequestSheet: 1,
+          supportingTM: 1,
+          attachedDataSheets: 1,
+          attachedDrawings: 1,
+          categoriesOfRequestSheet: 1,
         },
       },
     ]);
@@ -2861,15 +3379,15 @@ router.patch(
         }
       }
       //remove first approver (MTD TL)
-      Object.keys(assignApprovalList).forEach((key) => {
-        const formattedKey =
-          requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser?.replace(
-            " ",
-            "_"
-          );
-        Object.keys(assignApprovalList[formattedKey])?.length === 0 &&
-          delete assignApprovalList[key];
-      });
+      // Object.keys(assignApprovalList).forEach((key) => {
+      const formattedKey =
+        requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser?.replace(
+          " ",
+          "_"
+        );
+      Object.keys(assignApprovalList[formattedKey])?.length === 0 &&
+        delete assignApprovalList[formattedKey];
+      // });
 
       const updateTheStatusOfBMSheetApprover = async (
         keyOfDepartment,
@@ -2994,46 +3512,23 @@ router.patch(
     }
   }
 );
-const filterMiddleware = async (req, res, next) => {
+
+const monthValidationMiddleware = async (req, res, next) => {
   try {
-    let queryObj = {
-      "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-        req.query?.selectedYear,
-    };
-
-    if (req.query?.selectedMonth) {
-      queryObj = {
-        ...queryObj,
-        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-          req.query?.selectedMonth,
-      };
+    if (currentYear === req.query?.selectedYear) {
+      if (
+        moment().tz(timezone).month(req.query.selectedMonth).month() >
+          moment().tz(timezone).month() ||
+        [0, 1, 2].includes(
+          moment().tz(timezone).month(req.query.selectedMonth).month()
+        )
+      ) {
+        return res
+          .status(400)
+          .json({ message: "You can't selected the future month!!!" });
+      }
     }
 
-    if (req.params?.filter === "based-on-section") {
-      queryObj = {
-        ...queryObj,
-        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
-      };
-    } else if (req.params?.filter === "based-on-subSection") {
-      queryObj = {
-        ...queryObj,
-        subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
-      };
-    } else if (req.params?.filter === "based-on-cell") {
-      queryObj = {
-        ...queryObj,
-        cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
-        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
-      };
-    } else {
-      queryObj = {
-        ...queryObj,
-        lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
-        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
-      };
-    }
-
-    req.queryObj = queryObj;
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -3043,30 +3538,48 @@ const filterMiddleware = async (req, res, next) => {
 //          Daily breakdown trend
 router.get(
   "/getDailyBreakdownTrendData/:filter/:selectedId",
+  monthValidationMiddleware,
   filterMiddleware,
   async (req, res, next) => {
     try {
-      const startDate = moment().tz(timezone).startOf("month");
+      let year, endDate;
+      const spiltArrayOfYear = req.query?.selectedYear?.split("-");
 
-      const endDate = moment().tz(timezone).endOf("day");
+      if (["Jan", "Feb", "Mar"]?.includes(req.query.selectedMonth)) {
+        year = spiltArrayOfYear[1];
+      } else {
+        year = spiltArrayOfYear[0];
+      }
+
+      if (
+        currentYear === req.query?.selectedYear &&
+        moment().tz(timezone).month(req.query.selectedMonth).month() ===
+          moment().tz(timezone).month()
+      ) {
+        endDate = moment().tz(timezone).endOf("day");
+      } else {
+        endDate = moment()
+          .tz(timezone)
+          .year(year)
+          .month(req.query.selectedMonth)
+          .endOf("month");
+      }
+
+      const startDate = moment()
+        .tz(timezone)
+        .year(year)
+        .month(req.query.selectedMonth)
+        .startOf("month");
 
       const allDatesInMonth = Array.from(
         { length: endDate.date() },
         (_, index) => startDate.clone().add(index, "days").format("DD")
       );
 
-      const matchObj = {
-        ...req.queryObj,
-        problemOccurredDateAndTimeOfBM: {
-          $gte: startDate.toDate(),
-          $lte: endDate.toDate(),
-        },
-      };
-
       const queryFunction = async ({ conditionObj }) =>
         RequestSheetOfBM.aggregate([
           {
-            $match: matchObj,
+            $match: req.queryObj,
           },
           {
             $sort: {
@@ -3171,7 +3684,7 @@ router.get(
 
       const dayWiseCount = await RequestSheetOfBM.aggregate([
         {
-          $match: matchObj,
+          $match: req.queryObj,
         },
         {
           $sort: {
@@ -3688,7 +4201,7 @@ router.get(
 );
 
 router.get(
-  "/getBDHoursGraphData/:purpose/:filter/:selectedId",
+  "/getBDHoursGraphData/:filter/:selectedId",
   filterMiddleware,
   async (req, res, next) => {
     try {
@@ -3802,239 +4315,45 @@ router.post(
   "/getBDhoursVsCountDataFunction/:purpose/:filter/:selectedId",
   async (req, res, next) => {
     try {
-      // let arr = [
-      //   {
-      //     str: "half",
-      //     int: 0.5,
-      //   },
-      //   {
-      //     str: "one",
-      //     int: 1,
-      //   },
-      //   {
-      //     str: "two",
-      //     int: 2,
-      //   },
-      //   {
-      //     str: "three",
-      //     int: 3,
-      //   },
-      // ];
-
-      // let facetQueryObj = {};
-
-      // let groupObj = {
-      //   $group: {
-      //     _id: {
-      //       machine: "$machine._id",
-      //       machine_code: "$machine.machine_code",
-      //       machine_name: "$machine.machine_name",
-      //     },
-      //     count: { $sum: 1 },
-      //     hours: {
-      //       $sum: "$BDhours",
-      //     },
-      //   },
-      // };
-      // for (let i = 0; i < arr.length; i++) {
-      //   let matchObj = {};
-
-      //   if (i === 0) {
-      //     matchObj = {
-      //       BDhours: { $lte: arr[i]?.int },
-      //     };
-      //   } else if (i === arr?.length - 1) {
-      //     matchObj = {
-      //       BDhours: { $gte: arr[i]?.int },
-      //     };
-      //   } else {
-      //     matchObj = {
-      //       $and: [
-      //         { BDhours: { $gt: arr[i - 1]?.int } },
-      //         { BDhours: { $lte: arr[i]?.int } },
-      //       ],
-      //     };
-      //   }
-      //   facetQueryObj[arr[i]?.str] = [
-      //     {
-      //       $match: matchObj,
-      //     },
-      //     groupObj,
-      //   ];
-      // }
-      // const BDHoursVsCountData = await RequestSheetOfBM.aggregate([
-      //   // {
-      //   //   $match: req.queryObj,
-      //   // },
-
-      //   {
-      //     $match: {
-      //       sheetCompletedDateAndTime: { $ne: null },
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "machinesalldatas",
-      //       localField: "machineRef",
-      //       foreignField: "_id",
-      //       pipeline: [
-      //         {
-      //           $project: {
-      //             machine_code: 1,
-      //             machine_name: 1,
-      //           },
-      //         },
-      //       ],
-      //       as: "machine",
-      //     },
-      //   },
-      //   {
-      //     $unwind: "$machine",
-      //   },
-      //   {
-      //     $project: {
-      //       requestSheetNoOfBM: 1,
-      //       machine: 1,
-      //       BDhours: {
-      //         $divide: [
-      //           {
-      //             $subtract: [
-      //               "$sheetCompletedDateAndTime",
-      //               "$sheetIssuedDateAndTimeOfBM",
-      //             ],
-      //           },
-      //           3600000,
-      //         ],
-      //       },
-      //     },
-      //   },
-      //   {
-      //     $bucket: {
-      //       groupBy: "$BDhours",
-      //       boundaries: [0, 2, 3], // 0 <= value < 2, 2<= value < 3
-      //       // boundaries: [0, 3], // 0 <= value < 3
-      //       default: "Other",
-      //       output: {
-      //         count: { $sum: 1 },
-      //         sumOfBDhours: { $sum: "$BDhours" },
-      //         machine: { $push: "$machine" },
-      //       },
-      //     },
-      //   },
-      //   {
-      //     $group: {
-      //       _id: null,
-      //       array: { $push: "$$ROOT" },
-      //     },
-      //   },
-      //   {
-      //     $project: {
-      //       _id: 0,
-      //       data: {
-      //         $map: {
-      //           input: [
-      //             {
-      //               id: 0,
-      //               key: "<2",
-      //             },
-      //             {
-      //               id: 2,
-      //               key: "<3",
-      //             },
-      //             // {
-      //             //   id:3,
-      //             //   key:"<Other"
-      //             // }
-      //           ],
-      //           as: "item",
-      //           in: {
-      //             $cond: [
-      //               { $in: ["$$item.id", "$array._id"] },
-      //               {
-      //                 _id: "$$item.key",
-      //                 machine: "$array.machine",
-      //                 count: {
-      //                   $arrayElemAt: [
-      //                     "$array.count",
-      //                     {
-      //                       $indexOfArray: ["$array._id", "$$item.id"],
-      //                     },
-      //                   ],
-      //                 },
-      //                 sumOfBDhours: {
-      //                   $arrayElemAt: [
-      //                     "$array.sumOfBDhours",
-      //                     {
-      //                       $indexOfArray: ["$array._id", "$$item.id"],
-      //                     },
-      //                   ],
-      //                 },
-      //               },
-      //               {
-      //                 _id: "$$item.key",
-      //                 count: 0,
-      //                 sumOfBDhours: 0,
-      //               },
-      //             ],
-      //           },
-      //         },
-      //       },
-      //     },
-      //   },
-      //   {
-      //     $unwind: "$data",
-      //   },
-      //   {
-      //     $replaceRoot: { newRoot: "$data" },
-      //   },
-      //   {
-      //     $project: {
-      //       _id: 0,
-      //       machine: 1,
-      //       groupId: "$_id",
-      //       count: "$count",
-      //       sumOfBDhours: "$sumOfBDhours",
-      //     },
-      //   },
-      // ]);
-
-      if (req.params?.filter === "based-on-cell") {
-        queryPipeline = [
-          {
-            $lookup: {
-              from: "lines",
-              localField: "line_names",
-              foreignField: "_id",
-              pipeline: [
-                {
-                  $project: {
-                    line_name: 1,
-                    cell_names: 1,
-                  },
-                },
-              ],
-              as: "line",
-            },
+      let queryObjForPM = {},
+        queryObjForBM = {
+          "maintenanceReportFilledByMTD.workEndedDateOfBM": {
+            $ne: null,
           },
-          {
-            $unwind: "$line",
-          },
-          {
-            $match: {
-              "line.cell_names": mongoose.Types.ObjectId(
-                req.params?.selectedId
-              ),
-            },
-          },
-        ];
-      } else {
-        queryPipeline = [
-          {
-            $match: {
-              line_names: mongoose.Types.ObjectId(req.params?.selectedId),
-            },
-          },
-        ];
+        };
+
+      if (req.params?.filter === "based-on-section") {
+        queryObjForPM = {
+          section_names: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-subSection") {
+        queryObjForPM = {
+          subSection_names: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-cell") {
+        queryObjForPM = {
+          cell_names: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-line") {
+        queryObjForPM = {
+          line_names: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      }
+
+      if (req.query?.selectedYear) {
+        queryObjForBM = {
+          ...queryObjForBM,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            req.query?.selectedYear,
+        };
+      }
+
+      if (req.query?.selectedMonth !== "undefined") {
+        queryObjForBM = {
+          ...queryObjForBM,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+            req.query?.selectedMonth,
+        };
       }
 
       let boundaries = [0, Infinity]; // total data,
@@ -4271,12 +4590,8 @@ router.post(
       }
 
       const BDHoursVsCountData = await Machine.aggregate([
-        // ...queryPipeline,
         {
-          $project: {
-            machine_code: 1,
-            machine_name: 1,
-          },
+          $match: queryObjForPM,
         },
         {
           $lookup: {
@@ -4285,11 +4600,7 @@ router.post(
             foreignField: "machineRef",
             pipeline: [
               {
-                $match: {
-                  "maintenanceReportFilledByMTD.workEndedDateOfBM": {
-                    $ne: null,
-                  },
-                },
+                $match: queryObjForBM,
               },
               {
                 $project: {
@@ -7569,6 +7880,18 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
   }
 };
 
+const middlewareForLimitValidation = async (req, res, next) => {
+  try {
+    if (req.query?.documentLimitInTheGraph * 1 < 1) {
+      return res.status(400).json({
+        message: "Limit should be greater than one",
+      });
+    }
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
 const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
   const TrendData = await RequestSheetOfBM.aggregate([
     {
@@ -7621,7 +7944,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
       },
     },
     {
-      $limit: 20,
+      $limit: req.query?.documentLimitInTheGraph * 1,
     },
     {
       $group: {
@@ -7712,6 +8035,7 @@ router.get(
 
 router.get(
   "/getMachineWiseMTTRTrendData/:filter/:selectedId",
+  middlewareForLimitValidation,
   filterMiddleware,
   filterMiddlewareForMTTRReport,
   async (req, res, next) => {
@@ -7775,6 +8099,7 @@ router.get(
 
 router.get(
   "/getMachineWiseMTBFTrendDataData/:filter/:selectedId",
+  middlewareForLimitValidation,
   filterMiddleware,
   filterMiddlewareForMTBFReport,
   async (req, res, next) => {
@@ -9524,16 +9849,8 @@ router.get(
 );
 
 // -------------------------------------------------------------------------------
-//        Filter API based on logged user
+//        Filter API based on logged user (All filtration Options)
 // -------------------------------------------------------------------------------
-
-// const middlewareForCheckingLoggedUserType = async (req,res,next)=>{
-//   try {
-
-//   } catch (error) {
-//     res.status(500).json({ message: error?.message, error });
-//   }
-// }
 
 const plantFiltrationMiddleware = async (req, res, next) => {
   try {
@@ -9579,9 +9896,13 @@ const subSectionFiltrationMiddleware = async (req, res, next) => {
     const subSections = await SubSection.find(req.subSectionQuery);
 
     if (req.section.dashboardLevel === "No") {
+      let subSection = subSections?.[0];
+
       req.cellQuery = {
-        subSection_names: subSections?.[0]?._id,
+        subSection_names: subSection?._id,
       };
+
+      req.subSection = subSection;
     } else {
       req.cellQuery = {
         subSection_names: { $in: subSections },
@@ -9606,11 +9927,11 @@ const cellFiltrationMiddleware = async (req, res, next) => {
           message: "SubSections get successfully",
 
           flagForTogglingFilter: "based-on-subSection",
-          selectedValue: req.subSections?.[0]?._id,
+          selectedValue: req.subSection?._id,
 
           selectedSection: req.section?._id,
           sections: req.sections,
-          selectedSubSection: req.subSections?.[0]?._id,
+          selectedSubSection: req.subSection?._id,
           subSections: req.subSections,
           selectedCell: "",
           cells,
@@ -9641,11 +9962,11 @@ const cellFiltrationMiddleware = async (req, res, next) => {
         message: "SubSections get successfully",
 
         flagForTogglingFilter: "based-on-subSection",
-        selectedValue: req.subSections?.[0]?._id,
+        selectedValue: req.subSection?._id,
 
         selectedSection: "",
         sections: [],
-        selectedSubSection: req.subSections?.[0]?._id,
+        selectedSubSection: req.subSection?._id,
         subSections: req.subSections,
         selectedCell: "",
         cells,
@@ -9674,22 +9995,24 @@ const cellFiltrationMiddleware = async (req, res, next) => {
   }
 };
 
-router.get(
-  "/getFiltrationValue/byDefault",
-  plantFiltrationMiddleware,
-  (req, res, next) => {
-    try {
-      if (req.section) {
-        return next();
-      }
-      req.sectionQuery = {
-        section_id: req?.rootUser?.section_data?.split("-")?.[0],
-      };
-      next();
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
+const conditionMiddlewareForSectionQuery = async (req, res, next) => {
+  try {
+    if (req.section) {
+      return next();
     }
-  },
+    req.sectionQuery = {
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    };
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+router.get(
+  "/getFiltrationValue/all-filtration/byDefault",
+  plantFiltrationMiddleware,
+  conditionMiddlewareForSectionQuery,
   sectionFiltrationMiddleware,
   (req, res, next) => {
     try {
@@ -9701,14 +10024,16 @@ router.get(
             message: "Sections get successfully",
 
             flagForTogglingFilter: "based-on-section",
-            selectedValue: req.section?.[0]?._id,
+            selectedValue: req.section?._id,
 
-            selectedSection: req.section?.[0]?._id,
+            selectedSection: req.section?._id,
             sections: req.sections,
             selectedSubSection: "",
             subSections: [],
             selectedCell: "",
             cells: [],
+            selectedLine: "",
+            lines: [],
           });
         }
 
@@ -9742,7 +10067,7 @@ router.get(
 );
 
 router.get(
-  "/getFiltrationValue/sectionBased/:id",
+  "/getFiltrationValue/all-filtration/sectionBased/:id",
   (req, res, next) => {
     try {
       req.sectionQuery = {
@@ -9769,7 +10094,7 @@ router.get(
 );
 
 router.get(
-  "/getFiltrationValue/subSectionBased/:id",
+  "/getFiltrationValue/all-filtration/subSectionBased/:id",
   async (req, res, next) => {
     try {
       const cells = await Cell.find({
@@ -9786,20 +10111,281 @@ router.get(
   }
 );
 
-router.get("/getFiltrationValue/cellBased/:id", async (req, res, next) => {
-  try {
-    const lines = await Line.find({
-      cell_names: mongoose.Types.ObjectId(req.params?.id),
-    });
+router.get(
+  "/getFiltrationValue/all-filtration/cellBased/:id",
+  async (req, res, next) => {
+    try {
+      const lines = await Line.find({
+        cell_names: mongoose.Types.ObjectId(req.params?.id),
+      });
 
-    return res.status(201).json({
-      message: "Line dropdown value get successfully",
-      lines,
-    });
+      return res.status(201).json({
+        message: "Line dropdown value get successfully",
+        lines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+// -------------------------------------------------------------------------------
+//        Filter API based on logged user (Cell/Line filtration Options)
+// -------------------------------------------------------------------------------
+
+const cellFilterMiddleware = async (req, res, next) => {
+  try {
+    const cells = await Cell.find(req.cellQuery);
+
+    req.cellID = cells?.[0]?._id;
+    req.cells = cells;
+
+    return next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
-});
+};
+
+const lineFiltrationMiddleware = async (req, res, next) => {
+  try {
+    const lines = await Line.find({
+      cell_names: mongoose.Types.ObjectId(req.cellID),
+    });
+
+    req.lines = lines;
+    return next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+router.get(
+  "/getFiltrationValue/cell-level-filtration/byDefault",
+  plantFiltrationMiddleware,
+  conditionMiddlewareForSectionQuery,
+  sectionFiltrationMiddleware,
+  (req, res, next) => {
+    try {
+      let subSectionQuery = {
+        section_names: req.section?._id,
+      };
+      if (
+        req.section.dashboardLevel === "No" &&
+        req.rootUser?.tm_grade !== "HOD"
+      ) {
+        subSectionQuery = {
+          subSection_id: {
+            $in: req.rootUser?.subSection_data?.map(
+              (item) => item?.split("-")?.[0]
+            ),
+          },
+        };
+      }
+      req.subSectionQuery = subSectionQuery;
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  subSectionFiltrationMiddleware,
+  cellFilterMiddleware,
+  lineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.rootUser?.tm_grade === "HOD") {
+        if (req.section.dashboardLevel === "No") {
+          return res.status(201).json({
+            message: "Data get successfully",
+
+            flagForTogglingFilter: "based-on-cell",
+            selectedValue: req.cellID,
+
+            selectedSection: req.section?._id,
+            sections: req.sections,
+            selectedSubSection: req.subSection?._id,
+            subSections: req.subSections,
+            selectedCell: req.cellID,
+            cells: req.cells,
+            selectedLine: "",
+            lines: req.lines,
+          });
+        }
+
+        return res.status(201).json({
+          message: "Data get successfully",
+
+          flagForTogglingFilter: "based-on-cell",
+          selectedValue: req.cellID,
+
+          selectedSection: req.section?._id,
+          sections: req.sections,
+          selectedSubSection: "",
+          subSections: [],
+          selectedCell: req.cellID,
+          cells: req.cells,
+          selectedLine: "",
+          lines: req.lines,
+        });
+      }
+
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "Data get successfully",
+
+          flagForTogglingFilter: "based-on-cell",
+          selectedValue: req.cellID,
+
+          selectedSection: "",
+          sections: [],
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: req.cellID,
+          cells: req.cells,
+          selectedLine: "",
+          lines: req.lines,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Data get successfully",
+
+        flagForTogglingFilter: "based-on-cell",
+        selectedValue: req.cellID,
+
+        selectedSection: "",
+        sections: [],
+        selectedSubSection: "",
+        subSections: [],
+        selectedCell: req.cellID,
+        cells: req.cells,
+        selectedLine: "",
+        lines: req.lines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/cell-level-filtration/sectionBased/:id",
+  (req, res, next) => {
+    try {
+      req.sectionQuery = {
+        _id: mongoose.Types.ObjectId(req.params?.id),
+      };
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  sectionFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      req.subSectionQuery = {
+        section_names: req.section?._id,
+      };
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  subSectionFiltrationMiddleware,
+  cellFilterMiddleware,
+  lineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "Data get successfully",
+
+          flagForTogglingFilter: "based-on-cell",
+          selectedValue: req.cellID,
+
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: req.cellID,
+          cells: req.cells,
+          selectedLine: "",
+          lines: req.lines,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Data get successfully",
+
+        flagForTogglingFilter: "based-on-cell",
+        selectedValue: req.cellID,
+
+        selectedSubSection: "",
+        subSections: [],
+        selectedCell: req.cellID,
+        cells: req.cells,
+        selectedLine: "",
+        lines: req.lines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/cell-level-filtration/subSectionBased/:id",
+  async (req, res, next) => {
+    try {
+      req.cellQuery = {
+        subSection_names: mongoose.Types.ObjectId(req.params?.id),
+      };
+      return next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  cellFilterMiddleware,
+  lineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      return res.status(201).json({
+        message: "Data get successfully",
+
+        flagForTogglingFilter: "based-on-cell",
+        selectedValue: req.cellID,
+
+        selectedCell: req.cellID,
+        cells: req.cells,
+        selectedLine: "",
+        lines: req.lines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/cell-level-filtration/cellBased/:id",
+  async (req, res, next) => {
+    try {
+      req.cellID = mongoose.Types.ObjectId(req.params?.id);
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  lineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      return res.status(201).json({
+        message: "Line dropdown value get successfully",
+        lines: req.lines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
 
 router.get("/dummyAPI", async (req, res, next) => {
   try {

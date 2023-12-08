@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Chart as ChartJS,
@@ -12,7 +12,12 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-const RequestSheetMonitoringBarChart = ({ allStatusCounterForGraph }) => {
+const RequestSheetMonitoringBarChart = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  selectedMonth,
+}) => {
   ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -22,6 +27,43 @@ const RequestSheetMonitoringBarChart = ({ allStatusCounterForGraph }) => {
     Legend,
     Colors
   );
+
+  const [allStatusCounterForGraph, setAllStatusCounterForGraph] = useState([
+    {
+      label: "",
+      data: [],
+    },
+  ]);
+
+  const getRequestSheetMonitoringData = async () => {
+    try {
+      const res = await fetch(
+        `/getRequestSheetMonitoringData/status-chart-data/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, allStatusCounterForGraph } = await res.json();
+
+      if (res?.status === 201) {
+        setAllStatusCounterForGraph(allStatusCounterForGraph);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedValue) {
+      getRequestSheetMonitoringData();
+    }
+  }, [selectedValue, flagForTogglingFilter, selectedYear, selectedMonth]);
 
   const options = {
     maintainAspectRatio: false,

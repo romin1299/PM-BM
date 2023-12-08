@@ -9,18 +9,34 @@ const FilterFormComponent = ({
   FilterArray,
   purpose,
   title,
+  selectedValue,
+  selectedYear,
+  selectedMonth,
 }) => {
   const {
     register,
     handleSubmit,
+    reset,
     // formState: { errors },
   } = useForm({});
 
+  useEffect(() => {
+    reset();
+  }, [selectedValue, selectedYear, selectedMonth]);
+
   const handleSubmitHourFilter = (data) => {
-    getBDhoursVsCountReportData({
-      purpose,
-      data,
-    });
+
+    if (data?.hoursFilter?.length > 0 || data?.graterThenHoursFilter) {
+      getBDhoursVsCountReportData({
+        purpose,
+        data,
+      });
+    } else {
+      getBDhoursVsCountReportData({
+        purpose: "by-default",
+        data: {},
+      });
+    }
   };
 
   return (
@@ -68,7 +84,12 @@ const FilterFormComponent = ({
     </>
   );
 };
-const FilterComponent = ({ getBDhoursVsCountReportData }) => {
+const FilterComponent = ({
+  getBDhoursVsCountReportData,
+  selectedValue,
+  selectedYear,
+  selectedMonth,
+}) => {
   const [handleAddOptionsModal, setHandleAddOptionsModal] = useState(false);
   const [FilterArray, setFilterArray] = useState({
     lessThanValue: [],
@@ -122,6 +143,9 @@ const FilterComponent = ({ getBDhoursVsCountReportData }) => {
               title="Filter"
               getBDhoursVsCountReportData={getBDhoursVsCountReportData}
               FilterArray={FilterArray}
+              selectedValue={selectedValue}
+              selectedYear={selectedYear}
+              selectedMonth={selectedMonth}
             />
 
             <FilterFormComponent
@@ -129,6 +153,9 @@ const FilterComponent = ({ getBDhoursVsCountReportData }) => {
               title="Count"
               getBDhoursVsCountReportData={getBDhoursVsCountReportData}
               FilterArray={FilterArray}
+              selectedValue={selectedValue}
+              selectedYear={selectedYear}
+              selectedMonth={selectedMonth}
             />
           </>
         )}

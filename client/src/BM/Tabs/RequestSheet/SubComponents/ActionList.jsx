@@ -75,7 +75,7 @@ const ActionList = ({ actions, setActions }) => {
           lg={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <b>ACTIONS</b>
+          <b>UPDATE</b>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
         </Col>
       </Row>

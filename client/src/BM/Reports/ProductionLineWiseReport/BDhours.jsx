@@ -3,7 +3,7 @@ import { Box, Divider, Typography } from "@mui/material";
 import { Container, Row, Col } from "reactstrap";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
 
-const BDhours = ({ selectedValue, flagForCellAndLineToggle }) => {
+const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   const initialState = {
     BDHours: {
       labels: [],
@@ -41,8 +41,8 @@ const BDhours = ({ selectedValue, flagForCellAndLineToggle }) => {
   const getBDHours = async () => {
     try {
       const res = await fetch(
-        `/getBDHoursGraphData/by-default/${flagForCellAndLineToggle}/632c41261d1becfedab325f9/?selectedYear=2023-2024`,
-        // `/getBDHoursGraphData/${flagForCellAndLineToggle}/${selectedValue}/?selectedYear=2023-2024`,
+        // `/getBDHoursGraphData/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}`,
+        `/getBDHoursGraphData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -71,7 +71,7 @@ const BDhours = ({ selectedValue, flagForCellAndLineToggle }) => {
     if (selectedValue) {
       getBDHours();
     }
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear]);
 
   return (
     <Box className="cell p-3">

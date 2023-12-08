@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import ManHourTrend from "./ManHourTrend";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import LineTrend from "./LineTrend";
 import TMLoad from "./TMLoad";
 import ChartToPPTExample from "./ChartJsExample";
@@ -319,7 +319,7 @@ const ManHourDashboard = () => {
   // }, []);
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
-
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   return (
     <Container fluid>
       <Box className="cell p-3 mt-3">
@@ -331,8 +331,10 @@ const ManHourDashboard = () => {
           </Col>
 
           <ChartsToolbar
+            baseUrlForFiltering={baseUrlForFiltering}
             reduceState={reduceState}
             reducerDispatch={reducerDispatch}
+            monthFiltration
           />
         </Row>
 

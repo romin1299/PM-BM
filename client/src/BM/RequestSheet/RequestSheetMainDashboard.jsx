@@ -12,6 +12,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 import RoutingContext from "../../context/routing/RoutingContext";
 
@@ -231,11 +232,13 @@ const RequestSheetMainDashboard = () => {
       title: "Problem",
       field: "problem",
       editable: false,
+      width: "20%",
     },
     {
       title: "Date-time",
       field: "problemOccurredDateAndTimeOfBM",
       editable: false,
+      width: "10%",
     },
     {
       title: "R.S Status",
@@ -278,6 +281,7 @@ const RequestSheetMainDashboard = () => {
       title: "Final Action",
       field: "finalActivity",
       editable: conditionalBasedEditableFunctionForMTD,
+      width: "20%",
     },
     // {
     //   title: "MTD Quality Check",
@@ -320,6 +324,7 @@ const RequestSheetMainDashboard = () => {
           />
         </LocalizationProvider>
       ),
+      width: "10%",
     },
     // {
     //   title: "PRD Quality Check",
@@ -362,7 +367,7 @@ const RequestSheetMainDashboard = () => {
     //   // ),
     // },
     {
-      title: "Work Order Status",
+      title: "W.O. Status",
       field: "work_order_status",
       editable: conditionalBasedEditableFunctionForMTD,
       editComponent: ({ value, onChange }) => (
@@ -407,9 +412,12 @@ const RequestSheetMainDashboard = () => {
           ? false
           : true,
       onClick: (event, selectedRow) => {
-        console.log("----------", selectedRow);
         navigate(
-          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`,{
+            state: {
+              supportingTM: reduceState?.TLHOSS_and_TM_user_list,
+            },
+          }
         );
       },
     }),
@@ -420,13 +428,13 @@ const RequestSheetMainDashboard = () => {
       <Container fluid>
         <Row>
           <Col>
-            <h1>RequestSheetMainDashboard</h1>
+            <h4>Request-Sheet Work Order</h4>
           </Col>
         </Row>
         {/* <Row>
           <NewRequestSheetRegistration />
         </Row> */}
-        <Row className="d-flex align-items-center justify-content-center">
+        <Row className="d-flex align-items-center justify-content-center p-2">
           <Col className="d-flex align-items-center justify-content-center">
             <button
               onClick={handleGenerateBMNavigation}
@@ -437,7 +445,8 @@ const RequestSheetMainDashboard = () => {
               }
               style={{ marginTop: "1rem" }}
             >
-              Generate BM
+              <AddCircleIcon/> &nbsp;
+              Generate New Request-Sheet
             </button>
           </Col>
 
@@ -452,7 +461,7 @@ const RequestSheetMainDashboard = () => {
           </Col>
         </Row>
 
-        <Row>
+        <Row className="p-1">
           <MaterialTable
             localization={{
               header: {

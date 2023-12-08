@@ -1,12 +1,19 @@
-import React from 'react'
-import { Container, Row, Col } from 'react-bootstrap'
-import PlantLineContribution from "./PlantLineContribution"
-import SectionLineContribution from "./SectionLineContribution"
+import React, { useReducer, useState } from "react";
+import { Container, Row, Col } from "react-bootstrap";
+import PlantLineContribution from "./PlantLineContribution";
+import SectionLineContribution from "./SectionLineContribution";
 import { Box, Paper, Typography } from "@mui/material";
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
+import YearMonthDropdown from "./YearMonthDropdown";
 
+import {
+  initialState,
+  reducer,
+} from "../ManHourReport/SubComponents/CommonFiltrationComponent";
 
 const LineContributionMain = () => {
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+
   return (
     <Container fluid>
       <Box className="cell p-3 mt-3">
@@ -17,21 +24,27 @@ const LineContributionMain = () => {
             </Typography>
           </Col>
 
-          <ChartsToolbar />
+          <Col className="col-auto">
+            <YearMonthDropdown
+              {...reduceState}
+              reducerDispatch={reducerDispatch}
+            />
+          </Col>
         </Row>
 
         <Row className="mt-3">
-          <Col lg={12} md={12} sm={12}>
-            <PlantLineContribution />
+          <Col lg={12}>
+            <PlantLineContribution {...reduceState} />
           </Col>
 
-          <Col lg={12} md={12} sm={12}>
-            <SectionLineContribution />
+          <Col lg={12}>
+            <SectionLineContribution
+              reduceState={reduceState}
+              reducerDispatch={reducerDispatch}
+            />
           </Col>
-
         </Row>
       </Box>
-
     </Container>
     // <Container fluid>
     //     <Box className="cell p-3 mt-3">
@@ -56,7 +69,7 @@ const LineContributionMain = () => {
     //     </Box>
 
     // </Container>
-  )
-}
+  );
+};
 
-export default LineContributionMain
+export default LineContributionMain;

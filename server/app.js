@@ -38,13 +38,18 @@ require(path.join(__dirname, "./controller/financialYearController"));
 // require(path.join(__dirname, './controller/everyDayAutoBackup'));
 
 //for logos and other image
-app.use(express.static(path.join(__dirname, "images")));
+app.use("/bm",express.static(path.join(__dirname, "images")));
 // build folder path
 app.use(express.static(path.join(__dirname, "build")));
 //for PM images
 app.use(express.static(path.join(__dirname, "PMimages")));
 //for PM data-sheets
 app.use(express.static(path.join(__dirname, "data_sheets")));
+
+//for BM data-sheets
+app.use(express.static(path.join(__dirname, "DataSheetOfBD")));
+//for BM drawings
+app.use(express.static(path.join(__dirname, "DrawingsOfBD")));
 
 // index file path
 app.get("/*", (req, res) => {

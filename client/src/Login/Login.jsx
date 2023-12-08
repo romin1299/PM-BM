@@ -1,9 +1,9 @@
 import { React, useState } from "../modules/LoginModules";
 import "./Login.scss";
 import Footer from "../components/Footer/Footer";
-import LoginComponent from "./LoginSubComponent/LoginComponent";
 import { useEffect } from "react";
 import TabletLogin from "./LoginSubComponent/TabletLogin";
+import LoginCard from "./LoginSubComponent/LoginCard";
 
 function getWindowWidth() {
   const { innerWidth } = window;
@@ -29,11 +29,19 @@ export const LoginPage = () => {
     <>
       <main className="mains">
         {/* {windowWidth} */}
-        {windowWidth <= 820 ? <TabletLogin /> : <LoginComponent />}
+        <div className="containers">
+          <div
+            className="wrappers"
+            style={{ maxWidth: "350px", padding: "20px" }}
+          >
+            {windowWidth <= 820 ? (
+              <TabletLogin />
+            ) : (
+              <LoginCard windowWidth={windowWidth} />
+            )}
+          </div>
+        </div>
       </main>
-      <br />
-      <br />
-      <br />
 
       <Footer />
     </>

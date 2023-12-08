@@ -64,7 +64,6 @@ function MyTable() {
       if (res.status === 404) {
         console.log("error", data?.message);
       } else {
-        console.log(data?.requestSheetData);
         setRequestSheetDataOfBM(data?.requestSheetData?.[0])
       }
     } catch (error) {
