@@ -12,6 +12,7 @@ import {
   initialState,
   reducer,
 } from "../ManHourReport/SubComponents/CommonFiltrationComponent";
+import ReportTitleBar from "../Common/ReportTitleBar";
 
 const MTBFReportDashboard = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -19,30 +20,28 @@ const MTBFReportDashboard = () => {
 
   return (
     <Container fluid>
-      <Box className="cell p-3 mt-3">
-        <Row>
-          <Col className="d-flex align-items-center">
-            <Typography variant="h4" component="h4">
-              MTBF Report
-            </Typography>
-          </Col>
+      <Box>
+        <ReportTitleBar
+          title="MTBF Report"
+          Toolbar={
+            <ChartsToolbar
+              baseUrlForFiltering={baseUrlForFiltering}
+              reduceState={reduceState}
+              reducerDispatch={reducerDispatch}
+              monthFiltration
+            />
+          }
+        />
 
-          <ChartsToolbar
-            baseUrlForFiltering={baseUrlForFiltering}
-            reduceState={reduceState}
-            reducerDispatch={reducerDispatch}
-            monthFiltration
-          />
-        </Row>
-        <Row>
-          <Col>
+        <Row className="mt-3 gx-3">
+          <Col md={12} lg={6}>
             <MTBFTrend
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
             />
           </Col>
-          <Col>
+          <Col md={12} lg={6}>
             <MTBFLineTrend
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
@@ -51,7 +50,8 @@ const MTBFReportDashboard = () => {
             />
           </Col>
         </Row>
-        <Row>
+
+        <Row className="mt-3">
           <Col>
             <MTBFMachineTrend
               selectedValue={reduceState?.selectedValue}

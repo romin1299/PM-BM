@@ -17,6 +17,7 @@ import { Row, Col } from "react-bootstrap";
 import axios from "axios";
 import SectionCellSelectionDropdown from "./SectionCellSelectionDropdown";
 import DataNotFound from "../Common/DataNotFound";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 ChartJS.register(
   CategoryScale,
@@ -158,22 +159,8 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
   };
 
   return (
-    <Box className="cell p-3 mb-5">
-      <Row style={{ marginBottom: "0.25rem" }}>
-        <Typography className="col" variant="h5" component="h5">
-          Section Contribution
-        </Typography>
-
-        {/* <Col className="col-auto d-flex">
-          <SectionCellSelectionDropdown
-            {...reduceState}
-            reducerDispatch={reducerDispatch}
-          />
-          <FilterMenu DropdownValue="hour" />
-        </Col> */}
-      </Row>
-
-      <Divider sx={{ mb: 1, borderColor: "black" }} />
+    <Box className="cell p-3">
+      <ChartTitleBar title="Section Contribution" Toolbar={null} />
 
       <Row>
         <SectionCellSelectionDropdown

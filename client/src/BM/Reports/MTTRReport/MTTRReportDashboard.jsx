@@ -11,6 +11,7 @@ import {
   initialState,
   reducer,
 } from "../ManHourReport/SubComponents/CommonFiltrationComponent";
+import ReportTitleBar from "../Common/ReportTitleBar";
 
 const MTTRReportDashboard = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -18,30 +19,28 @@ const MTTRReportDashboard = () => {
 
   return (
     <Container fluid>
-      <Box className="cell p-3 mt-3">
-        <Row>
-          <Col className="d-flex align-items-center">
-            <Typography variant="h4" component="h4">
-              MTTR Report
-            </Typography>
-          </Col>
+      <Box>
+        <ReportTitleBar
+          title="MTTR Report"
+          Toolbar={
+            <ChartsToolbar
+              baseUrlForFiltering={baseUrlForFiltering}
+              reduceState={reduceState}
+              reducerDispatch={reducerDispatch}
+              monthFiltration
+            />
+          }
+        />
 
-          <ChartsToolbar
-            baseUrlForFiltering={baseUrlForFiltering}
-            reduceState={reduceState}
-            reducerDispatch={reducerDispatch}
-            monthFiltration
-          />
-        </Row>
-        <Row>
-          <Col>
+        <Row className="mt-3 gx-3">
+          <Col md={12} lg={6}>
             <MTTRTrend
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
             />
           </Col>
-          <Col>
+          <Col md={12} lg={6}>
             <LineTrend
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
@@ -50,7 +49,8 @@ const MTTRReportDashboard = () => {
             />
           </Col>
         </Row>
-        <Row>
+
+        <Row className="mt-3">
           <Col>
             <MachineTrend
               selectedValue={reduceState?.selectedValue}

@@ -110,9 +110,9 @@ export const reducer = (state, action) => {
         isLoading: false,
         message: action?.message,
         
-        selectedCell: action?.selectedCell,
+        selectedCell: action?.selectedCell || "",
         cells: action?.cells,
-        selectedLine: action?.selectedLine,
+        selectedLine: action?.selectedLine || "",
         lines: action?.lines,
       };
 

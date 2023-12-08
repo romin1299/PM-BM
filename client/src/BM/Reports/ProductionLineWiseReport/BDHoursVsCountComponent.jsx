@@ -7,6 +7,9 @@ import FilterComponent from "./FilterComponent";
 import { Box, Divider, Typography } from "@mui/material";
 
 import { MonthDropdown } from "../ManHourReport/SubComponents/LineSelectionDropdown";
+import { FilterMenu } from "../MTTRReport/SubComponents/FilterMenu";
+import { DynamicFiltersMenu } from "./DynamicFiltersMenu";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 const BDHoursVsCountComponent = ({
   selectedValue,
@@ -133,15 +136,22 @@ const BDHoursVsCountComponent = ({
 
   return (
     <Box className="cell p-3">
-      <Typography className="col" variant="h5" component="h5">
-        BD Hours Vs Count
-      </Typography>
-
-      <Divider sx={{ mb: 2, borderColor: "black" }} />
-
-      <MonthDropdown
-        selectedMonth={selectedMonth}
-        setSelectedMonth={setSelectedMonth}
+      <ChartTitleBar
+        title="BD Hours Vs Count"
+        Toolbar={
+          <Col className="col-auto d-flex gap-2">
+            <DynamicFiltersMenu
+              getBDhoursVsCountReportData={getBDhoursVsCountReportData}
+              selectedValue={selectedValue}
+              selectedYear={selectedYear}
+              selectedMonth={selectedMonth}
+            />
+            <MonthDropdown
+              selectedMonth={selectedMonth}
+              setSelectedMonth={setSelectedMonth}
+            />
+          </Col>
+        }
       />
 
       <FilterComponent

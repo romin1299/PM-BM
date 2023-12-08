@@ -10,9 +10,10 @@ import {
   Legend,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { Box, Typography } from "@mui/material";
+import { Box, Divider, Paper, Typography } from "@mui/material";
 import { Row } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
+import ChartTitleBar from "./ChartTitleBar";
 
 const LineBarChart = ({ title, label, xAxisTitle, dataset }) => {
   ChartJS.register(
@@ -66,6 +67,9 @@ const LineBarChart = ({ title, label, xAxisTitle, dataset }) => {
   // };
 
   const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    maxBarThickness: 100,
     plugins: {
       // annotation: {
       //   annotations: {
@@ -89,7 +93,6 @@ const LineBarChart = ({ title, label, xAxisTitle, dataset }) => {
         display: false,
       },
     },
-    responsive: true,
     scales: {
       x: {
         stacked: true,
@@ -143,20 +146,15 @@ const LineBarChart = ({ title, label, xAxisTitle, dataset }) => {
 
   return (
     <Box className="cell p-3">
-      <Row style={{ marginBottom: "1rem" }}>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-          sx={{ fontWeight: "500" }}
-        >
-          {title}
-        </Typography>
-      </Row>
+      <ChartTitleBar title={title} />
 
-      <div style={{ width: "100%", height: "300px" }}>
+      {/* <div style={{ width: "100%", height: "300px" }}>
         <Chart data={data} options={options} />
-      </div>
+      </div> */}
+
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        <Chart data={data} options={options} />
+      </Box>
     </Box>
   );
 };

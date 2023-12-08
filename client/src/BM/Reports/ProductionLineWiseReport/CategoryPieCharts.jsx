@@ -5,6 +5,7 @@ import { Col, Container, Row } from "react-bootstrap";
 import { Box, Divider, Typography } from "@mui/material";
 import axios from "axios";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
+import DataNotFound from "../Common/DataNotFound";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -50,15 +51,15 @@ const CategoryPieCharts = ({
     };
 
     const fetchChartData = async () => {
+      const url = `/get${category}CategoryPieChart/${flagForTogglingFilter}/${selectedValue}`;
+      const params = { selectedYear, selectedMonth };
+
       try {
-        const res = await axios.get(
-          // `/get${category}CategoryPieChart/${flagForTogglingFilter}/6322e5b1fdb4a3119153b9d9`,
-          `/get${category}CategoryPieChart/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
-          {
-            withCredentials: true,
-            credentials: "include",
-          }
-        );
+        const res = await axios.get(url, {
+          params,
+          withCredentials: true,
+          credentials: "include",
+        });
 
         let resData;
         if (category === "Bd") {
@@ -87,15 +88,29 @@ const CategoryPieCharts = ({
       ],
     };
 
+    // React.useEffect(() => {
+    //   console.log("plant data:", data);
+    // }, [data]);
+
     return (
       <Box className="cell p-3">
+        {/* <ChartTitleBar title="BD Hours Vs Count" /> */}
         <Typography variant="body1" style={{ fontSize: "1rem" }}>
           Problem Category
         </Typography>
 
         <Divider sx={{ mt: 1, mb: 2, borderColor: "gray" }} />
 
-        <Chart type="pie" data={chartData} options={options} />
+        <Box
+          className="ratio ratio-1x1"
+          // sx={{ height: { xs: "300px", md: "350px" } }}
+        >
+          {data === undefined ? (
+            <DataNotFound />
+          ) : (
+            <Chart type="pie" data={chartData} options={options} />
+          )}
+        </Box>
       </Box>
     );
   };
