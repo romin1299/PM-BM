@@ -1,8 +1,8 @@
 import React, { useEffect, useReducer } from "react";
-
-import { Container, Row, Col } from "reactstrap";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
-import { Box, Divider, Typography } from "@mui/material";
+import SmallChartCardComponent from "./SmallChartCardComponent";
+
+
 
 const BDPercentageChart = ({
   selectedValue,
@@ -79,17 +79,11 @@ const BDPercentageChart = ({
   }, [selectedValue, selectedYear]);
 
   return (
-    <Box className="cell p-3">
-      <Row>
-        <Typography className="col" variant="h6" component="h6">
-          BD %
-        </Typography>
-      </Row>
-      <Divider sx={{ mb: 1, borderColor: "black" }} />
+    <SmallChartCardComponent title="BD %">
       <LineBarChartForProductionLineWise
         ReportData={reduceState?.BDPercentageReportData}
       />
-    </Box>
+    </SmallChartCardComponent>
   );
 };
 

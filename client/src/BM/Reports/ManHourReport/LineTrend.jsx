@@ -15,6 +15,7 @@ import {
   Legend,
   PointElement,
 } from "chart.js";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 ChartJS.register(
   CategoryScale,
@@ -98,7 +99,12 @@ const machineNames = [
   "AWQ4",
 ];
 
-const LineTrend = ({ selectedValue, flagForTogglingFilter,selectedYear,selectedMonth }) => {
+const LineTrend = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  selectedMonth,
+}) => {
   const [labels, setLabels] = useState([]);
 
   const [lineTrendData, setLineTrendData] = useState({
@@ -137,7 +143,7 @@ const LineTrend = ({ selectedValue, flagForTogglingFilter,selectedYear,selectedM
     if (selectedValue && flagForTogglingFilter !== "based-on-line") {
       getLineTrendData();
     }
-  }, [selectedValue,selectedYear,selectedMonth]);
+  }, [selectedValue, selectedYear, selectedMonth]);
 
   const data = {
     labels: lineTrendData?.lines,
@@ -199,17 +205,8 @@ const LineTrend = ({ selectedValue, flagForTogglingFilter,selectedYear,selectedM
 
   return (
     <Box className="cell p-3">
-      <Row style={{ marginBottom: "1rem" }}>
-        <Typography className="col" variant="h5" component="h5">
-          Line Trend
-        </Typography>
+      <ChartTitleBar title="Line Trend" />
 
-        <Col className="col-auto d-flex">
-          <FilterMenu DropdownValue="hour" />
-          {/* <button onClick={dummyAPI}>dummy</button> */}
-        </Col>
-      </Row>
-      <Divider sx={{ mb: 4, borderColor: "black" }} />
       <Chart options={options} data={data} />
     </Box>
     // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>

@@ -10,12 +10,11 @@ import {
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
 import { Box, Divider, Paper, Typography } from "@mui/material";
-import { Row, Container } from "react-bootstrap";
-import {
-  MONTH_LABELS,
-  chartColors,
-} from "../../Utils/ChartUtils/chartEnums";
+import { Row, Container, Col } from "react-bootstrap";
+import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import ChartTitleBar from "../Common/ChartTitleBar";
+import { FilterMenu } from "../ManHourReport/SubComponents/FilterMenu";
 
 ChartJS.register(
   CategoryScale,
@@ -73,7 +72,7 @@ export const options = {
         text: "Months",
       },
       ticks: {
-        color: 'black',
+        color: "black",
         maxRotation: 90,
         minRotation: 90,
       },
@@ -82,10 +81,9 @@ export const options = {
       stacked: true,
       position: "left",
       ticks: {
-        color: 'black',
+        color: "black",
       },
     },
-    
   },
 };
 
@@ -102,8 +100,8 @@ const dataset = [
     data: getRandomDataArray(30),
     borderColor: chartColors.magenta[1],
     borderWidth: 2,
-    backgroundColor: 'chartColors.magenta[1]',
-    pointStyle: 'rectRot',
+    backgroundColor: "chartColors.magenta[1]",
+    pointStyle: "rectRot",
     yAxisID: "y",
   },
 ];
@@ -113,7 +111,16 @@ export const data = {
   datasets: dataset.map((dataset, i) => ({
     ...dataset,
     // backgroundColor: chartColors[i - 1],
-    backgroundColor: i === 0 ? chartColors.magenta[1] : dataset.label === "< 60" ? chartColors.blue[3] : dataset.label === "< 120" ? chartColors.green[3] : dataset.label === "> 120" ? chartColors.orange[2] : chartColors[i - 1],
+    backgroundColor:
+      i === 0
+        ? chartColors.magenta[1]
+        : dataset.label === "< 60"
+        ? chartColors.blue[3]
+        : dataset.label === "< 120"
+        ? chartColors.green[3]
+        : dataset.label === "> 120"
+        ? chartColors.orange[2]
+        : chartColors[i - 1],
   })),
 };
 
@@ -143,23 +150,19 @@ const TMProgress = () => {
 
   return (
     <Box className="cell p-3">
-      <Row style={{ marginBottom: "1rem" }}>
-          <Typography
-            className="col"
-            variant="h5"
-            component="h5"
-            sx={{ fontWeight: "500" }}
-          >
-            TM Progress
-          </Typography>
-        </Row>
-        <Divider sx={{ mb: 4, borderColor: "black" }} />
-        <div style={{ width: "100%", height: "300px" }}>
-          <Chart data={data} options={options} />
-        </div>
-      </Box>
-    
+      <ChartTitleBar
+        title="TM Load"
+        Toolbar={
+          <Col className="col-auto d-flex">
+            <FilterMenu DropdownValue="hour" />
+          </Col>
+        }
+      />
 
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        <Chart data={data} options={options} />
+      </Box>
+    </Box>
   );
 };
 

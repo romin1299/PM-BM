@@ -17,6 +17,7 @@ import { Row, Col } from "react-bootstrap";
 import { FilterMenu } from "../ManHourReport/SubComponents/FilterMenu";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 ChartJS.register(
   CategoryScale,
@@ -152,14 +153,8 @@ const PlantLineCondribution = ({ selectedYear, selectedMonth }) => {
   }, [data]);
 
   return (
-    <Box className="cell p-3 mb-5">
-      <Row style={{ marginBottom: "0.25rem" }}>
-        <Typography className="col" variant="h5" component="h5">
-          Plant Contribution
-        </Typography>
-      </Row>
-
-      <Divider sx={{ mb: 2, borderColor: "black" }} />
+    <Box className="cell p-3">
+      <ChartTitleBar title="Plant Contribution" />
 
       <Box sx={{ height: { xs: "300px", md: "400px" } }}>
         {data === undefined ? (

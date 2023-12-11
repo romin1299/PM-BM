@@ -15,6 +15,7 @@ import { Box, Divider, Typography } from "@mui/material";
 import { chartColors, MONTH_LABELS } from "../../Utils/ChartUtils/chartEnums";
 import { Col, Row } from "react-bootstrap";
 import { FilterMenu } from "./SubComponents/FilterMenu";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 ChartJS.register(
   CategoryScale,
@@ -66,7 +67,11 @@ export const options = {
   },
 };
 
-const ManHourTrend = ({ selectedValue, flagForTogglingFilter,selectedYear }) => {
+const ManHourTrend = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+}) => {
   const [manHourTrendData, setManHourTrendData] = useState({
     BMManHourTrend: [],
     PMManHourTrend: [],
@@ -101,7 +106,7 @@ const ManHourTrend = ({ selectedValue, flagForTogglingFilter,selectedYear }) => 
     if (selectedValue) {
       getManHourTrendData();
     }
-  }, [selectedValue,selectedYear]);
+  }, [selectedValue, selectedYear]);
 
   const data = {
     labels: MONTH_LABELS,
@@ -123,16 +128,8 @@ const ManHourTrend = ({ selectedValue, flagForTogglingFilter,selectedYear }) => 
 
   return (
     <Box className="cell p-3">
-      <Row style={{ marginBottom: "1rem" }}>
-        <Typography className="col" variant="h5" component="h5">
-          Man-Hour Trend
-        </Typography>
+      <ChartTitleBar title="Man-Hour Trend" />
 
-        <Col className="col-auto d-flex">
-          <FilterMenu DropdownValue="hour" />
-        </Col>
-      </Row>
-      <Divider sx={{ mb: 4, borderColor: "black" }} />
       <Bar options={options} data={data} />
     </Box>
   );

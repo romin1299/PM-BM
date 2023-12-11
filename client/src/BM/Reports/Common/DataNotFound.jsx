@@ -15,10 +15,15 @@ const DataNotFound = (props) => {
       }}
       {...restProps}
     >
-      <Typography variant="h5" component="h5">
+      <Typography variant="h5" component="h5" textAlign="center">
         No Data Found
       </Typography>
-      <Typography variant="subtitle2" fontSize={12} gutterBottom>
+      <Typography
+        variant="subtitle2"
+        fontSize={12}
+        gutterBottom
+        textAlign="center"
+      >
         Try resetting filters
       </Typography>
     </Box>

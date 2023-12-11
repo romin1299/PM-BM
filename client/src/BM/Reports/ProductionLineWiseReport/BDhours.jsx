@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer } from "react";
-import { Box, Divider, Typography } from "@mui/material";
-import { Container, Row, Col } from "reactstrap";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
+
+import SmallChartCardComponent from "./SmallChartCardComponent";
 
 const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   const initialState = {
@@ -74,15 +74,9 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   }, [selectedValue, selectedYear]);
 
   return (
-    <Box className="cell p-3">
-      <Row>
-        <Typography className="col" variant="h6" component="h6">
-          BD Hours
-        </Typography>
-      </Row>
-      <Divider sx={{ mb: 1, borderColor: "black" }} />
+    <SmallChartCardComponent title="BD Hours">
       <LineBarChartForProductionLineWise ReportData={reduceState?.BDHours} />
-    </Box>
+    </SmallChartCardComponent>
   );
 };
 

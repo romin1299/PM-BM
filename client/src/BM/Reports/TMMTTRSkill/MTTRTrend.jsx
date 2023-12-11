@@ -15,6 +15,7 @@ import {
   Legend,
   PointElement,
 } from "chart.js";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 ChartJS.register(
   CategoryScale,
@@ -27,6 +28,9 @@ ChartJS.register(
 );
 
 export const options = {
+  responsive: true,
+  maintainAspectRatio: false,
+  maxBarThickness: 100,
   plugins: {
     legend: {
       align: "end",
@@ -38,7 +42,6 @@ export const options = {
       display: false,
     },
   },
-  responsive: true,
   scales: {
     x: {
       stacked: true,
@@ -53,7 +56,7 @@ export const options = {
         maxRotation: 90,
         minRotation: 90,
         // padding: 10,
-        color:'black',
+        color: "black",
       },
     },
     y: {
@@ -63,8 +66,8 @@ export const options = {
         text: "Hours",
       },
       ticks: {
-        color: 'black'
-    },
+        color: "black",
+      },
     },
   },
 };
@@ -87,7 +90,6 @@ const TM_Names = [
 export const data = {
   labels: TM_Names,
   datasets: [
-    
     {
       type: "bar",
       stack: "bar-stacked",
@@ -96,30 +98,26 @@ export const data = {
       backgroundColor: chartColors.brown[0],
       borderColor: chartColors.brown[0],
       borderWidth: 0,
-      pointStyle:'rect',
+      pointStyle: "rect",
     },
-    
   ],
 };
 
 const TMLoad = () => {
   return (
     <Box className="cell p-3">
-      <Row style={{ marginBottom: "1rem" }}>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-        >
-          TM Load
-        </Typography>
+      <ChartTitleBar
+        title="TM Load"
+        Toolbar={
+          <Col className="col-auto d-flex">
+            <FilterMenu DropdownValue="hour" />
+          </Col>
+        }
+      />
 
-        <Col className="col-auto d-flex">
-          <FilterMenu DropdownValue="hour" />
-        </Col>
-      </Row>
-      <Divider sx={{ mb: 4, borderColor: "black" }} />
-      <Chart options={options} data={data} />
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        <Chart data={data} options={options} />
+      </Box>
     </Box>
   );
 };

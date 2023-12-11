@@ -10,27 +10,23 @@ import {
   initialState,
   reducer,
 } from "../ManHourReport/SubComponents/CommonFiltrationComponent";
+import ReportTitleBar from "../Common/ReportTitleBar";
 
 const LineContributionMain = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   return (
     <Container fluid>
-      <Box className="cell p-3 mt-3">
-        <Row>
-          <Col className="d-flex align-items-center">
-            <Typography variant="h4" component="h4">
-              Line Contribution BD
-            </Typography>
-          </Col>
-
-          <Col className="col-auto">
+      <Box>
+        <ReportTitleBar
+          title="Line Contribution BD"
+          Toolbar={
             <YearMonthDropdown
               {...reduceState}
               reducerDispatch={reducerDispatch}
             />
-          </Col>
-        </Row>
+          }
+        />
 
         <Row className="mt-3">
           <Col lg={12}>

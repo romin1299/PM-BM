@@ -8,7 +8,7 @@ import BDHoursVsCountComponent from "./BDHoursVsCountComponent";
 import MTTRComponent from "./MTTRComponent";
 import MTBFComponent from "./MTBFComponent.jsx";
 import BDhours from "./BDhours";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Paper, Typography } from "@mui/material";
 import BDPercentageChart from "./BDPercentage.jsx";
 import CategoryPieCharts from "./CategoryPieCharts.jsx";
 
@@ -18,6 +18,7 @@ import {
   initialState,
   reducer,
 } from "../ManHourReport/SubComponents/CommonFiltrationComponent";
+import ReportTitleBar from "../Common/ReportTitleBar.jsx";
 
 const ProductionLineWiseReport = () => {
   const {
@@ -173,48 +174,17 @@ const ProductionLineWiseReport = () => {
 
   return (
     <Container fluid>
-      <Box className="cell p-3 mt-3">
-        <Row>
-          <Col className="d-flex align-items-center">
-            <Typography variant="h4" component="h4">
-              Product/Line Wise KPI
-            </Typography>
-          </Col>
-
-          <ChartsToolbar
-            baseUrlForFiltering={baseUrlForFiltering}
-            reduceState={reduceState}
-            reducerDispatch={reducerDispatch}
-          />
-
-          <Col className="col-auto">
-            <form
-              onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedDate)}
-              className="pt-1 d-flex align-items-center justify-content-end"
-            >
-              <Row>
-                <Col>
-                  <input
-                    type="date"
-                    {...register("selectedDate", {
-                      required: "Please select date",
-                    })}
-                  />
-                  {errors?.["selectedDate"] && (
-                    <p className="text-error">
-                      {errors?.["selectedDate"]?.message}
-                    </p>
-                  )}
-                </Col>
-                <Col>
-                  <button type="submit" className="btn bg-button ">
-                    Go
-                  </button>
-                </Col>
-              </Row>
-            </form>
-          </Col>
-        </Row>
+      <Box>
+        <ReportTitleBar
+          title="Product/Line Wise KPI"
+          Toolbar={
+            <ChartsToolbar
+              baseUrlForFiltering={baseUrlForFiltering}
+              reduceState={reduceState}
+              reducerDispatch={reducerDispatch}
+            />
+          }
+        />
 
         <DailyBDTrendChart
           selectedValue={reduceState?.selectedValue}
@@ -223,7 +193,38 @@ const ProductionLineWiseReport = () => {
           selectedMonth={reduceState?.selectedMonth}
         />
 
-        <BDRequestSheetTable requestSheetData={requestSheetData} />
+        <Paper variant="outlined" sx={{ p: 2 }} className="mt-3 g-0">
+          <form
+            onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedDate)}
+            className="pt-1 d-flex align-items-center justify-content-end"
+          >
+            <input
+              type="date"
+              {...register("selectedDate", {
+                required: "Please select date",
+              })}
+            />
+            {errors?.["selectedDate"] && (
+              <p className="text-error">{errors?.["selectedDate"]?.message}</p>
+            )}
+            <Button
+              size="small"
+              disableElevation
+              className="bg-button"
+              variant="contained"
+              type="submit"
+              sx={{
+                minWidth: "30px",
+                height: "30px",
+                paddingInline: "10px",
+              }}
+            >
+              Go
+            </Button>
+          </form>
+
+          <BDRequestSheetTable requestSheetData={requestSheetData} />
+        </Paper>
 
         <Row className="mt-3 g-2">
           <Col lg={3} md={6}>

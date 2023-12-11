@@ -9,13 +9,14 @@ import {
   Legend,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { Box, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 import { Row, Col } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
 import { MonthDropdown } from "../ManHourReport/SubComponents/LineSelectionDropdown";
 import currentMonth from "../../../pages/Dashboard/DashboardComponent/currentMonth";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 ChartJS.register(
   CategoryScale,
@@ -198,25 +199,18 @@ const DailyBDTrendChart = ({
   };
 
   return (
-    <Box className="cell p-3 mt-3">
-      <Row>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-          sx={{ textDecoration: "underline" }}
-        >
-          Daily Breakdown Trend
-        </Typography>
-        {/* <Col className="col-auto d-flex">
-            <FilterMenu DropdownValue="hour" />
-          </Col> */}
-
-        <MonthDropdown
-          selectedMonth={selectedMonth}
-          setSelectedMonth={setSelectedMonth}
-        />
-      </Row>
+    <Box className="cell p-3 mt-3 mb-0">
+      <ChartTitleBar
+        title="Daily Breakdown Trend"
+        Toolbar={
+          <Col className="col-auto">
+            <MonthDropdown
+              selectedMonth={selectedMonth}
+              setSelectedMonth={setSelectedMonth}
+            />
+          </Col>
+        }
+      />
 
       <div style={{ width: "100%", height: "300px" }}>
         <Chart data={data} options={options} />
