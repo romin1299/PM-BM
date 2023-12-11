@@ -5038,6 +5038,10 @@ router.get(
         },
 
         {
+          $sort : {_id  : 1}
+        },
+
+        {
           $group: {
             _id: null,
             labels: { $push: "$_id" },
@@ -5054,7 +5058,7 @@ router.get(
       return res.status(201).json({
         message: "Categories data in PieChart get successfully",
 
-        problemCategoriesPieChart: problemCategoriesPieChart?.[0],
+         problemCategoriesPieChart,
       });
     } catch (error) {
       res.status(500).json({ message: "error?.message, error" });
@@ -5082,6 +5086,10 @@ router.get(
         },
 
         {
+          $sort : {_id  : 1}
+        },
+
+        {
           $group: {
             _id: null,
             labels: { $push: "$_id" },
@@ -5094,11 +5102,12 @@ router.get(
             },
           },
         },
+       
       ]);
 
       return res.status(201).json({
         message: "Categories data in PieChart get successfully",
-        bdCategoryPieChart: bdCategoryPieChart?.[0],
+         bdCategoryPieChart,
       });
     } catch (error) {
       res.status(500).json({ message: "error?.message, error" });
@@ -7440,112 +7449,118 @@ router.get(
                   },
                 },
               },
+
+          //     {$group : {_id : "$_id.cell",
+          //   data : {$push : "$lessThanOne"}
+            
+            
+          //   },
+          // },
+          //     {
+          //       $group: {
+          //         _id: null,
+          //         array: { $push: "$$ROOT" },
+          //       },
+          //     },
       
-              {
-                $group: {
-                  _id: null,
-                  array: { $push: "$$ROOT" },
-                },
-              },
+              // {
+                // $project: {
+                //   _id: 0,
+                //   labels : "$_id.cell",
+                //   // labelsssss : "$_id.date",
+                //   array: {
+                //     $map: {
+                //       input: allMonths,
+                //       as: "month",
+                //       in: {
+                //         $cond: [
+                //           { $in: ["$$month.monthInDecimal", "$array._id.date"] },
+                //           {
+                //             month: "$$month.monthName",
+                //             value: {
+                //               $arrayElemAt: [
+                //                 "$array",
+                //                 {
+                //                   $indexOfArray: [
+                //                     "$array._id.date",
+                //                     "$$month.monthInDecimal",
+                //                   ],
+                //                 },
+                //               ],
+                //             },
+                //           },
+                //           {
+                //             month: "$$month.monthName",
+                //             value: {
+                //               _id: "$$month.monthInDecimal",
+                //               lessThanOne: 0,
+                //               lessThanTwo: 0,
+                //               greaterThanTwo: 0,
+                //             },
+                //           },
+                //         ],
+                //       },
+                //     },
+                //   },
+                // },
+              // },
+              // { $unwind: "$array" },
+              // {
+              //   $replaceRoot: { newRoot: "$array" },
+              // },
       
-              {
-                $project: {
-                  _id: 0,
-                  labels : "$_id.cell",
-                  labelsssss : "$_id.date",
-                  array: {
-                    $map: {
-                      input: allMonths,
-                      as: "month",
-                      in: {
-                        $cond: [
-                          { $in: ["$$month.monthInDecimal", "$array._id.date"] },
-                          {
-                            month: "$$month.monthName",
-                            value: {
-                              $arrayElemAt: [
-                                "$array",
-                                {
-                                  $indexOfArray: [
-                                    "$array._id.date",
-                                    "$$month.monthInDecimal",
-                                  ],
-                                },
-                              ],
-                            },
-                          },
-                          {
-                            month: "$$month.monthName",
-                            value: {
-                              _id: "$$month.monthInDecimal",
-                              lessThanOne: 0,
-                              lessThanTwo: 0,
-                              greaterThanTwo: 0,
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  },
-                },
-              },
-              { $unwind: "$array" },
-              {
-                $replaceRoot: { newRoot: "$array" },
-              },
+              // {
+              //   $group: {
+              //     _id: null,
       
-              {
-                $group: {
-                  _id: null,
+              //     // labels: { $push: "$month" },
+              //     // target: { $push: "$value.target" },
+              //     lessThanOne: {
+              //       $push: "$value.lessThanOne",
+              //     },
+              //     lessThanTwo: {
+              //       $push: "$value.lessThanTwo",
+              //     },
+              //     greaterThanTwo: {
+              //       $push: "$value.greaterThanTwo",
+              //     },
+              //   },
+              // },           
       
-                  // labels: { $push: "$month" },
-                  // target: { $push: "$value.target" },
-                  lessThanOne: {
-                    $push: "$value.lessThanOne",
-                  },
-                  lessThanTwo: {
-                    $push: "$value.lessThanTwo",
-                  },
-                  greaterThanTwo: {
-                    $push: "$value.greaterThanTwo",
-                  },
-                },
-              },
-      
-              {
-                $project: {
-                  _id: 0,
-                  labels : "$_id.cell",
-                  hourlyArray: {
-                    $map: {
-                      input: ["<1", "<2", ">2"],
-                      as: "label",
-                      in: {
-                        label: "$$label",
-                        data: {
-                          $switch: {
-                            branches: [
-                              {
-                                case: { $eq: ["$$label", "<1"] },
-                                then: "$lessThanOne",
-                              },
-                              {
-                                case: { $eq: ["$$label", "<2"] },
-                                then: "$lessThanTwo",
-                              },
-                              {
-                                case: { $eq: ["$$label", ">2"] },
-                                then: "$greaterThanTwo",
-                              },
-                            ],
-                            default: [],
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
+              // {
+              //   $project: {
+              //     _id: 0,
+              //     labels : "$_id.cell",
+              //     hourlyArray: {
+              //       $map: {
+              //         input: ["<1", "<2", ">2"],
+              //         as: "label",
+              //         in: {
+              //           label: "$$label",
+              //           data: {
+              //             $switch: {
+              //               branches: [
+              //                 {
+              //                   case: { $eq: ["$$label", "<1"] },
+              //                   then: "$lessThanOne",
+              //                 },
+              //                 {
+              //                   case: { $eq: ["$$label", "<2"] },
+              //                   then: "$lessThanTwo",
+              //                 },
+              //                 {
+              //                   case: { $eq: ["$$label", ">2"] },
+              //                   then: "$greaterThanTwo",
+              //                 },
+              //               ],
+              //               default: [],
+              //             },
+              //           },
+              //         },
+              //       },
+              //     },
+              //   },
+              // },
             ],
           },
         },
