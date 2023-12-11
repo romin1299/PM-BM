@@ -146,6 +146,14 @@ input[type="number"] {
   }
 }
 
+.bg-dang {
+  background-color: #A30808 !important;
+}
+
+.bg-succ {
+  background-color: #2B6200 !important;
+}
+
 .bg-button {
   background-color: #002d37;
 }
