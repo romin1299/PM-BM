@@ -103,6 +103,10 @@ const userRoutes = [
         path: "/bm/report/mtbf-report",
         element: <MTBFReportDashboard />,
       },
+      {
+        path: "/bm/report/daily-breakdown-trend",
+        element: <DailyBTDashboard />,
+      },
     ],
   },
   {
