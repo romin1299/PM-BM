@@ -92,6 +92,10 @@ const userRoutes = [
         element: <RequestSheetMonitoring />,
       },
       {
+        path: "/bm/report/productionLineWiseReport",
+        element: <ProductionLineWiseReport />,
+      },
+      {
         path: "/bm/report/mttr-report",
         element: <MTTRReportDashboard />,
       },
@@ -198,14 +202,14 @@ const userRoutes = [
         path: "/bm/report/monthly-breakdown-trend",
         element: <MonthlyBDTDashboard />,
       },
-      {
-        path: "/bm/report/mttr-report",
-        element: <MTTRReportDashboard />,
-      },
-      {
-        path: "/bm/report/mtbf-report",
-        element: <MTBFReportDashboard />,
-      },
+      // {
+      //   path: "/bm/report/mttr-report",
+      //   element: <MTTRReportDashboard />,
+      // },
+      // {
+      //   path: "/bm/report/mtbf-report",
+      //   element: <MTBFReportDashboard />,
+      // },
       {
         path: "/bm/report/line-contribution-breakdown-trend",
         element: <LineContributionBD />,
@@ -216,11 +220,11 @@ const userRoutes = [
       },
       {
         path: "/bm/report/mttr",
-        element: <MTTRDashboard />,
+        element: <MTTRReportDashboard />,
       },
       {
         path: "/bm/report/mtbf",
-        element: <MTBFDashboard />,
+        element: <MTBFReportDashboard />,
       },
       { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
       { path: "/bm/approvalLogs", element: <ApprovalLogs /> },

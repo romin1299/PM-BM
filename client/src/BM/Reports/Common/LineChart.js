@@ -10,11 +10,18 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Box, Typography } from "@mui/material";
-import { Row } from "react-bootstrap";
+import { Box, Divider, Typography } from "@mui/material";
+import { Col, Row } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
+import ChartTitleBar from "./ChartTitleBar";
 
-const LineChart = ({ title, dataset, setValue, clearErrors }) => {
+const LineChart = ({
+  title,
+  dataset,
+  setValue,
+  clearErrors,
+  AppendToolComponents,
+}) => {
   ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -25,6 +32,9 @@ const LineChart = ({ title, dataset, setValue, clearErrors }) => {
   );
 
   const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    maxBarThickness: 100,
     plugins: {
       // annotation: {
       //   annotations: {
@@ -49,7 +59,6 @@ const LineChart = ({ title, dataset, setValue, clearErrors }) => {
         display: false,
       },
     },
-    responsive: true,
     scales: {
       x: {
         stacked: true,
@@ -122,21 +131,11 @@ const LineChart = ({ title, dataset, setValue, clearErrors }) => {
 
   return (
     <Box className="cell p-3">
-      <Row style={{ marginBottom: "1rem" }}>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-          sx={{ fontWeight: "500" }}
-        >
-          {title}
-        </Typography>
-      </Row>
+      <ChartTitleBar title={title} Toolbar={AppendToolComponents} />
 
-      <div style={{ width: "100%", height: "300px" }}>
-        {/* <Chart data={data} options={options} /> */}
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
         <Line options={options} data={data} />
-      </div>
+      </Box>
     </Box>
   );
 };

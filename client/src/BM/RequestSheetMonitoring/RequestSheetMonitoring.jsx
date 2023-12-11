@@ -331,6 +331,7 @@ const RequestSheetMonitoring = () => {
             baseUrlForFiltering={baseUrlForFiltering}
             reduceState={reduceState}
             reducerDispatch={reducerDispatch}
+            monthFiltration
           />
         </Row>
         <Row>

@@ -15,6 +15,7 @@ import {
   Legend,
   PointElement,
 } from "chart.js";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 ChartJS.register(
   CategoryScale,
@@ -217,16 +218,8 @@ const TMLoad = ({
 
   return (
     <Box className="cell p-3">
-      <Row style={{ marginBottom: "1rem" }}>
-        <Typography className="col" variant="h5" component="h5">
-          TM Load
-        </Typography>
+      <ChartTitleBar title="Hour Trend" />
 
-        <Col className="col-auto d-flex">
-          <FilterMenu DropdownValue="hour" />
-        </Col>
-      </Row>
-      <Divider sx={{ mb: 4, borderColor: "black" }} />
       <Chart options={options} data={data} />
     </Box>
     // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>

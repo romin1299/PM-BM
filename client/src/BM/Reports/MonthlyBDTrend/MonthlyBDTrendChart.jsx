@@ -123,14 +123,9 @@ const MonthlyBDTrendChart = ({
         withCredentials: true,
         credentials: "include",
       });
+      console.log("Monthly hourly res:", res);
 
-      if (filter === "hourly") {
-        // console.log("Monthly hourly res:", res?.data?.hourlyArray);
-        setData(res.data.hourlyArray);
-      } else {
-        // console.log("Monthly section res:", res?.data?.bdTrendData);
-        setData(res.data.bdTrendData);
-      }
+      setData(res.data?.bdTrendData);
     } catch (error) {
       console.log("error:", error);
     }

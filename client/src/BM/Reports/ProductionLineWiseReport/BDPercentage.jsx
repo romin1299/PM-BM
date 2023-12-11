@@ -1,10 +1,14 @@
 import React, { useEffect, useReducer } from "react";
-
-import { Container, Row, Col } from "reactstrap";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
-import { Box, Divider, Typography } from "@mui/material";
+import SmallChartCardComponent from "./SmallChartCardComponent";
 
-const BDPercentageChart = ({ flagForCellAndLineToggle, selectedValue }) => {
+
+
+const BDPercentageChart = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+}) => {
   const initialState = {
     BDPercentageReportData: {
       labels: [],
@@ -42,7 +46,8 @@ const BDPercentageChart = ({ flagForCellAndLineToggle, selectedValue }) => {
   const getBDPercentageReportData = async () => {
     try {
       const res = await fetch(
-        `/getBdPercentage/${flagForCellAndLineToggle}/632c41261d1becfedab325f9`,
+        // `/getBdPercentage/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}`,
+        `/getBdPercentage/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -71,20 +76,14 @@ const BDPercentageChart = ({ flagForCellAndLineToggle, selectedValue }) => {
     if (selectedValue) {
       getBDPercentageReportData();
     }
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear]);
 
   return (
-    <Box className="cell p-3">
-      <Row>
-        <Typography className="col" variant="h6" component="h6">
-          BD %
-        </Typography>
-      </Row>
-      <Divider sx={{ mb: 1, borderColor: "black" }} />
+    <SmallChartCardComponent title="BD %">
       <LineBarChartForProductionLineWise
         ReportData={reduceState?.BDPercentageReportData}
       />
-    </Box>
+    </SmallChartCardComponent>
   );
 };
 

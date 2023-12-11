@@ -42,7 +42,15 @@ const YearMonthDropdown = ({
   }, []);
 
   return (
-    <Box sx={{ display: "flex", gap: 1 }}>
+    <Box
+      className="col-auto"
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        flexWrap: "wrap",
+      }}
+    >
       <FormControl>
         <Select
           displayEmpty
