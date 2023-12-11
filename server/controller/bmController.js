@@ -7943,13 +7943,16 @@ const middlewareForFindingTrendData = async (req, res, next) => {
       },
       {
         $group: {
-          _id: {
-            $dateToString: {
-              format: "%m",
-              date: "$problemOccurredDateAndTimeOfBM",
-              timezone: timezone,
-            },
-          },
+          // _id: {
+          //   $dateToString: {
+          //     format: "%m",
+          //     date: "$problemOccurredDateAndTimeOfBM",
+          //     timezone: timezone,
+          //   },
+          // },
+
+          _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+
           count: { $sum: 1 },
           hours: {
             $sum: {
@@ -7983,9 +7986,9 @@ const middlewareForFindingTrendData = async (req, res, next) => {
               ],
             },
           },
-          ...req.groupRefKey,
         },
       },
+      ...req.queryPipeline,
       {
         $project: {
           count: 1,
@@ -8008,17 +8011,14 @@ const middlewareForFindingTrendData = async (req, res, next) => {
               as: "month",
               in: {
                 $cond: [
-                  { $in: ["$$month.monthInDecimal", "$array._id"] },
+                  { $in: ["$$month.monthName", "$array._id"] },
                   {
                     month: "$$month.monthName",
                     value: {
                       $arrayElemAt: [
                         "$array",
                         {
-                          $indexOfArray: [
-                            "$array._id",
-                            "$$month.monthInDecimal",
-                          ],
+                          $indexOfArray: ["$array._id", "$$month.monthName"],
                         },
                       ],
                     },
@@ -8026,7 +8026,7 @@ const middlewareForFindingTrendData = async (req, res, next) => {
                   {
                     month: "$$month.monthName",
                     value: {
-                      _id: "$$month.monthInDecimal",
+                      _id: "$$month.monthName",
                       count: 0,
                       hours: 0,
                       target: 0,
@@ -8131,7 +8131,6 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
               ],
             },
           },
-          ...req.groupRefKey,
         },
       },
       {
@@ -8177,78 +8176,82 @@ const middlewareForLimitValidation = async (req, res, next) => {
   }
 };
 const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
-  const TrendData = await RequestSheetOfBM.aggregate([
-    {
-      $match: req.queryObj,
-    },
-    {
-      $lookup: {
-        from: "machinesalldatas",
-        localField: "machineRef",
-        foreignField: "_id",
-        pipeline: [
-          {
-            $project: {
-              machine_code: 1,
+  
+  try {
+    const TrendData = await RequestSheetOfBM.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                machine_code: 1,
+              },
+            },
+          ],
+          as: "machine",
+        },
+      },
+      { $unwind: "$machine" },
+      {
+        $group: {
+          _id: "$machine",
+          count: { $sum: 1 },
+          hours: {
+            $sum: {
+              $cond: [
+                {
+                  $gt: ["$maintenanceReportFilledByMTD.workEndedDateOfBM", null],
+                },
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+                },
+                0,
+              ],
             },
           },
-        ],
-        as: "machine",
-      },
-    },
-    { $unwind: "$machine" },
-    {
-      $group: {
-        _id: "$machine",
-        count: { $sum: 1 },
-        hours: {
-          $sum: {
-            $cond: [
-              {
-                $gt: ["$maintenanceReportFilledByMTD.workEndedDateOfBM", null],
-              },
-              {
-                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              },
-              0,
-            ],
-          },
         },
-        ...req.groupRefKey,
       },
-    },
-    {
-      $project: {
-        hours: req.hourCalculationFormula,
+      {
+        $project: {
+          hours: req.hourCalculationFormula,
+        },
       },
-    },
-    {
-      $sort: {
-        hours: req.sort,
+      {
+        $sort: {
+          hours: req.sort,
+        },
       },
-    },
-    {
-      $limit: req.query?.documentLimitInTheGraph * 1,
-    },
-    {
-      $group: {
-        _id: null,
-        machineId: { $push: "$_id._id" },
-        labels: { $push: "$_id.machine_code" },
-        data: { $push: "$hours" },
+      {
+        $limit: req.query?.documentLimitInTheGraph * 1,
       },
-    },
-  ]);
-
-  req.TrendData = TrendData;
-
-  next();
+      {
+        $group: {
+          _id: null,
+          machineId: { $push: "$_id._id" },
+          labels: { $push: "$_id.machine_code" },
+          data: { $push: "$hours" },
+        },
+      },
+    ]);
+  
+    req.TrendData = TrendData;
+  
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
 };
 
 // filter middleware for all the charts of MTTR Report
 const filterMiddlewareForMTTRReport = async (req, res, next) => {
   try {
-    req.groupRefKey = {};
+    req.queryPipeline = [];
 
     req.hourCalculationFormula = {
       $divide: ["$hours", "$count"],
@@ -8263,14 +8266,17 @@ const filterMiddlewareForMTTRReport = async (req, res, next) => {
 // filter middleware for all the charts of MTBF Report
 const filterMiddlewareForMTBFReport = async (req, res, next) => {
   try {
-    req.groupRefKey = {
-      totalProdHours: { $sum: "$prodTotal" },
-    };
+    let subtractionKey = req.productionHrs?.yearTotalProductionHrs;
+
+    if (req.query?.selectedMonth) {
+      subtractionKey =
+        req.productionHrs?.monthlyProductionHrs?.[req.query?.selectedMonth];
+    }
 
     req.hourCalculationFormula = {
       $divide: [
         {
-          $subtract: ["$totalProdHours", "$hours"],
+          $subtract: [subtractionKey, "$hours"],
         },
         "$count",
       ],
@@ -8357,26 +8363,103 @@ router.get(
   requestSheetMiddleware
 );
 
+const productionHourFiltration = async (req, res, next) => {
+  try {
+    let schema;
+
+    if (req.params?.filter === "based-on-section") {
+      schema = Section;
+    } else if (req.params?.filter === "based-on-subSection") {
+      schema = SubSection;
+    } else if (req.params?.filter === "based-on-cell") {
+      schema = Cell;
+    } else {
+      schema = Line;
+    }
+
+    const data = await schema.aggregate([
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(req.params?.selectedId), 
+        },
+      },
+      {
+        $unwind: "$productionHrs",
+      },
+      {
+        $match: {
+          "productionHrs.current_year": req.query?.selectedYear,
+        },
+      },
+      {
+        $project: {
+          productionHrs: 1,
+        },
+      },
+    ]);
+
+    req.productionHrs = data?.[0]?.productionHrs;
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 router.get(
   "/getTrendData/MTBF/:filter/:selectedId",
   filterMiddleware,
-  filterMiddlewareForMTBFReport,
-  middlewareForFindingTrendData,
+  productionHourFiltration,
   async (req, res, next) => {
-    req.message = "MTBF trend graph data get successfully";
-    next();
+    try {
+      req.queryPipeline = [
+        {
+          $addFields: {
+            productionDataBasedOnRSMonth: {
+              $function: {
+                body: function (month, productionHrs) {
+                  return productionHrs?.monthlyProductionHrs?.[month];
+                },
+                args: ["$_id", req.productionHrs],
+                lang: "js",
+              },
+            },
+          },
+        },
+      ];
+
+      req.hourCalculationFormula = {
+        $divide: [
+          {
+            $subtract: ["$productionDataBasedOnRSMonth", "$hours"],
+          },
+          "$count",
+        ],
+      };
+
+      req.message = "MTBF trend data get successfully";
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
   },
+  middlewareForFindingTrendData,
   responseMiddlewareForReport
 );
 
 router.get(
   "/getLineWiseMTBFTrendData/:filter/:selectedId",
   filterMiddleware,
+  productionHourFiltration,
   filterMiddlewareForMTBFReport,
   middlewareForFindingLineWiseTrendData,
   async (req, res, next) => {
-    req.message = "Line wise MTBF trend data get successfully";
-    next();
+    try {
+      req.message = "Line wise MTBF trend data get successfully";
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
   },
   responseMiddlewareForReport
 );
@@ -8385,6 +8468,7 @@ router.get(
   "/getMachineWiseMTBFTrendDataData/:filter/:selectedId",
   middlewareForLimitValidation,
   filterMiddleware,
+  productionHourFiltration,
   filterMiddlewareForMTBFReport,
   async (req, res, next) => {
     req.sort = 1;

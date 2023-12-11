@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const { productionHrs } = require("./common");
+
 const commonVarForTypeString = {
   type: String,
 };
@@ -79,6 +81,8 @@ const lineSchema = new mongoose.Schema({
       },
     },
   ],
+
+  productionHrs,
 
   requestSheetNos: {
     type: Number,
