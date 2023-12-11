@@ -1,8 +1,7 @@
 import React, { useEffect, useReducer } from "react";
+import SmallChartCardComponent from "./SmallChartCardComponent";
 
-import { Container, Row, Col } from "reactstrap";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
-import { Box, Divider, Typography } from "@mui/material";
 
 const MTTRComponent = ({
   selectedValue,
@@ -79,17 +78,11 @@ const MTTRComponent = ({
   }, [selectedValue, selectedYear]);
 
   return (
-    <Box className="cell p-3">
-      <Row>
-        <Typography className="col" variant="h6" component="h6">
-          MTTR
-        </Typography>
-      </Row>
-      <Divider sx={{ mb: 1, borderColor: "black" }} />
+    <SmallChartCardComponent title="MTTR">
       <LineBarChartForProductionLineWise
         ReportData={reduceState?.MTTRReportData}
       />
-    </Box>
+    </SmallChartCardComponent>
   );
 };
 

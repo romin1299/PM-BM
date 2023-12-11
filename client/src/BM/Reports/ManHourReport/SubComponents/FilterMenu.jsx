@@ -48,6 +48,7 @@ export const FilterMenu = ({ DropdownValue, handleResetData }) => {
           aria-controls={open ? "filter-menu" : undefined}
           aria-expanded={open ? "true" : undefined}
           sx={{ minWidth: "auto" }}
+          size="small"
           onClick={handleMenuClick}
         >
           <FilterAltIcon

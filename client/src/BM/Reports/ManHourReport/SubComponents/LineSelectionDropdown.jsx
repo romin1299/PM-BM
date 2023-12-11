@@ -11,6 +11,7 @@ import RoutingContext from "../../../../context/routing/RoutingContext";
 import { fetchFinancialYears } from "../../../../Integration/APIExports";
 
 import { ACTION, getFiltrationValue } from "./CommonFiltrationComponent";
+import { Box } from "@mui/material";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -75,7 +76,7 @@ export default function LineSelectionDropdown({
 
   const theme = useTheme();
 
-  const [financialYears, setFinancialYears] = useState([]);
+  const [financialYears, setFinancialYears] = useState([selectedYear]);
 
   const getStyleForSelectedValue = async (item, selectedItem, purpose) => {
     return {
@@ -94,6 +95,9 @@ export default function LineSelectionDropdown({
   useEffect(() => {
     fetchFYYearData();
   }, []);
+
+  console.log("cells:", cells);
+  console.log('selectedCell:', selectedCell)
 
   const getFiltrationValueBasedOnSection = async ({ section }) => {
     try {
@@ -225,201 +229,190 @@ export default function LineSelectionDropdown({
   }, []);
 
   return (
-    <FormControl
-      size="small"
-      sx={{ flexDirection: "row", gap: "12px", width: "100%" }}
-    >
+    <Box sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
       {context?.tm_grade === "HOD" && sections?.length > 0 && (
-        <Select
-          displayEmpty
-          value={selectedSection}
-          onChange={(e) => {
-            reducerDispatch({
-              type: ACTION.HANDLE_SELECT_SECTION,
-              flagForTogglingFilter: "based-on-section",
-              selectedSection: e.target.value,
-            });
-            getFiltrationValueBasedOnSection({ section: e.target.value });
-          }}
-          input={<OutlinedInput />}
-          // renderValue={(selected) => <strong>{selected}</strong>}
-          sx={{
-            width: 130,
-            "& .MuiSelect-select": { paddingTop: "5px", paddingBottom: "5px" },
-          }}
-          MenuProps={MenuProps}
-          inputProps={{ "aria-label": "Without label" }}
-        >
-          {sections.map((item) => (
-            <MenuItem
-              key={item?._id}
-              value={item?._id}
-              style={getStyleForSelectedValue(item, selectedSection)}
-            >
-              {item?.section_name}
+        <FormControl size="small">
+          <Select
+            displayEmpty
+            value={selectedSection}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_SECTION,
+                flagForTogglingFilter: "based-on-section",
+                selectedSection: e.target.value,
+              });
+              getFiltrationValueBasedOnSection({ section: e.target.value });
+            }}
+            input={<OutlinedInput />}
+            // renderValue={(selected) => <strong>{selected}</strong>}
+            sx={{
+              width: 130,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            <MenuItem disabled value="">
+              <em style={{ fontSize: "14px", color: "#9f9f9f" }}>Sections</em>
             </MenuItem>
-          ))}
-        </Select>
+
+            {sections.map((item) => (
+              <MenuItem
+                key={item?._id}
+                value={item?._id}
+                style={getStyleForSelectedValue(item, selectedSection)}
+              >
+                {item?.section_name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       )}
 
       {subSections?.length > 0 && (
-        <Select
-          displayEmpty
-          value={selectedSubSection}
-          onChange={(e) => {
-            console.count("onchange .......");
-            reducerDispatch({
-              type: ACTION.HANDLE_SELECT_SUBSECTION,
-              flagForTogglingFilter: "based-on-subSection",
-              selectedSubSection: e.target.value,
-            });
-            getFiltrationValueBasedOnSubSection({
-              subSection: e.target.value,
-            });
-          }}
-          input={<OutlinedInput />}
-          // renderValue={(selected) => <strong>{selected}</strong>}
-          sx={{
-            width: 130,
-            "& .MuiSelect-select": { paddingTop: "5px", paddingBottom: "5px" },
-          }}
-          MenuProps={MenuProps}
-          inputProps={{ "aria-label": "Without label" }}
-        >
-          {selectedSubSection === "" && (
+        <FormControl size="small">
+          <Select
+            displayEmpty
+            value={selectedSubSection}
+            onChange={(e) => {
+              console.count("onchange .......");
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_SUBSECTION,
+                flagForTogglingFilter: "based-on-subSection",
+                selectedSubSection: e.target.value,
+              });
+              getFiltrationValueBasedOnSubSection({
+                subSection: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            // renderValue={(selected) => <strong>{selected}</strong>}
+            sx={{
+              width: 130,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {/* {selectedSubSection === "" && ( )} */}
             <MenuItem disabled value="">
-              <p>SubSections</p>
+              <em style={{ fontSize: "14px", color: "#9f9f9f" }}>
+                Sub Sections
+              </em>
             </MenuItem>
-          )}
-          {subSections.map((item) => (
-            <MenuItem
-              key={item?._id}
-              value={item?._id}
-              style={getStyleForSelectedValue(item, selectedSubSection)}
-            >
-              {item?.subSection_name}
-            </MenuItem>
-          ))}
-        </Select>
+
+            {subSections.map((item) => (
+              <MenuItem
+                key={item?._id}
+                value={item?._id}
+                style={getStyleForSelectedValue(item, selectedSubSection)}
+              >
+                {item?.subSection_name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       )}
 
       {cells?.length > 0 && (
-        <Select
-          displayEmpty
-          value={selectedCell}
-          onChange={(e) => {
-            reducerDispatch({
-              type: ACTION.HANDLE_SELECT_CELL,
-              flagForTogglingFilter: "based-on-cell",
-              selectedCell: e.target.value,
-            });
-            getFiltrationValueBasedOnCell({ cell: e.target.value });
-          }}
-          input={<OutlinedInput />}
-          sx={{
-            width: 130,
-            "& .MuiSelect-select": { paddingTop: "5px", paddingBottom: "5px" },
-          }}
-          MenuProps={MenuProps}
-          inputProps={{ "aria-label": "Without label" }}
-        >
-          {/* {selectedCell === "" && (
-          <MenuItem disabled value="">
-            <p>Cells</p>
-          </MenuItem>
-        )} */}
-          {cells.map((item) => (
-            <MenuItem
-              key={item?._id}
-              value={item?._id}
-              style={getStyleForSelectedValue(item, selectedCell)}
-            >
-              {item?.cell_name}
+        <FormControl size="small">
+          <Select
+            displayEmpty
+            value={selectedCell}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_CELL,
+                flagForTogglingFilter: "based-on-cell",
+                selectedCell: e.target.value,
+              });
+              getFiltrationValueBasedOnCell({ cell: e.target.value });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 130,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            <MenuItem disabled value="">
+              <em style={{ fontSize: "14px", color: "#9f9f9f" }}>
+                Select Cell
+              </em>
             </MenuItem>
-          ))}
-        </Select>
+
+            {cells.map((item) => (
+              <MenuItem
+                key={item?._id}
+                value={item?._id}
+                style={getStyleForSelectedValue(item, selectedCell)}
+              >
+                {item?.cell_name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       )}
 
       {lines?.length > 0 && (
-        <Select
-          displayEmpty
-          value={selectedLine}
-          onChange={(e) => {
-            reducerDispatch({
-              type: ACTION.HANDLE_SELECT_LINE,
-              flagForTogglingFilter: "based-on-line",
-              selectedLine: e.target.value,
-            });
-          }}
-          input={<OutlinedInput />}
-          sx={{
-            width: 130,
-            "& .MuiSelect-select": { paddingTop: "5px", paddingBottom: "5px" },
-          }}
-          MenuProps={MenuProps}
-          inputProps={{ "aria-label": "Without label" }}
-        >
-          {lines.map((item) => (
-            <MenuItem
-              key={item?._id}
-              value={item?._id}
-              style={getStyleForSelectedValue(item, selectedLine)}
-            >
-              {item?.line_name}
+        <FormControl size="small">
+          <Select
+            displayEmpty
+            value={selectedLine}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_LINE,
+                flagForTogglingFilter: "based-on-line",
+                selectedLine: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 130,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            <MenuItem disabled value="">
+              <em style={{ fontSize: "14px", color: "#9f9f9f" }}>
+                Select Line
+              </em>
             </MenuItem>
-          ))}
-        </Select>
+
+            {lines.map((item) => (
+              <MenuItem
+                key={item?._id}
+                value={item?._id}
+                style={getStyleForSelectedValue(item, selectedLine)}
+              >
+                {item?.line_name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       )}
 
-      <Select
-        displayEmpty
-        value={selectedYear}
-        onChange={(e) => {
-          reducerDispatch({
-            type: ACTION.HANDLE_SELECT_YEAR,
-            selectedYear: e.target.value,
-          });
-        }}
-        input={<OutlinedInput />}
-        sx={{
-          width: 130,
-          "& .MuiSelect-select": {
-            paddingTop: "5px",
-            paddingBottom: "5px",
-          },
-        }}
-        renderValue={(value) => {
-          if (value) {
-            return value;
-          }
-          return "Year";
-        }}
-        MenuProps={MenuProps}
-        inputProps={{ "aria-label": "Without label" }}
-      >
-        {financialYears.map((item) => (
-          <MenuItem
-            key={item}
-            value={item}
-            style={getStyleForSelectedValue(
-              item,
-              selectedYear,
-              "for-array-value"
-            )}
-          >
-            {item}
-          </MenuItem>
-        ))}
-      </Select>
-
-      {monthFiltration && (
+      <FormControl size="small">
         <Select
           displayEmpty
-          value={selectedMonth}
+          value={selectedYear}
           onChange={(e) => {
             reducerDispatch({
-              type: ACTION.HANDLE_SELECT_MONTH,
-              selectedMonth: e.target.value,
+              type: ACTION.HANDLE_SELECT_YEAR,
+              selectedYear: e.target.value,
             });
           }}
           input={<OutlinedInput />}
@@ -431,21 +424,19 @@ export default function LineSelectionDropdown({
             },
           }}
           renderValue={(value) => {
-            if (value) {
-              return value;
-            }
-            return "Month";
+            if (value) return value;
+            return "Year";
           }}
           MenuProps={MenuProps}
           inputProps={{ "aria-label": "Without label" }}
         >
-          {Months.map((item) => (
+          {financialYears.map((item) => (
             <MenuItem
               key={item}
               value={item}
               style={getStyleForSelectedValue(
                 item,
-                selectedMonth,
+                selectedYear,
                 "for-array-value"
               )}
             >
@@ -453,8 +444,53 @@ export default function LineSelectionDropdown({
             </MenuItem>
           ))}
         </Select>
-      )}
-    </FormControl>
+      </FormControl>
+
+      <FormControl size="small">
+        {monthFiltration && (
+          <Select
+            displayEmpty
+            value={selectedMonth}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_MONTH,
+                selectedMonth: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 130,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) {
+                return value;
+              }
+              return "Month";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {Months.map((item) => (
+              <MenuItem
+                key={item}
+                value={item}
+                style={getStyleForSelectedValue(
+                  item,
+                  selectedMonth,
+                  "for-array-value"
+                )}
+              >
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      </FormControl>
+    </Box>
   );
 }
 export const MonthDropdown = ({ selectedMonth, setSelectedMonth }) => {

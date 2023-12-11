@@ -13,6 +13,7 @@ import { Box, Divider, Typography } from "@mui/material";
 import { Col, Row } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { FilterMenu } from "./SubComponents/FilterMenu";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 ChartJS.register(
   CategoryScale,
@@ -171,16 +172,8 @@ const ChartToPPTExample = ({
 
   return (
     <Box className="cell p-3">
-      <Row style={{ marginBottom: "1rem" }}>
-        <Typography className="col" variant="h5" component="h5">
-          Hour Trend
-        </Typography>
+      <ChartTitleBar title="Hour Trend" />
 
-        <Col className="col-auto d-flex">
-          <FilterMenu DropdownValue="hour" />
-        </Col>
-      </Row>
-      <Divider sx={{ mb: 4, borderColor: "black" }} />
       <Bar options={options} data={data} />
     </Box>
   );

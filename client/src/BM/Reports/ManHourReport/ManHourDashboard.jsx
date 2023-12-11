@@ -11,6 +11,7 @@ import {
   initialState,
   reducer,
 } from "./SubComponents/CommonFiltrationComponent";
+import ReportTitleBar from "../Common/ReportTitleBar";
 
 const ManHourDashboard = () => {
   // const initialState = {
@@ -322,23 +323,20 @@ const ManHourDashboard = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   return (
     <Container fluid>
-      <Box className="cell p-3 mt-3">
-        <Row>
-          <Col className="d-flex align-items-center">
-            <Typography variant="h4" component="h4">
-              Man-Hour Report
-            </Typography>
-          </Col>
+      <Box>
+        <ReportTitleBar
+          title="Man-Hour Report"
+          Toolbar={
+            <ChartsToolbar
+              baseUrlForFiltering={baseUrlForFiltering}
+              reduceState={reduceState}
+              reducerDispatch={reducerDispatch}
+              monthFiltration
+            />
+          }
+        />
 
-          <ChartsToolbar
-            baseUrlForFiltering={baseUrlForFiltering}
-            reduceState={reduceState}
-            reducerDispatch={reducerDispatch}
-            monthFiltration
-          />
-        </Row>
-
-        <Row className="mt-3">
+        <Row className="mt-3 gx-3 pb-4">
           <Col md={12} lg={6}>
             <ChartToPPTExample
               selectedValue={reduceState?.selectedValue}
@@ -355,11 +353,7 @@ const ManHourDashboard = () => {
             />
           </Col>
 
-          <Col
-            md={12}
-            lg={6}
-            style={{ marginTop: "1.25rem", paddingBottom: "4rem" }}
-          >
+          <Col md={12} lg={6} style={{ marginTop: "0.5rem" }}>
             <LineTrend
               selectedValue={reduceState?.selectedValueForLineAnTMLoadGraph}
               flagForTogglingFilter={
@@ -370,11 +364,7 @@ const ManHourDashboard = () => {
             />
           </Col>
 
-          <Col
-            md={12}
-            lg={6}
-            style={{ marginTop: "1.25rem", paddingBottom: "4rem" }}
-          >
+          <Col md={12} lg={6} style={{ marginTop: "0.5rem" }}>
             <TMLoad
               selectedValue={reduceState?.selectedValueForLineAnTMLoadGraph}
               flagForTogglingFilter={

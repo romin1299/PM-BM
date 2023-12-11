@@ -1,8 +1,8 @@
 import React, { useEffect, useReducer } from "react";
 
-import { Container, Row, Col } from "reactstrap";
+import SmallChartCardComponent from "./SmallChartCardComponent";
+
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
-import { Box, Divider, Typography } from "@mui/material";
 
 const MTBFComponent = ({
   selectedValue,
@@ -79,18 +79,12 @@ const MTBFComponent = ({
   }, [selectedValue, selectedYear]);
 
   return (
-    <Box className="cell p-3">
-      <Row>
-        <Typography className="col" variant="h6" component="h6">
-          MTBF
-        </Typography>
-      </Row>
-      <Divider sx={{ mb: 1, borderColor: "black" }} />
+    <SmallChartCardComponent title="MTBF">
       <LineBarChartForProductionLineWise
         MTBF={true}
         ReportData={reduceState?.MTBFReportData}
       />
-    </Box>
+    </SmallChartCardComponent>
   );
 };
 
