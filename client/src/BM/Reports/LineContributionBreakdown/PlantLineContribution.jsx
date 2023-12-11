@@ -95,7 +95,7 @@ export const options = {
   },
 };
 
-const PlantLineCondribution = ({ selectedYear, selectedMonth }) => {
+const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
   const [data, setData] = React.useState({});
 
   const fetchChartData = async () => {
@@ -104,13 +104,13 @@ const PlantLineCondribution = ({ selectedYear, selectedMonth }) => {
 
     try {
       const res = await axios.get(url, {
-        params,
+        // params,   //uncomment when database is updated with agrregated year and month values
         withCredentials: true,
         credentials: "include",
       });
 
-      // console.log("res:", res.data.lineWiseBDData);
-      setData(res.data.lineWiseBDData[0]);
+      // console.log("plant contri res:", res.data);
+      setData(res?.data?.lineWiseBDData[0]);
     } catch (error) {
       console.log("error:", error);
     }
@@ -148,9 +148,9 @@ const PlantLineCondribution = ({ selectedYear, selectedMonth }) => {
     ],
   };
 
-  React.useEffect(() => {
-    console.log("plant data:", data);
-  }, [data]);
+  // React.useEffect(() => {
+  //   console.log("plant data:", data);
+  // }, [data]);
 
   return (
     <Box className="cell p-3">
@@ -167,4 +167,4 @@ const PlantLineCondribution = ({ selectedYear, selectedMonth }) => {
   );
 };
 
-export default PlantLineCondribution;
+export default PlantLineContribution;

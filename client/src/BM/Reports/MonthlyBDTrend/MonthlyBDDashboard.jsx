@@ -33,13 +33,6 @@ CustomTabPanel.propTypes = {
   value: PropTypes.number.isRequired,
 };
 
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-}
-
 const MonthlyBDTDashboard = () => {
   const [currentTabView, setCurrentTabView] = React.useState(0);
   const [sectionId, setSectionId] = React.useState("");
@@ -49,94 +42,101 @@ const MonthlyBDTDashboard = () => {
   // const context = useContext(RoutingContext);
   // console.log("context:", context);
 
+  function a11yProps(index) {
+    const active = index === currentTabView;
+    return {
+      sx: {
+        bgcolor: active ? "primary.main" : "",
+        color: active ? "white" : "",
+        borderRadius: "5px",
+      },
+      id: `simple-tab-${index}`,
+      "aria-controls": `simple-tabpanel-${index}`,
+    };
+  }
+
   const handleChange = (event, newValue) => {
     setCurrentTabView(newValue);
   };
 
   return (
-    <Container fluid>
-      <Box className="cell p-3 mt-3">
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Box
-            sx={{
-              position: "absolute",
-              right: "1rem",
-              top: currentTabView === 1 ? "11px" : "20px",
-              zIndex: "1",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {currentTabView === 1 && (
-              <SectionsDropdown
-                sectionId={sectionId}
-                setSectionId={setSectionId}
-              />
-            )}
-            <FilterSwitchButtons
-              filter={filter}
-              setFilter={setFilter}
-              currentTabViewName={currentTabViewName}
-            />
-          </Box>
+    <Container fluid style={{ paddingBottom: "3rem" }}>
+      <Box className="row cell p-3 pt-2 pb-2 mt-3 g-0">
+        <Box
+          className="col"
+          sx={{ display: "flex", alignItems: "center" }}
+          // sx={{ borderBottom: 1, borderColor: "divider" }}
+        >
           <Tabs
             value={currentTabView}
             onChange={handleChange}
+            indicatorColor="transparent"
+            textColor="inherit"
             aria-label="tabs-switch"
+            sx={{
+              "& .MuiTab-root": { minHeight: "auto" },
+              "& .MuiTabs-scroller": {
+                display: "flex",
+                alignItems: "center",
+                minHeight: "50px",
+              },
+            }}
+            TabIndicatorProps={{
+              style: { display: "none" },
+            }}
           >
             <Tab label="Plant" {...a11yProps(0)} />
             <Tab label="Section" {...a11yProps(1)} />
           </Tabs>
         </Box>
 
+        <Box
+          className="col-auto"
+          sx={{ display: "flex", alignItems: "center" }}
+        >
+          {currentTabView === 1 && (
+            <SectionsDropdown
+              sectionId={sectionId}
+              setSectionId={setSectionId}
+            />
+          )}
+          <FilterSwitchButtons
+            filter={filter}
+            setFilter={setFilter}
+            currentTabViewName={currentTabViewName}
+          />
+        </Box>
+
         <CustomTabPanel value={currentTabView} index={0}></CustomTabPanel>
 
-        <CustomTabPanel value={currentTabView} index={1}>
-          {/* <Row>
-            <Col>
-              <SectionsDropdown
-                sectionId={sectionId}
-                setSectionId={setSectionId}
-              />
-            </Col>
-          </Row> */}
-        </CustomTabPanel>
-
-        {/* <Row>
-          <Col>
-            <FilterSwitchButtons
-              filter={filter}
-              setFilter={setFilter}
-              currentTabViewName={currentTabViewName}
-            />
-          </Col>
-        </Row> */}
-
-        <Row className="mt-3">
-          <Col md={12} lg={9}>
-            <MonthlyBDTrendChart
-              filter={filter}
-              setFilter={setFilter}
-              currentTabViewName={currentTabViewName}
-              sectionId={sectionId}
-            />
-          </Col>
-          <Col md={12} lg={3}>
-            <YearlyTrendChart
-              filter={filter}
-              setFilter={setFilter}
-              currentTabViewName={currentTabViewName}
-              sectionId={sectionId}
-            />
-          </Col>
-        </Row>
-        <MajorBDCount
-          filter={filter}
-          setFilter={setFilter}
-          currentTabViewName={currentTabViewName}
-          sectionId={sectionId}
-        />
+        <CustomTabPanel value={currentTabView} index={1}></CustomTabPanel>
       </Box>
+
+      <Row className="mt-3 gx-3">
+        <Col md={12} lg={9}>
+          <MonthlyBDTrendChart
+            filter={filter}
+            setFilter={setFilter}
+            currentTabViewName={currentTabViewName}
+            sectionId={sectionId}
+          />
+        </Col>
+        <Col md={12} lg={3}>
+          <YearlyTrendChart
+            filter={filter}
+            setFilter={setFilter}
+            currentTabViewName={currentTabViewName}
+            sectionId={sectionId}
+          />
+        </Col>
+      </Row>
+
+      <MajorBDCount
+        filter={filter}
+        setFilter={setFilter}
+        currentTabViewName={currentTabViewName}
+        sectionId={sectionId}
+      />
     </Container>
   );
 };

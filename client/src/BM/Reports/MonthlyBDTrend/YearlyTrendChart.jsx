@@ -15,6 +15,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 ChartJS.register(
   CategoryScale,
@@ -76,7 +77,7 @@ const YearlyTrendChart = ({
   filter,
   setFilter,
 }) => {
-  const [data, setData] = React.useState({});
+  const [data, setData] = React.useState([]);
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [],
@@ -104,8 +105,8 @@ const YearlyTrendChart = ({
         credentials: "include",
       });
 
-      // console.log("yearly hourly res:", res);
-      setData(res.data);
+      console.log("yearly hourly res:", res);
+      setData(res?.data?.bdTrendData);
     } catch (error) {
       console.log("error:", error);
     }
@@ -116,13 +117,13 @@ const YearlyTrendChart = ({
   }, [currentTabViewName, sectionId, filter]);
 
   // React.useEffect(() => {
-  //   console.log("yearly data:", data);
+  //   console.log("yearly data state:", data);
   // }, [data]);
 
   React.useEffect(() => {
     setChartData({
-      labels: data?.labels,
-      datasets: data?.hourlyData?.map((item, index) => ({
+      labels: data?.labels || ["FY'22", "FY'23 Cumm"],
+      datasets: data?.map((item, index) => ({
         type: "bar",
         stack: "bar-stacked",
         label: item?.label || item?._id,
@@ -134,19 +135,15 @@ const YearlyTrendChart = ({
 
   return (
     <Box className="cell p-3 mt-1">
-      <Row>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-          sx={{ fontWeight: "500" }}
-        >
-          Yearly Trend
-        </Typography>
-      </Row>
+      <ChartTitleBar
+        title="Yearly Trend"
+        // titleProps={{
+        //   sx: { fontWeight: "500" },
+        // }}
+      />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        {data?.hourlyData?.length < 0 ? (
+        {data?.length < 0 ? (
           <DataNotFound />
         ) : (
           <Chart options={options} data={chartData} />

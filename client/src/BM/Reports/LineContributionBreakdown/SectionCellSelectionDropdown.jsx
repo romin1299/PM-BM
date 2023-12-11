@@ -59,10 +59,12 @@ export default function SectionCellSelectionDropdown({
     };
   };
 
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+
   const getFiltrationValueBasedOnSection = async ({ section }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `/getFiltrationValue/sectionBased/${section}`,
+        url: `${baseUrlForFiltering}/sectionBased/${section}`,
       });
 
       const {
@@ -103,7 +105,7 @@ export default function SectionCellSelectionDropdown({
   const getFiltrationValueBasedOnSubSection = async ({ subSection }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `/getFiltrationValue/subSectionBased/${subSection}`,
+        url: `${baseUrlForFiltering}/subSectionBased/${subSection}`,
       });
 
       const { message, cells, selectedLine, lines } = data;
@@ -129,7 +131,7 @@ export default function SectionCellSelectionDropdown({
   useEffect(() => {
     (async () => {
       const { res, data } = await getFiltrationValue({
-        url: "/getFiltrationValue/byDefault",
+        url: `${baseUrlForFiltering}/byDefault`,
       });
 
       const {
