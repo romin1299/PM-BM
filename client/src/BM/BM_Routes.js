@@ -255,7 +255,7 @@ function BM_Routes() {
 
         {/* Render main container based on the user's routes */}
         <Container
-          stickyNav={<RightNavbar />}
+          // stickyNav={<RightNavbar />}
           content={
             <Routes>
               {filteredRoutes?.routes?.map((route) => (

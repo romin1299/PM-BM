@@ -13,25 +13,56 @@ const ApprovalLogs = () => {
 
   const [columns, setColumns] = useState([]);
 
-  let MTD_HOSS = "MTD HOSS";
-
   let commonColumns = [
+    {
+      title: "Cell",
+      dataIndex: "cell",
+      // filters: [
+      //   {
+      //     text: "MA2",
+      //     value: "MA2",
+      //   },
+      //   {
+      //     text: "MA3",
+      //     value: "MA3",
+      //   },
+      // ],
+      // specify the condition of filtering result
+      // here is that finding the name started with `value`
+      // onFilter: (value, record) => record.line.indexOf(value) === 0,
+      sorter: (a, b) => {
+        const name1 = a.line.toUpperCase();
+        const name2 = b.line.toUpperCase();
+
+        let comparison = 0;
+
+        if (name1 < name2) {
+          comparison = 1;
+        } else if (name1 > name2) {
+          comparison = -1;
+        }
+        return comparison;
+      },
+      fixed: "left",
+      width: "15%",
+      // sortDirections: ["descend"],
+    },
     {
       title: "Line",
       dataIndex: "line",
-      filters: [
-        {
-          text: "MA2",
-          value: "MA2",
-        },
-        {
-          text: "MA3",
-          value: "MA3",
-        },
-      ],
+      // filters: [
+      //   {
+      //     text: "MA2",
+      //     value: "MA2",
+      //   },
+      //   {
+      //     text: "MA3",
+      //     value: "MA3",
+      //   },
+      // ],
       // specify the condition of filtering result
       // here is that finding the name started with `value`
-      onFilter: (value, record) => record.line.indexOf(value) === 0,
+      // onFilter: (value, record) => record.line.indexOf(value) === 0,
       sorter: (a, b) => {
         const name1 = a.line.toUpperCase();
         const name2 = b.line.toUpperCase();
@@ -72,17 +103,6 @@ const ApprovalLogs = () => {
     {
       title: "Machine Name",
       dataIndex: "machineName",
-      filters: [
-        {
-          text: "London",
-          value: "London",
-        },
-        {
-          text: "New York",
-          value: "New York",
-        },
-      ],
-      onFilter: (value, record) => record.machineNo.indexOf(value) === 0,
       fixed: "left",
       width: "15%",
     },
@@ -215,16 +235,23 @@ const ApprovalLogs = () => {
     setColumns(commonColumns.concat(mergedApprovalListArrayForTable));
   };
 
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+  
   const getApprovalLogDetails = async () => {
     try {
-      const res = await fetch("/getApprovalLogDetails", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        // `/getApprovalLogDetails`,
+        `/getApprovalLogDetails/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       if (res.status === 404) {
         console.log("error", data?.message);
@@ -238,12 +265,19 @@ const ApprovalLogs = () => {
     }
   };
 
-  useEffect(() => {
-    getApprovalLogDetails();
-  }, []);
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
-  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+  useEffect(() => {
+    if (
+      reduceState?.selectedValue 
+      // &&
+      // (flagForTogglingFilter === "based-on-cell" ||
+      //   flagForTogglingFilter === "based-on-line")
+    ) {
+      getApprovalLogDetails();
+    }
+  }, [reduceState?.selectedValue, reduceState?.selectedYear, reduceState?.selectedMonth]);
+
+  console.log(reduceState?.selectedValue, reduceState?.flagForTogglingFilter);
 
   const onChange = (pagination, filters, sorter, extra) => {
     console.log("params", pagination, filters, sorter, extra);
@@ -251,11 +285,12 @@ const ApprovalLogs = () => {
 
   return (
     <>
-    <ChartsToolbar
-            baseUrlForFiltering={baseUrlForFiltering}
-            reduceState={reduceState}
-            reducerDispatch={reducerDispatch}
-          />
+      <ChartsToolbar
+        baseUrlForFiltering={baseUrlForFiltering}
+        reduceState={reduceState}
+        reducerDispatch={reducerDispatch}
+        monthFiltration
+      />
       <Table
         columns={columns}
         dataSource={approvalLogs}

@@ -19,6 +19,7 @@ import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 const list = [
   { key: "A", value: "A" },
@@ -38,6 +39,7 @@ function MyTable({ selectedMachineDetails }) {
     formState: { errors },
     watch,
     reset,
+    setValue,
   } = useForm({
     defaultValues: {
       problemOccurredDateAndTimeOfBM: moment(new Date()).format(
@@ -60,6 +62,7 @@ function MyTable({ selectedMachineDetails }) {
   });
   const selectedRequestSheetData = useLocation();
 
+  const [shiftsOfBM, setShiftsOfBM] = useState([]);
   const [selectedShift, setSelectedShift] = useState("");
   // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
@@ -118,10 +121,6 @@ function MyTable({ selectedMachineDetails }) {
     }
   };
 
-  useEffect(() => {
-    setSelectedShift(getCurrentShiftName());
-  }, []);
-
   const timezone = "Asia/Kolkata";
   const startedDate = moment().tz(timezone).month() + 1;
 
@@ -134,46 +133,52 @@ function MyTable({ selectedMachineDetails }) {
 
   const momentTime = moment(sheetIssuedTime, "HH:mm");
 
-  const shiftOfBM = [
-    {
-      shiftName: "A",
-      shiftStartTime: "06:00",
-      shiftEndTime: "14:30",
-    },
-    {
-      shiftName: "B",
-      shiftStartTime: "14:15",
-      shiftEndTime: "22:45",
-    },
-    {
-      shiftName: "C",
-      shiftStartTime: "22:45",
-      shiftEndTime: "06:15",
-    },
-  ];
+  useEffect(() => {
+    const getCurrentShiftName = () => {
+      for (let shiftInfo of shiftsOfBM) {
+        if (
+          momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
+          momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
+        )
+          return shiftInfo.shiftName;
+      }
 
-  const getCurrentShiftName = () => {
-    for (let shiftInfo of shiftOfBM) {
-      if (
-        momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
-        momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
-      )
-        return shiftInfo.shiftName;
-    }
+      return "";
+    };
 
-    return null;
-  };
+    setValue("selectedShift", getCurrentShiftName());
+  }, [shiftsOfBM]);
+
+  React.useEffect(() => {
+    const fetchShiftData = async () => {
+      const url = "/getAllShifts";
+
+      try {
+        const res = await axios.get(url, {
+          withCredentials: true,
+          credentials: "include",
+        });
+
+        // console.log("fetch shifts res:", res);
+        setShiftsOfBM(res?.data?.getShifts);
+      } catch (error) {
+        console.log("error:", error);
+      }
+    };
+
+    fetchShiftData();
+  }, []);
 
   return (
     <>
       <ToastContainer />
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
-        <Table>
+        <Table className="m-2 mt-3">
           <thead>
             <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
           </thead>
-          <tbody>
-            <tr>
+          <tbody className="m-1 box-shadow p-3">
+            <tr className="row" style={{width:"100vw"}}>
               {/* <td width={100}>
               <img
                 src={denso_logo}
@@ -183,14 +188,14 @@ function MyTable({ selectedMachineDetails }) {
                 alt="React Bootstrap logo"
               />
             </td> */}
-              <td colSpan={12}>
-                <h2 className="d-flex align-items-center justify-content-center">
+              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0">
+                <h4 className="d-flex align-items-center justify-content-center">
                   MAINTENANCE WORK REQUEST/REPORT
-                </h2>
+                </h4>
               </td>
             </tr>
-            <tr>
-              <td className="mb-0 pb-0 border">
+            <tr className="row m-2" style={{width:"100vw"}}>
+              <td className="mb-0 pb-0 borde col-lg-3 col-md-6 col-sm-12">
                 <p>
                   <b>MAINT. TYPE</b>
                 </p>
@@ -256,7 +261,7 @@ function MyTable({ selectedMachineDetails }) {
                   )}
                 </Form>
               </td>
-              <td style={{ width: "20%" }} className="mb-0 pb-0 border">
+              <td className="mb-0 pb-0 border col-lg-3 col-md-6 col-sm-12">
                 <p>
                   {" "}
                   <b>PRIORITY CODE</b>
@@ -323,10 +328,7 @@ function MyTable({ selectedMachineDetails }) {
                   )}
                 </Form>
               </td>
-              <td
-                colSpan={9}
-                style={{ width: "50%" }}
-                className="mb-0 pb-0 border"
+              <td className="mb-0 pb-0 border col-lg-3 col-md-6 col-sm-12"
               >
                 <div className="mb-2">
                   <h6 className="text-center border p-1">
@@ -445,7 +447,7 @@ function MyTable({ selectedMachineDetails }) {
                 </div>
               </td>
 
-              <td colSpan={2} className="mb-0 pb-0 pt-0">
+              <td className="mb-0 pb-0 pt-0 col-lg-12 col-md-12 col-sm-12"  style={{marginLeft: "-8px"}} >
                 {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
@@ -464,7 +466,7 @@ function MyTable({ selectedMachineDetails }) {
                   </p>
                 </Col>
               </Row> */}
-                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
+                <Row className="pt-0 mb-0 ">
                   <Col className="border pb-2 pt-1">
                     <p className="mb-0">
                       <b>DEPT./LINE</b>
@@ -473,7 +475,7 @@ function MyTable({ selectedMachineDetails }) {
                     {selectedMachineDetails?.line_names?.line_name}
                   </Col>
                 </Row>
-                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
+                <Row className="pt-0 mb-0 " style={{marginLeft: "-8px"}}>
                   <Col className="border pb-2">
                     <p className="fs-6 mb-0">
                       <b>TL [PRD]</b>
@@ -491,7 +493,7 @@ function MyTable({ selectedMachineDetails }) {
               </td>
             </tr>
             <tr>
-              <td className="border" colSpan={8}>
+              <td className="border col-lg-8 col-md-12 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={2}>
                     <p className="mb-0">
@@ -508,7 +510,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>PROBLEM FACED: </b>
                     </p>
                   </Col>
@@ -517,7 +519,7 @@ function MyTable({ selectedMachineDetails }) {
                       type="text"
                       id="prob"
                       name="problemfaced"
-                      className="m-1"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("problemFaced", {
                         required: "Please fill this field",
@@ -532,7 +534,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>
                         PRD OBSERVATION FOR THIS PROBLEM BASED ON (5WHY-1HOW){" "}
                       </b>
@@ -543,7 +545,7 @@ function MyTable({ selectedMachineDetails }) {
                       type="text"
                       id="prdobv"
                       name="prdobv"
-                      className="m-1"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("PRD_ObservationForProblem_5Why_1How", {
                         required: "Please fill this field",
@@ -561,7 +563,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHY (5M+1E): </b>
                     </p>
                   </Col>
@@ -570,7 +572,7 @@ function MyTable({ selectedMachineDetails }) {
                       type="text"
                       id="why"
                       name="why"
-                      className="m-1"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("why_5M_1E", {
                         // required: "Please fill this field",
@@ -583,7 +585,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHERE (Process): </b>
                     </p>
                   </Col>
@@ -592,7 +594,7 @@ function MyTable({ selectedMachineDetails }) {
                       type="text"
                       id="where"
                       name="where"
-                      className="m-1"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("where_process", {
                         // required: "Please fill this field",
@@ -605,7 +607,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHEN (Frequency): </b>
                     </p>
                   </Col>
@@ -614,7 +616,7 @@ function MyTable({ selectedMachineDetails }) {
                       type="text"
                       id="when"
                       name="when"
-                      className="m-1"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("when_frequency", {
                         // required: "Please fill this field",
@@ -627,7 +629,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHO (Person): </b>
                     </p>
                   </Col>
@@ -636,7 +638,7 @@ function MyTable({ selectedMachineDetails }) {
                       type="text"
                       id="who"
                       name="who"
-                      className="m-1"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("who_person", {
                         // required: "Please fill this field",
@@ -649,7 +651,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHICH (Defect Location): </b>
                     </p>
                   </Col>
@@ -658,7 +660,7 @@ function MyTable({ selectedMachineDetails }) {
                       type="text"
                       id="which"
                       name="which"
-                      className="m-1"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("which_defectLocation", {
                         // required: "Please fill this field",
@@ -671,7 +673,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>HOW (Detail/ Observation): </b>
                     </p>
                   </Col>
@@ -680,7 +682,7 @@ function MyTable({ selectedMachineDetails }) {
                       type="text"
                       id="how"
                       name="how"
-                      className="m-1"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("how_details", {
                         // required: "Please fill this field",
@@ -693,7 +695,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
               </td>
 
-              <td colSpan={4} className="border">
+              <td className="border col-lg-4 col-md-12 col-sm-12">
                 <Row className="m-0">
                   <Col className="border p-2">
                     <FormControl>
@@ -703,23 +705,26 @@ function MyTable({ selectedMachineDetails }) {
                         </Typography>
                       </FormLabel>
 
-                      <RadioGroup
-                        row
-                        value={watch("selectedShift")}
-                        aria-labelledby="demo-radio-buttons-group-label"
-                        name="radio-buttons-group"
-                      >
-                        {shiftOfBM.map((shiftInfo) => (
-                          <FormControlLabel
-                            value={shiftInfo.shiftName}
-                            control={<Radio color="default" size="small" />}
-                            label={shiftInfo.shiftName}
-                            disabled={
-                              watch("selectedShift") !== shiftInfo.shiftName
-                            }
-                          />
-                        ))}
-                      </RadioGroup>
+                      {watch("selectedShift") && (
+                        <RadioGroup
+                          row
+                          value={watch("selectedShift")}
+                          // value={"B"}
+                          aria-labelledby="demo-radio-buttons-group-label"
+                          name="radio-buttons-group"
+                        >
+                          {shiftsOfBM?.map((shiftInfo) => (
+                            <FormControlLabel
+                              value={shiftInfo.shiftName}
+                              control={<Radio color="default" size="small" />}
+                              label={shiftInfo.shiftName}
+                              disabled={
+                                watch("selectedShift") !== shiftInfo.shiftName
+                              }
+                            />
+                          ))}
+                        </RadioGroup>
+                      )}
                     </FormControl>
                   </Col>
                 </Row>
@@ -782,7 +787,7 @@ function MyTable({ selectedMachineDetails }) {
             <Col>
               <button
                 type="submit"
-                className="btn bg-button"
+                className="btn bg-success"
                 style={{ marginTop: "1rem" }}
               >
                 Submit Request-Sheet
