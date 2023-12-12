@@ -18,6 +18,11 @@ import RoutingContext from "../../context/routing/RoutingContext";
 
 import MachineHistoryCard from "../HistoryCard/MachineHistoryCard";
 
+import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
+import {
+  initialState,
+  reducer,
+} from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
 
 const RequestSheetMainDashboard = () => {
@@ -40,7 +45,7 @@ const RequestSheetMainDashboard = () => {
     "Under MTD HOS approval",
   ];
 
-  const initialState = {
+  const initialStateOfRequestSheet = {
     requestSheetData: [],
     counters: {
       open_request_sheet_count: 0,
@@ -59,7 +64,7 @@ const RequestSheetMainDashboard = () => {
     UPDATE_REQUEST_SHEET: "update-request-sheet",
   };
 
-  const reducer = (state, action) => {
+  const reducerOfRequestSheet = (state, action) => {
     switch (action?.type) {
       case ACTION?.GET:
         return {
@@ -87,7 +92,8 @@ const RequestSheetMainDashboard = () => {
     }
   };
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceStateForGetRequestSheet, reducerDispatchForGetRequestSheet] =
+    useReducer(reducerOfRequestSheet, initialStateOfRequestSheet);
 
   const getAllRequestSheetData = async () => {
     try {
@@ -109,7 +115,7 @@ const RequestSheetMainDashboard = () => {
       } = await res.json();
 
       if (res?.status === 201) {
-        reducerDispatch({
+        reducerDispatchForGetRequestSheet({
           type: ACTION.GET,
           requestSheetData,
           TLHOSS_and_TM_user_list,
@@ -136,7 +142,7 @@ const RequestSheetMainDashboard = () => {
       const { requestSheet, message } = await res.json();
 
       if (res.status === 201) {
-        reducerDispatch({
+        reducerDispatchForGetRequestSheet({
           type: ACTION.UPDATE_REQUEST_SHEET,
           requestSheet,
           message,
@@ -263,7 +269,7 @@ const RequestSheetMainDashboard = () => {
         dropDownComponent({
           value,
           onChange,
-          dropDownArray: reduceState?.TLHOSS_and_TM_user_list,
+          dropDownArray: reduceStateForGetRequestSheet?.TLHOSS_and_TM_user_list,
         }),
     },
     {
@@ -279,7 +285,7 @@ const RequestSheetMainDashboard = () => {
         dropDownComponent({
           value,
           onChange,
-          dropDownArray: reduceState?.TLHOSS_and_TM_user_list,
+          dropDownArray: reduceStateForGetRequestSheet?.TLHOSS_and_TM_user_list,
         }),
     },
     {
@@ -296,7 +302,7 @@ const RequestSheetMainDashboard = () => {
     //     <Multiselect
     //       displayValue="tm_name"
     //       className="col-9 "
-    //       options={reduceState?.MTD_or_PRD_user_list}
+    //       options={reduceStateForGetRequestSheet?.MTD_or_PRD_user_list}
     //       onSelect={async (selectedList) => {
     //         await onChange(selectedList);
     //       }}
@@ -339,7 +345,7 @@ const RequestSheetMainDashboard = () => {
     //     dropDownComponent({
     //       value,
     //       onChange,
-    //       dropDownArray: reduceState?.MTD_or_PRD_user_list,
+    //       dropDownArray: reduceStateForGetRequestSheet?.MTD_or_PRD_user_list,
     //     }),
     //   // editComponent: ({ value, onChange }) => (
     //   //   <RadioGroup
@@ -424,16 +430,14 @@ const RequestSheetMainDashboard = () => {
           : true,
       onClick: (event, selectedRow) => {
         navigate(
-          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`,
-          {
-            state: {
-              supportingTM: reduceState?.TLHOSS_and_TM_user_list,
-            },
-          }
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`
         );
       },
     }),
   ];
+
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   return (
     <>
@@ -442,6 +446,11 @@ const RequestSheetMainDashboard = () => {
           <Col>
             <h4>Request-Sheet Work Order</h4>
           </Col>
+          <ChartsToolbar
+            baseUrlForFiltering={baseUrlForFiltering}
+            reduceState={reduceState}
+            reducerDispatch={reducerDispatch}
+          />
         </Row>
         {/* <Row>
           <NewRequestSheetRegistration />
@@ -462,13 +471,19 @@ const RequestSheetMainDashboard = () => {
           </Col>
 
           <Col>
-            Total Request: {reduceState?.counters?.total_request_sheet_count}
+            Total Request:{" "}
+            {reduceStateForGetRequestSheet?.counters?.total_request_sheet_count}
           </Col>
           <Col>
-            Open Request: {reduceState?.counters?.open_request_sheet_count}
+            Open Request:{" "}
+            {reduceStateForGetRequestSheet?.counters?.open_request_sheet_count}
           </Col>
           <Col>
-            Closed Request: {reduceState?.counters?.closed_request_sheet_count}
+            Closed Request:{" "}
+            {
+              reduceStateForGetRequestSheet?.counters
+                ?.closed_request_sheet_count
+            }
           </Col>
         </Row>
 
@@ -486,7 +501,7 @@ const RequestSheetMainDashboard = () => {
             actions={requestSheetActions}
             icons={tableIcons}
             columns={requestSheetHeader}
-            data={reduceState?.requestSheetData}
+            data={reduceStateForGetRequestSheet?.requestSheetData}
             // title="User Management"
             // tableRef={this.tableRef.current.onQueryChange()}
 

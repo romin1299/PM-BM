@@ -110,7 +110,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: String, //if string required then change value: Yes/No
   },
 
-  //optional
+  //this field for requestSheet created by PRD TL user
   requestSheetCreatedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
@@ -177,14 +177,14 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   //for MTD Sl
   approvalOfMTD_SL: {
-    type: [mongoose.Schema.Types.ObjectId],
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
   approvalStatusOfMTD_SL: {
     type: [String],
   },
   approvalDateAndTimeOfMTD_SL: {
-    type: [Date], //If need String change it.
+    type: Date, //If need String change it.
   },
 
   //for MTD HOSS
@@ -302,7 +302,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   },
 
   //Spare parts related fields
-  sparePartUsedOrNot: { type: Boolean },
+  sparePartUsedOrNot: { type: String },
   changedParts: [
     {
       partNo: { type: String },
@@ -425,7 +425,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   getDataForApprovalDashboard: {
     Id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Plants",
+      ref: "Users",
     },
     departmentAndGradeOfUser: {
       type: String,
@@ -444,13 +444,13 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   //   ref: "Users",
   // },
 
-  // finalActivity: {
-  //   type: String,
-  // },
+  preventive_corrective_maintenance: {
+    type: String,
+  },
 
-  // statusPRD_TL: {
-  //   type: String,
-  // },
+  yokotenkai: {
+    type: String,
+  },
 });
 
 const RequestSheetOfBM = new mongoose.model(

@@ -12,7 +12,6 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import { denso_logo } from "../../../components/NavbarComponent/ImportModules";
 
-
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
@@ -30,7 +29,7 @@ const list = [
 
 function MyTable({ selectedMachineDetails }) {
   // let [searchParams] = useSearchParams();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { machine_code, generateType } = useParams();
   const context = useContext(RoutingContext);
   const {
@@ -109,12 +108,11 @@ function MyTable({ selectedMachineDetails }) {
         if (generateType === "scanned") {
           navigate("/", { replace: true });
         } else {
-          navigate('/bm/generateRequestSheetMainDashboard', { replace: true })
+          navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
         }
       } else {
         WarningToast(data?.message);
       }
-
     } catch (error) {
       console.log(error);
     }
@@ -347,7 +345,8 @@ function MyTable({ selectedMachineDetails }) {
                           ?.toUpperCase()}
                     _{selectedMachineDetails?.line_names?.line_name}_
                     {startedDate}_
-                    {selectedMachineDetails?.line_names?.requestSheetNos + 1 || 1}
+                    {selectedMachineDetails?.line_names?.requestSheetNos + 1 ||
+                      1}
                   </p>
                   <Row className="m-0">
                     <Col className="border">
@@ -759,6 +758,11 @@ function MyTable({ selectedMachineDetails }) {
                           />
                         </div>
                       ))}
+                      {errors?.["qualityRelated"] && (
+                        <p className="text-error">
+                          {errors?.["qualityRelated"]?.message}
+                        </p>
+                      )}
                     </Form>
                   </Col>
                 </Row>
