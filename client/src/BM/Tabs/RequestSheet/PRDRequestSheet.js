@@ -755,6 +755,11 @@ function MyTable({ selectedMachineDetails }) {
                           />
                         </div>
                       ))}
+                      {errors?.["qualityRelated"] && (
+                        <p className="text-error">
+                          {errors?.["qualityRelated"]?.message}
+                        </p>
+                      )}
                     </Form>
                   </Col>
                 </Row>

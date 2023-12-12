@@ -27,7 +27,11 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-
+import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
+import {
+  initialState,
+  reducer,
+} from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
 
 const RequestSheetMainDashboard = () => {
@@ -47,7 +51,7 @@ const RequestSheetMainDashboard = () => {
     "Under MTD HOS approval",
   ];
 
-  const initialState = {
+  const initialStateOfRequestSheet = {
     requestSheetData: [],
     counters: {
       open_request_sheet_count: 0,
@@ -66,7 +70,7 @@ const RequestSheetMainDashboard = () => {
     UPDATE_REQUEST_SHEET: "update-request-sheet",
   };
 
-  const reducer = (state, action) => {
+  const reducerOfRequestSheet = (state, action) => {
     switch (action?.type) {
       case ACTION?.GET:
         return {
@@ -94,7 +98,8 @@ const RequestSheetMainDashboard = () => {
     }
   };
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceStateForGetRequestSheet, reducerDispatchForGetRequestSheet] =
+    useReducer(reducerOfRequestSheet, initialStateOfRequestSheet);
 
   const getAllRequestSheetData = async () => {
     try {
@@ -116,7 +121,7 @@ const RequestSheetMainDashboard = () => {
       } = await res.json();
 
       if (res?.status === 201) {
-        reducerDispatch({
+        reducerDispatchForGetRequestSheet({
           type: ACTION.GET,
           requestSheetData,
           TLHOSS_and_TM_user_list,
@@ -143,7 +148,7 @@ const RequestSheetMainDashboard = () => {
       const { requestSheet, message } = await res.json();
 
       if (res.status === 201) {
-        reducerDispatch({
+        reducerDispatchForGetRequestSheet({
           type: ACTION.UPDATE_REQUEST_SHEET,
           requestSheet,
           message,
@@ -270,7 +275,7 @@ const RequestSheetMainDashboard = () => {
         dropDownComponent({
           value,
           onChange,
-          dropDownArray: reduceState?.TLHOSS_and_TM_user_list,
+          dropDownArray: reduceStateForGetRequestSheet?.TLHOSS_and_TM_user_list,
         }),
     },
     {
@@ -286,7 +291,7 @@ const RequestSheetMainDashboard = () => {
         dropDownComponent({
           value,
           onChange,
-          dropDownArray: reduceState?.TLHOSS_and_TM_user_list,
+          dropDownArray: reduceStateForGetRequestSheet?.TLHOSS_and_TM_user_list,
         }),
     },
     {
@@ -303,7 +308,7 @@ const RequestSheetMainDashboard = () => {
     //     <Multiselect
     //       displayValue="tm_name"
     //       className="col-9 "
-    //       options={reduceState?.MTD_or_PRD_user_list}
+    //       options={reduceStateForGetRequestSheet?.MTD_or_PRD_user_list}
     //       onSelect={async (selectedList) => {
     //         await onChange(selectedList);
     //       }}
@@ -346,7 +351,7 @@ const RequestSheetMainDashboard = () => {
     //     dropDownComponent({
     //       value,
     //       onChange,
-    //       dropDownArray: reduceState?.MTD_or_PRD_user_list,
+    //       dropDownArray: reduceStateForGetRequestSheet?.MTD_or_PRD_user_list,
     //     }),
     //   // editComponent: ({ value, onChange }) => (
     //   //   <RadioGroup
@@ -435,6 +440,9 @@ const RequestSheetMainDashboard = () => {
     }),
   ];
 
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+
   return (
     <>
       <Container fluid>
@@ -442,6 +450,11 @@ const RequestSheetMainDashboard = () => {
           <Col>
             <h4>Request-Sheet Work Order</h4>
           </Col>
+          <ChartsToolbar
+            baseUrlForFiltering={baseUrlForFiltering}
+            reduceState={reduceState}
+            reducerDispatch={reducerDispatch}
+          />
         </Row>
         {/* <Row>
           <NewRequestSheetRegistration />
@@ -502,7 +515,7 @@ const RequestSheetMainDashboard = () => {
             actions={requestSheetActions}
             icons={tableIcons}
             columns={requestSheetHeader}
-            data={reduceState?.requestSheetData}
+            data={reduceStateForGetRequestSheet?.requestSheetData}
             // title="User Management"
             // tableRef={this.tableRef.current.onQueryChange()}
 
