@@ -65,6 +65,8 @@ export default function LineSelectionDropdown({
   cells,
   selectedLine,
   lines,
+  selectedMachine,
+  machines,
   selectedYear,
   selectedMonth,
 
@@ -97,7 +99,7 @@ export default function LineSelectionDropdown({
   }, []);
 
   console.log("cells:", cells);
-  console.log('selectedCell:', selectedCell)
+  console.log("selectedCell:", selectedCell);
 
   const getFiltrationValueBasedOnSection = async ({ section }) => {
     try {
@@ -117,6 +119,8 @@ export default function LineSelectionDropdown({
         cells,
         selectedLine,
         lines,
+        selectedMachine,
+        machines,
       } = data;
 
       if (res?.status === 201) {
@@ -132,6 +136,8 @@ export default function LineSelectionDropdown({
           selectedCell,
           selectedLine,
           lines,
+          selectedMachine,
+          machines,
           message,
         });
       }
@@ -184,6 +190,26 @@ export default function LineSelectionDropdown({
     }
   };
 
+  const getFiltrationValueBasedOnLine = async ({ line }) => {
+    try {
+      const { res, data } = await getFiltrationValue({
+        url: `${baseUrlForFiltering}/lineBased/${line}`,
+      });
+      const { message, machines } = data;
+
+      if (res?.status === 201) {
+        reducerDispatch({
+          type: ACTION.GET_DATA_BASED_ON_LINE,
+
+          machines,
+          message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     (async () => {
       const { res, data } = await getFiltrationValue({
@@ -204,6 +230,8 @@ export default function LineSelectionDropdown({
         cells,
         selectedLine,
         lines,
+        selectedMachine,
+        machines,
       } = data;
 
       if (res?.status === 201) {
@@ -221,7 +249,8 @@ export default function LineSelectionDropdown({
           selectedCell,
           selectedLine,
           lines,
-
+          selectedMachine,
+          machines,
           message,
         });
       }
@@ -374,6 +403,7 @@ export default function LineSelectionDropdown({
                 flagForTogglingFilter: "based-on-line",
                 selectedLine: e.target.value,
               });
+              getFiltrationValueBasedOnLine({ line: e.target.value });
             }}
             input={<OutlinedInput />}
             sx={{
@@ -399,6 +429,48 @@ export default function LineSelectionDropdown({
                 style={getStyleForSelectedValue(item, selectedLine)}
               >
                 {item?.line_name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
+
+      {machines?.length > 0 && (
+        <FormControl size="small">
+          <Select
+            displayEmpty
+            value={selectedMachine}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_MACHINE,
+                flagForTogglingFilter: "based-on-machine",
+                selectedMachine: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 130,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            <MenuItem disabled value="">
+              <em style={{ fontSize: "14px", color: "#9f9f9f" }}>
+                Select Machine
+              </em>
+            </MenuItem>
+
+            {machines.map((item) => (
+              <MenuItem
+                key={item?._id}
+                value={item?._id}
+                style={getStyleForSelectedValue(item, selectedMachine)}
+              >
+                {item?.machine_name}
               </MenuItem>
             ))}
           </Select>

@@ -26,14 +26,13 @@ function MyTable({
   selectedMachineDetails,
   approvalListOfBM,
   requestSheetDataOfBM,
+  supportingTMList,
 }) {
   const loggedUserDetails = useContext(RoutingContext);
 
   const navigate = useNavigate();
 
   const { machine_code, requestSheetNoOfBM, generateType } = useParams();
-
-  const locationSupportingTM = useLocation();
 
   const [actions, setActions] = useState([]);
   const [problems, setProblems] = useState([]);
@@ -46,10 +45,12 @@ function MyTable({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     watch,
     setValue,
+    setError,
     control,
+    clearErrors,
     // reset,
   } = useForm({
     defaultValues: {
@@ -76,7 +77,10 @@ function MyTable({
     requestSheetData.minorBD = timeDifferenceMinutes <= 120 ? "Yes" : "No";
     requestSheetData.majorBD = timeDifferenceMinutes > 120 ? "Yes" : "No";
     requestSheetData.changedParts = parts;
-    requestSheetData.supportingTM = selectedSupportedTM?.map((obj) => obj?._id);
+    requestSheetData.supportingTM =
+      selectedSupportedTM?.length > 0
+        ? selectedSupportedTM?.map((obj) => obj?._id)
+        : requestSheetDataOfBM?.supportingTM?.map((obj) => obj?._id);
     requestSheetData.partQualityCheckedByPRD =
       approvalListOfBM?.prdTL?.[requestSheetData?.partQualityCheckedByPRD]?._id;
     requestSheetData.partQualityCheckedByMTD =
@@ -84,6 +88,7 @@ function MyTable({
 
     const formData = new FormData();
     const { ...otherFields } = requestSheetData;
+    formData.append("prdDataUpdatedByOtherUser", false);
 
     // Append the file field
     formData.append(
@@ -114,79 +119,6 @@ function MyTable({
       const data = await res.json();
       if (res.status === 201) {
         SuccessToast(data?.message);
-        navigate("/bm/requestListDashboard", { replace: true });
-      } else {
-        WarningToast(data?.message);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const sendApprovalForRequestSheetOfBM = async (assignApprovalList) => {
-    try {
-      const res = await fetch(
-        `/sendApprovalForRequestSheetOfBM/${requestSheetNoOfBM}/${machine_code}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            assignApprovalList: {
-              MTD_TL: {
-                id: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]?._id,
-                name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]
-                  ?.tm_name,
-              },
-              MTD_HOSS: {
-                id: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
-                  ?._id,
-                name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
-                  ?.tm_name,
-              },
-              PRD_TL: {
-                id: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]?._id,
-                name: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
-                  ?.tm_name,
-              },
-              PRD_HOS: {
-                id: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
-                  ?._id,
-                name: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
-                  ?.tm_name,
-              },
-              MTD_HOS: {
-                id: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
-                  ?._id,
-                name: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
-                  ?.tm_name,
-              },
-              PRD_HOD: {
-                id: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
-                  ?._id,
-                name: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
-                  ?.tm_name,
-              },
-              MTD_HOD: {
-                id: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
-                  ?._id,
-                name: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
-                  ?.tm_name,
-              },
-            },
-            requestSheetDataOfBM,
-            minorBD: assignApprovalList?.minorBD,
-            majorBD: assignApprovalList?.majorBD,
-            approvalOfRequestSheet: assignApprovalList?.approvalOfRequestSheet,
-            rejectedRemarksOfRequestSheet:
-              assignApprovalList?.rejectedRemarksOfRequestSheet,
-          }),
-        }
-      );
-      const data = await res.json();
-      if (res.status === 201) {
-        SuccessToast(data?.message);
         if (requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id) {
           navigate("/bm/requestListDashboard", { replace: true });
         } else {
@@ -200,33 +132,176 @@ function MyTable({
     }
   };
 
-  const approveRequestSheetFromHigherAuthority = async () => {
-    try {
-      const res = await fetch(
-        `/approveRequestSheetFromHigherAuthority/${requestSheetNoOfBM}/${machine_code}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            approvalOfRequestSheet: watch("approvalOfRequestSheet"),
-            rejectedRemarksOfRequestSheet: watch(
-              "rejectedRemarksOfRequestSheet"
-            ),
-            requestSheetDataOfBM,
-          }),
-        }
+  console.log("Dierty----", dirtyFields);
+
+  const deleteDirtyFieldsWhichIsNotRequiredToValidate = () => {
+    delete dirtyFields?.["approvalOfRequestSheet"];
+    delete dirtyFields?.["MTD_TL"];
+    delete dirtyFields?.["MTD_HOSS"];
+    delete dirtyFields?.["PRD_TL"];
+    delete dirtyFields?.["PRD_HOS"];
+    delete dirtyFields?.["MTD_HOS"];
+    delete dirtyFields?.["PRD_HOD"];
+    delete dirtyFields?.["MTD_HOD"];
+    delete dirtyFields?.["rejectedRemarksOfRequestSheet"];
+  };
+
+  const handleCustomErrors = () => {
+    deleteDirtyFieldsWhichIsNotRequiredToValidate();
+    //This validation for not submit/save value while send for approval
+    if (Object?.keys(dirtyFields)?.length > 0) {
+      WarningToast(
+        "Save/submit the change value before sending it for approval!!!"
       );
-      const data = await res.json();
-      if (res.status === 201) {
-        SuccessToast(data?.message);
-        navigate("/bm/approval", { replace: true });
+      return true;
+    }
+    if (
+      requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id
+    ) {
+      if (!watch("approvalOfRequestSheet")) {
+        setError("root.handleApprovalErrorFromServerSide", {
+          type: "approvalOfRequestSheet",
+          message: "Please select approval value (Yes/No)",
+        });
+        return true;
+      }
+
+      if (
+        watch("approvalOfRequestSheet") === "No" &&
+        !watch("rejectedRemarksOfRequestSheet")
+      ) {
+        setError("root.handleApprovalErrorFromServerSide", {
+          message: "Please fill rejected remarks",
+          type: "rejectedRemarksOfRequestSheet",
+        });
+        return true;
+      }
+    }
+  };
+
+  const sendApprovalForRequestSheetOfBM = async (assignApprovalList) => {
+    try {
+      let checkWhetherAnyErrorOccurredOrNot = handleCustomErrors();
+      if (checkWhetherAnyErrorOccurredOrNot) {
+        return;
       } else {
-        WarningToast(data?.message);
+        const res = await fetch(
+          `/sendApprovalForRequestSheetOfBM/${requestSheetNoOfBM}/${machine_code}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              assignApprovalList: {
+                MTD_TL: {
+                  id: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]
+                    ?._id,
+                  name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]
+                    ?.tm_name,
+                },
+                MTD_HOSS: {
+                  id: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
+                    ?._id,
+                  name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
+                    ?.tm_name,
+                },
+                PRD_TL: {
+                  id: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
+                    ?._id,
+                  name: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
+                    ?.tm_name,
+                },
+                PRD_HOS: {
+                  id: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
+                    ?._id,
+                  name: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
+                    ?.tm_name,
+                },
+                MTD_HOS: {
+                  id: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
+                    ?._id,
+                  name: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
+                    ?.tm_name,
+                },
+                PRD_HOD: {
+                  id: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
+                    ?._id,
+                  name: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
+                    ?.tm_name,
+                },
+                MTD_HOD: {
+                  id: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
+                    ?._id,
+                  name: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
+                    ?.tm_name,
+                },
+              },
+              requestSheetDataOfBM,
+              minorBD: assignApprovalList?.minorBD,
+              majorBD: assignApprovalList?.majorBD,
+              approvalOfRequestSheet:
+                assignApprovalList?.approvalOfRequestSheet,
+              rejectedRemarksOfRequestSheet:
+                assignApprovalList?.rejectedRemarksOfRequestSheet,
+            }),
+          }
+        );
+        const data = await res.json();
+        if (res.status === 201) {
+          SuccessToast(data?.message);
+          if (
+            requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id
+          ) {
+            navigate("/bm/requestListDashboard", { replace: true });
+          } else {
+            navigate("/bm/approval", { replace: true });
+          }
+        } else {
+          WarningToast(data?.message);
+        }
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const approveRequestSheetFromHigherAuthority = async () => {
+    let checkWhetherAnyErrorOccurredOrNot = handleCustomErrors();
+    if (checkWhetherAnyErrorOccurredOrNot) {
+      return;
+    } else {
+      try {
+        const res = await fetch(
+          `/approveRequestSheetFromHigherAuthority/${requestSheetNoOfBM}/${machine_code}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              approvalOfRequestSheet: watch("approvalOfRequestSheet"),
+              rejectedRemarksOfRequestSheet: watch(
+                "rejectedRemarksOfRequestSheet"
+              ),
+              requestSheetDataOfBM,
+            }),
+          }
+        );
+        const data = await res.json();
+        if (res.status === 201) {
+          if (data?.errorType === "Approve") {
+            SuccessToast(data?.message);
+          } else {
+            WarningToast(data?.message);
+          }
+          navigate("/bm/approval", { replace: true });
+        } else {
+          WarningToast(data?.message);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -335,6 +410,13 @@ function MyTable({
         setValue(`categories.${obj?.category}`, obj?.subCategory);
       });
 
+      setValue(
+        "preventive_corrective_maintenance",
+        requestSheetDataOfBM?.preventive_corrective_maintenance
+      );
+
+      setValue("yokotenkai", requestSheetDataOfBM?.yokotenkai);
+
       setProblems(
         requestSheetDataOfBM?.maintenanceReportFilledByMTD?.problemsOfBM
       );
@@ -357,26 +439,27 @@ function MyTable({
   }, [timeDifferenceMinutes]);
 
   return (
-    <form>
+    <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
       <Table bordered className="mb-5">
         <thead>
           <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
         </thead>
         <tbody>
-          <tr>
-            <td colSpan={12}>
-              <h2 className="mt-0 d-flex align-items-center justify-content-center">
+          <tr className="row m-2 mb-0" style={{ width: "100vw" }}>
+            <td class="col-lg-7 col-md-6 col-sm-12">
+              <h4 className="mt-0 d-flex align-items-center justify-content-center">
                 MAINTENANCE REPORT ( To be filled by MTD)
-              </h2>
+              </h4>
             </td>
-            <td colSpan={4} className="mb-0 pb-0 pt-0">
-              <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
-                <Col lg={6} className="border pb-2 pt-1">
+            <td className="mb-0 pb-0 pt-0 col-lg-5 col-md-6 col-sm-12">
+              <Row className="pt-0 mb-0 ">
+                <Col lg={6} className="border border-top-0 pb-2 pt-1" style={{marginLeft:"3px"}}>
                   <p className="mb-0">
                     <b>REQUEST RECEIVED MTD S.L</b>
                   </p>
+                  <p>{requestSheetDataOfBM?.approvalOfMTD_SL?.tm_name}</p>
                 </Col>
-                <Col lg={6} className="border pb-2 pt-1">
+                <Col lg={6} className="pb-2 pt-1" style={{marginLeft:"3px"}}>
                   <p className="fs-6 mb-0">
                     <b>MTD TL</b>
                   </p>
@@ -426,18 +509,23 @@ function MyTable({
             </td>
           </tr>
 
-          <tr>
-            <td colSpan={12}>
-              <div className="mb-2">
+          <tr className="row m-2 mt-0">
+            <td lg={12} md={12} sm={12}>
+              <div className="mb-2" style={{ width: "100vw" }}>
                 <Row className="m-0">
-                  <Col className="border border-left-0">
+                  <Col className="border border-left-0" lg={6}>
                     <Row className="d-flex align-items-center ">
-                      <Col>
+                      <Col lg={6} md={6} sm={6}>
                         <p className="text-center m-0">
                           <b>WORK STARTED</b>
                         </p>
                       </Col>
-                      <Col className="border border-right-0 border-top-0 border-bottom-0">
+                      <Col
+                        className="border border-right-0 border-top-0 border-bottom-0"
+                        lg={6}
+                        md={5}
+                        sm={6}
+                      >
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-2">
                           <div className="text-center">
                             <p className="mb-0">
@@ -481,14 +569,19 @@ function MyTable({
                       </Col>
                     </Row>
                   </Col>
-                  <Col className="border">
+                  <Col className="border" lg={6}>
                     <Row className="d-flex align-items-center ">
-                      <Col>
+                      <Col lg={6} md={6} sm={6}>
                         <p className="text-center m-0">
                           <b>WORK ENDED</b>
                         </p>
                       </Col>
-                      <Col className="border border-right-0 border-top-0 border-bottom-0">
+                      <Col
+                        className="border border-right-0 border-top-0 border-bottom-0"
+                        lg={6}
+                        md={5}
+                        sm={6}
+                      >
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-2">
                           <div className="text-center">
                             <p className="mb-0">
@@ -500,6 +593,12 @@ function MyTable({
                                 {...register("workEndedDateOfBM", {
                                   required: "Work Ended date is required",
                                 })}
+                                disabled={
+                                  requestSheetDataOfBM?.assignUser?._id !==
+                                    loggedUserDetails?._id &&
+                                  requestSheetDataOfBM?.approvalOfMTD_TL
+                                    ?._id !== loggedUserDetails?._id
+                                }
                               />
                               {errors?.["workEndedDateOfBM"] && (
                                 <p className="text-error">
@@ -534,21 +633,16 @@ function MyTable({
                 </Row>
               </div>
             </td>
-            <td colSpan={6} className="mb-0 pb-0 pt-0">
-              <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
-                <Col lg={6} className="border pb-2 pt-1">
-                  <p className="mb-0">
-                    <b>SECTION INCHARGE</b>
-                  </p>
-                  {selectedMinor === "Yes" &&
-                  selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                    "MTD_HOSS".replace("_", " ")
-                  ) ? (
-                    <label>
-                      <b>MTD HOSS</b>
-                    </label>
-                  ) : selectedMajor === "Yes" &&
-                    selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+
+            <td className="mb-0 pb-0 pt-0 col-lg-6">
+              <div className="mb-2" style={{ width: "100vw" }}>
+                <Row className="m-0" >
+                  <Col lg={6} md={6} sm={12} className="border">
+                    <p className="mb-0">
+                      <b>SECTION INCHARGE</b>
+                    </p>
+                    {selectedMinor === "Yes" &&
+                    selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
                       "MTD_HOSS".replace("_", " ")
                     ) ? (
                     <label>
@@ -557,16 +651,6 @@ function MyTable({
                   ) : (
                     ""
                   )}
-
-                  {/* {requestSheetDataOfBM?.approvalOfMTD_HOSS?.length > 0 ? (
-                    <p>
-                      {
-                        requestSheetDataOfBM?.approvalOfMTD_HOSS?.[
-                          requestSheetDataOfBM?.approvalOfMTD_HOSS?.length - 1
-                        ]?.tm_name
-                      }
-                    </p>
-                  ) : ( */}
                   {requestSheetDataOfBM?.approvalOfMTD_HOSS &&
                   requestSheetDataOfBM?.approvalStatusOfMTD_HOSS ===
                     "Accepted" &&
@@ -604,12 +688,11 @@ function MyTable({
                       // }
                     />
                   )}
-                  {selectedMajor === "Yes" && <label>MTD HOS</label>}
-                  {/* {requestSheetDataOfBM?.approvalOfMTD_HOS?.length > 0 ? (
-                    requestSheetDataOfBM?.approvalOfMTD_HOS?.[
-                      requestSheetDataOfBM?.approvalOfMTD_HOS?.length - 1
-                    ]?.tm_name
-                  ) : ( */}
+                  {selectedMajor === "Yes" && (
+                    <label>
+                      <b>MTD HOS</b>
+                    </label>
+                  )}
                   {requestSheetDataOfBM?.approvalOfMTD_HOS &&
                   requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
                     "Accepted" &&
@@ -648,9 +731,9 @@ function MyTable({
                     />
                   )}
                 </Col>
-                <Col lg={6} className="border pb-2 pt-1">
-                  <p className="fs-6 mb-0">
-                    <b>FEEDBACK</b>
+                <Col lg={6} md={6} sm={12} className="border">
+                    <p className="fs-6 mb-0">
+                      <b>FEEDBACK</b>
                   </p>
                   <input
                     type="text"
@@ -662,23 +745,41 @@ function MyTable({
                     })}
                   />
                   {errors?.["feedbackMTD_HOS"] && (
+                    <>
+
                     <p className="text-error">
                       {errors?.["feedbackMTD_HOS"]?.message}
                     </p>
-                  )}
-                </Col>
-              </Row>
+                    <input
+                      type="text"
+                      class="mb-2"
+                      id="feedbackMTD_HOS"
+                      name="feedbackMTD_HOS"
+                      style={{ width: "60%" }}
+                      {...register("feedbackMTD_HOS", {
+                        required: "This field is required",
+                      })}
+                    />
+                    {errors?.["feedbackMTD_HOS"] && (
+                      <p className="text-error">
+                        {errors?.["feedbackMTD_HOS"]?.message}
+                      </p>
+                    )}
+                    </>)}
+                  </Col>
+                </Row>
+              </div>
             </td>
           </tr>
 
-          <tr>
-            <td colSpan={8}>
+          <tr class="row m-2">
+            <td class="col-lg-4 col-md-12 col-sm-12">
               <ProblemList problems={problems} setProblems={setProblems} />
 
-              <Row className="m-0">
+              <Row className="m-2">
                 <Col
-                  lg={3}
-                  className="border border-top-0 text-center pb-0 pt-2"
+                  lg={6} md={4} sm={6}
+                  className="border text-center pb-0 pt-2"
                 >
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>BREAKDOWN TIME</b>
@@ -686,8 +787,8 @@ function MyTable({
                   <p>{timeDifferenceMinutes || null}</p>
                 </Col>
                 <Col
-                  lg={3}
-                  className="border border-top-0 text-center pb-0 pt-2"
+                  lg={6} md={7} sm={6}
+                  className="border text-center pb-0 pt-2"
                 >
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>MAINTENANCE TIME</b>
@@ -709,14 +810,15 @@ function MyTable({
                   )}
                 </Col>
                 <Col
-                  lg={3}
-                  className="border border-top-0 text-center pb-0 pt-2"
+                  lg={6} md={4} sm={6}
+                  className="border text-center pb-0 pt-2"
                 >
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>QUALITY CHECK TIME</b>
                   </p>
                   <input
                     type="number"
+                    className="mb-2"
                     style={{ width: "100%" }}
                     id="qualityTime"
                     name="qualityTime"
@@ -732,14 +834,15 @@ function MyTable({
                   )}
                 </Col>
                 <Col
-                  lg={3}
-                  className="border border-top-0 text-center pb-0 pt-2"
+                  lg={6} md={7} sm={6}
+                  className="border text-center pb-0 pt-2"
                 >
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>BREAK TIME</b>
                   </p>
                   <input
                     type="number"
+                    className="mb-2"
                     style={{ width: "100%" }}
                     id="breaktime"
                     name="breaktime"
@@ -759,18 +862,16 @@ function MyTable({
                 parseInt(watch("qualityCheckTime")) +
                 parseInt(watch("breakTime")) !==
                 timeDifferenceMinutes && (
-                <p style={{ color: "red" }}>Total time exceeds!!!</p>
+                <p class="mt-1 m-2 p-2 border" style={{ color: "red", marginLeft:"8px" }}>Total time exceeds!!!</p>
               )}
-              <Row className="m-0">
-                <Col className="border">
-                  <Row className="d-flex align-items-center justify-content-center">
-                    <Col>
+              <Row className="m-2">
+                <Col>
+                  <Row >
+                    <Col lg={6} md={6} sm={6} className="border d-flex align-items-center">
                       <p className="mb-0" style={{ fontSize: "12px" }}>
                         <b>MAJOR B/D </b>
-                      </p>
-                    </Col>
-                    <Col>
-                      <Form>
+                      </p>&nbsp;&nbsp;&nbsp;
+                      <Form className="d-flex align-items-center justify-content-center">
                         <div className="d-flex">
                           <Form.Check
                             flex
@@ -781,7 +882,7 @@ function MyTable({
                             id="majorBD"
                             disabled
                             checked={timeDifferenceMinutes > 120 ? true : false}
-                          />
+                          />&nbsp;&nbsp;
                           <Form.Check
                             flex
                             label="No"
@@ -795,9 +896,119 @@ function MyTable({
                         </div>
                       </Form>
                     </Col>
+                    <Col lg={6} md={6} sm={6} className="border d-flex align-items-center">
+                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>FIRST TIME </b>
+                      </p>&nbsp;&nbsp;&nbsp;
+                      <Form className="d-flex align-items-center justify-content-center">
+                      <div className="d-flex">
+                          <Form.Check
+                            flex
+                            label="Yes"
+                            name="firstTime"
+                            type="radio"
+                            value="Yes"
+                            id="firstTime"
+                            // onChange={handleFirstTime}
+                            {...register("firstTime", {
+                              required: "This field is required",
+                            })}
+                          />&nbsp;&nbsp;
+                          <Form.Check
+                            flex
+                            label="No"
+                            name="firstTime"
+                            type="radio"
+                            value="No"
+                            id="firstTime"
+                            // onChange={handleFirstTime}
+                            {...register("firstTime", {
+                              required: "This field is required",
+                            })}
+                          />
+                        </div>
+                        {errors?.["firstTime"] && (
+                          <p className="text-error">
+                            {errors?.["firstTime"]?.message}
+                          </p>
+                        )}
+                      </Form>
+                    </Col>
+                    <Col lg={6} md={6} sm={6} className="border d-flex align-items-center">
+                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>MINOR B/D </b>
+                      </p>&nbsp;&nbsp;&nbsp;
+                      <Form className="d-flex align-items-center justify-content-center">
+                      <div className="d-flex">
+                          <Form.Check
+                            flex
+                            label="Yes"
+                            name="minorBD"
+                            type="radio"
+                            disabled
+                            value="Yes"
+                            id="minorBD"
+                            checked={
+                              timeDifferenceMinutes <= 120 ? true : false
+                            }
+                          />&nbsp;&nbsp;
+                          {/* {console.log(selectedMinor === "Yes")} */}
+                          <Form.Check
+                            flex
+                            label="No"
+                            name="minorBD"
+                            type="radio"
+                            disabled
+                            value="No"
+                            id="minorBD"
+                            checked={
+                              timeDifferenceMinutes <= 120 ? false : true
+                            }
+                          />
+                        </div>
+                      </Form>
+                    </Col>
+                    <Col lg={6} md={6} sm={6} className="border d-flex align-items-center">
+                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>REPEAT </b>
+                      </p> &nbsp;&nbsp;&nbsp;
+                      <Form>
+                        <div className="d-flex">
+                          <Form.Check
+                            flex
+                            label="Yes"
+                            name="repeat"
+                            type="radio"
+                            value="Yes"
+                            id="repeat"
+                            // onChange={handleRepeated}
+                            {...register("repeat", {
+                              required: "This field is required",
+                            })}
+                          /> &nbsp;&nbsp;
+                          <Form.Check
+                            flex
+                            label="No"
+                            name="repeat"
+                            type="radio"
+                            value="No"
+                            id="repeat"
+                            // onChange={handleRepeated}
+                            {...register("repeat", {
+                              required: "This field is required",
+                            })}
+                          />
+                        </div>
+                        {errors?.["repeat"] && (
+                          <p className="text-error">
+                            {errors?.["repeat"]?.message}
+                          </p>
+                        )}
+                      </Form>
+                    </Col>
                   </Row>
                 </Col>
-                <Col className="border">
+                {/* <Col className="border">
                   <Row className="d-flex align-items-center justify-content-center">
                     <Col>
                       <p className="mb-0" style={{ fontSize: "12px" }}>
@@ -840,9 +1051,9 @@ function MyTable({
                       </Form>
                     </Col>
                   </Row>
-                </Col>
+                </Col> */}
               </Row>
-              <Row className="m-0">
+              {/* <Row className="m-0">
                 <Col className="border">
                   <Row className="d-flex align-items-center justify-content-center">
                     <Col>
@@ -865,7 +1076,7 @@ function MyTable({
                               timeDifferenceMinutes <= 120 ? true : false
                             }
                           />
-                          {/* {console.log(selectedMinor === "Yes")} */}
+                          {/* {console.log(selectedMinor === "Yes")}
                           <Form.Check
                             flex
                             label="No"
@@ -927,11 +1138,11 @@ function MyTable({
                     </Col>
                   </Row>
                 </Col>
-              </Row>
+              </Row> */}
 
               {/* <ActionList actions={actions} setActions={setActions} /> */}
             </td>
-            <td colSpan={4}>
+            <td class="col-lg-4 col-md-12 col-sm-12">
               <Row className="m-0">
                 <Col className="border">
                   <p className="mb-0">
@@ -941,14 +1152,87 @@ function MyTable({
               </Row>
 
               <Row className="m-0">
-                <Col className="border">
-                  <Row className="d-flex align-items-center justify-content-center border border-top-0">
-                    <Col md={4}>
+                    <Col lg={12} className="d-flex align-items-center">
                       <p className="mb-0" style={{ fontSize: "12px" }}>
                         <b>WHY-1 </b>
-                      </p>
+                      </p> &nbsp;&nbsp;&nbsp;
+                      <textarea
+                        rows={1}
+                        type="text"
+                        id="Why1"
+                        name="why1"
+                        className="m-1"
+                        style={{ width: "100%", maxWidth: "80%" }}
+                        {...register("why1", {
+                          // required: "This field is required",
+                        })}
+                      />
                     </Col>
-                    <Col md={8}>
+                    <Col lg={12} className="d-flex align-items-center">
+                      <p className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>WHY-2 </b>
+                      </p> &nbsp;&nbsp;&nbsp;
+                      <textarea
+                        rows={1}
+                        type="text"
+                        id="Why2"
+                        name="why2"
+                        className="m-1"
+                        style={{ width: "100%", maxWidth: "80%" }}
+                        {...register("why2", {
+                          // required: "This field is required",
+                        })}
+                      />
+                    </Col>
+                    <Col lg={12} className="d-flex align-items-center">
+                      <p className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>WHY-3 </b>
+                      </p> &nbsp;&nbsp;&nbsp;
+                      <textarea
+                        rows={1}
+                        type="text"
+                        id="Why3"
+                        name="why3"
+                        className="m-1"
+                        style={{ width: "100%", maxWidth: "80%" }}
+                        {...register("why3", {
+                          // required: "This field is required",
+                        })}
+                      />
+                    </Col>
+                    <Col lg={12} className="d-flex align-items-center">
+                      <p className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>WHY-4 </b>
+                      </p> &nbsp;&nbsp;&nbsp;
+                      <textarea
+                        rows={1}
+                        type="text"
+                        id="Why4"
+                        name="why4"
+                        className="m-1"
+                        style={{ width: "100%", maxWidth: "80%" }}
+                        {...register("why4", {
+                          // required: "This field is required",
+                        })}
+                      />
+                    </Col>
+                    <Col lg={12} className="d-flex align-items-center">
+                      <p className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>WHY-5 </b>
+                      </p> &nbsp;&nbsp;&nbsp;
+                      <textarea
+                        rows={1}
+                        type="text"
+                        id="Why5"
+                        name="why5"
+                        className="m-1"
+                        style={{ width: "100%", maxWidth: "80%" }}
+                        {...register("why5", {
+                          // required: "This field is required",
+                        })}
+                      />
+                    </Col>
+                    {/* <Col lg={8} md={8}>
                       <textarea
                         rows={1}
                         type="text"
@@ -959,89 +1243,15 @@ function MyTable({
                         {...register("why1", {
                           // required: "This field is required",
                         })}
-                      />
+                      /> */}
                       {/* {errors?.["whyAnalysis"] && (
                         <p className="text-error">{errors?.["whyAnalysis"]?.message}</p>
                       )} */}
-                    </Col>
-                  </Row>
-                  <Row className="d-flex align-items-center justify-content-center border">
-                    <Col md={4}>
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>WHY-2 </b>
-                      </p>
-                    </Col>
-                    <Col md={8}>
-                      <textarea
-                        rows={1}
-                        type="text"
-                        id="Why2"
-                        name="why2"
-                        className="m-1"
-                        style={{ width: "100%", maxWidth: "100%" }}
-                        {...register("why2")}
-                      />
-                    </Col>
-                  </Row>
-                  <Row className="d-flex align-items-center justify-content-center border">
-                    <Col md={4}>
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>WHY-3 </b>
-                      </p>
-                    </Col>
-                    <Col md={8}>
-                      <textarea
-                        rows={1}
-                        type="text"
-                        id="Why3"
-                        name="why3"
-                        className="m-1"
-                        style={{ width: "100%", maxWidth: "100%" }}
-                        {...register("why3")}
-                      />
-                    </Col>
-                  </Row>
-                  <Row className="d-flex align-items-center justify-content-center border">
-                    <Col md={4}>
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>WHY-4 </b>
-                      </p>
-                    </Col>
-                    <Col md={8}>
-                      <textarea
-                        rows={1}
-                        type="text"
-                        id="Why4"
-                        name="why4"
-                        className="m-1"
-                        style={{ width: "100%", maxWidth: "100%" }}
-                        {...register("why4")}
-                      />
-                    </Col>
-                  </Row>
-                  <Row className="d-flex align-items-center justify-content-center border">
-                    <Col md={4}>
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>WHY-5 </b>
-                      </p>
-                    </Col>
-                    <Col md={8}>
-                      <textarea
-                        rows={1}
-                        type="text"
-                        id="Why5"
-                        name="why5"
-                        className="m-1"
-                        style={{ width: "100%", maxWidth: "100%" }}
-                        {...register("why5")}
-                      />
-                    </Col>
-                  </Row>
-                </Col>
+                    {/* </Col> */}
               </Row>
             </td>
 
-            <td colSpan={4}>
+            <td class="col-lg-4 col-md-12 col-sm-12">
               <Row className="m-0">
                 <Col className="border p-2">
                   <p className="mb-0 d-flex align-items-center justify-content-start">
@@ -1261,32 +1471,32 @@ function MyTable({
             </td>
           </tr>
 
-          <tr>
-            <td colSpan={8}>
+          <tr class="row m-2">
+            <td class="col-lg-12 col-md-12 col-sm-12">
               <ActionList actions={actions} setActions={setActions} />
             </td>
-            <td colSpan={8}>
+            <td class="col-lg-12 col-md-12 col-sm-12">
               <Row className="m-0">
                 <Col className="border">
                   <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
                 </Col>
               </Row>
               <Row className="m-0 p-1 border">
-                <input
+                <textarea
+                  rows={2}
                   type="text"
                   id="preventive_corrective_maintenance"
                   name="preventive_corrective_maintenance"
-                  style={{ width: "100%" }}
+                  style={{ width: "80%" }}
                   {...register("preventive_corrective_maintenance", {
-                    required: "This field is required",
+                    // required: "This field is required",
                   })}
                 />
-                {errors?.["preventive_corrective_maintenance"] && (
+                {/* {errors?.["preventive_corrective_maintenance"] && (
                   <p className="text-error">
                     {errors?.["preventive_corrective_maintenance"]?.message}
                   </p>
-                )}
-                {/* <AddBoxIcon onClick={() => {}} /> */}
+                )} */}
               </Row>
               <Row className="m-0 p-1 border">
                 <AddBoxIcon onClick={() => {}} />
@@ -1297,10 +1507,22 @@ function MyTable({
                 </Col>
               </Row>
               <Row className="m-0 p-1 border">
-                <AddBoxIcon onClick={() => {}} />
-              </Row>
-              <Row className="m-0 p-1 border">
-                <AddBoxIcon onClick={() => {}} />
+                <textarea
+                  rows={2}
+                  type="text"
+                  id="yokotenkai"
+                  name="yokotenkai"
+                  className="m-1"
+                  style={{ width: "100%", maxWidth: "100%" }}
+                  {...register("yokotenkai", {
+                    // required: "This field is required",
+                  })}
+                />
+                {/* {errors?.["yokotenkai"] && (
+                  <p className="text-error">
+                    {errors?.["yokotenkai"]?.message}
+                  </p>
+                )} */}
               </Row>
             </td>
           </tr>
@@ -1364,7 +1586,7 @@ function MyTable({
                         {...field}
                         displayValue="tm_name"
                         className="col-9 "
-                        options={locationSupportingTM.state.supportingTM} // Options to display in the dropdown
+                        options={supportingTMList} // Options to display in the dropdown
                         // selectedValues={departmentList} // Preselected value to persist in dropdown
                         onSelect={async (selectedList) => {
                           await setSelectedSupportedTM(selectedList);
@@ -1437,20 +1659,21 @@ function MyTable({
           <tr>
             <td colSpan={16}>
               <Row>
-                <Col className="col-auto">
-                  <Row className="ms-0 border p-1">
+                <Col className="col-lg-auto">
+                  <Row className="ms-0 border">
                     <b
                       style={{
                         writingMode: "vertical-rl",
                         transform: "rotate(180deg)",
                         whiteSpace: "normal",
+                        fontSize:"12px",
                       }}
                     >
                       CHANGED PARTS
                     </b>
                   </Row>
                 </Col>
-                <Col>
+                <Col lg={11} md={11}>
                   <Row className="">
                     <PartList parts={parts} setParts={setParts} />
                   </Row>
@@ -1696,27 +1919,28 @@ function MyTable({
           requestSheetDataOfBM?.requestSheetStatus === "Work Order Pending" ||
           requestSheetDataOfBM?.requestSheetStatus === "Work Order Closed" ||
           requestSheetDataOfBM?.approvalStatusOfMTD_TL === "Rejected") ? (
-          <Row>
-            <Col>
-              <button
+          <Row className="m-0 d-flex justify-content-between">
+<Col lg={6} md={6} sm={12}>
+<button
                 type="submit"
-                className="btn bg-button"
+                className="btn bg-success"
                 style={{ marginTop: "1rem" }}
                 onClick={handleSubmit(newRequestSheetRegistration)}
               >
-                Submit
+                Save Changes
               </button>
-            </Col>
-            <Col>
+              &nbsp;&nbsp;&nbsp;&nbsp;
               <button
                 type="submit"
-                className="btn bg-button"
+                className="btn bg-warning"
                 style={{ marginTop: "1rem" }}
                 onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
               >
-                Send for approval
+                Send For Approval
               </button>
-            </Col>
+</Col>
+
+
           </Row>
         ) : (
           ""
@@ -1731,74 +1955,97 @@ function MyTable({
         requestSheetDataOfBM?.approvalStatusOfPRD_HOS === "Rejected" ||
         requestSheetDataOfBM?.approvalStatusOfPRD_HOD === "Rejected" ||
         requestSheetDataOfBM?.approvalStatusOfMTD_HOD === "Rejected" ? (
-          <Row>
-            <Col>
-              <p>Do you want to send for approval the request sheet?</p>
-              <Form>
-                <div className="d-flex">
-                  <Form.Check
-                    flex
-                    label="Yes"
-                    name="approvalOfRequestSheet"
-                    type="radio"
-                    value="Yes"
-                    id="approvalOfRequestSheet"
-                    {...register("approvalOfRequestSheet", {
-                      required: "This field is required",
-                    })}
-                    // onChange={handleQuality}
-                  />
-                  <Form.Check
-                    flex
-                    label="No"
-                    name="approvalOfRequestSheet"
-                    type="radio"
-                    value="No"
-                    id="approvalOfRequestSheet"
-                    {...register("approvalOfRequestSheet", {
-                      required: "This field is required",
-                    })}
-                    // onChange={handleQuality}
-                  />
-                </div>
-                {errors?.["approvalOfRequestSheet"] && (
-                  <p className="text-error">
-                    {errors?.["approvalOfRequestSheet"]?.message}
-                  </p>
-                )}
-                {watch("approvalOfRequestSheet") === "No" ? (
-                  <>
-                    <input
-                      type="text"
-                      name="rejectedRemarksOfRequestSheet"
-                      placeholder="Enter rejected remarks"
-                      className="p-1 m-1"
-                      {...register("rejectedRemarksOfRequestSheet", {
-                        required: "Please fill rejected remarks",
-                      })}
-                    />
-                    {errors?.["rejectedRemarksOfRequestSheet"] && (
-                      <p className="text-error">
-                        {errors?.["rejectedRemarksOfRequestSheet"]?.message}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  ""
-                )}
-                &nbsp;
+          <>
+            <Row>
+              <Col>
                 <button
                   type="submit"
                   className="btn bg-button"
-                  onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
+                  style={{ marginTop: "1rem" }}
+                  // onClick={handleSubmit(newRequestSheetRegistration)}
                 >
-                  {watch("approvalOfRequestSheet") === "No"
-                    ? "Reject"
-                    : "Send for approval"}
+                  Submit
                 </button>
-              </Form>
-            </Col>
-          </Row>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <Form>
+                  <p>Do you want to send for approval the request sheet?</p>
+                  <div className="d-flex">
+                    <Form.Check
+                      flex
+                      label="Yes"
+                      name="approvalOfRequestSheet"
+                      type="radio"
+                      value="Yes"
+                      id="approvalOfRequestSheet"
+                      onChange={(e) => {
+                        setValue("approvalOfRequestSheet", e.target.value);
+                        clearErrors("root.handleApprovalErrorFromServerSide");
+                      }}
+                    />
+                    <Form.Check
+                      flex
+                      label="No"
+                      name="approvalOfRequestSheet"
+                      type="radio"
+                      value="No"
+                      id="approvalOfRequestSheet"
+                      onChange={(e) => {
+                        setValue("approvalOfRequestSheet", e.target.value);
+                        clearErrors("root.handleApprovalErrorFromServerSide");
+                      }}
+                    />
+                  </div>
+                  {errors?.root?.handleApprovalErrorFromServerSide?.type ===
+                    "approvalOfRequestSheet" && (
+                    <p className="text-error">
+                      {errors?.root?.handleApprovalErrorFromServerSide?.message}
+                    </p>
+                  )}
+                  {watch("approvalOfRequestSheet") === "No" ? (
+                    <>
+                      <input
+                        type="text"
+                        name="rejectedRemarksOfRequestSheet"
+                        placeholder="Enter rejected remarks"
+                        className="p-1 m-1"
+                        onChange={(e) => {
+                          setValue(
+                            "rejectedRemarksOfRequestSheet",
+                            e.target.value
+                          );
+                          clearErrors("root.handleApprovalErrorFromServerSide");
+                        }}
+                      />
+                      {errors?.root?.handleApprovalErrorFromServerSide?.type ===
+                        "rejectedRemarksOfRequestSheet" && (
+                        <p className="text-error">
+                          {
+                            errors?.root?.handleApprovalErrorFromServerSide
+                              ?.message
+                          }
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    ""
+                  )}
+                  &nbsp;
+                  <button
+                    type="submit"
+                    className="btn bg-button"
+                    onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
+                  >
+                    {watch("approvalOfRequestSheet") === "No"
+                      ? "Reject"
+                      : "Send for approval"}
+                  </button>
+                </Form>
+              </Col>
+            </Row>
+          </>
         ) : (
           ""
         )}
@@ -1810,76 +2057,103 @@ function MyTable({
         requestSheetDataOfBM?.approvalOfMTD_TL?._id !==
           loggedUserDetails?._id &&
         requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id ? (
-          <Row>
-            <Col>
-              Kindly approve request-sheet.{" "}
-              <Form>
-                <div className="d-flex">
-                  <Form.Check
-                    flex
-                    label="Yes"
-                    name="approvalOfRequestSheet"
-                    type="radio"
-                    value="Yes"
-                    id="approvalOfRequestSheet"
-                    {...register("approvalOfRequestSheet", {
-                      required: "This field is required",
-                    })}
-                    // onChange={handleQuality}
-                  />
-                  <Form.Check
-                    flex
-                    label="No"
-                    name="approvalOfRequestSheet"
-                    type="radio"
-                    value="No"
-                    id="approvalOfRequestSheet"
-                    {...register("approvalOfRequestSheet", {
-                      required: "This field is required",
-                    })}
-                    // onChange={handleQuality}
-                  />
-                </div>
-                {errors?.["approvalOfRequestSheet"] && (
-                  <p className="text-error">
-                    {errors?.["approvalOfRequestSheet"]?.message}
-                  </p>
-                )}
-                {watch("approvalOfRequestSheet") === "No" ? (
-                  <>
-                    <input
-                      type="text"
-                      name="rejectedRemarksOfRequestSheet"
-                      placeholder="Enter rejected remarks"
-                      className="p-1 m-1"
-                      {...register("rejectedRemarksOfRequestSheet", {
-                        required: "Please fill this field",
+          <>
+            <Row>
+              {loggedUserDetails?.tm_department === "MTD" && (
+                <Col>
+                  <button
+                    type="submit"
+                    className="btn bg-button"
+                    style={{ marginTop: "1rem" }}
+                    onClick={handleSubmit(newRequestSheetRegistration)}
+                  >
+                    Submit
+                  </button>
+                </Col>
+              )}
+            </Row>
+            <Row>
+              <Col>
+                Kindly approve request-sheet.{" "}
+                <Form>
+                  <div className="d-flex">
+                    <Form.Check
+                      flex
+                      label="Yes"
+                      name="approvalOfRequestSheet"
+                      type="radio"
+                      value="Yes"
+                      id="approvalOfRequestSheet"
+                      {...register("approvalOfRequestSheet", {
+                        // required: "This field is required",
                       })}
+                      // onChange={handleQuality}
                     />
-                    {errors?.["rejectedRemarksOfRequestSheet"] && (
-                      <p className="text-error">
-                        {errors?.["rejectedRemarksOfRequestSheet"]?.message}
-                      </p>
+                    <Form.Check
+                      flex
+                      label="No"
+                      name="approvalOfRequestSheet"
+                      type="radio"
+                      value="No"
+                      id="approvalOfRequestSheet"
+                      {...register("approvalOfRequestSheet", {
+                        // required: "This field is required",
+                      })}
+                      // onChange={handleQuality}
+                    />
+                  </div>
+                  {errors?.root?.handleApprovalErrorFromServerSide?.type ===
+                    "approvalOfRequestSheet" && (
+                    <p className="text-error">
+                      {errors?.root?.handleApprovalErrorFromServerSide?.message}
+                    </p>
+                  )}
+                  {watch("approvalOfRequestSheet") === "No" ? (
+                    <>
+                      <input
+                        type="text"
+                        name="rejectedRemarksOfRequestSheet"
+                        placeholder="Enter rejected remarks"
+                        className="p-1 m-1"
+                        {...register("rejectedRemarksOfRequestSheet", {
+                          required: "Please fill this field",
+                        })}
+                      />
+                      {errors?.root?.handleApprovalErrorFromServerSide?.type ===
+                        "rejectedRemarksOfRequestSheet" && (
+                        <p className="text-error">
+                          {
+                            errors?.root?.handleApprovalErrorFromServerSide
+                              ?.message
+                          }
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    ""
+                  )}
+                  &nbsp;
+                  <button
+                    type="submit"
+                    className="btn bg-button"
+                    onClick={handleSubmit(
+                      approveRequestSheetFromHigherAuthority
                     )}
-                  </>
-                ) : (
-                  ""
-                )}
-                &nbsp;
-                <button
-                  type="submit"
-                  className="btn bg-button"
-                  onClick={handleSubmit(approveRequestSheetFromHigherAuthority)}
-                >
-                  Submit
-                </button>
-              </Form>
-            </Col>
-          </Row>
+                  >
+                    Submit
+                  </button>
+                </Form>
+              </Col>
+            </Row>
+          </>
         ) : (
           ""
         )}
       </Table>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
     </form>
   );
 }

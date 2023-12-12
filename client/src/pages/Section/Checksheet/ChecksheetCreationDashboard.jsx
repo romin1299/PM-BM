@@ -1019,7 +1019,7 @@ const ChecksheetCreationDashboard = ({}) => {
                         </Col>
                         <Col sm className="mt-2">
                           {" "}
-                          <button className="btn-reset" type="submit">
+                          <button className="btn-success" type="submit">
                             Submit
                           </button>
                         </Col>
