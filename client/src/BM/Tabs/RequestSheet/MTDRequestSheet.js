@@ -898,40 +898,6 @@ function MyTable({
                     </Col>
                     <Col lg={6} md={6} sm={6} className="border d-flex align-items-center">
                     <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>MINOR B/D </b>
-                      </p>&nbsp;&nbsp;&nbsp;
-                      <Form className="d-flex align-items-center justify-content-center">
-                      <div className="d-flex">
-                          <Form.Check
-                            flex
-                            label="Yes"
-                            name="minorBD"
-                            type="radio"
-                            disabled
-                            value="Yes"
-                            id="minorBD"
-                            checked={
-                              timeDifferenceMinutes <= 120 ? true : false
-                            }
-                          />&nbsp;&nbsp;
-                          {/* {console.log(selectedMinor === "Yes")} */}
-                          <Form.Check
-                            flex
-                            label="No"
-                            name="minorBD"
-                            type="radio"
-                            disabled
-                            value="No"
-                            id="minorBD"
-                            checked={
-                              timeDifferenceMinutes <= 120 ? false : true
-                            }
-                          />
-                        </div>
-                      </Form>
-                    </Col>
-                    <Col lg={6} md={6} sm={6} className="border d-flex align-items-center">
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
                         <b>FIRST TIME </b>
                       </p>&nbsp;&nbsp;&nbsp;
                       <Form className="d-flex align-items-center justify-content-center">
@@ -966,6 +932,40 @@ function MyTable({
                             {errors?.["firstTime"]?.message}
                           </p>
                         )}
+                      </Form>
+                    </Col>
+                    <Col lg={6} md={6} sm={6} className="border d-flex align-items-center">
+                    <p className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>MINOR B/D </b>
+                      </p>&nbsp;&nbsp;&nbsp;
+                      <Form className="d-flex align-items-center justify-content-center">
+                      <div className="d-flex">
+                          <Form.Check
+                            flex
+                            label="Yes"
+                            name="minorBD"
+                            type="radio"
+                            disabled
+                            value="Yes"
+                            id="minorBD"
+                            checked={
+                              timeDifferenceMinutes <= 120 ? true : false
+                            }
+                          />&nbsp;&nbsp;
+                          {/* {console.log(selectedMinor === "Yes")} */}
+                          <Form.Check
+                            flex
+                            label="No"
+                            name="minorBD"
+                            type="radio"
+                            disabled
+                            value="No"
+                            id="minorBD"
+                            checked={
+                              timeDifferenceMinutes <= 120 ? false : true
+                            }
+                          />
+                        </div>
                       </Form>
                     </Col>
                     <Col lg={6} md={6} sm={6} className="border d-flex align-items-center">
