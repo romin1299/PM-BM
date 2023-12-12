@@ -12,9 +12,11 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 import RoutingContext from "../../context/routing/RoutingContext";
+
+import MachineHistoryCard from "../HistoryCard/MachineHistoryCard";
 
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
 
@@ -22,6 +24,9 @@ const RequestSheetMainDashboard = () => {
   const navigate = useNavigate();
 
   const context = useContext(RoutingContext);
+
+  const [selectedRow, setSelectedRow] = useState();
+  const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
 
   const statusArray = [
     "Generated",
@@ -392,13 +397,19 @@ const RequestSheetMainDashboard = () => {
     },
   ];
 
+  const handleMachineHistoryCardState = () => {
+    setMachineHistoryCardModal(
+      (machineHistoryCardModal) => !machineHistoryCardModal
+    );
+  };
   const requestSheetActions = [
     {
       icon: () => <CreditCardIcon />,
       tooltip: "History Card",
       position: "row",
       onClick: (event, selectedRow) => {
-        console.log("----------", selectedRow);
+        setSelectedRow(selectedRow);
+        handleMachineHistoryCardState();
       },
     },
     (row) => ({
@@ -413,7 +424,8 @@ const RequestSheetMainDashboard = () => {
           : true,
       onClick: (event, selectedRow) => {
         navigate(
-          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`,{
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`,
+          {
             state: {
               supportingTM: reduceState?.TLHOSS_and_TM_user_list,
             },
@@ -445,8 +457,7 @@ const RequestSheetMainDashboard = () => {
               }
               style={{ marginTop: "1rem" }}
             >
-              <AddCircleIcon/> &nbsp;
-              Generate New Request-Sheet
+              <AddCircleIcon /> &nbsp; Generate New Request-Sheet
             </button>
           </Col>
 
@@ -540,6 +551,16 @@ const RequestSheetMainDashboard = () => {
           />
         </Row>
       </Container>
+
+      {machineHistoryCardModal && (
+        <MachineHistoryCard
+          selectedRow={selectedRow}
+          modelProp={{
+            show: machineHistoryCardModal,
+            onHide: () => setMachineHistoryCardModal(false),
+          }}
+        />
+      )}
     </>
   );
 };

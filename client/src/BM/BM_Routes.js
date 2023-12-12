@@ -140,6 +140,7 @@ const userRoutes = [
     routes: [
       { path: "/bm", element: <OperatorDashboard /> },
       { path: "/bm/profile", element: <Profile /> },
+      { path: "/bm/customizedDashboard", element: <MainCustomized /> },
       {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,
