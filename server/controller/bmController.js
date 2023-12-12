@@ -14,7 +14,6 @@ const Line = require("../model/lineSchema");
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
-const Line = require("../model/lineSchema");
 const factory = require("./handleFactory");
 
 const moment = require("moment-timezone");
@@ -536,18 +535,8 @@ router.post(
 
 const findRequestSheetMiddleware = async (req, res, next) => {
   try {
-    let queryObj = {};
-
-    if (req.query._id) {
-      queryObj = {
-        _id: mongoose.Types.ObjectId(req.query._id),
-      };
-    }
-
     const requestSheetData = await RequestSheetOfBM.aggregate([
-      {
-        $match: queryObj,
-      },
+      ...req.queryPipeline,
       {
         $lookup: {
           from: "machinesalldatas",
@@ -1039,6 +1028,13 @@ router.patch(
           new: true,
         }
       );
+
+      req.queryPipeline = [
+        {
+          _id: mongoose.Types.ObjectId(req.query._id),
+        },
+      ];
+
       next();
     } catch (error) {
       res
@@ -1136,6 +1132,31 @@ const findTLandOperatorList = async (req, res, next) => {
 
 router.get(
   "/getRequestSheetData",
+  async (req, res, next) => {
+    try {
+      let queryPipeline = [
+        {
+          $match: {},
+        },
+      ];
+
+      if (req.rootUser?.user_type === "Operator") {
+        queryPipeline = [
+          {
+            $match: {
+              assignUser: req.rootUser?._id,
+            },
+          },
+        ];
+      }
+
+      req.queryPipeline = queryPipeline;
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
   findRequestSheetMiddleware,
   dashboardLevelUserCheckMiddleware,
   findTLandOperatorList,
@@ -3530,7 +3551,6 @@ router.patch(
         delete assignApprovalList[formattedKey];
       // });
 
-      
       //Handling validation for approval list which is not selected by user from client-side
       for (
         let index = 0;
@@ -8060,7 +8080,6 @@ const middlewareForLimitValidation = async (req, res, next) => {
   }
 };
 const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
-  
   try {
     const TrendData = await RequestSheetOfBM.aggregate([
       {
@@ -8090,7 +8109,10 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
             $sum: {
               $cond: [
                 {
-                  $gt: ["$maintenanceReportFilledByMTD.workEndedDateOfBM", null],
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
+                  ],
                 },
                 {
                   $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
@@ -8123,9 +8145,9 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
         },
       },
     ]);
-  
+
     req.TrendData = TrendData;
-  
+
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -8264,7 +8286,7 @@ const productionHourFiltration = async (req, res, next) => {
     const data = await schema.aggregate([
       {
         $match: {
-          _id: mongoose.Types.ObjectId(req.params?.selectedId), 
+          _id: mongoose.Types.ObjectId(req.params?.selectedId),
         },
       },
       {
@@ -8403,18 +8425,17 @@ router.patch(
       });
 
       const lengthOfTheApprovalStatus =
-      getRequestSheetData?.[
-        keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition
-      ]?.length || 1;
+        getRequestSheetData?.[
+          keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition
+        ]?.length || 1;
 
       const lengthOfTheApprovalOrRejectedDateAndTime =
-      getRequestSheetData?.[
-        keyOfApprovalDateAndTimeOfAcceptedOrRejected
-      ]?.length || 1;
-      
-      getRequestSheetData[
-        keyOfApprovalDateAndTimeOfAcceptedOrRejected
-      ][lengthOfTheApprovalOrRejectedDateAndTime - 1] = new Date();
+        getRequestSheetData?.[keyOfApprovalDateAndTimeOfAcceptedOrRejected]
+          ?.length || 1;
+
+      getRequestSheetData[keyOfApprovalDateAndTimeOfAcceptedOrRejected][
+        lengthOfTheApprovalOrRejectedDateAndTime - 1
+      ] = new Date();
 
       //Approver approve the request-sheet
       if (approvalOfRequestSheet === "Yes") {
@@ -8442,11 +8463,11 @@ router.patch(
               ) + 1
             ];
         }
-          if (getNextApproverDepartmentAndGradeOfUser) {
-            //Further approval is required
-            getRequestSheetData[
-              keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition
-            ][lengthOfTheApprovalStatus - 1] = "Accepted";
+        if (getNextApproverDepartmentAndGradeOfUser) {
+          //Further approval is required
+          getRequestSheetData[
+            keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition
+          ][lengthOfTheApprovalStatus - 1] = "Accepted";
 
           let valueOfGetDataForApprovalDashboardId =
             requestSheetDataOfBM?.[
@@ -8474,10 +8495,11 @@ router.patch(
                     getRequestSheetData?.[
                       keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition
                     ],
-                    [keyOfApprovalDateAndTimeOfAcceptedOrRejected]: getRequestSheetData[
+                  [keyOfApprovalDateAndTimeOfAcceptedOrRejected]:
+                    getRequestSheetData[
                       keyOfApprovalDateAndTimeOfAcceptedOrRejected
                     ],
-                }
+                },
               },
               { new: true }
             );
@@ -8502,7 +8524,8 @@ router.patch(
                     getRequestSheetData?.[
                       keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition
                     ],
-                    [keyOfApprovalDateAndTimeOfAcceptedOrRejected]: getRequestSheetData[
+                  [keyOfApprovalDateAndTimeOfAcceptedOrRejected]:
+                    getRequestSheetData[
                       keyOfApprovalDateAndTimeOfAcceptedOrRejected
                     ],
                 },
@@ -8522,11 +8545,9 @@ router.patch(
       }
       //Approver reject the request-sheet
       else {
-        
         getRequestSheetData[
           keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition
         ][lengthOfTheApprovalStatus - 1] = "Rejected";
-
 
         let updateApprovalStatusOfRequestSheet =
           await RequestSheetOfBM.findOneAndUpdate(
@@ -8546,7 +8567,8 @@ router.patch(
                   requestSheetDataOfBM?.approvalOfMTD_TL?._id,
                 "getDataForApprovalDashboard.departmentAndGradeOfUser":
                   "MTD TL",
-                  [keyOfApprovalDateAndTimeOfAcceptedOrRejected]: getRequestSheetData[
+                [keyOfApprovalDateAndTimeOfAcceptedOrRejected]:
+                  getRequestSheetData[
                     keyOfApprovalDateAndTimeOfAcceptedOrRejected
                   ],
               },
