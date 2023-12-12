@@ -78,22 +78,25 @@ const RequestSheetCustomizedApproval = () => {
             <Col className="cell m-2"> */}
           <h4>Approval selection </h4>
           <Row>
-            <Col className="cell m-2">
-              <p>Minor BD Approval Selection ({"<"} 2 Hrs.)</p>
+            <Col className="cell m-2 p-2">
+              <h6 style={{ marginLeft: "0px" }}>Minor BD Approval Selection (<span className="text-success">{"<"} 2 Hrs.</span>)</h6>
               {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
                 return (
                   <>
-                    <input
-                      type="checkbox"
-                      name={obj?.value}
-                      value={obj?.value}
-                      id={`inline-checkbox-${obj?.key}`}
-                      {...register("minorApprovalList", {
-                        required: "Please select approval list",
-                      })}
-                    />{" "}
-                    &nbsp;
-                    <label>{obj?.value}</label> <br />
+                    <div className="mt-1">
+                      <input
+                        type="checkbox"
+                        name={obj?.value}
+                        value={obj?.value}
+                        id={`inline-checkbox-${obj?.key}`}
+                        {...register("minorApprovalList", {
+                          required: "Please select approval list",
+                        })}
+                      />{" "}
+                      &nbsp;
+                      <label>{obj?.value}</label> <br />
+                    </div>
+
                   </>
                 );
               })}
@@ -101,11 +104,12 @@ const RequestSheetCustomizedApproval = () => {
                 <p>{errors?.["minorApprovalList"]?.message}</p>
               )}
             </Col>
-            <Col className="cell m-2">
-              <p>Major BD Approval Selection ({">"} 2 Hrs.)</p>
+            <Col className="cell m-2 p-2">
+              <h6 style={{ marginLeft: "0px" }}>Major BD Approval Selection (<span className="text-danger">{">"} 2 Hrs.</span>)</h6>
               {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
                 return (
                   <>
+                  <div className="mt-1">
                     <input
                       type="checkbox"
                       name={obj?.value}
@@ -117,6 +121,7 @@ const RequestSheetCustomizedApproval = () => {
                     />{" "}
                     &nbsp;
                     <label>{obj?.value}</label> <br />
+                    </div>
                   </>
                 );
               })}
@@ -126,8 +131,8 @@ const RequestSheetCustomizedApproval = () => {
             </Col>
           </Row>
 
-          <Box sx={{ display: "flex", justifyContent:"center" }}>
-            <button type="submit" className="btn bg-button ">
+          <Box className="m-2" sx={{ display: "flex", justifyContent: "center" }}>
+            <button type="submit" className="btn bg-succ ">
               Submit Approval List
             </button>
           </Box>

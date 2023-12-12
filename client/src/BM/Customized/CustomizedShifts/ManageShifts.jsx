@@ -46,7 +46,7 @@ function EditToolbar(props) {
 
   return (
     <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-      <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
+      <Button className="bg-primary text-white" startIcon={<AddIcon />} onClick={handleClick}>
         Add New Shift
       </Button>
     </GridToolbarContainer>

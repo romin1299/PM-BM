@@ -519,21 +519,15 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
             <td colSpan={8}>
               <ProblemList problems={problems} setProblems={setProblems} />
 
-              <Row className="m-0">
-                <Col
-                  lg={3}
-                  className="border border-top-0 text-center pb-0 pt-2"
-                >
+              <Row className="m-2">
+                <Col lg={3} className="border text-center pb-0 pt-2">
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>BREAKDOWN TIME</b>
                   </p>
 
                   <p>{timeDifferenceMinutes || null}</p>
                 </Col>
-                <Col
-                  lg={3}
-                  className="border border-top-0 text-center pb-0 pt-2"
-                >
+                <Col lg={3} className="border text-center pb-0 pt-2">
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>MAINTENANCE TIME</b>
                   </p>
@@ -553,10 +547,7 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                     </p>
                   )}
                 </Col>
-                <Col
-                  lg={3}
-                  className="border border-top-0 text-center pb-0 pt-2"
-                >
+                <Col lg={3} className="border text-center pb-0 pt-2">
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>QUALITY CHECK TIME</b>
                   </p>
@@ -576,10 +567,7 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                     </p>
                   )}
                 </Col>
-                <Col
-                  lg={3}
-                  className="border border-top-0 text-center pb-0 pt-2"
-                >
+                <Col lg={3} className="border text-center pb-0 pt-2">
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>BREAK TIME</b>
                   </p>
@@ -604,10 +592,10 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                 watch("qualityCheckTime") +
                 watch("breakTime") >
                 timeDifferenceMinutes && (
-                <p style={{ color: "red" }}>Total time exceeds!!!</p>
+                <p class="mt-1 m-2 border p-2" style={{ color: "red" }}>Total time exceeds!!!</p>
               )}
-              <Row className="m-0">
-                <Col className="border">
+              <Row className="m-2">
+                <Col>
                   <Row className="d-flex align-items-center justify-content-center">
                     <Col>
                       <p className="mb-0" style={{ fontSize: "12px" }}>

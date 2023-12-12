@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { RenderInputRow } from "./ManageCategories";
 import MuiDeleteDialog from "./MuiDeleteDialog";
+import { Row, Col } from "react-bootstrap";
 
 const CategoryTreeList = ({
   categories,
@@ -64,13 +65,13 @@ const CategoryTreeList = ({
       "& .MuiListItemText-primary":
         parentCategoryId < 0
           ? {
-              // color: "#4f4f4f",
-              fontWeight: "600",
-            }
+            // color: "#4f4f4f",
+            fontWeight: "600",
+          }
           : {
-              color: "#555555",
-              fontSize: "15px",
-            },
+            color: "#555555",
+            fontSize: "15px",
+          },
     };
 
     return (
@@ -186,24 +187,29 @@ const CategoryTreeList = ({
       // direction="row"
       // spacing={2}
       >
-        <Button
-          variant="outlined"
-          size="small"
-          sx={{
-            color: "#004b5b",
-            borderColor: "#004b5b",
-            "&:hover": { borderColor: "#3f97a9" },
-          }}
-          endIcon={<AddIcon />}
-          onClick={() => {
-            setEditingId(-1);
-            toggleCategory(-1);
-          }}
-        >
-          <Typography sx={{ pt: "2px" }} variant="body1">
-            Add new Category
-          </Typography>
-        </Button>
+        <Row>
+          <Col >
+            <Button
+              variant="contained"
+              size="small"
+              sx={{
+                color: "#ffffff",
+                background: "#E47E07",
+                "&:hover": { borderColor: "#E47E07",background: "#BC6806" },
+              }}
+              endIcon={<AddIcon />}
+              onClick={() => {
+                setEditingId(-1);
+                toggleCategory(-1);
+              }}
+            >
+              <Typography sx={{ pt: "2px" }} variant="body1">
+                Add new Category
+              </Typography>
+            </Button>
+          </Col>
+        </Row>
+
       </Stack>
 
       <List sx={{ pb: 0 }}>
@@ -215,8 +221,8 @@ const CategoryTreeList = ({
             <RenderCategory category={category} parentCategoryId={-1} />
           ))
         ) : (
-          <div className="alert alert-secondary mb-2 text-center" role="alert">
-            No categories data to show
+          <div className="alert alert-secondary mb-2 text-center text-danger" role="alert">
+            No categories data to show!
           </div>
         )}
 
