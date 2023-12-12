@@ -51,8 +51,8 @@ input[type="number"] {
 /* Handle */
 ::-webkit-scrollbar-thumb {
   /* background: rgb(3, 1, 109) !important; */
-  background: #037088 !important;
-  border-radius: 2px;
+  background: #d1d1d1 !important;
+  border-radius: 0px 0px 10px 10px;
 }
 
 /* Handle on hover */
@@ -146,6 +146,14 @@ input[type="number"] {
   }
 }
 
+.bg-dang {
+  background-color: #A30808 !important;
+}
+
+.bg-succ {
+  background-color: #2B6200 !important;
+}
+
 .bg-button {
   background-color: #002d37;
 }
@@ -214,4 +222,67 @@ input[type="number"] {
   overflow-y: auto;
   /* Enable vertical scrolling */
   overflow-x: hidden;
+}
+
+.box-shadow {
+  background: #FFFFFF;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1), -2px -2px 10px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  /* border-radius: 20px; */
+}
+
+.nav-tabs .nav-link {
+  color: #002d37;
+  border-radius: 6px;
+  /* margin-right: 10px; */
+  font-size: 16px;
+  margin: 10px 10px 0px 0px;
+  background-color: white;
+  /* box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1), -2px -2px 10px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important; */
+}
+
+.nav-tabs .nav-item.show .nav-link,
+.nav-tabs .nav-link.active {
+  color: white;
+  background-color: #002d37;
+  /* background-color: #fff; */
+}
+
+.nav-tabs {
+  border-bottom: none;
+  align-items: center;
+}
+
+/* .nav-tabs .nav-link:hover{
+  color: #b42929
+} */
+
+
+@media only screen and (max-width: 900px) {
+  .marginLeft {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  .nav-tabs .nav-link {
+    font-size: 10px;
+
+  }
+}
+
+.scrollable-column {
+  /* overflow-y: auto; */
+  overflow: auto;
+  max-height: 16vh;
+  /* Set a maximum height if needed */
+}
+
+.scrollable-content {
+  /* overflow-y: auto; */
+  max-height: 100vh;
+  /* Set a maximum height if needed */
+}
+
+.border-bg{
+border-color: #002d37 !important;
+padding: 2px !important;
 }

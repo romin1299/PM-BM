@@ -61,6 +61,7 @@ const CategoryPieCharts = ({
           credentials: "include",
         });
 
+        // console.log("res:", res);
         let resData;
         if (category === "Bd") {
           resData = res?.data?.bdCategoryPieChart;

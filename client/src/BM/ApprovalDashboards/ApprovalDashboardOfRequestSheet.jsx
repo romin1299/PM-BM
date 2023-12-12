@@ -86,7 +86,7 @@ const ApprovalDashboardOfRequestSheet = () => {
 
   const requestSheetApprovalAction = [
     {
-      icon: () => <CreditCardIcon />,
+      icon: () => <CreditCardIcon className="text-primary1"/>,
       tooltip: "History Card",
       position: "row",
       onClick: (event, selectedRow) => {
@@ -94,7 +94,7 @@ const ApprovalDashboardOfRequestSheet = () => {
       },
     },
     (row) => ({
-      icon: () => <DescriptionIcon />,
+      icon: () => <DescriptionIcon className="text-primary"/>,
       tooltip: "Update Action",
       position: "row",
       // disabled:
@@ -128,7 +128,6 @@ const ApprovalDashboardOfRequestSheet = () => {
       if (res.status === 404) {
         console.log("error", data?.message);
       } else {
-        console.log(data?.requestSheetData);
         setApprovalRequestSheetDataOfBM(data?.requestSheetData);
       }
     } catch (error) {

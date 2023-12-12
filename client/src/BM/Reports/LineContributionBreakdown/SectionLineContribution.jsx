@@ -106,7 +106,7 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
 
     try {
       const res = await axios.get(url, {
-        // params,   //commented because api is not accepting params
+        // params,   //uncomment when database is updated with agrregated year and month values
         withCredentials: true,
         credentials: "include",
       });
@@ -119,16 +119,12 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
   };
 
   React.useEffect(() => {
-    fetchChartData();
-  }, [
-    reduceState?.selectedValue,
-    reduceState?.selectedYear,
-    reduceState?.selectedMonth,
-  ]);
+    selectedValue && fetchChartData();
+  }, [selectedValue, selectedYear, selectedMonth]);
 
-  React.useEffect(() => {
-    console.log("section data:", data);
-  }, [data]);
+  // React.useEffect(() => {
+  //   console.log("section data:", data);
+  // }, [data]);
 
   const chartData = {
     labels: data?.lineNames,

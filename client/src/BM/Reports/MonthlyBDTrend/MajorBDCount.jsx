@@ -139,7 +139,7 @@ const MajorBDCount = ({ currentTabViewName, sectionId }) => {
 
   return (
     <Box className="cell p-3 mt-3">
-      <Row className="mb-3 gy-3">
+      <Row className="gy-3">
         <Col md={12} lg={6}>
           <Typography
             variant="h5"

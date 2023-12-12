@@ -1,0 +1,45 @@
+.shifts-table {
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  td,
+  th {
+    text-align: left;
+    padding: 8px;
+
+    // input[type="time"] {
+    // }
+
+    input[type="text"] {
+      width: 100%;
+      min-width: 50px;
+      max-width: 200px;
+    }
+  }
+
+  th {
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+
+  tr {
+    border-top: 1px solid #dddddd;
+    font-size: 14px;
+  }
+
+  thead {
+    border-top: none;
+
+    & > th {
+      padding-bottom: 12px;
+    }
+  }
+
+  // tr:nth-child(even) {
+  //   background-color: #dddddd;
+  // }
+}
