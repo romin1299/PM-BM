@@ -13,6 +13,7 @@ const ChartsToolbar = ({
   reduceState,
   reducerDispatch,
   ACTION,
+  monthFiltration,
 }) => {
   const generatePPT = () => {
     const pptx = new pptxgen();
@@ -81,26 +82,32 @@ const ChartsToolbar = ({
         display: "flex",
         alignItems: "center",
         gap: "12px",
+        flexWrap: "wrap",
       }}
     >
-      <LineSelectionDropdown
-        {...reduceState}
-        baseUrlForFiltering={baseUrlForFiltering}
-        reducerDispatch={reducerDispatch}
-        ACTION={ACTION}
-      />
+      <Box>
+        <LineSelectionDropdown
+          {...reduceState}
+          baseUrlForFiltering={baseUrlForFiltering}
+          reducerDispatch={reducerDispatch}
+          ACTION={ACTION}
+          monthFiltration={monthFiltration}
+        />
+      </Box>
 
-      <ButtonGroup
-        size="small"
-        disableElevation
-        variant="outlined"
-        aria-label="outlined button group"
-      >
-        <Button>Year</Button>
-        <Button variant="contained">Month</Button>
-      </ButtonGroup>
+      <Box sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+        {/* <ButtonGroup
+          size="small"
+          disableElevation
+          variant="outlined"
+          aria-label="outlined button group"
+        >
+          <Button>Year</Button>
+          <Button variant="contained">Month</Button>
+        </ButtonGroup> */}
 
-      <DownloadMenu handleDownloadCSV={generatePPT} />
+        <DownloadMenu handleDownloadCSV={generatePPT} />
+      </Box>
     </Box>
   );
 };

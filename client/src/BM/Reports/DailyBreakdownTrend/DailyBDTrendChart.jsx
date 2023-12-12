@@ -9,11 +9,14 @@ import {
   Legend,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { Box, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 import { Row, Col } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
+import { MonthDropdown } from "../ManHourReport/SubComponents/LineSelectionDropdown";
+import currentMonth from "../../../pages/Dashboard/DashboardComponent/currentMonth";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 ChartJS.register(
   CategoryScale,
@@ -69,20 +72,20 @@ export const options = {
         text: "Days",
       },
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
     y: {
       stacked: true,
       position: "left",
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
     y2: {
       position: "right",
       ticks: {
-        color: 'black'
+        color: "black",
       },
     },
   },
@@ -94,8 +97,12 @@ const getRandomDataArray = (max = 30) => {
   return Array.from({ length: 30 }, () => Math.floor(Math.random() * max));
 };
 
-const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
-
+const DailyBDTrendChart = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  // selectedMonth,
+}) => {
   const [dailyBreakdownTrendData, setDailyBreakdownTrendData] = useState({
     // labels: daysLabels,
 
@@ -112,11 +119,13 @@ const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
     greaterThenTwoHourData: [],
   });
 
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+
   const getDailyBreakdownTrendData = async () => {
     try {
       const res = await fetch(
-        `/getDailyBreakdownTrendData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9/?selectedYear=2023-2024`,
-        // `/getMTTRGraphData/${flagForCellAndLineToggle}/${selectedValue}/?selectedYear=2023-2024`,
+        // `/getDailyBreakdownTrendData/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        `/getDailyBreakdownTrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
         {
           method: "GET",
           headers: {
@@ -138,18 +147,21 @@ const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
   };
 
   useEffect(() => {
-    if (selectedValue) {
+    if (
+      selectedValue &&
+      (flagForTogglingFilter === "based-on-cell" ||
+        flagForTogglingFilter === "based-on-line")
+    ) {
       getDailyBreakdownTrendData();
     }
-  }, [selectedValue]);
-
+  }, [selectedValue, selectedYear, selectedMonth]);
 
   const datasets = [
     {
       type: "line",
       label: "Total Count",
       data: dailyBreakdownTrendData?.dayWiseCount,
-      backgroundColor:'rgba(202, 31, 75)',
+      backgroundColor: "rgba(202, 31, 75)",
       borderColor: chartColors[3],
       borderWidth: 2,
       fill: false,
@@ -161,14 +173,14 @@ const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
       label: "< 1",
       data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
       yAxisID: "y",
-      backgroundColor:chartColors.orange[2],
+      backgroundColor: chartColors.orange[2],
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: "< 2",
       data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
-      backgroundColor:chartColors.green[0],
+      backgroundColor: chartColors.green[0],
       yAxisID: "y",
     },
     {
@@ -176,7 +188,7 @@ const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
       stack: "bar-stacked",
       label: "> 2",
       data: dailyBreakdownTrendData?.greaterThenTwoHourData,
-      backgroundColor:chartColors.aqua[1],
+      backgroundColor: chartColors.aqua[1],
       yAxisID: "y",
     },
   ];
@@ -187,20 +199,18 @@ const DailyBDTrendChart = ({ selectedValue, flagForCellAndLineToggle }) => {
   };
 
   return (
-    <Box className="cell p-3 mt-3">
-      <Row>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-          sx={{ textDecoration: "underline" }}
-        >
-          Daily Breakdown Trend
-        </Typography>
-        {/* <Col className="col-auto d-flex">
-            <FilterMenu DropdownValue="hour" />
-          </Col> */}
-      </Row>
+    <Box className="cell p-3 mt-3 mb-0">
+      <ChartTitleBar
+        title="Daily Breakdown Trend"
+        Toolbar={
+          <Col className="col-auto">
+            <MonthDropdown
+              selectedMonth={selectedMonth}
+              setSelectedMonth={setSelectedMonth}
+            />
+          </Col>
+        }
+      />
 
       <div style={{ width: "100%", height: "300px" }}>
         <Chart data={data} options={options} />

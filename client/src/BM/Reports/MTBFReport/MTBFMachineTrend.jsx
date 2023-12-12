@@ -5,6 +5,7 @@ import { Container, Row, Col } from "react-bootstrap";
 
 import BarChart from "./Chart/BarChart";
 import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
+import { Box, Button, InputAdornment, TextField } from "@mui/material";
 
 const MTBFMachineTrend = ({
   selectedValue,
@@ -153,10 +154,62 @@ const MTBFMachineTrend = ({
     }
   };
 
+  const TopDataFilterInput = (
+    <Col  className="col-auto">
+      <Box
+        component="form"
+        sx={{ display: "flex", alignItems: "center", gap: "10px" }}
+      >
+        {/* <p style={{ fontSize: "1rem" }}>Top:</p> */}
+        <TextField
+          type="number"
+          id="outlined-basic"
+          // sx={{ width: "80px" }}
+          variant="outlined"
+          sx={{
+            // width: "12ch",
+            width: "6rem",
+            pl: 0,
+            "& .MuiOutlinedInput-root": { pl: 0 },
+            "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
+          }}
+          InputProps={{
+            sx: { fontSize: 14 },
+            startAdornment: (
+              <InputAdornment position="start">TOP</InputAdornment>
+            ),
+          }}
+          size="small"
+          onChange={(e) => {
+            reducerDispatch({
+              type: ACTION.HANDLE_CHANGE_LIMIT,
+              documentLimitInTheGraph: e.target.value,
+            });
+          }}
+          value={reduceState?.documentLimitInTheGraph}
+        />
+        <Button
+          // size="small"
+          disableElevation
+          className="bg-button"
+          variant="contained"
+          sx={{
+            minWidth: "30px",
+            height: "32px",
+            paddingInline: "10px",
+          }}
+          onClick={getMachineWiseMTBFTrendDataData}
+        >
+          Go
+        </Button>
+      </Box>
+    </Col>
+  );
+
   return (
     <Container fluid>
       <Row>
-        <Col>
+        {/* <Col>
           Top : &nbsp;
           <input
             type="number"
@@ -175,31 +228,29 @@ const MTBFMachineTrend = ({
           >
             Go
           </button>
-        </Col>
+        </Col> */}
         <BarChart
           title="Machine Trend"
           dataset={reduceState?.MachineWiseMTBFTrendData}
           setValue={setValue}
           clearErrors={clearErrors}
+          AppendToolComponents={TopDataFilterInput}
         />
       </Row>
 
-      <form
-        onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedMachine)}
-        className="pt-1 d-flex align-items-center justify-content-end"
-      >
-        <Row>
-          <Col>
+      <Row>
+        <Col className="cell p-3">
+          <form
+            onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedMachine)}
+            className="pt-1 d-flex align-items-center justify-content-end gap-2"
+          >
             {errors?.["selectedMachine"] && (
               <p className="text-error">
                 {errors?.["selectedMachine"]?.message}
               </p>
             )}
             {watch("selectedMachine.machine_code")}
-          </Col>
-        </Row>
-        <Row>
-          <Col>
+
             <input
               type="date"
               {...register("selectedDate", {
@@ -209,17 +260,31 @@ const MTBFMachineTrend = ({
             {errors?.["selectedDate"] && (
               <p className="text-error">{errors?.["selectedDate"]?.message}</p>
             )}
-          </Col>
-          <Col>
-            <button type="submit" className="btn bg-button ">
-              Go
-            </button>
-          </Col>
-        </Row>
-      </form>
 
-      <Row>
-        <BDRequestSheetTable requestSheetData={reduceState?.requestSheetData} />
+            {/* <button type="submit" className="btn bg-button ">
+              Go
+            </button> */}
+
+            <Button
+              size="small"
+              disableElevation
+              className="bg-button"
+              variant="contained"
+              type="submit"
+              sx={{
+                minWidth: "30px",
+                height: "30px",
+                paddingInline: "10px",
+              }}
+            >
+              Go
+            </Button>
+          </form>
+
+          <BDRequestSheetTable
+            requestSheetData={reduceState?.requestSheetData}
+          />
+        </Col>
       </Row>
     </Container>
   );

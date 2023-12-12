@@ -1,10 +1,13 @@
 import React, { useEffect, useReducer } from "react";
+import SmallChartCardComponent from "./SmallChartCardComponent";
 
-import { Container, Row, Col } from "reactstrap";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
-import { Box, Divider, Typography } from "@mui/material";
 
-const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
+const MTTRComponent = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+}) => {
   const initialState = {
     MTTRReportData: {
       labels: [],
@@ -42,8 +45,8 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
   const getMTTRReportData = async () => {
     try {
       const res = await fetch(
-        `/getMTTRGraphData/${flagForCellAndLineToggle}/632c41261d1becfedab325f9/?selectedYear=2023-2024`,
-        // `/getMTTRGraphData/${flagForCellAndLineToggle}/${selectedValue}/?selectedYear=2023-2024`,
+        // `/getMTTRGraphData/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}`,
+        `/getMTTRGraphData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -72,20 +75,14 @@ const MTTRComponent = ({ flagForCellAndLineToggle, selectedValue }) => {
     if (selectedValue) {
       getMTTRReportData();
     }
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear]);
 
   return (
-    <Box className="cell p-3">
-      <Row>
-        <Typography className="col" variant="h6" component="h6">
-          MTTR
-        </Typography>
-      </Row>
-      <Divider sx={{ mb: 1, borderColor: "black" }} />
+    <SmallChartCardComponent title="MTTR">
       <LineBarChartForProductionLineWise
         ReportData={reduceState?.MTTRReportData}
       />
-    </Box>
+    </SmallChartCardComponent>
   );
 };
 

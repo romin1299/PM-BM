@@ -4,6 +4,13 @@ import { useForm } from "react-hook-form";
 import { Container, Row, Col } from "react-bootstrap";
 
 import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
+import { Box } from "@mui/system";
+import { Button, InputAdornment, TextField, Typography } from "@mui/material";
+
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 const MachineTrend = ({
   selectedValue,
@@ -44,6 +51,8 @@ const MachineTrend = ({
     isLoading: true,
     isError: false,
   };
+
+  const [date, setDate] = React.useState(null);
 
   const ACTION = {
     GET_MACHINE_MTTR: "get-machineWise-MTTR-data",
@@ -119,6 +128,8 @@ const MachineTrend = ({
   }, [selectedValue, selectedYear, selectedMonth]);
 
   const getRequestSheetDataBasedOnSelectedMachine = async (data) => {
+    console.log("form data:", data);
+
     try {
       if (data?.selectedMachine?._id === "") {
         return setError("selectedMachine", {
@@ -152,50 +163,130 @@ const MachineTrend = ({
     }
   };
 
+  const TopDataFilterInput = (
+    <Col className="col-auto">
+      <Box
+        component="form"
+        sx={{ display: "flex", alignItems: "center", gap: "10px" }}
+      >
+        {/* <p style={{ fontSize: "1rem" }}>Top:</p> */}
+        <TextField
+          type="number"
+          id="outlined-basic"
+          // sx={{ width: "80px" }}
+          variant="outlined"
+          sx={{
+            // width: "12ch",
+            width: "6rem",
+            pl: 0,
+            "& .MuiOutlinedInput-root": { pl: 0 },
+            "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
+          }}
+          InputProps={{
+            sx: { fontSize: 14 },
+            startAdornment: (
+              <InputAdornment position="start">TOP</InputAdornment>
+            ),
+          }}
+          size="small"
+          onChange={(e) => {
+            reducerDispatch({
+              type: ACTION.HANDLE_CHANGE_LIMIT,
+              documentLimitInTheGraph: e.target.value,
+            });
+          }}
+          value={reduceState?.documentLimitInTheGraph}
+        />
+        <Button
+          // size="small"
+          disableElevation
+          className="bg-button"
+          variant="contained"
+          sx={{
+            minWidth: "30px",
+            height: "32px",
+            paddingInline: "10px",
+          }}
+          onClick={getMachineWiseMTTRTrendData}
+        >
+          Go
+        </Button>
+      </Box>
+    </Col>
+  );
+
   return (
     <Container fluid>
       <Row>
-        <Col>
-          Top : &nbsp;
-          <input
-            type="number"
-            value={reduceState?.documentLimitInTheGraph}
-            onChange={(e) => {
-              reducerDispatch({
-                type: ACTION.HANDLE_CHANGE_LIMIT,
-                documentLimitInTheGraph: e.target.value,
-              });
-            }}
-          />
-          &nbsp;
-          <button className="btn bg-button" onClick={getMachineWiseMTTRTrendData}>
-            Go
-          </button>
-        </Col>
         <LineChart
           title="Machine Trend"
           dataset={reduceState?.MachineWiseMTTRTrend}
           setValue={setValue}
           clearErrors={clearErrors}
+          AppendToolComponents={TopDataFilterInput}
         />
       </Row>
 
-      <form
-        onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedMachine)}
-        className="pt-1 d-flex align-items-center justify-content-end"
-      >
-        <Row>
-          <Col>
+      <Row>
+        <Col className="cell p-3">
+          {/* <Box className="pt-1 d-flex align-items-center justify-content-end">
             {errors?.["selectedMachine"] && (
               <p className="text-error">
                 {errors?.["selectedMachine"]?.message}
               </p>
             )}
             {watch("selectedMachine.machine_code")}
-          </Col>
-        </Row>
-        <Row>
-          <Col>
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                <DatePicker
+                  value={date}
+                  onChange={(newValue) => setDate(newValue)}
+                  sx={{
+                    width: "11rem",
+                    "& .MuiOutlinedInput-input": { pt: "7px", pb: "7px" },
+                  }}
+                />
+
+                <Button
+                  disableElevation
+                  className="bg-button"
+                  variant="contained"
+                  sx={{
+                    minWidth: "30px",
+                    // height: "37px"
+                  }}
+                  onClick={() => {
+                    console.log(
+                      "date:",
+                      date,
+                      watch("selectedMachine")
+                    );
+                  }}
+                >
+                  Go
+                </Button>
+              </Box>
+            </LocalizationProvider>
+          </Box> */}
+
+          <form
+            onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedMachine)}
+            className="pt-1 d-flex align-items-center justify-content-end gap-2"
+          >
+            {errors?.["selectedMachine"] && (
+              <p className="text-error">
+                {errors?.["selectedMachine"]?.message}
+              </p>
+            )}
+            {watch("selectedMachine.machine_code")}
+
             <input
               type="date"
               {...register("selectedDate", {
@@ -205,17 +296,31 @@ const MachineTrend = ({
             {errors?.["selectedDate"] && (
               <p className="text-error">{errors?.["selectedDate"]?.message}</p>
             )}
-          </Col>
-          <Col>
-            <button type="submit" className="btn bg-button ">
-              Go
-            </button>
-          </Col>
-        </Row>
-      </form>
 
-      <Row>
-        <BDRequestSheetTable requestSheetData={reduceState?.requestSheetData} />
+            {/* <button type="submit" className="btn bg-button ">
+              Go
+            </button> */}
+
+            <Button
+              size="small"
+              disableElevation
+              className="bg-button"
+              variant="contained"
+              type="submit"
+              sx={{
+                minWidth: "30px",
+                height: "30px",
+                paddingInline: "10px",
+              }}
+            >
+              Go
+            </Button>
+          </form>
+
+          <BDRequestSheetTable
+            requestSheetData={reduceState?.requestSheetData}
+          />
+        </Col>
       </Row>
     </Container>
   );
