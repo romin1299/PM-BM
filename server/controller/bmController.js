@@ -2625,7 +2625,9 @@ router.post(
 
   async (req, res, next) => {
     const { shiftName, shiftStartTime, shiftEndTime } = req.body;
-
+    if (!shiftName || !shiftStartTime || !shiftEndTime) {
+      return res.status(400).json({ message: "Incomplete shift data" });
+    }
     const addShift = await Plant.findOneAndUpdate(
       {
         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
@@ -2653,7 +2655,9 @@ router.patch(
 
   async (req, res, next) => {
     const { shiftName, shiftStartTime, shiftEndTime } = req.body;
-
+    if (!shiftName || !shiftStartTime || !shiftEndTime) {
+      return res.status(400).json({ message: "Incomplete shift data" });
+    }
     const updateShift = await Plant.updateOne(
       {
         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
@@ -7892,7 +7896,6 @@ const middlewareForLimitValidation = async (req, res, next) => {
   }
 };
 const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
-  
   try {
     const TrendData = await RequestSheetOfBM.aggregate([
       {
@@ -7922,7 +7925,10 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
             $sum: {
               $cond: [
                 {
-                  $gt: ["$maintenanceReportFilledByMTD.workEndedDateOfBM", null],
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
+                  ],
                 },
                 {
                   $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
@@ -7955,9 +7961,9 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
         },
       },
     ]);
-  
+
     req.TrendData = TrendData;
-  
+
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -8096,7 +8102,7 @@ const productionHourFiltration = async (req, res, next) => {
     const data = await schema.aggregate([
       {
         $match: {
-          _id: mongoose.Types.ObjectId(req.params?.selectedId), 
+          _id: mongoose.Types.ObjectId(req.params?.selectedId),
         },
       },
       {
