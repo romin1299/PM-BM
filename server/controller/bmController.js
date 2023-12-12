@@ -961,7 +961,7 @@ router.patch(
 );
 
 router.get(
-  "/getRequestSheetData",
+  "/getRequestSheetData", 
   findRequestSheetMiddleware,
   async (req, res, next) => {
     try {
@@ -2624,8 +2624,16 @@ router.post(
   "/addShift",
 
   async (req, res, next) => {
+    try{
+   
     const { shiftName, shiftStartTime, shiftEndTime } = req.body;
+    
+    if (!shiftName || !shiftStartTime || !shiftEndTime) {
+      return res.status(400).json({ message: "Incomplete shift data" });
+    }
 
+
+   
     const addShift = await Plant.findOneAndUpdate(
       {
         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
@@ -2642,17 +2650,26 @@ router.post(
       { new: true }
     );
 
+
     return res.status(201).json({
       message: "Shifts added successfully",
-      addShift,
+      shiftOfBM : addShift.shiftOfBM,
     });
   }
+  catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+}
 );
 router.patch(
   "/updateShift/:shiftId",
 
   async (req, res, next) => {
+    try{
     const { shiftName, shiftStartTime, shiftEndTime } = req.body;
+    if (!shiftName || !shiftStartTime || !shiftEndTime) {
+      return res.status(400).json({ message: "Incomplete shift data" });
+    }
 
     const updateShift = await Plant.updateOne(
       {
@@ -2674,12 +2691,17 @@ router.patch(
       updateShift,
     });
   }
+    catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
 );
 
 router.patch(
   "/deleteShift/:shiftId",
 
   async (req, res, next) => {
+    try{
     const deletedShift = await Plant.updateOne(
       {
         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
@@ -2704,7 +2726,12 @@ router.patch(
       deletedShift,
     });
   }
+  catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+}
 );
+
 router.patch(
   "/deleteSubCategory/:catId/:subId",
 
@@ -5543,7 +5570,7 @@ const altMiddlewareForFindingTrendData = async (req, res, next) => {
     ]);
 
     req.mtbfData = mtbfData;
-    console.log(req.mtbfData)
+    
 
     next();
   } catch (error) {
@@ -5606,8 +5633,6 @@ router.get(
 
 
 );
-
-
 
 
 router.get("/getSectionsDropdownValue", async (req, res, next) => {
@@ -7234,7 +7259,31 @@ router.get(
   }
 );
 
-router.get("/getHistoryCard/:machineId",filterMiddleware, async (req, res, next) => {
+
+const bdHourTrendMiddleware = {
+  $function: {
+    body: function (queryObj2) {
+      return {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%m",
+              date: "$problemOccurredDateAndTimeOfBM",
+              timezone: timezone,
+            },
+          },
+          lessThanOne: { $sum: { $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0] } },
+          lessThanTwo: { $sum: { $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0] } },
+          greaterThanTwo: { $sum: { $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0] } },
+        },
+      };
+    },
+    args: ["$queryObj2"], 
+    lang: "js",
+  },
+};
+
+router.get("/getHistoryCard/alt/:filter/:machineId/:selectedId",filterMiddleware,altProductionHourFiltration, async (req, res, next) => {
   try {
     let queryObj = {};
 
@@ -7256,273 +7305,464 @@ router.get("/getHistoryCard/:machineId",filterMiddleware, async (req, res, next)
 
       };
     }
-    let queryObj2 = {};
-
-    if (req.query?.selectedYear) {
-      queryObj2 = {
-        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-          req.query?.selectedYear,
-      machineRef: mongoose.Types.ObjectId(req.params.machineId),
-
-      };
-    }
-
-    const historyCard = await RequestSheetOfBM.aggregate([
+   
+    const allData = await RequestSheetOfBM.aggregate([
      
-      {
-        $facet: {
-          bdTime: [
-            { $match: queryObj },
-            {
-              $group: {
-                _id: null,
-
-                totalBd: { $sum: "$bdTime" },
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-                totalBd: 1,
-              },
-            },
-          ],
-
-          bdCount: [
             { $match: queryObj },
             {
               $group: {
                 _id: null,
                 count: { $sum: 1 },
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-                count: 1,
-              },
-            },
-          ],
-
-          mttrData: [
-            { $match: queryObj },
-            {
-              $group: {
-                _id: null,
+                totalBd: { $sum: "$bdTime" },
                 mttr: {
-                  $sum: {
-                    $cond: [
-                      {
-                        $gt: [
-                          "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                          null,
-                        ],
-                      },
-                      {
-                        $divide: [
-                          "$maintenanceReportFilledByMTD.breakDownTime",
-                          60,
-                        ],
-                      },
-                      0,
-                    ],
-                  },
-                },
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-                mttr: 1,
-              },
-            },
-          ],
-
-          mtbf: [
-            { $match: queryObj },
-            {
-              $group: {
-                _id: null,
-                count: { $sum: 1 },
-                totalProd: { $sum: "$prodTotal" },
-                totalBd: { $sum: "$bdTime" },
-              },
-            },
-            {
-              $project: {
-                count: 1,
-                days: {
-                  $divide: [
-                    {
-                      $divide: [
-                        { $subtract: ["$totalProd", "$totalBd"] },
-                        "$count",
-                      ],
-                    },
-                    24,
-                  ],
-                },
-              },
-            },
-
-            {
-              $project: {
-                _id: 0,
-                days: 1,
-              },
-            },
-          ],
-
-          bdHourTrend: [
-            { $match: queryObj2 },
-
-            {
-              $group: {
-                _id: {
-                  $dateToString: {
-                    format: "%m",
-                    date: "$problemOccurredDateAndTimeOfBM",
-                    timezone: timezone,
-                  },
-                },
-
-                lessThanOne: {
-                  $sum: {
-                    $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
-                  },
-                },
-                lessThanTwo: {
-                  $sum: {
-                    $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
-                  },
-                },
-                greaterThanTwo: {
-                  $sum: {
-                    $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
-                  },
-                },
-              },
-            },
-
-            {
-              $group: {
-                _id: null,
-                array: { $push: "$$ROOT" },
-              },
-            },
-
-            {
-              $project: {
-                _id: 0,
-                array: {
-                  $map: {
-                    input: allMonths,
-                    as: "month",
-                    in: {
-                      $cond: [
-                        { $in: ["$$month.monthInDecimal", "$array._id"] },
-                        {
-                          month: "$$month.monthName",
-                          value: {
-                            $arrayElemAt: [
-                              "$array",
-                              {
-                                $indexOfArray: [
-                                  "$array._id",
-                                  "$$month.monthInDecimal",
-                                ],
-                              },
+                      $sum: {
+                        $cond: [
+                          {
+                            $gt: [
+                              "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                              null,
                             ],
                           },
-                        },
-                        {
-                          month: "$$month.monthName",
-                          value: {
-                            _id: "$$month.monthInDecimal",
-                            lessThanOne: 0,
-                            lessThanTwo: 0,
-                            greaterThanTwo: 0,
+                          {
+                            $divide: [
+                              "$maintenanceReportFilledByMTD.breakDownTime",
+                              60,
+                            ],
                           },
-                        },
-                      ],
+                          0,
+                        ],
+                      },
                     },
-                  },
-                },
+                  
               },
             },
-            { $unwind: "$array" },
-            {
-              $replaceRoot: { newRoot: "$array" },
-            },
-
-            {
-              $group: {
-                _id: null,
-
-                // labels: { $push: "$month" },
-                // target: { $push: "$value.target" },
-                lessThanOne: {
-                  $push: "$value.lessThanOne",
-                },
-                lessThanTwo: {
-                  $push: "$value.lessThanTwo",
-                },
-                greaterThanTwo: {
-                  $push: "$value.greaterThanTwo",
-                },
-              },
-            },
-
             {
               $project: {
                 _id: 0,
-                hourlyArray: {
-                  $map: {
-                    input: ["<1", "<2", ">2"],
-                    as: "label",
-                    in: {
-                      label: "$$label",
-                      data: {
-                        $switch: {
-                          branches: [
-                            {
-                              case: { $eq: ["$$label", "<1"] },
-                              then: "$lessThanOne",
-                            },
-                            {
-                              case: { $eq: ["$$label", "<2"] },
-                              then: "$lessThanTwo",
-                            },
-                            {
-                              case: { $eq: ["$$label", ">2"] },
-                              then: "$greaterThanTwo",
-                            },
-                          ],
-                          default: [],
-                        },
-                      },
-                    },
-                  },
-                },
+                count :1,
+                totalBd: 1,
+                mttr :1,
               },
             },
-          ],
+          ]);
+       
+     
+     
+  const mtbfData = await RequestSheetOfBM.aggregate([
+        {
+        // $match: {},
+        $match: req.queryObj,
+      },
+      {
+        $group: {
+          // _id: {
+          //   $dateToString: {
+          //     format: "%m",
+          //     date: "$problemOccurredDateAndTimeOfBM",
+          //     timezone: timezone,
+          //   },
+          // },
+
+          _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+
+          count: { $sum: 1 },
+          hours: {
+            $sum: {
+              $cond: [
+                {
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
+                  ],
+                },
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+                },
+                0,
+              ],
+            },
+          },
+          
         },
       },
-    ]);
+      {
+        $addFields: {
+          productionDataBasedOnRSMonth: {
+            $function: {
+              body: function (month, productionHrs) {
+                return productionHrs?.monthlyProductionHrs?.[month];
+              },
+              args: ["$_id", req.productionHrs],
+              lang: "js",
+            },
+          },
+        },
+      },
+
+     
+      {
+        $project: {
+          count: 1,
+          target: 1,
+          hours:{
+            $divide: [
+              {
+                $subtract: ["$productionDataBasedOnRSMonth", "$hours"],
+              },
+              "$count",
+            ],
+          },
+        },
+      },
+
+      {
+        $group : {
+          _id : null,
+          sumOfMtbf : {$sum : "$hours"}
+        }
+      }
+      // {
+      //   $group: {
+      //     _id: null,
+      //     array: { $push: "$$ROOT" },
+      //   },
+      // },
+      // {
+      //   $project: {
+      //     _id: 0,
+      //     array: {
+      //       $map: {
+      //         input: allMonths,
+      //         as: "month",
+      //         in: {
+      //           $cond: [
+      //             { $in: ["$$month.monthName", "$array._id"] },
+      //             {
+      //               month: "$$month.monthName",
+      //               value: {
+      //                 $arrayElemAt: [
+      //                   "$array",
+      //                   {
+      //                     $indexOfArray: ["$array._id", "$$month.monthName"],
+      //                   },
+      //                 ],
+      //               },
+      //             },
+      //             {
+      //               month: "$$month.monthName",
+      //               value: {
+      //                 _id: "$$month.monthName",
+      //                 count: 0,
+      //                 hours: 0,
+      //                 target: 0,
+      //               },
+      //             },
+      //           ],
+      //         },
+      //       },
+      //     },
+      //   },
+      // },
+      // { $unwind: "$array" },
+      // {
+      //   $replaceRoot: { newRoot: "$array" },
+      // },
+      // {
+      //   $group: {
+      //     _id: null,
+      //     // labels: { $push: "$month" },
+      //     // target: { $push: "$value.target" },
+      //     data: {
+      //      $push : { $sum: "$value.hours"},
+      //     },
+         
+      //   },
+      // },
+    ])
+  
+
     return res.status(201).json({
       message: "History Card data get successfully",
 
-      bdTime: historyCard?.[0].bdTime,
-      bdCount: historyCard?.[0].bdCount,
-      mttrData: historyCard?.[0].mttrData,
-      mtbf: historyCard?.[0].mtbf,
-      bdHourTrend: historyCard?.[0].bdHourTrend[0].hourlyArray,
+      bdTime : allData,
+      mtbf : mtbfData,
+     
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
 });
+// router.get("/getHistoryCard/:machineId",filterMiddleware, async (req, res, next) => {
+//   try {
+//     let queryObj = {};
+
+//     if (req.query?.selectedYear) {
+//       queryObj = {
+//         "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+//           req.query?.selectedYear,
+//       machineRef: mongoose.Types.ObjectId(req.params.machineId),
+
+//       };
+//     }
+
+//     if (req.query?.selectedMonth) {
+//       queryObj = {
+//         ...queryObj,
+//         "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+//           req.query?.selectedMonth,
+//       machineRef: mongoose.Types.ObjectId(req.params.machineId),
+
+//       };
+//     }
+//     let queryObj2 = {};
+
+//     if (req.query?.selectedYear) {
+//       queryObj2 = {
+//         "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+//           req.query?.selectedYear,
+//       machineRef: mongoose.Types.ObjectId(req.params.machineId),
+
+//       };
+//     }
+
+//     let schema;
+
+//     if (req.params?.filter === "based-on-section") {
+//       schema = Section;
+//     } else if (req.params?.filter === "based-on-subSection") {
+//       schema = SubSection;
+//     } else if (req.params?.filter === "based-on-cell") {
+//       schema = Cell;
+//     } else {
+//       schema = Line;
+//     }
+
+//     const historyCard = await RequestSheetOfBM.aggregate([
+     
+//       {
+//         $facet : {
+//           // bdTime: [
+//           //   { $match: queryObj },
+//           //   {
+//           //     $group: {
+//           //       _id: null,
+//           //       count: { $sum: 1 },
+//           //       totalBd: { $sum: "$bdTime" },
+//           //       mttr: {
+//           //             $sum: {
+//           //               $cond: [
+//           //                 {
+//           //                   $gt: [
+//           //                     "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+//           //                     null,
+//           //                   ],
+//           //                 },
+//           //                 {
+//           //                   $divide: [
+//           //                     "$maintenanceReportFilledByMTD.breakDownTime",
+//           //                     60,
+//           //                   ],
+//           //                 },
+//           //                 0,
+//           //               ],
+//           //             },
+//           //           },
+                  
+//           //     },
+//           //   },
+//           //   {
+//           //     $project: {
+//           //       _id: 0,
+//           //       count :1,
+//           //       totalBd: 1,
+//           //       mttr :1,
+//           //     },
+//           //   },
+//           // ],
+
+//     // {
+//     //   $set : {
+//     //     queryObj2 : queryObj2,
+//     //   }
+//     // },
+
+
+//     mtbf : [
+
+//       data = await schema.aggregate([
+//         {
+//           $match: {
+//             _id: mongoose.Types.ObjectId(req.params?.selectedId), 
+//           },
+//         },
+//         {
+//           $unwind: "$productionHrs",
+//         },
+//         {
+//           $match: {
+//             "productionHrs.current_year": req.query?.selectedYear,
+//           },
+//         },
+//         {
+//           $project: {
+//             productionHrs: 1,
+//           },
+//         },
+//       ])
+//     ],
+//           // bdHourTrendMiddleware,
+
+//           // bdHourTrend: [
+//           //   { $match: queryObj2 },
+
+//           //   {
+//           //     $group: {
+//           //       _id: {
+//           //         $dateToString: {
+//           //           format: "%m",
+//           //           date: "$problemOccurredDateAndTimeOfBM",
+//           //           timezone: timezone,
+//           //         },
+//           //       },
+
+//           //       lessThanOne: {
+//           //         $sum: {
+//           //           $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
+//           //         },
+//           //       },
+//           //       lessThanTwo: {
+//           //         $sum: {
+//           //           $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
+//           //         },
+//           //       },
+//           //       greaterThanTwo: {
+//           //         $sum: {
+//           //           $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
+//           //         },
+//           //       },
+//           //     },
+//           //   },
+
+//           //   {
+//           //     $group: {
+//           //       _id: null,
+//           //       array: { $push: "$$ROOT" },
+//           //     },
+//           //   },
+
+//           //   {
+//           //     $project: {
+//           //       _id: 0,
+//           //       array: {
+//           //         $map: {
+//           //           input: allMonths,
+//           //           as: "month",
+//           //           in: {
+//           //             $cond: [
+//           //               { $in: ["$$month.monthInDecimal", "$array._id"] },
+//           //               {
+//           //                 month: "$$month.monthName",
+//           //                 value: {
+//           //                   $arrayElemAt: [
+//           //                     "$array",
+//           //                     {
+//           //                       $indexOfArray: [
+//           //                         "$array._id",
+//           //                         "$$month.monthInDecimal",
+//           //                       ],
+//           //                     },
+//           //                   ],
+//           //                 },
+//           //               },
+//           //               {
+//           //                 month: "$$month.monthName",
+//           //                 value: {
+//           //                   _id: "$$month.monthInDecimal",
+//           //                   lessThanOne: 0,
+//           //                   lessThanTwo: 0,
+//           //                   greaterThanTwo: 0,
+//           //                 },
+//           //               },
+//           //             ],
+//           //           },
+//           //         },
+//           //       },
+//           //     },
+//           //   },
+//           //   { $unwind: "$array" },
+//           //   {
+//           //     $replaceRoot: { newRoot: "$array" },
+//           //   },
+
+//           //   {
+//           //     $group: {
+//           //       _id: null,
+
+//           //       // labels: { $push: "$month" },
+//           //       // target: { $push: "$value.target" },
+//           //       lessThanOne: {
+//           //         $push: "$value.lessThanOne",
+//           //       },
+//           //       lessThanTwo: {
+//           //         $push: "$value.lessThanTwo",
+//           //       },
+//           //       greaterThanTwo: {
+//           //         $push: "$value.greaterThanTwo",
+//           //       },
+//           //     },
+//           //   },
+
+//           //   {
+//           //     $project: {
+//           //       _id: 0,
+//           //       hourlyArray: {
+//           //         $map: {
+//           //           input: ["<1", "<2", ">2"],
+//           //           as: "label",
+//           //           in: {
+//           //             label: "$$label",
+//           //             data: {
+//           //               $switch: {
+//           //                 branches: [
+//           //                   {
+//           //                     case: { $eq: ["$$label", "<1"] },
+//           //                     then: "$lessThanOne",
+//           //                   },
+//           //                   {
+//           //                     case: { $eq: ["$$label", "<2"] },
+//           //                     then: "$lessThanTwo",
+//           //                   },
+//           //                   {
+//           //                     case: { $eq: ["$$label", ">2"] },
+//           //                     then: "$greaterThanTwo",
+//           //                   },
+//           //                 ],
+//           //                 default: [],
+//           //               },
+//           //             },
+//           //           },
+//           //         },
+//           //       },
+//           //     },
+//           //   },
+//           // ],
+//         }
+//       }
+      
+//     ]);
+//     return res.status(201).json({
+//       message: "History Card data get successfully",
+
+//       mtbf: historyCard?.[0].mtbf,
+//       // bdCount: historyCard?.[0].bdCount,
+//       // mttrData: historyCard?.[0].mttrData,
+//       // mtbf: historyCard?.[0].mtbf,
+//       // bdHourTrend: historyCard?.[0].bdHourTrend[0].hourlyArray,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: error?.message, error });
+//   }
+// });
 
 const filterSummary = async (req, res, next) => {
   try {
@@ -7615,24 +7855,8 @@ router.get(
               {
                 $group: {
                   _id: "$cell_data.cell_name",
-
-                  totalBd: { $sum: "$bdTime" },
-                },
-              },
-            ],
-            bdCount: [
-              {
-                $group: {
-                  _id: "$cell_data.cell_name",
                   count: { $sum: 1 },
-                },
-              },
-            ],
-
-            mttrData: [
-              {
-                $group: {
-                  _id: "$cell_data.cell_name",
+                  totalBd: { $sum: "$bdTime" },
                   mttr: {
                     $sum: {
                       $cond: [
@@ -7655,6 +7879,9 @@ router.get(
                 },
               },
             ],
+         
+
+         
 
             mtbfData: [
               {
@@ -8096,7 +8323,6 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
 
 const responseMiddlewareForMTTRSkillReport = async (req, res, next) => {
   try {
-    console.log("Hwcdwi")
     return res.status(201).json({
       message: req.message,
       data: req?.TrendData?.[0],
@@ -8107,34 +8333,274 @@ const responseMiddlewareForMTTRSkillReport = async (req, res, next) => {
 };
 
 router.get(
-  "/tmMTTRSkill/:filter/:selectedId",
-  filterMiddleware,
-  filterMiddlewareForTmMTTRSkillReport,
-  middlewareForFindingTmMTTRSkillTrendData,
+  "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
   async (req, res, next) => {
-    // let dateObj = {
-    //   $dateToString: {
-    //     format: "%m",
-    //     date: "$problemOccurredDateAndTimeOfBM",
-    //     timezone: timezone,
-    //   },
-    // };
+    try {
+      let findObject = {
+        _id: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+
+      let queryPipelineForUser = [],
+       
+        matchQuery_BM = {
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            req.query?.selectedYear,
+        };
+
+      if (req.query?.selectedMonth) {
+        matchQuery_BM = {
+          ...matchQuery_BM,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+            req.query?.selectedMonth,
+        };
+      }
+
+      if (req.params?.filter === "based-on-section") {
+        const section = await Section.findOne(findObject);
+
+        queryPipelineForUser = [
+          {
+            $match: {
+              section_data: `${section?.section_id}-${section?.section_name}`,
+            },
+          },
+        ];
+
+       
+
+        matchQuery_BM = {
+          ...matchQuery_BM,
+          sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-subSection") {
+        const subSection = await SubSection.findOne(findObject);
+
+        queryPipelineForUser = [
+          {
+            $match: {
+              subSection_data: `${subSection?.subSection_id}-${subSection?.subSection_name}`,
+            },
+          },
+        ];
 
     
+        matchQuery_BM = {
+          ...matchQuery_BM,
+          subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-cell") {
+        const cell = await Cell.findOne(findObject);
+
+        queryPipelineForUser = [
+          {
+            $match: {
+              cell_data: `${cell?.cell_id}-${cell?.cell_name}`,
+            },
+          },
+        ];
+
+      
+        matchQuery_BM = {
+          ...matchQuery_BM,
+          lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      }
 
 
+console.log(" matchQuery_BM", matchQuery_BM)
+      // const BM_TotalSum = await RequestSheetOfBM.aggregate([
+      //   {
+      //     $match: matchQuery_BM,
+      //   },
+      //   {
+      //     $addFields: {
+      //       allUserVarForGrouping: {
+      //         $setUnion: [["$assignUser"], ["$handOverUser"], "$supportingTM"],
+      //       },
+      //     },
+      //   },
+      //   { $unwind: "$allUserVarForGrouping" },
+      //   {
+      //     $group: {
+      //       _id: null,
+      //       totalSumOf_BM: {
+      //         $sum: {
+      //           $cond: [
+      //             {
+      //               $gt: [
+      //                 "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+      //                 null,
+      //               ],
+      //             },
+      //             {
+      //               $divide: [
+      //                 "$maintenanceReportFilledByMTD.breakDownTime",
+      //                 60,
+      //               ],
+      //             },
+      //             0,
+      //           ],
+      //         },
+      //       },
+      //     },
+      //   },
+      // ]);
 
-    req.message = "Line wise MTTR trend data get successfully";
-    next();
-  },    
-     
-     
-    responseMiddlewareForMTTRSkillReport
+      const tmLoadData = await User.aggregate([
+        ...queryPipelineForUser,
+        
+
+        {
+          $lookup: {
+            from: "requestsheetofbms",
+            let: { userNo: "$_id" },
+            pipeline: [
+              {
+                $match: matchQuery_BM,
+              },
+              {
+                $addFields: {
+                  allUserVarForGrouping: {
+                    $setUnion: [
+                      ["$assignUser"],
+                      ["$handOverUser"],
+                      "$supportingTM",
+                    ],
+                  },
+                },
+              },
+              { $unwind: "$allUserVarForGrouping" },
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$$userNo", "$allUserVarForGrouping"],
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  count: { $sum: 1 },
+                  // machines: { $push: "$machineRef" },
+                  sumOfBM: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gt: [
+                            "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                            null,
+                          ],
+                        },
+                        {
+                          $divide: [
+                            "$maintenanceReportFilledByMTD.breakDownTime",
+                            60,
+                          ],
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+            as: "requestSheet",
+          },
+        },
+
+        {
+          $unwind : "$requestSheet"
+        },
+        {
+          $project: {
+            tm_name: 1,
+            "requestSheet.count": 1,
+            hours: {
+              $divide: ["$requestSheet.sumOfBM", "$requestSheet.count"],
+            },
+          },
+        },
+        // {
+        //   $group: {
+        //     _id: null,
+        //     array: { $push: "$$ROOT" },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     array: {
+        //       $map: {
+        //         input: allMonths,
+        //         as: "month",
+        //         in: {
+        //           $cond: [
+        //             { $in: ["$$month.monthInDecimal", "$array._id"] },
+        //             {
+        //               month: "$$month.monthName",
+        //               value: {
+        //                 $arrayElemAt: [
+        //                   "$array",
+        //                   {
+        //                     $indexOfArray: [
+        //                       "$array._id",
+        //                       "$$month.monthInDecimal",
+        //                     ],
+        //                   },
+        //                 ],
+        //               },
+        //             },
+        //             {
+        //               month: "$$month.monthName",
+        //               value: {
+        //                 _id: "$$month.monthInDecimal",
+        //                 count: 0,
+        //                 hours: 0,
+        //                 target: 0,
+        //               },
+        //             },
+        //           ],
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+        // { $unwind: "$array" },
+        // {
+        //   $replaceRoot: { newRoot: "$array" },
+        // },
+        {
+          $group: {
+            _id: null,
+            tm_names: {
+              $push: "$tm_name",
+            },
+        
+            data: {
+              $push: "$hours",
+            },
+           
+          },
+        },
+      ]);
+
+      console.log("tmLoadData",tmLoadData)
+
+      return res.status(201).json({
+        message: "TM load data get successfully",
+        tmLoadData: tmLoadData,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
    
   
 );
+
+
 router.get(
-  "/tmProgress/:filter/:selectedId/:tmId",
+  "/tmProgress/tmMTTRSkill/:filter/:selectedId/:tmId",
   filterMiddleware,
   filterMiddlewareForTmMTTRSkillReport,
   middlewareForFindingTmProgressData,
@@ -8147,18 +8613,12 @@ router.get(
     //   },
     // };
 
-    
-
-
-
-    req.message = "Line wise MTTR trend data get successfully";
+    req.message = "Tm Progress data get successfully";
     next();
   },    
      
-     
     responseMiddlewareForMTTRSkillReport
    
-  
 );
 
 
