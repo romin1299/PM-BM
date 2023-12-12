@@ -1,6 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useReducer } from "react";
 import { Table } from "antd";
 import moment from "moment-timezone";
+import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
+import {
+  initialState,
+  reducer,
+} from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 
 const ApprovalLogs = () => {
   const [approvalLogs, setApprovalLogs] = useState([]);
@@ -16,17 +21,17 @@ const ApprovalLogs = () => {
       dataIndex: "line",
       filters: [
         {
-          text: "Jjjoe",
-          value: "Joe",
+          text: "MA2",
+          value: "MA2",
         },
         {
-          text: "Jim",
-          value: "Jim",
+          text: "MA3",
+          value: "MA3",
         },
       ],
       // specify the condition of filtering result
       // here is that finding the name started with `value`
-      onFilter: (value, record) => record.name.indexOf(value) === 0,
+      onFilter: (value, record) => record.line.indexOf(value) === 0,
       sorter: (a, b) => {
         const name1 = a.line.toUpperCase();
         const name2 = b.line.toUpperCase();
@@ -190,6 +195,13 @@ const ApprovalLogs = () => {
                     )
                       .tz("Asia/Kolkata")
                       .format("DD-MM-YYYY THH:mm")}
+                  {value === "Rejected" && (
+                    <>
+                      {", "}
+                      <b>Remarks:</b>{" "}
+                      {record?.rejectedRemarksOfRequestSheet?.[idx]}
+                    </>
+                  )}
                 </span>
                 <br />
               </>
@@ -230,12 +242,20 @@ const ApprovalLogs = () => {
     getApprovalLogDetails();
   }, []);
 
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+
   const onChange = (pagination, filters, sorter, extra) => {
     console.log("params", pagination, filters, sorter, extra);
   };
 
   return (
     <>
+    <ChartsToolbar
+            baseUrlForFiltering={baseUrlForFiltering}
+            reduceState={reduceState}
+            reducerDispatch={reducerDispatch}
+          />
       <Table
         columns={columns}
         dataSource={approvalLogs}

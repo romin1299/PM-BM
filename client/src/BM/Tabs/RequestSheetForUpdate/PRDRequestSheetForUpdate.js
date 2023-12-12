@@ -26,15 +26,14 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
+function MyTable({ requestSheetDataOfBM }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { machine_code, generateType, requestSheetNoOfBM } = useParams();
-  const context = useContext(RoutingContext);
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     watch,
     reset,
     setValue,
@@ -45,7 +44,7 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
   });
 
   const selectedRequestSheetData = useLocation();
-
+  const loggedUserDetails = useContext(RoutingContext);
   // console.log(selectedRequestSheetData?.state?.selectedRow)
 
   const [selectedShift, setSelectedShift] = useState("");
@@ -74,17 +73,21 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
     // requestSheetData.priorityCode = selectedPriorityCode;
     // requestSheetData.qualityRelated = selectedQuality;
     // requestSheetData.shiftOfBM = selectedShift;
+    const formData = new FormData();
+    const { ...otherFields } = requestSheetData;
+
+    formData.append("prdDataUpdatedByOtherUser", true);
+    formData.append("otherData", JSON.stringify(otherFields));
+
     try {
       const res = await fetch(
-        `/newRequestSheetRegistration/?machineRef=${machine_code}`,
+        `/newRequestSheetRegistration/?reqId=${requestSheetNoOfBM}&&machineRef=${machine_code}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...requestSheetData,
-          }),
+          // headers: {
+          //   "Content-Type": "application/json",
+          // },
+          body: formData,
         }
       );
 
@@ -95,8 +98,10 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
         reset();
         if (generateType === "scanned") {
           navigate("/", { replace: true });
+        } else if (loggedUserDetails?.user_type === "Operator") {
+          navigate("/bm/requestListDashboard", { replace: true });
         } else {
-          navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
+          navigate("/bm/approval", { replace: true });
         }
       } else {
         WarningToast(data?.message);
@@ -391,6 +396,12 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                               <input
                                 type="datetime-local"
                                 {...register("problemOccurredDateAndTimeOfBM")}
+                                disabled={
+                                  requestSheetDataOfBM?.assignUser?._id !==
+                                    loggedUserDetails?._id &&
+                                  requestSheetDataOfBM?.approvalOfMTD_TL
+                                    ?._id !== loggedUserDetails?._id
+                                }
                               />
                             </p>
                           </div>{" "}
@@ -779,7 +790,10 @@ function MyTable({ selectedMachineDetails, requestSheetDataOfBM }) {
                     <p className="mb-0">
                       <b>BREAKDOWN ATTENDED BY</b>
                     </p>
-                    {/* {selectedAttendee} */}
+                    {requestSheetDataOfBM?.assignUser?.tm_name} {", "}
+                    {requestSheetDataOfBM?.supportingTM
+                      ?.map((obj) => obj?.tm_name)
+                      ?.join(", ")}
                   </Col>
                 </Row>
               </td>

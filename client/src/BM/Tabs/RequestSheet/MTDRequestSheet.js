@@ -26,14 +26,13 @@ function MyTable({
   selectedMachineDetails,
   approvalListOfBM,
   requestSheetDataOfBM,
+  supportingTMList,
 }) {
   const loggedUserDetails = useContext(RoutingContext);
 
   const navigate = useNavigate();
 
   const { machine_code, requestSheetNoOfBM, generateType } = useParams();
-
-  const locationSupportingTM = useLocation();
 
   const [actions, setActions] = useState([]);
   const [problems, setProblems] = useState([]);
@@ -46,10 +45,12 @@ function MyTable({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     watch,
     setValue,
+    setError,
     control,
+    clearErrors,
     // reset,
   } = useForm({
     defaultValues: {
@@ -76,7 +77,10 @@ function MyTable({
     requestSheetData.minorBD = timeDifferenceMinutes <= 120 ? "Yes" : "No";
     requestSheetData.majorBD = timeDifferenceMinutes > 120 ? "Yes" : "No";
     requestSheetData.changedParts = parts;
-    requestSheetData.supportingTM = selectedSupportedTM?.map((obj) => obj?._id);
+    requestSheetData.supportingTM =
+      selectedSupportedTM?.length > 0
+        ? selectedSupportedTM?.map((obj) => obj?._id)
+        : requestSheetDataOfBM?.supportingTM?.map((obj) => obj?._id);
     requestSheetData.partQualityCheckedByPRD =
       approvalListOfBM?.prdTL?.[requestSheetData?.partQualityCheckedByPRD]?._id;
     requestSheetData.partQualityCheckedByMTD =
@@ -84,6 +88,7 @@ function MyTable({
 
     const formData = new FormData();
     const { ...otherFields } = requestSheetData;
+    formData.append("prdDataUpdatedByOtherUser", false);
 
     // Append the file field
     formData.append(
@@ -114,79 +119,6 @@ function MyTable({
       const data = await res.json();
       if (res.status === 201) {
         SuccessToast(data?.message);
-        navigate("/bm/requestListDashboard", { replace: true });
-      } else {
-        WarningToast(data?.message);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const sendApprovalForRequestSheetOfBM = async (assignApprovalList) => {
-    try {
-      const res = await fetch(
-        `/sendApprovalForRequestSheetOfBM/${requestSheetNoOfBM}/${machine_code}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            assignApprovalList: {
-              MTD_TL: {
-                id: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]?._id,
-                name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]
-                  ?.tm_name,
-              },
-              MTD_HOSS: {
-                id: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
-                  ?._id,
-                name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
-                  ?.tm_name,
-              },
-              PRD_TL: {
-                id: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]?._id,
-                name: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
-                  ?.tm_name,
-              },
-              PRD_HOS: {
-                id: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
-                  ?._id,
-                name: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
-                  ?.tm_name,
-              },
-              MTD_HOS: {
-                id: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
-                  ?._id,
-                name: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
-                  ?.tm_name,
-              },
-              PRD_HOD: {
-                id: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
-                  ?._id,
-                name: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
-                  ?.tm_name,
-              },
-              MTD_HOD: {
-                id: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
-                  ?._id,
-                name: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
-                  ?.tm_name,
-              },
-            },
-            requestSheetDataOfBM,
-            minorBD: assignApprovalList?.minorBD,
-            majorBD: assignApprovalList?.majorBD,
-            approvalOfRequestSheet: assignApprovalList?.approvalOfRequestSheet,
-            rejectedRemarksOfRequestSheet:
-              assignApprovalList?.rejectedRemarksOfRequestSheet,
-          }),
-        }
-      );
-      const data = await res.json();
-      if (res.status === 201) {
-        SuccessToast(data?.message);
         if (requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id) {
           navigate("/bm/requestListDashboard", { replace: true });
         } else {
@@ -200,33 +132,176 @@ function MyTable({
     }
   };
 
-  const approveRequestSheetFromHigherAuthority = async () => {
-    try {
-      const res = await fetch(
-        `/approveRequestSheetFromHigherAuthority/${requestSheetNoOfBM}/${machine_code}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            approvalOfRequestSheet: watch("approvalOfRequestSheet"),
-            rejectedRemarksOfRequestSheet: watch(
-              "rejectedRemarksOfRequestSheet"
-            ),
-            requestSheetDataOfBM,
-          }),
-        }
+  console.log("Dierty----", dirtyFields);
+
+  const deleteDirtyFieldsWhichIsNotRequiredToValidate = () => {
+    delete dirtyFields?.["approvalOfRequestSheet"];
+    delete dirtyFields?.["MTD_TL"];
+    delete dirtyFields?.["MTD_HOSS"];
+    delete dirtyFields?.["PRD_TL"];
+    delete dirtyFields?.["PRD_HOS"];
+    delete dirtyFields?.["MTD_HOS"];
+    delete dirtyFields?.["PRD_HOD"];
+    delete dirtyFields?.["MTD_HOD"];
+    delete dirtyFields?.["rejectedRemarksOfRequestSheet"];
+  };
+
+  const handleCustomErrors = () => {
+    deleteDirtyFieldsWhichIsNotRequiredToValidate();
+    //This validation for not submit/save value while send for approval
+    if (Object?.keys(dirtyFields)?.length > 0) {
+      WarningToast(
+        "Save/submit the change value before sending it for approval!!!"
       );
-      const data = await res.json();
-      if (res.status === 201) {
-        SuccessToast(data?.message);
-        navigate("/bm/approval", { replace: true });
+      return true;
+    }
+    if (
+      requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id
+    ) {
+      if (!watch("approvalOfRequestSheet")) {
+        setError("root.handleApprovalErrorFromServerSide", {
+          type: "approvalOfRequestSheet",
+          message: "Please select approval value (Yes/No)",
+        });
+        return true;
+      }
+
+      if (
+        watch("approvalOfRequestSheet") === "No" &&
+        !watch("rejectedRemarksOfRequestSheet")
+      ) {
+        setError("root.handleApprovalErrorFromServerSide", {
+          message: "Please fill rejected remarks",
+          type: "rejectedRemarksOfRequestSheet",
+        });
+        return true;
+      }
+    }
+  };
+
+  const sendApprovalForRequestSheetOfBM = async (assignApprovalList) => {
+    try {
+      let checkWhetherAnyErrorOccurredOrNot = handleCustomErrors();
+      if (checkWhetherAnyErrorOccurredOrNot) {
+        return;
       } else {
-        WarningToast(data?.message);
+        const res = await fetch(
+          `/sendApprovalForRequestSheetOfBM/${requestSheetNoOfBM}/${machine_code}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              assignApprovalList: {
+                MTD_TL: {
+                  id: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]
+                    ?._id,
+                  name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]
+                    ?.tm_name,
+                },
+                MTD_HOSS: {
+                  id: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
+                    ?._id,
+                  name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
+                    ?.tm_name,
+                },
+                PRD_TL: {
+                  id: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
+                    ?._id,
+                  name: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
+                    ?.tm_name,
+                },
+                PRD_HOS: {
+                  id: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
+                    ?._id,
+                  name: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
+                    ?.tm_name,
+                },
+                MTD_HOS: {
+                  id: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
+                    ?._id,
+                  name: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
+                    ?.tm_name,
+                },
+                PRD_HOD: {
+                  id: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
+                    ?._id,
+                  name: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
+                    ?.tm_name,
+                },
+                MTD_HOD: {
+                  id: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
+                    ?._id,
+                  name: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
+                    ?.tm_name,
+                },
+              },
+              requestSheetDataOfBM,
+              minorBD: assignApprovalList?.minorBD,
+              majorBD: assignApprovalList?.majorBD,
+              approvalOfRequestSheet:
+                assignApprovalList?.approvalOfRequestSheet,
+              rejectedRemarksOfRequestSheet:
+                assignApprovalList?.rejectedRemarksOfRequestSheet,
+            }),
+          }
+        );
+        const data = await res.json();
+        if (res.status === 201) {
+          SuccessToast(data?.message);
+          if (
+            requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id
+          ) {
+            navigate("/bm/requestListDashboard", { replace: true });
+          } else {
+            navigate("/bm/approval", { replace: true });
+          }
+        } else {
+          WarningToast(data?.message);
+        }
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const approveRequestSheetFromHigherAuthority = async () => {
+    let checkWhetherAnyErrorOccurredOrNot = handleCustomErrors();
+    if (checkWhetherAnyErrorOccurredOrNot) {
+      return;
+    } else {
+      try {
+        const res = await fetch(
+          `/approveRequestSheetFromHigherAuthority/${requestSheetNoOfBM}/${machine_code}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              approvalOfRequestSheet: watch("approvalOfRequestSheet"),
+              rejectedRemarksOfRequestSheet: watch(
+                "rejectedRemarksOfRequestSheet"
+              ),
+              requestSheetDataOfBM,
+            }),
+          }
+        );
+        const data = await res.json();
+        if (res.status === 201) {
+          if (data?.errorType === "Approve") {
+            SuccessToast(data?.message);
+          } else {
+            WarningToast(data?.message);
+          }
+          navigate("/bm/approval", { replace: true });
+        } else {
+          WarningToast(data?.message);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -335,6 +410,13 @@ function MyTable({
         setValue(`categories.${obj?.category}`, obj?.subCategory);
       });
 
+      setValue(
+        "preventive_corrective_maintenance",
+        requestSheetDataOfBM?.preventive_corrective_maintenance
+      );
+
+      setValue("yokotenkai", requestSheetDataOfBM?.yokotenkai);
+
       setProblems(
         requestSheetDataOfBM?.maintenanceReportFilledByMTD?.problemsOfBM
       );
@@ -357,7 +439,7 @@ function MyTable({
   }, [timeDifferenceMinutes]);
 
   return (
-    <form>
+    <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
       <Table bordered className="mb-5">
         <thead>
           <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
@@ -375,6 +457,7 @@ function MyTable({
                   <p className="mb-0">
                     <b>REQUEST RECEIVED MTD S.L</b>
                   </p>
+                  <p>{requestSheetDataOfBM?.approvalOfMTD_SL?.tm_name}</p>
                 </Col>
                 <Col lg={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">
@@ -500,6 +583,12 @@ function MyTable({
                                 {...register("workEndedDateOfBM", {
                                   required: "Work Ended date is required",
                                 })}
+                                disabled={
+                                  requestSheetDataOfBM?.assignUser?._id !==
+                                    loggedUserDetails?._id &&
+                                  requestSheetDataOfBM?.approvalOfMTD_TL
+                                    ?._id !== loggedUserDetails?._id
+                                }
                               />
                               {errors?.["workEndedDateOfBM"] && (
                                 <p className="text-error">
@@ -557,16 +646,6 @@ function MyTable({
                   ) : (
                     ""
                   )}
-
-                  {/* {requestSheetDataOfBM?.approvalOfMTD_HOSS?.length > 0 ? (
-                    <p>
-                      {
-                        requestSheetDataOfBM?.approvalOfMTD_HOSS?.[
-                          requestSheetDataOfBM?.approvalOfMTD_HOSS?.length - 1
-                        ]?.tm_name
-                      }
-                    </p>
-                  ) : ( */}
                   {requestSheetDataOfBM?.approvalOfMTD_HOSS &&
                   requestSheetDataOfBM?.approvalStatusOfMTD_HOSS ===
                     "Accepted" &&
@@ -604,12 +683,11 @@ function MyTable({
                       // }
                     />
                   )}
-                  {selectedMajor === "Yes" && <label>MTD HOS</label>}
-                  {/* {requestSheetDataOfBM?.approvalOfMTD_HOS?.length > 0 ? (
-                    requestSheetDataOfBM?.approvalOfMTD_HOS?.[
-                      requestSheetDataOfBM?.approvalOfMTD_HOS?.length - 1
-                    ]?.tm_name
-                  ) : ( */}
+                  {selectedMajor === "Yes" && (
+                    <label>
+                      <b>MTD HOS</b>
+                    </label>
+                  )}
                   {requestSheetDataOfBM?.approvalOfMTD_HOS &&
                   requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
                     "Accepted" &&
@@ -1272,21 +1350,22 @@ function MyTable({
                 </Col>
               </Row>
               <Row className="m-0 p-1 border">
-                <input
+                <textarea
+                  rows={2}
                   type="text"
                   id="preventive_corrective_maintenance"
                   name="preventive_corrective_maintenance"
-                  style={{ width: "100%" }}
+                  className="m-1"
+                  style={{ width: "100%", maxWidth: "100%" }}
                   {...register("preventive_corrective_maintenance", {
-                    required: "This field is required",
+                    // required: "This field is required",
                   })}
                 />
-                {errors?.["preventive_corrective_maintenance"] && (
+                {/* {errors?.["preventive_corrective_maintenance"] && (
                   <p className="text-error">
                     {errors?.["preventive_corrective_maintenance"]?.message}
                   </p>
-                )}
-                {/* <AddBoxIcon onClick={() => {}} /> */}
+                )} */}
               </Row>
               <Row className="m-0 p-1 border">
                 <AddBoxIcon onClick={() => {}} />
@@ -1297,10 +1376,22 @@ function MyTable({
                 </Col>
               </Row>
               <Row className="m-0 p-1 border">
-                <AddBoxIcon onClick={() => {}} />
-              </Row>
-              <Row className="m-0 p-1 border">
-                <AddBoxIcon onClick={() => {}} />
+                <textarea
+                  rows={2}
+                  type="text"
+                  id="yokotenkai"
+                  name="yokotenkai"
+                  className="m-1"
+                  style={{ width: "100%", maxWidth: "100%" }}
+                  {...register("yokotenkai", {
+                    // required: "This field is required",
+                  })}
+                />
+                {/* {errors?.["yokotenkai"] && (
+                  <p className="text-error">
+                    {errors?.["yokotenkai"]?.message}
+                  </p>
+                )} */}
               </Row>
             </td>
           </tr>
@@ -1364,7 +1455,7 @@ function MyTable({
                         {...field}
                         displayValue="tm_name"
                         className="col-9 "
-                        options={locationSupportingTM.state.supportingTM} // Options to display in the dropdown
+                        options={supportingTMList} // Options to display in the dropdown
                         // selectedValues={departmentList} // Preselected value to persist in dropdown
                         onSelect={async (selectedList) => {
                           await setSelectedSupportedTM(selectedList);
@@ -1704,7 +1795,7 @@ function MyTable({
                 style={{ marginTop: "1rem" }}
                 onClick={handleSubmit(newRequestSheetRegistration)}
               >
-                Submit
+                Save Changes
               </button>
             </Col>
             <Col>
@@ -1714,7 +1805,7 @@ function MyTable({
                 style={{ marginTop: "1rem" }}
                 onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
               >
-                Send for approval
+                Send For Approval
               </button>
             </Col>
           </Row>
@@ -1731,74 +1822,97 @@ function MyTable({
         requestSheetDataOfBM?.approvalStatusOfPRD_HOS === "Rejected" ||
         requestSheetDataOfBM?.approvalStatusOfPRD_HOD === "Rejected" ||
         requestSheetDataOfBM?.approvalStatusOfMTD_HOD === "Rejected" ? (
-          <Row>
-            <Col>
-              <p>Do you want to send for approval the request sheet?</p>
-              <Form>
-                <div className="d-flex">
-                  <Form.Check
-                    flex
-                    label="Yes"
-                    name="approvalOfRequestSheet"
-                    type="radio"
-                    value="Yes"
-                    id="approvalOfRequestSheet"
-                    {...register("approvalOfRequestSheet", {
-                      required: "This field is required",
-                    })}
-                    // onChange={handleQuality}
-                  />
-                  <Form.Check
-                    flex
-                    label="No"
-                    name="approvalOfRequestSheet"
-                    type="radio"
-                    value="No"
-                    id="approvalOfRequestSheet"
-                    {...register("approvalOfRequestSheet", {
-                      required: "This field is required",
-                    })}
-                    // onChange={handleQuality}
-                  />
-                </div>
-                {errors?.["approvalOfRequestSheet"] && (
-                  <p className="text-error">
-                    {errors?.["approvalOfRequestSheet"]?.message}
-                  </p>
-                )}
-                {watch("approvalOfRequestSheet") === "No" ? (
-                  <>
-                    <input
-                      type="text"
-                      name="rejectedRemarksOfRequestSheet"
-                      placeholder="Enter rejected remarks"
-                      className="p-1 m-1"
-                      {...register("rejectedRemarksOfRequestSheet", {
-                        required: "Please fill rejected remarks",
-                      })}
-                    />
-                    {errors?.["rejectedRemarksOfRequestSheet"] && (
-                      <p className="text-error">
-                        {errors?.["rejectedRemarksOfRequestSheet"]?.message}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  ""
-                )}
-                &nbsp;
+          <>
+            <Row>
+              <Col>
                 <button
                   type="submit"
                   className="btn bg-button"
-                  onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
+                  style={{ marginTop: "1rem" }}
+                  // onClick={handleSubmit(newRequestSheetRegistration)}
                 >
-                  {watch("approvalOfRequestSheet") === "No"
-                    ? "Reject"
-                    : "Send for approval"}
+                  Submit
                 </button>
-              </Form>
-            </Col>
-          </Row>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <Form>
+                  <p>Do you want to send for approval the request sheet?</p>
+                  <div className="d-flex">
+                    <Form.Check
+                      flex
+                      label="Yes"
+                      name="approvalOfRequestSheet"
+                      type="radio"
+                      value="Yes"
+                      id="approvalOfRequestSheet"
+                      onChange={(e) => {
+                        setValue("approvalOfRequestSheet", e.target.value);
+                        clearErrors("root.handleApprovalErrorFromServerSide");
+                      }}
+                    />
+                    <Form.Check
+                      flex
+                      label="No"
+                      name="approvalOfRequestSheet"
+                      type="radio"
+                      value="No"
+                      id="approvalOfRequestSheet"
+                      onChange={(e) => {
+                        setValue("approvalOfRequestSheet", e.target.value);
+                        clearErrors("root.handleApprovalErrorFromServerSide");
+                      }}
+                    />
+                  </div>
+                  {errors?.root?.handleApprovalErrorFromServerSide?.type ===
+                    "approvalOfRequestSheet" && (
+                    <p className="text-error">
+                      {errors?.root?.handleApprovalErrorFromServerSide?.message}
+                    </p>
+                  )}
+                  {watch("approvalOfRequestSheet") === "No" ? (
+                    <>
+                      <input
+                        type="text"
+                        name="rejectedRemarksOfRequestSheet"
+                        placeholder="Enter rejected remarks"
+                        className="p-1 m-1"
+                        onChange={(e) => {
+                          setValue(
+                            "rejectedRemarksOfRequestSheet",
+                            e.target.value
+                          );
+                          clearErrors("root.handleApprovalErrorFromServerSide");
+                        }}
+                      />
+                      {errors?.root?.handleApprovalErrorFromServerSide?.type ===
+                        "rejectedRemarksOfRequestSheet" && (
+                        <p className="text-error">
+                          {
+                            errors?.root?.handleApprovalErrorFromServerSide
+                              ?.message
+                          }
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    ""
+                  )}
+                  &nbsp;
+                  <button
+                    type="submit"
+                    className="btn bg-button"
+                    onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
+                  >
+                    {watch("approvalOfRequestSheet") === "No"
+                      ? "Reject"
+                      : "Send for approval"}
+                  </button>
+                </Form>
+              </Col>
+            </Row>
+          </>
         ) : (
           ""
         )}
@@ -1810,72 +1924,95 @@ function MyTable({
         requestSheetDataOfBM?.approvalOfMTD_TL?._id !==
           loggedUserDetails?._id &&
         requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id ? (
-          <Row>
-            <Col>
-              Kindly approve request-sheet.{" "}
-              <Form>
-                <div className="d-flex">
-                  <Form.Check
-                    flex
-                    label="Yes"
-                    name="approvalOfRequestSheet"
-                    type="radio"
-                    value="Yes"
-                    id="approvalOfRequestSheet"
-                    {...register("approvalOfRequestSheet", {
-                      required: "This field is required",
-                    })}
-                    // onChange={handleQuality}
-                  />
-                  <Form.Check
-                    flex
-                    label="No"
-                    name="approvalOfRequestSheet"
-                    type="radio"
-                    value="No"
-                    id="approvalOfRequestSheet"
-                    {...register("approvalOfRequestSheet", {
-                      required: "This field is required",
-                    })}
-                    // onChange={handleQuality}
-                  />
-                </div>
-                {errors?.["approvalOfRequestSheet"] && (
-                  <p className="text-error">
-                    {errors?.["approvalOfRequestSheet"]?.message}
-                  </p>
-                )}
-                {watch("approvalOfRequestSheet") === "No" ? (
-                  <>
-                    <input
-                      type="text"
-                      name="rejectedRemarksOfRequestSheet"
-                      placeholder="Enter rejected remarks"
-                      className="p-1 m-1"
-                      {...register("rejectedRemarksOfRequestSheet", {
-                        required: "Please fill this field",
+          <>
+            <Row>
+              {loggedUserDetails?.tm_department === "MTD" && (
+                <Col>
+                  <button
+                    type="submit"
+                    className="btn bg-button"
+                    style={{ marginTop: "1rem" }}
+                    onClick={handleSubmit(newRequestSheetRegistration)}
+                  >
+                    Submit
+                  </button>
+                </Col>
+              )}
+            </Row>
+            <Row>
+              <Col>
+                Kindly approve request-sheet.{" "}
+                <Form>
+                  <div className="d-flex">
+                    <Form.Check
+                      flex
+                      label="Yes"
+                      name="approvalOfRequestSheet"
+                      type="radio"
+                      value="Yes"
+                      id="approvalOfRequestSheet"
+                      {...register("approvalOfRequestSheet", {
+                        // required: "This field is required",
                       })}
+                      // onChange={handleQuality}
                     />
-                    {errors?.["rejectedRemarksOfRequestSheet"] && (
-                      <p className="text-error">
-                        {errors?.["rejectedRemarksOfRequestSheet"]?.message}
-                      </p>
+                    <Form.Check
+                      flex
+                      label="No"
+                      name="approvalOfRequestSheet"
+                      type="radio"
+                      value="No"
+                      id="approvalOfRequestSheet"
+                      {...register("approvalOfRequestSheet", {
+                        // required: "This field is required",
+                      })}
+                      // onChange={handleQuality}
+                    />
+                  </div>
+                  {errors?.root?.handleApprovalErrorFromServerSide?.type ===
+                    "approvalOfRequestSheet" && (
+                    <p className="text-error">
+                      {errors?.root?.handleApprovalErrorFromServerSide?.message}
+                    </p>
+                  )}
+                  {watch("approvalOfRequestSheet") === "No" ? (
+                    <>
+                      <input
+                        type="text"
+                        name="rejectedRemarksOfRequestSheet"
+                        placeholder="Enter rejected remarks"
+                        className="p-1 m-1"
+                        {...register("rejectedRemarksOfRequestSheet", {
+                          required: "Please fill this field",
+                        })}
+                      />
+                      {errors?.root?.handleApprovalErrorFromServerSide?.type ===
+                        "rejectedRemarksOfRequestSheet" && (
+                        <p className="text-error">
+                          {
+                            errors?.root?.handleApprovalErrorFromServerSide
+                              ?.message
+                          }
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    ""
+                  )}
+                  &nbsp;
+                  <button
+                    type="submit"
+                    className="btn bg-button"
+                    onClick={handleSubmit(
+                      approveRequestSheetFromHigherAuthority
                     )}
-                  </>
-                ) : (
-                  ""
-                )}
-                &nbsp;
-                <button
-                  type="submit"
-                  className="btn bg-button"
-                  onClick={handleSubmit(approveRequestSheetFromHigherAuthority)}
-                >
-                  Submit
-                </button>
-              </Form>
-            </Col>
-          </Row>
+                  >
+                    Submit
+                  </button>
+                </Form>
+              </Col>
+            </Row>
+          </>
         ) : (
           ""
         )}

@@ -3,7 +3,7 @@ import PRDRequestSheetForUpdate from "./PRDRequestSheetForUpdate";
 import MTDRequestSheetForUpdate from "./MTDRequestSheetForUpdate";
 import { useParams, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
-import MTDRequestSheet from '../RequestSheet/MTDRequestSheet'
+import MTDRequestSheet from "../RequestSheet/MTDRequestSheet";
 
 function MyTable() {
   const navigate = useNavigate();
@@ -14,6 +14,7 @@ function MyTable() {
   const [requestSheetDataOfBM, setRequestSheetDataOfBM] = useState("");
 
   const [approvalListOfBM, setApprovalListOfBM] = useState([]);
+  const [supportingTMList, setSupportingTMList] = useState([]);
   const getMachineDetails = async () => {
     try {
       const res = await fetch(
@@ -64,7 +65,8 @@ function MyTable() {
       if (res.status === 404) {
         console.log("error", data?.message);
       } else {
-        setRequestSheetDataOfBM(data?.requestSheetData?.[0])
+        setRequestSheetDataOfBM(data?.requestSheetData?.[0]);
+        setSupportingTMList(data?.TLHOSS_and_TM_user_list);
       }
     } catch (error) {
       console.log(error);
@@ -92,6 +94,7 @@ function MyTable() {
         selectedMachineDetails={selectedMachineDetails}
         approvalListOfBM={approvalListOfBM}
         requestSheetDataOfBM={requestSheetDataOfBM}
+        supportingTMList= {supportingTMList}
       />
     </>
   );

@@ -128,7 +128,6 @@ const ApprovalDashboardOfRequestSheet = () => {
       if (res.status === 404) {
         console.log("error", data?.message);
       } else {
-        console.log(data?.requestSheetData);
         setApprovalRequestSheetDataOfBM(data?.requestSheetData);
       }
     } catch (error) {
