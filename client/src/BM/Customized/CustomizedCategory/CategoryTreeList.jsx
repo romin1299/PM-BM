@@ -35,9 +35,9 @@ const CategoryTreeList = ({
   const inputRef = useRef(null);
 
   const toggleCategory = (categoryId) => {
-    if (expandedCategories.includes(categoryId)) {
+    if (expandedCategories?.includes(categoryId)) {
       setExpandedCategories(
-        expandedCategories.filter((id) => id !== categoryId)
+        expandedCategories?.filter((id) => id !== categoryId)
       );
     } else {
       setExpandedCategories([categoryId]);
@@ -101,7 +101,7 @@ const CategoryTreeList = ({
             {category.subCategories?.length > 0 ? (
               // If current category has subcategories then expand icons will be shown
               <IconButton style={{ marginRight: 5 }} size="small">
-                {expandedCategories.includes(category._id) ? (
+                {expandedCategories?.includes(category._id) ? (
                   <ExpandLessIcon fontSize="inherit" />
                 ) : (
                   <ExpandMoreIcon fontSize="inherit" />
@@ -154,7 +154,7 @@ const CategoryTreeList = ({
           </ListItem>
         )}
 
-        {parentCategoryId < 0 && expandedCategories.includes(category._id) && (
+        {parentCategoryId < 0 && expandedCategories?.includes(category._id) && (
           <List disablePadding>
             {category.subCategories?.map((childCategory) => (
               <RenderCategory
@@ -215,8 +215,8 @@ const CategoryTreeList = ({
 
       <List sx={{ pb: 0 }}>
         {/* map all the categories fetched from the server */}
-        {categories.length > 0 ? (
-          categories.map((category) => (
+        {categories?.length > 0 ? (
+          categories?.map((category) => (
             // for the first iteration of the mapping the given category will always be parent.
             // parentCategoryId = -1 means that there does not exist parent for this category.
             <RenderCategory category={category} parentCategoryId={-1} />

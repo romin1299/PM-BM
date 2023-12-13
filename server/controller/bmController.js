@@ -2612,7 +2612,7 @@ router.get(
       plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
     });
 
-    let getCategory = category[0].categories;
+    let getCategory = category?.[0]?.categories;
 
     return res.status(201).json({
       message: "Categories get successfully",
@@ -2753,7 +2753,7 @@ router.get(
     const shifts = await Plant.find({
       plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
     });
-    let getShifts = shifts[0].shiftOfBM;
+    let getShifts = shifts?.[0]?.shiftOfBM;
 
     return res.status(201).json({
       message: "Shifts get successfully",

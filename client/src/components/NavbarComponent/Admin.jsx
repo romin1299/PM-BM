@@ -79,8 +79,7 @@ const Admin = ({ userData }) => {
         </div> */}
         <div>
           <SidebarHeader>
-            <div className="logotext">
-              {/* small and big change using menucollapse state */}
+            {/* <div className="logotext">
               <p className="d-flex align-items-center justify-content-center m-2 sticky-top bg-white">
                 {menuCollapse ? (
                   <img
@@ -98,7 +97,7 @@ const Admin = ({ userData }) => {
                   />
                 )}
               </p>
-            </div>
+            </div> */}
             <div
               className="closemenu"
               onClick={onClickMenuIcon}

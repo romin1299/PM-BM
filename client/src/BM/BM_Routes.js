@@ -34,113 +34,196 @@ import LineContributionBD from "./Reports/LineContributionBreakdown/LineContribu
 import TMMTR from "./Reports/TMMTTRSkill/TMMTRDashboard";
 
 import ApprovalLogs from "./ApprovalLogs/ApprovalLogs";
+import BMTitlebar from "./Component/BMTitlebar";
+
+const reportRoutes = [
+  {
+    path: "/bm/report/productionLineWiseReport",
+    element: <ProductionLineWiseReport />,
+  },
+  { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
+  {
+    path: "/bm/report/daily-breakdown-trend",
+    element: <DailyBTDashboard />,
+  },
+  {
+    path: "/bm/report/monthly-breakdown-trend",
+    element: <MonthlyBDTDashboard />,
+  },
+  // {
+  //   path: "/bm/report/mttr-report",
+  //   element: <MTTRReportDashboard />,
+  // },
+  // {
+  //   path: "/bm/report/mtbf-report",
+  //   element: <MTBFReportDashboard />,
+  // },
+  {
+    path: "/bm/report/line-contribution-breakdown-trend",
+    element: <LineContributionBD />,
+  },
+  {
+    path: "/bm/report/tm-mtr",
+    element: <TMMTR />,
+  },
+  {
+    path: "/bm/report/mttr",
+    element: <MTTRReportDashboard />,
+  },
+  {
+    path: "/bm/report/mtbf",
+    element: <MTBFReportDashboard />,
+  },
+];
 
 // Define an array of routes for each user type
 const userRoutes = [
   {
     user_type: "Admin",
     routes: [
-      { path: "/bm/adminDashboard", element: <AdminDashboard /> },
-      { path: "/bm", element: <AdminCreationDashboard /> },
-      { path: "/bm/profile", element: <Profile /> },
-      { path: "/bm/summeryDashboard", element: <SummeryDashboard /> },
       {
-        path: "/bm/requestListDashboard",
-        element: <RequestSheetMainDashboard />,
+        path: "/bm",
+        element: (
+          <div className="container-fluid">
+            <BMTitlebar title="Plant Dashboard" />
+          </div>
+        ),
       },
       {
-        path: "/bm/generateRequestSheetMainDashboard",
-        element: <GenerateRequestSheetMainDashboard />,
+        path: "/bm/summeryDashboard",
+        element: (
+          <div className="container-fluid">
+            <BMTitlebar title="Summary Dashboard" />
+          </div>
+        ),
       },
       {
-        path: "/bm/request-sheet/:generateType/:machine_code",
-        element: <RequestSheet />,
+        path: "/bm/admin-creation-dashboard",
+        element: <AdminCreationDashboard />,
+      },
+      {
+        path: "/bm/adminDashboard",
+        element: <AdminDashboard />,
+      },
+      {
+        path: "/bm/customizedDashboard",
+        element: <MainCustomized />,
+      },
+      {
+        path: "/bm/profile",
+        element: <Profile />,
       },
     ],
   },
   {
     user_type: "Plant-Admin",
     routes: [
-      { path: "/bm", element: <OperatorDashboard /> },
-      { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
-      { path: "/bm/request-sheet", element: <RequestSheet /> },
       {
-        path: "/bm/requestListDashboard",
-        element: <RequestSheetMainDashboard />,
+        path: "/bm",
+        element: (
+          <div className="container-fluid">
+            <BMTitlebar title="Plant Dashboard" />
+          </div>
+        ),
       },
       {
-        path: "/bm/generateRequestSheetMainDashboard",
-        element: <GenerateRequestSheetMainDashboard />,
+        path: "/bm/summeryDashboard",
+        element: (
+          <div className="container-fluid">
+            <BMTitlebar title="Summary Dashboard" />
+          </div>
+        ),
       },
       {
-        path: "/bm/request-sheet/:generateType/:machine_code",
-        element: <RequestSheet />,
-      },
-      { path: "/bm/customizedDashboard", element: <MainCustomized /> },
-
-      { path: "/bm/profile", element: <Profile /> },
-      { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
-
-      { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
-      {
-        path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
-        element: <RequestSheetUpdate />,
-      },
-      { path: "/bm/approvalLogs", element: <ApprovalLogs /> },
-      {
-        path: "/bm/requestSheetMonitoring",
-        element: <RequestSheetMonitoring />,
+        path: "/bm/operator-dashboard",
+        element: <OperatorDashboard />,
       },
       {
-        path: "/bm/report/productionLineWiseReport",
-        element: <ProductionLineWiseReport />,
+        path: "/bm/approval",
+        element: <ApprovalDashboardOfRequestSheet />,
       },
       {
-        path: "/bm/report/mttr-report",
-        element: <MTTRReportDashboard />,
+        path: "/bm/approvalLogs",
+        element: <ApprovalLogs />,
       },
       {
-        path: "/bm/report/mtbf-report",
-        element: <MTBFReportDashboard />,
+        path: "/bm/customizedDashboard",
+        element: <MainCustomized />,
       },
       {
-        path: "/bm/report/daily-breakdown-trend",
-        element: <DailyBTDashboard />,
+        path: "/bm/profile",
+        element: <Profile />,
       },
+      
+      ...reportRoutes,
     ],
   },
   {
     user_type: "Section-Admin",
     routes: [
-      { path: "/bm", element: <OperatorDashboard /> },
-      { path: "/bm/profile", element: <Profile /> },
       {
-        path: "/bm/requestListDashboard",
-        element: <RequestSheetMainDashboard />,
+        path: "/bm",
+        element: (
+          <div className="container-fluid">
+            <BMTitlebar title="Plant Dashboard" />
+          </div>
+        ),
       },
       {
-        path: "/bm/generateRequestSheetMainDashboard",
-        element: <GenerateRequestSheetMainDashboard />,
+        path: "/bm/summeryDashboard",
+        element: (
+          <div className="container-fluid">
+            <BMTitlebar title="Summary Dashboard" />
+          </div>
+        ),
       },
       {
-        path: "/bm/request-sheet/:generateType/:machine_code",
-        element: <RequestSheet />,
+        path: "/bm/operator-dashboard",
+        element: <OperatorDashboard />,
       },
-      { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
-      { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
       {
-        path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
-        element: <RequestSheetUpdate />,
+        path: "/bm/approval",
+        element: <ApprovalDashboardOfRequestSheet />,
       },
-      { path: "/bm/approvalLogs", element: <ApprovalLogs /> },
+      {
+        path: "/bm/approvalLogs",
+        element: <ApprovalLogs />,
+      },
+      {
+        path: "/bm/customizedDashboard",
+        element: <MainCustomized />,
+      },
+      {
+        path: "/bm/profile",
+        element: <Profile />,
+      },
+
+      ...reportRoutes,
     ],
   },
   {
     user_type: "Operator",
     routes: [
-      { path: "/bm", element: <OperatorDashboard /> },
-      { path: "/bm/profile", element: <Profile /> },
-      { path: "/bm/customizedDashboard", element: <MainCustomized /> },
+      {
+        path: "/bm",
+        element: (
+          <div className="container-fluid">
+            <BMTitlebar title="Plant Dashboard" />
+          </div>
+        ),
+      },
+      {
+        path: "/bm/summeryDashboard",
+        element: (
+          <div className="container-fluid">
+            <BMTitlebar title="Summary Dashboard" />
+          </div>
+        ),
+      },
+      {
+        path: "/bm/requestSheetMonitoring",
+        element: <RequestSheetMonitoring />,
+      },
       {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,
@@ -157,7 +240,12 @@ const userRoutes = [
         path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
         element: <RequestSheetUpdate />,
       },
-      { path: "/bm/approvalLogs", element: <ApprovalLogs /> },
+      {
+        path: "/bm/profile",
+        element: <Profile />,
+      },
+
+      ...reportRoutes,
     ],
   },
   {
@@ -166,14 +254,24 @@ const userRoutes = [
       {
         path: "/bm",
         element: (
-          <h1>
-            <BMTabDashboard />
-          </h1>
+          <div className="container-fluid">
+            {/* <BMTabDashboard /> */}
+            <BMTitlebar title="Plant Dashboard" />
+          </div>
         ),
       },
-      { path: "/bm/summeryDashboard", element: <h1>Summary</h1> },
-      { path: "/bm/userAssign", element: <h1>Users</h1> },
-      { path: "/bm/customizedDashboard", element: <MainCustomized /> },
+      {
+        path: "/bm/summeryDashboard",
+        element: (
+          <div className="container-fluid">
+            <BMTitlebar title="Summary Dashboard" />
+          </div>
+        ),
+      },
+      {
+        path: "/bm/requestSheetMonitoring",
+        element: <RequestSheetMonitoring />,
+      },
       {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,
@@ -187,52 +285,23 @@ const userRoutes = [
         element: <RequestSheet />,
       },
       {
-        path: "/bm/requestSheetMonitoring",
-        element: <RequestSheetMonitoring />,
-      },
-      {
         path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
         element: <RequestSheetUpdate />,
       },
       {
-        path: "/bm/report/productionLineWiseReport",
-        element: <ProductionLineWiseReport />,
-      },
-      { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
-      {
-        path: "/bm/report/daily-breakdown-trend",
-        element: <DailyBTDashboard />,
+        path: "/bm/approval",
+        element: <ApprovalDashboardOfRequestSheet />,
       },
       {
-        path: "/bm/report/monthly-breakdown-trend",
-        element: <MonthlyBDTDashboard />,
-      },
-      // {
-      //   path: "/bm/report/mttr-report",
-      //   element: <MTTRReportDashboard />,
-      // },
-      // {
-      //   path: "/bm/report/mtbf-report",
-      //   element: <MTBFReportDashboard />,
-      // },
-      {
-        path: "/bm/report/line-contribution-breakdown-trend",
-        element: <LineContributionBD />,
+        path: "/bm/approvalLogs",
+        element: <ApprovalLogs />,
       },
       {
-        path: "/bm/report/tm-mtr",
-        element: <TMMTR />,
+        path: "/bm/profile",
+        element: <Profile />,
       },
-      {
-        path: "/bm/report/mttr",
-        element: <MTTRReportDashboard />,
-      },
-      {
-        path: "/bm/report/mtbf",
-        element: <MTBFReportDashboard />,
-      },
-      { path: "/bm/approval", element: <ApprovalDashboardOfRequestSheet /> },
-      { path: "/bm/approvalLogs", element: <ApprovalLogs /> },
+
+      ...reportRoutes,
     ],
   },
 ];

@@ -190,7 +190,7 @@ const CustomManageShifts = () => {
 
   return (
     <div className="cell p-3">
-      <ChartTitleBar disableDivider title="Manage Shifts" mb={1} />
+      <ChartTitleBar disableDivider title="Manage Shifts" mb={1}/>
 
       {/* <Typography variant="h4" fontSize={"1.5rem"} fontWeight={500} mb={1}>
         Manage Shifts
@@ -304,7 +304,7 @@ const CustomManageShifts = () => {
           </table>
         </form>
 
-        {shifts.length <= 0 && !isAdding && (
+        {shifts?.length <= 0 && !isAdding && (
           <Box
             className=" h-100"
             display="flex"
