@@ -229,7 +229,7 @@ router.post(
           req.rootUser.tm_department === "MTD"
         ) {
           const getRequestSheetData = await RequestSheetOfBM.findOne({
-            requestSheetNoOfBM: req.query.reqId,
+            _id: mongoose.Types.ObjectId(req.query?.reqId),
           });
 
           const requestSheetDataFilledByMTDUser = JSON.parse(
@@ -262,7 +262,7 @@ router.post(
             };
 
             requestSheet = await RequestSheetOfBM.findOneAndUpdate(
-              { requestSheetNoOfBM: req.query.reqId },
+              { _id: mongoose.Types.ObjectId(req.query?.reqId) },
               {
                 $set: {
                   ...queryObjForUpdateDataByOtherUser,
@@ -388,7 +388,7 @@ router.post(
             );
 
             await RequestSheetOfBM.findOneAndUpdate(
-              { requestSheetNoOfBM: req.query.reqId },
+              { _id: mongoose.Types.ObjectId(req.query?.reqId) },
               {
                 $unset: {
                   attachedDataSheets: "",
@@ -416,7 +416,7 @@ router.post(
             });
 
             await RequestSheetOfBM.findOneAndUpdate(
-              { requestSheetNoOfBM: req.query.reqId },
+              { _id: mongoose.Types.ObjectId(req.query?.reqId) },
               {
                 $unset: {
                   attachedDrawings: "",
@@ -426,7 +426,7 @@ router.post(
           }
 
           requestSheet = await RequestSheetOfBM.findOneAndUpdate(
-            { requestSheetNoOfBM: req.query.reqId },
+            { _id: mongoose.Types.ObjectId(req.query?.reqId) },
             {
               $set: queryObj,
               $push: {
@@ -477,16 +477,16 @@ router.post(
           const requestSheetNoOfBM =
             machine?.line_names?.cell_names?.subSection_names?.section_names
               ?.dashboardLevel === "Yes"
-              ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
+              ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name).trim()
                   .substring(0, 2)
-                  .toUpperCase()}_${machine?.line_names?.line_name}_${
+                  .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
                   moment().tz("Asia/Kolkata").month() + 1
-                }_${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim()
-              : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
+                }-${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim()
+              : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name).trim()
                   .substring(0, 2)
-                  .toUpperCase()}_${machine?.line_names?.line_name}_${
+                  .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
                   moment().tz("Asia/Kolkata").month() + 1
-                }_${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim();
+                }-${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim();
 
           requestSheet = new RequestSheetOfBM({
             ...req.query,
@@ -662,7 +662,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           },
           handOverTime: {
             $dateToString: {
-              format: "%Y-%m-%d %H:%M",
+              format: "%d-%m-%Y %H:%M",
               date: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
               timezone: "Asia/Kolkata",
             },
@@ -674,7 +674,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           // problemOccurredDateAndTimeOfBM:
           problemOccurredDateAndTimeOfBM: {
             $dateToString: {
-              format: "%Y-%m-%d %H:%M",
+              format: "%d-%m-%Y %H:%M",
               date: "$problemOccurredDateAndTimeOfBM",
               timezone: "Asia/Kolkata",
             },
@@ -1245,7 +1245,7 @@ const queryMiddleWareFunction = async (req, res, next) => {
                 pipeline: [
                   {
                     $lookup: {
-                      from: "machines",
+                      from: "machinesalldatas",
                       localField: "_id",
                       foreignField: "line_names",
                       pipeline: [
@@ -3015,9 +3015,9 @@ const getRequestSheetData = async (req, res, next) => {
   try {
     let queryObj = {};
 
-    if (req.query?.requestSheetNoOfBM) {
+    if (req.query?._id) {
       queryObj = {
-        requestSheetNoOfBM: req.query?.requestSheetNoOfBM,
+        _id: mongoose.Types.ObjectId(req.query?._id),
       };
     }
 
@@ -3541,7 +3541,7 @@ router.patch(
         const updateAssignApprovalOfMTD_TL =
           await RequestSheetOfBM.findOneAndUpdate(
             {
-              requestSheetNoOfBM: req.params?.reqId,
+              _id: mongoose.Types.ObjectId(req.params?.reqId),
               assignUser: req?.rootUser?._id,
             },
             {
@@ -3623,8 +3623,7 @@ router.patch(
         let resultOfUpdateStatusOfApprover =
           await RequestSheetOfBM.findOneAndUpdate(
             {
-              requestSheetNoOfBM: req.params?.reqId,
-            },
+              _id: mongoose.Types.ObjectId(req.query?.reqId),            },
             {
               $push: {
                 ...queryObjForPush,
@@ -3660,7 +3659,7 @@ router.patch(
       if (approvalOfRequestSheet === "Yes") {
         let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
           {
-            requestSheetNoOfBM: req?.params?.reqId,
+            _id: mongoose.Types.ObjectId(req.query?.reqId),
             approvalStatusOfMTD_TL: "Pending",
           },
           {
@@ -3698,7 +3697,7 @@ router.patch(
         //request-sheet is rejected
         let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
           {
-            requestSheetNoOfBM: req?.params?.reqId,
+            _id: mongoose.Types.ObjectId(req.query?.reqId),
             approvalStatusOfMTD_TL: "Pending",
           },
           {
@@ -9595,7 +9594,7 @@ router.patch(
       )}`;
 
       const getRequestSheetData = await RequestSheetOfBM.findOne({
-        requestSheetNoOfBM: req?.params?.reqId,
+        _id: mongoose.Types.ObjectId(req.query?.reqId),
       });
 
       const lengthOfTheApprovalStatus =
@@ -9656,7 +9655,7 @@ router.patch(
           let updateApprovalStatusOfRequestSheet =
             await RequestSheetOfBM.findOneAndUpdate(
               {
-                requestSheetNoOfBM: req?.params?.reqId,
+                _id: mongoose.Types.ObjectId(req.query?.reqId),
                 // [keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition]:
                 //   "Pending",
               },
@@ -9689,7 +9688,7 @@ router.patch(
           let updateApprovalStatusOfRequestSheet =
             await RequestSheetOfBM.findOneAndUpdate(
               {
-                requestSheetNoOfBM: req?.params?.reqId,
+                _id: mongoose.Types.ObjectId(req.query?.reqId),
                 // [keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition]:
                 //   "Pending",
               },
@@ -9728,7 +9727,7 @@ router.patch(
         let updateApprovalStatusOfRequestSheet =
           await RequestSheetOfBM.findOneAndUpdate(
             {
-              requestSheetNoOfBM: req?.params?.reqId,
+              _id: mongoose.Types.ObjectId(req.query?.reqId),
               // [keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition]:
               //   "Pending",
             },
@@ -9805,7 +9804,7 @@ router.get(
         return priorityA - priorityB;
       });
 
-      console.log("In log query---",req.queryObj)
+      // console.log("In log query---",req.queryObj)
 
       const getDataOfRequestSheetApprovalLogs =
         await RequestSheetOfBM?.aggregate([
@@ -9983,7 +9982,7 @@ router.get(
 
               problemOccurredDateAndTimeOfBMForTable: {
                 $dateToString: {
-                  format: "%Y-%m-%d %H:%M",
+                  format: "%d-%m-%Y T%H:%M",
                   date: "$problemOccurredDateAndTimeOfBM",
                   timezone: "Asia/Kolkata",
                 },

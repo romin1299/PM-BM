@@ -178,7 +178,7 @@ function MyTable({ selectedMachineDetails }) {
             <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
           </thead>
           <tbody className="m-1 border p-3">
-            <tr className="row" style={{width:"100vw"}}>
+            <tr className="row" style={{ width: "100vw" }}>
               {/* <td width={100}>
               <img
                 src={denso_logo}
@@ -194,7 +194,7 @@ function MyTable({ selectedMachineDetails }) {
                 </h4>
               </td>
             </tr>
-            <tr className="row m-2" style={{width:"100vw"}}>
+            <tr className="row m-2" style={{ width: "100vw" }}>
               <td className="mb-0 pb-0 border col-lg-3 col-md-6 col-sm-12">
                 <p>
                   <b>MAINT. TYPE</b>
@@ -328,8 +328,7 @@ function MyTable({ selectedMachineDetails }) {
                   )}
                 </Form>
               </td>
-              <td className="mb-0 pb-0 border col-lg-3 col-md-6 col-sm-12"
-              >
+              <td className="mb-0 pb-0 border col-lg-3 col-md-6 col-sm-12">
                 <div className="mb-2">
                   <h6 className="text-center border p-1">
                     <b>REQUEST SHEET ( To be filled by PRD)</b>
@@ -340,13 +339,15 @@ function MyTable({ selectedMachineDetails }) {
                       ?.subSection_names?.section_names?.dashboardLevel ===
                     "Yes"
                       ? selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.section_name
+                          ?.trim()
                           ?.substring(0, 2)
                           ?.toUpperCase()
                       : selectedMachineDetails?.line_names?.cell_names?.subSection_names?.subSection_name
+                          ?.trim()
                           ?.substring(0, 2)
                           ?.toUpperCase()}
-                    _{selectedMachineDetails?.line_names?.line_name}_
-                    {startedDate}_
+                    -{selectedMachineDetails?.line_names?.line_name?.trim()}-
+                    {startedDate}-
                     {selectedMachineDetails?.line_names?.requestSheetNos + 1 ||
                       1}
                   </p>
@@ -447,7 +448,10 @@ function MyTable({ selectedMachineDetails }) {
                 </div>
               </td>
 
-              <td className="mb-0 pb-0 pt-0 col-lg-3 col-md-12 col-sm-12"  style={{marginLeft: "-8px"}} >
+              <td
+                className="mb-0 pb-0 pt-0 col-lg-3 col-md-12 col-sm-12"
+                style={{ marginLeft: "-8px" }}
+              >
                 {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
@@ -475,7 +479,7 @@ function MyTable({ selectedMachineDetails }) {
                     {selectedMachineDetails?.line_names?.line_name}
                   </Col>
                 </Row>
-                <Row className="pt-0 mb-0 " style={{marginLeft: "-8px"}}>
+                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
                   <Col className="border pb-2">
                     <p className="fs-6 mb-0">
                       <b>TL [PRD]</b>

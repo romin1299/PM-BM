@@ -29,7 +29,7 @@ const list = [
 function MyTable({ requestSheetDataOfBM }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { machine_code, generateType, requestSheetNoOfBM } = useParams();
+  const { machine_code, generateType, requestSheetID } = useParams();
   const {
     register,
     handleSubmit,
@@ -81,7 +81,7 @@ function MyTable({ requestSheetDataOfBM }) {
 
     try {
       const res = await fetch(
-        `/newRequestSheetRegistration/?reqId=${requestSheetNoOfBM}&&machineRef=${machine_code}`,
+        `/newRequestSheetRegistration/?reqId=${requestSheetID}&&machineRef=${machine_code}`,
         {
           method: "POST",
           // headers: {
@@ -161,7 +161,7 @@ function MyTable({ requestSheetDataOfBM }) {
   };
 
   useEffect(() => {
-    if (requestSheetDataOfBM?.requestSheetNoOfBM) {
+    if (requestSheetDataOfBM?._id) {
       setValue(
         "problemOccurredDateAndTimeOfBM",
         moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM)
@@ -207,7 +207,7 @@ function MyTable({ requestSheetDataOfBM }) {
         requestSheetDataOfBM?.breakDownAttendedBy
       );
     }
-  }, [requestSheetDataOfBM?.requestSheetNoOfBM, setValue]);
+  }, [requestSheetDataOfBM?._id, setValue]);
 
   return (
     <>
@@ -378,7 +378,7 @@ function MyTable({ requestSheetDataOfBM }) {
                     <b>REQUEST SHEET ( To be filled by PRD)</b>
                   </h6>
                   <p className="text-left border p-1 mb-2">
-                    <b>REQUEST No.</b> {requestSheetNoOfBM}
+                    <b>REQUEST No.</b> {requestSheetDataOfBM?.requestSheetNoOfBM}
                   </p>
                   <Row className="m-0">
                     <Col className="border">

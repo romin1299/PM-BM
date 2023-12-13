@@ -106,7 +106,7 @@ const ChartsToolbar = ({
           <Button variant="contained">Month</Button>
         </ButtonGroup> */}
 
-        <DownloadMenu handleDownloadCSV={generatePPT} />
+        {/* <DownloadMenu handleDownloadCSV={generatePPT} /> */}
       </Box>
     </Box>
   );

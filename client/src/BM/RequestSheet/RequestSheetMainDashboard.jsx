@@ -12,10 +12,10 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
-import CancelIcon from '@mui/icons-material/Cancel';
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 import RoutingContext from "../../context/routing/RoutingContext";
 
@@ -31,6 +31,10 @@ import {
   Typography,
 } from "@mui/material";
 
+import {
+  initialState,
+  reducer,
+} from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
 
 const RequestSheetMainDashboard = () => {
@@ -41,8 +45,8 @@ const RequestSheetMainDashboard = () => {
   const [selectedRow, setSelectedRow] = useState();
   const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
   const statusColorMap = {
-    "Generated": "#D2B203",
-    "Assigned": "#008000",
+    Generated: "#D2B203",
+    Assigned: "#008000",
     "Work Order Open": "#008AB9",
     "Work Order Pending": "#F59F00",
     "Work Order Closed": "#B10202",
@@ -64,7 +68,7 @@ const RequestSheetMainDashboard = () => {
     "Under MTD HOS approval",
   ];
 
-  const initialState = {
+  const initialStateForRequestSheetData = {
     requestSheetData: [],
     counters: {
       open_request_sheet_count: 0,
@@ -83,7 +87,7 @@ const RequestSheetMainDashboard = () => {
     UPDATE_REQUEST_SHEET: "update-request-sheet",
   };
 
-  const reducer = (state, action) => {
+  const reducerForRequestSheetData = (state, action) => {
     switch (action?.type) {
       case ACTION?.GET:
         return {
@@ -111,18 +115,25 @@ const RequestSheetMainDashboard = () => {
     }
   };
 
+  const [reduceStateForRequestSheetData, reducerDispatchForRequestSheetData] =
+    useReducer(reducerForRequestSheetData, initialStateForRequestSheetData);
+
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const getAllRequestSheetData = async () => {
     try {
-      const res = await fetch(`/getRequestSheetData`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        `/getRequestSheetData/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
 
       const {
         message,
@@ -133,7 +144,7 @@ const RequestSheetMainDashboard = () => {
       } = await res.json();
 
       if (res?.status === 201) {
-        reducerDispatch({
+        reducerDispatchForRequestSheetData({
           type: ACTION.GET,
           requestSheetData,
           TLHOSS_and_TM_user_list,
@@ -160,7 +171,7 @@ const RequestSheetMainDashboard = () => {
       const { requestSheet, message } = await res.json();
 
       if (res.status === 201) {
-        reducerDispatch({
+        reducerDispatchForRequestSheetData({
           type: ACTION.UPDATE_REQUEST_SHEET,
           requestSheet,
           message,
@@ -175,8 +186,12 @@ const RequestSheetMainDashboard = () => {
   };
 
   useEffect(() => {
-    getAllRequestSheetData();
-  }, []);
+    if (reduceState?.selectedValue) getAllRequestSheetData();
+  }, [
+    reduceState?.selectedValue,
+    reduceState?.selectedYear,
+    reduceState?.selectedMonth,
+  ]);
 
   const handleGenerateBMNavigation = async () => {
     navigate(`/bm/generateRequestSheetMainDashboard`);
@@ -285,14 +300,15 @@ const RequestSheetMainDashboard = () => {
       // editable: context?.tm_department === "MTD" ? "always" : "never",
       editable: (_, row) =>
         context?.tm_department === "MTD" &&
-          row?.requestSheetStatus === statusArray[0]
+        row?.requestSheetStatus === statusArray[0]
           ? true
           : false,
       editComponent: ({ value, onChange }) =>
         dropDownComponent({
           value,
           onChange,
-          dropDownArray: reduceState?.TLHOSS_and_TM_user_list,
+          dropDownArray:
+            reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
         }),
     },
     {
@@ -301,14 +317,15 @@ const RequestSheetMainDashboard = () => {
       // editable: context?.tm_department === "MTD" ? "always" : "never",
       editable: (_, row) =>
         context?.tm_department === "MTD" &&
-          row?.requestSheetStatus === statusArray[0]
+        row?.requestSheetStatus === statusArray[0]
           ? true
           : false,
       editComponent: ({ value, onChange }) =>
         dropDownComponent({
           value,
           onChange,
-          dropDownArray: reduceState?.TLHOSS_and_TM_user_list,
+          dropDownArray:
+            reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
         }),
     },
     {
@@ -447,20 +464,31 @@ const RequestSheetMainDashboard = () => {
       position: "row",
       disabled:
         row?.assignUserId === context?._id &&
-          (row?.work_order_status === "Pending" ||
-            row?.work_order_status === "Closed")
+        (row?.work_order_status === "Pending" ||
+          row?.work_order_status === "Closed")
           ? false
           : true,
       onClick: (event, selectedRow) => {
         navigate(
-          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`, {
-          state: {
-            supportingTM: reduceState?.TLHOSS_and_TM_user_list,
-          },
-        }
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
+          {
+            state: {
+              supportingTM:
+                reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
+            },
+          }
         );
       },
     }),
+  ];
+
+  const filtration = [
+    <ChartsToolbar
+      baseUrlForFiltering={baseUrlForFiltering}
+      reduceState={reduceState}
+      reducerDispatch={reducerDispatch}
+      monthFiltration
+    />,
   ];
 
   return (
@@ -485,33 +513,50 @@ const RequestSheetMainDashboard = () => {
               }
               style={{ marginTop: "1rem" }}
             >
-              <AddCircleIcon /> &nbsp;
-              Generate New Request-Sheet
+              <AddCircleIcon /> &nbsp; Generate New Request-Sheet
             </button>
           </Col>
 
           <Col>
             <Box className="cell rounded-0 p-3 bg-button text-white">
               <div className="d-flex align-items-center">
-                <InsertDriveFileIcon /> &nbsp;&nbsp; <p>Total Request: &nbsp;
-                  {reduceState?.counters?.total_request_sheet_count}</p>
+                <InsertDriveFileIcon /> &nbsp;&nbsp;{" "}
+                <p>
+                  Total Request: &nbsp;
+                  {
+                    reduceStateForRequestSheetData?.counters
+                      ?.total_request_sheet_count
+                  }
+                </p>
               </div>
-
             </Box>
-
           </Col>
           <Col>
             <Box className="cell p-3 rounded-0 bg-dang text-white">
               <div className="d-flex align-items-center">
-                <ArrowCircleRightIcon /> &nbsp;&nbsp; <p>
-                  Open Request: {reduceState?.counters?.open_request_sheet_count}</p></div>
+                <ArrowCircleRightIcon /> &nbsp;&nbsp;{" "}
+                <p>
+                  Open Request:{" "}
+                  {
+                    reduceStateForRequestSheetData?.counters
+                      ?.open_request_sheet_count
+                  }
+                </p>
+              </div>
             </Box>
           </Col>
           <Col>
             <Box className="cell p-3 rounded-0 bg-succ text-white">
               <div className="d-flex align-items-center">
-                <CancelIcon /> &nbsp;&nbsp; <p>
-                  Closed Request: {reduceState?.counters?.closed_request_sheet_count}</p></div>
+                <CancelIcon /> &nbsp;&nbsp;{" "}
+                <p>
+                  Closed Request:{" "}
+                  {
+                    reduceStateForRequestSheetData?.counters
+                      ?.closed_request_sheet_count
+                  }
+                </p>
+              </div>
             </Box>
           </Col>
         </Row>
@@ -530,8 +575,8 @@ const RequestSheetMainDashboard = () => {
             actions={requestSheetActions}
             icons={tableIcons}
             columns={requestSheetHeader}
-            data={reduceState?.requestSheetData}
-            // title="User Management"
+            data={reduceStateForRequestSheetData?.requestSheetData}
+            title={filtration}
             // tableRef={this.tableRef.current.onQueryChange()}
 
             editable={{
@@ -557,7 +602,7 @@ const RequestSheetMainDashboard = () => {
                 }),
             }}
             options={{
-              showTitle: false,
+              showTitle: true,
               paging: false,
               sorting: true,
               search: true,
