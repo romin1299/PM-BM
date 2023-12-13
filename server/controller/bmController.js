@@ -1131,21 +1131,98 @@ const findTLandOperatorList = async (req, res, next) => {
   }
 };
 
+const filterMiddleware = async (req, res, next) => {
+  try {
+    let queryObj = {};
+
+    if (req.query?.selectedYear) {
+      queryObj = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+      };
+    }
+
+    if (req.query?.selectedMonth) {
+      queryObj = {
+        ...queryObj,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      };
+    }
+
+    if (req.params?.filter === "based-on-section") {
+      queryObj = {
+        ...queryObj,
+        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-subSection") {
+      queryObj = {
+        ...queryObj,
+        subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-cell") {
+      queryObj = {
+        ...queryObj,
+        cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    } else if (req.params?.filter === "based-on-line") {
+      queryObj = {
+        ...queryObj,
+        lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    } else {
+      queryObj = {
+        ...queryObj,
+        machineRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    }
+    req.queryObj = queryObj;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+
 router.get(
-  "/getRequestSheetData",
+  "/getRequestSheetData/:filter/:selectedId",filterMiddleware,
+  
   async (req, res, next) => {
     try {
+
+      // For fetching all data
       let queryPipeline = [
         {
-          $match: {},
+          $match: {
+       ...req.queryObj,
+          },
         },
-      ];
 
+      ];
+     
+
+      //For fetching data while updating
+      if(req.query?._id){
+        queryPipeline = [
+          {
+            $match: {
+              _id: mongoose.Types.ObjectId(req.query?._id),
+              ...req.queryObj,
+            },
+          },
+        ];
+      }
+
+      //For fetching data if user is Operator
       if (req.rootUser?.user_type === "Operator") {
         queryPipeline = [
           {
             $match: {
               assignUser: req.rootUser?._id,
+              ...req.queryObj,
             },
           },
         ];
@@ -1537,60 +1614,7 @@ router.get("/getMtdUserDetails", async (req, res, next) => {
 //        Monitoring RequestSheet APIS
 // -------------------------------------------------------------------------------
 
-const filterMiddleware = async (req, res, next) => {
-  try {
-    let queryObj = {};
 
-    if (req.query?.selectedYear) {
-      queryObj = {
-        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-          req.query?.selectedYear,
-      };
-    }
-
-    if (req.query?.selectedMonth) {
-      queryObj = {
-        ...queryObj,
-        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-          req.query?.selectedMonth,
-      };
-    }
-
-    if (req.params?.filter === "based-on-section") {
-      queryObj = {
-        ...queryObj,
-        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
-      };
-    } else if (req.params?.filter === "based-on-subSection") {
-      queryObj = {
-        ...queryObj,
-        subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
-      };
-    } else if (req.params?.filter === "based-on-cell") {
-      queryObj = {
-        ...queryObj,
-        cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
-        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
-      };
-    } else if (req.params?.filter === "based-on-line") {
-      queryObj = {
-        ...queryObj,
-        lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
-        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
-      };
-    } else {
-      queryObj = {
-        ...queryObj,
-        machineRef: mongoose.Types.ObjectId(req.params?.selectedId),
-        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
-      };
-    }
-    req.queryObj = queryObj;
-    next();
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
 
 const middlewareForGettingAllDropdownList = async (req, res, next) => {
   try {
