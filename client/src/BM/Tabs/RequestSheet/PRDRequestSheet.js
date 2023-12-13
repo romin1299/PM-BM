@@ -172,7 +172,7 @@ function MyTable({ selectedMachineDetails }) {
           <thead>
             <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
           </thead>
-          <tbody className="m-1 box-shadow p-3">
+          <tbody className="m-1 border p-3">
             <tr className="row" style={{width:"100vw"}}>
               {/* <td width={100}>
               <img
@@ -190,7 +190,7 @@ function MyTable({ selectedMachineDetails }) {
               </td>
             </tr>
             <tr className="row m-2" style={{width:"100vw"}}>
-              <td className="mb-0 pb-0 borde col-lg-3 col-md-6 col-sm-12">
+              <td className="mb-0 pb-0 border col-lg-3 col-md-6 col-sm-12">
                 <p>
                   <b>MAINT. TYPE</b>
                 </p>
@@ -442,7 +442,7 @@ function MyTable({ selectedMachineDetails }) {
                 </div>
               </td>
 
-              <td className="mb-0 pb-0 pt-0 col-lg-12 col-md-12 col-sm-12"  style={{marginLeft: "-8px"}} >
+              <td className="mb-0 pb-0 pt-0 col-lg-3 col-md-12 col-sm-12"  style={{marginLeft: "-8px"}} >
                 {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
@@ -487,7 +487,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
               </td>
             </tr>
-            <tr>
+            <tr className="row">
               <td className="border col-lg-8 col-md-12 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={2}>

@@ -268,11 +268,11 @@ const RequestSheetMainDashboard = () => {
       title: "R.S Status",
       field: "requestSheetStatus",
       editable: false,
-      render: (rowData) => (
-        <button className="btn" style={{ background: statusColorMap[rowData.requestSheetStatus], fontSize: "12px", cursor:"auto"}}>
-          {rowData.requestSheetStatus}
-        </button>
-      ),
+      // render: (rowData) => (
+      //   <button className="btn" style={{ background: statusColorMap[rowData.requestSheetStatus], fontSize: "12px", cursor:"auto"}}>
+      //     rowData.requestSheetStatus
+      //   </button>
+      // ),
     },
     {
       title: "Assign",

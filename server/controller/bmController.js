@@ -344,7 +344,7 @@ router.post(
             partQualityCheckedByPRD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
             requestSheetStatus:
-              getRequestSheetData?.assignUser?._id ===
+              (getRequestSheetData?.assignUser?._id).toString() ===
               (req?.rootUser?._id).toString()
                 ? "Fill Sheet"
                 : getRequestSheetData?.requestSheetStatus,
@@ -8614,6 +8614,8 @@ router.get(
             ?.priority || 0;
         return priorityA - priorityB;
       });
+
+      console.log("In log query---",req.queryObj)
 
       const getDataOfRequestSheetApprovalLogs =
         await RequestSheetOfBM?.aggregate([
