@@ -452,18 +452,21 @@ function MyTable({
             <td className="mb-0 pb-0 pt-0 col-lg-4 col-md-6 col-sm-12">
               <Row className="pt-0 mb-0 ">
                 <Col
-                  className="border border-top-0 pb-2 pt-1"
+                  className="border border-top-0 col-md-4 pb-2 pt-1"
                   style={{ marginLeft: "3px" }}
                 >
-                  <p className="mb-0">
+                  <small className="mb-0">
                     <b>REQUEST RECEIVED MTD S.L</b>
-                  </p>
+                  </small>
                   <p>{requestSheetDataOfBM?.approvalOfMTD_SL?.tm_name}</p>
                 </Col>
-                <Col className="pb-2 pt-1" style={{ marginLeft: "3px" }}>
-                  <p className="fs-6 mb-0">
+                <Col
+                  className="pb-2 pt-1 col-md-3"
+                  style={{ marginLeft: "3px" }}
+                >
+                  <small className="fs-6 mb-0">
                     <b>MTD TL</b>
-                  </p>
+                  </small>
                   {/* {requestSheetDataOfBM?.approvalOfMTD_TL?.length > 0 ? (
                     requestSheetDataOfBM?.approvalOfMTD_TL?.[
                       requestSheetDataOfBM?.approvalOfMTD_TL?.length - 1
@@ -516,16 +519,27 @@ function MyTable({
                 <Row className="m-0">
                   <Col className="border border-left-0" lg={12} md={12} sm={12}>
                     <Row className="d-flex align-items-center ">
-                      <Col lg={1} md={1} sm={6}>
+                      <Col
+                        lg={1}
+                        md={2}
+                        sm={6}
+                        className="d-flex align-items-center border border-right-0 border-top-0 border-bottom"
+                        style={{ height: "70px" }}
+                      >
                         <small
                           style={{ fontSize: "12px" }}
-                          className="text-center m-0"
+                          className="text-center m-0 "
                         >
                           <b>WORK STARTED</b>
                         </small>
                       </Col>
                       <Col
-                        className="border border-right-0 border-top-0 border-bottom-0" lg={2} md={3} sm={6} >
+                        className="border border-right-0 border-top-0 border-bottom"
+                        lg={2}
+                        md={3}
+                        sm={6}
+                        style={{ height: "70px" }}
+                      >
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-2">
                           <div className="text-center">
                             <small className="mb-0 d-block">
@@ -567,7 +581,13 @@ function MyTable({
                           </div> */}
                         </div>
                       </Col>
-                      <Col lg={1} md={1} sm={6}>
+                      <Col
+                        className="border border-right-0 border-top-0 border-bottom d-flex align-items-center"
+                        lg={1}
+                        md={2}
+                        sm={6}
+                        style={{ height: "70px" }}
+                      >
                         <small
                           style={{ fontSize: "12px" }}
                           className="text-center m-0"
@@ -580,6 +600,7 @@ function MyTable({
                         lg={2}
                         md={3}
                         sm={6}
+                        style={{ height: "70px" }}
                       >
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-2">
                           <div className="text-center">
@@ -627,7 +648,13 @@ function MyTable({
                           </div> */}
                         </div>
                       </Col>
-                      <Col lg={3} md={6} sm={12} className="border border-bottom-0 pt-2">
+                      <Col
+                        lg={3}
+                        md={6}
+                        sm={12}
+                        className="border border-bottom-0"
+                        style={{ height: "70px" }}
+                      >
                         <small className="mb-0">
                           <b>SECTION INCHARGE</b>
                         </small>
@@ -729,14 +756,16 @@ function MyTable({
                         lg={2}
                         md={6}
                         sm={12}
-                        className="border border-bottom-0 pb-2"
+                        className="border border-bottom-0 pb-2 "
+                        style={{ height: "70px" }}
                       >
-                        <small className="fs-6 mb-0">
+                        <small className="mb-0">
                           <b>FEEDBACK</b>
                         </small>
                         <br />
                         <input
                           type="text"
+                          className="widthwhy"
                           id="feedbackMTD_HOS"
                           name="feedbackMTD_HOS"
                           {...register("feedbackMTD_HOS", {
@@ -895,15 +924,15 @@ function MyTable({
           </tr>
 
           <tr class="row m-2">
-            <td class="col-lg-4 col-md-6 col-sm-12">
+            <td class="col-lg-4 col-md-6 col-sm-12 border-bottom">
               <ProblemList problems={problems} setProblems={setProblems} />
 
-              <Row className="m-2">
+              <Row className="m-0">
                 <Col
                   lg={3}
                   md={6}
                   sm={6}
-                  className="border text-center pb-0 pt-2"
+                  className="border text-center pb-2 pt-2"
                 >
                   <small className="mb-0" style={{ fontSize: "12px" }}>
                     <b>BREAKDOWN TIME</b>
@@ -914,7 +943,7 @@ function MyTable({
                   lg={3}
                   md={6}
                   sm={6}
-                  className="border text-center pb-0 pt-2"
+                  className="border text-center pb-2 pt-2"
                 >
                   <small className="mb-0" style={{ fontSize: "12px" }}>
                     <b>MAINTENANCE TIME</b>
@@ -939,7 +968,7 @@ function MyTable({
                   lg={3}
                   md={6}
                   sm={6}
-                  className="border text-center pb-0 pt-2"
+                  className="border text-center pb-2 pt-2"
                 >
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>QUALITY CHECK TIME</b>
@@ -965,7 +994,7 @@ function MyTable({
                   lg={3}
                   md={6}
                   sm={6}
-                  className="border text-center pb-0 pt-2"
+                  className="border text-center pb-2 pt-2"
                 >
                   <small className="mb-0" style={{ fontSize: "12px" }}>
                     <b>BREAK TIME</b>
@@ -999,7 +1028,7 @@ function MyTable({
                   Total time exceeds!!!
                 </p>
               )}
-              <Row className="m-2">
+              <Row className="m-0">
                 <Col>
                   <Row>
                     <Col
@@ -1309,13 +1338,13 @@ function MyTable({
               <Row className="m-0">
                 <Col className="border">
                   <small className="mb-0">
-                    <b>WHY WHY ANALYSIS2 [ ROOT CAUSE ]</b>
+                    <b>WHY WHY ANALYSIS [ ROOT CAUSE ]</b>
                   </small>
                 </Col>
               </Row>
 
               <Row className="m-0">
-                <Col lg={12} className="d-block align-items-center">
+                <Col lg={12} className="d-block align-items-center border">
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>WHY-1 </b>
                   </p>{" "}
@@ -1330,7 +1359,7 @@ function MyTable({
                     })}
                   />
                 </Col>
-                <Col lg={12} className="d-block align-items-center">
+                <Col lg={12} className="d-block align-items-center border">
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>WHY-2 </b>
                   </p>{" "}
@@ -1345,7 +1374,7 @@ function MyTable({
                     })}
                   />
                 </Col>
-                <Col lg={12} className="d-block align-items-center">
+                <Col lg={12} className="d-block align-items-center border">
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>WHY-3 </b>
                   </p>{" "}
@@ -1360,7 +1389,7 @@ function MyTable({
                     })}
                   />
                 </Col>
-                <Col lg={12} className="d-block align-items-center">
+                <Col lg={12} className="d-block align-items-center border">
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>WHY-4 </b>
                   </p>{" "}
@@ -1375,7 +1404,7 @@ function MyTable({
                     })}
                   />
                 </Col>
-                <Col lg={12} className="d-block align-items-center">
+                <Col lg={12} className="d-block align-items-center border">
                   <p className="mb-0" style={{ fontSize: "12px" }}>
                     <b>WHY-5 </b>
                   </p>{" "}
@@ -1409,12 +1438,12 @@ function MyTable({
               </Row>
             </td>
 
-            <td class="col-lg-4 col-md-12 col-sm-12">
+            <td class="col-lg-4 col-md-12 col-sm-12  border-bottom">
               <Row className="m-0">
                 <Col className="border p-2">
-                  <p className="mb-0 d-flex align-items-center justify-content-start">
+                  <small className="mb-0 d-flex align-items-center justify-content-start">
                     <b>QUALITY CONFIRMED (IPP)</b>&nbsp;&nbsp;&nbsp;
-                  </p>
+                  </small>
                 </Col>
                 <Col className="border p-2 d-flex align-items-center">
                   <Form>
@@ -1457,9 +1486,9 @@ function MyTable({
               </Row>
               <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
                 <Col lg={6} md={6} className="border pb-2 pt-1">
-                  <p className="mb-0">
+                  <small className="mb-0">
                     <b>PRD</b>
-                  </p>
+                  </small>
                   {requestSheetDataOfBM?.partQualityCheckedByPRD ? (
                     <p className="mb-0">
                       {requestSheetDataOfBM?.partQualityCheckedByPRD?.tm_name}
@@ -1475,9 +1504,9 @@ function MyTable({
                   )}
                 </Col>
                 <Col lg={6} md={6} className="border pb-2 pt-1">
-                  <p className="fs-6 mb-0">
+                  <small className="mb-0">
                     <b>MTD</b>
-                  </p>
+                  </small>
                   {requestSheetDataOfBM?.partQualityCheckedByPRD ? (
                     <p className="mb-0">
                       {requestSheetDataOfBM?.partQualityCheckedByMTD?.tm_name}
@@ -1495,9 +1524,9 @@ function MyTable({
               </Row>
               <Row className="m-0">
                 <Col className="border p-2">
-                  <p className="mb-0 d-flex align-items-center justify-content-start">
+                  <small className="mb-0 d-flex align-items-center justify-content-start">
                     <b>DATA SHEET ATTACHED</b>&nbsp;&nbsp;&nbsp;
-                  </p>
+                  </small>
                 </Col>
                 <Col className="border p-2 d-flex align-items-center">
                   <Form>
@@ -1570,9 +1599,9 @@ function MyTable({
               </Row>
               <Row className="m-0">
                 <Col className="border p-2">
-                  <p className="mb-0 d-flex align-items-center justify-content-start">
+                  <small className="mb-0 d-flex align-items-center justify-content-start">
                     <b>DRAWING ATTACHED</b>&nbsp;&nbsp;&nbsp;
-                  </p>
+                  </small>
                 </Col>
                 <Col className="border p-2 d-flex align-items-center">
                   <Form>
@@ -1638,7 +1667,9 @@ function MyTable({
             <td class="col-lg-6 col-md-12 col-sm-12">
               <Row className="m-0">
                 <Col className="border col-lg-12 col-md-12 col-sm-12">
-                  <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
+                  <small>
+                    <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
+                  </small>
                   <br />
                   <textarea
                     rows={2}
@@ -1663,7 +1694,8 @@ function MyTable({
               </Row> */}
               <Row className="m-0">
                 <Col className="border col-lg-12 col-md-12 col-sm-12">
-                  <b>YOKOTENKAI</b>
+                <small> <b>YOKOTENKAI</b></small>
+
 
                   <br />
                   <textarea
@@ -1691,9 +1723,9 @@ function MyTable({
             <td colSpan={8}>
               <Row className="m-0">
                 <Col className="border p-2">
-                  <p className="mb-0 d-flex align-items-center justify-content-start">
+                  <small className="mb-0 d-flex align-items-center justify-content-start">
                     <b>Is Action Temporary?</b>&nbsp;&nbsp;&nbsp;
-                  </p>
+                  </small>
                 </Col>
                 <Col className="border p-2 d-flex align-items-center">
                   <Form>
@@ -1709,7 +1741,8 @@ function MyTable({
                         {...register("actionTemporaryOrNot", {
                           required: "This field is required",
                         })}
-                      /> &nbsp;&nbsp;
+                      />{" "}
+                      &nbsp;&nbsp;
                       <Form.Check
                         flex
                         label="No"
@@ -1733,9 +1766,9 @@ function MyTable({
               </Row>
               <Row className="m-0">
                 <Col className="border p-2">
-                  <p className="mb-0 d-flex align-items-center justify-content-start">
+                  <small className="mb-0 d-flex align-items-center justify-content-start">
                     <b>No. Of TM Attended.</b>&nbsp;&nbsp;&nbsp;
-                  </p>
+                  </small>
                 </Col>
                 <Col className="border p-2 d-flex align-items-center">
                   <Controller
@@ -1876,16 +1909,16 @@ function MyTable({
                   </Row>
                   <Row>
                     <Col lg={2} md={2} className="border p-1 text-center">
-                      <b>* GM-MTD</b>
+                      <small><b>* GM-MTD</b></small>
                     </Col>
                     <Col lg={2} md={2} className="border p-1 text-center">
-                      <b>* GM-PRD</b>
+                      <small><b>* GM-PRD</b></small>
                     </Col>
                     <Col lg={2} md={2} className="border p-1 text-center">
-                      <b>SECTION INCHARGE (PRD)</b>
+                      <small><b>SECTION INCHARGE (PRD)</b></small>
                     </Col>
                     <Col lg={2} md={2} className="border p-1 text-center">
-                      <b>TEAM LEADER (PRD)</b>
+                      <small><b>TEAM LEADER (PRD)</b></small>
                     </Col>
                   </Row>
                   <Row>

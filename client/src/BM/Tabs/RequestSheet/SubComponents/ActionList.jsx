@@ -72,19 +72,19 @@ const ActionList = ({ actions, setActions }) => {
     <div className="mtd-actions-section">
       <Row className="m-0">
         <Col lg={8} md={7} className="border col-auto d-flex align-items-center gap-1">
-          <b>ACTION & COUNTERMEASURE STEPS (Dynamic)</b>
+          <small><b>ACTION & COUNTERMEASURE STEPS (Dynamic)</b></small>
         </Col>
         <Col
           lg={2} md={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <b>STATUS</b>
+          <small><b>STATUS</b></small>
         </Col>
         <Col
           lg={2} md={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <b>UPDATE</b>
+          <small><b>UPDATE</b></small>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
         </Col>
       </Row>
@@ -97,7 +97,7 @@ const ActionList = ({ actions, setActions }) => {
               editedAction && editedAction.id === action.id ? "editable" : ""
             }`}
           >
-            <b>Action {index + 1}: </b>
+            <small><b>Action {index + 1}: </b></small>
             {editedAction && editedAction.id === action.id ? (
               <input
                 type="text"

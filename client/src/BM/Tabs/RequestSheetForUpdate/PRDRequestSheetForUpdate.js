@@ -379,22 +379,30 @@ function MyTable({ requestSheetDataOfBM }) {
                 </Form>
               </td>
               <td className="mb-0 pb-0 border col-lg-8 col-md-4">
-                <div className="mb-2">
-                  <h6 className="text-center border p-1">
-                    <b>REQUEST SHEET ( To be filled by PRD)</b>
-                  </h6>
-                  <p className="text-left border p-1 mb-2">
-                    <b>REQUEST No.</b> {requestSheetNoOfBM}
-                  </p>
+                <div className="mb-2 border">
+                  <Row className="m-0">
+                    <Col className="border">
+                      <p className="text-center p-1">
+                        <b>REQUEST SHEET ( To be filled by PRD)</b>
+                      </p>
+                    </Col>
+                  </Row>
+                  <Row className="m-0">
+                    <Col className="border">
+                      <small className="text-left p-1 mb-2">
+                        <b>REQUEST No.</b> {requestSheetNoOfBM}
+                      </small>
+                    </Col>
+                  </Row>
                   <Row className="m-0">
                     <Col className="border">
                       <Row>
-                        <p className="border-right-0 text-center m-0">
-                          PROBLEM OCCURRED
-                        </p>
+                        <small className="border-right-0 text-center m-0">
+                          <b>PROBLEM OCCURRED</b>
+                        </small>
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
-                            <p className="mb-0">
+                            <small className="mb-0">
                               <b>DATE & TIME: </b>
                               <br />
                               <input
@@ -407,7 +415,7 @@ function MyTable({ requestSheetDataOfBM }) {
                                     ?._id !== loggedUserDetails?._id
                                 }
                               />
-                            </p>
+                            </small>
                           </div>{" "}
                           {/* &nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
@@ -425,12 +433,12 @@ function MyTable({ requestSheetDataOfBM }) {
                     </Col>
                     <Col className="border">
                       <Row>
-                        <p className="border-left-0 text-center m-0">
-                          SHEET ISSUED
-                        </p>
+                        <small className="border-left-0 text-center m-0">
+                          <b>SHEET ISSUED</b>
+                        </small>
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
-                            <p className="mb-0">
+                            <small className="mb-0">
                               <b>DATE & TIME: </b>
                               <br />
                               {/* <input
@@ -448,7 +456,7 @@ function MyTable({ requestSheetDataOfBM }) {
                               )
                                 .tz("Asia/Kolkata")
                                 .format("DD-MM-YYYY THH:mm")}
-                            </p>
+                            </small>
                           </div>{" "}
                           {/* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
@@ -493,20 +501,25 @@ function MyTable({ requestSheetDataOfBM }) {
                   style={{ marginLeft: "-8px" }}
                 >
                   <Col className="pb-2 pt-1">
-                    <p className="mb-0">
+                    <small className="mb-0">
                       <b>DEPT./LINE</b>
-                    </p>
+                    </small>
+                    <br/>
                     <small>
-                    {requestSheetDataOfBM?.cellRef?.cell_name}/
-                    {requestSheetDataOfBM?.lineRef?.line_name}</small>
+                      {requestSheetDataOfBM?.cellRef?.cell_name}/
+                      {requestSheetDataOfBM?.lineRef?.line_name}
+                    </small>
                   </Col>
                 </Row>
                 <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
                   <Col className="border pb-2">
-                    <p className="fs-6 mb-0">
+                    <small className="fs-6 mb-0">
                       <b>TL [PRD]</b>
-                    </p>
-                    <small>{requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}</small>
+                    </small>
+                    <br/>
+                    <small>
+                      {requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}
+                    </small>
                     {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
@@ -524,13 +537,15 @@ function MyTable({ requestSheetDataOfBM }) {
                   <Col lg={4} md={6}>
                     <small className="mb-0">
                       <b>MACHINE NAME:</b>{" "}
-                    </small> &nbsp;&nbsp;
+                    </small>{" "}
+                    &nbsp;&nbsp;
                     {requestSheetDataOfBM?.machineRef?.machine_name}
                   </Col>
                   <Col lg={4} md={6}>
                     <small className="mb-0">
                       <b>MACHINE NO.:</b>
-                    </small>&nbsp;&nbsp;
+                    </small>
+                    &nbsp;&nbsp;
                     {requestSheetDataOfBM?.machineRef?.machine_code}
                   </Col>
                 </Row>
@@ -726,7 +741,9 @@ function MyTable({ requestSheetDataOfBM }) {
                   <Col className="border p-2">
                     <FormControl>
                       <FormLabel id="demo-radio-buttons-group-label">
-                      <small><b>SHIFT</b></small>
+                        <small>
+                          <b>SHIFT</b>
+                        </small>
                       </FormLabel>
 
                       <RadioGroup
@@ -792,7 +809,7 @@ function MyTable({ requestSheetDataOfBM }) {
                     <small className="mb-0">
                       <b>BREAKDOWN ATTENDED BY</b>
                     </small>
-                    <br/>
+                    <br />
                     {requestSheetDataOfBM?.assignUser?.tm_name} {", "}
                     {requestSheetDataOfBM?.supportingTM
                       ?.map((obj) => obj?.tm_name)

@@ -147,7 +147,7 @@ const PartList = ({ parts, setParts }) => {
               <input
                 type="number"
                 className="mb-2 mt-2"
-                
+
                 value={editedPart.quantity}
                 onChange={(e) =>
                   setEditedPart({ ...editedPart, quantity: e.target.value })
@@ -165,8 +165,9 @@ const PartList = ({ parts, setParts }) => {
                 }
               />
             </Col>
-            <Col lg={2} md={2} sm={2} className="border d-flex align-items-center gap-1 p-1">
+            <Col lg={2} md={2} sm={2} className="border d-block align-items-center gap-1 p-1">
               <button class="bg-info text-white border-0" onClick={updatePart}>Update</button>
+              <br/>
               <button class="bg-danger text-white border-0" onClick={cancelEdit}>Cancel</button>
             </Col>
           </Row>
@@ -188,7 +189,7 @@ const PartList = ({ parts, setParts }) => {
             <Col lg={2} md={1} sm={2} className="border">
               {part.cost}
             </Col>
-            <Col lg={2} md={2} sm={2} className="border d-flex align-items-center gap-1 p-1">
+            <Col lg={2} md={2} sm={2} className="border d-block align-items-center gap-1 p-1">
               <button
               class="bg-warning text-white border-0"
                 onClick={(event) => {
@@ -197,6 +198,7 @@ const PartList = ({ parts, setParts }) => {
               >
                 Edit
               </button>
+              <br/>
               <button
               class="bg-danger text-white border-0"
                 onClick={(event) => {
@@ -253,7 +255,7 @@ const PartList = ({ parts, setParts }) => {
               type="number"
               placeholder="Quantity"
               className="mb-2 mt-2"
-              
+
               value={newPart.quantity}
               onChange={(e) =>
                 setNewPart({ ...newPart, quantity: e.target.value })

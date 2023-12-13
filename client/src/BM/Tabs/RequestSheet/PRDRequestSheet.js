@@ -337,11 +337,17 @@ function MyTable({ selectedMachineDetails }) {
                 </Form>
               </td>
               <td className="mb-0 pb-0 border col-lg-8 col-md-4 col-sm-12">
-                <div className="mb-2">
-                  <h6 className="text-center border p-1">
-                    <b>REQUEST SHEET ( To be filled by PRD)</b>
-                  </h6>
-                  <p className="text-left border p-1 mb-2">
+                <div className="mb-2 border">
+                  <Row className="m-0">
+                    <Col className="border">
+                      <p className="text-center p-1">
+                        <b>REQUEST SHEET ( To be filled by PRD)</b>
+                      </p>
+                    </Col>
+                  </Row>
+                  <Row className="m-0">
+                    <Col className="border">
+                      <small className="text-left p-1 mb-2">
                     <b>REQUEST No.</b>{" "}
                     {selectedMachineDetails?.line_names?.cell_names
                       ?.subSection_names?.section_names?.dashboardLevel ===
@@ -356,13 +362,15 @@ function MyTable({ selectedMachineDetails }) {
                     {startedDate}_
                     {selectedMachineDetails?.line_names?.requestSheetNos + 1 ||
                       1}
-                  </p>
+                  </small>
+                    </Col>
+                  </Row>
                   <Row className="m-0">
                     <Col className="border">
                       <Row>
-                        <p className="border-right-0 text-center m-0">
-                          PROBLEM OCCURRED
-                        </p>
+                        <small className="border-right-0 text-center m-0">
+                          <b>PROBLEM OCCURRED</b>
+                        </small>
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
                             <p className="mb-0">
@@ -407,12 +415,12 @@ function MyTable({ selectedMachineDetails }) {
                     </Col>
                     <Col className="border">
                       <Row>
-                        <p className="border-left-0 text-center m-0">
-                          SHEET ISSUED
-                        </p>
+                        <small className="border-left-0 text-center m-0">
+                          <b>SHEET ISSUED</b>
+                        </small>
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
-                            <p className="mb-0">
+                            <small className="mb-0">
                               <b>DATE & TIME: </b>
                               <br />
                               <input
@@ -428,7 +436,7 @@ function MyTable({ selectedMachineDetails }) {
                               {/* {errors?.["sheetIssuedDateAndTimeOfBM"] && (
                               <p className="text-error">{errors?.["sheetIssuedDateAndTimeOfBM"]?.message}</p>
                             )} */}
-                            </p>
+                            </small>
                           </div>{" "}
                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                           {/* <div className="text-center">
@@ -478,21 +486,26 @@ function MyTable({ selectedMachineDetails }) {
               </Row> */}
                 <Row className="pt-0 mb-0 ">
                   <Col className="border pb-2 pt-1">
-                    <p className="mb-0">
+                    <small className="mb-0">
                       <b>DEPT./LINE</b>
-                    </p>
+                    </small>
+                    <br/>
                     <small>
-                    {selectedMachineDetails?.line_names?.cell_names?.cell_name}/
-                    {selectedMachineDetails?.line_names?.line_name}</small>
+                      {
+                        selectedMachineDetails?.line_names?.cell_names
+                          ?.cell_name
+                      }
+                      /{selectedMachineDetails?.line_names?.line_name}
+                    </small>
                   </Col>
                 </Row>
                 <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
                   <Col className="border pb-2">
-                    <p className="fs-6 mb-0">
+                    <small className="fs-6 mb-0">
                       <b>TL [PRD]</b>
-                    </p>
-                    <small>
-                    {context?.tm_name}</small>
+                    </small>
+                    <br/>
+                    <small>{context?.tm_name}</small>
                     {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
@@ -506,17 +519,19 @@ function MyTable({ selectedMachineDetails }) {
             </tr>
             <tr class="row">
               <td className="border p-3 col-lg-7 col-md-8 col-sm-12">
-              <Row className="m-0 border d-flex align-items-center">
+                <Row className="m-0 border d-flex align-items-center">
                   <Col lg={4} md={6}>
                     <small className="mb-0">
                       <b>MACHINE NAME:</b>{" "}
-                    </small> &nbsp;&nbsp;
+                    </small>{" "}
+                    &nbsp;&nbsp;
                     {selectedMachineDetails.machine_name}
                   </Col>
                   <Col lg={4} md={6}>
                     <small className="mb-0">
                       <b>MACHINE NO.:</b>
-                    </small>&nbsp;&nbsp;
+                    </small>
+                    &nbsp;&nbsp;
                     {selectedMachineDetails.machine_code}
                   </Col>
                 </Row>
@@ -712,7 +727,9 @@ function MyTable({ selectedMachineDetails }) {
                   <Col className="border p-2">
                     <FormControl>
                       <FormLabel id="demo-radio-buttons-group-label">
-                        <small><b>SHIFT</b></small>
+                        <small>
+                          <b>SHIFT</b>
+                        </small>
                       </FormLabel>
 
                       {watch("selectedShift") && (
