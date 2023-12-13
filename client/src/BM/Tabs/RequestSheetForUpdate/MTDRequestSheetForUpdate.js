@@ -229,15 +229,18 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
           <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
         </thead>
         <tbody>
-          <tr>
-            <td colSpan={12}>
-              <h2 className="mt-0 d-flex align-items-center justify-content-center">
+          <tr className="row m-2 mb-0" style={{ width: "100vw" }}>
+            <td class="col-lg-8 col-md-6 col-sm-12">
+              <h4 className="mt-0 d-flex align-items-center justify-content-center">
                 MAINTENANCE REPORT ( To be filled by MTD)
-              </h2>
+              </h4>
             </td>
-            <td colSpan={4} className="mb-0 pb-0 pt-0">
-              <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
-                <Col lg={6} className="border pb-2 pt-1">
+            <td className="mb-0 pb-0 pt-0 col-lg-4 col-md-6 col-sm-12">
+              <Row className="pt-0 mb-0 ">
+                <Col
+                  className="border border-top-0 pb-2 pt-1"
+                  style={{ marginLeft: "3px" }}
+                >
                   <p className="mb-0">
                     <b>REQUEST RECEIVED MTD S.L</b>
                   </p>
@@ -271,7 +274,7 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                     })}
                   </select> */}
                 </Col>
-                <Col lg={6} className="border pb-2 pt-1">
+                <Col className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">
                     <b>MTD TL</b>
                   </p>
@@ -320,18 +323,23 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
             </td>
           </tr>
 
-          <tr>
-            <td colSpan={12}>
-              <div className="mb-2">
+          <tr className="row m-2 mt-0">
+            <td lg={12} md={12} sm={12}>
+              <div className="mb-2" style={{ width: "100vw" }}>
                 <Row className="m-0">
-                  <Col className="border border-left-0">
+                  <Col className="border border-left-0" lg={12} md={12} sm={12}>
                     <Row className="d-flex align-items-center ">
-                      <Col>
-                        <p className="text-center m-0">
+                      <Col lg={1} md={2} sm={6}>
+                        <small className="text-center m-0">
                           <b>WORK STARTED</b>
-                        </p>
+                        </small>
                       </Col>
-                      <Col className="border border-right-0 border-top-0 border-bottom-0">
+                      <Col
+                        className="border border-right-0 border-top-0 border-bottom-0"
+                        lg={2}
+                        md={3}
+                        sm={6}
+                      >
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-2">
                           <div className="text-center">
                             <p className="mb-0">
@@ -353,7 +361,7 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                           </div>{" "}
                           &nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
-                            <p className="mb-0">
+                            <small className="mb-0 d-block">
                               <b>TIME: </b>
 
                               <input
@@ -369,23 +377,24 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                                   {errors?.["workStartedTimeOfBM"]?.message}
                                 </p>
                               )}
-                            </p>
+                            </small>
                           </div>
                         </div>
                       </Col>
-                    </Row>
-                  </Col>
-                  <Col className="border">
-                    <Row className="d-flex align-items-center ">
-                      <Col>
-                        <p className="text-center m-0">
+                      <Col lg={1} md={2} sm={6}>
+                        <small className="text-center m-0">
                           <b>WORK ENDED</b>
-                        </p>
+                        </small>
                       </Col>
-                      <Col className="border border-right-0 border-top-0 border-bottom-0">
+                      <Col
+                        className="border border-right-0 border-top-0 border-bottom-0"
+                        lg={3}
+                        md={3}
+                        sm={6}
+                      >
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-2">
                           <div className="text-center">
-                            <p className="mb-0">
+                            <small className="mb-0 d-block">
                               <b>DATE: </b>
                               <input
                                 type="date"
@@ -399,7 +408,7 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                                   {errors?.["workEndedDateOfBM"]?.message}
                                 </p>
                               )}
-                            </p>
+                            </small>
                           </div>{" "}
                           &nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
@@ -422,49 +431,42 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                           </div>
                         </div>
                       </Col>
-                    </Row>
-                  </Col>
-                </Row>
-              </div>
-            </td>
-            <td colSpan={6} className="mb-0 pb-0 pt-0">
-              <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
-                <Col lg={6} className="border pb-2 pt-1">
-                  <p className="mb-0">
-                    <b>SECTION INCHARGE</b>
-                  </p>
-                  <label>MTD HOSS</label>
-                  <DropdownElem
-                    name={"MTD HOSS"}
-                    selectedMinor={selectedMinor}
-                    approvalList={
-                      selectedMachineDetails?.line_names?.cell_names
-                        ?.subSection_names?.section_names?.plant_names
-                        ?.approvalListOfMinorAndMajor
-                    }
-                    options={approvalListOfBM?.mtdUserTL}
-                    setValue={setValue}
-                    onChange={(e) => {
-                      // setSelectedUser(e.target.value);
-                    }}
-                  />
-                  {selectedMajor === "Yes" && <label>MTD HOS</label>}
-                  <DropdownElem
-                    name={"MTD HOS"}
-                    selectedMinor={selectedMinor}
-                    approvalList={
-                      selectedMachineDetails?.line_names?.cell_names
-                        ?.subSection_names?.section_names?.plant_names
-                        ?.approvalListOfMinorAndMajor
-                    }
-                    options={approvalListOfBM?.mtdUser}
-                    setValue={setValue}
-                    onChange={(e) => {
-                      // setSelectedUser(e.target.value);
-                    }}
-                  />
+                      <Col lg={3} md={2} sm={12}>
+                        <small className="mb-0">
+                          <b>SECTION INCHARGE</b>
+                        </small>
+                        <label>MTD HOSS</label>
+                        <DropdownElem
+                          name={"MTD HOSS"}
+                          selectedMinor={selectedMinor}
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                          options={approvalListOfBM?.mtdUserTL}
+                          setValue={setValue}
+                          onChange={(e) => {
+                            // setSelectedUser(e.target.value);
+                          }}
+                        />
+                        {selectedMajor === "Yes" && <label>MTD HOS</label>}
+                        <DropdownElem
+                          name={"MTD HOS"}
+                          selectedMinor={selectedMinor}
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                          options={approvalListOfBM?.mtdUser}
+                          setValue={setValue}
+                          onChange={(e) => {
+                            // setSelectedUser(e.target.value);
+                          }}
+                        />
 
-                  {/* <select
+                        {/* <select
                     // class="form-select form-select-sm"
                     // aria-label=".form-select-sm example"
                     style={{ borderRadius: "5px" }}
@@ -490,47 +492,66 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                       );
                     })}
                   </select> */}
-                  {/* {errors.feedbackMTD && <p className="text-error">{errors.feedbackMTD.message}</p>} */}
-                </Col>
-                <Col lg={6} className="border pb-2 pt-1">
-                  <p className="fs-6 mb-0">
-                    <b>FEEDBACK</b>
-                  </p>
-                  <input
-                    type="text"
-                    id="feedback"
-                    name="feedback"
-                    style={{ width: "100%" }}
-                    {...register("feedbackMTD", {
-                      required: "This field is required",
-                    })}
-                  />
-                  {errors?.["feedbackMTD"] && (
-                    <p className="text-error">
-                      {errors?.["feedbackMTD"]?.message}
-                    </p>
-                  )}
-                </Col>
-              </Row>
+                        {/* {errors.feedbackMTD && <p className="text-error">{errors.feedbackMTD.message}</p>} */}
+                      </Col>
+                      <Col
+                        lg={2}
+                        md={2}
+                        sm={12}
+                        className="border border-top-0 border-bottom-0 pb-2"
+                      >
+                        <small className="fs-6 mb-0">
+                          <b>FEEDBACK</b>
+                        </small>
+                        <br />
+                        <input
+                          type="text"
+                          id="feedback"
+                          name="feedback"
+                          style={{ width: "60%" }}
+                          {...register("feedbackMTD", {
+                            required: "This field is required",
+                          })}
+                        />
+                        {errors?.["feedbackMTD"] && (
+                          <p className="text-error">
+                            {errors?.["feedbackMTD"]?.message}
+                          </p>
+                        )}
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
+              </div>
             </td>
           </tr>
 
           <tr>
-            <td colSpan={8}>
+            <td class="col-lg-4 col-md-6 col-sm-12">
               <ProblemList problems={problems} setProblems={setProblems} />
 
               <Row className="m-2">
-                <Col lg={3} className="border text-center pb-0 pt-2">
-                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                <Col
+                  lg={3}
+                  md={6}
+                  sm={6}
+                  className="border text-center pb-0 pt-2"
+                >
+                  <small className="mb-0" style={{ fontSize: "12px" }}>
                     <b>BREAKDOWN TIME</b>
-                  </p>
+                  </small>
 
                   <p>{timeDifferenceMinutes || null}</p>
                 </Col>
-                <Col lg={3} className="border text-center pb-0 pt-2">
-                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                <Col
+                  lg={3}
+                  md={6}
+                  sm={6}
+                  className="border text-center pb-0 pt-2"
+                >
+                  <small className="mb-0" style={{ fontSize: "12px" }}>
                     <b>MAINTENANCE TIME</b>
-                  </p>
+                  </small>
                   <input
                     type="number"
                     style={{ width: "100%" }}
@@ -547,10 +568,15 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                     </p>
                   )}
                 </Col>
-                <Col lg={3} className="border text-center pb-0 pt-2">
-                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                <Col
+                  lg={3}
+                  md={6}
+                  sm={6}
+                  className="border text-center pb-0 pt-2"
+                >
+                  <small className="mb-0" style={{ fontSize: "12px" }}>
                     <b>QUALITY CHECK TIME</b>
-                  </p>
+                  </small>
                   <input
                     type="number"
                     style={{ width: "100%" }}
@@ -567,10 +593,15 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                     </p>
                   )}
                 </Col>
-                <Col lg={3} className="border text-center pb-0 pt-2">
-                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                <Col
+                  lg={3}
+                  md={6}
+                  sm={6}
+                  className="border text-center pb-0 pt-2"
+                >
+                  <small className="mb-0" style={{ fontSize: "12px" }}>
                     <b>BREAK TIME</b>
-                  </p>
+                  </small>
                   <input
                     type="number"
                     style={{ width: "100%" }}
@@ -592,18 +623,24 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                 watch("qualityCheckTime") +
                 watch("breakTime") >
                 timeDifferenceMinutes && (
-                <p class="mt-1 m-2 border p-2" style={{ color: "red" }}>Total time exceeds!!!</p>
+                <p class="mt-1 m-2 border p-2" style={{ color: "red" }}>
+                  Total time exceeds!!!
+                </p>
               )}
               <Row className="m-2">
                 <Col>
                   <Row className="d-flex align-items-center justify-content-center">
-                    <Col>
+                    <Col
+                      lg={6}
+                      md={6}
+                      sm={6}
+                      className="border d-flex align-items-center"
+                    >
                       <p className="mb-0" style={{ fontSize: "12px" }}>
                         <b>MAJOR B/D </b>
                       </p>
-                    </Col>
-                    <Col>
-                      <Form>
+                      &nbsp;&nbsp;&nbsp;
+                      <Form className="d-flex align-items-center justify-content-center">
                         {["radio"].map((type) => (
                           <div key={`inline-${type}`} className="d-flex">
                             <Form.Check
@@ -621,6 +658,7 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                                 setSelectedMinor("No");
                               }}
                             />
+                            &nbsp;&nbsp;
                             <Form.Check
                               flex
                               label="No"
@@ -642,148 +680,226 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                     </Col>
                   </Row>
                 </Col>
-                <Col className="border">
-                  <Row className="d-flex align-items-center justify-content-center">
-                    <Col>
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>FIRST TIME </b>
-                      </p>
-                    </Col>
-                    <Col>
-                      <Form>
-                        {["radio"].map((type) => (
-                          <div key={`inline-${type}`} className="d-flex">
-                            <Form.Check
-                              flex
-                              label="Yes"
-                              name="group1"
-                              type={type}
-                              value="Yes"
-                              id={`inline-${type}-1`}
-                              // onChange={handleFirstTime}
-                            />
-                            <Form.Check
-                              flex
-                              label="No"
-                              name="group1"
-                              type={type}
-                              value="No"
-                              id={`inline-${type}-2`}
-                              // onChange={handleFirstTime}
-                            />
-                          </div>
-                        ))}
-                      </Form>
-                    </Col>
-                  </Row>
+                <Col
+                  lg={6}
+                  md={6}
+                  sm={6}
+                  className="border d-flex align-items-center"
+                >
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>FIRST TIME </b>
+                  </p>
+                  &nbsp;&nbsp;&nbsp;
+                  <Form className="d-flex align-items-center justify-content-center">
+                    {["radio"].map((type) => (
+                      <div key={`inline-${type}`} className="d-flex">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="group1"
+                          type={type}
+                          value="Yes"
+                          id={`inline-${type}-1`}
+                          // onChange={handleFirstTime}
+                        />
+                        &nbsp;&nbsp;
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="group1"
+                          type={type}
+                          value="No"
+                          id={`inline-${type}-2`}
+                          // onChange={handleFirstTime}
+                        />
+                      </div>
+                    ))}
+                  </Form>
                 </Col>
-              </Row>
-              <Row className="m-0">
-                <Col className="border">
-                  <Row className="d-flex align-items-center justify-content-center">
-                    <Col>
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>MINOR B/D </b>
-                      </p>
-                    </Col>
-                    <Col>
-                      <Form>
-                        {["radio"].map((type) => (
-                          <div key={`inline-${type}`} className="d-flex">
-                            <Form.Check
-                              flex
-                              label="Yes"
-                              name="minorRadio"
-                              type={type}
-                              disabled
-                              // value="Yes"
-                              id={`inline-${type}-1`}
-                              // onChange={handleMinor}
-                              checked={selectedMinor === "Yes"}
-                              onChange={() => {
-                                setSelectedMajor("No");
-                                setSelectedMinor("Yes");
-                              }}
-                            />
-                            {/* {console.log(selectedMinor === "Yes")} */}
-                            <Form.Check
-                              flex
-                              label="No"
-                              name="minorRadio"
-                              type={type}
-                              disabled
-                              // value="No"
-                              id={`inline-${type}-2`}
-                              // onChange={handleMinor}
-                              checked={selectedMinor === "No"}
-                              onChange={() => {
-                                setSelectedMajor("Yes");
-                                setSelectedMinor("No");
-                              }}
-                            />
-                          </div>
-                        ))}
-                      </Form>
-                    </Col>
-                  </Row>
+                <Col
+                  lg={6}
+                  md={6}
+                  sm={6}
+                  className="border d-flex align-items-center"
+                >
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>MINOR B/D </b>
+                  </p>
+                  &nbsp;&nbsp;&nbsp;
+                  <Form className="d-flex align-items-center justify-content-center">
+                    {["radio"].map((type) => (
+                      <div key={`inline-${type}`} className="d-flex">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="minorRadio"
+                          type={type}
+                          disabled
+                          // value="Yes"
+                          id={`inline-${type}-1`}
+                          // onChange={handleMinor}
+                          checked={selectedMinor === "Yes"}
+                          onChange={() => {
+                            setSelectedMajor("No");
+                            setSelectedMinor("Yes");
+                          }}
+                        />
+                        &nbsp;&nbsp;
+                        {/* {console.log(selectedMinor === "Yes")} */}
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="minorRadio"
+                          type={type}
+                          disabled
+                          // value="No"
+                          id={`inline-${type}-2`}
+                          // onChange={handleMinor}
+                          checked={selectedMinor === "No"}
+                          onChange={() => {
+                            setSelectedMajor("Yes");
+                            setSelectedMinor("No");
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </Form>
                 </Col>
-                <Col className="border">
-                  <Row className="d-flex align-items-center justify-content-center">
-                    <Col>
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>REPEAT </b>
-                      </p>
-                    </Col>
-                    <Col>
-                      <Form>
-                        {["radio"].map((type) => (
-                          <div key={`inline-${type}`} className="d-flex">
-                            <Form.Check
-                              flex
-                              label="Yes"
-                              name="group1"
-                              type={type}
-                              value="Yes"
-                              id={`inline-${type}-1`}
-                              // onChange={handleRepeated}
-                            />
-                            <Form.Check
-                              flex
-                              label="No"
-                              name="group1"
-                              type={type}
-                              value="No"
-                              id={`inline-${type}-2`}
-                              // onChange={handleRepeated}
-                            />
-                          </div>
-                        ))}
-                      </Form>
-                    </Col>
-                  </Row>
+                <Col
+                  lg={6}
+                  md={6}
+                  sm={6}
+                  className="border d-flex align-items-center"
+                >
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>REPEAT </b>
+                  </p>
+                  &nbsp;&nbsp;&nbsp;
+                  <Form className="d-flex align-items-center justify-content-center">
+                    {["radio"].map((type) => (
+                      <div key={`inline-${type}`} className="d-flex">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="group1"
+                          type={type}
+                          value="Yes"
+                          id={`inline-${type}-1`}
+                          // onChange={handleRepeated}
+                        />
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="group1"
+                          type={type}
+                          value="No"
+                          id={`inline-${type}-2`}
+                          // onChange={handleRepeated}
+                        />
+                      </div>
+                    ))}
+                  </Form>
                 </Col>
               </Row>
 
               {/* <ActionList actions={actions} setActions={setActions} /> */}
             </td>
-            <td colSpan={4}>
+            <td class="col-lg-4 col-md-6 col-sm-12 border-bottom">
               <Row className="m-0">
                 <Col className="border">
                   <p className="mb-0">
-                    <b>WHY WHY ANALYSIS [ ROOT CAUSE ]</b>
+                    <b>WHY WHY ANALYSIS2 [ ROOT CAUSE ]</b>
                   </p>
                 </Col>
               </Row>
 
               <Row className="m-0">
-                <Col className="border">
-                  <Row className="d-flex align-items-center justify-content-center border border-top-0">
-                    <Col md={4}>
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>WHY-1 </b>
-                      </p>
-                    </Col>
-                    <Col md={8}>
+                <Col lg={12} className="d-flex align-items-center">
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>WHY-1 </b>
+                  </p>{" "}
+                  &nbsp;&nbsp;&nbsp;
+                  <textarea
+                    rows={1}
+                    type="text"
+                    id="Why1"
+                    name="why1"
+                    className="m-1"
+                    style={{ width: "100%", maxWidth: "80%" }}
+                    {...register("why1", {
+                      // required: "This field is required",
+                    })}
+                  />
+                </Col>
+                <Col lg={12} className="d-flex align-items-center">
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>WHY-2 </b>
+                  </p>{" "}
+                  &nbsp;&nbsp;&nbsp;
+                  <textarea
+                    rows={1}
+                    type="text"
+                    id="Why2"
+                    name="why2"
+                    className="m-1"
+                    style={{ width: "100%", maxWidth: "80%" }}
+                    {...register("why2", {
+                      // required: "This field is required",
+                    })}
+                  />
+                </Col>
+                <Col lg={12} className="d-flex align-items-center">
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>WHY-3 </b>
+                  </p>{" "}
+                  &nbsp;&nbsp;&nbsp;
+                  <textarea
+                    rows={1}
+                    type="text"
+                    id="Why3"
+                    name="why3"
+                    className="m-1"
+                    style={{ width: "100%", maxWidth: "80%" }}
+                    {...register("why3", {
+                      // required: "This field is required",
+                    })}
+                  />
+                </Col>
+                <Col lg={12} className="d-flex align-items-center">
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>WHY-4 </b>
+                  </p>{" "}
+                  &nbsp;&nbsp;&nbsp;
+                  <textarea
+                    rows={1}
+                    type="text"
+                    id="Why4"
+                    name="why4"
+                    className="m-1"
+                    style={{ width: "100%", maxWidth: "80%" }}
+                    {...register("why4", {
+                      // required: "This field is required",
+                    })}
+                  />
+                </Col>
+                <Col lg={12} className="d-flex align-items-center">
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>WHY-5 </b>
+                  </p>{" "}
+                  &nbsp;&nbsp;&nbsp;
+                  <textarea
+                    rows={1}
+                    type="text"
+                    id="Why5"
+                    name="why5"
+                    className="m-1"
+                    style={{ width: "100%", maxWidth: "80%" }}
+                    {...register("why5", {
+                      // required: "This field is required",
+                    })}
+                  />
+                </Col>
+                {/* <Col lg={8} md={8}>
                       <textarea
                         rows={1}
                         type="text"
@@ -794,89 +910,15 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                         {...register("why1", {
                           // required: "This field is required",
                         })}
-                      />
-                      {/* {errors?.["whyAnalysis"] && (
+                      /> */}
+                {/* {errors?.["whyAnalysis"] && (
                         <p className="text-error">{errors?.["whyAnalysis"]?.message}</p>
                       )} */}
-                    </Col>
-                  </Row>
-                  <Row className="d-flex align-items-center justify-content-center border">
-                    <Col md={4}>
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>WHY-2 </b>
-                      </p>
-                    </Col>
-                    <Col md={8}>
-                      <textarea
-                        rows={1}
-                        type="text"
-                        id="Why2"
-                        name="why2"
-                        className="m-1"
-                        style={{ width: "100%", maxWidth: "100%" }}
-                        {...register("why2")}
-                      />
-                    </Col>
-                  </Row>
-                  <Row className="d-flex align-items-center justify-content-center border">
-                    <Col md={4}>
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>WHY-3 </b>
-                      </p>
-                    </Col>
-                    <Col md={8}>
-                      <textarea
-                        rows={1}
-                        type="text"
-                        id="Why3"
-                        name="why3"
-                        className="m-1"
-                        style={{ width: "100%", maxWidth: "100%" }}
-                        {...register("why3")}
-                      />
-                    </Col>
-                  </Row>
-                  <Row className="d-flex align-items-center justify-content-center border">
-                    <Col md={4}>
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>WHY-4 </b>
-                      </p>
-                    </Col>
-                    <Col md={8}>
-                      <textarea
-                        rows={1}
-                        type="text"
-                        id="Why4"
-                        name="why4"
-                        className="m-1"
-                        style={{ width: "100%", maxWidth: "100%" }}
-                        {...register("why4")}
-                      />
-                    </Col>
-                  </Row>
-                  <Row className="d-flex align-items-center justify-content-center border">
-                    <Col md={4}>
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>WHY-5 </b>
-                      </p>
-                    </Col>
-                    <Col md={8}>
-                      <textarea
-                        rows={1}
-                        type="text"
-                        id="Why5"
-                        name="why5"
-                        className="m-1"
-                        style={{ width: "100%", maxWidth: "100%" }}
-                        {...register("why5")}
-                      />
-                    </Col>
-                  </Row>
-                </Col>
+                {/* </Col> */}
               </Row>
             </td>
 
-            <td colSpan={4}>
+            <td class="col-lg-4 col-md-12 col-sm-12">
               <Row className="m-0">
                 <Col className="border p-2">
                   <p className="mb-0 d-flex align-items-center justify-content-start">
@@ -914,7 +956,7 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                 <p className="text-center mb-0">**PART QUALITY CHECKED</p>
               </Row>
               <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
-                <Col lg={6} className="border pb-2 pt-1">
+                <Col lg={6} md={6} className="border pb-2 pt-1">
                   <p className="mb-0">
                     <b>PRD</b>
                   </p>
@@ -933,7 +975,7 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                     </p>
                   )}
                 </Col>
-                <Col lg={6} className="border pb-2 pt-1">
+                <Col lg={6} md={6} className="border pb-2 pt-1">
                   <p className="fs-6 mb-0">
                     <b>MTD</b>
                   </p>
@@ -971,7 +1013,8 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                           value="Yes"
                           id={`inline-${type}-1`}
                           // onChange={handleDataSheet}
-                        />
+                        />{" "}
+                        &nbsp;&nbsp;
                         <Form.Check
                           flex
                           label="No"
@@ -1005,6 +1048,7 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                           id={`inline-${type}-1`}
                           // onChange={handleDrawing}
                         />
+                        &nbsp;&nbsp;
                         <Form.Check
                           flex
                           label="No"
@@ -1022,13 +1066,13 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
             </td>
           </tr>
 
-          <tr>
-            <td colSpan={8}>
+          <tr class="row m-2">
+            <td class="col-lg-6 col-md-12 col-sm-12">
               <ActionList actions={actions} setActions={setActions} />
             </td>
-            <td colSpan={8}>
+            <td class="col-lg-6 col-md-12 col-sm-12">
               <Row className="m-0">
-                <Col className="border">
+                <Col className="border col-lg-12 col-md-12 col-sm-12">
                   <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
                 </Col>
               </Row>
@@ -1039,7 +1083,7 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
                 <AddBoxIcon onClick={() => {}} />
               </Row>
               <Row className="m-0">
-                <Col className="border">
+                <Col className="border col-lg-12 col-md-12 col-sm-12">
                   <b>YOKOTENKAI</b>
                 </Col>
               </Row>
@@ -1080,35 +1124,33 @@ function MyTable({ selectedMachineDetails, approvalListOfBM }) {
           <tr>
             <td colSpan={16}>
               <Row className="m-0">
-                <Col lg={4} className="border">
+                <Col lg={4} md={12} className="border">
                   <Row>
-                    <b className="text-decoration-underline">NOTE:</b>
+                  <small><b className="text-decoration-underline">NOTE:</b></small>
                   </Row>
                   <Row>
-                    <span>* IN CASE OF MAJOR BREKDOWN, IT IS NECESSARY TO</span>
-                    <span>GET THE SIGNATURE OF "GM-PRD" & "GM-MTD" IN</span>
-                    <span>"CHECKED BY" BOX.</span>
-                    <span>** PART QUALITY RELATED TO MAINTENANCE WORK.</span>
+                    <p className="text-justify mb-0" style={{fontSize:"12px"}}>* IN CASE OF MAJOR BREKDOWN, IT IS NECESSARY TO GET THE SIGNATURE OF "GM-PRD" & "GM-MTD" IN "CHECKED BY" BOX.</p>
+                    <p className="text-justify mb-0" style={{fontSize:"12px"}}>** PART QUALITY RELATED TO MAINTENANCE WORK.</p>
                   </Row>
                 </Col>
 
-                <Col lg={8} className="border">
+                <Col lg={8} md={12} className="border">
                   <Row>
-                    <Col className="text-center border p-1">
+                    <Col lg={8} md={8} className="text-center border p-1">
                       <b>CHECKED BY</b>
                     </Col>
                   </Row>
                   <Row>
-                    <Col className="border p-1 text-center">
+                    <Col lg={2} md={2} className="border p-1 text-center">
                       <b>* GM-MTD</b>
                     </Col>
-                    <Col className="border p-1 text-center">
+                    <Col lg={2} md={2} className="border p-1 text-center">
                       <b>* GM-PRD</b>
                     </Col>
-                    <Col className="border p-1 text-center">
+                    <Col lg={2} md={2} className="border p-1 text-center">
                       <b>SECTION INCHARGE (PRD)</b>
                     </Col>
-                    <Col className="border p-1 text-center">
+                    <Col lg={2} md={2} className="border p-1 text-center">
                       <b>TEAM LEADER (PRD)</b>
                     </Col>
                   </Row>
