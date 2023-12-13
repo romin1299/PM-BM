@@ -45,7 +45,7 @@ const ApprovalLogs = () => {
         }
         return comparison;
       },
-      fixed: "left",
+      // fixed: "left",
       width: "15%",
       // sortDirections: ["descend"],
     },
@@ -78,7 +78,7 @@ const ApprovalLogs = () => {
         }
         return comparison;
       },
-      fixed: "left",
+      // fixed: "left",
       width: "15%",
       // sortDirections: ["descend"],
     },
@@ -99,13 +99,13 @@ const ApprovalLogs = () => {
         }
         return comparison;
       },
-      fixed: "left",
+      // fixed: "left",
       width: "15%",
     },
     {
       title: "Machine Name",
       dataIndex: "machineName",
-      fixed: "left",
+      // fixed: "left",
       width: "15%",
     },
     {
@@ -124,7 +124,7 @@ const ApprovalLogs = () => {
         }
         return comparison;
       },
-      fixed: "left",
+      // fixed: "left",
       width: "20%",
     },
     {
@@ -146,13 +146,13 @@ const ApprovalLogs = () => {
         }
         return comparison;
       },
-      fixed: "left",
+      // fixed: "left",
       width: "15%",
     },
     {
       title: "Assign User",
       dataIndex: "assignUser",
-      fixed: "left",
+      // fixed: "left",
       width: "15%",
     },
     // {
@@ -230,7 +230,7 @@ const ApprovalLogs = () => {
             )
           ),
 
-        width: "25%",
+        width: 300,
       });
     });
 
@@ -307,7 +307,7 @@ const ApprovalLogs = () => {
         dataSource={approvalLogs}
         onChange={onChange}
         // width={"100%"}
-        scroll={{ x: 2000, y: 630 }}
+        scroll={{ x: 3000, y: 600}}
         pagination={false}
       />
     </Container>

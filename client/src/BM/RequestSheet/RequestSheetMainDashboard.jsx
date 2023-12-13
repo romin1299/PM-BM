@@ -33,6 +33,10 @@ import {
 import BMTitlebar from "../Component/BMTitlebar";
 import { MaterialTableOptions } from "../Utils/TableUtils/MaterialTableProps";
 
+import {
+  initialState,
+  reducer,
+} from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
 
 const RequestSheetMainDashboard = () => {
@@ -66,7 +70,7 @@ const RequestSheetMainDashboard = () => {
     "Under MTD HOS approval",
   ];
 
-  const initialState = {
+  const initialStateForRequestSheetData = {
     requestSheetData: [],
     counters: {
       open_request_sheet_count: 0,
@@ -85,7 +89,7 @@ const RequestSheetMainDashboard = () => {
     UPDATE_REQUEST_SHEET: "update-request-sheet",
   };
 
-  const reducer = (state, action) => {
+  const reducerForRequestSheetData = (state, action) => {
     switch (action?.type) {
       case ACTION?.GET:
         return {
@@ -113,18 +117,25 @@ const RequestSheetMainDashboard = () => {
     }
   };
 
+  const [reduceStateForRequestSheetData, reducerDispatchForRequestSheetData] =
+    useReducer(reducerForRequestSheetData, initialStateForRequestSheetData);
+
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const getAllRequestSheetData = async () => {
     try {
-      const res = await fetch(`/getRequestSheetData`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        `/getRequestSheetData/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
 
       const {
         message,
@@ -135,7 +146,7 @@ const RequestSheetMainDashboard = () => {
       } = await res.json();
 
       if (res?.status === 201) {
-        reducerDispatch({
+        reducerDispatchForRequestSheetData({
           type: ACTION.GET,
           requestSheetData,
           TLHOSS_and_TM_user_list,
@@ -162,7 +173,7 @@ const RequestSheetMainDashboard = () => {
       const { requestSheet, message } = await res.json();
 
       if (res.status === 201) {
-        reducerDispatch({
+        reducerDispatchForRequestSheetData({
           type: ACTION.UPDATE_REQUEST_SHEET,
           requestSheet,
           message,
@@ -177,8 +188,12 @@ const RequestSheetMainDashboard = () => {
   };
 
   useEffect(() => {
-    getAllRequestSheetData();
-  }, []);
+    if (reduceState?.selectedValue) getAllRequestSheetData();
+  }, [
+    reduceState?.selectedValue,
+    reduceState?.selectedYear,
+    reduceState?.selectedMonth,
+  ]);
 
   const handleGenerateBMNavigation = async () => {
     navigate(`/bm/generateRequestSheetMainDashboard`);
@@ -275,18 +290,11 @@ const RequestSheetMainDashboard = () => {
       title: "R.S Status",
       field: "requestSheetStatus",
       editable: false,
-      render: (rowData) => (
-        <button
-          className="btn"
-          style={{
-            background: statusColorMap[rowData.requestSheetStatus],
-            fontSize: "12px",
-            cursor: "auto",
-          }}
-        >
-          {rowData.requestSheetStatus}
-        </button>
-      ),
+      // render: (rowData) => (
+      //   <button className="btn" style={{ background: statusColorMap[rowData.requestSheetStatus], fontSize: "12px", cursor:"auto"}}>
+      //     rowData.requestSheetStatus
+      //   </button>
+      // ),
     },
     {
       title: "Assign",
@@ -301,7 +309,8 @@ const RequestSheetMainDashboard = () => {
         dropDownComponent({
           value,
           onChange,
-          dropDownArray: reduceState?.TLHOSS_and_TM_user_list,
+          dropDownArray:
+            reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
         }),
     },
     {
@@ -317,7 +326,8 @@ const RequestSheetMainDashboard = () => {
         dropDownComponent({
           value,
           onChange,
-          dropDownArray: reduceState?.TLHOSS_and_TM_user_list,
+          dropDownArray:
+            reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
         }),
     },
     {
@@ -462,15 +472,25 @@ const RequestSheetMainDashboard = () => {
           : true,
       onClick: (event, selectedRow) => {
         navigate(
-          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`,
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
           {
             state: {
-              supportingTM: reduceState?.TLHOSS_and_TM_user_list,
+              supportingTM:
+                reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
             },
           }
         );
       },
     }),
+  ];
+
+  const filtration = [
+    <ChartsToolbar
+      baseUrlForFiltering={baseUrlForFiltering}
+      reduceState={reduceState}
+      reducerDispatch={reducerDispatch}
+      monthFiltration
+    />,
   ];
 
   return (
@@ -503,7 +523,10 @@ const RequestSheetMainDashboard = () => {
                 <InsertDriveFileIcon /> &nbsp;&nbsp;{" "}
                 <p>
                   Total Request: &nbsp;
-                  {reduceState?.counters?.total_request_sheet_count}
+                  {
+                    reduceStateForRequestSheetData?.counters
+                      ?.total_request_sheet_count
+                  }
                 </p>
               </div>
             </Box>
@@ -514,7 +537,10 @@ const RequestSheetMainDashboard = () => {
                 <ArrowCircleRightIcon /> &nbsp;&nbsp;{" "}
                 <p>
                   Open Request:{" "}
-                  {reduceState?.counters?.open_request_sheet_count}
+                  {
+                    reduceStateForRequestSheetData?.counters
+                      ?.open_request_sheet_count
+                  }
                 </p>
               </div>
             </Box>
@@ -525,7 +551,10 @@ const RequestSheetMainDashboard = () => {
                 <CancelIcon /> &nbsp;&nbsp;{" "}
                 <p>
                   Closed Request:{" "}
-                  {reduceState?.counters?.closed_request_sheet_count}
+                  {
+                    reduceStateForRequestSheetData?.counters
+                      ?.closed_request_sheet_count
+                  }
                 </p>
               </div>
             </Box>
@@ -547,8 +576,8 @@ const RequestSheetMainDashboard = () => {
             actions={requestSheetActions}
             icons={tableIcons}
             columns={requestSheetHeader}
-            data={reduceState?.requestSheetData}
-            // title="User Management"
+            data={reduceStateForRequestSheetData?.requestSheetData}
+            title={filtration}
             // tableRef={this.tableRef.current.onQueryChange()}
 
             editable={{

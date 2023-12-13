@@ -107,7 +107,7 @@ const ApprovalDashboardOfRequestSheet = () => {
       //     : true,
       onClick: (event, selectedRow) => {
         navigate(
-          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`
         );
       },
     }),

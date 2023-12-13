@@ -9,7 +9,7 @@ function MyTable() {
   const navigate = useNavigate();
   const context = useContext(RoutingContext);
 
-  const { machine_code, requestSheetNoOfBM, generateType } = useParams();
+  const { machine_code, requestSheetID, generateType } = useParams();
   const [selectedMachineDetails, setMachineDetails] = useState("");
   const [requestSheetDataOfBM, setRequestSheetDataOfBM] = useState("");
 
@@ -51,7 +51,7 @@ function MyTable() {
   const getRequestSheetDetails = async () => {
     try {
       const res = await fetch(
-        `/getMachineRequestSheetDetails/?requestSheetNoOfBM=${requestSheetNoOfBM}`,
+        `/getMachineRequestSheetDetails/?_id=${requestSheetID}`,
         {
           method: "GET",
           headers: {
@@ -79,7 +79,7 @@ function MyTable() {
 
   useEffect(() => {
     getRequestSheetDetails();
-  }, [requestSheetNoOfBM]);
+  }, [requestSheetID]);
 
   return (
     <>
