@@ -49,7 +49,7 @@ const ProblemList = ({ problems, setProblems }) => {
   return (
     <div className="mtd-problem-section">
       <Row className="m-2">
-        <Col lg={9} md={9} sm={9} className="border d-flex align-items-center gap-1">
+      <Col lg={9} md={9} sm={9} className="border d-flex align-items-center gap-1">
           <b>PROBLEM</b>
         </Col>
         <Col
@@ -109,7 +109,7 @@ const ProblemList = ({ problems, setProblems }) => {
       )}
 
       {isAdding ? (
-        <Row className="m-0">
+        <Row className="m-2">
           <Col
             lg={9} md={12} sm={12}
             className="border d-flex align-items-center gap-1"
@@ -128,7 +128,7 @@ const ProblemList = ({ problems, setProblems }) => {
           </Col>
         </Row>
       ) : (
-        <Row className="m-0  p-1 border">
+        <Row className="m-2  p-1 border">
           <Col lg={4}>
           <button class="bg-warning text-white border-0 pt-1 pb-2 mt-1" onClick={() => setIsAdding(true)}>Add Problem</button>
           </Col>

@@ -62,17 +62,17 @@ const ActionList = ({ actions, setActions }) => {
   return (
     <div className="mtd-actions-section">
       <Row className="m-0">
-        <Col lg={8} className="border col-auto d-flex align-items-center gap-1">
+        <Col lg={8} md={7} className="border col-auto d-flex align-items-center gap-1">
           <b>ACTION & COUNTERMEASURE STEPS (Dynamic)</b>
         </Col>
         <Col
-          lg={2}
+          lg={2} md={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
           <b>STATUS</b>
         </Col>
         <Col
-          lg={2}
+          lg={2} md={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
           <b>UPDATE</b>
@@ -83,7 +83,7 @@ const ActionList = ({ actions, setActions }) => {
       {actions.map((action, index) => (
         <Row key={action.id} className="m-0">
           <Col
-            lg={8}
+            lg={8} md={7}
             className={`border col-auto d-flex align-items-center gap-1 ${
               editedAction && editedAction.id === action.id ? "editable" : ""
             }`}
@@ -102,7 +102,7 @@ const ActionList = ({ actions, setActions }) => {
             )}
           </Col>
           <Col
-            lg={2}
+            lg={2} md={2}
             className="border col-auto d-flex align-items-center gap-1 p-1"
           >
             <div>
@@ -129,8 +129,8 @@ const ActionList = ({ actions, setActions }) => {
             </div>
           </Col>
           <Col
-            lg={2}
-            className="border col-auto d-flex align-items-center gap-1 p-1"
+            lg={2} md={2}
+            className="border col-auto d-block align-items-center gap-1 p-1"
           >
             {editedAction && editedAction.id === action.id ? (
               <>
@@ -139,6 +139,7 @@ const ActionList = ({ actions, setActions }) => {
                 >
                   Update
                 </button>
+                <br/>
                 <button onClick={cancelEdit}>Cancel</button>
               </>
             ) : (
@@ -146,6 +147,7 @@ const ActionList = ({ actions, setActions }) => {
                 <button type="button" onClick={() => setEditedAction({ ...action })}>
                   Edit
                 </button>
+                <br/>
                 <button onClick={() => deleteAction(action.id)}>Delete</button>
               </>
             )}
@@ -156,7 +158,7 @@ const ActionList = ({ actions, setActions }) => {
       {isAdding ? (
         <Row className="m-0">
           <Col
-            lg={8}
+            lg={8} md={7}
             className="border col-auto d-flex align-items-center gap-1"
           >
             <b>Action {actions.length + 1}: </b>
@@ -167,7 +169,7 @@ const ActionList = ({ actions, setActions }) => {
             />
           </Col>
           <Col
-            lg={2}
+            lg={2} md={2}
             className="border col-auto d-flex align-items-center gap-1 p-1"
           >
             {/* <div>
@@ -194,11 +196,12 @@ const ActionList = ({ actions, setActions }) => {
             </div> */}
           </Col>
           <Col
-            lg={2}
-            className="border col-auto d-flex align-items-center gap-1 p-1"
+            lg={2} md={2}
+            className="border col-auto d-block align-items-center gap-1 p-1"
           >
-            <button onClick={addAction}>Add</button>
-            <button onClick={cancelAdd}>Cancel</button>
+            <button class="bg-success text-white border-0" onClick={addAction}>Add</button>
+            <br/>
+            <button class="bg-danger text-white border-0" onClick={cancelAdd}>Cancel</button>
           </Col>
         </Row>
       ) : (

@@ -149,7 +149,7 @@ const ProblemList = ({ problems, setProblems }) => {
           </Col>
         </Row>
       ) : (
-        <Row className="m-0  p-1 border">
+        <Row className="m-2  p-1 border">
           <Col lg={4}>
           <button class="bg-warning text-white border-0 pt-1 pb-2 mt-1" onClick={() => setIsAdding(true)}>Add Problem</button>
           </Col>
