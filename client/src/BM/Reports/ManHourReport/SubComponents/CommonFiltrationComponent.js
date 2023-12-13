@@ -17,6 +17,9 @@ export const initialState = {
   selectedLine: "",
   lines: [],
 
+  selectedMachine: "",
+  machines: [],
+
   selectedYear:
     new Date().getMonth() < 3
       ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
@@ -33,10 +36,12 @@ export const ACTION = {
   GET_DATA_BASED_ON_SECTION: "get-data-based-on-section-selection",
   GET_DATA_BASED_ON_SUBSECTION: "get-data-based-on-subSection-selection",
   GET_DATA_BASED_ON_CELL: "get-data-based-on-cell-selection",
+  GET_DATA_BASED_ON_LINE: "get-data-based-on-line-selection",
   HANDLE_SELECT_SECTION: "handle-selected-section",
   HANDLE_SELECT_SUBSECTION: "handle-selected-subSection",
   HANDLE_SELECT_CELL: "handle-selected-cell",
   HANDLE_SELECT_LINE: "handle-selected-line",
+  HANDLE_SELECT_MACHINE: "handle-selected-machine",
   HANDLE_SELECT_YEAR: "handle-selected-year",
   HANDLE_SELECT_MONTH: "handle-selected-month",
 };
@@ -82,6 +87,8 @@ export const reducer = (state, action) => {
         cells: action?.cells,
         selectedLine: action?.selectedLine,
         lines: action?.lines,
+        selectedMachine: action?.selectedMachine,
+        machines: action?.machines,
       };
 
     case ACTION?.GET_DATA_BASED_ON_SECTION:
@@ -109,7 +116,7 @@ export const reducer = (state, action) => {
         ...state,
         isLoading: false,
         message: action?.message,
-        
+
         selectedCell: action?.selectedCell || "",
         cells: action?.cells,
         selectedLine: action?.selectedLine || "",
@@ -123,6 +130,15 @@ export const reducer = (state, action) => {
         message: action?.message,
 
         lines: action?.lines,
+      };
+
+    case ACTION?.GET_DATA_BASED_ON_LINE:
+      return {
+        ...state,
+        isLoading: false,
+        message: action?.message,
+
+        machines: action?.machines,
       };
 
     case ACTION?.HANDLE_SELECT_SECTION:
@@ -159,6 +175,8 @@ export const reducer = (state, action) => {
         cells: [],
         selectedLine: "",
         lines: [],
+        selectedMachine: "",
+        machines: [],
       };
 
     case ACTION?.HANDLE_SELECT_CELL:
@@ -174,6 +192,8 @@ export const reducer = (state, action) => {
         selectedCell: action?.selectedCell,
         selectedLine: "",
         lines: [],
+        selectedMachine: "",
+        machines: [],
       };
 
     case ACTION?.HANDLE_SELECT_LINE:
@@ -184,6 +204,18 @@ export const reducer = (state, action) => {
         selectedValue: action?.selectedLine,
 
         selectedLine: action?.selectedLine,
+        selectedMachine: "",
+        machines: [],
+      };
+
+    case ACTION?.HANDLE_SELECT_MACHINE:
+      return {
+        ...state,
+
+        flagForTogglingFilter: action?.flagForTogglingFilter,
+        selectedValue: action?.selectedMachine,
+
+        selectedMachine: action?.selectedMachine,
       };
 
     case ACTION?.HANDLE_SELECT_YEAR:

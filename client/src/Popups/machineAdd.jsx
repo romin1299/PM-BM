@@ -356,12 +356,12 @@ const MachineAdd = ({ line, refreshForMachineData }) => {
               />
             </div>
             <div class="row g-2">
-              <div class="col-sm col-md-12 col-lg-6 pl-0">
-                <button type="submit" className="btn-reset">
+              <div class="col-sm-6 col-md-6 col-lg-6 pl-0">
+                <button type="submit" className="btn-success">
                   Submit
                 </button>
               </div>
-              <div class="col-sm col-md-12 col-lg-6 pl-0 ">
+              <div class="col-sm-6 col-md-6 col-lg-6 pl-0 ">
                 <button
                   type="button"
                   className="btn-primary1"

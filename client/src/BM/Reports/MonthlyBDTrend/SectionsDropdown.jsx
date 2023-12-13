@@ -24,8 +24,10 @@ export default function SectionsDropdown({ sectionId, setSectionId }) {
     setSectionId(event.target.value);
   };
 
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+
   const fetchValues = async () => {
-    const url = `/getFiltrationValue/byDefault`;
+    const url = `${baseUrlForFiltering}/all-filtration/byDefault`;
     try {
       const res = await axios.get(url, {
         withCredentials: true,
@@ -61,7 +63,7 @@ export default function SectionsDropdown({ sectionId, setSectionId }) {
         input={<OutlinedInput />}
         onChange={handleChange}
       >
-        <MenuItem disabled sx={{ pt: 0 , pb:0}}>
+        <MenuItem disabled sx={{ pt: 0, pb: 0 }}>
           <em>Sub Sections</em>
         </MenuItem>
         {sectionValues &&

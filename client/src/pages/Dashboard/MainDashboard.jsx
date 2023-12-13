@@ -712,8 +712,8 @@ const MainDashboard = () => {
 
       {/* <button onClick={funForDummyApi}>dummy</button> */}
       <Container fluid className="operatorDashboard">
-        <Row className="mt-3">
-          <Col xs={12} sm={12} md={12} lg={9}>
+        <Row >
+          <Col xs={12} sm={12} md={12} lg={9} className="mt-4">
             {Object.keys(allDataSectionWise).length > 0 ? (
               <Col className="marginRightForMainDashboard">
                 <div class="container-fluid px-2">
@@ -758,10 +758,10 @@ const MainDashboard = () => {
 
                             {sectionList !== ""
                               ? sectionList.sectionArray.map((option) => {
-                                  return (
-                                    <option value={option}>{option}</option>
-                                  );
-                                })
+                                return (
+                                  <option value={option}>{option}</option>
+                                );
+                              })
                               : ""}
                           </select>
                         </span>
@@ -770,7 +770,7 @@ const MainDashboard = () => {
                       <Row>
                         {allDataSectionWise ? (
                           allDataSectionWise.sectionInfo[0].dashboardLevel ===
-                          "Yes" ? (
+                            "Yes" ? (
                             ""
                           ) : (
                             <div className="mb-3">
@@ -794,8 +794,8 @@ const MainDashboard = () => {
                                   subSection === undefined
                                     ? ""
                                     : subSection === ""
-                                    ? context.subSection_data[0]
-                                    : subSection
+                                      ? context.subSection_data[0]
+                                      : subSection
                                 }
                                 onChange={(e) => {
                                   getSelectedSubsection(e.target.value);
@@ -820,17 +820,17 @@ const MainDashboard = () => {
                                 </option>
                                 {allDataSectionWise
                                   ? defaultSubSection?.map((option) => {
-                                      return (
-                                        <option
-                                          className="optionStyle"
-                                          value={option}
-                                        >
-                                          {option}
-                                        </option>
-                                      );
-                                    })
+                                    return (
+                                      <option
+                                        className="optionStyle"
+                                        value={option}
+                                      >
+                                        {option}
+                                      </option>
+                                    );
+                                  })
                                   : subSectionList !== ""
-                                  ? subSectionList.subSectionArray.map(
+                                    ? subSectionList.subSectionArray.map(
                                       (option) => {
                                         return (
                                           <option
@@ -842,13 +842,13 @@ const MainDashboard = () => {
                                         );
                                       }
                                     )
-                                  : ""}
+                                    : ""}
                               </select>
                             </div>
                           )
                         ) : subSectionList.sectionInfo ? (
                           subSectionList.sectionInfo.dashboardLevel ===
-                          "Yes" ? (
+                            "Yes" ? (
                             ""
                           ) : (
                             <div sm={6} lg={4}>
@@ -891,17 +891,17 @@ const MainDashboard = () => {
                                 </option>
                                 {subSectionList !== ""
                                   ? subSectionList.subSectionArray.map(
-                                      (option) => {
-                                        return (
-                                          <option
-                                            className="optionStyle"
-                                            value={option}
-                                          >
-                                            {option}
-                                          </option>
-                                        );
-                                      }
-                                    )
+                                    (option) => {
+                                      return (
+                                        <option
+                                          className="optionStyle"
+                                          value={option}
+                                        >
+                                          {option}
+                                        </option>
+                                      );
+                                    }
+                                  )
                                   : ""}
                               </select>
                             </div>
@@ -913,10 +913,9 @@ const MainDashboard = () => {
                     </Col>
                     <Col lg={3} md={12} sm={12} className="mt-1">
                       {context.user_type === "Plant-Admin" &&
-                      new Date().getMonth() === 3 ? (
+                        new Date().getMonth() === 3 ? (
                         refFinancialYear?.financialYears?.includes(
-                          `${new Date().getFullYear()}-${
-                            new Date().getFullYear() + 1
+                          `${new Date().getFullYear()}-${new Date().getFullYear() + 1
                           }`
                         ) ? (
                           ""
@@ -939,9 +938,8 @@ const MainDashboard = () => {
                               &nbsp;{" "}
                               <b>
                                 Update{" "}
-                                {`${new Date().getFullYear()}-${
-                                  new Date().getFullYear() + 1
-                                }`}
+                                {`${new Date().getFullYear()}-${new Date().getFullYear() + 1
+                                  }`}
                               </b>
                             </button>
                           </Col>
@@ -1126,7 +1124,7 @@ const MainDashboard = () => {
                                                       xs={12}
                                                       md={6}
                                                       lg={3}
-                                                      // key={subSection}
+                                                    // key={subSection}
                                                     >
                                                       <div className="line">
                                                         <div className="line_name">
@@ -1147,47 +1145,47 @@ const MainDashboard = () => {
                                                                           .checkSheet_data
                                                                           ?.PMStatus
                                                                           ? machine
+                                                                            .checkSheet_data
+                                                                            ?.PMStatus[
+                                                                            selectedMonth
+                                                                          ] ===
+                                                                            "Current Plan"
+                                                                            ? "white"
+                                                                            : machine
                                                                               .checkSheet_data
                                                                               ?.PMStatus[
                                                                               selectedMonth
                                                                             ] ===
-                                                                            "Current Plan"
-                                                                            ? "white"
-                                                                            : machine
-                                                                                .checkSheet_data
-                                                                                ?.PMStatus[
-                                                                                selectedMonth
-                                                                              ] ===
                                                                               "Ongoing"
-                                                                            ? "#ffff59"
-                                                                            : machine
+                                                                              ? "#ffff59"
+                                                                              : machine
                                                                                 .checkSheet_data
                                                                                 ?.PMStatus[
                                                                                 selectedMonth
                                                                               ] ===
-                                                                              "Completed"
-                                                                            ? "#5fe15f"
-                                                                            : machine
-                                                                                .checkSheet_data
-                                                                                ?.PMStatus[
-                                                                                selectedMonth
-                                                                              ] ===
-                                                                              "Done with delay"
-                                                                            ? "#ffc356"
-                                                                            : machine
-                                                                                .checkSheet_data
-                                                                                ?.PMStatus[
-                                                                                selectedMonth
-                                                                              ] ===
-                                                                                "PM Skip" ||
-                                                                              machine
-                                                                                .checkSheet_data
-                                                                                ?.PMStatus[
-                                                                                selectedMonth
-                                                                              ] ===
-                                                                                "No Completion"
-                                                                            ? "#ff8888"
-                                                                            : "#ababab"
+                                                                                "Completed"
+                                                                                ? "#5fe15f"
+                                                                                : machine
+                                                                                  .checkSheet_data
+                                                                                  ?.PMStatus[
+                                                                                  selectedMonth
+                                                                                ] ===
+                                                                                  "Done with delay"
+                                                                                  ? "#ffc356"
+                                                                                  : machine
+                                                                                    .checkSheet_data
+                                                                                    ?.PMStatus[
+                                                                                    selectedMonth
+                                                                                  ] ===
+                                                                                    "PM Skip" ||
+                                                                                    machine
+                                                                                      .checkSheet_data
+                                                                                      ?.PMStatus[
+                                                                                    selectedMonth
+                                                                                    ] ===
+                                                                                    "No Completion"
+                                                                                    ? "#ff8888"
+                                                                                    : "#ababab"
                                                                           : "#ababab",
                                                                     }}
                                                                     className="machine"
@@ -1259,7 +1257,7 @@ const MainDashboard = () => {
                                                     xs={12}
                                                     md={6}
                                                     lg={3}
-                                                    // key={subSection}
+                                                  // key={subSection}
                                                   >
                                                     <div className="line">
                                                       <div className="line_name">
@@ -1278,47 +1276,47 @@ const MainDashboard = () => {
                                                                         .checkSheet_data
                                                                         ?.PMStatus
                                                                         ? machine
+                                                                          .checkSheet_data
+                                                                          ?.PMStatus[
+                                                                          selectedMonth
+                                                                        ] ===
+                                                                          "Current Plan"
+                                                                          ? "white"
+                                                                          : machine
                                                                             .checkSheet_data
                                                                             ?.PMStatus[
                                                                             selectedMonth
                                                                           ] ===
-                                                                          "Current Plan"
-                                                                          ? "white"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
                                                                             "Ongoing"
-                                                                          ? "#ffff59"
-                                                                          : machine
+                                                                            ? "#ffff59"
+                                                                            : machine
                                                                               .checkSheet_data
                                                                               ?.PMStatus[
                                                                               selectedMonth
                                                                             ] ===
-                                                                            "Completed"
-                                                                          ? "#5fe15f"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Done with delay"
-                                                                          ? "#ffc356"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "PM Skip" ||
-                                                                            machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "No Completion"
-                                                                          ? "#ff8888"
-                                                                          : "#ababab"
+                                                                              "Completed"
+                                                                              ? "#5fe15f"
+                                                                              : machine
+                                                                                .checkSheet_data
+                                                                                ?.PMStatus[
+                                                                                selectedMonth
+                                                                              ] ===
+                                                                                "Done with delay"
+                                                                                ? "#ffc356"
+                                                                                : machine
+                                                                                  .checkSheet_data
+                                                                                  ?.PMStatus[
+                                                                                  selectedMonth
+                                                                                ] ===
+                                                                                  "PM Skip" ||
+                                                                                  machine
+                                                                                    .checkSheet_data
+                                                                                    ?.PMStatus[
+                                                                                  selectedMonth
+                                                                                  ] ===
+                                                                                  "No Completion"
+                                                                                  ? "#ff8888"
+                                                                                  : "#ababab"
                                                                         : "#ababab",
                                                                   }}
                                                                   className="machine"
@@ -1370,160 +1368,160 @@ const MainDashboard = () => {
                             {context.section_data === sections
                               ? allDataSectionWise !== ""
                                 ? allDataSectionWise.subSectionsData.map(
-                                    (subSection) => {
-                                      return (
-                                        <>
-                                          <Col
-                                            xs={12}
-                                            md={12}
-                                            lg={12}
-                                            className="gx-0"
-                                            key={subSection}
-                                          >
-                                            <div className="subSection">
-                                              <div className="subSectionText">
-                                                {subSection.subSection_name}
-                                              </div>
+                                  (subSection) => {
+                                    return (
+                                      <>
+                                        <Col
+                                          xs={12}
+                                          md={12}
+                                          lg={12}
+                                          className="gx-0"
+                                          key={subSection}
+                                        >
+                                          <div className="subSection">
+                                            <div className="subSectionText">
+                                              {subSection.subSection_name}
+                                            </div>
 
-                                              {allDataSectionWise.cellData.map(
-                                                (cell) => {
-                                                  return subSection._id ===
-                                                    cell.subSection_names ? (
-                                                    <>
-                                                      <div className="cell">
-                                                        <p>{cell.cell_name}</p>
+                                            {allDataSectionWise.cellData.map(
+                                              (cell) => {
+                                                return subSection._id ===
+                                                  cell.subSection_names ? (
+                                                  <>
+                                                    <div className="cell">
+                                                      <p>{cell.cell_name}</p>
 
-                                                        <div>
-                                                          <Row
-                                                            style={{
-                                                              display: "flex",
-                                                              justifyContent:
-                                                                "flex-start",
-                                                              // margin: "0.5rem",
-                                                            }}
-                                                          >
-                                                            {allDataSectionWise.lineData.map(
-                                                              (line) => {
-                                                                return cell._id ===
-                                                                  line.cell_names ? (
-                                                                  <>
-                                                                    <Col
-                                                                      xs={12}
-                                                                      md={6}
-                                                                      lg={3}
-                                                                      // key={subSection}
-                                                                    >
-                                                                      <div className="line">
-                                                                        <div className="line_name">
-                                                                          <p>
-                                                                            {
-                                                                              line.line_name
-                                                                            }
-                                                                          </p>
-                                                                        </div>
-                                                                        <div className="machineCard">
-                                                                          {allDataSectionWise.machineData.map(
-                                                                            (
-                                                                              machine
-                                                                            ) => {
-                                                                              return line._id ===
-                                                                                machine.line_names ? (
-                                                                                <>
-                                                                                  <button
-                                                                                    style={{
-                                                                                      background:
-                                                                                        machine
+                                                      <div>
+                                                        <Row
+                                                          style={{
+                                                            display: "flex",
+                                                            justifyContent:
+                                                              "flex-start",
+                                                            // margin: "0.5rem",
+                                                          }}
+                                                        >
+                                                          {allDataSectionWise.lineData.map(
+                                                            (line) => {
+                                                              return cell._id ===
+                                                                line.cell_names ? (
+                                                                <>
+                                                                  <Col
+                                                                    xs={12}
+                                                                    md={6}
+                                                                    lg={3}
+                                                                  // key={subSection}
+                                                                  >
+                                                                    <div className="line">
+                                                                      <div className="line_name">
+                                                                        <p>
+                                                                          {
+                                                                            line.line_name
+                                                                          }
+                                                                        </p>
+                                                                      </div>
+                                                                      <div className="machineCard">
+                                                                        {allDataSectionWise.machineData.map(
+                                                                          (
+                                                                            machine
+                                                                          ) => {
+                                                                            return line._id ===
+                                                                              machine.line_names ? (
+                                                                              <>
+                                                                                <button
+                                                                                  style={{
+                                                                                    background:
+                                                                                      machine
+                                                                                        .checkSheet_data
+                                                                                        ?.PMStatus
+                                                                                        ? machine
                                                                                           .checkSheet_data
-                                                                                          ?.PMStatus
-                                                                                          ? machine
+                                                                                          ?.PMStatus[
+                                                                                          selectedMonth
+                                                                                        ] ===
+                                                                                          "Current Plan"
+                                                                                          ? "white"
+                                                                                          : machine
+                                                                                            .checkSheet_data
+                                                                                            ?.PMStatus[
+                                                                                            selectedMonth
+                                                                                          ] ===
+                                                                                            "Ongoing"
+                                                                                            ? "#ffff59"
+                                                                                            : machine
                                                                                               .checkSheet_data
                                                                                               ?.PMStatus[
                                                                                               selectedMonth
                                                                                             ] ===
-                                                                                            "Current Plan"
-                                                                                            ? "white"
-                                                                                            : machine
-                                                                                                .checkSheet_data
-                                                                                                ?.PMStatus[
-                                                                                                selectedMonth
-                                                                                              ] ===
-                                                                                              "Ongoing"
-                                                                                            ? "#ffff59"
-                                                                                            : machine
-                                                                                                .checkSheet_data
-                                                                                                ?.PMStatus[
-                                                                                                selectedMonth
-                                                                                              ] ===
                                                                                               "Completed"
-                                                                                            ? "#5fe15f"
-                                                                                            : machine
+                                                                                              ? "#5fe15f"
+                                                                                              : machine
                                                                                                 .checkSheet_data
                                                                                                 ?.PMStatus[
                                                                                                 selectedMonth
                                                                                               ] ===
-                                                                                              "Done with delay"
-                                                                                            ? "#ffc356"
-                                                                                            : machine
-                                                                                                .checkSheet_data
-                                                                                                ?.PMStatus[
-                                                                                                selectedMonth
-                                                                                              ] ===
-                                                                                                "PM Skip" ||
-                                                                                              machine
-                                                                                                .checkSheet_data
-                                                                                                ?.PMStatus[
-                                                                                                selectedMonth
-                                                                                              ] ===
-                                                                                                "No Completion"
-                                                                                            ? "#ff8888"
-                                                                                            : "#ababab"
-                                                                                          : "#ababab",
-                                                                                    }}
-                                                                                    className="machine"
-                                                                                    onClick={() =>
-                                                                                      pathToCheckSheet(
-                                                                                        machine,
-                                                                                        line.line_name
-                                                                                      )
-                                                                                    }
-                                                                                  >
-                                                                                    {
-                                                                                      machine.machine_nickname
-                                                                                    }
-                                                                                  </button>
-                                                                                </>
-                                                                              ) : (
-                                                                                ""
-                                                                              );
-                                                                            }
-                                                                          )}
-                                                                        </div>
+                                                                                                "Done with delay"
+                                                                                                ? "#ffc356"
+                                                                                                : machine
+                                                                                                  .checkSheet_data
+                                                                                                  ?.PMStatus[
+                                                                                                  selectedMonth
+                                                                                                ] ===
+                                                                                                  "PM Skip" ||
+                                                                                                  machine
+                                                                                                    .checkSheet_data
+                                                                                                    ?.PMStatus[
+                                                                                                  selectedMonth
+                                                                                                  ] ===
+                                                                                                  "No Completion"
+                                                                                                  ? "#ff8888"
+                                                                                                  : "#ababab"
+                                                                                        : "#ababab",
+                                                                                  }}
+                                                                                  className="machine"
+                                                                                  onClick={() =>
+                                                                                    pathToCheckSheet(
+                                                                                      machine,
+                                                                                      line.line_name
+                                                                                    )
+                                                                                  }
+                                                                                >
+                                                                                  {
+                                                                                    machine.machine_nickname
+                                                                                  }
+                                                                                </button>
+                                                                              </>
+                                                                            ) : (
+                                                                              ""
+                                                                            );
+                                                                          }
+                                                                        )}
                                                                       </div>
-                                                                    </Col>
-                                                                  </>
-                                                                ) : (
-                                                                  ""
-                                                                );
-                                                              }
-                                                            )}
-                                                          </Row>
-                                                        </div>
+                                                                    </div>
+                                                                  </Col>
+                                                                </>
+                                                              ) : (
+                                                                ""
+                                                              );
+                                                            }
+                                                          )}
+                                                        </Row>
                                                       </div>
-                                                    </>
-                                                  ) : (
-                                                    ""
-                                                  );
-                                                }
-                                              )}
-                                            </div>
-                                          </Col>
-                                        </>
-                                      );
-                                    }
-                                  )
+                                                    </div>
+                                                  </>
+                                                ) : (
+                                                  ""
+                                                );
+                                              }
+                                            )}
+                                          </div>
+                                        </Col>
+                                      </>
+                                    );
+                                  }
+                                )
                                 : ""
                               : allDataSectionWise !== ""
-                              ? allDataSectionWise.subSectionsData.map(
+                                ? allDataSectionWise.subSectionsData.map(
                                   (subSection) => {
                                     return (
                                       <>
@@ -1564,7 +1562,7 @@ const MainDashboard = () => {
                                                                     xs={12}
                                                                     md={6}
                                                                     lg={3}
-                                                                    // key={subSection}
+                                                                  // key={subSection}
                                                                   >
                                                                     <div className="line">
                                                                       <div className="line_name">
@@ -1589,47 +1587,47 @@ const MainDashboard = () => {
                                                                                         .checkSheet_data
                                                                                         ?.PMStatus
                                                                                         ? machine
+                                                                                          .checkSheet_data
+                                                                                          ?.PMStatus[
+                                                                                          selectedMonth
+                                                                                        ] ===
+                                                                                          "Current Plan"
+                                                                                          ? "white"
+                                                                                          : machine
                                                                                             .checkSheet_data
                                                                                             ?.PMStatus[
                                                                                             selectedMonth
                                                                                           ] ===
-                                                                                          "Current Plan"
-                                                                                          ? "white"
-                                                                                          : machine
-                                                                                              .checkSheet_data
-                                                                                              ?.PMStatus[
-                                                                                              selectedMonth
-                                                                                            ] ===
                                                                                             "Ongoing"
-                                                                                          ? "#ffff59"
-                                                                                          : machine
+                                                                                            ? "#ffff59"
+                                                                                            : machine
                                                                                               .checkSheet_data
                                                                                               ?.PMStatus[
                                                                                               selectedMonth
                                                                                             ] ===
-                                                                                            "Completed"
-                                                                                          ? "#5fe15f"
-                                                                                          : machine
-                                                                                              .checkSheet_data
-                                                                                              ?.PMStatus[
-                                                                                              selectedMonth
-                                                                                            ] ===
-                                                                                            "Done with delay"
-                                                                                          ? "#ffc356"
-                                                                                          : machine
-                                                                                              .checkSheet_data
-                                                                                              ?.PMStatus[
-                                                                                              selectedMonth
-                                                                                            ] ===
-                                                                                              "PM Skip" ||
-                                                                                            machine
-                                                                                              .checkSheet_data
-                                                                                              ?.PMStatus[
-                                                                                              selectedMonth
-                                                                                            ] ===
-                                                                                              "No Completion"
-                                                                                          ? "#ff8888"
-                                                                                          : "#ababab"
+                                                                                              "Completed"
+                                                                                              ? "#5fe15f"
+                                                                                              : machine
+                                                                                                .checkSheet_data
+                                                                                                ?.PMStatus[
+                                                                                                selectedMonth
+                                                                                              ] ===
+                                                                                                "Done with delay"
+                                                                                                ? "#ffc356"
+                                                                                                : machine
+                                                                                                  .checkSheet_data
+                                                                                                  ?.PMStatus[
+                                                                                                  selectedMonth
+                                                                                                ] ===
+                                                                                                  "PM Skip" ||
+                                                                                                  machine
+                                                                                                    .checkSheet_data
+                                                                                                    ?.PMStatus[
+                                                                                                  selectedMonth
+                                                                                                  ] ===
+                                                                                                  "No Completion"
+                                                                                                  ? "#ff8888"
+                                                                                                  : "#ababab"
                                                                                         : "#ababab",
                                                                                   }}
                                                                                   className="machine"
@@ -1675,14 +1673,14 @@ const MainDashboard = () => {
                                     );
                                   }
                                 )
-                              : ""}
+                                : ""}
                           </Row>
                         </Container>
                       </div>
                     )
                   ) : allDataSectionWise ? (
                     allDataSectionWise.sectionInfo[0].dashboardLevel ===
-                    "Yes" ? (
+                      "Yes" ? (
                       allDataSectionWise !== "" ? (
                         allDataSectionWise.subSectionsData.map((subSection) => {
                           return (
@@ -1717,7 +1715,7 @@ const MainDashboard = () => {
                                                         xs={12}
                                                         md={6}
                                                         lg={3}
-                                                        // key={subSection}
+                                                      // key={subSection}
                                                       >
                                                         <div className="line">
                                                           <div className="line_name">
@@ -1741,47 +1739,47 @@ const MainDashboard = () => {
                                                                             .checkSheet_data
                                                                             ?.PMStatus
                                                                             ? machine
+                                                                              .checkSheet_data
+                                                                              ?.PMStatus[
+                                                                              selectedMonth
+                                                                            ] ===
+                                                                              "Current Plan"
+                                                                              ? "white"
+                                                                              : machine
                                                                                 .checkSheet_data
                                                                                 ?.PMStatus[
                                                                                 selectedMonth
                                                                               ] ===
-                                                                              "Current Plan"
-                                                                              ? "white"
-                                                                              : machine
-                                                                                  .checkSheet_data
-                                                                                  ?.PMStatus[
-                                                                                  selectedMonth
-                                                                                ] ===
                                                                                 "Ongoing"
-                                                                              ? "#ffff59"
-                                                                              : machine
+                                                                                ? "#ffff59"
+                                                                                : machine
                                                                                   .checkSheet_data
                                                                                   ?.PMStatus[
                                                                                   selectedMonth
                                                                                 ] ===
-                                                                                "Completed"
-                                                                              ? "#5fe15f"
-                                                                              : machine
-                                                                                  .checkSheet_data
-                                                                                  ?.PMStatus[
-                                                                                  selectedMonth
-                                                                                ] ===
-                                                                                "Done with delay"
-                                                                              ? "#ffc356"
-                                                                              : machine
-                                                                                  .checkSheet_data
-                                                                                  ?.PMStatus[
-                                                                                  selectedMonth
-                                                                                ] ===
-                                                                                  "PM Skip" ||
-                                                                                machine
-                                                                                  .checkSheet_data
-                                                                                  ?.PMStatus[
-                                                                                  selectedMonth
-                                                                                ] ===
-                                                                                  "No Completion"
-                                                                              ? "#ff8888"
-                                                                              : "#ababab"
+                                                                                  "Completed"
+                                                                                  ? "#5fe15f"
+                                                                                  : machine
+                                                                                    .checkSheet_data
+                                                                                    ?.PMStatus[
+                                                                                    selectedMonth
+                                                                                  ] ===
+                                                                                    "Done with delay"
+                                                                                    ? "#ffc356"
+                                                                                    : machine
+                                                                                      .checkSheet_data
+                                                                                      ?.PMStatus[
+                                                                                      selectedMonth
+                                                                                    ] ===
+                                                                                      "PM Skip" ||
+                                                                                      machine
+                                                                                        .checkSheet_data
+                                                                                        ?.PMStatus[
+                                                                                      selectedMonth
+                                                                                      ] ===
+                                                                                      "No Completion"
+                                                                                      ? "#ff8888"
+                                                                                      : "#ababab"
                                                                             : "#ababab",
                                                                       }}
                                                                       className="machine"
@@ -1856,7 +1854,7 @@ const MainDashboard = () => {
                                                     xs={12}
                                                     md={6}
                                                     lg={3}
-                                                    // key={subSection}
+                                                  // key={subSection}
                                                   >
                                                     <div className="line">
                                                       <div className="line_name">
@@ -1875,47 +1873,47 @@ const MainDashboard = () => {
                                                                         .checkSheet_data
                                                                         ?.PMStatus
                                                                         ? machine
+                                                                          .checkSheet_data
+                                                                          ?.PMStatus[
+                                                                          selectedMonth
+                                                                        ] ===
+                                                                          "Current Plan"
+                                                                          ? "white"
+                                                                          : machine
                                                                             .checkSheet_data
                                                                             ?.PMStatus[
                                                                             selectedMonth
                                                                           ] ===
-                                                                          "Current Plan"
-                                                                          ? "white"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
                                                                             "Ongoing"
-                                                                          ? "#ffff59"
-                                                                          : machine
+                                                                            ? "#ffff59"
+                                                                            : machine
                                                                               .checkSheet_data
                                                                               ?.PMStatus[
                                                                               selectedMonth
                                                                             ] ===
-                                                                            "Completed"
-                                                                          ? "#5fe15f"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Done with delay"
-                                                                          ? "#ffc356"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "PM Skip" ||
-                                                                            machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "No Completion"
-                                                                          ? "#ff8888"
-                                                                          : "#ababab"
+                                                                              "Completed"
+                                                                              ? "#5fe15f"
+                                                                              : machine
+                                                                                .checkSheet_data
+                                                                                ?.PMStatus[
+                                                                                selectedMonth
+                                                                              ] ===
+                                                                                "Done with delay"
+                                                                                ? "#ffc356"
+                                                                                : machine
+                                                                                  .checkSheet_data
+                                                                                  ?.PMStatus[
+                                                                                  selectedMonth
+                                                                                ] ===
+                                                                                  "PM Skip" ||
+                                                                                  machine
+                                                                                    .checkSheet_data
+                                                                                    ?.PMStatus[
+                                                                                  selectedMonth
+                                                                                  ] ===
+                                                                                  "No Completion"
+                                                                                  ? "#ff8888"
+                                                                                  : "#ababab"
                                                                         : "#ababab",
                                                                   }}
                                                                   className="machine"
@@ -1984,7 +1982,7 @@ const MainDashboard = () => {
                                                     xs={12}
                                                     md={6}
                                                     lg={3}
-                                                    // key={subSection}
+                                                  // key={subSection}
                                                   >
                                                     <div className="line">
                                                       <div className="line_name">
@@ -2003,47 +2001,47 @@ const MainDashboard = () => {
                                                                         .checkSheet_data
                                                                         ?.PMStatus
                                                                         ? machine
+                                                                          .checkSheet_data
+                                                                          ?.PMStatus[
+                                                                          selectedMonth
+                                                                        ] ===
+                                                                          "Current Plan"
+                                                                          ? "white"
+                                                                          : machine
                                                                             .checkSheet_data
                                                                             ?.PMStatus[
                                                                             selectedMonth
                                                                           ] ===
-                                                                          "Current Plan"
-                                                                          ? "white"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
                                                                             "Ongoing"
-                                                                          ? "#ffff59"
-                                                                          : machine
+                                                                            ? "#ffff59"
+                                                                            : machine
                                                                               .checkSheet_data
                                                                               ?.PMStatus[
                                                                               selectedMonth
                                                                             ] ===
-                                                                            "Completed"
-                                                                          ? "#5fe15f"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Done with delay"
-                                                                          ? "#ffc356"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "PM Skip" ||
-                                                                            machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "No Completion"
-                                                                          ? "#ff8888"
-                                                                          : "#ababab"
+                                                                              "Completed"
+                                                                              ? "#5fe15f"
+                                                                              : machine
+                                                                                .checkSheet_data
+                                                                                ?.PMStatus[
+                                                                                selectedMonth
+                                                                              ] ===
+                                                                                "Done with delay"
+                                                                                ? "#ffc356"
+                                                                                : machine
+                                                                                  .checkSheet_data
+                                                                                  ?.PMStatus[
+                                                                                  selectedMonth
+                                                                                ] ===
+                                                                                  "PM Skip" ||
+                                                                                  machine
+                                                                                    .checkSheet_data
+                                                                                    ?.PMStatus[
+                                                                                  selectedMonth
+                                                                                  ] ===
+                                                                                  "No Completion"
+                                                                                  ? "#ff8888"
+                                                                                  : "#ababab"
                                                                         : "#ababab",
                                                                   }}
                                                                   className="machine"
@@ -2114,7 +2112,7 @@ const MainDashboard = () => {
                                                   xs={12}
                                                   md={6}
                                                   lg={3}
-                                                  // key={subSection}
+                                                // key={subSection}
                                                 >
                                                   <div className="line">
                                                     <div className="line_name">
@@ -2133,47 +2131,47 @@ const MainDashboard = () => {
                                                                       .checkSheet_data
                                                                       ?.PMStatus
                                                                       ? machine
+                                                                        .checkSheet_data
+                                                                        ?.PMStatus[
+                                                                        selectedMonth
+                                                                      ] ===
+                                                                        "Current Plan"
+                                                                        ? "white"
+                                                                        : machine
                                                                           .checkSheet_data
                                                                           ?.PMStatus[
                                                                           selectedMonth
                                                                         ] ===
-                                                                        "Current Plan"
-                                                                        ? "white"
-                                                                        : machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
                                                                           "Ongoing"
-                                                                        ? "#ffff59"
-                                                                        : machine
+                                                                          ? "#ffff59"
+                                                                          : machine
                                                                             .checkSheet_data
                                                                             ?.PMStatus[
                                                                             selectedMonth
                                                                           ] ===
-                                                                          "Completed"
-                                                                        ? "#5fe15f"
-                                                                        : machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                          "Done with delay"
-                                                                        ? "#ffc356"
-                                                                        : machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                            "PM Skip" ||
-                                                                          machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                            "No Completion"
-                                                                        ? "#ff8888"
-                                                                        : "#ababab"
+                                                                            "Completed"
+                                                                            ? "#5fe15f"
+                                                                            : machine
+                                                                              .checkSheet_data
+                                                                              ?.PMStatus[
+                                                                              selectedMonth
+                                                                            ] ===
+                                                                              "Done with delay"
+                                                                              ? "#ffc356"
+                                                                              : machine
+                                                                                .checkSheet_data
+                                                                                ?.PMStatus[
+                                                                                selectedMonth
+                                                                              ] ===
+                                                                                "PM Skip" ||
+                                                                                machine
+                                                                                  .checkSheet_data
+                                                                                  ?.PMStatus[
+                                                                                selectedMonth
+                                                                                ] ===
+                                                                                "No Completion"
+                                                                                ? "#ff8888"
+                                                                                : "#ababab"
                                                                       : "#ababab",
                                                                 }}
                                                                 className="machine"
@@ -2237,7 +2235,7 @@ const MainDashboard = () => {
             sm={12}
             md={12}
             lg={3}
-            className="right-component-main-dashboard"
+            className="right-component-main-dashboard marginLeft" style={{ marginRight: "20px" }}
           >
             {/* <br />
             <br /> */}

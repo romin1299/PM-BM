@@ -565,7 +565,7 @@ const UserAdd = () => {
                   ""
                 )}
 
-                {/* 
+                {/*
                 <div className="pwd-container">
                   <span>User Type:</span>
                   <div style={{ width: "100%", marginTop: "0.5rem" }}>
@@ -709,7 +709,7 @@ const UserAdd = () => {
                       />
                       <div>
                         {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
-{formik.touched.emp_group && formik.errors.emp_group} 
+{formik.touched.emp_group && formik.errors.emp_group}
 </p> */}
                       </div>
                     </div>
@@ -746,7 +746,7 @@ const UserAdd = () => {
                       </select>
                       <div>
                         {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
-                  {formik.touched.emp_group && formik.errors.emp_group} 
+                  {formik.touched.emp_group && formik.errors.emp_group}
                 </p> */}
                       </div>
                     </div>
@@ -947,7 +947,7 @@ const UserAdd = () => {
                     </select>
                     <div>
                       {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
-                  {formik.touched.emp_group && formik.errors.emp_group} 
+                  {formik.touched.emp_group && formik.errors.emp_group}
                 </p> */}
                     </div>
                   </div>
@@ -1229,7 +1229,7 @@ const UserAdd = () => {
                 // helperText={formik.touched.address && formik.errors.address}
               />
             </div>
-            <button type="submit" className="btn-reset">
+            <button type="submit" className="btn-success">
               Submit
             </button>
           </form>

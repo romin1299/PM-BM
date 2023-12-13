@@ -13,8 +13,23 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 import RoutingContext from "../../context/routing/RoutingContext";
+
+import MachineHistoryCard from "../HistoryCard/MachineHistoryCard";
+
+import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
+import {
+  Box,
+  Button,
+  Divider,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
 
@@ -22,6 +37,20 @@ const RequestSheetMainDashboard = () => {
   const navigate = useNavigate();
 
   const context = useContext(RoutingContext);
+
+  const [selectedRow, setSelectedRow] = useState();
+  const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
+  const statusColorMap = {
+    "Generated": "#D2B203",
+    "Assigned": "#008000",
+    "Work Order Open": "#008AB9",
+    "Work Order Pending": "#F59F00",
+    "Work Order Closed": "#B10202",
+    "Fill Sheet": "#CE1672",
+    "Under MTD TL approval": "#70099C",
+    "Under MTD HOSS approval": "#00BBBE",
+    "Under MTD HOS approval": "#63CA00",
+  };
 
   const statusArray = [
     "Generated",
@@ -244,6 +273,11 @@ const RequestSheetMainDashboard = () => {
       title: "R.S Status",
       field: "requestSheetStatus",
       editable: false,
+      render: (rowData) => (
+        <button className="btn" style={{ background: statusColorMap[rowData.requestSheetStatus], fontSize: "12px", cursor:"auto"}}>
+          {rowData.requestSheetStatus}
+        </button>
+      ),
     },
     {
       title: "Assign",
@@ -251,7 +285,7 @@ const RequestSheetMainDashboard = () => {
       // editable: context?.tm_department === "MTD" ? "always" : "never",
       editable: (_, row) =>
         context?.tm_department === "MTD" &&
-        row?.requestSheetStatus === statusArray[0]
+          row?.requestSheetStatus === statusArray[0]
           ? true
           : false,
       editComponent: ({ value, onChange }) =>
@@ -267,7 +301,7 @@ const RequestSheetMainDashboard = () => {
       // editable: context?.tm_department === "MTD" ? "always" : "never",
       editable: (_, row) =>
         context?.tm_department === "MTD" &&
-        row?.requestSheetStatus === statusArray[0]
+          row?.requestSheetStatus === statusArray[0]
           ? true
           : false,
       editComponent: ({ value, onChange }) =>
@@ -392,32 +426,38 @@ const RequestSheetMainDashboard = () => {
     },
   ];
 
+  const handleMachineHistoryCardState = () => {
+    setMachineHistoryCardModal(
+      (machineHistoryCardModal) => !machineHistoryCardModal
+    );
+  };
   const requestSheetActions = [
     {
-      icon: () => <CreditCardIcon />,
+      icon: () => <CreditCardIcon className="text-primary1" />,
       tooltip: "History Card",
       position: "row",
       onClick: (event, selectedRow) => {
-        console.log("----------", selectedRow);
+        setSelectedRow(selectedRow);
+        handleMachineHistoryCardState();
       },
     },
     (row) => ({
-      icon: () => <DescriptionIcon />,
+      icon: () => <DescriptionIcon className="text-primary" />,
       tooltip: "Update Action",
       position: "row",
       disabled:
         row?.assignUserId === context?._id &&
-        (row?.work_order_status === "Pending" ||
-          row?.work_order_status === "Closed")
+          (row?.work_order_status === "Pending" ||
+            row?.work_order_status === "Closed")
           ? false
           : true,
       onClick: (event, selectedRow) => {
         navigate(
-          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`,{
-            state: {
-              supportingTM: reduceState?.TLHOSS_and_TM_user_list,
-            },
-          }
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?.requestSheetNoOfBM}`, {
+          state: {
+            supportingTM: reduceState?.TLHOSS_and_TM_user_list,
+          },
+        }
         );
       },
     }),
@@ -445,19 +485,34 @@ const RequestSheetMainDashboard = () => {
               }
               style={{ marginTop: "1rem" }}
             >
-              <AddCircleIcon/> &nbsp;
+              <AddCircleIcon /> &nbsp;
               Generate New Request-Sheet
             </button>
           </Col>
 
           <Col>
-            Total Request: {reduceState?.counters?.total_request_sheet_count}
+            <Box className="cell rounded-0 p-3 bg-button text-white">
+              <div className="d-flex align-items-center">
+                <InsertDriveFileIcon /> &nbsp;&nbsp; <p>Total Request: &nbsp;
+                  {reduceState?.counters?.total_request_sheet_count}</p>
+              </div>
+
+            </Box>
+
           </Col>
           <Col>
-            Open Request: {reduceState?.counters?.open_request_sheet_count}
+            <Box className="cell p-3 rounded-0 bg-dang text-white">
+              <div className="d-flex align-items-center">
+                <ArrowCircleRightIcon /> &nbsp;&nbsp; <p>
+                  Open Request: {reduceState?.counters?.open_request_sheet_count}</p></div>
+            </Box>
           </Col>
           <Col>
-            Closed Request: {reduceState?.counters?.closed_request_sheet_count}
+            <Box className="cell p-3 rounded-0 bg-succ text-white">
+              <div className="d-flex align-items-center">
+                <CancelIcon /> &nbsp;&nbsp; <p>
+                  Closed Request: {reduceState?.counters?.closed_request_sheet_count}</p></div>
+            </Box>
           </Col>
         </Row>
 
@@ -540,6 +595,16 @@ const RequestSheetMainDashboard = () => {
           />
         </Row>
       </Container>
+
+      {machineHistoryCardModal && (
+        <MachineHistoryCard
+          selectedRow={selectedRow}
+          modelProp={{
+            show: machineHistoryCardModal,
+            onHide: () => setMachineHistoryCardModal(false),
+          }}
+        />
+      )}
     </>
   );
 };

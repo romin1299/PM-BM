@@ -16,7 +16,7 @@ const LineContributionMain = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   return (
-    <Container fluid>
+    <Container fluid style={{ paddingBottom: "3rem" }}>
       <Box>
         <ReportTitleBar
           title="Line Contribution BD"

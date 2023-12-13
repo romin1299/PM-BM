@@ -140,6 +140,7 @@ const userRoutes = [
     routes: [
       { path: "/bm", element: <OperatorDashboard /> },
       { path: "/bm/profile", element: <Profile /> },
+      { path: "/bm/customizedDashboard", element: <MainCustomized /> },
       {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,
@@ -254,7 +255,7 @@ function BM_Routes() {
 
         {/* Render main container based on the user's routes */}
         <Container
-          stickyNav={<RightNavbar />}
+          // stickyNav={<RightNavbar />}
           content={
             <Routes>
               {filteredRoutes?.routes?.map((route) => (

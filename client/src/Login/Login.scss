@@ -313,6 +313,16 @@
   border-radius: 4px;
   font-size: 1rem;
 }
+.btn-success {
+  // background-image: linear-gradient(135deg, #3C8CE7 10%, #00EAFF 100%);
+  background-color: #316D01;
+  // background-color: #0074D9 !important;
+  color: white !important;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 1rem;
+}
 
 .btn-reset1 {
   // background-image: linear-gradient(135deg, #3C8CE7 10%, #00EAFF 100%);
@@ -351,6 +361,10 @@
   border-radius: 4px;
   font-size: 1rem;
   // box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.12), -2px -2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.text-primary1 {
+  color: #e77911;
 }
 
 .btn-primary2 {
