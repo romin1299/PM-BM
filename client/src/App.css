@@ -256,6 +256,9 @@ input[type="number"] {
   color: #b42929
 } */
 
+.widthwhy{
+  width: 100%;
+}
 
 @media only screen and (max-width: 900px) {
   .marginLeft {
@@ -266,6 +269,10 @@ input[type="number"] {
   .nav-tabs .nav-link {
     font-size: 10px;
 
+  }
+
+  .widthwhy{
+    width: 70%;
   }
 }
 

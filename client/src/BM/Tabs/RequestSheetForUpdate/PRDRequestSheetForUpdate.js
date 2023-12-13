@@ -29,7 +29,7 @@ const list = [
 function MyTable({ requestSheetDataOfBM }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { machine_code, generateType, requestSheetNoOfBM } = useParams();
+  const { machine_code, generateType, requestSheetID } = useParams();
   const {
     register,
     handleSubmit,
@@ -81,7 +81,7 @@ function MyTable({ requestSheetDataOfBM }) {
 
     try {
       const res = await fetch(
-        `/newRequestSheetRegistration/?reqId=${requestSheetNoOfBM}&&machineRef=${machine_code}`,
+        `/newRequestSheetRegistration/?reqId=${requestSheetID}&&machineRef=${machine_code}`,
         {
           method: "POST",
           // headers: {
@@ -161,7 +161,7 @@ function MyTable({ requestSheetDataOfBM }) {
   };
 
   useEffect(() => {
-    if (requestSheetDataOfBM?.requestSheetNoOfBM) {
+    if (requestSheetDataOfBM?._id) {
       setValue(
         "problemOccurredDateAndTimeOfBM",
         moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM)
@@ -207,7 +207,7 @@ function MyTable({ requestSheetDataOfBM }) {
         requestSheetDataOfBM?.breakDownAttendedBy
       );
     }
-  }, [requestSheetDataOfBM?.requestSheetNoOfBM, setValue]);
+  }, [requestSheetDataOfBM?._id, setValue]);
 
   return (
     <>
@@ -220,7 +220,7 @@ function MyTable({ requestSheetDataOfBM }) {
             </tr> */}
           </thead>
           <tbody className="m-1 border p-3">
-            <tr class="row "  style={{width:"100vw"}}>
+            <tr class="row " style={{ width: "100vw" }}>
               {/* <td width={100}>
               <img
                 src={denso_log}
@@ -236,15 +236,16 @@ function MyTable({ requestSheetDataOfBM }) {
                 </h4>
               </td>
             </tr>
-            <tr className="row m-2" style={{width:"100vw"}}>
-              <td className="mb-0 pb-0 border col-lg-3 col-md-6">
-                <p>
+            <tr className="row m-2" style={{ width: "100vw" }}>
+              <td className="mb-0 pb-0 border col-lg-1 col-md-2">
+                <small>
                   <b>MAINT. TYPE</b>
-                </p>
-                <Form>
+                </small>
+                <Form style={{ fontSize: "16px !important" }}>
                   <div key={`inline-radio`}>
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="BM"
                       name="maintenanceType"
                       type="radio"
@@ -258,6 +259,7 @@ function MyTable({ requestSheetDataOfBM }) {
                     />
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="PM"
                       name="maintenanceType"
                       type="radio"
@@ -271,6 +273,7 @@ function MyTable({ requestSheetDataOfBM }) {
                     />
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="CM"
                       type="radio"
                       name="maintenanceType"
@@ -284,6 +287,7 @@ function MyTable({ requestSheetDataOfBM }) {
                     />
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="TPM"
                       type="radio"
                       name="maintenanceType"
@@ -303,15 +307,16 @@ function MyTable({ requestSheetDataOfBM }) {
                   )}
                 </Form>
               </td>
-              <td className="mb-0 pb-0 border col-lg-3 col-md-6">
-                <p>
+              <td className="mb-0 pb-0 border col-lg-1 col-md-2">
+                <small>
                   {" "}
                   <b>PRIORITY CODE</b>
-                </p>
+                </small>
                 <Form>
                   <div key={`inline-radio`}>
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="EMERGENCY"
                       name="priorityCode"
                       type="radio"
@@ -325,6 +330,7 @@ function MyTable({ requestSheetDataOfBM }) {
                     />
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="IMPORTANT"
                       name="priorityCode"
                       type="radio"
@@ -338,6 +344,7 @@ function MyTable({ requestSheetDataOfBM }) {
                     />
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="DATA NEEDED"
                       name="priorityCode"
                       type="radio"
@@ -351,6 +358,7 @@ function MyTable({ requestSheetDataOfBM }) {
                     />
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="KAIZEN"
                       name="priorityCode"
                       type="radio"
@@ -370,25 +378,31 @@ function MyTable({ requestSheetDataOfBM }) {
                   )}
                 </Form>
               </td>
-              <td
-                className="mb-0 pb-0 border col-lg-3 col-md-6"
-              >
-                <div className="mb-2">
-                  <h6 className="text-center border p-1">
-                    <b>REQUEST SHEET ( To be filled by PRD)</b>
-                  </h6>
-                  <p className="text-left border p-1 mb-2">
-                    <b>REQUEST No.</b> {requestSheetNoOfBM}
-                  </p>
+              <td className="mb-0 pb-0 border col-lg-8 col-md-4">
+                <div className="mb-2 border">
+                  <Row className="m-0">
+                    <Col className="border">
+                      <p className="text-center p-1">
+                        <b>REQUEST SHEET ( To be filled by PRD)</b>
+                      </p>
+                    </Col>
+                  </Row>
+                  <Row className="m-0">
+                    <Col className="border">
+                      <small className="text-left p-1 mb-2">
+                        <b>REQUEST No.</b> {requestSheetDataOfBM?.requestSheetNoOfBM}
+                      </small>
+                    </Col>
+                  </Row>
                   <Row className="m-0">
                     <Col className="border">
                       <Row>
-                        <p className="border-right-0 text-center m-0">
-                          PROBLEM OCCURRED
-                        </p>
+                        <small className="border-right-0 text-center m-0">
+                          <b>PROBLEM OCCURRED</b>
+                        </small>
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
-                            <p className="mb-0">
+                            <small className="mb-0">
                               <b>DATE & TIME: </b>
                               <br />
                               <input
@@ -401,7 +415,7 @@ function MyTable({ requestSheetDataOfBM }) {
                                     ?._id !== loggedUserDetails?._id
                                 }
                               />
-                            </p>
+                            </small>
                           </div>{" "}
                           {/* &nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
@@ -419,12 +433,12 @@ function MyTable({ requestSheetDataOfBM }) {
                     </Col>
                     <Col className="border">
                       <Row>
-                        <p className="border-left-0 text-center m-0">
-                          SHEET ISSUED
-                        </p>
+                        <small className="border-left-0 text-center m-0">
+                          <b>SHEET ISSUED</b>
+                        </small>
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
-                            <p className="mb-0">
+                            <small className="mb-0">
                               <b>DATE & TIME: </b>
                               <br />
                               {/* <input
@@ -442,7 +456,7 @@ function MyTable({ requestSheetDataOfBM }) {
                               )
                                 .tz("Asia/Kolkata")
                                 .format("DD-MM-YYYY THH:mm")}
-                            </p>
+                            </small>
                           </div>{" "}
                           {/* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
@@ -463,7 +477,7 @@ function MyTable({ requestSheetDataOfBM }) {
                 </div>
               </td>
 
-              <td  className="mb-0 pb-0 pt-0 col-lg-3 col-md-6">
+              <td className="mb-0 pb-0 pt-0 col-lg-2 col-md-4">
                 {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
@@ -482,21 +496,30 @@ function MyTable({ requestSheetDataOfBM }) {
                   </p>
                 </Col>
               </Row> */}
-                <Row className="pt-0 mb-0 border col-lg-12 col-md-12 col-sm-12" style={{marginLeft: "-8px"}} >
+                <Row
+                  className="pt-0 mb-0 border col-lg-12 col-md-12 col-sm-12"
+                  style={{ marginLeft: "-8px" }}
+                >
                   <Col className="pb-2 pt-1">
-                    <p className="mb-0">
+                    <small className="mb-0">
                       <b>DEPT./LINE</b>
-                    </p>
-                    {requestSheetDataOfBM?.cellRef?.cell_name}/
-                    {requestSheetDataOfBM?.lineRef?.line_name}
+                    </small>
+                    <br/>
+                    <small>
+                      {requestSheetDataOfBM?.cellRef?.cell_name}/
+                      {requestSheetDataOfBM?.lineRef?.line_name}
+                    </small>
                   </Col>
                 </Row>
-                <Row className="pt-0 mb-0 " style={{marginLeft: "-8px"}}>
+                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
                   <Col className="border pb-2">
-                    <p className="fs-6 mb-0">
+                    <small className="fs-6 mb-0">
                       <b>TL [PRD]</b>
-                    </p>
-                    {requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}
+                    </small>
+                    <br/>
+                    <small>
+                      {requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}
+                    </small>
                     {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
@@ -508,23 +531,21 @@ function MyTable({ requestSheetDataOfBM }) {
                 </Row>
               </td>
             </tr>
-            <tr>
-              <td className="border p-3 col-lg-8 col-md-12 col-sm-12">
+            <tr class="row">
+              <td className="border p-3 col-lg-8 col-md-7 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={2}>
-                    <p className="mb-0">
+                  <Col lg={4} md={6}>
+                    <small className="mb-0">
                       <b>MACHINE NAME:</b>{" "}
-                    </p>
-                  </Col>
-                  <Col lg={3}>
+                    </small>{" "}
+                    &nbsp;&nbsp;
                     {requestSheetDataOfBM?.machineRef?.machine_name}
                   </Col>
-                  <Col lg={2}>
-                    <p className="mb-0">
+                  <Col lg={4} md={6}>
+                    <small className="mb-0">
                       <b>MACHINE NO.:</b>
-                    </p>
-                  </Col>
-                  <Col lg={3}>
+                    </small>
+                    &nbsp;&nbsp;
                     {requestSheetDataOfBM?.machineRef?.machine_code}
                   </Col>
                 </Row>
@@ -534,12 +555,12 @@ function MyTable({ requestSheetDataOfBM }) {
                       <b>PROBLEM FACED: </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={3}>
                     <input
                       type="text"
                       id="prob"
                       name="problemFaced"
-                     className="m-1 mb-2"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("problemFaced", {
                         required: "Please fill this field",
@@ -560,12 +581,12 @@ function MyTable({ requestSheetDataOfBM }) {
                       </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={3}>
                     <input
                       type="text"
                       id="prdobv"
                       name="prdobv"
-                     className="m-1 mb-2"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("PRD_ObservationForProblem_5Why_1How", {
                         required: "Please fill this field",
@@ -592,7 +613,7 @@ function MyTable({ requestSheetDataOfBM }) {
                       type="text"
                       id="why"
                       name="why"
-                     className="m-1 mb-2"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("why_5M_1E", {
                         // required: "Please fill this field",
@@ -614,7 +635,7 @@ function MyTable({ requestSheetDataOfBM }) {
                       type="text"
                       id="where"
                       name="where"
-                     className="m-1 mb-2"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("where_process", {
                         // required: "Please fill this field",
@@ -636,7 +657,7 @@ function MyTable({ requestSheetDataOfBM }) {
                       type="text"
                       id="when"
                       name="when"
-                     className="m-1 mb-2"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("when_frequency", {
                         // required: "Please fill this field",
@@ -658,7 +679,7 @@ function MyTable({ requestSheetDataOfBM }) {
                       type="text"
                       id="who"
                       name="who"
-                     className="m-1 mb-2"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("who_person", {
                         // required: "Please fill this field",
@@ -680,7 +701,7 @@ function MyTable({ requestSheetDataOfBM }) {
                       type="text"
                       id="which"
                       name="which"
-                     className="m-1 mb-2"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("which_defectLocation", {
                         // required: "Please fill this field",
@@ -702,7 +723,7 @@ function MyTable({ requestSheetDataOfBM }) {
                       type="text"
                       id="how"
                       name="how"
-                     className="m-1 mb-2"
+                      className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("how_details", {
                         // required: "Please fill this field",
@@ -715,14 +736,14 @@ function MyTable({ requestSheetDataOfBM }) {
                 </Row>
               </td>
 
-              <td className="border p-3 col-lg-4 col-md-12 col-sm-12">
+              <td className="border p-3 col-lg-4 col-md-4 col-sm-12">
                 <Row className="m-0">
                   <Col className="border p-2">
                     <FormControl>
                       <FormLabel id="demo-radio-buttons-group-label">
-                        <Typography sx={{ fontWeight: "700", color: "black" }}>
-                          SHIFT
-                        </Typography>
+                        <small>
+                          <b>SHIFT</b>
+                        </small>
                       </FormLabel>
 
                       <RadioGroup
@@ -748,14 +769,14 @@ function MyTable({ requestSheetDataOfBM }) {
 
                 <Row className="m-0">
                   <Col className="border p-2">
-                    <p className="mb-0 d-flex align-items-center justify-content-start">
+                    <small className="mb-0 d-flex align-items-center justify-content-start">
                       <b>QUALITY RELATED</b>&nbsp;&nbsp;&nbsp;
-                    </p>
+                    </small>
                   </Col>
                   <Col className="border p-2 d-flex align-items-center">
                     <Form>
                       {["radio"].map((type) => (
-                        <div key={`inline-${type}`} className="d-flex">
+                        <div key={`inline-${type}`} className="d-block">
                           <Form.Check
                             flex
                             label="Yes"
@@ -785,9 +806,10 @@ function MyTable({ requestSheetDataOfBM }) {
                 </Row>
                 <Row className="pt-0 mb-0 m-0">
                   <Col lg={12} className="border pb-2 pt-1">
-                    <p className="mb-0">
+                    <small className="mb-0">
                       <b>BREAKDOWN ATTENDED BY</b>
-                    </p>
+                    </small>
+                    <br />
                     {requestSheetDataOfBM?.assignUser?.tm_name} {", "}
                     {requestSheetDataOfBM?.supportingTM
                       ?.map((obj) => obj?.tm_name)

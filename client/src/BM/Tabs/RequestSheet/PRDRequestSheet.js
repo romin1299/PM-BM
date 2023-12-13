@@ -178,7 +178,7 @@ function MyTable({ selectedMachineDetails }) {
             <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
           </thead>
           <tbody className="m-1 box-shadow p-3">
-            <tr className="row" style={{width:"100vw"}}>
+            <tr className="row" style={{ width: "100vw" }}>
               {/* <td width={100}>
               <img
                 src={denso_logo}
@@ -194,15 +194,16 @@ function MyTable({ selectedMachineDetails }) {
                 </h4>
               </td>
             </tr>
-            <tr className="row m-2" style={{width:"100vw"}}>
-              <td className="mb-0 pb-0 borde col-lg-3 col-md-6 col-sm-12">
-                <p>
+            <tr className="row m-2" style={{ width: "100vw" }}>
+              <td className="mb-0 pb-0 border col-lg-1 col-md-2 col-sm-12">
+                <small>
                   <b>MAINT. TYPE</b>
-                </p>
+                </small>
                 <Form>
                   <div key={`inline-radio`}>
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="BM"
                       name="maintenanceType"
                       type="radio"
@@ -216,6 +217,7 @@ function MyTable({ selectedMachineDetails }) {
                     />
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="PM"
                       name="maintenanceType"
                       type="radio"
@@ -229,6 +231,7 @@ function MyTable({ selectedMachineDetails }) {
                     />
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="CM"
                       type="radio"
                       name="maintenanceType"
@@ -242,6 +245,7 @@ function MyTable({ selectedMachineDetails }) {
                     />
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="TPM"
                       type="radio"
                       name="maintenanceType"
@@ -261,15 +265,16 @@ function MyTable({ selectedMachineDetails }) {
                   )}
                 </Form>
               </td>
-              <td className="mb-0 pb-0 border col-lg-3 col-md-6 col-sm-12">
-                <p>
+              <td className="mb-0 pb-0 border col-lg-1 col-md-2 col-sm-12">
+                <small>
                   {" "}
                   <b>PRIORITY CODE</b>
-                </p>
+                </small>
                 <Form>
                   <div key={`inline-radio`}>
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="EMERGENCY"
                       name="priorityCode"
                       type="radio"
@@ -283,6 +288,7 @@ function MyTable({ selectedMachineDetails }) {
                     />
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="IMPORTANT"
                       name="priorityCode"
                       type="radio"
@@ -296,6 +302,7 @@ function MyTable({ selectedMachineDetails }) {
                     />
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="DATA NEEDED"
                       name="priorityCode"
                       type="radio"
@@ -309,6 +316,7 @@ function MyTable({ selectedMachineDetails }) {
                     />
                     <Form.Check
                       flex
+                      style={{ fontSize: "12px" }}
                       label="KAIZEN"
                       name="priorityCode"
                       type="radio"
@@ -328,34 +336,43 @@ function MyTable({ selectedMachineDetails }) {
                   )}
                 </Form>
               </td>
-              <td className="mb-0 pb-0 border col-lg-3 col-md-6 col-sm-12"
-              >
-                <div className="mb-2">
-                  <h6 className="text-center border p-1">
-                    <b>REQUEST SHEET ( To be filled by PRD)</b>
-                  </h6>
-                  <p className="text-left border p-1 mb-2">
+              <td className="mb-0 pb-0 border col-lg-8 col-md-4 col-sm-12">
+                <div className="mb-2 border">
+                  <Row className="m-0">
+                    <Col className="border">
+                      <p className="text-center p-1">
+                        <b>REQUEST SHEET ( To be filled by PRD)</b>
+                      </p>
+                    </Col>
+                  </Row>
+                  <Row className="m-0">
+                    <Col className="border">
+                      <small className="text-left p-1 mb-2">
                     <b>REQUEST No.</b>{" "}
                     {selectedMachineDetails?.line_names?.cell_names
                       ?.subSection_names?.section_names?.dashboardLevel ===
                     "Yes"
                       ? selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.section_name
+                          ?.trim()
                           ?.substring(0, 2)
                           ?.toUpperCase()
                       : selectedMachineDetails?.line_names?.cell_names?.subSection_names?.subSection_name
+                          ?.trim()
                           ?.substring(0, 2)
                           ?.toUpperCase()}
-                    _{selectedMachineDetails?.line_names?.line_name}_
-                    {startedDate}_
+                    -{selectedMachineDetails?.line_names?.line_name?.trim()}-
+                    {startedDate}-
                     {selectedMachineDetails?.line_names?.requestSheetNos + 1 ||
                       1}
-                  </p>
+                  </small>
+                    </Col>
+                  </Row>
                   <Row className="m-0">
                     <Col className="border">
                       <Row>
-                        <p className="border-right-0 text-center m-0">
-                          PROBLEM OCCURRED
-                        </p>
+                        <small className="border-right-0 text-center m-0">
+                          <b>PROBLEM OCCURRED</b>
+                        </small>
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
                             <p className="mb-0">
@@ -400,12 +417,12 @@ function MyTable({ selectedMachineDetails }) {
                     </Col>
                     <Col className="border">
                       <Row>
-                        <p className="border-left-0 text-center m-0">
-                          SHEET ISSUED
-                        </p>
+                        <small className="border-left-0 text-center m-0">
+                          <b>SHEET ISSUED</b>
+                        </small>
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
-                            <p className="mb-0">
+                            <small className="mb-0">
                               <b>DATE & TIME: </b>
                               <br />
                               <input
@@ -421,7 +438,7 @@ function MyTable({ selectedMachineDetails }) {
                               {/* {errors?.["sheetIssuedDateAndTimeOfBM"] && (
                               <p className="text-error">{errors?.["sheetIssuedDateAndTimeOfBM"]?.message}</p>
                             )} */}
-                            </p>
+                            </small>
                           </div>{" "}
                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                           {/* <div className="text-center">
@@ -447,7 +464,10 @@ function MyTable({ selectedMachineDetails }) {
                 </div>
               </td>
 
-              <td className="mb-0 pb-0 pt-0 col-lg-12 col-md-12 col-sm-12"  style={{marginLeft: "-8px"}} >
+              <td
+                className="mb-0 pb-0 pt-0 col-lg-2 col-md-4 col-sm-12"
+                style={{ marginLeft: "-8px" }}
+              >
                 {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
@@ -468,19 +488,26 @@ function MyTable({ selectedMachineDetails }) {
               </Row> */}
                 <Row className="pt-0 mb-0 ">
                   <Col className="border pb-2 pt-1">
-                    <p className="mb-0">
+                    <small className="mb-0">
                       <b>DEPT./LINE</b>
-                    </p>
-                    {selectedMachineDetails?.line_names?.cell_names?.cell_name}/
-                    {selectedMachineDetails?.line_names?.line_name}
+                    </small>
+                    <br/>
+                    <small>
+                      {
+                        selectedMachineDetails?.line_names?.cell_names
+                          ?.cell_name
+                      }
+                      /{selectedMachineDetails?.line_names?.line_name}
+                    </small>
                   </Col>
                 </Row>
-                <Row className="pt-0 mb-0 " style={{marginLeft: "-8px"}}>
+                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
                   <Col className="border pb-2">
-                    <p className="fs-6 mb-0">
+                    <small className="fs-6 mb-0">
                       <b>TL [PRD]</b>
-                    </p>
-                    {context?.tm_name}
+                    </small>
+                    <br/>
+                    <small>{context?.tm_name}</small>
                     {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
@@ -492,21 +519,23 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
               </td>
             </tr>
-            <tr>
-              <td className="border col-lg-8 col-md-12 col-sm-12">
+            <tr class="row">
+              <td className="border p-3 col-lg-7 col-md-8 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={2}>
-                    <p className="mb-0">
+                  <Col lg={4} md={6}>
+                    <small className="mb-0">
                       <b>MACHINE NAME:</b>{" "}
-                    </p>
+                    </small>{" "}
+                    &nbsp;&nbsp;
+                    {selectedMachineDetails.machine_name}
                   </Col>
-                  <Col lg={3}>{selectedMachineDetails.machine_name}</Col>
-                  <Col lg={2}>
-                    <p className="mb-0">
+                  <Col lg={4} md={6}>
+                    <small className="mb-0">
                       <b>MACHINE NO.:</b>
-                    </p>
+                    </small>
+                    &nbsp;&nbsp;
+                    {selectedMachineDetails.machine_code}
                   </Col>
-                  <Col lg={3}>{selectedMachineDetails.machine_code}</Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
@@ -695,14 +724,14 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
               </td>
 
-              <td className="border col-lg-4 col-md-12 col-sm-12">
+              <td className="border p-3 col-lg-4 col-md-12 col-sm-12">
                 <Row className="m-0">
                   <Col className="border p-2">
                     <FormControl>
                       <FormLabel id="demo-radio-buttons-group-label">
-                        <Typography sx={{ fontWeight: "700", color: "black" }}>
-                          SHIFT
-                        </Typography>
+                        <small>
+                          <b>SHIFT</b>
+                        </small>
                       </FormLabel>
 
                       {watch("selectedShift") && (
@@ -731,14 +760,14 @@ function MyTable({ selectedMachineDetails }) {
 
                 <Row className="m-0">
                   <Col className="border p-2">
-                    <p className="mb-0 d-flex align-items-center justify-content-start">
+                    <small className="mb-0 d-flex align-items-center justify-content-start">
                       <b>QUALITY RELATED</b>&nbsp;&nbsp;&nbsp;
-                    </p>
+                    </small>
                   </Col>
                   <Col className="border p-2 d-flex align-items-center">
                     <Form>
                       {["radio"].map((type) => (
-                        <div key={`inline-${type}`} className="d-flex">
+                        <div key={`inline-${type}`} className="d-block">
                           <Form.Check
                             flex
                             label="Yes"
@@ -773,9 +802,10 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
                 <Row className="pt-0 mb-0 m-0">
                   <Col lg={12} className="border pb-2 pt-1">
-                    <p className="mb-0">
+                    <small className="mb-0">
                       <b>BREAKDOWN ATTENDED BY</b>
-                    </p>
+                    </small>
+                    <br />
                     {/* {selectedAttendee} */}
                   </Col>
                 </Row>

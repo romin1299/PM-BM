@@ -71,20 +71,20 @@ const ActionList = ({ actions, setActions }) => {
   return (
     <div className="mtd-actions-section">
       <Row className="m-0">
-        <Col lg={8} className="border col-auto d-flex align-items-center gap-1">
-          <b>ACTION & COUNTERMEASURE STEPS (Dynamic)</b>
+        <Col lg={8} md={7} className="border col-auto d-flex align-items-center gap-1">
+          <small><b>ACTION & COUNTERMEASURE STEPS (Dynamic)</b></small>
         </Col>
         <Col
-          lg={2}
+          lg={2} md={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <b>STATUS</b>
+          <small><b>STATUS</b></small>
         </Col>
         <Col
-          lg={2}
+          lg={2} md={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <b>UPDATE</b>
+          <small><b>UPDATE</b></small>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
         </Col>
       </Row>
@@ -92,12 +92,12 @@ const ActionList = ({ actions, setActions }) => {
       {actions.map((action, index) => (
         <Row key={action.id} className="m-0">
           <Col
-            lg={8}
+            lg={8} md={7}
             className={`border col-auto d-flex align-items-center gap-1 ${
               editedAction && editedAction.id === action.id ? "editable" : ""
             }`}
           >
-            <b>Action {index + 1}: </b>
+            <small><b>Action {index + 1}: </b></small>
             {editedAction && editedAction.id === action.id ? (
               <input
                 type="text"
@@ -111,7 +111,7 @@ const ActionList = ({ actions, setActions }) => {
             )}
           </Col>
           <Col
-            lg={2}
+            lg={2} md={2}
             className="border col-auto d-flex align-items-center gap-1 p-1"
           >
             <div>
@@ -139,8 +139,8 @@ const ActionList = ({ actions, setActions }) => {
             </div>
           </Col>
           <Col
-            lg={2}
-            className="border col-auto d-flex align-items-center gap-1 p-1"
+            lg={2} md={2}
+            className="border col-auto d-block align-items-center gap-1 p-1"
           >
             {editedAction && editedAction.id === action.id ? (
               <>
@@ -152,6 +152,7 @@ const ActionList = ({ actions, setActions }) => {
                 >
                   Update
                 </button>
+                <br/>
                 <button class="bg-danger text-white border-0" onClick={cancelEdit}>Cancel</button>
               </>
             ) : (
@@ -165,6 +166,7 @@ const ActionList = ({ actions, setActions }) => {
                 >
                   Edit
                 </button>
+                <br/>
                 <button
                 class="bg-danger text-white border-0"
                   onClick={(event) => {
@@ -182,7 +184,7 @@ const ActionList = ({ actions, setActions }) => {
       {isAdding ? (
         <Row className="m-0">
           <Col
-            lg={8}
+            lg={8} md={7}
             className="border col-auto d-flex align-items-center gap-1"
           >
             <b>Action {actions.length + 1}: </b>
@@ -193,7 +195,7 @@ const ActionList = ({ actions, setActions }) => {
             />
           </Col>
           <Col
-            lg={2}
+            lg={2} md={2}
             className="border col-auto d-flex align-items-center gap-1 p-1"
           >
             {/* <div>
@@ -220,10 +222,11 @@ const ActionList = ({ actions, setActions }) => {
             </div> */}
           </Col>
           <Col
-            lg={2}
-            className="border col-auto d-flex align-items-center gap-1 p-1"
+            lg={2} md={2}
+            className="border col-auto d-block align-items-center gap-1 p-1"
           >
             <button class="bg-success text-white border-0" onClick={addAction}>Add</button>
+            <br/>
             <button class="bg-danger text-white border-0" onClick={cancelAdd}>Cancel</button>
           </Col>
         </Row>
