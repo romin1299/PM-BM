@@ -14,6 +14,7 @@ import { blueGrey } from "@mui/material/colors";
 import MuiDeleteDialog from "./MuiDeleteButtonAndDialog";
 
 import "./ManageShifts.scss";
+import ChartTitleBar from "../../Reports/Common/ChartTitleBar";
 
 const initialState = {
   shiftName: "",
@@ -189,9 +190,11 @@ const CustomManageShifts = () => {
 
   return (
     <div className="cell p-3">
-      <Typography variant="h4" fontSize={"1.5rem"} fontWeight={500} mb={1}>
+      <ChartTitleBar disableDivider title="Manage Shifts" mb={1} />
+
+      {/* <Typography variant="h4" fontSize={"1.5rem"} fontWeight={500} mb={1}>
         Manage Shifts
-      </Typography>
+      </Typography> */}
 
       <Paper variant="outlined" sx={{}}>
         <Box display="flex" justifyContent="end" p={1}>

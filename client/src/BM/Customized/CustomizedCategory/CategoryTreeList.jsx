@@ -20,6 +20,7 @@ import {
 import { RenderInputRow } from "./ManageCategories";
 import MuiDeleteDialog from "./MuiDeleteDialog";
 import { Row, Col } from "react-bootstrap";
+import ChartTitleBar from "../../Reports/Common/ChartTitleBar";
 
 const CategoryTreeList = ({
   categories,
@@ -65,13 +66,13 @@ const CategoryTreeList = ({
       "& .MuiListItemText-primary":
         parentCategoryId < 0
           ? {
-            // color: "#4f4f4f",
-            fontWeight: "600",
-          }
+              // color: "#4f4f4f",
+              fontWeight: "600",
+            }
           : {
-            color: "#555555",
-            fontSize: "15px",
-          },
+              color: "#555555",
+              fontSize: "15px",
+            },
     };
 
     return (
@@ -179,7 +180,8 @@ const CategoryTreeList = ({
 
   return (
     <Box className="cell p-3">
-      <h4>Categories</h4>
+      {/* <h4>Categories</h4> */}
+      <ChartTitleBar title="Categories" />
 
       <Stack
       // justifyContent={"end"}
@@ -188,14 +190,14 @@ const CategoryTreeList = ({
       // spacing={2}
       >
         <Row>
-          <Col >
+          <Col>
             <Button
               variant="contained"
               size="small"
               sx={{
                 color: "#ffffff",
                 background: "#E47E07",
-                "&:hover": { borderColor: "#E47E07",background: "#BC6806" },
+                "&:hover": { borderColor: "#E47E07", background: "#BC6806" },
               }}
               endIcon={<AddIcon />}
               onClick={() => {
@@ -209,7 +211,6 @@ const CategoryTreeList = ({
             </Button>
           </Col>
         </Row>
-
       </Stack>
 
       <List sx={{ pb: 0 }}>
@@ -221,7 +222,10 @@ const CategoryTreeList = ({
             <RenderCategory category={category} parentCategoryId={-1} />
           ))
         ) : (
-          <div className="alert alert-secondary mb-2 text-center text-danger" role="alert">
+          <div
+            className="alert alert-secondary mb-2 text-center text-danger"
+            role="alert"
+          >
             No categories data to show!
           </div>
         )}

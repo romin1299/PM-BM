@@ -5290,7 +5290,7 @@ router.get(
       return res.status(201).json({
         message: "Categories data in PieChart get successfully",
 
-         problemCategoriesPieChart,
+         problemCategoriesPieChart: problemCategoriesPieChart?.[0],
       });
     } catch (error) {
       res.status(500).json({ message: "error?.message, error" });
@@ -5355,7 +5355,7 @@ router.get(
 
       return res.status(201).json({
         message: "Categories data in PieChart get successfully",
-         bdCategoryPieChart,
+         bdCategoryPieChart :bdCategoryPieChart?.[0] ,
       });
     } catch (error) {
       res.status(500).json({ message: "error?.message, error" });

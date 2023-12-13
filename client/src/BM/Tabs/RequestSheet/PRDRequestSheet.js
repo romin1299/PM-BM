@@ -492,7 +492,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
               </td>
             </tr>
-            <tr>
+            <tr className="row">
               <td className="border col-lg-8 col-md-12 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={2}>

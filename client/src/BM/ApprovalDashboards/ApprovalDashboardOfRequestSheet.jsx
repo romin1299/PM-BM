@@ -6,6 +6,8 @@ import MaterialTable from "@material-table/core";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import RoutingContext from "../../context/routing/RoutingContext";
 import { useNavigate } from "react-router-dom";
+import BMTitlebar from "../Component/BMTitlebar";
+import { MaterialTableOptions } from "../Utils/TableUtils/MaterialTableProps";
 
 const ApprovalDashboardOfRequestSheet = () => {
   const loggedUserDetails = useContext(RoutingContext);
@@ -86,7 +88,7 @@ const ApprovalDashboardOfRequestSheet = () => {
 
   const requestSheetApprovalAction = [
     {
-      icon: () => <CreditCardIcon className="text-primary1"/>,
+      icon: () => <CreditCardIcon className="text-primary1" />,
       tooltip: "History Card",
       position: "row",
       onClick: (event, selectedRow) => {
@@ -94,7 +96,7 @@ const ApprovalDashboardOfRequestSheet = () => {
       },
     },
     (row) => ({
-      icon: () => <DescriptionIcon className="text-primary"/>,
+      icon: () => <DescriptionIcon className="text-primary" />,
       tooltip: "Update Action",
       position: "row",
       // disabled:
@@ -142,13 +144,10 @@ const ApprovalDashboardOfRequestSheet = () => {
   return (
     <>
       <Container fluid>
-        <Row>
-          <Col>
-            <h1>Approval Dashboard</h1>
-          </Col>
-        </Row>
+        <BMTitlebar title="Approval Dashboard" />
 
         <Row>
+          <Col>
           <MaterialTable
             localization={{
               header: {
@@ -173,43 +172,9 @@ const ApprovalDashboardOfRequestSheet = () => {
               //   resolve();
               // }),
             }}
-            options={{
-              showTitle: false,
-              paging: false,
-              sorting: true,
-              search: true,
-              filtering: false,
-              exportButton: true,
-              exportAllData: true,
-              draggable: false,
-              actionsColumnIndex: -1,
-              pageSize: 10,
-              pageSizeOptions: false,
-              paginationType: "stepped",
-              addRowPosition: "first",
-              headerStyle: {
-                position: "sticky",
-                top: "0",
-                fontWeight: "bold",
-              },
-              maxBodyHeight: "70vh",
-              rowStyle: {
-                // fontStyle:'bold'
-
-                boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                // color:"rgba(255,255,255,0.8)",
-                borderRadius: "5px",
-                border: "1px solid rgba(255,255,255)",
-                WebkitBackdropFilter: "blur( 2px )",
-                background: "rgba(255,255,255,0.1)",
-                backdropFilter: "blur(5px)",
-              },
-              headerStyle: {
-                fontSize: "14px",
-                fontWeight: "bold",
-              },
-            }}
+            options={MaterialTableOptions}
           />
+          </Col>
         </Row>
       </Container>
     </>
