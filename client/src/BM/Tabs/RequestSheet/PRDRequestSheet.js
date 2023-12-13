@@ -19,6 +19,7 @@ import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 const list = [
   { key: "A", value: "A" },
@@ -38,6 +39,7 @@ function MyTable({ selectedMachineDetails }) {
     formState: { errors },
     watch,
     reset,
+    setValue,
   } = useForm({
     defaultValues: {
       problemOccurredDateAndTimeOfBM: moment(new Date()).format(
@@ -60,6 +62,7 @@ function MyTable({ selectedMachineDetails }) {
   });
   const selectedRequestSheetData = useLocation();
 
+  const [shiftsOfBM, setShiftsOfBM] = useState([]);
   const [selectedShift, setSelectedShift] = useState("");
   // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
@@ -118,10 +121,6 @@ function MyTable({ selectedMachineDetails }) {
     }
   };
 
-  useEffect(() => {
-    setSelectedShift(getCurrentShiftName());
-  }, []);
-
   const timezone = "Asia/Kolkata";
   const startedDate = moment().tz(timezone).month() + 1;
 
@@ -134,35 +133,41 @@ function MyTable({ selectedMachineDetails }) {
 
   const momentTime = moment(sheetIssuedTime, "HH:mm");
 
-  const shiftOfBM = [
-    {
-      shiftName: "A",
-      shiftStartTime: "06:00",
-      shiftEndTime: "14:30",
-    },
-    {
-      shiftName: "B",
-      shiftStartTime: "14:15",
-      shiftEndTime: "22:45",
-    },
-    {
-      shiftName: "C",
-      shiftStartTime: "22:45",
-      shiftEndTime: "06:15",
-    },
-  ];
+  useEffect(() => {
+    const getCurrentShiftName = () => {
+      for (let shiftInfo of shiftsOfBM) {
+        if (
+          momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
+          momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
+        )
+          return shiftInfo.shiftName;
+      }
 
-  const getCurrentShiftName = () => {
-    for (let shiftInfo of shiftOfBM) {
-      if (
-        momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
-        momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
-      )
-        return shiftInfo.shiftName;
-    }
+      return "";
+    };
 
-    return null;
-  };
+    setValue("selectedShift", getCurrentShiftName());
+  }, [shiftsOfBM]);
+
+  React.useEffect(() => {
+    const fetchShiftData = async () => {
+      const url = "/getAllShifts";
+
+      try {
+        const res = await axios.get(url, {
+          withCredentials: true,
+          credentials: "include",
+        });
+
+        // console.log("fetch shifts res:", res);
+        setShiftsOfBM(res?.data?.getShifts);
+      } catch (error) {
+        console.log("error:", error);
+      }
+    };
+
+    fetchShiftData();
+  }, []);
 
   return (
     <>
@@ -700,23 +705,26 @@ function MyTable({ selectedMachineDetails }) {
                         </Typography>
                       </FormLabel>
 
-                      <RadioGroup
-                        row
-                        value={watch("selectedShift")}
-                        aria-labelledby="demo-radio-buttons-group-label"
-                        name="radio-buttons-group"
-                      >
-                        {shiftOfBM.map((shiftInfo) => (
-                          <FormControlLabel
-                            value={shiftInfo.shiftName}
-                            control={<Radio color="default" size="small" />}
-                            label={shiftInfo.shiftName}
-                            disabled={
-                              watch("selectedShift") !== shiftInfo.shiftName
-                            }
-                          />
-                        ))}
-                      </RadioGroup>
+                      {watch("selectedShift") && (
+                        <RadioGroup
+                          row
+                          value={watch("selectedShift")}
+                          // value={"B"}
+                          aria-labelledby="demo-radio-buttons-group-label"
+                          name="radio-buttons-group"
+                        >
+                          {shiftsOfBM?.map((shiftInfo) => (
+                            <FormControlLabel
+                              value={shiftInfo.shiftName}
+                              control={<Radio color="default" size="small" />}
+                              label={shiftInfo.shiftName}
+                              disabled={
+                                watch("selectedShift") !== shiftInfo.shiftName
+                              }
+                            />
+                          ))}
+                        </RadioGroup>
+                      )}
                     </FormControl>
                   </Col>
                 </Row>

@@ -8,7 +8,9 @@ const ProblemList = ({ problems, setProblems }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [editedProblem, setEditedProblem] = useState(null);
 
-  const addProblem = () => {
+  const addProblem = (event) => {
+    event.preventDefault();
+
     if (newProblemText.trim() !== "") {
       const newProblem = {
         id: Date.now(),
@@ -20,7 +22,9 @@ const ProblemList = ({ problems, setProblems }) => {
     }
   };
 
-  const updateProblem = () => {
+  const updateProblem = (event) => {
+    event.preventDefault();
+
     if (editedProblem.problem.trim() !== "") {
       const updatedProblems = problems.map((problem) =>
         problem.id === editedProblem.id ? editedProblem : problem
@@ -30,16 +34,20 @@ const ProblemList = ({ problems, setProblems }) => {
     }
   };
 
-  const cancelEdit = () => {
+  const cancelEdit = (event) => {
+    event.preventDefault();
     setEditedProblem(null);
   };
 
-  const cancelAdd = () => {
+  const cancelAdd = (event) => {
+    event.preventDefault();
     setNewProblemText("");
     setIsAdding(false);
   };
 
-  const deleteProblem = (problemId) => {
+  const deleteProblem = (event, problemId) => {
+    event.preventDefault();
+
     const updatedProblems = problems.filter(
       (problem) => problem.id !== problemId
     );
@@ -99,10 +107,23 @@ const ProblemList = ({ problems, setProblems }) => {
               {problem.problem}
             </Col>
             <Col lg={3} md={12} sm={12}  className="border col-auto d-flex gap-1 p-1">
-              <button class="bg-warning text-white border-0" onClick={() => setEditedProblem({ ...problem })}>
+              <button
+              class="bg-warning text-white border-0"
+                onClick={(event) => {
+                  event.preventDefault();
+                  setEditedProblem(problem);
+                }}
+              >
                 Edit
               </button>
-              <button class="bg-danger text-white border-0" onClick={() => deleteProblem(problem.id)}>Delete</button>
+              <button
+              class="bg-danger text-white border-0"
+                onClick={(event) => {
+                  deleteProblem(event, problem.id);
+                }}
+              >
+                Delete
+              </button>
             </Col>
           </Row>
         )

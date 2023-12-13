@@ -19,6 +19,9 @@ import CancelIcon from '@mui/icons-material/Cancel';
 
 import RoutingContext from "../../context/routing/RoutingContext";
 
+import MachineHistoryCard from "../HistoryCard/MachineHistoryCard";
+
+import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   Box,
   Button,
@@ -35,6 +38,8 @@ const RequestSheetMainDashboard = () => {
 
   const context = useContext(RoutingContext);
 
+  const [selectedRow, setSelectedRow] = useState();
+  const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
   const statusColorMap = {
     "Generated": "#D2B203",
     "Assigned": "#008000",
@@ -421,13 +426,19 @@ const RequestSheetMainDashboard = () => {
     },
   ];
 
+  const handleMachineHistoryCardState = () => {
+    setMachineHistoryCardModal(
+      (machineHistoryCardModal) => !machineHistoryCardModal
+    );
+  };
   const requestSheetActions = [
     {
       icon: () => <CreditCardIcon className="text-primary1" />,
       tooltip: "History Card",
       position: "row",
       onClick: (event, selectedRow) => {
-        console.log("----------", selectedRow);
+        setSelectedRow(selectedRow);
+        handleMachineHistoryCardState();
       },
     },
     (row) => ({
@@ -584,6 +595,16 @@ const RequestSheetMainDashboard = () => {
           />
         </Row>
       </Container>
+
+      {machineHistoryCardModal && (
+        <MachineHistoryCard
+          selectedRow={selectedRow}
+          modelProp={{
+            show: machineHistoryCardModal,
+            onHide: () => setMachineHistoryCardModal(false),
+          }}
+        />
+      )}
     </>
   );
 };

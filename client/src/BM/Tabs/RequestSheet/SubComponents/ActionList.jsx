@@ -9,7 +9,9 @@ const ActionList = ({ actions, setActions }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [editedAction, setEditedAction] = useState(null);
 
-  const addAction = () => {
+  const addAction = (event) => {
+    event.preventDefault();
+
     if (newActionText.trim() !== "") {
       const newAction = {
         id: Date.now(),
@@ -23,7 +25,9 @@ const ActionList = ({ actions, setActions }) => {
     }
   };
 
-  const editAction = (actionId, newText) => {
+  const editAction = (event, actionId, newText) => {
+    event.preventDefault();
+
     const updatedActions = actions.map((action) => {
       if (action.id === actionId) {
         return { ...action, action: newText };
@@ -34,16 +38,21 @@ const ActionList = ({ actions, setActions }) => {
     setEditedAction(null);
   };
 
-  const cancelEdit = () => {
+  const cancelEdit = (event) => {
+    event.preventDefault();
     setEditedAction(null);
   };
 
-  const deleteAction = (actionId) => {
+  const deleteAction = (event, actionId) => {
+    event.preventDefault();
+
     const updatedActions = actions.filter((action) => action.id !== actionId);
     setActions(updatedActions);
   };
 
-  const cancelAdd = () => {
+  const cancelAdd = (event) => {
+    event.preventDefault();
+
     setNewActionText("");
     setNewActionStatus("NG");
     setIsAdding(false);
@@ -136,7 +145,10 @@ const ActionList = ({ actions, setActions }) => {
             {editedAction && editedAction.id === action.id ? (
               <>
                 <button
-                   class="bg-info text-white border-0" onClick={() => editAction(action.id, editedAction.action)}
+                class="bg-info text-white border-0"
+                  onClick={(event) => {
+                    editAction(event, action.id, editedAction.action);
+                  }}
                 >
                   Update
                 </button>
@@ -144,10 +156,23 @@ const ActionList = ({ actions, setActions }) => {
               </>
             ) : (
               <>
-                <button class="bg-warning text-white border-0" onClick={() => setEditedAction({ ...action })}>
+                <button
+                class="bg-warning text-white border-0"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setEditedAction(action);
+                  }}
+                >
                   Edit
                 </button>
-                <button class="bg-danger text-white border-0" onClick={() => deleteAction(action.id)}>Delete</button>
+                <button
+                class="bg-danger text-white border-0"
+                  onClick={(event) => {
+                    deleteAction(event, action.id);
+                  }}
+                >
+                  Delete
+                </button>
               </>
             )}
           </Col>

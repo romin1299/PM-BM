@@ -2,19 +2,23 @@ import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../../modules/PageModules";
 
+const initialState = {
+  id: "",
+  partNo: "",
+  partName: "",
+  makerName: "",
+  quantity: "",
+  cost: "",
+};
+
 const PartList = ({ parts, setParts }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [editedPart, setEditedPart] = useState(null);
-  const [newPart, setNewPart] = useState({
-    id: "",
-    partNo: "",
-    partName: "",
-    makerName: "",
-    quantity: "",
-    cost: "",
-  });
+  const [newPart, setNewPart] = useState(initialState);
 
-  const addPart = () => {
+  const addPart = (event) => {
+    event.preventDefault();
+
     if (
       newPart.partNo &&
       newPart.partName &&
@@ -32,14 +36,7 @@ const PartList = ({ parts, setParts }) => {
       newPart.id = maxId + 1;
 
       setParts([...parts, newPart]);
-      setNewPart({
-        id: "",
-        partNo: "",
-        partName: "",
-        makerName: "",
-        quantity: "",
-        cost: "",
-      });
+      setNewPart(initialState);
       setIsAdding(false);
     }
   };
@@ -48,7 +45,9 @@ const PartList = ({ parts, setParts }) => {
     setEditedPart({ ...part });
   };
 
-  const updatePart = () => {
+  const updatePart = (event) => {
+    event.preventDefault();
+
     if (
       editedPart.partNo &&
       editedPart.partName &&
@@ -64,11 +63,17 @@ const PartList = ({ parts, setParts }) => {
     }
   };
 
-  const cancelEdit = () => {
+  const cancelEdit = (event) => {
+    event.preventDefault();
+
+    setNewPart(initialState);
     setEditedPart(null);
+    setIsAdding(false);
   };
 
-  const deletePart = (partId) => {
+  const deletePart = (event, partId) => {
+    event.preventDefault();
+
     const updatedParts = parts.filter((part) => part.id !== partId);
     setParts(updatedParts);
   };
@@ -184,8 +189,22 @@ const PartList = ({ parts, setParts }) => {
               {part.cost}
             </Col>
             <Col lg={2} md={2} sm={2} className="border d-flex align-items-center gap-1 p-1">
-              <button onClick={() => editPart(part)}>Edit</button>
-              <button onClick={() => deletePart(part.id)}>Delete</button>
+              <button
+              class="bg-warning text-white border-0"
+                onClick={(event) => {
+                  editPart(event, part);
+                }}
+              >
+                Edit
+              </button>
+              <button
+              class="bg-danger text-white border-0"
+                onClick={(event) => {
+                  deletePart(event, part.id);
+                }}
+              >
+                Delete
+              </button>
             </Col>
           </Row>
         )
@@ -246,9 +265,9 @@ const PartList = ({ parts, setParts }) => {
               onChange={(e) => setNewPart({ ...newPart, cost: e.target.value })}
             />
           </Col>
-          <Col  lg={2} md={2} sm={2} className="border d-flex align-items-center gap-1 p-1">
-            <button  class="bg-success text-white border-0" onClick={addPart}>Add</button>
-            <button class="bg-danger text-white border-0" onClick={() => setIsAdding(false)}>Cancel</button>
+          <Col lg={2} md={2} sm={2} className="border d-flex align-items-center gap-1 p-1">
+            <button class="bg-success text-white border-0" onClick={addPart}>Add</button>
+            <button class="bg-danger text-white border-0" onClick={cancelEdit}>Cancel</button>
           </Col>
         </Row>
       ) : (

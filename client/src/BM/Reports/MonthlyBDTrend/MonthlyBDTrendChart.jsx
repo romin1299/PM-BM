@@ -15,6 +15,7 @@ import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 ChartJS.register(
   CategoryScale,
@@ -123,9 +124,9 @@ const MonthlyBDTrendChart = ({
         withCredentials: true,
         credentials: "include",
       });
-      console.log("Monthly hourly res:", res);
+      // console.log("Monthly hourly res:", res);
 
-      setData(res.data?.bdTrendData);
+      setData(res?.data?.bdTrendData);
     } catch (error) {
       console.log("error:", error);
     }
@@ -154,16 +155,12 @@ const MonthlyBDTrendChart = ({
 
   return (
     <Box className="container-fluid cell p-3 mt-1">
-      <Row>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-          sx={{ fontWeight: "500" }}
-        >
-          Electronics: Monthly Breakdown Trend
-        </Typography>
-      </Row>
+      <ChartTitleBar
+        title="Monthly Breakdown Trend"
+        // titleProps={{
+        //   sx: { fontWeight: "500" },
+        // }}
+      />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
         {data?.length <= 0 ? (
