@@ -7942,7 +7942,7 @@ router.get(
           },
         },
           },
-        },
+        
       ]);
 
       const mttrData = await RequestSheetOfBM.aggregate([
@@ -7996,7 +7996,7 @@ router.get(
           },
         },
       ]);
-      ]);
+     
 
       const mtbfData = await RequestSheetOfBM.aggregate([
         {
@@ -8153,11 +8153,12 @@ router.get(
         machineHistoryData: combinedData,
         bdtrendData: bdTrendData[0].hourlyArray,
       });
+    
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
     }
-  }
-);
+  
+  });
 
 // router.get("/getHistoryCard/:machineId",filterMiddleware, async (req, res, next) => {
 authenticate,
