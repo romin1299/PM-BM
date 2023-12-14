@@ -1034,7 +1034,9 @@ router.patch(
 
       req.queryPipeline = [
         {
-          _id: mongoose.Types.ObjectId(req.query._id),
+          $match: {
+            _id: mongoose.Types.ObjectId(req.query._id),
+          },
         },
       ];
 
@@ -9920,7 +9922,7 @@ router.patch(
           });
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       res.status(500).json({ message: error?.message, error });
     }
   }

@@ -47,15 +47,21 @@ const RequestSheetMainDashboard = () => {
   const [selectedRow, setSelectedRow] = useState();
   const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
   const statusColorMap = {
-    Generated: "#D2B203",
-    Assigned: "#008000",
-    "Work Order Open": "#008AB9",
+    "Generated": "#9bcbdb",
+    "Assigned": "#ffe031",
+    "Work Order Open": "#70b332",
     "Work Order Pending": "#F59F00",
-    "Work Order Closed": "#B10202",
-    "Fill Sheet": "#CE1672",
-    "Under MTD TL approval": "#70099C",
-    "Under MTD HOSS approval": "#00BBBE",
-    "Under MTD HOS approval": "#63CA00",
+    "Work Order Closed": "#ca2626",
+    "Fill Sheet": "#89e9eb",
+    "Under MTD TL Approval": "#c196d4",
+    "Under MTD HOSS Approval": "#c196d4",
+    "Under PRD TL Approval": "#c196d4",
+    "Under PRD HOS Approval": "#c196d4",
+    "Under MTD HOS Approval": "#c196d4",
+    "Under MTD HOD Approval": "#c196d4",
+    "Under PRD HOD Approval": "#c196d4",
+    "Completed": "#3fad3f",
+    "Rejected": "#ff3232",
   };
 
   const statusArray = [
@@ -290,11 +296,11 @@ const RequestSheetMainDashboard = () => {
       title: "R.S Status",
       field: "requestSheetStatus",
       editable: false,
-      // render: (rowData) => (
-      //   <button className="btn" style={{ background: statusColorMap[rowData.requestSheetStatus], fontSize: "12px", cursor:"auto"}}>
-      //     rowData.requestSheetStatus
-      //   </button>
-      // ),
+      render: (rowData) => (
+        <button className="btn" style={{ background: statusColorMap[rowData.requestSheetStatus], fontSize: "12px", cursor:"auto"}}>
+          {rowData.requestSheetStatus}
+        </button>
+      ),
     },
     {
       title: "Assign",
@@ -335,6 +341,7 @@ const RequestSheetMainDashboard = () => {
       field: "finalActivity",
       editable: conditionalBasedEditableFunctionForMTD,
       width: "20%",
+      validate: rowData => rowData.finalActivity !== '',
     },
     // {
     //   title: "MTD Quality Check",
@@ -377,6 +384,7 @@ const RequestSheetMainDashboard = () => {
           />
         </LocalizationProvider>
       ),
+      validate: rowData => rowData.handOverTime !== '',
       width: "10%",
     },
     {
@@ -447,6 +455,7 @@ const RequestSheetMainDashboard = () => {
           })}
         </select>
       ),
+      validate: rowData => rowData.work_order_status !== '',
     },
   ];
 

@@ -27,7 +27,7 @@ export default function SectionsDropdown({ sectionId, setSectionId }) {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const fetchValues = async () => {
-    const url = `${baseUrlForFiltering}/all-filtration/byDefault`;
+    const url = `${baseUrlForFiltering}/byDefault`;
     try {
       const res = await axios.get(url, {
         withCredentials: true,
