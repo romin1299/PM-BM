@@ -79,8 +79,7 @@ const Admin = ({ userData }) => {
         </div> */}
         <div>
           <SidebarHeader>
-            <div className="logotext">
-              {/* small and big change using menucollapse state */}
+            {/* <div className="logotext">
               <p className="d-flex align-items-center justify-content-center m-2 sticky-top bg-white">
                 {menuCollapse ? (
                   <img
@@ -98,7 +97,7 @@ const Admin = ({ userData }) => {
                   />
                 )}
               </p>
-            </div>
+            </div> */}
             <div
               className="closemenu"
               onClick={onClickMenuIcon}
@@ -140,8 +139,6 @@ const Admin = ({ userData }) => {
             Admin Dashboard
           </Menuitem>
         </Menu>
-      </SidebarContent>
-      <SidebarFooter fixed="bottom">
         <Menu iconShape="square">
           <MenuItem
             className="text"
@@ -166,7 +163,33 @@ const Admin = ({ userData }) => {
             Logout{" "}
           </MenuItem>
         </Menu>
-      </SidebarFooter>
+      </SidebarContent>
+      {/* <SidebarFooter fixed="bottom">
+        <Menu iconShape="square">
+          <MenuItem
+            className="text"
+            icon={
+              <LogoutIcon
+                className="text-white"
+                style={{ transform: "rotate(180deg)" }}
+              />
+            }
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Logout"
+            onClick={() =>
+              Logout(userData).then((res) => {
+                if (res) {
+                  loggedOut();
+                }
+              })
+            }
+          >
+            {" "}
+            Logout{" "}
+          </MenuItem>
+        </Menu>
+      </SidebarFooter> */}
     </ProSidebar>
   );
 };

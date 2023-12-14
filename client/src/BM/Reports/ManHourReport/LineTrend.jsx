@@ -208,6 +208,7 @@ const LineTrend = ({
       <ChartTitleBar title="Line Trend" />
 
       <Chart options={options} data={data} />
+      {/* <button onClick={dummyAPI}>For Test</button> */}
     </Box>
     // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>
     //   <Typography variant="h5" component="h4">

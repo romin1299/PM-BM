@@ -14,6 +14,7 @@ import { blueGrey } from "@mui/material/colors";
 import MuiDeleteDialog from "./MuiDeleteButtonAndDialog";
 
 import "./ManageShifts.scss";
+import ChartTitleBar from "../../Reports/Common/ChartTitleBar";
 
 const initialState = {
   shiftName: "",
@@ -21,14 +22,14 @@ const initialState = {
   shiftEndTime: "",
 };
 
-const shiftOfBM = [
-  { _id: 1, shiftName: "A", shiftStartTime: "06:00", shiftEndTime: "14:30" },
-  { _id: 2, shiftName: "B", shiftStartTime: "14:15", shiftEndTime: "22:45" },
-  { _id: 3, shiftName: "C", shiftStartTime: "22:45", shiftEndTime: "06:15" },
-];
+// const shiftOfBM = [
+//   { _id: 1, shiftName: "A", shiftStartTime: "06:00", shiftEndTime: "14:30" },
+//   { _id: 2, shiftName: "B", shiftStartTime: "14:15", shiftEndTime: "22:45" },
+//   { _id: 3, shiftName: "C", shiftStartTime: "22:45", shiftEndTime: "06:15" },
+// ];
 
 const CustomManageShifts = () => {
-  const [shifts, setShifts] = useState(shiftOfBM);
+  const [shifts, setShifts] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editedShift, setEditedShift] = useState(null);
   const [newShift, setNewShift] = useState({});
@@ -189,9 +190,11 @@ const CustomManageShifts = () => {
 
   return (
     <div className="cell p-3">
-      <Typography variant="h4" fontSize={"1.5rem"} fontWeight={500} mb={1}>
+      <ChartTitleBar disableDivider title="Manage Shifts" mb={1}/>
+
+      {/* <Typography variant="h4" fontSize={"1.5rem"} fontWeight={500} mb={1}>
         Manage Shifts
-      </Typography>
+      </Typography> */}
 
       <Paper variant="outlined" sx={{}}>
         <Box display="flex" justifyContent="end" p={1}>
@@ -301,7 +304,7 @@ const CustomManageShifts = () => {
           </table>
         </form>
 
-        {shifts.length <= 0 && !isAdding && (
+        {shifts?.length <= 0 && !isAdding && (
           <Box
             className=" h-100"
             display="flex"

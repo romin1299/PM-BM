@@ -6,8 +6,9 @@
     /* display: flex; */
     justify-content: center;
     text-align: center;
-    min-height: 80vh;
-    max-height: 80vh;
+    /* min-height: 80vh;
+    max-height: 80vh; */
+    /* height: 90vh; */
     padding: 5rem 2rem 2rem 2rem;
     flex-direction: column;
     margin-top: 2rem;
@@ -18,8 +19,9 @@
     background-color: white;
     margin-top: 2rem;
     display: flex;
-    min-height: 80vh;
-    max-height: 80vh;
+    /* min-height: 80vh;
+    max-height: 80vh; */
+    /* height: 90vh; */
     justify-content: center;
     padding: 2.55rem 2rem;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px !important;

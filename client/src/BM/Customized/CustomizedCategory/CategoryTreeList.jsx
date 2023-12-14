@@ -20,6 +20,7 @@ import {
 import { RenderInputRow } from "./ManageCategories";
 import MuiDeleteDialog from "./MuiDeleteDialog";
 import { Row, Col } from "react-bootstrap";
+import ChartTitleBar from "../../Reports/Common/ChartTitleBar";
 
 const CategoryTreeList = ({
   categories,
@@ -34,9 +35,9 @@ const CategoryTreeList = ({
   const inputRef = useRef(null);
 
   const toggleCategory = (categoryId) => {
-    if (expandedCategories.includes(categoryId)) {
+    if (expandedCategories?.includes(categoryId)) {
       setExpandedCategories(
-        expandedCategories.filter((id) => id !== categoryId)
+        expandedCategories?.filter((id) => id !== categoryId)
       );
     } else {
       setExpandedCategories([categoryId]);
@@ -65,13 +66,13 @@ const CategoryTreeList = ({
       "& .MuiListItemText-primary":
         parentCategoryId < 0
           ? {
-            // color: "#4f4f4f",
-            fontWeight: "600",
-          }
+              // color: "#4f4f4f",
+              fontWeight: "600",
+            }
           : {
-            color: "#555555",
-            fontSize: "15px",
-          },
+              color: "#555555",
+              fontSize: "15px",
+            },
     };
 
     return (
@@ -100,7 +101,7 @@ const CategoryTreeList = ({
             {category.subCategories?.length > 0 ? (
               // If current category has subcategories then expand icons will be shown
               <IconButton style={{ marginRight: 5 }} size="small">
-                {expandedCategories.includes(category._id) ? (
+                {expandedCategories?.includes(category._id) ? (
                   <ExpandLessIcon fontSize="inherit" />
                 ) : (
                   <ExpandMoreIcon fontSize="inherit" />
@@ -153,7 +154,7 @@ const CategoryTreeList = ({
           </ListItem>
         )}
 
-        {parentCategoryId < 0 && expandedCategories.includes(category._id) && (
+        {parentCategoryId < 0 && expandedCategories?.includes(category._id) && (
           <List disablePadding>
             {category.subCategories?.map((childCategory) => (
               <RenderCategory
@@ -179,7 +180,8 @@ const CategoryTreeList = ({
 
   return (
     <Box className="cell p-3">
-      <h4>Categories</h4>
+      {/* <h4>Categories</h4> */}
+      <ChartTitleBar title="Categories" />
 
       <Stack
       // justifyContent={"end"}
@@ -188,14 +190,14 @@ const CategoryTreeList = ({
       // spacing={2}
       >
         <Row>
-          <Col >
+          <Col>
             <Button
               variant="contained"
               size="small"
               sx={{
                 color: "#ffffff",
                 background: "#E47E07",
-                "&:hover": { borderColor: "#E47E07",background: "#BC6806" },
+                "&:hover": { borderColor: "#E47E07", background: "#BC6806" },
               }}
               endIcon={<AddIcon />}
               onClick={() => {
@@ -209,19 +211,21 @@ const CategoryTreeList = ({
             </Button>
           </Col>
         </Row>
-
       </Stack>
 
       <List sx={{ pb: 0 }}>
         {/* map all the categories fetched from the server */}
-        {categories.length > 0 ? (
-          categories.map((category) => (
+        {categories?.length > 0 ? (
+          categories?.map((category) => (
             // for the first iteration of the mapping the given category will always be parent.
             // parentCategoryId = -1 means that there does not exist parent for this category.
             <RenderCategory category={category} parentCategoryId={-1} />
           ))
         ) : (
-          <div className="alert alert-secondary mb-2 text-center text-danger" role="alert">
+          <div
+            className="alert alert-secondary mb-2 text-center text-danger"
+            role="alert"
+          >
             No categories data to show!
           </div>
         )}

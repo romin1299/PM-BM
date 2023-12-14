@@ -98,26 +98,25 @@ const Section = ({ userData, userDepartment }) => {
         </div> */}
           <div>
             <SidebarHeader>
-              <div className="logotext">
-                {/* small and big change using menucollapse state */}
-                <p className="d-flex align-items-center justify-content-center m-2 sticky-top bg-white">
-                  {menuCollapse ? (
-                    <img
-                      src={denso_logo}
-                      alt=""
-                      style={{ width: "100%", padding: "5px" }}
-                      className="bg-white"
-                    />
-                  ) : (
-                    <img
-                      src={denso_logo}
-                      alt=""
-                      style={{ width: "50%" }}
-                      className="bg-white"
-                    />
-                  )}
-                </p>
-              </div>
+              {/* <div className="logotext">
+              <p className="d-flex align-items-center justify-content-center m-2 sticky-top bg-white">
+                {menuCollapse ? (
+                  <img
+                    src={denso_logo}
+                    alt=""
+                    style={{ width: "100%", padding: "5px" }}
+                    className="bg-white"
+                  />
+                ) : (
+                  <img
+                    src={denso_logo}
+                    alt=""
+                    style={{ width: "50%" }}
+                    className="bg-white"
+                  />
+                )}
+              </p>
+            </div> */}
               <div
                 className="closemenu"
                 onClick={onClickMenuIcon}
@@ -559,8 +558,32 @@ const Section = ({ userData, userDepartment }) => {
               Spare Report
             </Menuitem>
           </Menu>
+          <Menu iconShape="square">
+          <MenuItem
+            className="text"
+            icon={
+              <LogoutIcon
+                className="text-white"
+                style={{ transform: "rotate(180deg)" }}
+              />
+            }
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Logout"
+            onClick={() =>
+              Logout(userData).then((res) => {
+                if (res) {
+                  loggedOut();
+                }
+              })
+            }
+          >
+            {" "}
+            Logout{" "}
+          </MenuItem>
+        </Menu>
         </SidebarContent>
-        <SidebarFooter fixed="bottom">
+        {/* <SidebarFooter fixed="bottom">
           <Menu iconShape="square">
             <MenuItem
               className="text"
@@ -585,7 +608,7 @@ const Section = ({ userData, userDepartment }) => {
               Logout{" "}
             </MenuItem>
           </Menu>
-        </SidebarFooter>
+        </SidebarFooter> */}
       </ProSidebar>
     </>
   );

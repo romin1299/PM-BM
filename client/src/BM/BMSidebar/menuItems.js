@@ -23,7 +23,17 @@ import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
-import AnalyticsIcon from '@mui/icons-material/Analytics';
+import AnalyticsIcon from "@mui/icons-material/Analytics";
+
+const allusers = [
+  "Admin",
+  "Plant-Admin",
+  "Section-Admin",
+  "TL/HOSS",
+  "Operator",
+];
+
+const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
 
 export const menuItems = [
   {
@@ -31,96 +41,97 @@ export const menuItems = [
     icon: <DashboardIcon className="text-white" />,
     subItems: [
       {
-        title: "Section Dashboard",
+        title: "Plant Dashboard",
         route: "/bm",
-        allowedRoles: ["TL/HOSS", "Plant-Admin"],
-      },
-      {
-        title: "Admin",
-        route: "/bm/requestListDashboard",
-        allowedRoles: ["Admin"],
-      },
-      {
-        title: "Request Sheets",
-        route: "/bm/requestListDashboard",
-        allowedRoles: ["Admin", "TL/HOSS", "Plant-Admin", "Operator"],
+        allowedRoles: allusers,
       },
       {
         title: "Summary",
         route: "/bm/summeryDashboard",
-        allowedRoles: ["Admin", "TL/HOSS", "Plant-Admin", "Operator"],
+        allowedRoles: allusers,
       },
+      {
+        title: "Request Sheets",
+        route: "/bm/requestListDashboard",
+        allowedRoles: reportAccess,
+      },
+
+      // Only Admin
+      // {
+      //   title: "Admin Dashboard",
+      //   route: "/bm/adminDashboard", // admin only
+      //   allowedRoles: ["Admin"],
+      // },
+      // {
+      //   title: "Admin Creation",
+      //   route: "/bm/admin-creation-dashboard", // admin only
+      //   allowedRoles: ["Admin"],
+      // },
+
+      // {
+      //   title: "Operator Dashboard",
+      //   route: "/bm/operator-dashboard", // Plant-Admin, Section-Admin
+      //   allowedRoles: ["Plant-Admin", "Section-Admin"],
+      // },
     ],
-    allowedDepartments: ["MTD", "PRD"],
-  },
-  {
-    title: "Approval",
-    icon: <AddTaskIcon className="text-white" />,
-    route: "/bm/requestListDashboard",
-    allowedRoles: ["TL/HOSS", "Plant-Admin", "Operator"],
-  },
-  {
-    title: "Customized Dashboard",
-    icon: <ControlPointIcon className="text-white" />,
-    route: "/bm/customizedDashboard",
-    allowedRoles: ["TL/HOSS", "Plant-Admin", "Operator"],
+    // allowedDepartments: ["MTD", "PRD"],
   },
   {
     title: "Approval Dashboard",
     icon: <FactCheckIcon className="text-white" />,
     route: "/bm/approval",
-    allowedRoles: ["TL/HOSS", "Plant-Admin","Section-Admin"],
+    allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
   },
   {
     title: "Approval Logs",
     icon: <AssignmentTurnedInIcon className="text-white" />,
     route: "/bm/approvalLogs",
-    allowedRoles: ["TL/HOSS", "Plant-Admin","Section-Admin", "Operator"],
+    allowedRoles: reportAccess,
   },
+  {
+    title: "Customized Dashboard",
+    icon: <ControlPointIcon className="text-white" />,
+    route: "/bm/customizedDashboard",
+    allowedRoles: ["Admin", "Plant-Admin", "Section-Admin"],
+  },
+
+  // ------- Reports Dashboards -------
   {
     title: "Reports",
     icon: <AnalyticsIcon className="text-white" />,
-    allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
+    allowedRoles: reportAccess,
     subItems: [
       {
         title: "Production Line Wise",
         route: "/bm/report/productionLineWiseReport",
-        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
       {
         title: "Man Hour Report",
         route: "/bm/report/man-hour",
-        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
       {
         title: "Daily BD Report",
         route: "/bm/report/daily-breakdown-trend",
-        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
       {
         title: "Monthly BD Report",
         route: "/bm/report/monthly-breakdown-trend",
-        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
       {
         title: "Line Contibution BD Report",
         route: "/bm/report/line-contribution-breakdown-trend",
-        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
       {
         title: "MTTR Report",
         route: "/bm/report/mttr",
-        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
       {
         title: "MTBF Report",
         route: "/bm/report/mtbf",
-        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
       {
         title: "TM MTTR Skill",
         route: "/bm/report/tm-mtr",
-        allowedRoles: ["TL/HOSS", "Plant-Admin", "operator"],
       },
     ],
   },
@@ -128,8 +139,10 @@ export const menuItems = [
     title: "Profile",
     icon: <AccountCircleIcon className="text-white" />,
     route: "/bm/profile",
-    allowedRoles: ["Admin", "Plant-Admin", "Operator", "TL/HOSS"],
+    allowedRoles: allusers,
   },
+  
+  
   // {
   //   title: "Creation",
   //   icon: <FaThList className="text-white" />,
@@ -152,6 +165,7 @@ export const menuItems = [
   //   ],
   //   allowedDepartments: ["MTD"],
   // },
+
   // {
   //   title: "Approval",
   //   icon: <AddTaskIcon className="text-white" />,

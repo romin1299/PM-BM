@@ -2,7 +2,9 @@ import { Divider, Typography } from "@mui/material";
 import React, { Children } from "react";
 import { Col, Row } from "react-bootstrap";
 
-const ChartTitleBar = ({ title, Toolbar, titleProps }) => {
+const ChartTitleBar = (props) => {
+  const { title, Toolbar, titleProps, disableDivider, ...restProps } = props;
+
   return (
     <>
       <Row
@@ -18,6 +20,7 @@ const ChartTitleBar = ({ title, Toolbar, titleProps }) => {
             fontSize={20}
             fontWeight={400}
             {...titleProps}
+            {...restProps}
           >
             {title}
           </Typography>
@@ -26,7 +29,7 @@ const ChartTitleBar = ({ title, Toolbar, titleProps }) => {
         {Toolbar && Toolbar}
       </Row>
 
-      <Divider sx={{ mb: 2, borderColor: "black" }} />
+      {!disableDivider && <Divider sx={{ mb: 2, borderColor: "black" }} />}
     </>
   );
 };

@@ -30,6 +30,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import BMTitlebar from "../Component/BMTitlebar";
+import { MaterialTableOptions } from "../Utils/TableUtils/MaterialTableProps";
 
 import {
   initialState,
@@ -45,15 +47,21 @@ const RequestSheetMainDashboard = () => {
   const [selectedRow, setSelectedRow] = useState();
   const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
   const statusColorMap = {
-    Generated: "#D2B203",
-    Assigned: "#008000",
-    "Work Order Open": "#008AB9",
+    "Generated": "#9bcbdb",
+    "Assigned": "#ffe031",
+    "Work Order Open": "#70b332",
     "Work Order Pending": "#F59F00",
-    "Work Order Closed": "#B10202",
-    "Fill Sheet": "#CE1672",
-    "Under MTD TL approval": "#70099C",
-    "Under MTD HOSS approval": "#00BBBE",
-    "Under MTD HOS approval": "#63CA00",
+    "Work Order Closed": "#ca2626",
+    "Fill Sheet": "#89e9eb",
+    "Under MTD TL Approval": "#c196d4",
+    "Under MTD HOSS Approval": "#c196d4",
+    "Under PRD TL Approval": "#c196d4",
+    "Under PRD HOS Approval": "#c196d4",
+    "Under MTD HOS Approval": "#c196d4",
+    "Under MTD HOD Approval": "#c196d4",
+    "Under PRD HOD Approval": "#c196d4",
+    "Completed": "#3fad3f",
+    "Rejected": "#ff3232",
   };
 
   const statusArray = [
@@ -288,11 +296,11 @@ const RequestSheetMainDashboard = () => {
       title: "R.S Status",
       field: "requestSheetStatus",
       editable: false,
-      // render: (rowData) => (
-      //   <button className="btn" style={{ background: statusColorMap[rowData.requestSheetStatus], fontSize: "12px", cursor:"auto"}}>
-      //     rowData.requestSheetStatus
-      //   </button>
-      // ),
+      render: (rowData) => (
+        <button className="btn" style={{ background: statusColorMap[rowData.requestSheetStatus], fontSize: "12px", cursor:"auto"}}>
+          {rowData.requestSheetStatus}
+        </button>
+      ),
     },
     {
       title: "Assign",
@@ -333,6 +341,7 @@ const RequestSheetMainDashboard = () => {
       field: "finalActivity",
       editable: conditionalBasedEditableFunctionForMTD,
       width: "20%",
+      validate: rowData => rowData.finalActivity !== '',
     },
     // {
     //   title: "MTD Quality Check",
@@ -375,7 +384,13 @@ const RequestSheetMainDashboard = () => {
           />
         </LocalizationProvider>
       ),
+      validate: rowData => rowData.handOverTime !== '',
       width: "10%",
+    },
+    {
+      title: "Loss Time",
+      field: "lossTime",
+      editable: false,
     },
     // {
     //   title: "PRD Quality Check",
@@ -440,6 +455,7 @@ const RequestSheetMainDashboard = () => {
           })}
         </select>
       ),
+      validate: rowData => rowData.work_order_status !== '',
     },
   ];
 
@@ -494,16 +510,69 @@ const RequestSheetMainDashboard = () => {
   return (
     <>
       <Container fluid>
-        <Row>
+        <Row className="d-flex align-items-center justify-content-center cell mt-3 p-2 gap-2 g-0">
           <Col>
-            <h4>Request-Sheet Work Order</h4>
+            <Typography
+              noWrap
+              variant="h4"
+              component="h4"
+              fontSize={25}
+              fontWeight={600}
+              sx={{ mr: 3 }}
+            >
+              Request-Sheet Work Order
+            </Typography>
+          </Col>
+          <Col>
+            <Row>
+              <Col>
+                <Box className="cell rounded-0 p-1 m-0 bg-button text-white">
+                  <div className="d-flex align-items-center">
+                    <InsertDriveFileIcon /> &nbsp;&nbsp;{" "}
+                    <p>
+                      Total Request: &nbsp;
+                      {
+                        reduceStateForRequestSheetData?.counters
+                          ?.total_request_sheet_count
+                      }
+                    </p>
+                  </div>
+                </Box>
+              </Col>
+              <Col>
+                <Box className="cell p-1 m-0 rounded-0 bg-dang text-white">
+                  <div className="d-flex align-items-center">
+                    <ArrowCircleRightIcon /> &nbsp;&nbsp;{" "}
+                    <p>
+                      Open Request:{" "}
+                      {
+                        reduceStateForRequestSheetData?.counters
+                          ?.open_request_sheet_count
+                      }
+                    </p>
+                  </div>
+                </Box>
+              </Col>
+              <Col>
+                <Box className="cell p-1 m-0 rounded-0 bg-succ text-white">
+                  <div className="d-flex align-items-center">
+                    <CancelIcon /> &nbsp;&nbsp;{" "}
+                    <p>
+                      Closed Request:{" "}
+                      {
+                        reduceStateForRequestSheetData?.counters
+                          ?.closed_request_sheet_count
+                      }
+                    </p>
+                  </div>
+                </Box>
+              </Col>
+            </Row>
           </Col>
         </Row>
-        {/* <Row>
-          <NewRequestSheetRegistration />
-        </Row> */}
-        <Row className="d-flex align-items-center justify-content-center p-2">
-          <Col className="d-flex align-items-center justify-content-center">
+
+        <Row className="justify-content-end mt-3">
+          <Col className="col-auto">
             <button
               onClick={handleGenerateBMNavigation}
               className={
@@ -511,133 +580,60 @@ const RequestSheetMainDashboard = () => {
                   ? `btn bg-button d-inline`
                   : "d-none"
               }
-              style={{ marginTop: "1rem" }}
             >
               <AddCircleIcon /> &nbsp; Generate New Request-Sheet
             </button>
           </Col>
-
-          <Col>
-            <Box className="cell rounded-0 p-3 bg-button text-white">
-              <div className="d-flex align-items-center">
-                <InsertDriveFileIcon /> &nbsp;&nbsp;{" "}
-                <p>
-                  Total Request: &nbsp;
-                  {
-                    reduceStateForRequestSheetData?.counters
-                      ?.total_request_sheet_count
-                  }
-                </p>
-              </div>
-            </Box>
-          </Col>
-          <Col>
-            <Box className="cell p-3 rounded-0 bg-dang text-white">
-              <div className="d-flex align-items-center">
-                <ArrowCircleRightIcon /> &nbsp;&nbsp;{" "}
-                <p>
-                  Open Request:{" "}
-                  {
-                    reduceStateForRequestSheetData?.counters
-                      ?.open_request_sheet_count
-                  }
-                </p>
-              </div>
-            </Box>
-          </Col>
-          <Col>
-            <Box className="cell p-3 rounded-0 bg-succ text-white">
-              <div className="d-flex align-items-center">
-                <CancelIcon /> &nbsp;&nbsp;{" "}
-                <p>
-                  Closed Request:{" "}
-                  {
-                    reduceStateForRequestSheetData?.counters
-                      ?.closed_request_sheet_count
-                  }
-                </p>
-              </div>
-            </Box>
-          </Col>
         </Row>
 
-        <Row className="p-1">
-          <MaterialTable
-            localization={{
-              header: {
-                actions: "Actions",
-              },
-              // toolbar: {
-              //   exportCSVName: "Export some Excel format",
-              //   exportPDFName: "Export as pdf!!"
-              // }
-            }}
-            actions={requestSheetActions}
-            icons={tableIcons}
-            columns={requestSheetHeader}
-            data={reduceStateForRequestSheetData?.requestSheetData}
-            title={filtration}
-            // tableRef={this.tableRef.current.onQueryChange()}
+        {/* <Row>
+          <NewRequestSheetRegistration />
+        </Row> */}
 
-            editable={{
-              // onRowAdd: (newRow) =>
-              //   new Promise((resolve, reject) => {
-              //     setTimeout(() => {
-              //       resolve();
-              //     }, 500);
-              //     //refreshPage();
-              //   }),
+        <Row>
+          <Col>
+            <MaterialTable
+              localization={{
+                header: {
+                  actions: "Actions",
+                },
+                // toolbar: {
+                //   exportCSVName: "Export some Excel format",
+                //   exportPDFName: "Export as pdf!!"
+                // }
+              }}
+              actions={requestSheetActions}
+              icons={tableIcons}
+              columns={requestSheetHeader}
+              data={reduceStateForRequestSheetData?.requestSheetData}
+              title={filtration}
+              // tableRef={this.tableRef.current.onQueryChange()}
 
-              onRowDelete: (selectedRow) =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
+              editable={{
+                // onRowAdd: (newRow) =>
+                //   new Promise((resolve, reject) => {
+                //     setTimeout(() => {
+                //       resolve();
+                //     }, 500);
+                //     //refreshPage();
+                //   }),
+
+                onRowDelete: (selectedRow) =>
+                  new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      resolve();
+                    }, 500);
+                  }),
+
+                onRowUpdate: (updatedRow, oldRow) =>
+                  new Promise(async (resolve, reject) => {
+                    await updateRequestSheet(updatedRow);
                     resolve();
-                  }, 500);
-                }),
-
-              onRowUpdate: (updatedRow, oldRow) =>
-                new Promise(async (resolve, reject) => {
-                  await updateRequestSheet(updatedRow);
-                  resolve();
-                }),
-            }}
-            options={{
-              showTitle: true,
-              paging: false,
-              sorting: true,
-              search: true,
-              filtering: false,
-              exportButton: true,
-              exportAllData: true,
-              draggable: false,
-              actionsColumnIndex: -1,
-              pageSize: 10,
-              pageSizeOptions: false,
-              paginationType: "stepped",
-              addRowPosition: "first",
-              headerStyle: {
-                position: "sticky",
-                top: "0",
-                fontWeight: "bold",
-              },
-              maxBodyHeight: "70vh",
-              rowStyle: {
-                // fontStyle:'bold'
-
-                boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                // color:"rgba(255,255,255,0.8)",
-                borderRadius: "5px",
-                border: "1px solid rgba(255,255,255)",
-                WebkitBackdropFilter: "blur( 2px )",
-                background: "rgba(255,255,255,0.1)",
-                backdropFilter: "blur(5px)",
-              },
-              headerStyle: {
-                fontSize: "14px",
-                fontWeight: "bold",
-              },
-            }}
-          />
+                  }),
+              }}
+              options={{ ...MaterialTableOptions, showTitle: true }}
+            />
+          </Col>
         </Row>
       </Container>
 

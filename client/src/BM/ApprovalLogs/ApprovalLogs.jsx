@@ -6,6 +6,8 @@ import {
   initialState,
   reducer,
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import { Container } from "react-bootstrap";
+import BMTitlebar from "../Component/BMTitlebar";
 
 const ApprovalLogs = () => {
   const [approvalLogs, setApprovalLogs] = useState([]);
@@ -237,7 +239,7 @@ const ApprovalLogs = () => {
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
-  
+
   const getApprovalLogDetails = async () => {
     try {
       const res = await fetch(
@@ -265,17 +267,20 @@ const ApprovalLogs = () => {
     }
   };
 
-
   useEffect(() => {
     if (
-      reduceState?.selectedValue 
+      reduceState?.selectedValue
       // &&
       // (flagForTogglingFilter === "based-on-cell" ||
       //   flagForTogglingFilter === "based-on-line")
     ) {
       getApprovalLogDetails();
     }
-  }, [reduceState?.selectedValue, reduceState?.selectedYear, reduceState?.selectedMonth]);
+  }, [
+    reduceState?.selectedValue,
+    reduceState?.selectedYear,
+    reduceState?.selectedMonth,
+  ]);
 
   console.log(reduceState?.selectedValue, reduceState?.flagForTogglingFilter);
 
@@ -284,13 +289,19 @@ const ApprovalLogs = () => {
   };
 
   return (
-    <>
-      <ChartsToolbar
-        baseUrlForFiltering={baseUrlForFiltering}
-        reduceState={reduceState}
-        reducerDispatch={reducerDispatch}
-        monthFiltration
+    <Container fluid>
+      <BMTitlebar
+        title="Approval Logs"
+        Toolbar={
+          <ChartsToolbar
+            baseUrlForFiltering={baseUrlForFiltering}
+            reduceState={reduceState}
+            reducerDispatch={reducerDispatch}
+            monthFiltration
+          />
+        }
       />
+
       <Table
         columns={columns}
         dataSource={approvalLogs}
@@ -299,8 +310,7 @@ const ApprovalLogs = () => {
         scroll={{ x: 3000, y: 600}}
         pagination={false}
       />
-      {/* <div style={{height:"300px"}}></div> */}
-    </>
+    </Container>
   );
 };
 
