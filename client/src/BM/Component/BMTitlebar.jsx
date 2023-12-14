@@ -4,7 +4,7 @@ import { Col, Row } from "react-bootstrap";
 
 const BMTitlebar = ({ title, Toolbar }) => {
   return (
-    <Row className="cell p-3 mt-3 gap-2 g-0">
+    <Row>
       <Col className="d-flex align-items-center">
         <Typography
           noWrap
