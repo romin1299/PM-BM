@@ -527,7 +527,7 @@ function MyTable({
                         md={2}
                         sm={6}
                         className="d-flex align-items-center border border-right-0 border-top-0 border-bottom"
-                        style={{ height: "70px" }}
+                        style={{ height: "100px" }}
                       >
                         <small
                           style={{ fontSize: "12px" }}
@@ -541,9 +541,9 @@ function MyTable({
                         lg={2}
                         md={3}
                         sm={6}
-                        style={{ height: "70px" }}
+                        style={{ height: "100px" }}
                       >
-                        <div className="d-flex align-items-center justify-content-center mt-1 mb-2">
+                        <div className="d-flex align-items-center justify-content-center mt-3 mb-2">
                           <div className="text-center">
                             <small className="mb-0 d-block">
                               <b>DATE & TIME: </b>
@@ -589,7 +589,7 @@ function MyTable({
                         lg={1}
                         md={2}
                         sm={6}
-                        style={{ height: "70px" }}
+                        style={{ height: "100px" }}
                       >
                         <small
                           style={{ fontSize: "12px" }}
@@ -603,9 +603,9 @@ function MyTable({
                         lg={2}
                         md={3}
                         sm={6}
-                        style={{ height: "70px" }}
+                        style={{ height: "100px" }}
                       >
-                        <div className="d-flex align-items-center justify-content-center mt-1 mb-2">
+                        <div className="d-flex align-items-center justify-content-center mt-3 mb-2">
                           <div className="text-center">
                             <small className="mb-0 d-block">
                               <b>DATE & TIME: </b>
@@ -651,21 +651,19 @@ function MyTable({
                           </div> */}
                         </div>
                       </Col>
-                      <Col
-                        lg={3}
-                        md={6}
-                        sm={12}
-                        className="border border-bottom-0 pb-2"
-                        style={{ height: "70px" }}
-                      >
-                        <Row>
-                          <small className="mb-0">
+                      <Col lg={3} md={6} sm={12} style={{ height: "100px" }}>
+                        <Row className="border border-top-0 border-left-0 border-right-0">
+                          <small className="mb-0 mt-1">
                             <b>SECTION IN-CHARGE</b>
                           </small>
                           <br />
                         </Row>
-                        <Row className="border">
-                          <Col lg={6} md={12}>
+                        <Row className="border border-top-0 border-left-0 border-right-0">
+                          <Col
+                            lg={6}
+                            md={6}
+                            className="d-block border border-bottom-0 border-top-0 border-left-0 border-bottom-0"
+                          >
                             {(selectedMinor === "Yes" &&
                               selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
                                 "MTD_HOSS".replace("_", " ")
@@ -674,9 +672,9 @@ function MyTable({
                               selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
                                 "MTD_HOSS"?.replace("_", " ")
                               )) ? (
-                              <label>
+                              <small>
                                 <b>MTD HOSS</b>
-                              </label>
+                              </small>
                             ) : (
                               ""
                             )}
@@ -724,18 +722,15 @@ function MyTable({
                               />
                             )}
                           </Col>
-                          <Col lg={6} md={12}>
+                          <Col
+                            lg={6}
+                            md={6}
+                            className="d-block border-0 border-bottom-0"
+                          >
                             {selectedMajor === "Yes" &&
                               selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
                                 "MTD_HOS"?.replace("_", " ")
-                              ) && (
-                                <label>
-                                  <small>
-                                    {" "}
-                                    <b>MTD HOS</b>
-                                  </small>
-                                </label>
-                              )}
+                              ) && <small>MTD HOS</small>}
                             {requestSheetDataOfBM?.approvalOfMTD_HOS &&
                             requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
                               "Accepted" &&
@@ -782,7 +777,7 @@ function MyTable({
                         md={6}
                         sm={12}
                         className="border border-bottom-0 pb-2 "
-                        style={{ height: "70px" }}
+                        style={{ height: "100px" }}
                       >
                         {loggedUserDetails?.tm_department === "MTD" &&
                         loggedUserDetails?.tm_grade === "HOS" &&
@@ -2213,20 +2208,21 @@ function MyTable({
           requestSheetDataOfBM?.approvalStatusOfMTD_HOD === "Rejected") &&
           requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id) ? (
           <>
-            <Row>
-              <Col>
+            <Row
+              className="m-1 d-flex justify-content-start"
+              style={{ width: "100vw" }}
+            >
+              <Col className="col-lg-6 col-md-6 m-1 p-0">
                 <button
                   type="submit"
-                  className="btn bg-button"
+                  className="btn bg-succ"
                   style={{ marginTop: "1rem" }}
                   // onClick={handleSubmit(newRequestSheetRegistration)}
                 >
                   Save Changes
                 </button>
               </Col>
-            </Row>
-            <Row>
-              <Col>
+              <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
                 <Form>
                   <p>Do you want to send for approval the request sheet?</p>
                   <div className="d-flex">
@@ -2241,7 +2237,8 @@ function MyTable({
                         setValue("approvalOfRequestSheet", e.target.value);
                         clearErrors("root.handleApprovalErrorFromServerSide");
                       }}
-                    />
+                    />{" "}
+                    &nbsp;&nbsp;
                     <Form.Check
                       flex
                       label="No"
@@ -2290,9 +2287,22 @@ function MyTable({
                     ""
                   )}
                   &nbsp;
+                  {/* <button
+                    type="submit"
+                    className="btn bg-dang"
+                    onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
+                  >
+                    {watch("approvalOfRequestSheet") === "No"
+                      ? "Reject"
+                      : "Send for approval"}
+                  </button> */}
                   <button
                     type="submit"
-                    className="btn bg-button"
+                    className={
+                      watch("approvalOfRequestSheet") === "No"
+                        ? "btn bg-dang"
+                        : "btn bg-darkyellow mt-3"
+                    }
                     onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
                   >
                     {watch("approvalOfRequestSheet") === "No"
