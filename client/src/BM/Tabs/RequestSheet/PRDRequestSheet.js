@@ -111,11 +111,11 @@ function MyTable({ selectedMachineDetails }) {
       if (res.status === 201) {
         SuccessToast(data?.message);
         reset();
-        if (generateType === "scanned") {
-          navigate("/", { replace: true });
-        } else {
-          navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
-        }
+        // if (generateType === "scanned") {
+        //   navigate("/", { replace: true });
+        // } else {
+          navigate("/bm/requestListDashboard", { replace: true });
+        // }
       } else {
         WarningToast(data?.message);
       }

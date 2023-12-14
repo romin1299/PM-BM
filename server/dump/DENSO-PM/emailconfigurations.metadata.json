@@ -1,1 +1,0 @@
-{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"DENSO-PM.emailconfigurations"}],"uuid":"37ece1e0196e4d12bea85a2f71e712d7"}

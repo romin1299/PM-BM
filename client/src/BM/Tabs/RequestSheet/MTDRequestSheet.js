@@ -666,15 +666,19 @@ function MyTable({
                         </Row>
                         <Row className="border">
                           <Col lg={6} md={12}>
-                            {selectedMinor === "Yes" &&
-                            selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                              "MTD_HOSS".replace("_", " ")
-                            ) ? (
+                            {(selectedMinor === "Yes" &&
+                              selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
+                                "MTD_HOSS".replace("_", " ")
+                              )) ||
+                            (selectedMajor === "Yes" &&
+                              selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+                                "MTD_HOSS"?.replace("_", " ")
+                              )) ? (
                               <label>
                                 <b>MTD HOSS</b>
                               </label>
                             ) : (
-                              "MTD HOSS"
+                              ""
                             )}
                             {requestSheetDataOfBM?.approvalOfMTD_HOSS &&
                             requestSheetDataOfBM?.approvalStatusOfMTD_HOSS ===
@@ -721,11 +725,17 @@ function MyTable({
                             )}
                           </Col>
                           <Col lg={6} md={12}>
-                            {selectedMajor === "Yes" && (
-                              <label>
-                                <small>MTD HOS</small>
-                              </label>
-                            )}
+                            {selectedMajor === "Yes" &&
+                              selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+                                "MTD_HOS"?.replace("_", " ")
+                              ) && (
+                                <label>
+                                  <small>
+                                    {" "}
+                                    <b>MTD HOS</b>
+                                  </small>
+                                </label>
+                              )}
                             {requestSheetDataOfBM?.approvalOfMTD_HOS &&
                             requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
                               "Accepted" &&

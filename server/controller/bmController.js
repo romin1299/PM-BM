@@ -362,12 +362,6 @@ router.post(
             yokotenkai: requestSheetDataFilledByMTDUser?.yokotenkai,
           };
 
-          console.log(
-            getRequestSheetData?.attachedDataSheets,
-            requestSheetDataFilledByMTDUser?.dataSheetOfRequestSheet === "No",
-            requestSheetDataFilledByMTDUser?.dataSheetOfRequestSheet
-          );
-
           //Remove data-sheet from local and database if No is selected
           if (
             getRequestSheetData?.attachedDataSheets &&
@@ -12080,14 +12074,14 @@ router.get(
 router.get("/dummyAPI", async (req, res, next) => {
   try {
 
-    const updatePassword = await User.updateMany({
+    // const updatePassword = await User.updateMany({
       
       
-        $set: {
-          password: "$2a$12$AzIjYPBD6mAgxnUPXkOYi.goO7bX/oj9CRXYOWAf28iL7BmW2hide"
-        }
+    //     $set: {
+    //       password: "$2a$12$AzIjYPBD6mAgxnUPXkOYi.goO7bX/oj9CRXYOWAf28iL7BmW2hide"
+    //     }
       
-    })
+    // })
     // const machineFind = await Machine.aggregate([
     //   {
     //     $match: {},
