@@ -5922,32 +5922,64 @@ router.get("/getCellsDropdownValue", async (req, res, next) => {
 const bdHourTrendMiddleware = async (req, res, next) => {
   try {
     req.bdTrendData = [
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: "%m",
-              date: "$problemOccurredDateAndTimeOfBM",
-              timezone: timezone,
-            },
+     {
+  $group: {
+    _id: {
+      $dateToString: {
+        format: "%m",
+        date: "$problemOccurredDateAndTimeOfBM",
+        timezone: timezone,
+      },
+    },
+    totalHours: {
+      $push: {
+        $cond: [
+          {
+            $gt: [
+              "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+              null,
+            ],
           },
-          lessThanOne: {
-            $sum: {
-              $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
-            },
+          {
+            $divide: [
+              "$maintenanceReportFilledByMTD.breakDownTime",
+              60,
+            ],
           },
-          lessThanTwo: {
-            $sum: {
-              $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
-            },
-          },
-          greaterThanTwo: {
-            $sum: {
-              $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
-            },
-          },
+          0,
+        ],
+      },
+    },
+  },
+},
+{
+  $project: {
+    _id: 1,
+    totalHours: 1,
+    categorizedHours: {
+      $map: {
+        input: "$totalHours",
+        as: "hour",
+        in: {
+          lessThanOne: { $cond: [{ $lt: ["$$hour", 1] }, "$$hour", 0] },
+          lessThanTwo: { $cond: [{ $lt: ["$$hour", 2] }, "$$hour", 0] },
+          greaterThanTwo: { $cond: [{ $gte: ["$$hour", 2] }, "$$hour", 0] },
         },
       },
+    },
+  },
+},
+{
+  $project: {
+    _id: 1,
+    totalHours: 1,
+    lessThanOne: { $sum: "$categorizedHours.lessThanOne" },
+    lessThanTwo: { $sum: "$categorizedHours.lessThanTwo" },
+    greaterThanTwo: { $sum: "$categorizedHours.greaterThanTwo" },
+  },
+},
+
+
       {
         $group: {
           _id: null,
@@ -6000,9 +6032,13 @@ const bdHourTrendMiddleware = async (req, res, next) => {
       {
         $group: {
           _id: null,
-          lessThanOne: { $push: "$value.lessThanOne" },
-          lessThanTwo: { $push: "$value.lessThanTwo" },
-          greaterThanTwo: { $push: "$value.greaterThanTwo" },
+         
+
+          lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
+        
+          lessThanTwo:{ $push: { $trunc: ["$value.lessThanTwo", 1] } },
+          greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
+          
         },
       },
       {
@@ -6010,24 +6046,25 @@ const bdHourTrendMiddleware = async (req, res, next) => {
           _id: 0,
           hourlyArray: {
             $map: {
-              input: ["<1", "<2", ">2"],
+              input: [">2", "<2", "<1"],
               as: "label",
               in: {
                 label: "$$label",
                 data: {
                   $switch: {
                     branches: [
+                    
                       {
-                        case: { $eq: ["$$label", "<1"] },
-                        then: "$lessThanOne",
+                        case: { $eq: ["$$label", ">2"] },
+                        then: "$greaterThanTwo",
                       },
                       {
                         case: { $eq: ["$$label", "<2"] },
                         then: "$lessThanTwo",
                       },
-                      {
-                        case: { $eq: ["$$label", ">2"] },
-                        then: "$greaterThanTwo",
+                        {
+                        case: { $eq: ["$$label", "<1"] },
+                        then: "$lessThanOne",
                       },
                     ],
                     default: [],
@@ -6045,6 +6082,8 @@ const bdHourTrendMiddleware = async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
+
+
 
 router.get(
   "/hourlyMonthlyBdTrendForPlant",
@@ -6071,11 +6110,12 @@ router.get(
         },
 
         ...req.bdTrendData,
+
       ]);
 
       return res.status(200).json({
         message: "PlantWise Monthly BD trend data get successfully",
-        bdTrendData: bdTrendData?.[0].hourlyArray,
+        bdTrendData: bdTrendData,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -6131,7 +6171,52 @@ router.get(
               date: dateObj,
               sectionRef: "$section_data.subSection_name",
             },
-            bdTimeSum: { $sum: "$bdTime" },
+            bdTimeSum:  {
+              $push: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+
+        {
+          $project: {
+            _id: 1,
+            bdTimeSum: 1,
+            categorizedHours: {
+              $map: {
+                input: "$bdTimeSum",
+                as: "hour",
+                in: {
+                  lessThanOne: { $cond: [{ $lt: ["$$hour", 1] }, "$$hour", 0] },
+                  lessThanTwo: { $cond: [{ $lt: ["$$hour", 2] }, "$$hour", 0] },
+                  greaterThanTwo: { $cond: [{ $gte: ["$$hour", 2] }, "$$hour", 0] },
+                },
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            bdTimeSum: 1,
+            lessThanOne: { $sum: "$categorizedHours.lessThanOne" },
+            lessThanTwo: { $sum: "$categorizedHours.lessThanTwo" },
+            greaterThanTwo: { $sum: "$categorizedHours.greaterThanTwo" },
           },
         },
 
@@ -6142,7 +6227,9 @@ router.get(
             sectionWiseTotal: {
               $push: {
                 month: "$_id.date",
-                bdTimeSum: "$bdTimeSum",
+                
+                bdTimeSum: { $trunc: [{$sum : "$bdTimeSum"},1]}
+
               },
             },
           },
@@ -6219,21 +6306,53 @@ router.get(
               },
             },
 
-            lessThanOne: {
-              $sum: {
-                $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
+            totalHours: {
+              $push: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
               },
             },
-            lessThanTwo: {
-              $sum: {
-                $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
+          },
+        },
+
+
+        {
+          $project: {
+            _id: 1,
+            totalHours: 1,
+            categorizedHours: {
+              $map: {
+                input: "$totalHours",
+                as: "hour",
+                in: {
+                  lessThanOne: { $cond: [{ $lt: ["$$hour", 1] }, "$$hour", 0] },
+                  lessThanTwo: { $cond: [{ $lt: ["$$hour", 2] }, "$$hour", 0] },
+                  greaterThanTwo: { $cond: [{ $gte: ["$$hour", 2] }, "$$hour", 0] },
+                },
               },
             },
-            greaterThanTwo: {
-              $sum: {
-                $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
-              },
-            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            totalHours: 1,
+            lessThanOne: { $sum: "$categorizedHours.lessThanOne" },
+            lessThanTwo: { $sum: "$categorizedHours.lessThanTwo" },
+            greaterThanTwo: { $sum: "$categorizedHours.greaterThanTwo" },
           },
         },
 
@@ -6292,15 +6411,10 @@ router.get(
             _id: null,
             labels: { $push: "$month" },
             // target: { $push: "$value.target" },
-            lessThanOne: {
-              $push: "$value.lessThanOne",
-            },
-            lessThanTwo: {
-              $push: "$value.lessThanTwo",
-            },
-            greaterThanTwo: {
-              $push: "$value.greaterThanTwo",
-            },
+            lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
+        
+          lessThanTwo:{ $push: { $trunc: ["$value.lessThanTwo", 1] } },
+          greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
           },
         },
 
@@ -6309,7 +6423,7 @@ router.get(
             _id: 0,
             hourlyArray: {
               $map: {
-                input: ["<1", "<2", ">2"],
+                input: [">2", "<2", "<1"],
                 as: "label",
                 in: {
                   label: "$$label",
@@ -6317,16 +6431,16 @@ router.get(
                     $switch: {
                       branches: [
                         {
-                          case: { $eq: ["$$label", "<1"] },
-                          then: "$lessThanOne",
+                          case: { $eq: ["$$label", ">2"] },
+                          then: "$greaterThanTwo",
                         },
                         {
                           case: { $eq: ["$$label", "<2"] },
                           then: "$lessThanTwo",
                         },
-                        {
-                          case: { $eq: ["$$label", ">2"] },
-                          then: "$greaterThanTwo",
+                          {
+                          case: { $eq: ["$$label", "<1"] },
+                          then: "$lessThanOne",
                         },
                       ],
                       default: [],
@@ -6386,7 +6500,52 @@ router.get(
               date: dateObj,
               cellRef: "$cell_data.cell_name",
             },
-            bdTimeSum: { $sum: "$bdTime" },
+            bdTimeSum:  {
+              $push: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+
+        {
+          $project: {
+            _id: 1,
+            bdTimeSum: 1,
+            categorizedHours: {
+              $map: {
+                input: "$bdTimeSum",
+                as: "hour",
+                in: {
+                  lessThanOne: { $cond: [{ $lt: ["$$hour", 1] }, "$$hour", 0] },
+                  lessThanTwo: { $cond: [{ $lt: ["$$hour", 2] }, "$$hour", 0] },
+                  greaterThanTwo: { $cond: [{ $gte: ["$$hour", 2] }, "$$hour", 0] },
+                },
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            bdTimeSum: 1,
+            lessThanOne: { $sum: "$categorizedHours.lessThanOne" },
+            lessThanTwo: { $sum: "$categorizedHours.lessThanTwo" },
+            greaterThanTwo: { $sum: "$categorizedHours.greaterThanTwo" },
           },
         },
 
@@ -6397,7 +6556,8 @@ router.get(
             cellWiseTotal: {
               $push: {
                 month: "$_id.date",
-                bdTimeSum: "$bdTimeSum",
+                bdTimeSum: { $trunc: [{$sum : "$bdTimeSum"},1]}
+
               },
             },
           },
@@ -6485,21 +6645,51 @@ router.get(
               },
             },
 
-            lessThanOne: {
-              $sum: {
-                $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
+            totalHours: {
+              $push: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
               },
             },
-            lessThanTwo: {
-              $sum: {
-                $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            totalHours: 1,
+            categorizedHours: {
+              $map: {
+                input: "$totalHours",
+                as: "hour",
+                in: {
+                  lessThanOne: { $cond: [{ $lt: ["$$hour", 1] }, "$$hour", 0] },
+                  lessThanTwo: { $cond: [{ $lt: ["$$hour", 2] }, "$$hour", 0] },
+                  greaterThanTwo: { $cond: [{ $gte: ["$$hour", 2] }, "$$hour", 0] },
+                },
               },
             },
-            greaterThanTwo: {
-              $sum: {
-                $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
-              },
-            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            totalHours: 1,
+            lessThanOne: { $sum: "$categorizedHours.lessThanOne" },
+            lessThanTwo: { $sum: "$categorizedHours.lessThanTwo" },
+            greaterThanTwo: { $sum: "$categorizedHours.greaterThanTwo" },
           },
         },
 
@@ -6513,9 +6703,9 @@ router.get(
             data: {
               $push: {
                 year: "$_id",
-                lessThanOne: "$lessThanOne",
-                lessThanTwo: "$lessThanTwo",
-                greaterThanTwo: "$greaterThanTwo",
+                lessThanOne: { $trunc: ["$lessThanOne", 1] },
+                lessThanTwo: { $trunc: ["$lessThanTwo", 1] },
+                greaterThanTwo: { $trunc: ["$greaterThanTwo", 1] }
               },
             },
           },
@@ -6525,7 +6715,7 @@ router.get(
             _id: 0,
             hourlyArray: {
               $map: {
-                input: ["<1", "<2", ">2"],
+                input: ["<2", "<2", "<1"],
                 as: "label",
                 in: {
                   label: "$$label",
@@ -6536,17 +6726,18 @@ router.get(
                       in: {
                         $switch: {
                           branches: [
+                           
                             {
-                              case: { $eq: ["$$label", "<1"] },
-                              then: "$$item.lessThanOne",
+                              case: { $eq: ["$$label", ">2"] },
+                              then: "$$item.greaterThanTwo",
                             },
                             {
                               case: { $eq: ["$$label", "<2"] },
                               then: "$$item.lessThanTwo",
                             },
                             {
-                              case: { $eq: ["$$label", ">2"] },
-                              then: "$$item.greaterThanTwo",
+                              case: { $eq: ["$$label", "<1"] },
+                              then: "$$item.lessThanOne",
                             },
                           ],
                           default: [],
@@ -6624,7 +6815,51 @@ router.get(
               date: dateObj,
               sectionRef: "$section_data.subSection_name",
             },
-            bdTimeSum: { $sum: "$bdTime" },
+            bdTimeSum:  {
+              $push: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            bdTimeSum: 1,
+            categorizedHours: {
+              $map: {
+                input: "$bdTimeSum",
+                as: "hour",
+                in: {
+                  lessThanOne: { $cond: [{ $lt: ["$$hour", 1] }, "$$hour", 0] },
+                  lessThanTwo: { $cond: [{ $lt: ["$$hour", 2] }, "$$hour", 0] },
+                  greaterThanTwo: { $cond: [{ $gte: ["$$hour", 2] }, "$$hour", 0] },
+                },
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            bdTimeSum: 1,
+            lessThanOne: { $sum: "$categorizedHours.lessThanOne" },
+            lessThanTwo: { $sum: "$categorizedHours.lessThanTwo" },
+            greaterThanTwo: { $sum: "$categorizedHours.greaterThanTwo" },
           },
         },
 
@@ -6635,7 +6870,8 @@ router.get(
             sectionWiseTotal: {
               $push: {
                 year: "$_id.date",
-                bdTimeSum: "$bdTimeSum",
+                bdTimeSum: { $trunc: [{$sum : "$bdTimeSum"},1]}
+                
               },
             },
           },
@@ -6650,6 +6886,7 @@ router.get(
               $push: {
                 year: "$sectionWiseTotal.year",
                 dataSum: "$sectionWiseTotal.bdTimeSum",
+
               },
             },
           },
@@ -6735,21 +6972,51 @@ router.get(
               },
             },
 
-            lessThanOne: {
-              $sum: {
-                $cond: [{ $lte: ["$bdTime", 1] }, "$bdTime", 0],
+            totalHours: {
+              $push: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
               },
             },
-            lessThanTwo: {
-              $sum: {
-                $cond: [{ $lte: ["$bdTime", 2] }, "$bdTime", 0],
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            totalHours: 1,
+            categorizedHours: {
+              $map: {
+                input: "$totalHours",
+                as: "hour",
+                in: {
+                  lessThanOne: { $cond: [{ $lt: ["$$hour", 1] }, "$$hour", 0] },
+                  lessThanTwo: { $cond: [{ $lt: ["$$hour", 2] }, "$$hour", 0] },
+                  greaterThanTwo: { $cond: [{ $gte: ["$$hour", 2] }, "$$hour", 0] },
+                },
               },
             },
-            greaterThanTwo: {
-              $sum: {
-                $cond: [{ $gt: ["$bdTime", 2] }, "$bdTime", 0],
-              },
-            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            totalHours: 1,
+            lessThanOne: { $sum: "$categorizedHours.lessThanOne" },
+            lessThanTwo: { $sum: "$categorizedHours.lessThanTwo" },
+            greaterThanTwo: { $sum: "$categorizedHours.greaterThanTwo" },
           },
         },
 
@@ -6763,9 +7030,9 @@ router.get(
             data: {
               $push: {
                 year: "$_id",
-                lessThanOne: "$lessThanOne",
-                lessThanTwo: "$lessThanTwo",
-                greaterThanTwo: "$greaterThanTwo",
+                lessThanOne: { $trunc: ["$lessThanOne",1] },
+                lessThanTwo: { $trunc: ["$lessThanTwo",1] },
+                greaterThanTwo: { $trunc: ["$greaterThanTwo",1] }
               },
             },
           },
@@ -6775,7 +7042,7 @@ router.get(
             _id: 0,
             hourlyArray: {
               $map: {
-                input: ["<1", "<2", ">2"],
+                input: [">2", "<2", "<1"],
                 as: "label",
                 in: {
                   label: "$$label",
@@ -6787,16 +7054,16 @@ router.get(
                         $switch: {
                           branches: [
                             {
-                              case: { $eq: ["$$label", "<1"] },
-                              then: "$$item.lessThanOne",
+                              case: { $eq: ["$$label", ">2"] },
+                              then: "$$item.greaterThanTwo",
                             },
                             {
                               case: { $eq: ["$$label", "<2"] },
                               then: "$$item.lessThanTwo",
                             },
                             {
-                              case: { $eq: ["$$label", ">2"] },
-                              then: "$$item.greaterThanTwo",
+                              case: { $eq: ["$$label", "<1"] },
+                              then: "$$item.lessThanOne",
                             },
                           ],
                           default: [],
@@ -6860,7 +7127,52 @@ router.get(
               date: dateObj,
               cellRef: "$cell_data.cell_name",
             },
-            bdTimeSum: { $sum: "$bdTime" },
+            bdTimeSum:  {
+              $push: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+
+        {
+          $project: {
+            _id: 1,
+            bdTimeSum: 1,
+            categorizedHours: {
+              $map: {
+                input: "$bdTimeSum",
+                as: "hour",
+                in: {
+                  lessThanOne: { $cond: [{ $lt: ["$$hour", 1] }, "$$hour", 0] },
+                  lessThanTwo: { $cond: [{ $lt: ["$$hour", 2] }, "$$hour", 0] },
+                  greaterThanTwo: { $cond: [{ $gte: ["$$hour", 2] }, "$$hour", 0] },
+                },
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            bdTimeSum: 1,
+            lessThanOne: { $sum: "$categorizedHours.lessThanOne" },
+            lessThanTwo: { $sum: "$categorizedHours.lessThanTwo" },
+            greaterThanTwo: { $sum: "$categorizedHours.greaterThanTwo" },
           },
         },
 
@@ -6870,7 +7182,8 @@ router.get(
             cellWiseTotal: {
               $push: {
                 year: "$_id.date",
-                bdTimeSum: "$bdTimeSum",
+              
+                bdTimeSum:{ $trunc: [ {$sum : "$bdTimeSum"}, 1] }
               },
             },
           },
@@ -7090,6 +7403,8 @@ router.get(
         },
       };
 
+      
+
       const bdTrendData = await RequestSheetOfBM.aggregate([
         {
           $match: req.queryObj,
@@ -7225,7 +7540,23 @@ router.get(
             _id: "$line_data.line_name",
             // totalBdTime: { $sum: "$bdTime" },
             bdHoursLineWise: {
-              $sum: "$bdTime",
+              $sum: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
             },
           },
         },
@@ -7270,7 +7601,7 @@ router.get(
             _id: null,
 
             lineNames: { $push: "$_id" },
-            bdHours: { $push: "$bdHours" },
+            bdHours: { $push: { $trunc: ["$bdHours", 1] } },
             percentages: { $push: { $trunc: ["$percentage", 1] } },
           },
         },
@@ -7311,7 +7642,23 @@ router.get(
             _id: "$line_data.line_name",
             // totalBdTime: { $sum: "$bdTime" },
             bdHoursLineWise: {
-              $sum: "$bdTime",
+              $sum: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
             },
           },
         },
@@ -7355,7 +7702,9 @@ router.get(
           $group: {
             _id: "$totalBdTime",
             lineNames: { $push: "$_id" },
-            bdHours: { $push: "$bdHours" },
+           
+            bdHours: { $push: { $trunc: ["$bdHours", 1] } },
+
             percentages: { $push: { $trunc: ["$percentage", 1] } },
           },
         },
@@ -7400,7 +7749,23 @@ router.get(
             _id: "$line_data.line_name",
             // totalBdTime: { $sum: "$bdTime" },
             bdHoursLineWise: {
-              $sum: "$bdTime",
+              $sum: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
             },
           },
         },
@@ -7445,7 +7810,8 @@ router.get(
             _id: null,
 
             lineNames: { $push: "$_id" },
-            bdHours: { $push: "$bdHours" },
+            bdHours: { $push: { $trunc: ["$bdHours", 1] } },
+
             percentages: { $push: { $trunc: ["$percentage", 1] } },
           },
         },
@@ -7468,27 +7834,21 @@ router.get(
   bdHourTrendMiddleware,
   async (req, res, next) => {
     try {
-
-      
       let queryObj = {};
 
-      
-        queryObj = {
-         ...req.queryObj,
-         machineRef: mongoose.Types.ObjectId(req.params.machineId),
-
-      }
-
-     
+      queryObj = {
+        ...req.queryObj,
+        machineRef: mongoose.Types.ObjectId(req.params.machineId),
+      };
 
       const allData = await RequestSheetOfBM.aggregate([
         { $match: queryObj },
         {
           $group: {
-            _id:null,
+            _id: null,
             count: { $sum: 1 },
-            
-              bdTime: {
+
+            bdTime: {
               $sum: {
                 $cond: [
                   {
@@ -7507,15 +7867,13 @@ router.get(
                 ],
               },
             },
-          }
-        } 
+          },
+        },
       ]);
 
       const mttrData = await RequestSheetOfBM.aggregate([
-
         {
           $match: queryObj,
-        
         },
         {
           $group: {
@@ -7546,7 +7904,6 @@ router.get(
                 ],
               },
             },
-          
           },
         },
         {
@@ -7564,8 +7921,7 @@ router.get(
             mttr: { $sum: "$hours" },
           },
         },
-      ])
-
+      ]);
 
       const mtbfData = await RequestSheetOfBM.aggregate([
         {
@@ -7708,13 +8064,11 @@ router.get(
         ...req.bdTrendData,
       ]);
 
-
-     
       const combinedData = {
         count: allData[0]?.count,
         bdTime: allData[0]?.bdTime,
         mttr: mttrData[0].mttr,
-        mtbf: mtbfData[0]?.mtbf
+        mtbf: mtbfData[0]?.mtbf,
       };
 
       return res.status(201).json({
@@ -8016,7 +8370,7 @@ router.get(
 //         ...queryObj,
 //         "preAggregationTimeStampOfRequestSheet.requestSheet_month":
 //           req.query?.selectedMonth,
-        
+
 //       };
 //     }
 
@@ -8051,8 +8405,6 @@ router.get(
 //   }
 // };
 
-
-
 router.get(
   "/getSummaryCard/:filter/:selectedId/:machineId",
   filterMiddleware,
@@ -8065,17 +8417,13 @@ router.get(
     //     timezone: timezone,
     //   },
     // };
-    
+
     let queryObj = {};
 
-      
     queryObj = {
-     ...req.queryObj,
-     machineRef: mongoose.Types.ObjectId(req.params.machineId),
-
-  }
-
- 
+      ...req.queryObj,
+      machineRef: mongoose.Types.ObjectId(req.params.machineId),
+    };
 
     try {
       const allData = await RequestSheetOfBM.aggregate([
@@ -8116,7 +8464,6 @@ router.get(
                 ],
               },
             },
-            
           },
         },
       ]);
@@ -8139,14 +8486,14 @@ router.get(
         {
           $group: {
             _id: {
-              cell : "$cell_data.cell_name",
-              month : {
+              cell: "$cell_data.cell_name",
+              month: {
                 $dateToString: {
-                format: "%m",
-                date: "$problemOccurredDateAndTimeOfBM",
-                timezone: timezone,
+                  format: "%m",
+                  date: "$problemOccurredDateAndTimeOfBM",
+                  timezone: timezone,
+                },
               },
-            }
             },
             count: { $sum: 1 },
             hours: {
@@ -8168,7 +8515,6 @@ router.get(
                 ],
               },
             },
-          
           },
         },
         {
@@ -8186,7 +8532,7 @@ router.get(
             mttr: { $sum: "$hours" },
           },
         },
-      ])
+      ]);
 
       const mtbfData = await RequestSheetOfBM.aggregate([
         { $match: queryObj },
@@ -8206,7 +8552,11 @@ router.get(
 
         {
           $group: {
-            _id: {cell : "$cell_data.cell_name", month :"$preAggregationTimeStampOfRequestSheet.requestSheet_month" },
+            _id: {
+              cell: "$cell_data.cell_name",
+              month:
+                "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            },
 
             count: { $sum: 1 },
             hours: {
@@ -8423,7 +8773,7 @@ router.get(
         count: allData,
         bdTime: allData,
         mttr: mttrData,
-        mtbf: mtbfData
+        mtbf: mtbfData,
       };
 
       return res.status(201).json({
@@ -8523,22 +8873,27 @@ const middlewareForFindingTmMTTRSkillTrendData = async (req, res, next) => {
 const middlewareForFindingTmProgressData = async (req, res, next) => {
 
   try {
-    const TrendData = await RequestSheetOfBM.aggregate([
+    const tmProgress = await RequestSheetOfBM.aggregate([
       {
-        // $match: {},
-        $match: req.queryObj,
+        $match: {
+          $and: [
+            req.queryObj,
+            {
+              $or: [
+                { assignUser: mongoose.Types.ObjectId(req.params.tmId) },
+                { supportingTM: mongoose.Types.ObjectId(req.params.tmId) },
+                { handOverUser: mongoose.Types.ObjectId(req.params.tmId) },
+              ],
+            },
+          ],
+        },
       },
+      
       {
         $group: {
-          // _id: {
-          //   $dateToString: {
-          //     format: "%m",
-          //     date: "$problemOccurredDateAndTimeOfBM",
-          //     timezone: timezone,
-          //   },
-          // },
+          // _id: null,
 
-          _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+          _id: {user : req.params.tmId ,month : "$preAggregationTimeStampOfRequestSheet.requestSheet_month"},
 
           count: { $sum: 1 },
           hours: {
@@ -8557,25 +8912,8 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
               ],
             },
           },
-          target: {
-            $sum: {
-              $cond: [
-                {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ],
-                },
-                {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                },
-                0,
-              ],
-            },
-          },
         },
       },
-      ...req.queryPipeline,
 
       // $addFields: {
       //   productionDataBasedOnRSMonth: {
@@ -8591,7 +8929,7 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
       {
         $project: {
           count: 1,
-          target: 1,
+         
           hours: req.hourCalculationFormula,
         },
       },
@@ -8610,7 +8948,7 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
               as: "month",
               in: {
                 $cond: [
-                  { $in: ["$$month.monthName", "$array._id"] },
+                  { $in: ["$$month.monthName", "$array._id.month"] },
                   {
                     month: "$$month.monthName",
                     value: {
@@ -8628,7 +8966,7 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
                       _id: "$$month.monthName",
                       count: 0,
                       hours: 0,
-                      target: 0,
+                      
                     },
                   },
                 ],
@@ -8644,27 +8982,133 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
       {
         $group: {
           _id: null,
+          // _id: "$value._id.user",
           labels: { $push: "$month" },
-          target: { $push: "$value.target" },
+          
           data: {
             $push: "$value.hours",
           },
-          backgroundColor: {
-            $push: {
-              $cond: [
-                {
-                  $lte: ["$value.hours", "$value.target"],
-                },
-                "green",
-                "red",
-              ],
-            },
-          },
+          
         },
       },
     ]);
+    // const allData = await RequestSheetOfBM.aggregate([
+    //   {
+    //     // $match: {},
+    //     $match: req.queryObj,
+    //   },
+    //   {
+    //     $group: {
+    //       // _id: {
+    //       //   $dateToString: {
+    //       //     format: "%m",
+    //       //     date: "$problemOccurredDateAndTimeOfBM",
+    //       //     timezone: timezone,
+    //       //   },
+    //       // },
 
-    req.TrendData = TrendData;
+    //       _id:  "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+
+    //       count: { $sum: 1 },
+    //       hours: {
+    //         $sum: {
+    //           $cond: [
+    //             {
+    //               $gt: [
+    //                 "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+    //                 null,
+    //               ],
+    //             },
+    //             {
+    //               $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+    //             },
+    //             0,
+    //           ],
+    //         },
+    //       },
+          
+    //     },
+    //   },
+
+    //   // $addFields: {
+    //   //   productionDataBasedOnRSMonth: {
+    //   //     $function: {
+    //   //       body: function (month, productionHrs) {
+    //   //         return productionHrs?.monthlyProductionHrs?.[month];
+    //   //       },
+    //   //       args: ["$_id", req.productionHrs],
+    //   //       lang: "js",
+    //   //     },
+    //   //   },
+    //   // },
+    //   {
+    //     $project: {
+    //       count: 1,
+         
+    //       hours: req.hourCalculationFormula,
+    //     },
+    //   },
+    //   {
+    //     $group: {
+    //       _id: null,
+    //       array: { $push: "$$ROOT" },
+    //     },
+    //   },
+    //   // {
+    //   //   $project: {
+    //   //     _id: 0,
+    //   //     array: {
+    //   //       $map: {
+    //   //         input: allMonths,
+    //   //         as: "month",
+    //   //         in: {
+    //   //           $cond: [
+    //   //             { $in: ["$$month.monthName", "$array._id"] },
+    //   //             {
+    //   //               month: "$$month.monthName",
+    //   //               value: {
+    //   //                 $arrayElemAt: [
+    //   //                   "$array",
+    //   //                   {
+    //   //                     $indexOfArray: ["$array._id", "$$month.monthName"],
+    //   //                   },
+    //   //                 ],
+    //   //               },
+    //   //             },
+    //   //             {
+    //   //               month: "$$month.monthName",
+    //   //               value: {
+    //   //                 _id: "$$month.monthName",
+    //   //                 count: 0,
+    //   //                 hours: 0,
+                     
+    //   //               },
+    //   //             },
+    //   //           ],
+    //   //         },
+    //   //       },
+    //   //     },
+    //   //   },
+    //   // },
+    //   // { $unwind: "$array" },
+    //   // {
+    //   //   $replaceRoot: { newRoot: "$array" },
+    //   // },
+    //   // {
+    //   //   $group: {
+    //   //     _id: null,
+    //   //     labels: { $push: "$month" },
+          
+    //   //     data: {
+    //   //       $push: "$value.hours",
+    //   //     },
+          
+    //   //   },
+    //   // },
+    // ]);
+
+    req.tmProgress = tmProgress;
+    // req.allData = allData;
 
     next();
   } catch (error) {
@@ -8676,7 +9120,8 @@ const responseMiddlewareForMTTRSkillReport = async (req, res, next) => {
   try {
     return res.status(201).json({
       message: req.message,
-      data: req?.TrendData?.[0],
+      data: req?.tmProgress?.[0],
+      // alldata: req?.allData?.[0],
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -8689,14 +9134,14 @@ const middlewareForTmNames = async (req, res, next) => {
     };
 
     let queryPipelineForUser = [],
-      matchQuery_BM = {
+      matchQuery = {
         "preAggregationTimeStampOfRequestSheet.requestSheet_year":
           req.query?.selectedYear,
       };
 
     if (req.query?.selectedMonth) {
-      matchQuery_BM = {
-        ...matchQuery_BM,
+      matchQuery = {
+        ...matchQuery,
         "preAggregationTimeStampOfRequestSheet.requestSheet_month":
           req.query?.selectedMonth,
       };
@@ -8713,8 +9158,8 @@ const middlewareForTmNames = async (req, res, next) => {
         },
       ];
 
-      matchQuery_BM = {
-        ...matchQuery_BM,
+      matchQuery = {
+        ...matchQuery,
         sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
     } else if (req.params?.filter === "based-on-subSection") {
@@ -8728,8 +9173,8 @@ const middlewareForTmNames = async (req, res, next) => {
         },
       ];
 
-      matchQuery_BM = {
-        ...matchQuery_BM,
+      matchQuery = {
+        ...matchQuery,
         subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
     } else if (req.params?.filter === "based-on-cell") {
@@ -8743,14 +9188,13 @@ const middlewareForTmNames = async (req, res, next) => {
         },
       ];
 
-      matchQuery_BM = {
-        ...matchQuery_BM,
+      matchQuery = {
+        ...matchQuery,
         lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
       };
     }
 
-    console.log(" matchQuery_BM", matchQuery_BM);
-    
+    // console.log(" matchQuery", matchQuery);
 
     const tmLoadData = await User.aggregate([
       ...queryPipelineForUser,
@@ -8761,7 +9205,7 @@ const middlewareForTmNames = async (req, res, next) => {
           let: { userNo: "$_id" },
           pipeline: [
             {
-              $match: matchQuery_BM,
+              $match: matchQuery,
             },
             {
               $addFields: {
@@ -8783,7 +9227,7 @@ const middlewareForTmNames = async (req, res, next) => {
               },
             },
             {
-              $group: {
+              $group: { 
                 _id: null,
                 count: { $sum: 1 },
                 // machines: { $push: "$machineRef" },
@@ -8888,39 +9332,35 @@ const middlewareForTmNames = async (req, res, next) => {
       },
     ]);
 
-    console.log("tmLoadData", tmLoadData);
-    req.tmNames = tmLoadData[0].tm_names;
-    console.log("req.tmNames", req.tmNames);
-    next(); 
-
+    
     return res.status(201).json({
       message: "TM load data get successfully",
-      tmLoadData: tmLoadData,
+      tmLoadData
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
 };
 
+router.get("/mttrTrend/tmMTTRSkill/:filter/:selectedId", middlewareForTmNames);
+
 router.get(
-  "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
-  middlewareForTmNames
-);
-
-
-router.get("/getAllTmNames/tmMTTRSkill/:filter/:selectedId",middlewareForTmNames, async (req, res, next) => {
-  try {
-    // console.log("TMS", req.tmNames);
+  "/getAllTmNames", findTLandOperatorList,
+  async (req, res, next) => {
    
+    try {
    
+      return res.status(201).json({
+        message: "TM names get successfully",
+        data : req.TLHOSS_and_TM_user_list
 
-    return res.status(200).json({
-      tmNames: req.tmNames,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
+       
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
   }
-});
+);
 
 const filterMiddlewarForTmNames = async (req, res, next) => {
   try {
@@ -8972,11 +9412,66 @@ const filterMiddlewarForTmNames = async (req, res, next) => {
   }
 };
 
+const filterMiddlewaressss = async (req, res, next) => {
+  try {
+    let queryObj = {};
+
+    if (req.query?.selectedYear) {
+      queryObj = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+      };
+    }
+
+    if (req.query?.selectedMonth) {
+      queryObj = {
+        ...queryObj,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      };
+    }
+
+    if (req.params?.filter === "based-on-section") {
+      queryObj = {
+        ...queryObj,
+        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-subSection") {
+      queryObj = {
+        ...queryObj,
+        subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-cell") {
+      queryObj = {
+        ...queryObj,
+        cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    } else if (req.params?.filter === "based-on-line") {
+      queryObj = {
+        ...queryObj,
+        lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    } else {
+      queryObj = {
+        ...queryObj,
+        machineRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    }
+    req.queryObj = queryObj;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
 
 router.get(
   "/tmProgress/tmMTTRSkill/:filter/:selectedId/:tmId",
-  filterMiddleware,
+  filterMiddlewaressss,
   filterMiddlewareForTmMTTRSkillReport,
+  // findTLandOperatorList,
   middlewareForFindingTmProgressData,
   async (req, res, next) => {
     // let dateObj = {
