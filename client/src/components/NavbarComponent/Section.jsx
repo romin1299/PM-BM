@@ -558,8 +558,32 @@ const Section = ({ userData, userDepartment }) => {
               Spare Report
             </Menuitem>
           </Menu>
+          <Menu iconShape="square">
+          <MenuItem
+            className="text"
+            icon={
+              <LogoutIcon
+                className="text-white"
+                style={{ transform: "rotate(180deg)" }}
+              />
+            }
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Logout"
+            onClick={() =>
+              Logout(userData).then((res) => {
+                if (res) {
+                  loggedOut();
+                }
+              })
+            }
+          >
+            {" "}
+            Logout{" "}
+          </MenuItem>
+        </Menu>
         </SidebarContent>
-        <SidebarFooter fixed="bottom">
+        {/* <SidebarFooter fixed="bottom">
           <Menu iconShape="square">
             <MenuItem
               className="text"
@@ -584,7 +608,7 @@ const Section = ({ userData, userDepartment }) => {
               Logout{" "}
             </MenuItem>
           </Menu>
-        </SidebarFooter>
+        </SidebarFooter> */}
       </ProSidebar>
     </>
   );

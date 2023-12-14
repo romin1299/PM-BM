@@ -31,9 +31,7 @@ exports.getUserData =
       _id: { $ne: req?.rootUser?._id },
     };
 
-    // console.log("queryObj", queryObj);
-
-    if (req?.query?.tm_grade !== "HOD") {
+    if (req?.rootUser?.tm_grade !== "HOD") {
       if (section.dashboardLevel === "Yes") {
         queryObj = {
           ...queryObj,
@@ -66,7 +64,8 @@ exports.getUserData =
     );
     const mtdHOD = await userModel.find(
       {
-        ...queryObj,
+        plant_data: req?.rootUser?.plant_data,
+        _id: { $ne: req?.rootUser?._id },
         tm_department: "MTD",
         tm_grade: "HOD",
       },
@@ -74,7 +73,8 @@ exports.getUserData =
     );
     const prdHOD = await userModel.find(
       {
-        ...queryObj,
+        plant_data: req?.rootUser?.plant_data,
+        _id: { $ne: req?.rootUser?._id },
         tm_department: "PRD",
         tm_grade: "HOD",
       },

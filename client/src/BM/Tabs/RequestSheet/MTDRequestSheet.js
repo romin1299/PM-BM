@@ -80,7 +80,7 @@ function MyTable({
     requestSheetData.supportingTM =
       selectedSupportedTM?.length > 0
         ? selectedSupportedTM?.map((obj) => obj?._id)
-        : requestSheetDataOfBM?.supportingTM?.map((obj) => obj?._id3);
+        : requestSheetDataOfBM?.supportingTM?.map((obj) => obj?._id);
     requestSheetData.partQualityCheckedByPRD =
       approvalListOfBM?.prdTL?.[requestSheetData?.partQualityCheckedByPRD]?._id;
     requestSheetData.partQualityCheckedByMTD =
@@ -655,106 +655,117 @@ function MyTable({
                         lg={3}
                         md={6}
                         sm={12}
-                        className="border border-bottom-0"
+                        className="border border-bottom-0 pb-2"
                         style={{ height: "70px" }}
                       >
-                        <small className="mb-0">
-                          <b>SECTION IN-CHARGE</b>
-                        </small>
-                        <br />
-                        {selectedMinor === "Yes" &&
-                        selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                          "MTD_HOSS".replace("_", " ")
-                        ) ? (
-                          <label>
-                            <b>MTD HOSS</b>
-                          </label>
-                        ) : (
-                          ""
-                        )}
-                        {requestSheetDataOfBM?.approvalOfMTD_HOSS &&
-                        requestSheetDataOfBM?.approvalStatusOfMTD_HOSS ===
-                          "Accepted" &&
-                        requestSheetDataOfBM?.requestSheetStatus !==
-                          "Rejected" ? (
-                          <p>
-                            {requestSheetDataOfBM?.approvalOfMTD_HOSS?.tm_name}
-                          </p>
-                        ) : (
-                          <DropdownElem
-                            name={"MTD_HOSS"}
-                            selectedMinor={selectedMinor}
-                            selectedMajor={selectedMajor}
-                            approvalList={
-                              selectedMachineDetails?.line_names?.cell_names
-                                ?.subSection_names?.section_names?.plant_names
-                                ?.approvalListOfMinorAndMajor
-                            }
-                            displayOrNot={
-                              requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-                              loggedUserDetails?._id
-                            }
-                            options={approvalListOfBM?.mtdTL}
-                            register={register}
-                            errors={errors}
-                            // required={
-                            //   selectedMinor === "Yes" &&
-                            //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                            //     "MTD_HOSS".replace("_", " ")
-                            //   )
-                            //     ? true
-                            //     : selectedMajor === "Yes" &&
-                            //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                            //         "MTD_HOSS".replace("_", " ")
-                            //       )
-                            //     ? true
-                            //     : false
-                            // }
-                          />
-                        )}
-                        {selectedMajor === "Yes" && (
-                          <label>
-                            <small>MTD HOS</small>
-                          </label>
-                        )}
-                        {requestSheetDataOfBM?.approvalOfMTD_HOS &&
-                        requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
-                          "Accepted" &&
-                        requestSheetDataOfBM?.requestSheetStatus !==
-                          "Rejected" ? (
-                          requestSheetDataOfBM?.approvalOfMTD_HOS?.tm_name
-                        ) : (
-                          <DropdownElem
-                            name={"MTD_HOS"}
-                            selectedMinor={selectedMinor}
-                            selectedMajor={selectedMajor}
-                            approvalList={
-                              selectedMachineDetails?.line_names?.cell_names
-                                ?.subSection_names?.section_names?.plant_names
-                                ?.approvalListOfMinorAndMajor
-                            }
-                            displayOrNot={
-                              requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-                              loggedUserDetails?._id
-                            }
-                            options={approvalListOfBM?.mtdHOS}
-                            register={register}
-                            errors={errors}
-                            // required={
-                            //   selectedMinor === "Yes" &&
-                            //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                            //     "MTD_HOS".replace("_", " ")
-                            //   )
-                            //     ? true
-                            //     : selectedMajor === "Yes" &&
-                            //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                            //         "MTD_HOS".replace("_", " ")
-                            //       )
-                            //     ? true
-                            //     : false
-                            // }
-                          />
-                        )}
+                        <Row>
+                          <small className="mb-0">
+                            <b>SECTION IN-CHARGE</b>
+                          </small>
+                          <br />
+                        </Row>
+                        <Row className="border">
+                          <Col lg={6} md={12}>
+                            {selectedMinor === "Yes" &&
+                            selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
+                              "MTD_HOSS".replace("_", " ")
+                            ) ? (
+                              <label>
+                                <b>MTD HOSS</b>
+                              </label>
+                            ) : (
+                              "MTD HOSS"
+                            )}
+                            {requestSheetDataOfBM?.approvalOfMTD_HOSS &&
+                            requestSheetDataOfBM?.approvalStatusOfMTD_HOSS ===
+                              "Accepted" &&
+                            requestSheetDataOfBM?.requestSheetStatus !==
+                              "Rejected" ? (
+                              <p>
+                                {
+                                  requestSheetDataOfBM?.approvalOfMTD_HOSS
+                                    ?.tm_name
+                                }
+                              </p>
+                            ) : (
+                              <DropdownElem
+                                name={"MTD_HOSS"}
+                                selectedMinor={selectedMinor}
+                                selectedMajor={selectedMajor}
+                                approvalList={
+                                  selectedMachineDetails?.line_names?.cell_names
+                                    ?.subSection_names?.section_names
+                                    ?.plant_names?.approvalListOfMinorAndMajor
+                                }
+                                displayOrNot={
+                                  requestSheetDataOfBM?.approvalOfMTD_TL
+                                    ?._id === loggedUserDetails?._id
+                                }
+                                options={approvalListOfBM?.mtdTL}
+                                register={register}
+                                errors={errors}
+                                // required={
+                                //   selectedMinor === "Yes" &&
+                                //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
+                                //     "MTD_HOSS".replace("_", " ")
+                                //   )
+                                //     ? true
+                                //     : selectedMajor === "Yes" &&
+                                //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+                                //         "MTD_HOSS".replace("_", " ")
+                                //       )
+                                //     ? true
+                                //     : false
+                                // }
+                              />
+                            )}
+                          </Col>
+                          <Col lg={6} md={12}>
+                            {selectedMajor === "Yes" && (
+                              <label>
+                                <small>MTD HOS</small>
+                              </label>
+                            )}
+                            {requestSheetDataOfBM?.approvalOfMTD_HOS &&
+                            requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
+                              "Accepted" &&
+                            requestSheetDataOfBM?.requestSheetStatus !==
+                              "Rejected" ? (
+                              requestSheetDataOfBM?.approvalOfMTD_HOS?.tm_name
+                            ) : (
+                              <DropdownElem
+                                name={"MTD_HOS"}
+                                selectedMinor={selectedMinor}
+                                selectedMajor={selectedMajor}
+                                approvalList={
+                                  selectedMachineDetails?.line_names?.cell_names
+                                    ?.subSection_names?.section_names
+                                    ?.plant_names?.approvalListOfMinorAndMajor
+                                }
+                                displayOrNot={
+                                  requestSheetDataOfBM?.approvalOfMTD_TL
+                                    ?._id === loggedUserDetails?._id
+                                }
+                                options={approvalListOfBM?.mtdHOS}
+                                register={register}
+                                errors={errors}
+                                // required={
+                                //   selectedMinor === "Yes" &&
+                                //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
+                                //     "MTD_HOS".replace("_", " ")
+                                //   )
+                                //     ? true
+                                //     : selectedMajor === "Yes" &&
+                                //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+                                //         "MTD_HOS".replace("_", " ")
+                                //       )
+                                //     ? true
+                                //     : false
+                                // }
+                              />
+                            )}
+                          </Col>
+                        </Row>
                       </Col>
                       <Col
                         lg={2}
@@ -1740,7 +1751,7 @@ function MyTable({
           </tr>
 
           <tr className="row">
-            <td colSpan={8}>
+            <td className="col-lg-6 col-md-6">
               <Row className="m-0">
                 <Col className="border p-2">
                   <small className="mb-0 d-flex align-items-center justify-content-start">
@@ -1819,7 +1830,7 @@ function MyTable({
                 </Col>
               </Row>
             </td>
-            <td colSpan={8}>
+            <td className="col-lg-6 col-md-6">
               {requestSheetDataOfBM?.plantRef?.categories?.map(
                 (categoryObj, idxOfCategory) => (
                   <>
@@ -1830,9 +1841,13 @@ function MyTable({
                         </p>
                       </Col>
 
-                      <Col className="border p-2 d-flex align-items-center">
+                      <Col
+                        lg={6}
+                        md={12}
+                        className="border p-2 d-flex align-items-center"
+                      >
                         <Form>
-                          <div className="d-flex">
+                          <div className="d-flex row p-2">
                             {categoryObj?.subCategories?.map(
                               (subCategoryObj, idxOfSubCategory) => (
                                 <Form.Check
@@ -1841,6 +1856,7 @@ function MyTable({
                                   type="radio"
                                   value={subCategoryObj?.name}
                                   name={`categories`}
+                                  className="col-lg-4 col-md-4"
                                   // onChange={handleactionTemporaryOrNot}
                                   {...register(
                                     `categories.${categoryObj?.name}`,

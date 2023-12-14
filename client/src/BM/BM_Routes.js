@@ -143,6 +143,10 @@ const userRoutes = [
         element: <ApprovalDashboardOfRequestSheet />,
       },
       {
+        path: "/bm/requestListDashboard",
+        element: <RequestSheetMainDashboard />,
+      },
+      {
         path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
         element: <RequestSheetUpdate />,
       },
@@ -184,6 +188,10 @@ const userRoutes = [
       {
         path: "/bm/operator-dashboard",
         element: <OperatorDashboard />,
+      },
+      {
+        path: "/bm/requestListDashboard",
+        element: <RequestSheetMainDashboard />,
       },
       {
         path: "/bm/approval",
@@ -251,6 +259,10 @@ const userRoutes = [
       {
         path: "/bm/profile",
         element: <Profile />,
+      },
+      {
+        path: "/bm/approvalLogs",
+        element: <ApprovalLogs />,
       },
 
       ...reportRoutes,

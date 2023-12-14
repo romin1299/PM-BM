@@ -53,7 +53,7 @@ export const menuItems = [
       {
         title: "Request Sheets",
         route: "/bm/requestListDashboard",
-        allowedRoles: ["TL/HOSS", "Operator"],
+        allowedRoles: reportAccess,
       },
 
       // Only Admin
@@ -86,7 +86,7 @@ export const menuItems = [
     title: "Approval Logs",
     icon: <AssignmentTurnedInIcon className="text-white" />,
     route: "/bm/approvalLogs",
-    allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
+    allowedRoles: reportAccess,
   },
   {
     title: "Customized Dashboard",
