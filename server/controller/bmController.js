@@ -1088,6 +1088,8 @@ const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
 const findTLandOperatorList = async (req, res, next) => {
   try {
     let TLHOSS_and_TM_user_list = [];
+
+    console.log(req?.rootUser)
     if (
       (req?.rootUser?.tm_department === "MTD" && !req.purpose) ||
       req?.rootUser?.user_type === "Operator"
@@ -1125,8 +1127,10 @@ const findTLandOperatorList = async (req, res, next) => {
         });
       }
     }
+    console.log(TLHOSS_and_TM_user_list)
 
     req.TLHOSS_and_TM_user_list = TLHOSS_and_TM_user_list;
+    console.log(req.TLHOSS_and_TM_user_list)
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -9421,14 +9425,14 @@ const middlewareForTmNames = async (req, res, next) => {
   }
 };
 
-router.get("/mttrTrend/tmMTTRSkill/:filter/:selectedId", middlewareForTmNames);
+router.get("/mttrTrend/tmMTTRSkill/:filter/:selectedId",authenticate, middlewareForTmNames);
 
 router.get(
-  "/getAllTmNames", findTLandOperatorList,
+  "/getAllTmNames", authenticate, findTLandOperatorList,
   async (req, res, next) => {
    
     try {
-   
+  console.log(req.TLHOSS_and_TM_user_list)
       return res.status(201).json({
         message: "TM names get successfully",
         data : req.TLHOSS_and_TM_user_list
