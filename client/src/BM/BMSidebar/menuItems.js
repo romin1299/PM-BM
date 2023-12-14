@@ -74,7 +74,7 @@ export const menuItems = [
       //   allowedRoles: ["Plant-Admin", "Section-Admin"],
       // },
     ],
-    allowedDepartments: ["MTD", "PRD"],
+    // allowedDepartments: ["MTD", "PRD"],
   },
   {
     title: "Approval Dashboard",
