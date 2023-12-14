@@ -501,70 +501,80 @@ const RequestSheetMainDashboard = () => {
   return (
     <>
       <Container fluid>
-        <BMTitlebar title="Request-Sheet Work Order" />
+        <Row className="d-flex align-items-center justify-content-center cell mt-3 p-1 gap-2 g-0">
+          <Col>
+            <BMTitlebar title="Request-Sheet Work Order" />
+          </Col>
+          <Col>
+            <Row className="d-flex align-items-center justify-content-center p-2">
+
+
+              <Col>
+                <Box className="cell rounded-0 p-3 bg-button text-white">
+                  <div className="d-flex align-items-center">
+                    <InsertDriveFileIcon /> &nbsp;&nbsp;{" "}
+                    <p>
+                      Total Request: &nbsp;
+                      {
+                        reduceStateForRequestSheetData?.counters
+                          ?.total_request_sheet_count
+                      }
+                    </p>
+                  </div>
+                </Box>
+              </Col>
+              <Col>
+                <Box className="cell p-3 rounded-0 bg-dang text-white">
+                  <div className="d-flex align-items-center">
+                    <ArrowCircleRightIcon /> &nbsp;&nbsp;{" "}
+                    <p>
+                      Open Request:{" "}
+                      {
+                        reduceStateForRequestSheetData?.counters
+                          ?.open_request_sheet_count
+                      }
+                    </p>
+                  </div>
+                </Box>
+              </Col>
+              <Col>
+                <Box className="cell p-3 rounded-0 bg-succ text-white">
+                  <div className="d-flex align-items-center">
+                    <CancelIcon /> &nbsp;&nbsp;{" "}
+                    <p>
+                      Closed Request:{" "}
+                      {
+                        reduceStateForRequestSheetData?.counters
+                          ?.closed_request_sheet_count
+                      }
+                    </p>
+                  </div>
+                </Box>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+
+        <Row className="d-flex justify-content-end p-2">
+              <Col lg={4} md={12} sm={12} class="d-flex justify-content-end">
+                <button
+                  onClick={handleGenerateBMNavigation}
+                  className={
+                    context?.tm_department === "PRD"
+                      ? `btn bg-button d-inline`
+                      : "d-none"
+                  }
+                  style={{ marginTop: "1rem" }}
+                >
+                  <AddCircleIcon /> &nbsp; Generate New Request-Sheet
+                </button>
+              </Col>
+
+            </Row>
 
         {/* <Row>
           <NewRequestSheetRegistration />
         </Row> */}
-
-        <Row className="d-flex align-items-center justify-content-center p-2">
-          <Col className="d-flex align-items-center justify-content-center">
-            <button
-              onClick={handleGenerateBMNavigation}
-              className={
-                context?.tm_department === "PRD"
-                  ? `btn bg-button d-inline`
-                  : "d-none"
-              }
-              style={{ marginTop: "1rem" }}
-            >
-              <AddCircleIcon /> &nbsp; Generate New Request-Sheet
-            </button>
-          </Col>
-
-          <Col>
-            <Box className="cell rounded-0 p-3 bg-button text-white">
-              <div className="d-flex align-items-center">
-                <InsertDriveFileIcon /> &nbsp;&nbsp;{" "}
-                <p>
-                  Total Request: &nbsp;
-                  {
-                    reduceStateForRequestSheetData?.counters
-                      ?.total_request_sheet_count
-                  }
-                </p>
-              </div>
-            </Box>
-          </Col>
-          <Col>
-            <Box className="cell p-3 rounded-0 bg-dang text-white">
-              <div className="d-flex align-items-center">
-                <ArrowCircleRightIcon /> &nbsp;&nbsp;{" "}
-                <p>
-                  Open Request:{" "}
-                  {
-                    reduceStateForRequestSheetData?.counters
-                      ?.open_request_sheet_count
-                  }
-                </p>
-              </div>
-            </Box>
-          </Col>
-          <Col>
-            <Box className="cell p-3 rounded-0 bg-succ text-white">
-              <div className="d-flex align-items-center">
-                <CancelIcon /> &nbsp;&nbsp;{" "}
-                <p>
-                  Closed Request:{" "}
-                  {
-                    reduceStateForRequestSheetData?.counters
-                      ?.closed_request_sheet_count
-                  }
-                </p>
-              </div>
-            </Box>
-          </Col>
-        </Row>
 
         <Row>
           <Col>
