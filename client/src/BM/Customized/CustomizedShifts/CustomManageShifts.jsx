@@ -22,14 +22,14 @@ const initialState = {
   shiftEndTime: "",
 };
 
-const shiftOfBM = [
-  { _id: 1, shiftName: "A", shiftStartTime: "06:00", shiftEndTime: "14:30" },
-  { _id: 2, shiftName: "B", shiftStartTime: "14:15", shiftEndTime: "22:45" },
-  { _id: 3, shiftName: "C", shiftStartTime: "22:45", shiftEndTime: "06:15" },
-];
+// const shiftOfBM = [
+//   { _id: 1, shiftName: "A", shiftStartTime: "06:00", shiftEndTime: "14:30" },
+//   { _id: 2, shiftName: "B", shiftStartTime: "14:15", shiftEndTime: "22:45" },
+//   { _id: 3, shiftName: "C", shiftStartTime: "22:45", shiftEndTime: "06:15" },
+// ];
 
 const CustomManageShifts = () => {
-  const [shifts, setShifts] = useState(shiftOfBM);
+  const [shifts, setShifts] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editedShift, setEditedShift] = useState(null);
   const [newShift, setNewShift] = useState({});

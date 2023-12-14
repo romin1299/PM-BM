@@ -510,16 +510,23 @@ const RequestSheetMainDashboard = () => {
   return (
     <>
       <Container fluid>
-        <Row className="d-flex align-items-center justify-content-center cell mt-3 p-1 gap-2 g-0">
+        <Row className="d-flex align-items-center justify-content-center cell mt-3 p-2 gap-2 g-0">
           <Col>
-            <BMTitlebar title="Request-Sheet Work Order" />
+            <Typography
+              noWrap
+              variant="h4"
+              component="h4"
+              fontSize={25}
+              fontWeight={600}
+              sx={{ mr: 3 }}
+            >
+              Request-Sheet Work Order
+            </Typography>
           </Col>
           <Col>
-            <Row className="d-flex align-items-center justify-content-center p-2">
-
-
+            <Row>
               <Col>
-                <Box className="cell rounded-0 p-1 bg-button text-white">
+                <Box className="cell rounded-0 p-1 m-0 bg-button text-white">
                   <div className="d-flex align-items-center">
                     <InsertDriveFileIcon /> &nbsp;&nbsp;{" "}
                     <p>
@@ -533,7 +540,7 @@ const RequestSheetMainDashboard = () => {
                 </Box>
               </Col>
               <Col>
-                <Box className="cell p-1 rounded-0 bg-dang text-white">
+                <Box className="cell p-1 m-0 rounded-0 bg-dang text-white">
                   <div className="d-flex align-items-center">
                     <ArrowCircleRightIcon /> &nbsp;&nbsp;{" "}
                     <p>
@@ -547,7 +554,7 @@ const RequestSheetMainDashboard = () => {
                 </Box>
               </Col>
               <Col>
-                <Box className="cell p-1 rounded-0 bg-succ text-white">
+                <Box className="cell p-1 m-0 rounded-0 bg-succ text-white">
                   <div className="d-flex align-items-center">
                     <CancelIcon /> &nbsp;&nbsp;{" "}
                     <p>
@@ -564,22 +571,20 @@ const RequestSheetMainDashboard = () => {
           </Col>
         </Row>
 
-        <Row className="d-flex justify-content-end p-2">
-              <Col lg={4} md={12} sm={12} class="d-flex justify-content-end">
-                <button
-                  onClick={handleGenerateBMNavigation}
-                  className={
-                    context?.tm_department === "PRD"
-                      ? `btn bg-button d-inline`
-                      : "d-none"
-                  }
-                  style={{ marginTop: "1rem" }}
-                >
-                  <AddCircleIcon /> &nbsp; Generate New Request-Sheet
-                </button>
-              </Col>
-
-            </Row>
+        <Row className="justify-content-end mt-3">
+          <Col className="col-auto">
+            <button
+              onClick={handleGenerateBMNavigation}
+              className={
+                context?.tm_department === "PRD"
+                  ? `btn bg-button d-inline`
+                  : "d-none"
+              }
+            >
+              <AddCircleIcon /> &nbsp; Generate New Request-Sheet
+            </button>
+          </Col>
+        </Row>
 
         {/* <Row>
           <NewRequestSheetRegistration />

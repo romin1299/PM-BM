@@ -258,7 +258,7 @@ export default function LineSelectionDropdown({
   }, []);
 
   return (
-    <Box sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+    <Box className="m-3" sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
       {context?.tm_grade === "HOD" && sections?.length > 0 && (
         <FormControl size="small">
           <Select
