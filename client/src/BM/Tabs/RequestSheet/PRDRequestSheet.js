@@ -62,8 +62,8 @@ function MyTable({ selectedMachineDetails }) {
   });
   const selectedRequestSheetData = useLocation();
 
-  const [shiftsOfBM, setShiftsOfBM] = useState([]);
-  const [selectedShift, setSelectedShift] = useState("");
+  const [plantShiftsData, setPlantShiftsData] = useState([]);
+  // const [selectedShift, setSelectedShift] = useState("");
   // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
   // const [selectedQuality, setSelectedQuality] = useState("");
@@ -89,6 +89,9 @@ function MyTable({ selectedMachineDetails }) {
     // requestSheetData.priorityCode = selectedPriorityCode;
     // requestSheetData.qualityRelated = selectedQuality;
     // requestSheetData.shiftOfBM = selectedShift;
+
+    console.log('requestSheetData:', requestSheetData)
+
     try {
       const res = await fetch(
         `/newRequestSheetRegistration/?machineRef=${machine_code}`,
@@ -135,7 +138,7 @@ function MyTable({ selectedMachineDetails }) {
 
   useEffect(() => {
     const getCurrentShiftName = () => {
-      for (let shiftInfo of shiftsOfBM) {
+      for (let shiftInfo of plantShiftsData) {
         if (
           momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
           momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
@@ -146,8 +149,8 @@ function MyTable({ selectedMachineDetails }) {
       return "";
     };
 
-    setValue("selectedShift", getCurrentShiftName());
-  }, [shiftsOfBM]);
+    setValue("shiftOfBM", getCurrentShiftName());
+  }, [plantShiftsData]);
 
   React.useEffect(() => {
     const fetchShiftData = async () => {
@@ -160,7 +163,7 @@ function MyTable({ selectedMachineDetails }) {
         });
 
         // console.log("fetch shifts res:", res);
-        setShiftsOfBM(res?.data?.getShifts);
+        setPlantShiftsData(res?.data?.getShifts);
       } catch (error) {
         console.log("error:", error);
       }
@@ -173,7 +176,7 @@ function MyTable({ selectedMachineDetails }) {
     <>
       <ToastContainer />
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
-        <Table className="m-2 mt-3">
+        <Table className="container-fluid m-2 mt-3">
           <thead>
             <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
           </thead>
@@ -348,23 +351,23 @@ function MyTable({ selectedMachineDetails }) {
                   <Row className="m-0">
                     <Col className="border">
                       <small className="text-left p-1 mb-2">
-                    <b>REQUEST No.</b>{" "}
-                    {selectedMachineDetails?.line_names?.cell_names
-                      ?.subSection_names?.section_names?.dashboardLevel ===
-                    "Yes"
-                      ? selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.section_name
-                          ?.trim()
-                          ?.substring(0, 2)
-                          ?.toUpperCase()
-                      : selectedMachineDetails?.line_names?.cell_names?.subSection_names?.subSection_name
-                          ?.trim()
-                          ?.substring(0, 2)
-                          ?.toUpperCase()}
-                    -{selectedMachineDetails?.line_names?.line_name?.trim()}-
-                    {startedDate}-
-                    {selectedMachineDetails?.line_names?.requestSheetNos + 1 ||
-                      1}
-                  </small>
+                        <b>REQUEST No.</b>{" "}
+                        {selectedMachineDetails?.line_names?.cell_names
+                          ?.subSection_names?.section_names?.dashboardLevel ===
+                        "Yes"
+                          ? selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.section_name
+                              ?.trim()
+                              ?.substring(0, 2)
+                              ?.toUpperCase()
+                          : selectedMachineDetails?.line_names?.cell_names?.subSection_names?.subSection_name
+                              ?.trim()
+                              ?.substring(0, 2)
+                              ?.toUpperCase()}
+                        -{selectedMachineDetails?.line_names?.line_name?.trim()}
+                        -{startedDate}-
+                        {selectedMachineDetails?.line_names?.requestSheetNos +
+                          1 || 1}
+                      </small>
                     </Col>
                   </Row>
                   <Row className="m-0">
@@ -491,7 +494,7 @@ function MyTable({ selectedMachineDetails }) {
                     <small className="mb-0">
                       <b>DEPT./LINE</b>
                     </small>
-                    <br/>
+                    <br />
                     <small>
                       {
                         selectedMachineDetails?.line_names?.cell_names
@@ -506,7 +509,7 @@ function MyTable({ selectedMachineDetails }) {
                     <small className="fs-6 mb-0">
                       <b>TL [PRD]</b>
                     </small>
-                    <br/>
+                    <br />
                     <small>{context?.tm_name}</small>
                     {/* <input
                     style={{ width: "100%" }}
@@ -734,21 +737,21 @@ function MyTable({ selectedMachineDetails }) {
                         </small>
                       </FormLabel>
 
-                      {watch("selectedShift") && (
+                      {watch("shiftOfBM") && (
                         <RadioGroup
                           row
-                          value={watch("selectedShift")}
+                          value={watch("shiftOfBM")}
                           // value={"B"}
                           aria-labelledby="demo-radio-buttons-group-label"
                           name="radio-buttons-group"
                         >
-                          {shiftsOfBM?.map((shiftInfo) => (
+                          {plantShiftsData?.map((shiftInfo) => (
                             <FormControlLabel
                               value={shiftInfo.shiftName}
                               control={<Radio color="default" size="small" />}
                               label={shiftInfo.shiftName}
                               disabled={
-                                watch("selectedShift") !== shiftInfo.shiftName
+                                watch("shiftOfBM") !== shiftInfo.shiftName
                               }
                             />
                           ))}

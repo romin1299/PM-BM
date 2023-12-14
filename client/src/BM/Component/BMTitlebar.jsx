@@ -4,7 +4,7 @@ import { Col, Row } from "react-bootstrap";
 
 const BMTitlebar = ({ title, Toolbar }) => {
   return (
-    <Row>
+    <Row className="cell p-2 mt-3 gap-2 g-0">
       <Col className="d-flex align-items-center">
         <Typography
           noWrap
@@ -25,6 +25,8 @@ const BMTitlebar = ({ title, Toolbar }) => {
 
 export default BMTitlebar;
 
-{/* <div className="container-fluid">
+{
+  /* <div className="container-fluid">
   <BMTitlebar title="Plant Dashboard" />
-</div> */}
+</div> */
+}
