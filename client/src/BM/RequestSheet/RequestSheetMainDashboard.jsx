@@ -379,6 +379,11 @@ const RequestSheetMainDashboard = () => {
       ),
       width: "10%",
     },
+    {
+      title: "Loss Time",
+      field: "lossTime",
+      editable: false,
+    },
     // {
     //   title: "PRD Quality Check",
     //   field: "PRDUser",
@@ -563,47 +568,47 @@ const RequestSheetMainDashboard = () => {
 
         <Row>
           <Col>
-          <MaterialTable
-            localization={{
-              header: {
-                actions: "Actions",
-              },
-              // toolbar: {
-              //   exportCSVName: "Export some Excel format",
-              //   exportPDFName: "Export as pdf!!"
-              // }
-            }}
-            actions={requestSheetActions}
-            icons={tableIcons}
-            columns={requestSheetHeader}
-            data={reduceStateForRequestSheetData?.requestSheetData}
-            title={filtration}
-            // tableRef={this.tableRef.current.onQueryChange()}
+            <MaterialTable
+              localization={{
+                header: {
+                  actions: "Actions",
+                },
+                // toolbar: {
+                //   exportCSVName: "Export some Excel format",
+                //   exportPDFName: "Export as pdf!!"
+                // }
+              }}
+              actions={requestSheetActions}
+              icons={tableIcons}
+              columns={requestSheetHeader}
+              data={reduceStateForRequestSheetData?.requestSheetData}
+              title={filtration}
+              // tableRef={this.tableRef.current.onQueryChange()}
 
-            editable={{
-              // onRowAdd: (newRow) =>
-              //   new Promise((resolve, reject) => {
-              //     setTimeout(() => {
-              //       resolve();
-              //     }, 500);
-              //     //refreshPage();
-              //   }),
+              editable={{
+                // onRowAdd: (newRow) =>
+                //   new Promise((resolve, reject) => {
+                //     setTimeout(() => {
+                //       resolve();
+                //     }, 500);
+                //     //refreshPage();
+                //   }),
 
-              onRowDelete: (selectedRow) =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
+                onRowDelete: (selectedRow) =>
+                  new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      resolve();
+                    }, 500);
+                  }),
+
+                onRowUpdate: (updatedRow, oldRow) =>
+                  new Promise(async (resolve, reject) => {
+                    await updateRequestSheet(updatedRow);
                     resolve();
-                  }, 500);
-                }),
-
-              onRowUpdate: (updatedRow, oldRow) =>
-                new Promise(async (resolve, reject) => {
-                  await updateRequestSheet(updatedRow);
-                  resolve();
-                }),
-            }}
-            options={MaterialTableOptions}
-          />
+                  }),
+              }}
+              options={{ ...MaterialTableOptions, showTitle: true }}
+            />
           </Col>
         </Row>
       </Container>

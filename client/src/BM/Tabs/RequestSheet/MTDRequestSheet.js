@@ -136,8 +136,6 @@ function MyTable({
     }
   };
 
-  console.log("Dierty----", dirtyFields);
-
   const deleteDirtyFieldsWhichIsNotRequiredToValidate = () => {
     delete dirtyFields?.["approvalOfRequestSheet"];
     delete dirtyFields?.["MTD_TL"];
@@ -471,6 +469,7 @@ function MyTable({
                   <small className="fs-6 mb-0">
                     <b>MTD TL</b>
                   </small>
+                  <br />
                   {/* {requestSheetDataOfBM?.approvalOfMTD_TL?.length > 0 ? (
                     requestSheetDataOfBM?.approvalOfMTD_TL?.[
                       requestSheetDataOfBM?.approvalOfMTD_TL?.length - 1
@@ -660,8 +659,9 @@ function MyTable({
                         style={{ height: "70px" }}
                       >
                         <small className="mb-0">
-                          <b>SECTION INCHARGE</b>
+                          <b>SECTION IN-CHARGE</b>
                         </small>
+                        <br />
                         {selectedMinor === "Yes" &&
                         selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
                           "MTD_HOSS".replace("_", " ")
@@ -763,24 +763,32 @@ function MyTable({
                         className="border border-bottom-0 pb-2 "
                         style={{ height: "70px" }}
                       >
-                        <small className="mb-0">
-                          <b>FEEDBACK</b>
-                        </small>
-                        <br />
-                        <input
-                          type="text"
-                          className="widthwhy"
-                          id="feedbackMTD_HOS"
-                          name="feedbackMTD_HOS"
-                          {...register("feedbackMTD_HOS", {
-                            required: "This field is required",
-                          })}
-                        />
+                        {loggedUserDetails?.tm_department === "MTD" &&
+                        loggedUserDetails?.tm_grade === "HOS" &&
+                        timeDifferenceMinutes > 120 ? (
+                          <>
+                            <small className="mb-0">
+                              <b>FEEDBACK</b>
+                            </small>
+                            <br />
+                            <input
+                              type="text"
+                              className="widthwhy"
+                              id="feedbackMTD_HOS"
+                              name="feedbackMTD_HOS"
+                              {...register("feedbackMTD_HOS", {
+                                required: "This field is required",
+                              })}
+                            />
 
-                        {errors?.["feedbackMTD_HOS"] && (
-                          <p className="text-error">
-                            {errors?.["feedbackMTD_HOS"]?.message}
-                          </p>
+                            {errors?.["feedbackMTD_HOS"] && (
+                              <p className="text-error">
+                                {errors?.["feedbackMTD_HOS"]?.message}
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          ""
                         )}
                       </Col>
                     </Row>
@@ -1639,7 +1647,7 @@ function MyTable({
                       />
                     </div>
 
-                    {requestSheetDataOfBM?.attachedDrawings ? (
+                    {requestSheetDataOfBM?.attachedDrawings?.length > 0 ? (
                       <p>
                         {(requestSheetDataOfBM?.attachedDrawings).join("\r\n")}
                       </p>
@@ -1704,8 +1712,10 @@ function MyTable({
               </Row> */}
               <Row className="m-0">
                 <Col className="border col-lg-12 col-md-12 col-sm-12">
-                <small> <b>YOKOTENKAI</b></small>
-
+                  <small>
+                    {" "}
+                    <b>YOKOTENKAI</b>
+                  </small>
 
                   <br />
                   <textarea
@@ -1729,7 +1739,7 @@ function MyTable({
             </td>
           </tr>
 
-          <tr>
+          <tr className="row">
             <td colSpan={8}>
               <Row className="m-0">
                 <Col className="border p-2">
@@ -1919,16 +1929,24 @@ function MyTable({
                   </Row>
                   <Row>
                     <Col lg={2} md={2} className="border p-1 text-center">
-                      <small><b>* GM-MTD</b></small>
+                      <small>
+                        <b>* GM-MTD</b>
+                      </small>
                     </Col>
                     <Col lg={2} md={2} className="border p-1 text-center">
-                      <small><b>* GM-PRD</b></small>
+                      <small>
+                        <b>* GM-PRD</b>
+                      </small>
                     </Col>
                     <Col lg={2} md={2} className="border p-1 text-center">
-                      <small><b>SECTION INCHARGE (PRD)</b></small>
+                      <small>
+                        <b>SECTION INCHARGE (PRD)</b>
+                      </small>
                     </Col>
                     <Col lg={2} md={2} className="border p-1 text-center">
-                      <small><b>TEAM LEADER (PRD)</b></small>
+                      <small>
+                        <b>TEAM LEADER (PRD)</b>
+                      </small>
                     </Col>
                   </Row>
                   <Row>
@@ -2161,12 +2179,13 @@ function MyTable({
         {/* for MTD TL send for approval or rejection */}
         {requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
           loggedUserDetails?._id ||
-        requestSheetDataOfBM?.approvalStatusOfMTD_HOSS === "Rejected" ||
-        requestSheetDataOfBM?.approvalStatusOfMTD_HOS === "Rejected" ||
-        requestSheetDataOfBM?.approvalStatusOfPRD_TL === "Rejected" ||
-        requestSheetDataOfBM?.approvalStatusOfPRD_HOS === "Rejected" ||
-        requestSheetDataOfBM?.approvalStatusOfPRD_HOD === "Rejected" ||
-        requestSheetDataOfBM?.approvalStatusOfMTD_HOD === "Rejected" ? (
+        ((requestSheetDataOfBM?.approvalStatusOfMTD_HOSS === "Rejected" ||
+          requestSheetDataOfBM?.approvalStatusOfMTD_HOS === "Rejected" ||
+          requestSheetDataOfBM?.approvalStatusOfPRD_TL === "Rejected" ||
+          requestSheetDataOfBM?.approvalStatusOfPRD_HOS === "Rejected" ||
+          requestSheetDataOfBM?.approvalStatusOfPRD_HOD === "Rejected" ||
+          requestSheetDataOfBM?.approvalStatusOfMTD_HOD === "Rejected") &&
+          requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id) ? (
           <>
             <Row>
               <Col>
@@ -2176,7 +2195,7 @@ function MyTable({
                   style={{ marginTop: "1rem" }}
                   // onClick={handleSubmit(newRequestSheetRegistration)}
                 >
-                  Submit
+                  Save Changes
                 </button>
               </Col>
             </Row>
@@ -2269,6 +2288,8 @@ function MyTable({
         requestSheetDataOfBM?.approvalOfMTD_TL?._id !==
           loggedUserDetails?._id &&
         requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id ? (
+          // &&requestSheetDataOfBM?.assignUser?._id !==
+          //   requestSheetDataOfBM?.approvalOfMTD_TL?._id
           <>
             <Row>
               {loggedUserDetails?.tm_department === "MTD" && (
@@ -2279,7 +2300,7 @@ function MyTable({
                     style={{ marginTop: "1rem" }}
                     onClick={handleSubmit(newRequestSheetRegistration)}
                   >
-                    Submit
+                    Save Changes
                   </button>
                 </Col>
               )}

@@ -143,6 +143,10 @@ const userRoutes = [
         element: <ApprovalDashboardOfRequestSheet />,
       },
       {
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
+        element: <RequestSheetUpdate />,
+      },
+      {
         path: "/bm/approvalLogs",
         element: <ApprovalLogs />,
       },
@@ -184,6 +188,10 @@ const userRoutes = [
       {
         path: "/bm/approval",
         element: <ApprovalDashboardOfRequestSheet />,
+      },
+      {
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
+        element: <RequestSheetUpdate />,
       },
       {
         path: "/bm/approvalLogs",
@@ -237,7 +245,7 @@ const userRoutes = [
         element: <RequestSheet />,
       },
       {
-        path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
         element: <RequestSheetUpdate />,
       },
       {
@@ -285,7 +293,7 @@ const userRoutes = [
         element: <RequestSheet />,
       },
       {
-        path: "/bm/update/request-sheet/:machine_code/:requestSheetNoOfBM",
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
         element: <RequestSheetUpdate />,
       },
       {

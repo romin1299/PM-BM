@@ -28,6 +28,7 @@ exports.getUserData =
 
     let queryObj = {
       plant_data: req?.rootUser?.plant_data,
+      _id: { $ne: req?.rootUser?._id },
     };
 
     // console.log("queryObj", queryObj);

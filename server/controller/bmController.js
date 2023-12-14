@@ -477,12 +477,14 @@ router.post(
           const requestSheetNoOfBM =
             machine?.line_names?.cell_names?.subSection_names?.section_names
               ?.dashboardLevel === "Yes"
-              ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name).trim()
+              ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
+                  .trim()
                   .substring(0, 2)
                   .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
                   moment().tz("Asia/Kolkata").month() + 1
                 }-${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim()
-              : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name).trim()
+              : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
+                  .trim()
                   .substring(0, 2)
                   .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
                   moment().tz("Asia/Kolkata").month() + 1
@@ -667,6 +669,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
               timezone: "Asia/Kolkata",
             },
           },
+          lossTime: "$maintenanceReportFilledByMTD.breakDownTime",
           work_order_status: 1,
           requestSheetStatus: 1,
           MTDUser: { $arrayElemAt: ["$namesMTD.tm_name", 0] },
@@ -1186,26 +1189,23 @@ const filterMiddleware = async (req, res, next) => {
   }
 };
 
-
 router.get(
-  "/getRequestSheetData/:filter/:selectedId",filterMiddleware,
-  
+  "/getRequestSheetData/:filter/:selectedId",
+  filterMiddleware,
+
   async (req, res, next) => {
     try {
-
       // For fetching all data
       let queryPipeline = [
         {
           $match: {
-       ...req.queryObj,
+            ...req.queryObj,
           },
         },
-
       ];
-     
 
       //For fetching data while updating
-      if(req.query?._id){
+      if (req.query?._id) {
         queryPipeline = [
           {
             $match: {
@@ -1613,8 +1613,6 @@ router.get("/getMtdUserDetails", async (req, res, next) => {
 // -------------------------------------------------------------------------------
 //        Monitoring RequestSheet APIS
 // -------------------------------------------------------------------------------
-
-
 
 const middlewareForGettingAllDropdownList = async (req, res, next) => {
   try {
@@ -3302,7 +3300,6 @@ const getRequestSheetData = async (req, res, next) => {
               timezone: "Asia/Kolkata",
             },
           },
-
           assignUser: {
             $arrayElemAt: ["$namesOperators", 0],
           },
@@ -3601,31 +3598,6 @@ router.patch(
         delete assignApprovalList[formattedKey];
       // });
 
-      //Handling validation for approval list which is not selected by user from client-side
-      for (
-        let index = 0;
-        index < Object.keys(assignApprovalList)?.length;
-        index++
-      ) {
-        if (
-          requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
-            minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
-          ].includes(Object.keys(assignApprovalList)?.[index].replace("_", " "))
-        ) {
-          if (
-            Object.keys(
-              assignApprovalList?.[Object.keys(assignApprovalList)?.[index]]
-            )?.length === 0
-          ) {
-            return res.status(400).json({
-              message: `Please select required approval list ${(requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
-                minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
-              ]).join(", ")}`,
-            });
-          }
-        }
-      }
-
       const updateTheStatusOfBMSheetApprover = async (
         keyOfDepartment,
         assignUser
@@ -3645,7 +3617,8 @@ router.patch(
         let resultOfUpdateStatusOfApprover =
           await RequestSheetOfBM.findOneAndUpdate(
             {
-              _id: mongoose.Types.ObjectId(req.query?.reqId),            },
+              _id: mongoose.Types.ObjectId(req.params?.reqId),
+            },
             {
               $push: {
                 ...queryObjForPush,
@@ -3679,9 +3652,35 @@ router.patch(
 
       //request-sheet is approved/accepted
       if (approvalOfRequestSheet === "Yes") {
+        //Handling validation for approval list which is not selected by user from client-side
+        for (
+          let index = 0;
+          index < Object.keys(assignApprovalList)?.length;
+          index++
+        ) {
+          if (
+            requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+              minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
+            ].includes(
+              Object.keys(assignApprovalList)?.[index].replace("_", " ")
+            )
+          ) {
+            if (
+              Object.keys(
+                assignApprovalList?.[Object.keys(assignApprovalList)?.[index]]
+              )?.length === 0
+            ) {
+              return res.status(400).json({
+                message: `Please select required approval list ${(requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+                  minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
+                ]).join(", ")}`,
+              });
+            }
+          }
+        }
         let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
           {
-            _id: mongoose.Types.ObjectId(req.query?.reqId),
+            _id: mongoose.Types.ObjectId(req.params?.reqId),
             approvalStatusOfMTD_TL: "Pending",
           },
           {
@@ -3713,13 +3712,13 @@ router.patch(
         );
         if (updateRequestSheetStatus)
           return res.status(201).json({
-            message: `${req.params?.reqId} Request-sheet approval send !!`,
+            message: `${requestSheetDataOfBM?.requestSheetNoOfBM} Request-sheet approval send !!`,
           });
       } else {
         //request-sheet is rejected
         let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
           {
-            _id: mongoose.Types.ObjectId(req.query?.reqId),
+            _id: mongoose.Types.ObjectId(req.params?.reqId),
             approvalStatusOfMTD_TL: "Pending",
           },
           {
@@ -3739,7 +3738,7 @@ router.patch(
         );
         if (updateRequestSheetStatus)
           return res.status(201).json({
-            message: `${req.params?.reqId} Request-sheet is rejected !!`,
+            message: `${requestSheetDataOfBM?.requestSheetNoOfBM} Request-sheet is rejected !!`,
           });
       }
       //send email of approval to MTD TL (Remaining)
@@ -5314,7 +5313,7 @@ router.get(
       return res.status(201).json({
         message: "Categories data in PieChart get successfully",
 
-         problemCategoriesPieChart: problemCategoriesPieChart?.[0],
+        problemCategoriesPieChart: problemCategoriesPieChart?.[0],
       });
     } catch (error) {
       res.status(500).json({ message: "error?.message, error" });
@@ -5381,7 +5380,7 @@ router.get(
 
       return res.status(201).json({
         message: "Categories data in PieChart get successfully",
-         bdCategoryPieChart :bdCategoryPieChart?.[0] ,
+        bdCategoryPieChart: bdCategoryPieChart?.[0],
       });
     } catch (error) {
       res.status(500).json({ message: "error?.message, error" });
@@ -7467,27 +7466,21 @@ router.get(
   bdHourTrendMiddleware,
   async (req, res, next) => {
     try {
-
-      
       let queryObj = {};
 
-      
-        queryObj = {
-         ...req.queryObj,
-         machineRef: mongoose.Types.ObjectId(req.params.machineId),
-
-      }
-
-     
+      queryObj = {
+        ...req.queryObj,
+        machineRef: mongoose.Types.ObjectId(req.params.machineId),
+      };
 
       const allData = await RequestSheetOfBM.aggregate([
         { $match: queryObj },
         {
           $group: {
-            _id:null,
+            _id: null,
             count: { $sum: 1 },
-            
-              bdTime: {
+
+            bdTime: {
               $sum: {
                 $cond: [
                   {
@@ -7506,15 +7499,13 @@ router.get(
                 ],
               },
             },
-          }
-        } 
+          },
+        },
       ]);
 
       const mttrData = await RequestSheetOfBM.aggregate([
-
         {
           $match: queryObj,
-        
         },
         {
           $group: {
@@ -7545,7 +7536,6 @@ router.get(
                 ],
               },
             },
-          
           },
         },
         {
@@ -7563,8 +7553,7 @@ router.get(
             mttr: { $sum: "$hours" },
           },
         },
-      ])
-
+      ]);
 
       const mtbfData = await RequestSheetOfBM.aggregate([
         {
@@ -7707,13 +7696,11 @@ router.get(
         ...req.bdTrendData,
       ]);
 
-
-     
       const combinedData = {
         count: allData[0]?.count,
         bdTime: allData[0]?.bdTime,
         mttr: mttrData[0].mttr,
-        mtbf: mtbfData[0]?.mtbf
+        mtbf: mtbfData[0]?.mtbf,
       };
 
       return res.status(201).json({
@@ -8015,7 +8002,7 @@ router.get(
 //         ...queryObj,
 //         "preAggregationTimeStampOfRequestSheet.requestSheet_month":
 //           req.query?.selectedMonth,
-        
+
 //       };
 //     }
 
@@ -8050,8 +8037,6 @@ router.get(
 //   }
 // };
 
-
-
 router.get(
   "/getSummaryCard/:filter/:selectedId/:machineId",
   filterMiddleware,
@@ -8064,17 +8049,13 @@ router.get(
     //     timezone: timezone,
     //   },
     // };
-    
+
     let queryObj = {};
 
-      
     queryObj = {
-     ...req.queryObj,
-     machineRef: mongoose.Types.ObjectId(req.params.machineId),
-
-  }
-
- 
+      ...req.queryObj,
+      machineRef: mongoose.Types.ObjectId(req.params.machineId),
+    };
 
     try {
       const allData = await RequestSheetOfBM.aggregate([
@@ -8115,7 +8096,6 @@ router.get(
                 ],
               },
             },
-            
           },
         },
       ]);
@@ -8138,14 +8118,14 @@ router.get(
         {
           $group: {
             _id: {
-              cell : "$cell_data.cell_name",
-              month : {
+              cell: "$cell_data.cell_name",
+              month: {
                 $dateToString: {
-                format: "%m",
-                date: "$problemOccurredDateAndTimeOfBM",
-                timezone: timezone,
+                  format: "%m",
+                  date: "$problemOccurredDateAndTimeOfBM",
+                  timezone: timezone,
+                },
               },
-            }
             },
             count: { $sum: 1 },
             hours: {
@@ -8167,7 +8147,6 @@ router.get(
                 ],
               },
             },
-          
           },
         },
         {
@@ -8185,7 +8164,7 @@ router.get(
             mttr: { $sum: "$hours" },
           },
         },
-      ])
+      ]);
 
       const mtbfData = await RequestSheetOfBM.aggregate([
         { $match: queryObj },
@@ -8205,7 +8184,11 @@ router.get(
 
         {
           $group: {
-            _id: {cell : "$cell_data.cell_name", month :"$preAggregationTimeStampOfRequestSheet.requestSheet_month" },
+            _id: {
+              cell: "$cell_data.cell_name",
+              month:
+                "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            },
 
             count: { $sum: 1 },
             hours: {
@@ -8422,7 +8405,7 @@ router.get(
         count: allData,
         bdTime: allData,
         mttr: mttrData,
-        mtbf: mtbfData
+        mtbf: mtbfData,
       };
 
       return res.status(201).json({
@@ -8520,7 +8503,6 @@ const middlewareForFindingTmMTTRSkillTrendData = async (req, res, next) => {
 };
 
 const middlewareForFindingTmProgressData = async (req, res, next) => {
-
   try {
     const TrendData = await RequestSheetOfBM.aggregate([
       {
@@ -8749,7 +8731,6 @@ const middlewareForTmNames = async (req, res, next) => {
     }
 
     console.log(" matchQuery_BM", matchQuery_BM);
-    
 
     const tmLoadData = await User.aggregate([
       ...queryPipelineForUser,
@@ -8890,7 +8871,7 @@ const middlewareForTmNames = async (req, res, next) => {
     console.log("tmLoadData", tmLoadData);
     req.tmNames = tmLoadData[0].tm_names;
     console.log("req.tmNames", req.tmNames);
-    next(); 
+    next();
 
     return res.status(201).json({
       message: "TM load data get successfully",
@@ -8901,25 +8882,23 @@ const middlewareForTmNames = async (req, res, next) => {
   }
 };
 
+router.get("/mttrTrend/tmMTTRSkill/:filter/:selectedId", middlewareForTmNames);
+
 router.get(
-  "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
-  middlewareForTmNames
-);
+  "/getAllTmNames/tmMTTRSkill/:filter/:selectedId",
+  middlewareForTmNames,
+  async (req, res, next) => {
+    try {
+      // console.log("TMS", req.tmNames);
 
-
-router.get("/getAllTmNames/tmMTTRSkill/:filter/:selectedId",middlewareForTmNames, async (req, res, next) => {
-  try {
-    // console.log("TMS", req.tmNames);
-   
-   
-
-    return res.status(200).json({
-      tmNames: req.tmNames,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
+      return res.status(200).json({
+        tmNames: req.tmNames,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
   }
-});
+);
 
 const filterMiddlewarForTmNames = async (req, res, next) => {
   try {
@@ -8970,7 +8949,6 @@ const filterMiddlewarForTmNames = async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
-
 
 router.get(
   "/tmProgress/tmMTTRSkill/:filter/:selectedId/:tmId",
@@ -9771,7 +9749,7 @@ router.patch(
       )}`;
 
       const getRequestSheetData = await RequestSheetOfBM.findOne({
-        _id: mongoose.Types.ObjectId(req.query?.reqId),
+        _id: mongoose.Types.ObjectId(req.params?.reqId),
       });
 
       const lengthOfTheApprovalStatus =
@@ -9832,7 +9810,7 @@ router.patch(
           let updateApprovalStatusOfRequestSheet =
             await RequestSheetOfBM.findOneAndUpdate(
               {
-                _id: mongoose.Types.ObjectId(req.query?.reqId),
+                _id: mongoose.Types.ObjectId(req.params?.reqId),
                 // [keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition]:
                 //   "Pending",
               },
@@ -9857,7 +9835,7 @@ router.patch(
             );
           if (updateApprovalStatusOfRequestSheet)
             return res.status(201).json({
-              message: `${req?.params?.reqId} Request-sheet is approve !!`,
+              message: `${getRequestSheetData?.requestSheetNoOfBM} Request-sheet is approve !!`,
               errorType: "Approve",
             });
         } else {
@@ -9865,7 +9843,7 @@ router.patch(
           let updateApprovalStatusOfRequestSheet =
             await RequestSheetOfBM.findOneAndUpdate(
               {
-                _id: mongoose.Types.ObjectId(req.query?.reqId),
+                _id: mongoose.Types.ObjectId(req.params?.reqId),
                 // [keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition]:
                 //   "Pending",
               },
@@ -9890,7 +9868,7 @@ router.patch(
 
           if (updateApprovalStatusOfRequestSheet)
             return res.status(201).json({
-              message: `${req?.params?.reqId} Request-sheet is approve !!`,
+              message: `${getRequestSheetData?.requestSheetNoOfBM} Request-sheet is approve !!`,
               errorType: "Approve",
             });
         }
@@ -9904,7 +9882,7 @@ router.patch(
         let updateApprovalStatusOfRequestSheet =
           await RequestSheetOfBM.findOneAndUpdate(
             {
-              _id: mongoose.Types.ObjectId(req.query?.reqId),
+              _id: mongoose.Types.ObjectId(req.params?.reqId),
               // [keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition]:
               //   "Pending",
             },
@@ -9937,11 +9915,12 @@ router.patch(
           );
         if (updateApprovalStatusOfRequestSheet)
           return res.status(201).json({
-            message: `${req.params?.reqId} Request-sheet is rejected !!`,
+            message: `${getRequestSheetData?.requestSheetNoOfBM} Request-sheet is rejected !!`,
             errorType: "Rejected",
           });
       }
     } catch (error) {
+      console.log(error)
       res.status(500).json({ message: error?.message, error });
     }
   }

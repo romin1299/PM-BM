@@ -86,7 +86,7 @@ const TL = ({ userData, userDepartment }) => {
   const [collapsed, setCollapsed] = useState(true);
   const styles = {
     sideBarHeight: {
-      height: "100vh",
+      height: "110vh",
     },
     menuIcon: {
       float: "left",
@@ -590,8 +590,6 @@ const TL = ({ userData, userDepartment }) => {
             GenerateRequestSheetMainDashboard
           </Menuitem>
         </Menu>
-      </SidebarContent>
-      <SidebarFooter fixed="bottom">
         <Menu iconShape="square">
           <MenuItem
             className="text"
@@ -616,7 +614,33 @@ const TL = ({ userData, userDepartment }) => {
             Logout{" "}
           </MenuItem>
         </Menu>
-      </SidebarFooter>
+      </SidebarContent>
+      {/* <SidebarFooter fixed="bottom">
+        <Menu iconShape="square">
+          <MenuItem
+            className="text"
+            icon={
+              <LogoutIcon
+                className="text-white"
+                style={{ transform: "rotate(180deg)" }}
+              />
+            }
+            data-toggle="tooltip"
+            data-placement="right"
+            title="Logout"
+            onClick={() =>
+              Logout(userData).then((res) => {
+                if (res) {
+                  loggedOut();
+                }
+              })
+            }
+          >
+            {" "}
+            Logout{" "}
+          </MenuItem>
+        </Menu>
+      </SidebarFooter> */}
     </ProSidebar>
   );
 };
