@@ -556,7 +556,7 @@ const RequestSheetMainDashboard = () => {
         </Row>
 
         <Row className="d-flex justify-content-end p-2">
-              <Col lg={4} md={12} sm={12} class="d-flex justify-content-end">
+              <Col lg={4} md={12} sm={12} className="d-flex justify-content-end">
                 <button
                   onClick={handleGenerateBMNavigation}
                   className={
