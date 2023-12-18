@@ -106,7 +106,7 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
 
     try {
       const res = await axios.get(url, {
-        // params,   //uncomment when database is updated with agrregated year and month values
+        params,   //uncomment when database is updated with agrregated year and month values
         withCredentials: true,
         credentials: "include",
       });

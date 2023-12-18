@@ -16,6 +16,8 @@ import {
   PointElement,
 } from "chart.js";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import axios from "axios";
+import DataNotFound from "../Common/DataNotFound";
 
 ChartJS.register(
   CategoryScale,
@@ -53,8 +55,8 @@ export const options = {
         text: "TM Names",
       },
       ticks: {
-        maxRotation: 90,
-        minRotation: 90,
+        // maxRotation: 90,
+        // minRotation: 90,
         // padding: 10,
         color: "black",
       },
@@ -72,51 +74,58 @@ export const options = {
   },
 };
 
-const TM_Names = [
-  "Jatindar",
-  "Mangal",
-  "Ujjawal",
-  "NeeraK",
-  "Dalip",
-  "Gagandeep",
-  "Inderjeet",
-  "Shubhash",
-  "Ashish",
-  "Sandeep",
-  "Anshul",
-  "Shreekant",
-];
+const TMLoad = ({ selectedValue }) => {
+  const [data, setData] = React.useState({});
 
-export const data = {
-  labels: TM_Names,
-  datasets: [
-    {
-      type: "bar",
-      stack: "bar-stacked",
-      label: "Dataset 2",
-      data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-      backgroundColor: chartColors.brown[0],
-      borderColor: chartColors.brown[0],
-      borderWidth: 0,
-      pointStyle: "rect",
-    },
-  ],
-};
+  const fetchChartData = async () => {
+    console.log("selectedValue:", selectedValue);
+    const url = `/mttrTrend/tmMTTRSkill/based-on-subSection/${selectedValue}`;
+    try {
+      const res = await axios.get(url, {
+        withCredentials: true,
+        credentials: "include",
+      });
+      // console.log("MTTR Trend res:", res);
 
-const TMLoad = () => {
+      setData(res?.data?.tmLoadData?.[0]);
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
+  React.useEffect(() => {
+    if (selectedValue) fetchChartData();
+  }, [selectedValue]);
+
+  const chartData = {
+    labels: data?.tm_names,
+    datasets: [
+      {
+        type: "bar",
+        stack: "bar-stacked",
+        label: "Hours",
+        data: data?.data,
+        backgroundColor: chartColors.palettes[0][2],
+        pointStyle: "rect",
+        yAxisID: "y",
+      },
+    ],
+  };
+
+  // React.useEffect(() => {
+  //   console.log("MTTR skill data:", data);
+  // }, [data]);
+
   return (
     <Box className="cell p-3">
-      <ChartTitleBar
-        title="TM Load"
-        Toolbar={
-          <Col className="col-auto d-flex">
-            <FilterMenu DropdownValue="hour" />
-          </Col>
-        }
-      />
+      <ChartTitleBar title="MTTR Trend" />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        <Chart data={data} options={options} />
+        {data?.length <= 0 ? (
+          <DataNotFound />
+        ) : (
+          <Chart options={options} data={chartData} />
+        )}
       </Box>
     </Box>
   );

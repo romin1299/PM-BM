@@ -227,28 +227,28 @@ const ProductionLineWiseReport = () => {
         </Paper>
 
         <Row className="mt-3 g-2">
-          <Col lg={3} md={6}>
+          <Col xxl={3} lg={6} md={6}>
             <BDhours
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
             />
           </Col>
-          <Col lg={3} md={6}>
+          <Col xxl={3} lg={6} md={6}>
             <MTTRComponent
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
             />
           </Col>
-          <Col lg={3} md={6}>
+          <Col xxl={3} lg={6} md={6}>
             <MTBFComponent
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
             />
           </Col>
-          <Col lg={3} md={6}>
+          <Col xxl={3} lg={6} md={6}>
             <BDPercentageChart
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
@@ -258,7 +258,7 @@ const ProductionLineWiseReport = () => {
         </Row>
 
         <Row className="mt-1 g-2">
-          <Col lg={6}>
+          <Col lg={6} md={6}>
             <BDHoursVsCountComponent
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
@@ -266,7 +266,7 @@ const ProductionLineWiseReport = () => {
               selectedMonth={reduceState?.selectedMonth}
             />
           </Col>
-          <Col lg={6}>
+          <Col lg={6} md={6}>
             <CategoryPieCharts
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}

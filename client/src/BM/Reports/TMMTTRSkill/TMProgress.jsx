@@ -15,6 +15,9 @@ import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import { FilterMenu } from "../ManHourReport/SubComponents/FilterMenu";
+import DataNotFound from "../Common/DataNotFound";
+import axios from "axios";
+import TeamMembersDropdown from "./TeamMembersDropdown";
 
 ChartJS.register(
   CategoryScale,
@@ -24,9 +27,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
-// Register the plugin to all charts:
-ChartJS.register(ChartDataLabels);
 
 export const options = {
   maintainAspectRatio: false,
@@ -38,22 +38,7 @@ export const options = {
         usePointStyle: true,
       },
     },
-    datalabels: {
-      formatter: (value, context) => {
-        return value > 30 ? value : "";
-      },
-      formatter: (value, context) => {
-        if (context.dataset.type === "bar") {
-          return value > 30 ? value : "";
-        }
-        return value;
-      },
-      font: { weight: "bold", size: 8 },
-      // color: (context) => context.dataset.type === "line" ? chartColors[3] : "gray",
-      anchor: (context) => (context.dataset.type === "line" ? "end" : "center"),
-      align: (context) => (context.dataset.type === "line" ? "top" : "center"),
-      offset: (context) => (context.dataset.type === "line" ? -2 : 0),
-    },
+    datalabels: { display: false },
   },
   // elements: {
   //   bar: {
@@ -73,8 +58,8 @@ export const options = {
       },
       ticks: {
         color: "black",
-        maxRotation: 90,
-        minRotation: 90,
+        // maxRotation: 90,
+        // minRotation: 90,
       },
     },
     y: {
@@ -87,80 +72,68 @@ export const options = {
   },
 };
 
-const daysLabels = Array.from({ length: 30 }, (_, i) => (i + 1).toString());
+const TMProgress = ({ selectedValue }) => {
+  const [data, setData] = React.useState({});
+  const [tmId, setTmId] = React.useState("");
 
-const getRandomDataArray = (max = 30) => {
-  return Array.from({ length: 8 }, () => Math.floor(Math.random() * max));
-};
+  const fetchChartData = async () => {
+    // console.log("selectedValue:", selectedValue);
+    const url = `/tmProgress/tmMTTRSkill/based-on-subSection/${selectedValue}/${tmId}`;
+    try {
+      const res = await axios.get(url, {
+        withCredentials: true,
+        credentials: "include",
+      });
+      // console.log("MTTR Trend res:", res.data.data);
 
-const dataset = [
-  {
-    type: "line",
-    label: "Total Count",
-    data: getRandomDataArray(30),
-    borderColor: chartColors.magenta[1],
-    borderWidth: 2,
-    backgroundColor: "chartColors.magenta[1]",
-    pointStyle: "rectRot",
-    yAxisID: "y",
-  },
-];
-
-export const data = {
-  labels: MONTH_LABELS,
-  datasets: dataset.map((dataset, i) => ({
-    ...dataset,
-    // backgroundColor: chartColors[i - 1],
-    backgroundColor:
-      i === 0
-        ? chartColors.magenta[1]
-        : dataset.label === "< 60"
-        ? chartColors.blue[3]
-        : dataset.label === "< 120"
-        ? chartColors.green[3]
-        : dataset.label === "> 120"
-        ? chartColors.orange[2]
-        : chartColors[i - 1],
-  })),
-};
-
-const TMProgress = () => {
-  const [filteredData, setFilteredData] = useState(data);
-
-  const [filterOptions, setFilterOptions] = useState({
-    lessThan60: false,
-    lessThan120: false,
-    greaterThan120: false,
-  });
-
-  const handleCheckboxChange = (option) => {
-    setFilterOptions((prevOptions) => ({
-      ...prevOptions,
-      [option]: !prevOptions[option],
-    }));
+      setData(res?.data?.data);
+    } catch (error) {
+      console.log("error:", error);
+    }
   };
 
-  //   const filterData = () => {
-  //     // Implement filtering logic here based on checkbox states
-  //   };
+  React.useEffect(() => {
+    if (selectedValue) fetchChartData();
+  }, [selectedValue, tmId]);
 
-  //   useEffect(() => {
-  //     filterData();
-  //   }, [filterOptions]);
+  const chartData = {
+    labels: MONTH_LABELS,
+    datasets: [
+      {
+        type: "line",
+        stack: "bar-stacked",
+        label: "Hours",
+        data: data?.data,
+        backgroundColor: chartColors[3],
+        borderColor: chartColors[3],
+        borderWidth: 2,
+        pointStyle: "circle",
+        yAxisID: "y",
+      },
+    ],
+  };
+
+  // React.useEffect(() => {
+  //   console.log("plant data:", data);
+  // }, [data]);
 
   return (
     <Box className="cell p-3">
       <ChartTitleBar
         title="TM Load"
         Toolbar={
-          <Col className="col-auto d-flex">
-            <FilterMenu DropdownValue="hour" />
+          <Col className="col-auto">
+            <TeamMembersDropdown tmId={tmId} setTmId={setTmId} />
           </Col>
         }
       />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        <Chart data={data} options={options} />
+        {data?.length <= 0 ? (
+          <DataNotFound />
+        ) : (
+          <Chart options={options} data={chartData} />
+        )}
       </Box>
     </Box>
   );
