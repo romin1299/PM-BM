@@ -5302,6 +5302,7 @@ router.get(
 );
 
 // ---------------- Problem Category Pie Chart -------------------
+//API not in use
 router.get(
   "/getProblemCategoryPieChart/:filter/:selectedId",
   authenticate,
@@ -5372,21 +5373,25 @@ router.get(
 
 // ---------------- BD Category Pie Chart -------------------
 router.get(
-  "/getBdCategoryPieChart/:filter/:selectedId",
+  "/getPieChartData/:filter/:selectedId",
   authenticate,
   filterMiddleware,
   async (req, res, next) => {
     try {
-      const bdCategoryPieChart = await RequestSheetOfBM.aggregate([
+      const pieChartData = await RequestSheetOfBM.aggregate([
         {
           $match: req.queryObj,
         },
-
+        {
+          $unwind: "$categoriesOfRequestSheet",
+        },
         {
           $group: {
-            _id: "$bdCategory",
+            _id: {
+              category: "$categoriesOfRequestSheet.category",
+              subCategory: "$categoriesOfRequestSheet.subCategory",
+            },
             count: { $sum: 1 },
-            // bdtime: { $sum: "$bdTime" },
             bdtime: {
               $sum: {
                 $cond: [
@@ -5408,29 +5413,58 @@ router.get(
             },
           },
         },
-
         {
-          $sort: { _id: 1 },
+          $group: {
+            _id: {
+              category: "$_id.category",
+            },
+            subcategories: {
+              $push:  "$_id.subCategory",
+                // count: "$count",
+                // bdtime: "$bdtime",
+             
+            },
+            bdCount : {
+              $push : "$count"
+            },
+            bdTime : {
+              $push : "$bdtime"
+            }
+          },
         },
 
+        {
+          $sort: {
+            "_id.category": 1, 
+           
+          },
+        },
+        
         {
           $group: {
             _id: null,
-            labels: { $push: "$_id" },
-
-            hours: {
-              $push: "$bdtime",
-            },
-            count: {
-              $push: "$count",
+            categories: {
+              $push: {
+                category: "$_id.category",
+                subcategories: "$subcategories",
+                bdCount : "$bdCount",
+                bdTime : "$bdTime"
+              },
             },
           },
         },
+        {
+          $project: {
+            _id: 0,
+            categories: 1,
+          },
+        },
       ]);
+      
 
       return res.status(201).json({
         message: "Categories data in PieChart get successfully",
-        bdCategoryPieChart: bdCategoryPieChart?.[0],
+        categoriesPieChartData: pieChartData?.[0].categories,
       });
     } catch (error) {
       res.status(500).json({ message: "error?.message, error" });
@@ -9143,124 +9177,145 @@ const middlewareForFindingTmMTTRSkillTrendData = async (req, res, next) => {
 
 const middlewareForFindingTmProgressData = async (req, res, next) => {
   try {
+    const boo = Boolean(req.query.isAll);
+
+console.log(req.query)
+    
+
+const isAllClicked = Boolean(req.query.isAll) === true;
+console.log(isAllClicked)
+
+
     const tmProgress = await RequestSheetOfBM.aggregate([
       {
-        $match: {
-          $and: [
-            req.queryObj,
-            {
-              $or: [
-                { assignUser: mongoose.Types.ObjectId(req.params.tmId) },
-                { supportingTM: mongoose.Types.ObjectId(req.params.tmId) },
-                { handOverUser: mongoose.Types.ObjectId(req.params.tmId) },
-              ],
-            },
-          ],
-        },
-      },
-      
-      {
-        $group: {
-          // _id: null,
+        $match: req.queryObj,
+       
+       },
+        {
+          $match: {
+            // $or: [
+            //   { assignUser: mongoose.Types.ObjectId(req.params.tmId) },
+            //   { supportingTM: mongoose.Types.ObjectId(req.params.tmId) },
+            //   { handOverUser: mongoose.Types.ObjectId(req.params.tmId) },
+            // ],
 
-          _id: {user : req.params.tmId ,month : "$preAggregationTimeStampOfRequestSheet.requestSheet_month"},
-
-          count: { $sum: 1 },
-          hours: {
-            $sum: {
-              $cond: [
+            $and: isAllClicked
+              ? [{
+                $nor: [
+                  { assignUser: mongoose.Types.ObjectId(req.params.tmId) },
+                  { supportingTM: mongoose.Types.ObjectId(req.params.tmId) },
+                  { handOverUser: mongoose.Types.ObjectId(req.params.tmId) },
+                ],
+              }] 
+              : [
                 {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
+                  $or: [
+                    { assignUser: mongoose.Types.ObjectId(req.params.tmId) },
+                    { supportingTM: mongoose.Types.ObjectId(req.params.tmId) },
+                    { handOverUser: mongoose.Types.ObjectId(req.params.tmId) },
                   ],
-                },
-                {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                },
-                0,
+                }
               ],
-            },
           },
         },
-      },
+     
+      
+      // {
+      //   $group: {
+      //     // _id: null,
 
-      // $addFields: {
-      //   productionDataBasedOnRSMonth: {
-      //     $function: {
-      //       body: function (month, productionHrs) {
-      //         return productionHrs?.monthlyProductionHrs?.[month];
+      //     _id: {user : req.params.tmId ,month : "$preAggregationTimeStampOfRequestSheet.requestSheet_month"},
+
+      //     count: { $sum: 1 },
+      //     hours: {
+      //       $sum: {
+      //         $cond: [
+      //          {
+      //           $and : [ { $gt: [
+      //               "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+      //               null,
+      //             ]
+      //           },
+      //           {  $lt : ["$maintenanceReportFilledByMTD.breakDownTime", 120]
+      //         },
+      //         ]
       //       },
-      //       args: ["$_id", req.productionHrs],
-      //       lang: "js",
+      //           {
+      //             $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+      //           },
+      //           0,
+      //         ],
+      //       },
       //     },
       //   },
       // },
-      {
-        $project: {
-          count: 1,
+
+    
+      // {
+      //   $project: {
+      //     count: 1,
          
-          hours: req.hourCalculationFormula,
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          array: { $push: "$$ROOT" },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          array: {
-            $map: {
-              input: allMonths,
-              as: "month",
-              in: {
-                $cond: [
-                  { $in: ["$$month.monthName", "$array._id.month"] },
-                  {
-                    month: "$$month.monthName",
-                    value: {
-                      $arrayElemAt: [
-                        "$array",
-                        {
-                          $indexOfArray: ["$array._id", "$$month.monthName"],
-                        },
-                      ],
-                    },
-                  },
-                  {
-                    month: "$$month.monthName",
-                    value: {
-                      _id: "$$month.monthName",
-                      count: 0,
-                      hours: 0,
+      //     hours: req.hourCalculationFormula,
+      //   },
+      // },
+      // {
+      //   $group: {
+      //     _id: null,
+      //     array: { $push: "$$ROOT" },
+      //   },
+      // },
+      // {
+      //   $project: {
+      //     _id: 0,
+      //     array: {
+      //       $map: {
+      //         input: allMonths,
+      //         as: "month",
+      //         in: {
+      //           $cond: [
+      //             { $in: ["$$month.monthName", "$array._id.month"] },
+      //             {
+      //               month: "$$month.monthName",
+      //               value: {
+      //                 $arrayElemAt: [
+      //                   "$array",
+      //                   {
+      //                     $indexOfArray: ["$array._id", "$$month.monthName"],
+      //                   },
+      //                 ],
+      //               },
+      //             },
+      //             {
+      //               month: "$$month.monthName",
+      //               value: {
+      //                 _id: "$$month.monthName",
+      //                 count: 0,
+      //                 hours: 0,
                       
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        },
-      },
-      { $unwind: "$array" },
-      {
-        $replaceRoot: { newRoot: "$array" },
-      },
-      {
-        $group: {
-          _id: null,
-          // _id: "$value._id.user",
-          labels: { $push: "$month" },
+      //               },
+      //             },
+      //           ],
+      //         },
+      //       },
+      //     },
+      //   },
+      // },
+      // { $unwind: "$array" },
+      // {
+      //   $replaceRoot: { newRoot: "$array" },
+      // },
+      // {
+      //   $group: {
+      //     _id: null,
+      //     // _id: "$value._id.user",
+      //     labels: { $push: "$month" },
           
-          data: {
-            $push: "$value.hours",
-          },
+      //     data: {
+      //       $push: "$value.hours",
+      //     },
           
-        },
-      },
+      //   },
+      // },
     ]);
     // const allData = await RequestSheetOfBM.aggregate([
     //   {
@@ -9723,205 +9778,95 @@ const filterMiddlewaressss = async (req, res, next) => {
 };
 
 const altfindTLandOperatorList = async (req, res, next) => {
-//   try {
-//     let TLHOSS_and_TM_user_list = [];
-// console.log("TMMMMM",req.queryObj)
-   
-//     // if (
-//     //   (req?.rootUser?.tm_department === "MTD" && !req.purpose) ||
-//     //   req?.rootUser?.user_type === "Operator"
-//     // )
-
-//     let altQueryObj = {};
-
-//     if(req.queryObj === "based-on-section"){
-//       altQueryObj ={ section_data: req?.rootUser?.section_data};
-//     }
-//     if(req.queryObj === "based-on-subSection"){
-//       altQueryObj ={ subSection_data : req?.rootUser?.section_data};
-//     }
-//     if(req.queryObj === "based-on-cell"){
-//       altQueryObj ={ cell_data: req?.rootUser?.section_data};
-//     }
-//     // if(req.queryObj === "based-on-line"){
-//     //   altQueryObj ={ section_data: req?.rootUser?.section_data};
-//     // }
-
-//      {
-//       TLHOSS_and_TM_user_list = await User.find(
-//         {
-//           ...req.queryObj,
-//           tm_no: { $ne: req?.rootUser?.tm_no },
-//           $or: [
-//             {
-//               user_type: "Operator",
-//             },
-//             {
-//               $and: [
-//                 {
-//                   user_type: "TL/HOSS",
-//                 },
-//                 {
-//                   tm_department: "MTD",
-//                 },
-//               ],
-//             },
-//           ],
-//         },
-//         {
-//           tm_name: 1,
-//           tm_department: 1,
-//           tm_grade: 1,
-//           user_type: 1,
-//         }
-//       );
-
-//       if (TLHOSS_and_TM_user_list?.length === 0) {
-//         return res.status(400).json({
-//           message: "No data to display",
-//         });
-//       }
-//     }
- 
-
-//     req.TLHOSS_and_TM_user_list = TLHOSS_and_TM_user_list;
- 
-//     next();
-//   } 
-try {
-  // let findObject = {
-  //   _id: mongoose.Types.ObjectId(req.params?.selectedId),
-  // };
-
-  let altTmUsers = [];
+  try {
+    let findObject = {
+      _id: mongoose.Types.ObjectId(req.params?.selectedId),
+    };
     
-
-  if (req.params?.filter === "based-on-section") {
-    const section = await Section.findOne(findObject);
-
-    altTmUsers = [
-      {
-        $match: {
-          section_data: `${section?.section_id}-${section?.section_name}`,
-        },
-      },
-    ];
-
-    // Assuming altTmUsers is an array of objects with a subSection_id and subSection_name property
-// let altTmUsers = [
-//   {
-//     subSection_id: "SS2",
-//     subSection_name: "Ceremic",
-//   },
-//   // Add more objects as needed
-// ];
-
-let TLHOSS_and_TM_user_list = await User.find(
-  {
-    $or: [
-      {
-        subSection_data: {
-          $in: altTmUsers.map((altUser) =>
-            `${altUser.subSection_id}-${altUser.subSection_name}`
-          ),
-        },
-      },
-      {
-        tm_no: { $ne: req?.rootUser?.tm_no },
-        $or: [
-          {
-            user_type: "Operator",
-          },
-          {
-            $and: [
-              {
-                user_type: "TL/HOSS",
-              },
-              {
-                tm_department: "MTD",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    tm_name: 1,
-    tm_department: 1,
-    tm_grade: 1,
-    user_type: 1,
-  }
-);
-
-   
-
-
-  // } else if (req.params?.filter === "based-on-subSection") {
-  //   const subSection = await SubSection.findOne(findObject);
-
-  //   altTmUsers = [
-  //     {
-  //       // $match: {
-  //         subSection_data: `${subSection?.subSection_id}-${subSection?.subSection_name}`,
-  //       },
-  //     // },
-  //   ];
-
-  
-  // } else if (req.params?.filter === "based-on-cell") {
-  //   const cell = await Cell.findOne(findObject);
-
-  //   altTmUsers = [
-  //     {
-  //       $match: {
-  //         cell_data: `${cell?.cell_id}-${cell?.cell_name}`,
-  //       },
-  //     },
-  //   ];
-
-  // }
-
-  // console.log(" matchQuery", altTmUsers);
-
-  // let TLHOSS_and_TM_user_list = await User.find(
-  //           {
-  //             subSection_data : {$in : altTmUsers},
-  //             tm_no: { $ne: req?.rootUser?.tm_no },
-  //             $or: [
-  //               {
-  //                 user_type: "Operator",
-  //               },
-  //               {
-  //                 $and: [
-  //                   {
-  //                     user_type: "TL/HOSS",
-  //                   },
-  //                   {
-  //                     tm_department: "MTD",
-  //                   },
-  //                 ],
-  //               },
-  //             ],
-  //           },
-  //           {
-  //             tm_name: 1,
-  //             tm_department: 1,
-  //             tm_grade: 1,
-  //             user_type: 1,
-  //           }
-  //         );
-
+    let altTmUsers = [];
  
-
-  
-  return res.status(201).json({
-    message: "TM load data get successfully",
-    total : TLHOSS_and_TM_user_list.length,
-    TLHOSS_and_TM_user_list
-  });
-}   
-  catch (error) {
+    if (req.params?.filter === "based-on-subSection") {
+      const section = await SubSection.findOne(findObject);
+ 
+      altTmUsers = [
+        {
+          // $match: {
+          subSection_data: `${section?.subSection_id}-${section?.subSection_name}`,
+          // },
+        },
+      ];
+    }
+    if (req.params?.filter === "based-on-cell") {
+      const cell = await Cell.findOne(findObject);
+ 
+      altTmUsers = [
+        {
+          // $match: {
+            cell_data: `${cell?.cell_id}-${cell?.cell_name}`,
+          // },
+        },
+      ];
+    }
+    
+ 
+      console.log(altTmUsers);
+ 
+      let TLHOSS_and_TM_user_list = await User.find(
+        {
+          // $or: [
+ 
+          // {
+          tm_no: { $ne: req?.rootUser?.tm_no },
+          $and: [
+            {
+              user_type: "Operator",
+            },
+            // {
+            //         tm_department: "MTD",
+            //       },
+           {
+            $or : [ 
+              {
+              subSection_data: {
+                $in: altTmUsers.map((tm) => tm.subSection_data),
+                },
+              },
+            {
+              cell_data: {
+                $in: altTmUsers.map((tm) => tm.cell_data),
+              },
+            },
+          ]
+          }
+            // {
+            //   $and: [
+            //     {
+            //       user_type: "TL/HOSS",
+            //     },
+            //     {
+            //       tm_department: "MTD",
+            //     },
+            //   ],
+            // },
+          ],
+        },
+        // ],
+        // },
+        {
+          tm_name: 1,
+          tm_department: 1,
+          tm_grade: 1,
+          user_type: 1,
+        }
+      );
+ 
+      return res.status(201).json({
+        message: "TM load data get successfully",
+        total: TLHOSS_and_TM_user_list.length,
+        TLHOSS_and_TM_user_list,
+      });
+    
+  } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
 };
