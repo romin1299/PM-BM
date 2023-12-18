@@ -98,9 +98,6 @@ export default function LineSelectionDropdown({
     fetchFYYearData();
   }, []);
 
-  console.log("cells:", cells);
-  console.log("selectedCell:", selectedCell);
-
   const getFiltrationValueBasedOnSection = async ({ section }) => {
     try {
       const { res, data } = await getFiltrationValue({
@@ -210,14 +207,32 @@ export default function LineSelectionDropdown({
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      const { res, data } = await getFiltrationValue({
-        url: `${baseUrlForFiltering}/byDefault`,
-      });
+  const getFiltrationValueByDefault = async () => {
+    const { res, data } = await getFiltrationValue({
+      url: `${baseUrlForFiltering}/byDefault`,
+    });
 
-      const {
-        message,
+    const {
+      message,
+
+      flagForTogglingFilter,
+      selectedValue,
+
+      selectedSection,
+      sections,
+      selectedSubSection,
+      subSections,
+      selectedCell,
+      cells,
+      selectedLine,
+      lines,
+      selectedMachine,
+      machines,
+    } = data;
+
+    if (res?.status === 201) {
+      reducerDispatch({
+        type: ACTION.GET_DATA,
 
         flagForTogglingFilter,
         selectedValue,
@@ -226,39 +241,26 @@ export default function LineSelectionDropdown({
         sections,
         selectedSubSection,
         subSections,
-        selectedCell,
         cells,
+        selectedCell,
         selectedLine,
         lines,
         selectedMachine,
         machines,
-      } = data;
+        message,
+      });
+    }
+  };
 
-      if (res?.status === 201) {
-        reducerDispatch({
-          type: ACTION.GET_DATA,
-
-          flagForTogglingFilter,
-          selectedValue,
-
-          selectedSection,
-          sections,
-          selectedSubSection,
-          subSections,
-          cells,
-          selectedCell,
-          selectedLine,
-          lines,
-          selectedMachine,
-          machines,
-          message,
-        });
-      }
-    })();
+  useEffect(() => {
+    getFiltrationValueByDefault();
   }, []);
 
   return (
-    <Box className="m-3" sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+    <Box
+      className="m-3"
+      sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}
+    >
       {context?.tm_grade === "HOD" && sections?.length > 0 && (
         <FormControl size="small">
           <Select
@@ -562,6 +564,25 @@ export default function LineSelectionDropdown({
           </Select>
         )}
       </FormControl>
+
+      <button
+        className="btn bg-button"
+        onClick={async () => {
+          let selectedYear =
+            new Date().getMonth() < 3
+              ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+              : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+          await reducerDispatch({
+            type: ACTION.HANDLE_SELECT_YEAR,
+            selectedYear,
+          });
+
+          getFiltrationValueByDefault(selectedYear);
+        }}
+      >
+        Reset
+      </button>
     </Box>
   );
 }
