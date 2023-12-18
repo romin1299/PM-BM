@@ -20,6 +20,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import RoutingContext from "../../context/routing/RoutingContext";
 
 import MachineHistoryCard from "../HistoryCard/MachineHistoryCard";
+import CellHistoryCard from "../HistoryCard/CellHistoryCard";
 
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
@@ -46,9 +47,11 @@ const RequestSheetMainDashboard = () => {
 
   const [selectedRow, setSelectedRow] = useState();
   const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
+  const [cellHistoryCardModal, setCellHistoryCardModal] = useState(false);
+
   const statusColorMap = {
-    "Generated": "#9bcbdb",
-    "Assigned": "#ffe031",
+    Generated: "#9bcbdb",
+    Assigned: "#ffe031",
     "Work Order Open": "#70b332",
     "Work Order Pending": "#F59F00",
     "Work Order Closed": "#ca2626",
@@ -60,8 +63,8 @@ const RequestSheetMainDashboard = () => {
     "Under MTD HOS Approval": "#c196d4",
     "Under MTD HOD Approval": "#c196d4",
     "Under PRD HOD Approval": "#c196d4",
-    "Completed": "#3fad3f",
-    "Rejected": "#ff3232",
+    Completed: "#3fad3f",
+    Rejected: "#ff3232",
   };
 
   const statusArray = [
@@ -297,7 +300,14 @@ const RequestSheetMainDashboard = () => {
       field: "requestSheetStatus",
       editable: false,
       render: (rowData) => (
-        <button className="btn" style={{ background: statusColorMap[rowData.requestSheetStatus], fontSize: "12px", cursor:"auto"}}>
+        <button
+          className="btn"
+          style={{
+            background: statusColorMap[rowData.requestSheetStatus],
+            fontSize: "12px",
+            cursor: "auto",
+          }}
+        >
           {rowData.requestSheetStatus}
         </button>
       ),
@@ -341,7 +351,7 @@ const RequestSheetMainDashboard = () => {
       field: "finalActivity",
       editable: conditionalBasedEditableFunctionForMTD,
       width: "20%",
-      validate: rowData => rowData.finalActivity !== '',
+      validate: (rowData) => rowData.finalActivity !== "",
     },
     // {
     //   title: "MTD Quality Check",
@@ -384,7 +394,7 @@ const RequestSheetMainDashboard = () => {
           />
         </LocalizationProvider>
       ),
-      validate: rowData => rowData.handOverTime !== '',
+      validate: (rowData) => rowData.handOverTime !== "",
       width: "10%",
     },
     {
@@ -455,7 +465,7 @@ const RequestSheetMainDashboard = () => {
           })}
         </select>
       ),
-      validate: rowData => rowData.work_order_status !== '',
+      validate: (rowData) => rowData.work_order_status !== "",
     },
   ];
 
@@ -464,6 +474,11 @@ const RequestSheetMainDashboard = () => {
       (machineHistoryCardModal) => !machineHistoryCardModal
     );
   };
+
+  const handleCellHistoryCardState = () => {
+    setCellHistoryCardModal((cellHistoryCardModal) => !cellHistoryCardModal);
+  };
+
   const requestSheetActions = [
     {
       icon: () => <CreditCardIcon className="text-primary1" />,
@@ -639,13 +654,30 @@ const RequestSheetMainDashboard = () => {
 
       {machineHistoryCardModal && (
         <MachineHistoryCard
+          selectedYear={reduceState?.selectedYear}
+          selectedMonth={reduceState?.selectedMonth}
           selectedRow={selectedRow}
           modelProp={{
             show: machineHistoryCardModal,
-            onHide: () => setMachineHistoryCardModal(false),
+            onHide: () => handleMachineHistoryCardState(),
           }}
         />
       )}
+
+      {(reduceState?.flagForTogglingFilter === "based-on-section" ||
+        reduceState?.flagForTogglingFilter === "based-on-subSection") &&
+        cellHistoryCardModal && (
+          <CellHistoryCard
+            selectedValue={reduceState?.selectedValue}
+            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+            selectedYear={reduceState?.selectedYear}
+            selectedMonth={reduceState?.selectedMonth}
+            modelProp={{
+              show: cellHistoryCardModal,
+              onHide: () => handleCellHistoryCardState(),
+            }}
+          />
+        )}
     </>
   );
 };

@@ -3,28 +3,19 @@ import { Container, Row, Col, Modal } from "react-bootstrap";
 
 import BDHoursTrendChart from "./BDHoursTrendChart";
 
-const MachineHistoryCard = ({
+const CellHistoryCard = (
   selectedYear,
   selectedMonth,
-  selectedRow,
-  modelProp,
-}) => {
-  const [historyCardData, setHistoryCardData] = useState({
-    bdTime: 0,
-    bdCount: 0,
-    mttrData: 0,
-    mtbf: 0,
-    bdHourTrend: {
-      lessThanOne: [],
-      lessThanTwo: [],
-      greaterThanTwo: [],
-    },
-  });
 
-  const getHistoryCard = async () => {
+  selectedValue,
+  flagForTogglingFilter,
+
+  modelProp
+) => {
+  const getSummaryCard = async () => {
     try {
       const res = await fetch(
-        `/getHistoryCard/${selectedRow?.machines?.[0]?._id}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        `/getSummaryCard/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
         {
           method: "GET",
           headers: {
@@ -36,13 +27,6 @@ const MachineHistoryCard = ({
       );
       const { message, machineHistoryCardData, bdTrendData } = await res.json();
       if (res.status === 201) {
-        setHistoryCardData({
-          bdTime: machineHistoryCardData?.bdHours,
-          bdCount: machineHistoryCardData?.count,
-          mttrData: machineHistoryCardData?.mttr,
-          mtbf: machineHistoryCardData?.mtbf,
-          bdHourTrend: bdTrendData,
-        });
       }
     } catch (error) {
       console.log(error);
@@ -50,7 +34,7 @@ const MachineHistoryCard = ({
   };
 
   useEffect(() => {
-    getHistoryCard();
+    getSummaryCard();
   }, []);
 
   return (
@@ -62,7 +46,7 @@ const MachineHistoryCard = ({
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          {selectedRow?.machines?.[0]?.machine_code}
+          {selectedValue}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -71,31 +55,37 @@ const MachineHistoryCard = ({
             <Col>
               <b>BD Time</b>
             </Col>
-            <Col>{historyCardData?.bdTime}</Col>
+            <Col>{"Time"}</Col>
           </Row>
           <Row>
             <Col>
               <b>BD Count</b>
             </Col>
-            <Col>{historyCardData?.bdCount}</Col>
+            <Col>{"Count"}</Col>
           </Row>
           <Row>
             <Col>
               <b>MTTR</b>
             </Col>
-            <Col>{historyCardData?.mttrData}</Col>
+            <Col>{"MTTR"}</Col>
           </Row>
           <Row>
             <Col>
               <b>MTBF</b>
             </Col>
-            <Col>{historyCardData?.mtbf}</Col>
+            <Col>{"MTBF"}</Col>
           </Row>
           <Row>
             <Col>
               <b>BD Hr Trend</b>
             </Col>
-            <BDHoursTrendChart bdHourTrend={historyCardData?.bdHourTrend} />
+            <BDHoursTrendChart
+              bdHourTrend={{
+                lessThanOne: [],
+                lessThanTwo: [],
+                greaterThanTwo: [],
+              }}
+            />
           </Row>
         </Container>
       </Modal.Body>
@@ -106,4 +96,4 @@ const MachineHistoryCard = ({
   );
 };
 
-export default MachineHistoryCard;
+export default CellHistoryCard;
