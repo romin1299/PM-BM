@@ -6,7 +6,10 @@ const User = require("../../server/model/userSchema");
 const authenticate = async (req, res, next) => {
   try {
     // console.log('this is authentication Page');
-    const jwtToken = req.cookies.Token;
+    const jwtToken = req?.cookies?.Token;
+    if (!jwtToken)
+      return res.status(400).send("Unauthorized : You are not logged-in");
+
     const verifyToken = jwt.verify(jwtToken, process.env.SECRET_KEY);
     const rootUser = await User.findOne({
       _id: verifyToken._id,
@@ -28,6 +31,7 @@ const authenticate = async (req, res, next) => {
         } */
     next();
   } catch (error) {
+    console.log(error);
     res.status(401).send("Unauthorized : NO token provided");
     console.log("Tokes is not provided !!!");
   }

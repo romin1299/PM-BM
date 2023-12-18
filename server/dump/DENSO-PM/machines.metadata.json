@@ -1,1 +1,0 @@
-{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"DENSO-PM.machines"}],"uuid":"6b106294ea334d179c68b1123de470d2"}
