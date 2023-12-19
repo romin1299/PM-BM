@@ -1154,7 +1154,12 @@ const filterMiddleware = async (req, res, next) => {
       };
     }
 
-    if (req.params?.filter === "based-on-section") {
+    if (req.params?.filter === "based-on-plant") {
+      queryObj = {
+        ...queryObj,
+        plantRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-section") {
       queryObj = {
         ...queryObj,
         sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
@@ -6225,78 +6230,109 @@ router.get(
       queryObj = {
         ...queryObj,
         plantRef: mongoose.Types.ObjectId(plant._id),
-
       };
-
-      console.log(queryObj)
 
       const bdTrendData = await RequestSheetOfBM.aggregate([
         {
           $match: queryObj,
         },
-        
-           {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: "%m",
-              date: "$problemOccurredDateAndTimeOfBM",
-              timezone: timezone,
-            },
-          },
-          lessThanOne: {
-            $sum: {
-              $cond: [{ $lte: [{
-                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              }, 1] }, {
-                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              }, 0],
-            },
-          },
-          lessThanTwo: {
-            $sum: {
-              $cond: [ { $and : [{ $gte: [{
-                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              }, 1] 
-            },
-            { $lt: [{
-              $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-            }, 2] 
-          },
-          ]
-          }, 
-              {
-                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              }, 0],
-            },
-          },
-          greaterThanTwo: {
-            $sum: {
-              $cond: [{ $gt: [{
-                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              }, 1] }, {
-                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              }, 0],
-            },
-        },
-
-        },
-      },
-      
-            {
-              $group: {
-                _id: null,
-                array: { $push: "$$ROOT" },
-              },
-            },
 
         {
-          $project: {
-            _id: 1,
-            totalHours: 1,
-            lessThanOne: { $sum: "$categorizedHours.lessThanOne" },
-            lessThanTwo: { $sum: "$categorizedHours.lessThanTwo" },
-            greaterThanTwo: { $sum: "$categorizedHours.greaterThanTwo" },
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%m",
+                date: "$problemOccurredDateAndTimeOfBM",
+                timezone: timezone,
+              },
+            },
+            lessThanOne: {
+              $sum: {
+                $cond: [
+                  {
+                    $lte: [
+                      {
+                        $divide: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          60,
+                        ],
+                      },
+                      1,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+            lessThanTwo: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      {
+                        $gte: [
+                          {
+                            $divide: [
+                              "$maintenanceReportFilledByMTD.breakDownTime",
+                              60,
+                            ],
+                          },
+                          1,
+                        ],
+                      },
+                      {
+                        $lt: [
+                          {
+                            $divide: [
+                              "$maintenanceReportFilledByMTD.breakDownTime",
+                              60,
+                            ],
+                          },
+                          2,
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+            greaterThanTwo: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: [
+                      {
+                        $divide: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          60,
+                        ],
+                      },
+                      1,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
           },
         },
 
@@ -6328,9 +6364,7 @@ router.get(
                             ],
                           },
                         ],
-                        },
-                       
-                      
+                      },
                     },
                     {
                       month: "$$month.monthName",
@@ -6341,31 +6375,26 @@ router.get(
                         greaterThanTwo: 0,
                       },
                     },
-                  ]
-                    },
-                  },
+                  ],
                 },
               },
             },
-            { $unwind: "$array" },
-            {
-              $replaceRoot: { newRoot: "$array" },
-            },
-            {
-              $group: {
-                _id: null,
-               
-      
-                lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
-              
-                lessThanTwo:{ $push: { $trunc: ["$value.lessThanTwo", 1] } },
-                greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
-                
-              },
-            },
-      
-    
+          },
+        },
+        { $unwind: "$array" },
+        {
+          $replaceRoot: { newRoot: "$array" },
+        },
+        {
+          $group: {
+            _id: null,
 
+            lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
+
+            lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
+            greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
+          },
+        },
       ]);
 
       return res.status(200).json({
@@ -6375,7 +6404,6 @@ router.get(
           { label: "<2", data: bdTrendData?.[0].lessThanTwo },
           { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
         ],
-
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -6383,7 +6411,7 @@ router.get(
   }
 );
 
-router.get( 
+router.get(
   "/sectionMonthlyBdTrendForPlant",
   authenticate,
   // BdTrendFilterMiddleware,
@@ -6436,28 +6464,28 @@ router.get(
               date: dateObj,
               sectionRef: "$section_data.subSection_name",
             },
-            bdTimeSum: {  
+            bdTimeSum: {
               $sum: {
                 $cond: [
-                {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ],
-                },
-                {
-                  $divide: [
-                    "$maintenanceReportFilledByMTD.breakDownTime",
-                    60,
-                  ],
-                },
-                0,
-              ],
-              }, 
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
             },
           },
         },
- 
+
         {
           $group: {
             _id: "$_id.sectionRef",
@@ -6547,44 +6575,93 @@ router.get(
 
             lessThanOne: {
               $sum: {
-                $cond: [{ $lte: [{
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                }, 1] }, {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                }, 0],
+                $cond: [
+                  {
+                    $lte: [
+                      {
+                        $divide: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          60,
+                        ],
+                      },
+                      1,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
               },
             },
             lessThanTwo: {
               $sum: {
-                $cond: [ { $and : [{ $gte: [{
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                }, 1] 
-              },
-              { $lt: [{
-                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              }, 2] 
-            },
-            ]
-            }, 
-                {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                }, 0],
+                $cond: [
+                  {
+                    $and: [
+                      {
+                        $gte: [
+                          {
+                            $divide: [
+                              "$maintenanceReportFilledByMTD.breakDownTime",
+                              60,
+                            ],
+                          },
+                          1,
+                        ],
+                      },
+                      {
+                        $lt: [
+                          {
+                            $divide: [
+                              "$maintenanceReportFilledByMTD.breakDownTime",
+                              60,
+                            ],
+                          },
+                          2,
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
               },
             },
             greaterThanTwo: {
               $sum: {
-                $cond: [{ $gt: [{
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                }, 1] }, {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                }, 0],
+                $cond: [
+                  {
+                    $gt: [
+                      {
+                        $divide: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          60,
+                        ],
+                      },
+                      1,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
               },
-          },
+            },
           },
         },
-
-
-        
 
         {
           $group: {
@@ -6647,8 +6724,6 @@ router.get(
             greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
           },
         },
-
-        
       ]);
 
       return res.status(200).json({
@@ -6659,7 +6734,7 @@ router.get(
           { label: "<2", data: bdTrendData?.[0].lessThanTwo },
           { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
         ],
-      }); 
+      });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
     }
@@ -6703,29 +6778,27 @@ router.get(
               date: dateObj,
               cellRef: "$cell_data.cell_name",
             },
-            bdTimeSum: {  
+            bdTimeSum: {
               $sum: {
                 $cond: [
-                {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ],
-                },
-                {
-                  $divide: [
-                    "$maintenanceReportFilledByMTD.breakDownTime",
-                    60,
-                  ],
-                },
-                0,
-              ],
-              }, 
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
             },
           },
         },
-
-        
 
         {
           $group: {
@@ -6777,7 +6850,7 @@ router.get(
       return res.status(200).json({
         message: "Section Wise Monthly BD trend data for cell get successfully",
 
-        bdTrendData 
+        bdTrendData,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -6810,8 +6883,6 @@ router.get(
         plantRef: mongoose.Types.ObjectId(plant._id),
       };
 
-      
-      
       const dumPrevYear = `${req.query.selectedYear?.split("-")?.[0]}`;
       const dumPrevYear2 = req.query.selectedYear?.split("-")?.[1];
 
@@ -6831,42 +6902,93 @@ router.get(
 
             lessThanOne: {
               $sum: {
-                $cond: [{ $lte: [{
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                }, 1] }, {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                }, 0],
+                $cond: [
+                  {
+                    $lte: [
+                      {
+                        $divide: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          60,
+                        ],
+                      },
+                      1,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
               },
             },
             lessThanTwo: {
               $sum: {
-                $cond: [ { $and : [{ $gte: [{
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                }, 1] 
-              },
-              { $lt: [{
-                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              }, 2] 
-            },
-            ]
-            }, 
-                {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                }, 0],
+                $cond: [
+                  {
+                    $and: [
+                      {
+                        $gte: [
+                          {
+                            $divide: [
+                              "$maintenanceReportFilledByMTD.breakDownTime",
+                              60,
+                            ],
+                          },
+                          1,
+                        ],
+                      },
+                      {
+                        $lt: [
+                          {
+                            $divide: [
+                              "$maintenanceReportFilledByMTD.breakDownTime",
+                              60,
+                            ],
+                          },
+                          2,
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
               },
             },
             greaterThanTwo: {
               $sum: {
-                $cond: [{ $gt: [{
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                }, 1] }, {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                }, 0],
+                $cond: [
+                  {
+                    $gt: [
+                      {
+                        $divide: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          60,
+                        ],
+                      },
+                      1,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
               },
-          },
+            },
           },
         },
-       
 
         {
           $sort: { _id: 1 },
@@ -6901,7 +7023,7 @@ router.get(
         //               in: {
         //                 $switch: {
         //                   branches: [
-                           
+
         //                     {
         //                       case: { $eq: ["$$label", ">2"] },
         //                       then: "$$item.greaterThanTwo",
@@ -6930,7 +7052,7 @@ router.get(
       return res.status(200).json({
         message: "Plant Wise Yearly BD trend data get successfully",
         labels: [dumPrevYear, dumPrevYear2],
-        bdTrendData
+        bdTrendData,
         // bdTrendData: [
         //   { label: "<1", data: bdTrendData?.[0].lessThanOne },
         //   { label: "<2", data: bdTrendData?.[0].lessThanTwo },
@@ -8741,14 +8863,12 @@ const middlewareForFindingTmMTTRSkillTrendData = async (req, res, next) => {
 
 const middlewareForFindingTmProgressData = async (req, res, next) => {
   try {
-//     const boo = Boolean(req.query.isAll);
+    //     const boo = Boolean(req.query.isAll);
 
-// console.log(req.query)
-    
+    // console.log(req.query)
 
-// const isAllClicked = Boolean(req.query.isAll) === true;
-// console.log(isAllClicked)
-
+    // const isAllClicked = Boolean(req.query.isAll) === true;
+    // console.log(isAllClicked)
 
     const isAllClicked = Boolean(req.query.isAll) === true;
     console.log(isAllClicked);
@@ -8756,58 +8876,61 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
     const tmProgress = await RequestSheetOfBM.aggregate([
       {
         $match: req.queryObj,
-       
-       },
-        {
-          $match: {
-            $or: [
-              { assignUser: mongoose.Types.ObjectId(req.params.tmId) },
-              { supportingTM: mongoose.Types.ObjectId(req.params.tmId) },
-              { handOverUser: mongoose.Types.ObjectId(req.params.tmId) },
-            ],
+      },
+      {
+        $match: {
+          $or: [
+            { assignUser: mongoose.Types.ObjectId(req.params.tmId) },
+            { supportingTM: mongoose.Types.ObjectId(req.params.tmId) },
+            { handOverUser: mongoose.Types.ObjectId(req.params.tmId) },
+          ],
 
-            // $and: isAllClicked
-            //   ? [{
-            //     $nor: [
-            //       { assignUser: mongoose.Types.ObjectId(req.params.tmId) },
-            //       { supportingTM: mongoose.Types.ObjectId(req.params.tmId) },
-            //       { handOverUser: mongoose.Types.ObjectId(req.params.tmId) },
-            //     ],
-            //   }] 
-            //   : [
-            //     {
-            //       $or: [
-            //         { assignUser: mongoose.Types.ObjectId(req.params.tmId) },
-            //         { supportingTM: mongoose.Types.ObjectId(req.params.tmId) },
-            //         { handOverUser: mongoose.Types.ObjectId(req.params.tmId) },
-            //       ],
-            //     }
-            //   ],
-          },
+          // $and: isAllClicked
+          //   ? [{
+          //     $nor: [
+          //       { assignUser: mongoose.Types.ObjectId(req.params.tmId) },
+          //       { supportingTM: mongoose.Types.ObjectId(req.params.tmId) },
+          //       { handOverUser: mongoose.Types.ObjectId(req.params.tmId) },
+          //     ],
+          //   }]
+          //   : [
+          //     {
+          //       $or: [
+          //         { assignUser: mongoose.Types.ObjectId(req.params.tmId) },
+          //         { supportingTM: mongoose.Types.ObjectId(req.params.tmId) },
+          //         { handOverUser: mongoose.Types.ObjectId(req.params.tmId) },
+          //       ],
+          //     }
+          //   ],
         },
-     
-      
+      },
+
       {
         $group: {
           // _id: null,
 
-          _id: {user : req.params.tmId ,month : "$preAggregationTimeStampOfRequestSheet.requestSheet_month"},
+          _id: {
+            user: req.params.tmId,
+            month: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+          },
 
           count: { $sum: 1 },
           hours: {
             $sum: {
               $cond: [
-               {
-                $and : [ { $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ]
+                {
+                  $and: [
+                    {
+                      $gt: [
+                        "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                        null,
+                      ],
+                    },
+                    {
+                      $lt: ["$maintenanceReportFilledByMTD.breakDownTime", 120],
+                    },
+                  ],
                 },
-                { 
-                   $lt : ["$maintenanceReportFilledByMTD.breakDownTime", 120]
-              },
-              ]
-            },
                 {
                   $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
                 },
@@ -8818,11 +8941,10 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
         },
       },
 
-    
       {
         $project: {
           count: 1,
-         
+
           hours: req.hourCalculationFormula,
         },
       },
@@ -8859,7 +8981,6 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
                       _id: "$$month.monthName",
                       count: 0,
                       hours: 0,
-                      
                     },
                   },
                 ],
@@ -8877,11 +8998,10 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
           _id: null,
           // _id: "$value._id.user",
           labels: { $push: "$month" },
-          
+
           data: {
             $push: "$value.hours",
           },
-          
         },
       },
     ]);
@@ -9463,8 +9583,6 @@ router.get(
   // findTLandOperatorList,
   middlewareForFindingTmProgressData,
   async (req, res, next) => {
-   
-
     req.message = "Tm Progress data get successfully";
     next();
   },
@@ -9472,15 +9590,12 @@ router.get(
   responseMiddlewareForMTTRSkillReport
 );
 
-
 router.get(
   "/topMachineBreakdown/:filter/:selectedId",
   authenticate,
   filterMiddleware,
- 
-  async (req, res, next) => {
- 
 
+  async (req, res, next) => {
     try {
       const topMachineBd = await RequestSheetOfBM.aggregate([
         { $match: req.queryObj },
@@ -9501,29 +9616,29 @@ router.get(
         {
           $group: {
             _id: "$machine_data.machine_name",
-            machine_hours: { 
+            machine_hours: {
               $sum: {
-                 $cond: [
-                {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ],
-                },
-                {
-                  $divide: [
-                    "$maintenanceReportFilledByMTD.breakDownTime",
-                    60,
-                  ],
-                },
-                0,
-              ],
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
             },
-          },
           },
         },
         {
-          $sort: {machine_hours: 1 },
+          $sort: { machine_hours: 1 },
         },
         {
           $group: {
@@ -9532,7 +9647,6 @@ router.get(
             hours: { $push: "$machine_hours" },
           },
         },
-        
 
         // {
         //   $limit : parseInt(req.query.top10) ,
@@ -12164,6 +12278,62 @@ const conditionMiddlewareForSectionQuery = async (req, res, next) => {
   }
 };
 
+const sectionQueryMiddlewareForParamsId = async (req, res, next) => {
+  try {
+    req.sectionQuery = {
+      _id: mongoose.Types.ObjectId(req.params?.id),
+    };
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const subSectionQueryMiddleware = async (req, res, next) => {
+  try {
+    req.subSectionQuery = {
+      section_names: req.section?._id,
+    };
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const functionForFindingCellBasedOnSelectedSubSection = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const cells = await Cell.find({
+      subSection_names: mongoose.Types.ObjectId(req.params?.id),
+    });
+
+    return res.status(201).json({
+      message: "Cell dropdown value get successfully",
+      cells,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const functionForFindingLineBasedOnSelectedCell = async (req, res, next) => {
+  try {
+    const lines = await Line.find({
+      cell_names: mongoose.Types.ObjectId(req.params?.id),
+    });
+
+    return res.status(201).json({
+      message: "Line dropdown value get successfully",
+      lines,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 router.get(
   "/getFiltrationValue/all-filtration/byDefault",
   authenticate,
@@ -12225,27 +12395,9 @@ router.get(
 router.get(
   "/getFiltrationValue/all-filtration/sectionBased/:id",
   authenticate,
-  (req, res, next) => {
-    try {
-      req.sectionQuery = {
-        _id: mongoose.Types.ObjectId(req.params?.id),
-      };
-      next();
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  },
+  sectionQueryMiddlewareForParamsId,
   sectionFiltrationMiddleware,
-  async (req, res, next) => {
-    try {
-      req.subSectionQuery = {
-        section_names: req.section?._id,
-      };
-      next();
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  },
+  subSectionQueryMiddleware,
   subSectionFiltrationMiddleware,
   cellFiltrationMiddleware
 );
@@ -12253,39 +12405,13 @@ router.get(
 router.get(
   "/getFiltrationValue/all-filtration/subSectionBased/:id",
   authenticate,
-  async (req, res, next) => {
-    try {
-      const cells = await Cell.find({
-        subSection_names: mongoose.Types.ObjectId(req.params?.id),
-      });
-
-      return res.status(201).json({
-        message: "Cell dropdown value get successfully",
-        cells: cells,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  }
+  functionForFindingCellBasedOnSelectedSubSection
 );
 
 router.get(
   "/getFiltrationValue/all-filtration/cellBased/:id",
   authenticate,
-  async (req, res, next) => {
-    try {
-      const lines = await Line.find({
-        cell_names: mongoose.Types.ObjectId(req.params?.id),
-      });
-
-      return res.status(201).json({
-        message: "Line dropdown value get successfully",
-        lines,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  }
+  functionForFindingLineBasedOnSelectedCell
 );
 
 router.get(
@@ -12449,27 +12575,9 @@ router.get(
 router.get(
   "/getFiltrationValue/cell-level-filtration/sectionBased/:id",
   authenticate,
-  (req, res, next) => {
-    try {
-      req.sectionQuery = {
-        _id: mongoose.Types.ObjectId(req.params?.id),
-      };
-      next();
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  },
+  sectionQueryMiddlewareForParamsId,
   sectionFiltrationMiddleware,
-  async (req, res, next) => {
-    try {
-      req.subSectionQuery = {
-        section_names: req.section?._id,
-      };
-      next();
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  },
+  subSectionQueryMiddleware,
   subSectionFiltrationMiddleware,
   cellFilterMiddleware,
   lineFiltrationMiddleware,
@@ -12567,6 +12675,106 @@ router.get(
       res.status(500).json({ message: error?.message, error });
     }
   }
+);
+
+// -------------------------------------------------------------------------------
+//        Filter API based For KPI from database report
+// -------------------------------------------------------------------------------
+
+router.get(
+  "/getFiltrationValue/plant-level-filtration/byDefault",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      const plant = await Plant.findOne({
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+      });
+
+      const sections = await Section.find({
+        plant_names: plant?._id,
+      });
+
+      return res.status(201).json({
+        message: "Sections get successfully",
+
+        flagForTogglingFilter: "based-on-plant",
+        selectedValue: plant?._id,
+
+        selectedSection: "",
+        sections,
+        selectedSubSection: "",
+        subSections: [],
+        selectedCell: "",
+        cells: [],
+        selectedLine: "",
+        lines: [],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/plant-level-filtration/sectionBased/:id",
+  authenticate,
+  sectionQueryMiddlewareForParamsId,
+  sectionFiltrationMiddleware,
+  subSectionQueryMiddleware,
+  subSectionFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      const cells = await Cell.find(req.cellQuery);
+
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "SubSections get successfully",
+
+          flagForTogglingFilter: "based-on-subSection",
+          selectedValue: req.subSection?._id,
+
+          selectedSection: "",
+          sections: [],
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: "",
+          cells,
+          selectedLine: "",
+          lines: [],
+        });
+      }
+
+      return res.status(201).json({
+        message: "Cell dropdown value get successfully",
+
+        flagForTogglingFilter: "based-on-section",
+        selectedValue: req.section?._id,
+
+        selectedSection: "",
+        sections: [],
+        selectedSubSection: "",
+        subSections: [],
+        selectedCell: "",
+        cells,
+        selectedLine: "",
+        lines: [],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/plant-level-filtration/subSectionBased/:id",
+  authenticate,
+  functionForFindingCellBasedOnSelectedSubSection
+);
+
+router.get(
+  "/getFiltrationValue/plant-level-filtration/cellBased/:id",
+  authenticate,
+  functionForFindingLineBasedOnSelectedCell
 );
 
 router.get("/dummyAPI", authenticate, async (req, res, next) => {

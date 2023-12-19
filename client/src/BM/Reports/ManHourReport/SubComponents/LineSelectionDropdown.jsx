@@ -261,47 +261,50 @@ export default function LineSelectionDropdown({
       className="m-3"
       sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}
     >
-      {context?.tm_grade === "HOD" && sections?.length > 0 && (
-        <FormControl size="small">
-          <Select
-            displayEmpty
-            value={selectedSection}
-            onChange={(e) => {
-              reducerDispatch({
-                type: ACTION.HANDLE_SELECT_SECTION,
-                flagForTogglingFilter: "based-on-section",
-                selectedSection: e.target.value,
-              });
-              getFiltrationValueBasedOnSection({ section: e.target.value });
-            }}
-            input={<OutlinedInput />}
-            // renderValue={(selected) => <strong>{selected}</strong>}
-            sx={{
-              width: 130,
-              "& .MuiSelect-select": {
-                paddingTop: "5px",
-                paddingBottom: "5px",
-              },
-            }}
-            MenuProps={MenuProps}
-            inputProps={{ "aria-label": "Without label" }}
-          >
-            <MenuItem disabled value="">
-              <em style={{ fontSize: "14px", color: "#9f9f9f" }}>Sections</em>
-            </MenuItem>
-
-            {sections.map((item) => (
-              <MenuItem
-                key={item?._id}
-                value={item?._id}
-                style={getStyleForSelectedValue(item, selectedSection)}
-              >
-                {item?.section_name}
+      {(baseUrlForFiltering === "/getFiltrationValue/plant-level-filtration"
+        ? true
+        : context?.tm_grade === "HOD") &&
+        sections?.length > 0 && (
+          <FormControl size="small">
+            <Select
+              displayEmpty
+              value={selectedSection}
+              onChange={(e) => {
+                reducerDispatch({
+                  type: ACTION.HANDLE_SELECT_SECTION,
+                  flagForTogglingFilter: "based-on-section",
+                  selectedSection: e.target.value,
+                });
+                getFiltrationValueBasedOnSection({ section: e.target.value });
+              }}
+              input={<OutlinedInput />}
+              // renderValue={(selected) => <strong>{selected}</strong>}
+              sx={{
+                width: 130,
+                "& .MuiSelect-select": {
+                  paddingTop: "5px",
+                  paddingBottom: "5px",
+                },
+              }}
+              MenuProps={MenuProps}
+              inputProps={{ "aria-label": "Without label" }}
+            >
+              <MenuItem disabled value="">
+                <em style={{ fontSize: "14px", color: "#9f9f9f" }}>Sections</em>
               </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      )}
+
+              {sections.map((item) => (
+                <MenuItem
+                  key={item?._id}
+                  value={item?._id}
+                  style={getStyleForSelectedValue(item, selectedSection)}
+                >
+                  {item?.section_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
 
       {subSections?.length > 0 && (
         <FormControl size="small">
