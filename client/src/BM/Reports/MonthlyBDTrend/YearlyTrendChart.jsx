@@ -16,6 +16,7 @@ import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import YearDropdown from "./YearDropdown";
 
 ChartJS.register(
   CategoryScale,
@@ -76,8 +77,9 @@ const YearlyTrendChart = ({
   sectionId,
   filter,
   setFilter,
+  selectedYear,
 }) => {
-  const [data, setData] = React.useState([]);
+  // const [data, setData] = React.useState([]);
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [],
@@ -94,44 +96,53 @@ const YearlyTrendChart = ({
   }, [currentTabViewName]);
 
   const fetchChartData = async () => {
+    console.log("sectionId:", sectionId);
     const url =
       currentTabViewName === "Plant"
         ? `/${filter}YearlyBdTrendForPlant`
         : `/${filter}YearlyBdTrendForSection/based-on-subSection/${sectionId}`;
 
+    const params = { selectedYear };
+
     try {
       const res = await axios.get(url, {
+        params,
         withCredentials: true,
         credentials: "include",
       });
 
-      console.log("yearly hourly res:", res);
-      setData(res?.data?.bdTrendData);
+      // console.log("labells:", res.data.labels);
+      // setData(res?.data?.labels);
+
+      const data = res?.data?.bdTrendData;
+      if (data) {
+        // console.log("yearly hourly res:", res);
+        
+        setChartData({
+          labels: res?.data?.labels,
+          datasets: res?.data?.bdTrendData?.map((item, index) => ({
+            type: "bar",
+            stack: "bar-stacked",
+            label: item?.label || item?._id,
+            data: item?.data,
+            backgroundColor: chartColors.palettes[0][index],
+          })),
+        });
+      }
     } catch (error) {
       console.log("error:", error);
+      setChartData({
+        labels: [],
+        datasets: [],
+      });
     }
   };
 
   React.useEffect(() => {
-    fetchChartData();
-  }, [currentTabViewName, sectionId, filter]);
+    if (selectedYear) fetchChartData();
+  }, [currentTabViewName, sectionId, filter, selectedYear]);
 
-  // React.useEffect(() => {
-  //   console.log("yearly data state:", data);
-  // }, [data]);
-
-  React.useEffect(() => {
-    setChartData({
-      labels: data?.labels || ["FY'22", "FY'23 Cumm"],
-      datasets: data?.map((item, index) => ({
-        type: "bar",
-        stack: "bar-stacked",
-        label: item?.label || item?._id,
-        data: item?.data,
-        backgroundColor: chartColors.palettes[0][index],
-      })),
-    });
-  }, [data]);
+  // console.log('chartData:', chartData)
 
   return (
     <Box className="cell p-3 mt-1">
@@ -143,10 +154,10 @@ const YearlyTrendChart = ({
       />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        {data?.length < 0 ? (
+        {chartData === undefined || chartData?.datasets?.length < 1 ? (
           <DataNotFound />
         ) : (
-          <Chart options={options} data={chartData} />
+          <Chart type="bar" options={options} data={chartData} />
         )}
       </Box>
     </Box>

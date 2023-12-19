@@ -19,7 +19,7 @@ const sectionBodyBoxStyle = {
   // gap: "10px",
 
   mt: "2px",
-  minHeight: "80px",
+  // minHeight: "80px",
 };
 
 const StatusBox = ({ title, value }) => (
@@ -104,12 +104,7 @@ const DailyBTDashboard = () => {
         </Row>
 
         <Box className="mb-3 mt-3">
-          <DailyBDTrendChart
-            selectedValue={reduceState?.selectedValue}
-            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-            selectedYear={reduceState?.selectedYear}
-            selectedMonth={reduceState?.selectedMonth}
-          />
+          <DailyBDTrendChart {...reduceState} />
         </Box>
 
         <Row className="mb-3 gx-3">

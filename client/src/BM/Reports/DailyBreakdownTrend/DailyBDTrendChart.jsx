@@ -78,12 +78,20 @@ export const options = {
     y: {
       stacked: true,
       position: "left",
+      title: {
+        display: true,
+        text: "Hours",
+      },
       ticks: {
         color: "black",
       },
     },
     y2: {
       position: "right",
+      title: {
+        display: true,
+        text: "Count",
+      },
       ticks: {
         color: "black",
       },

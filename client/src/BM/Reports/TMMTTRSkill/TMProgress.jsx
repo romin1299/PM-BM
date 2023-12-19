@@ -72,13 +72,13 @@ export const options = {
   },
 };
 
-const TMProgress = ({ selectedValue }) => {
+const TMProgress = ({ selectedValue, flagForTogglingFilter }) => {
   const [data, setData] = React.useState({});
   const [tmId, setTmId] = React.useState("");
 
   const fetchChartData = async () => {
     // console.log("selectedValue:", selectedValue);
-    const url = `/tmProgress/tmMTTRSkill/based-on-subSection/${selectedValue}/${tmId}`;
+    const url = `/tmProgress/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}/${tmId}`;
     try {
       const res = await axios.get(url, {
         withCredentials: true,
@@ -113,9 +113,9 @@ const TMProgress = ({ selectedValue }) => {
     ],
   };
 
-  // React.useEffect(() => {
-  //   console.log("plant data:", data);
-  // }, [data]);
+  React.useEffect(() => {
+    console.log("TM progress data:", data);
+  }, [data]);
 
   return (
     <Box className="cell p-3">
@@ -123,13 +123,18 @@ const TMProgress = ({ selectedValue }) => {
         title="TM Load"
         Toolbar={
           <Col className="col-auto">
-            <TeamMembersDropdown tmId={tmId} setTmId={setTmId} />
+            <TeamMembersDropdown
+              tmId={tmId}
+              setTmId={setTmId}
+              selectedValue={selectedValue}
+              flagForTogglingFilter={flagForTogglingFilter}
+            />
           </Col>
         }
       />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        {data?.length <= 0 ? (
+        {data === undefined ? (
           <DataNotFound />
         ) : (
           <Chart options={options} data={chartData} />

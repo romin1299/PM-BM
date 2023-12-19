@@ -51,11 +51,10 @@ export const options = {
       grid: {
         display: false, // Hide vertical grid lines
       },
-      // title: {
-      //     display: true,
-      //     text: "Lines",
-
-      // },
+      title: {
+        display: true,
+        text: "Lines",
+      },
       ticks: {
         // maxRotation: 90,
         // minRotation: 90,
@@ -104,7 +103,7 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
 
     try {
       const res = await axios.get(url, {
-        params,   //uncomment when database is updated with agrregated year and month values
+        params, //uncomment when database is updated with agrregated year and month values
         withCredentials: true,
         credentials: "include",
       });

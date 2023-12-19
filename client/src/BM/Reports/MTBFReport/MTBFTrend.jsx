@@ -26,7 +26,7 @@ const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
       const { message, data } = await res.json();
 
       if (res?.status === 201) {
-        console.log(data);
+        // console.log(data);
         setMTBFTrendData(data);
       }
     } catch (error) {

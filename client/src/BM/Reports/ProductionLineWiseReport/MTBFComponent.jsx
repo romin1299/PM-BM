@@ -58,13 +58,14 @@ const MTBFComponent = ({
         }
       );
 
-      const { message, getMtbf } = await res.json();
+      const response = await res.json();
+      // console.log("response:", response);
 
-      if (res?.status === 200) {
+      if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET,
-          message,
-          MTBFReportData: getMtbf,
+          message: response.message,
+          MTBFReportData: response.data,
         });
       }
     } catch (error) {
@@ -73,9 +74,7 @@ const MTBFComponent = ({
   };
 
   useEffect(() => {
-    if (selectedValue) {
-      getMTBFReportData();
-    }
+    if (selectedValue) getMTBFReportData();
   }, [selectedValue, selectedYear]);
 
   return (

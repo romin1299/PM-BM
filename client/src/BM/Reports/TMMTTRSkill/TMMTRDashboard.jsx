@@ -16,7 +16,7 @@ const TMMTRMain = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
-  // console.log("reduceState:", reduceState);
+  console.log("reduceState:", reduceState);
   return (
     <Container fluid>
       <Box>
@@ -42,12 +42,7 @@ const TMMTRMain = () => {
           </Col>
 
           <Col md={12} lg={6}>
-            <TMProgress
-              selectedValue={reduceState?.selectedValue}
-              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-              selectedYear={reduceState?.selectedYear}
-              selectedMonth={reduceState?.selectedMonth}
-            />
+            <TMProgress {...reduceState} />
           </Col>
 
           <Col md={12} style={{ marginTop: "1rem" }}>

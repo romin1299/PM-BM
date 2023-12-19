@@ -17,7 +17,12 @@ const MenuProps = {
   },
 };
 
-export default function TeamMembersDropdown({ tmId, setTmId }) {
+export default function TeamMembersDropdown({
+  tmId,
+  setTmId,
+  selectedValue,
+  flagForTogglingFilter,
+}) {
   const [menuItems, setMenuItems] = React.useState([]);
 
   const handleChange = (event) => {
@@ -26,17 +31,17 @@ export default function TeamMembersDropdown({ tmId, setTmId }) {
   };
 
   const fetchValues = async () => {
-    const url = `/getAllTmNames`;
+    const url = `/getAllTmNames/${flagForTogglingFilter}/${selectedValue}`;
     try {
       const res = await axios.get(url, {
         withCredentials: true,
         credentials: "include",
       });
 
-      // console.log("tm dropdown res:", res.data.data);
+      console.log("tm dropdown res:", res?.data?.TLHOSS_and_TM_user_list);
 
-      setMenuItems(res.data.data);
-      setTmId(res.data.data?.[0]?._id);
+      setMenuItems(res?.data?.TLHOSS_and_TM_user_list);
+      setTmId(res?.data?.TLHOSS_and_TM_user_list?.[0]?._id);
     } catch (error) {
       console.log("error:", error);
     }
@@ -49,8 +54,8 @@ export default function TeamMembersDropdown({ tmId, setTmId }) {
   }, [menuItems]);
 
   React.useEffect(() => {
-    fetchValues();
-  }, []);
+    if (selectedValue) fetchValues();
+  }, [selectedValue]);
 
   return (
     <FormControl sx={{ minWidth: 170 }} size="small">

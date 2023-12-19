@@ -51,10 +51,10 @@ export const options = {
       grid: {
         display: false, // Hide vertical grid lines
       },
-      // title: {
-      //     display: true,
-      //     text: "Section",
-      // },
+      title: {
+          display: true,
+          text: "Lines",
+      },
       ticks: {
         // maxRotation: 90,
         // minRotation: 90,

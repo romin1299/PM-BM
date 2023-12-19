@@ -514,12 +514,14 @@ const RequestSheetMainDashboard = () => {
   ];
 
   const filtration = [
-    <ChartsToolbar
-      baseUrlForFiltering={baseUrlForFiltering}
-      reduceState={reduceState}
-      reducerDispatch={reducerDispatch}
-      monthFiltration
-    />,
+    <Box m={2}>
+      <ChartsToolbar
+        baseUrlForFiltering={baseUrlForFiltering}
+        reduceState={reduceState}
+        reducerDispatch={reducerDispatch}
+        monthFiltration
+      />
+    </Box>,
   ];
 
   return (

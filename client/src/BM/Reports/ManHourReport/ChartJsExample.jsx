@@ -49,12 +49,19 @@ export const options = {
       },
       ticks: {
         color: "black",
+        // font: {
+        //   size: 12,
+        // },
       },
     },
     y: {
       stacked: true,
       ticks: {
         color: "black",
+      },
+      title: {
+        display: true,
+        text: "Hours",
       },
     },
   },

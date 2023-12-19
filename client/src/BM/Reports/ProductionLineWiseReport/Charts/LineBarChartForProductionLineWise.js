@@ -14,7 +14,10 @@ import {
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
 
-const LineBarChartForProductionLineWise = ({ ReportData }) => {
+const LineBarChartForProductionLineWise = ({
+  ReportData,
+  xAxisVerticleTicks,
+}) => {
   ChartJS.register(
     LinearScale,
     CategoryScale,
@@ -29,6 +32,12 @@ const LineBarChartForProductionLineWise = ({ ReportData }) => {
 
   const options = {
     plugins: {
+      legend: {
+        align: "end",
+        labels: {
+          usePointStyle: true,
+        },
+      },
       title: {
         display: false,
         text: "",
@@ -42,19 +51,39 @@ const LineBarChartForProductionLineWise = ({ ReportData }) => {
     scales: {
       x: {
         stacked: true,
+        ticks: {
+          maxRotation: 90,
+          minRotation: 90,
+        },
+        // grid: {
+        //   display: false, // Hide vertical grid lines
+        // },
       },
       y: {
         stacked: true,
       },
     },
+
+    // scales: {
+    //   x: {
+    //     ticks: xAxisVerticleTicks
+    //       ? {
+    //           maxRotation: 90,
+    //           minRotation: 90,
+    //         }
+    //       : {},
+    //   },
+    // },
   };
+
+  // console.log("ReportData:", ReportData);
 
   const data = {
     labels: ReportData?.labels,
     datasets: [
       {
         type: "line",
-        label: "Dataset 1",
+        label: "Target",
         borderColor: "rgb(75, 192, 192)",
         borderWidth: 2,
         fill: false,
@@ -62,7 +91,7 @@ const LineBarChartForProductionLineWise = ({ ReportData }) => {
       },
       {
         type: "bar",
-        label: "Dataset 2",
+        label: "BD Hours",
         backgroundColor: ReportData?.backgroundColor,
         data: ReportData?.data,
         borderColor: "white",

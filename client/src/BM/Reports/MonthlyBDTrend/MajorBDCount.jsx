@@ -81,7 +81,7 @@ const labels = [
   "Mar-24",
 ];
 
-const MajorBDCount = ({ currentTabViewName, sectionId }) => {
+const MajorBDCount = ({ currentTabViewName, sectionId, selectedYear }) => {
   const [data, setData] = React.useState([]);
   const [chartData, setChartData] = React.useState({
     labels: [],
@@ -98,38 +98,47 @@ const MajorBDCount = ({ currentTabViewName, sectionId }) => {
         ? `/majorBDCountForPlant`
         : `/majorBDCountForSection/based-on-subSection/${sectionId}`;
 
+    const params = { selectedYear };
+
     // /majorBDCountForPlant
     // /majorBDCountForSection/based-on-subSection/6322e5dffdb4a3119153b9e7
 
     try {
       const res = await axios.get(url, {
+        params,
         withCredentials: true,
         credentials: "include",
       });
 
       // console.log("BD count res:", res?.data?.bdTrendData);
-      setData(res?.data?.bdTrendData);
+      const data = res?.data?.bdTrendData;
+      setData(data);
+
+      if (data) {
+        setChartData({
+          labels: labels,
+          datasets: data?.map((item, index) => ({
+            type: "bar",
+            stack: "bar-stacked",
+            label: item?.label || item?._id,
+            data: item?.data,
+            backgroundColor: chartColors.palettes[0][index],
+          })),
+        });
+      }
     } catch (error) {
       console.log("error:", error);
+      setData([]);
+      setChartData({
+        labels: [],
+        datasets: [],
+      });
     }
   };
 
   React.useEffect(() => {
-    fetchChartData();
-  }, [currentTabViewName, sectionId]);
-
-  React.useEffect(() => {
-    setChartData({
-      labels: labels,
-      datasets: data?.map((item, index) => ({
-        type: "bar",
-        stack: "bar-stacked",
-        label: item?.label || item?._id,
-        data: item?.data,
-        backgroundColor: chartColors.palettes[0][index],
-      })),
-    });
-  }, [data]);
+    if (selectedYear) fetchChartData();
+  }, [currentTabViewName, sectionId, selectedYear]);
 
   function sumOfArray(array) {
     return array?.reduce((accumulator, currentValue) => {
@@ -184,7 +193,7 @@ const MajorBDCount = ({ currentTabViewName, sectionId }) => {
               Sections
             </Typography>
             <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-              {data?.hourlyData?.length < 0 ? (
+              {chartData === undefined || chartData?.datasets?.length < 1 ? (
                 <DataNotFound />
               ) : (
                 <Bar options={options} data={chartData} />

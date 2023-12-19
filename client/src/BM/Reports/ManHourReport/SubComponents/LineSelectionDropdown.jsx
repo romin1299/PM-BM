@@ -257,10 +257,7 @@ export default function LineSelectionDropdown({
   }, []);
 
   return (
-    <Box
-      className="m-3"
-      sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}
-    >
+    <Box sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
       {(baseUrlForFiltering === "/getFiltrationValue/plant-level-filtration"
         ? true
         : context?.tm_grade === "HOD") &&

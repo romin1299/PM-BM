@@ -85,7 +85,7 @@ const TMLoad = ({ selectedValue }) => {
         withCredentials: true,
         credentials: "include",
       });
-      // console.log("MTTR Trend res:", res);
+      console.log("MTTR Trend res:", res);
 
       setData(res?.data?.tmLoadData?.[0]);
     } catch (error) {

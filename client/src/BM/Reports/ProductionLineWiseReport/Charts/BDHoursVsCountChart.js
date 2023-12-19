@@ -46,10 +46,29 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
     scales: {
       x: {
         stacked: true,
+        grid: {
+          display: false, // Hide vertical grid lines
+        },
+        title: {
+          display: true,
+          text: "Machines",
+        },
+      },
+      y1: {
+        stacked: true,
+        position: "left",
+        title: {
+          display: true,
+          text: "Counts",
+        },
       },
       y2: {
         stacked: true,
         position: "right",
+        title: {
+          display: true,
+          text: "Hours",
+        },
       },
     },
   };
@@ -95,7 +114,7 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
     ],
   };
   return (
-    <Box>
+    <Box sx={{ height: { xs: "300px", md: "350px" } }}>
       <Chart type="bar" data={data} options={options} />
     </Box>
   );
