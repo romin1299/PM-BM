@@ -11,7 +11,7 @@ import RoutingContext from "../../../../context/routing/RoutingContext";
 import { fetchFinancialYears } from "../../../../Integration/APIExports";
 
 import { ACTION, getFiltrationValue } from "./CommonFiltrationComponent";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -565,8 +565,12 @@ export default function LineSelectionDropdown({
         )}
       </FormControl>
 
-      <button
-        className="btn bg-button"
+      <Button
+        // className="btn bg-button"
+        variant="contained"
+        size="small"
+        disableElevation
+        className="bg-button"
         onClick={async () => {
           let selectedYear =
             new Date().getMonth() < 3
@@ -582,7 +586,7 @@ export default function LineSelectionDropdown({
         }}
       >
         Reset
-      </button>
+      </Button>
     </Box>
   );
 }
