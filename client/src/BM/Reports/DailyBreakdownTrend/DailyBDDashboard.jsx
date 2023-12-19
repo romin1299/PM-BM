@@ -23,8 +23,7 @@ const sectionBodyBoxStyle = {
 };
 
 const StatusBox = ({ title, value }) => (
-  <Col 
-  >
+  <Col>
     <Typography
       variant="body2"
       component="div"
@@ -60,7 +59,7 @@ const StatusBox = ({ title, value }) => (
 
 const DailyBTDashboard = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
-  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+  const baseUrlForFiltering = "/getFiltrationValue/plant-level-filtration";
 
   return (
     <Container fluid>
@@ -105,7 +104,12 @@ const DailyBTDashboard = () => {
         </Row>
 
         <Box className="mb-3 mt-3">
-          <DailyBDTrendChart />
+          <DailyBDTrendChart
+            selectedValue={reduceState?.selectedValue}
+            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+            selectedYear={reduceState?.selectedYear}
+            selectedMonth={reduceState?.selectedMonth}
+          />
         </Box>
 
         <Row className="mb-3 gx-3">
