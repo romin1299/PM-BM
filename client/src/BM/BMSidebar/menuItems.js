@@ -55,11 +55,11 @@ export const menuItems = [
         route: "/bm/requestListDashboard",
         allowedRoles: reportAccess,
       },
-      // {
-      //   title: "Request Sheet Monitoring",
-      //   route: "/bm/requestSheetMonitoring",
-      //   allowedRoles: reportAccess,
-      // },
+      {
+        title: "Request Sheet Monitoring",
+        route: "/bm/requestSheetMonitoring",
+        allowedRoles: reportAccess,
+      },
 
       // Only Admin
       // {
@@ -81,12 +81,12 @@ export const menuItems = [
     ],
     // allowedDepartments: ["MTD", "PRD"],
   },
-  {
-    title: "Request Sheets",
-    icon: <AddTaskIcon className="text-white" />,
-    route: "/bm/requestListDashboard",
-    allowedRoles: reportAccess,
-  },
+  // {
+  //   title: "Request Sheets",
+  //   icon: <AddTaskIcon className="text-white" />,
+  //   route: "/bm/requestListDashboard",
+  //   allowedRoles: reportAccess,
+  // },
   {
     title: "Approval Dashboard",
     icon: <FactCheckIcon className="text-white" />,
