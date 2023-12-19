@@ -162,7 +162,7 @@ const userRoutes = [
         path: "/bm/profile",
         element: <Profile />,
       },
-      
+
       ...reportRoutes,
     ],
   },
