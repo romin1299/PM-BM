@@ -1,35 +1,12 @@
 import React from "react";
-
-import {
-  Chart as ChartJS,
-  LinearScale,
-  CategoryScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Legend,
-  Tooltip,
-  LineController,
-  BarController,
-} from "chart.js";
 import { Chart } from "react-chartjs-2";
+import { barDatalabels } from "../../../Utils/ChartUtils/chartOptions";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 const LineBarChartForProductionLineWise = ({
   ReportData,
   xAxisVerticleTicks,
 }) => {
-  ChartJS.register(
-    LinearScale,
-    CategoryScale,
-    BarElement,
-    PointElement,
-    LineElement,
-    Legend,
-    Tooltip,
-    LineController,
-    BarController
-  );
-
   const options = {
     plugins: {
       legend: {
@@ -42,6 +19,7 @@ const LineBarChartForProductionLineWise = ({
         display: false,
         text: "",
       },
+      datalabels: barDatalabels,
     },
     responsive: true,
     interaction: {
@@ -100,7 +78,7 @@ const LineBarChartForProductionLineWise = ({
       },
     ],
   };
-  return <Chart type="bar" data={data} options={options} />;
+  return <Chart type="bar" data={data} options={options} plugins={[ChartDataLabels]}/>;
 };
 
 export default LineBarChartForProductionLineWise;

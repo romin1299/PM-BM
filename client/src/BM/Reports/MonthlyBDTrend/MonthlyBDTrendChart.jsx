@@ -16,6 +16,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 
 ChartJS.register(
   CategoryScale,
@@ -37,19 +38,7 @@ export const options = {
         usePointStyle: true,
       },
     },
-    datalabels: {
-      formatter: (value, context) => {
-        if (context.dataset.type === "bar") {
-          return value > 30 ? value : "";
-        }
-        return value;
-      },
-      font: { weight: "bold", size: 8 },
-      // color: (context) => context.dataset.type === "line" ? chartColors[3] : "gray",
-      anchor: (context) => (context.dataset.type === "line" ? "end" : "center"),
-      align: (context) => (context.dataset.type === "line" ? "top" : "center"),
-      offset: (context) => (context.dataset.type === "line" ? -2 : 0),
-    },
+    datalabels: commonDatalabels,
   },
   // elements: {
   //   bar: {
@@ -172,7 +161,12 @@ const MonthlyBDTrendChart = ({
         {chartData === undefined || chartData?.datasets?.length < 1 ? (
           <DataNotFound />
         ) : (
-          <Chart type="bar" options={options} data={chartData} />
+          <Chart
+            type="bar"
+            options={options}
+            data={chartData}
+            plugins={[ChartDataLabels]}
+          />
         )}
       </Box>
     </Box>

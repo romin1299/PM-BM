@@ -74,14 +74,21 @@ export const options = {
   },
 };
 
-const TMLoad = ({ selectedValue }) => {
+const TMLoad = ({ selectedValue, mbdIncluded, selectedYear }) => {
   const [data, setData] = React.useState({});
 
   const fetchChartData = async () => {
     console.log("selectedValue:", selectedValue);
     const url = `/mttrTrend/tmMTTRSkill/based-on-subSection/${selectedValue}`;
+
+    const params = {
+      selectedYear,
+      includeMBD: mbdIncluded ? "include-mbd" : "",
+    };
+
     try {
       const res = await axios.get(url, {
+        params,
         withCredentials: true,
         credentials: "include",
       });
@@ -95,7 +102,7 @@ const TMLoad = ({ selectedValue }) => {
 
   React.useEffect(() => {
     if (selectedValue) fetchChartData();
-  }, [selectedValue]);
+  }, [selectedValue, selectedYear, mbdIncluded]);
 
   const chartData = {
     labels: data?.tm_names,

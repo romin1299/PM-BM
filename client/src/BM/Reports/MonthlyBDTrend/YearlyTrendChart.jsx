@@ -16,7 +16,7 @@ import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
-import YearDropdown from "./YearDropdown";
+import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 
 ChartJS.register(
   CategoryScale,
@@ -38,15 +38,7 @@ export const options = {
         usePointStyle: true,
       },
     },
-    datalabels: {
-      formatter: (value, context) => {
-        if (context.dataset.type === "bar") {
-          return value > 30 ? value : "";
-        }
-        return value;
-      },
-      font: { weight: "bold", size: 8 },
-    },
+    datalabels: commonDatalabels,
   },
   scales: {
     x: {
@@ -56,7 +48,7 @@ export const options = {
       },
       title: {
         display: true,
-        text: "Months",
+        text: "Financial Year",
       },
       ticks: {
         color: "black",
@@ -84,9 +76,6 @@ const YearlyTrendChart = ({
     labels: [],
     datasets: [],
   });
-
-  // Register the data-labels plugin to this component:
-  ChartJS.register(ChartDataLabels);
 
   React.useEffect(() => {
     if (currentTabViewName === "Plant" && filter === "cell")
@@ -117,7 +106,7 @@ const YearlyTrendChart = ({
       const data = res?.data?.bdTrendData;
       if (data) {
         // console.log("yearly hourly res:", res);
-        
+
         setChartData({
           labels: res?.data?.labels,
           datasets: res?.data?.bdTrendData?.map((item, index) => ({
@@ -157,7 +146,12 @@ const YearlyTrendChart = ({
         {chartData === undefined || chartData?.datasets?.length < 1 ? (
           <DataNotFound />
         ) : (
-          <Chart type="bar" options={options} data={chartData} />
+          <Chart
+            type="bar"
+            options={options}
+            data={chartData}
+            plugins={[ChartDataLabels]}
+          />
         )}
       </Box>
     </Box>

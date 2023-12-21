@@ -214,6 +214,7 @@ const ProductionLineWiseReport = () => {
               variant="contained"
               type="submit"
               sx={{
+                ml: 1,
                 minWidth: "30px",
                 height: "30px",
                 paddingInline: "10px",

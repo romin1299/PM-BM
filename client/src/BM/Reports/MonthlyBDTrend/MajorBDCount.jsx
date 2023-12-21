@@ -2,9 +2,11 @@ import { Box, Paper, Typography } from "@mui/material";
 import React from "react";
 import { Col, Row } from "react-bootstrap";
 import { Bar } from "react-chartjs-2";
-import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
+import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 
 const sectionBoxStyle = {
   p: 1,
@@ -36,9 +38,7 @@ export const options = {
       },
       padding: 1,
     },
-    datalabels: {
-      display: false,
-    },
+    datalabels: commonDatalabels,
   },
   scales: {
     x: {
@@ -196,7 +196,11 @@ const MajorBDCount = ({ currentTabViewName, sectionId, selectedYear }) => {
               {chartData === undefined || chartData?.datasets?.length < 1 ? (
                 <DataNotFound />
               ) : (
-                <Bar options={options} data={chartData} />
+                <Bar
+                  options={options}
+                  data={chartData}
+                  plugins={[ChartDataLabels]}
+                />
               )}
             </Box>
           </Paper>

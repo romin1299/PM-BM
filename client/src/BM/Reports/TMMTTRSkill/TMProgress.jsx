@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,12 +9,10 @@ import {
   Legend,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { Box, Divider, Paper, Typography } from "@mui/material";
-import { Row, Container, Col } from "react-bootstrap";
+import { Box, Checkbox, FormControlLabel } from "@mui/material";
+import { Col } from "react-bootstrap";
 import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
-import ChartDataLabels from "chartjs-plugin-datalabels";
 import ChartTitleBar from "../Common/ChartTitleBar";
-import { FilterMenu } from "../ManHourReport/SubComponents/FilterMenu";
 import DataNotFound from "../Common/DataNotFound";
 import axios from "axios";
 import TeamMembersDropdown from "./TeamMembersDropdown";
@@ -68,19 +66,36 @@ export const options = {
       ticks: {
         color: "black",
       },
+      title: {
+        display: true,
+        text: "MTTR Hours",
+      },
     },
   },
 };
 
-const TMProgress = ({ selectedValue, flagForTogglingFilter }) => {
+const TMProgress = ({
+  selectedValue,
+  flagForTogglingFilter,
+  mbdIncluded,
+  selectedYear,
+}) => {
   const [data, setData] = React.useState({});
   const [tmId, setTmId] = React.useState("");
+  const [isAllTM, setIsAllTM] = React.useState(true);
 
   const fetchChartData = async () => {
     // console.log("selectedValue:", selectedValue);
     const url = `/tmProgress/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}/${tmId}`;
+    const params = {
+      selectedYear,
+      includeMBD: mbdIncluded ? "include-mbd" : "",
+      allFilter: isAllTM ? "include-all" : "",
+    };
+
     try {
       const res = await axios.get(url, {
+        params,
         withCredentials: true,
         credentials: "include",
       });
@@ -94,7 +109,7 @@ const TMProgress = ({ selectedValue, flagForTogglingFilter }) => {
 
   React.useEffect(() => {
     if (selectedValue) fetchChartData();
-  }, [selectedValue, tmId]);
+  }, [selectedValue, tmId, selectedYear, mbdIncluded, isAllTM]);
 
   const chartData = {
     labels: MONTH_LABELS,
@@ -117,19 +132,48 @@ const TMProgress = ({ selectedValue, flagForTogglingFilter }) => {
     console.log("TM progress data:", data);
   }, [data]);
 
+  const handleChange = (event) => {
+    setIsAllTM(event.target.checked);
+  };
+
+  const AllTMCheckBox = (
+    <Col className="col-auto">
+      <FormControlLabel
+        control={
+          <Checkbox
+            // size="small"
+            sx={{
+              color: "#004b5b",
+              "&.MuiCheckbox-root": { p: "0px", mr: "10px" },
+              "&.Mui-checked": { color: "#004b5b" },
+            }}
+            checked={isAllTM}
+            onChange={handleChange}
+            inputProps={{ size: "10px" }}
+          />
+        }
+        label="All"
+      />
+    </Col>
+  );
+
   return (
     <Box className="cell p-3">
       <ChartTitleBar
         title="TM Load"
         Toolbar={
-          <Col className="col-auto">
-            <TeamMembersDropdown
-              tmId={tmId}
-              setTmId={setTmId}
-              selectedValue={selectedValue}
-              flagForTogglingFilter={flagForTogglingFilter}
-            />
-          </Col>
+          <>
+            <Col className="col-auto">
+              <TeamMembersDropdown
+                tmId={tmId}
+                setTmId={setTmId}
+                selectedValue={selectedValue}
+                flagForTogglingFilter={flagForTogglingFilter}
+              />
+            </Col>
+
+            {AllTMCheckBox}
+          </>
         }
       />
 

@@ -13,6 +13,8 @@ import {
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
 import { Box } from "@mui/material";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import { barDatalabels } from "../../../Utils/ChartUtils/chartOptions";
 
 const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
   ChartJS.register(
@@ -28,6 +30,9 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
   );
 
   const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    maxBarThickness: 100,
     plugins: {
       legend: {
         display: false,
@@ -36,9 +41,8 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
         display: false,
         text: "",
       },
+      datalabels: { ...barDatalabels, font: { weight: "bold", size: 12 } },
     },
-    maintainAspectRatio: false,
-    responsive: true,
     interaction: {
       mode: "index",
       intersect: false,
@@ -53,10 +57,17 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
           display: true,
           text: "Machines",
         },
+        ticks: {
+          // autoSkip: false,
+          maxRotation: 0,
+          minRotation: 0,
+
+          fontSize: 14,
+        },
       },
       y1: {
         stacked: true,
-        position: "left",
+        position: "right",
         title: {
           display: true,
           text: "Counts",
@@ -64,7 +75,7 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
       },
       y2: {
         stacked: true,
-        position: "right",
+        position: "left",
         title: {
           display: true,
           text: "Hours",
@@ -115,7 +126,12 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
   };
   return (
     <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-      <Chart type="bar" data={data} options={options} />
+      <Chart
+        type="bar"
+        data={data}
+        options={options}
+        plugins={[ChartDataLabels]}
+      />
     </Box>
   );
 };

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { Chart } from "react-chartjs-2";
-import { Box, Divider, Paper, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import {
   Chart as ChartJS,
@@ -13,8 +13,7 @@ import {
   Legend,
   PointElement,
 } from "chart.js";
-import { Row, Col } from "react-bootstrap";
-import { FilterMenu } from "../ManHourReport/SubComponents/FilterMenu";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
@@ -42,7 +41,26 @@ export const options = {
       },
     },
     datalabels: {
-      display: false,
+      formatter: (value, context) => {
+        if (context.dataset.type === "bar") {
+          return value !== 0 ? `${Math.round(value * 100) / 100} %` : null;
+        } else if (context.dataset.type === "line") {
+          return value !== 0 ? `${Math.round(value * 100) / 100}` : null;
+        } else return value;
+      },
+      font: { weight: "bold", size: 12 },
+      // backgroundColor: (context) => {
+      //   if (context.dataset.type === "bar") {
+      //     return chartColors.palettes[0][0];
+      //   } else if (context.dataset.type === "line") {
+      //     return "blue";
+      //   } else return "red";
+      // },
+      // color: "white",
+      borderRadius: 3,
+      anchor: (context) => (context.dataset.type === "line" ? "end" : "center"),
+      align: (context) => (context.dataset.type === "line" ? "top" : "center"),
+      offset: (context) => (context.dataset.type === "line" ? 4 : 0),
     },
   },
   scales: {
@@ -159,7 +177,11 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
         {data === undefined ? (
           <DataNotFound />
         ) : (
-          <Chart options={options} data={chartData} />
+          <Chart
+            options={options}
+            data={chartData}
+            plugins={[ChartDataLabels]}
+          />
         )}
       </Box>
     </Box>

@@ -6,6 +6,7 @@ import { Box, Divider, Typography } from "@mui/material";
 import axios from "axios";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import DataNotFound from "../Common/DataNotFound";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 const CategoryPieCharts = ({
   selectedValue,
@@ -44,8 +45,9 @@ const CategoryPieCharts = ({
           label: "Hour",
           data: category?.bdTime,
           backgroundColor: category?.subcategories?.map(
-            (item, i) => chartColors[i]
+            (item, i) => chartColors.palettes.palette4[i]
           ),
+          // borderWidth: 0,
         },
       ],
     };
@@ -66,7 +68,12 @@ const CategoryPieCharts = ({
           {category?.bdCount === undefined ? (
             <DataNotFound />
           ) : (
-            <Chart type="pie" data={chartData} options={options} />
+            <Chart
+              type="pie"
+              data={chartData}
+              options={options}
+              plugins={[ChartDataLabels]}
+            />
           )}
         </Box>
       </Box>
@@ -87,6 +94,7 @@ const CategoryPieCharts = ({
       // console.log("pie chart data res:", res);
       setCategories(res?.data?.categoriesPieChartData);
     } catch (error) {
+      // setCategories([]);
       console.log("error:", error);
     }
   };
@@ -98,7 +106,7 @@ const CategoryPieCharts = ({
   return (
     <Row className="g-2">
       {categories?.map((category, index) => (
-        <Col key={index} className="" lg={6} md={6} sm={12}>
+        <Col key={index} sm={6} xs={12}>
           <ChartCard category={category} />
         </Col>
       ))}

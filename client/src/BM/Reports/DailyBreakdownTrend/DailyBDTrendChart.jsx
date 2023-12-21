@@ -9,14 +9,15 @@ import {
   Legend,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { Box, Divider, Typography } from "@mui/material";
-import { Row, Col } from "react-bootstrap";
+import { Box } from "@mui/material";
+import { Col } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
-import ChartDataLabels from "chartjs-plugin-datalabels";
 
 import { MonthDropdown } from "../ManHourReport/SubComponents/LineSelectionDropdown";
 import currentMonth from "../../../pages/Dashboard/DashboardComponent/currentMonth";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 
 ChartJS.register(
   CategoryScale,
@@ -26,9 +27,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
-// Register the plugin to all charts:
-ChartJS.register(ChartDataLabels);
 
 export const options = {
   maintainAspectRatio: false,
@@ -40,20 +38,7 @@ export const options = {
         usePointStyle: true,
       },
     },
-    datalabels: {
-      formatter: (value, context) => value || "",
-      // formatter: (value, context) => {
-      //   if (context.dataset.type === "bar") {
-      //     return value > 30 ? value : "";
-      //   }
-      //   return value;
-      // },
-      font: { weight: "bold", size: 8 },
-      // color: (context) => context.dataset.type === "line" ? chartColors[3] : "gray",
-      anchor: (context) => (context.dataset.type === "line" ? "end" : "center"),
-      align: (context) => (context.dataset.type === "line" ? "top" : "center"),
-      offset: (context) => (context.dataset.type === "line" ? -2 : 0),
-    },
+    datalabels: commonDatalabels,
   },
   // elements: {
   //   bar: {
@@ -222,7 +207,7 @@ const DailyBDTrendChart = ({
       />
 
       <div style={{ width: "100%", height: "300px" }}>
-        <Chart data={data} options={options} />
+        <Chart data={data} options={options} plugins={[ChartDataLabels]} />
       </div>
     </Box>
   );

@@ -47,12 +47,6 @@ export default function TeamMembersDropdown({
     }
   };
 
-  //Remove below code in production
-  React.useEffect(() => {
-    //set Arun Kumar as default
-    setTmId("640c51ca07e9b84d282beb6a");
-  }, [menuItems]);
-
   React.useEffect(() => {
     if (selectedValue) fetchValues();
   }, [selectedValue]);

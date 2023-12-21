@@ -45,6 +45,7 @@ const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
       <LineBarChart
         title="MTBF Trend"
         xAxisTitle="Months"
+        y1AxisTitle="MTBF Hours"
         dataset={MTBFTrendData}
         label={{
           lineLabel: "Target",
