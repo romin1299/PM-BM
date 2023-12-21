@@ -28,6 +28,7 @@ import MTTRReportDashboard from "./Reports/MTTRReport/MTTRReportDashboard";
 import MTBFReportDashboard from "./Reports/MTBFReport/MTBFReportDashboard";
 import MTTRDashboard from "./Reports/MTTRReport/MTTRDashboard";
 import MTBFDashboard from "./Reports/MTBFReport/MTBFDashboard";
+import TopMachineBD from "./Reports/TopMachineBreakdown/TopMachineBD";
 
 import ApprovalDashboardOfRequestSheet from "./ApprovalDashboards/ApprovalDashboardOfRequestSheet";
 import LineContributionBD from "./Reports/LineContributionBreakdown/LineContributionMain";
@@ -73,6 +74,10 @@ const reportRoutes = [
   {
     path: "/bm/report/mtbf",
     element: <MTBFReportDashboard />,
+  },
+  {
+    path: "/bm/report/top-machine-breakdown",
+    element: <TopMachineBD />,
   },
 ];
 
