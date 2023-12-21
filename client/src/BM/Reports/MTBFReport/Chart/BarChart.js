@@ -59,10 +59,12 @@ const BarChart = ({
           text: "Machines",
         },
       },
-      // y: {
-      //   min: 0,
-      //   max: 3,
-      // },
+      y: {
+        title: {
+          display: true,
+          text: "Total Hours"
+        },
+      },
     },
 
     onClick: (event, element) => {

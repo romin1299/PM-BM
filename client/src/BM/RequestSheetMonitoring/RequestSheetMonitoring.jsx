@@ -14,6 +14,7 @@ import {
   initialState,
   reducer,
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import BMTitlebar from "../Component/BMTitlebar";
 
 const RequestSheetMonitoring = () => {
   // const baseUrl = "/getRequestSheetMonitoringData";
@@ -221,7 +222,7 @@ const RequestSheetMonitoring = () => {
   }, []);
 
   return (
-    <Container fluid className="p-2">
+    <Container fluid>
       {/* <Row>
         <Col className="border" lg={1}>
           <div className="p-1">
@@ -320,69 +321,43 @@ const RequestSheetMonitoring = () => {
         </Col>
       </Row> */}
 
-      <Box className="cell p-3 mt-3">
-        <Row>
-          <Col className="d-flex align-items-center">
-            <Typography variant="h4" component="h4">
-              Request-sheet Monitoring
-            </Typography>
-          </Col>
+      <BMTitlebar
+        title="Request-sheet Monitoring"
+        Toolbar={
           <ChartsToolbar
             baseUrlForFiltering={baseUrlForFiltering}
             reduceState={reduceState}
             reducerDispatch={reducerDispatch}
             monthFiltration
           />
-        </Row>
-        <Row>
-          <Col
-            style={{ height: "35rem" }}
-            sm={12}
-            md={6}
-            lg={4}
-            className="p-2"
-          >
-            <RequestSheetMonitoringBarChart
-              selectedValue={reduceState?.selectedValue}
-              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-              selectedYear={reduceState?.selectedYear}
-              selectedMonth={reduceState?.selectedMonth}
-            />
-          </Col>
-          <Col className="p-2">
-            <Row>
-              <MonthlyGeneratedAndCompletedCount
-                selectedValue={reduceState?.selectedValue}
-                flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-                selectedYear={reduceState?.selectedYear}
-                allMonths={allMonths}
-              />
-            </Row>
-            <Row className="d-flex align-items-center justify-content-center">
-              <Col className="d-flex align-items-center justify-content-center">
-                <UserWisePendingCount
-                  selectedValue={reduceState?.selectedValue}
-                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-                  selectedYear={reduceState?.selectedYear}
-                  allMonths={allMonths}
-                />
-              </Col>
-            </Row>
-          </Col>
-          {/* 
-        <Col className="p-2">
-          <Table striped bordered hover>
-            <tr>
-              <th></th>
-              <th></th>
-              {reduceState?.allMonths?.map((item) => (
-                <th>{item?.monthName}</th>
-              ))}
-            </tr>
-          </Table>
-        </Col> */}
-        </Row>
-      </Box>
+        }
+      />
+
+      <Row className="mt-3 gx-3">
+        <Col sm={12} lg={4}>
+          <RequestSheetMonitoringBarChart
+            selectedValue={reduceState?.selectedValue}
+            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+            selectedYear={reduceState?.selectedYear}
+            selectedMonth={reduceState?.selectedMonth}
+          />
+        </Col>
+        <Col sm={12} lg={8}>
+          <MonthlyGeneratedAndCompletedCount
+            selectedValue={reduceState?.selectedValue}
+            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+            selectedYear={reduceState?.selectedYear}
+            allMonths={allMonths}
+          />
+
+          <UserWisePendingCount
+            selectedValue={reduceState?.selectedValue}
+            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+            selectedYear={reduceState?.selectedYear}
+            allMonths={allMonths}
+          />
+        </Col>
+      </Row>
     </Container>
   );
 };

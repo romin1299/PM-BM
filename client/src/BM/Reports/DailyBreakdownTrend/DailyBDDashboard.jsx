@@ -1,6 +1,6 @@
 import React, { useReducer } from "react";
 import { Col, Container, Row } from "react-bootstrap";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Button, Paper, Typography } from "@mui/material";
 import DailyBDTrendChart from "./DailyBDTrendChart";
 import MonthlyPlanVsActualChart from "./MonthlyPlanVsActual";
 import MTTRChart from "./MTTRChart";
@@ -11,6 +11,8 @@ import {
   initialState,
   reducer,
 } from "../ManHourReport/SubComponents/CommonFiltrationComponent";
+import { useForm } from "react-hook-form";
+import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
 
 const sectionBodyBoxStyle = {
   // display: "flex",
@@ -19,7 +21,7 @@ const sectionBodyBoxStyle = {
   // gap: "10px",
 
   mt: "2px",
-  minHeight: "80px",
+  // minHeight: "80px",
 };
 
 const StatusBox = ({ title, value }) => (
@@ -58,8 +60,41 @@ const StatusBox = ({ title, value }) => (
 );
 
 const DailyBTDashboard = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({});
+
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/plant-level-filtration";
+
+  const [requestSheetData, setRequestSheetData] = React.useState([]);
+
+  const getRequestSheetDataBasedOnSelectedDate = async (data) => {
+    try {
+      const res = await fetch(
+        // `/getRequestSheetDataBasedOnSelectedDate/${reduceState?.flagForTogglingFilter}/632c41261d1becfedab325f9/${data?.selectedDate}/?selectedYear=${reduceState?.selectedYear}`,
+        `/getRequestSheetDataBasedOnSelectedDate/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/${data?.selectedDate}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, requestSheetData } = await res.json();
+
+      if (res?.status === 201) {
+        setRequestSheetData(requestSheetData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Container fluid>
@@ -104,13 +139,42 @@ const DailyBTDashboard = () => {
         </Row>
 
         <Box className="mb-3 mt-3">
-          <DailyBDTrendChart
-            selectedValue={reduceState?.selectedValue}
-            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-            selectedYear={reduceState?.selectedYear}
-            selectedMonth={reduceState?.selectedMonth}
-          />
+          <DailyBDTrendChart {...reduceState} />
         </Box>
+
+        <Paper variant="outlined" sx={{ p: 2 }} className="mt-3 g-0">
+          <form
+            onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedDate)}
+            className="pt-1 d-flex align-items-center justify-content-end"
+          >
+            <input
+              type="date"
+              {...register("selectedDate", {
+                required: "Please select date",
+              })}
+            />
+            {errors?.["selectedDate"] && (
+              <p className="text-error">{errors?.["selectedDate"]?.message}</p>
+            )}
+            <Button
+              size="small"
+              disableElevation
+              className="bg-button"
+              variant="contained"
+              type="submit"
+              sx={{
+                ml: 1,
+                minWidth: "30px",
+                height: "30px",
+                paddingInline: "10px",
+              }}
+            >
+              Go
+            </Button>
+          </form>
+
+          <BDRequestSheetTable requestSheetData={requestSheetData} />
+        </Paper>
 
         <Row className="mb-3 gx-3">
           <Col md={12} lg={6}>

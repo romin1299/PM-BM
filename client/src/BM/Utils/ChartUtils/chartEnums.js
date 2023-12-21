@@ -35,10 +35,11 @@ export const chartColors = {
   red: ["#FF8383", "#DA2020", "#9F0000"],
   brown: ["#DF953C", "#BA6D11", "#824702"],
   palettes: {
-    0: ["#c2c933","#778899", "#0BB4CB"],
+    0: ["#c2c933", "#778899", "#0BB4CB", "#ffcd38"],
     palette1: ["#bfaeff", "#cbffbe", "#ffcd38", "#6ea5ff", "#ff7b64"],
     palette2: ["#0aa3d2", "#65cc97"],
     palette3: ["#2693ff", "#bbd0e5", "#23313f"],
+    palette4: ["#c2c933", "#bbd0e5", "#0BB4CB", "#ffcd38", "#ff7b64"],
   },
   gray: "#bbd0e5",
 };

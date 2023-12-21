@@ -148,6 +148,10 @@ const userRoutes = [
         element: <ApprovalDashboardOfRequestSheet />,
       },
       {
+        path: "/bm/requestSheetMonitoring",
+        element: <RequestSheetMonitoring />,
+      },
+      {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,
       },
@@ -195,6 +199,10 @@ const userRoutes = [
         element: <OperatorDashboard />,
       },
       {
+        path: "/bm/requestSheetMonitoring",
+        element: <RequestSheetMonitoring />,
+      },
+      {
         path: "/bm/requestListDashboard",
         element: <RequestSheetMainDashboard />,
       },
@@ -217,57 +225,6 @@ const userRoutes = [
       {
         path: "/bm/profile",
         element: <Profile />,
-      },
-
-      ...reportRoutes,
-    ],
-  },
-  {
-    user_type: "Operator",
-    routes: [
-      {
-        path: "/bm",
-        element: (
-          <div className="container-fluid">
-            <BMTitlebar title="Plant Dashboard" />
-          </div>
-        ),
-      },
-      {
-        path: "/bm/summeryDashboard",
-        element: (
-          <div className="container-fluid">
-            <BMTitlebar title="Summary Dashboard" />
-          </div>
-        ),
-      },
-      {
-        path: "/bm/requestSheetMonitoring",
-        element: <RequestSheetMonitoring />,
-      },
-      {
-        path: "/bm/requestListDashboard",
-        element: <RequestSheetMainDashboard />,
-      },
-      {
-        path: "/bm/generateRequestSheetMainDashboard",
-        element: <GenerateRequestSheetMainDashboard />,
-      },
-      {
-        path: "/bm/request-sheet/:generateType/:machine_code",
-        element: <RequestSheet />,
-      },
-      {
-        path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
-        element: <RequestSheetUpdate />,
-      },
-      {
-        path: "/bm/profile",
-        element: <Profile />,
-      },
-      {
-        path: "/bm/approvalLogs",
-        element: <ApprovalLogs />,
       },
 
       ...reportRoutes,
@@ -324,6 +281,57 @@ const userRoutes = [
       {
         path: "/bm/profile",
         element: <Profile />,
+      },
+
+      ...reportRoutes,
+    ],
+  },
+  {
+    user_type: "Operator",
+    routes: [
+      {
+        path: "/bm",
+        element: (
+          <div className="container-fluid">
+            <BMTitlebar title="Plant Dashboard" />
+          </div>
+        ),
+      },
+      {
+        path: "/bm/summeryDashboard",
+        element: (
+          <div className="container-fluid">
+            <BMTitlebar title="Summary Dashboard" />
+          </div>
+        ),
+      },
+      {
+        path: "/bm/requestSheetMonitoring",
+        element: <RequestSheetMonitoring />,
+      },
+      {
+        path: "/bm/requestListDashboard",
+        element: <RequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/generateRequestSheetMainDashboard",
+        element: <GenerateRequestSheetMainDashboard />,
+      },
+      {
+        path: "/bm/request-sheet/:generateType/:machine_code",
+        element: <RequestSheet />,
+      },
+      {
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
+        element: <RequestSheetUpdate />,
+      },
+      {
+        path: "/bm/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/bm/approvalLogs",
+        element: <ApprovalLogs />,
       },
 
       ...reportRoutes,

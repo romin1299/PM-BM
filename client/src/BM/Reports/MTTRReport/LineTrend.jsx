@@ -49,10 +49,11 @@ const LineTrend = ({
       <LineBarChart
         title="Line Trend"
         xAxisTitle="Lines"
+        y1AxisTitle="MTTR Hours"
         dataset={lineWiseMTTRTrend}
         label={{
           lineLabel: "Target",
-          barLabel: "MTBF",
+          barLabel: "MTTR",
         }}
       />
     </>

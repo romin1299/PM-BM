@@ -6,19 +6,7 @@ import { Box, Divider, Typography } from "@mui/material";
 import axios from "axios";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import DataNotFound from "../Common/DataNotFound";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-const initialData = {
-  labels: [],
-  datasets: [
-    {
-      label: "",
-      data: [],
-      backgroundColor: [],
-    },
-  ],
-};
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 const CategoryPieCharts = ({
   selectedValue,
@@ -26,12 +14,10 @@ const CategoryPieCharts = ({
   selectedYear,
   selectedMonth,
 }) => {
-  const ChartCard = ({ category }) => {
-    const [data, setData] = useState(initialData);
+  const [categories, setCategories] = React.useState([]);
 
-    useEffect(() => {
-      fetchChartData();
-    }, [selectedValue, selectedYear, selectedMonth]);
+  const ChartCard = ({ category }) => {
+    ChartJS.register(ArcElement, Tooltip, Legend);
 
     const options = {
       plugins: {
@@ -44,60 +30,33 @@ const CategoryPieCharts = ({
         },
         datalabels: {
           formatter: (value, context) => {
-            return `${value}:${data?.hours?.[context?.dataIndex]}`;
+            return `${Math.round(value * 100) / 100} (${
+              Math.round(category?.bdCount?.[context?.dataIndex] * 100) / 100
+            })`;
           },
         },
       },
     };
 
-    const fetchChartData = async () => {
-      const url = `/get${category}CategoryPieChart/${flagForTogglingFilter}/${selectedValue}`;
-      const params = { selectedYear, selectedMonth };
-
-      try {
-        const res = await axios.get(url, {
-          params,
-          withCredentials: true,
-          credentials: "include",
-        });
-
-        // console.log("res:", res);
-        let resData;
-        if (category === "Bd") {
-          resData = res?.data?.bdCategoryPieChart;
-        } else {
-          resData = res?.data?.problemCategoriesPieChart;
-        }
-        setData(resData);
-      } catch (error) {
-        console.log("error:", error);
-      }
-    };
-
     const chartData = {
-      labels: data?.labels,
+      labels: category?.subcategories,
       datasets: [
         {
-          label: "count",
-          data: data?.count,
-          // backgroundColor: Array.from(
-          //   { length: data?.labels?.length },
-          //   (_, i) => chartColors[i]
-          // ),
-          backgroundColor: data?.labels?.map((item, i) => chartColors[i]),
+          label: "Hour",
+          data: category?.bdTime,
+          backgroundColor: category?.subcategories?.map(
+            (item, i) => chartColors.palettes.palette4[i]
+          ),
+          // borderWidth: 0,
         },
       ],
     };
-
-    // React.useEffect(() => {
-    //   console.log("plant data:", data);
-    // }, [data]);
 
     return (
       <Box className="cell p-3">
         {/* <ChartTitleBar title="BD Hours Vs Count" /> */}
         <Typography variant="body1" style={{ fontSize: "1rem" }}>
-          Problem Category
+          {category?.category} Category
         </Typography>
 
         <Divider sx={{ mt: 1, mb: 2, borderColor: "gray" }} />
@@ -106,25 +65,51 @@ const CategoryPieCharts = ({
           className="ratio ratio-1x1"
           // sx={{ height: { xs: "300px", md: "350px" } }}
         >
-          {data === undefined ? (
+          {category?.bdCount === undefined ? (
             <DataNotFound />
           ) : (
-            <Chart type="pie" data={chartData} options={options} />
+            <Chart
+              type="pie"
+              data={chartData}
+              options={options}
+              plugins={[ChartDataLabels]}
+            />
           )}
         </Box>
       </Box>
     );
   };
 
+  const fetchChartData = async () => {
+    const url = `/getPieChartData/${flagForTogglingFilter}/${selectedValue}`;
+    const params = { selectedYear, selectedMonth };
+
+    try {
+      const res = await axios.get(url, {
+        params,
+        withCredentials: true,
+        credentials: "include",
+      });
+
+      // console.log("pie chart data res:", res);
+      setCategories(res?.data?.categoriesPieChartData);
+    } catch (error) {
+      // setCategories([]);
+      console.log("error:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedValue) fetchChartData();
+  }, [selectedValue, selectedYear]);
+
   return (
     <Row className="g-2">
-      <Col className="" lg={6} md={6} sm={12}>
-        <ChartCard category="Problem" />
-      </Col>
-
-      <Col className="" lg={6} md={6} sm={12}>
-        <ChartCard category="Bd" />
-      </Col>
+      {categories?.map((category, index) => (
+        <Col key={index} sm={6} xs={12}>
+          <ChartCard category={category} />
+        </Col>
+      ))}
     </Row>
   );
 };

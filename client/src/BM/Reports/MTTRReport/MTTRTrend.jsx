@@ -46,6 +46,7 @@ const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
       <LineBarChart
         title="MTTR Trend"
         xAxisTitle="Months"
+        y1AxisTitle="MTTR Hours"
         dataset={MTTRTrendData}
         label={{
           lineLabel: "Target",

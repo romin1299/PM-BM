@@ -13,6 +13,7 @@ import {
   Legend,
   PointElement,
 } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Row, Col } from "react-bootstrap";
 import axios from "axios";
 import SectionCellSelectionDropdown from "./SectionCellSelectionDropdown";
@@ -42,7 +43,26 @@ export const options = {
       },
     },
     datalabels: {
-      display: false,
+      formatter: (value, context) => {
+        if (context.dataset.type === "bar") {
+          return value !== 0 ? `${Math.round(value * 100) / 100} %` : null;
+        } else if (context.dataset.type === "line") {
+          return value !== 0 ? `${Math.round(value * 100) / 100}` : null;
+        } else return value;
+      },
+      font: { weight: "bold", size: 12 },
+      // backgroundColor: (context) => {
+      //   if (context.dataset.type === "bar") {
+      //     return chartColors.palettes[0][0];
+      //   } else if (context.dataset.type === "line") {
+      //     return "blue";
+      //   } else return "red";
+      // },
+      // color: "white",
+      borderRadius: 3,
+      anchor: (context) => (context.dataset.type === "line" ? "end" : "center"),
+      align: (context) => (context.dataset.type === "line" ? "top" : "center"),
+      offset: (context) => (context.dataset.type === "line" ? 4 : 0),
     },
   },
   scales: {
@@ -51,10 +71,10 @@ export const options = {
       grid: {
         display: false, // Hide vertical grid lines
       },
-      // title: {
-      //     display: true,
-      //     text: "Section",
-      // },
+      title: {
+        display: true,
+        text: "Lines",
+      },
       ticks: {
         // maxRotation: 90,
         // minRotation: 90,
@@ -106,7 +126,7 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
 
     try {
       const res = await axios.get(url, {
-        // params,   //uncomment when database is updated with agrregated year and month values
+        params, //uncomment when database is updated with agrregated year and month values
         withCredentials: true,
         credentials: "include",
       });
@@ -169,7 +189,11 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
         {data === undefined ? (
           <DataNotFound sx={{ mt: 2 }} />
         ) : (
-          <Chart options={options} data={chartData} />
+          <Chart
+            options={options}
+            data={chartData}
+            plugins={[ChartDataLabels]}
+          />
         )}
       </Box>
     </Box>

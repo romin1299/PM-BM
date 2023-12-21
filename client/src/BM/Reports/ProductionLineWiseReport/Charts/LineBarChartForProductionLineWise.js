@@ -1,38 +1,25 @@
 import React from "react";
-
-import {
-  Chart as ChartJS,
-  LinearScale,
-  CategoryScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Legend,
-  Tooltip,
-  LineController,
-  BarController,
-} from "chart.js";
 import { Chart } from "react-chartjs-2";
+import { barDatalabels } from "../../../Utils/ChartUtils/chartOptions";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
-const LineBarChartForProductionLineWise = ({ ReportData }) => {
-  ChartJS.register(
-    LinearScale,
-    CategoryScale,
-    BarElement,
-    PointElement,
-    LineElement,
-    Legend,
-    Tooltip,
-    LineController,
-    BarController
-  );
-
+const LineBarChartForProductionLineWise = ({
+  ReportData,
+  xAxisVerticleTicks,
+}) => {
   const options = {
     plugins: {
+      legend: {
+        align: "end",
+        labels: {
+          usePointStyle: true,
+        },
+      },
       title: {
         display: false,
         text: "",
       },
+      datalabels: barDatalabels,
     },
     responsive: true,
     interaction: {
@@ -42,19 +29,39 @@ const LineBarChartForProductionLineWise = ({ ReportData }) => {
     scales: {
       x: {
         stacked: true,
+        ticks: {
+          maxRotation: 90,
+          minRotation: 90,
+        },
+        // grid: {
+        //   display: false, // Hide vertical grid lines
+        // },
       },
       y: {
         stacked: true,
       },
     },
+
+    // scales: {
+    //   x: {
+    //     ticks: xAxisVerticleTicks
+    //       ? {
+    //           maxRotation: 90,
+    //           minRotation: 90,
+    //         }
+    //       : {},
+    //   },
+    // },
   };
+
+  // console.log("ReportData:", ReportData);
 
   const data = {
     labels: ReportData?.labels,
     datasets: [
       {
         type: "line",
-        label: "Dataset 1",
+        label: "Target",
         borderColor: "rgb(75, 192, 192)",
         borderWidth: 2,
         fill: false,
@@ -62,7 +69,7 @@ const LineBarChartForProductionLineWise = ({ ReportData }) => {
       },
       {
         type: "bar",
-        label: "Dataset 2",
+        label: "BD Hours",
         backgroundColor: ReportData?.backgroundColor,
         data: ReportData?.data,
         borderColor: "white",
@@ -71,7 +78,7 @@ const LineBarChartForProductionLineWise = ({ ReportData }) => {
       },
     ],
   };
-  return <Chart type="bar" data={data} options={options} />;
+  return <Chart type="bar" data={data} options={options} plugins={[ChartDataLabels]}/>;
 };
 
 export default LineBarChartForProductionLineWise;

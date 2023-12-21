@@ -26,7 +26,7 @@ const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
       const { message, data } = await res.json();
 
       if (res?.status === 201) {
-        console.log(data);
+        // console.log(data);
         setMTBFTrendData(data);
       }
     } catch (error) {
@@ -45,6 +45,7 @@ const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
       <LineBarChart
         title="MTBF Trend"
         xAxisTitle="Months"
+        y1AxisTitle="MTBF Hours"
         dataset={MTBFTrendData}
         label={{
           lineLabel: "Target",

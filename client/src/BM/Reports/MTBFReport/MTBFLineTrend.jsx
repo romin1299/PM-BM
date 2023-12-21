@@ -50,6 +50,7 @@ const MTBFLineTrend = ({
         title="Line Trend"
         dataset={lineWiseMTBFTrend}
         xAxisTitle="Lines"
+        y1AxisTitle="MTBF Hours"
         label={{
           lineLabel: "Target",
           barLabel: "MTBF",
