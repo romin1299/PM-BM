@@ -8090,9 +8090,9 @@ router.get(
 );
 
 router.get(
-  "/getSummaryCard/:machineId",
+  "/getSummaryCard/:filter/:selectedId",
   authenticate,
-  // filterMiddleware,
+  filterMiddleware,
   productionHourFiltration,
   bdHourTrendMiddleware,
   async (req, res, next) => {
@@ -8105,13 +8105,13 @@ router.get(
           "$count",
         ],
       },
-      groupingObj = {
-        groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
-      },
+      // groupingObj = {
+      //   groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
+      // },
       queryObj = {
-        machineRef: mongoose.Types.ObjectId(req.params.machineId),
-        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-          req.query?.selectedYear,
+       ...req.queryObj,
+        // "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+        //   req.query?.selectedYear,
       };
 
     if (req.query?.selectedMonth) {
@@ -8120,9 +8120,10 @@ router.get(
         "preAggregationTimeStampOfRequestSheet.requestSheet_month":
           req.query?.selectedMonth,
       };
-      groupingObj = {
-        groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-      };
+
+      // groupingObj = {
+      //   groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+      // };
 
       MTBF_monthlyFilterQueryPipeline = [
         {
@@ -8150,7 +8151,10 @@ router.get(
       };
     }
 
-    // console.log(MTBF_monthlyFilterQueryPipeline);
+ 
+
+   
+  
     try {
       const machineSummaryCardData = await RequestSheetOfBM.aggregate([
         { $match: queryObj },
@@ -8170,7 +8174,10 @@ router.get(
 
         {
           $group: {
-            _id: "$cell_data.cell_name",
+             _id: {
+              cell: "$cell_data.cell_name",
+              date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            }, 
             count: { $sum: 1 },
             bdHours: {
               $sum: {
@@ -8193,7 +8200,22 @@ router.get(
             },
           },
         },
-        ...MTBF_monthlyFilterQueryPipeline,
+        {
+          $sort :{ "_id.cell" : 1}
+        },
+        {
+          $addFields: {
+            productionDataBasedOnSelectedFilter: {
+              $function: {
+                body: function (month, productionHrs) {
+                  return productionHrs?.monthlyProductionHrs?.[month];
+                },
+                args: ["$_id.date", req.productionHrs],
+                lang: "js",
+              },
+            },
+          },
+        },
         {
           $project: {
             count: 1,
@@ -8209,14 +8231,15 @@ router.get(
       let bdHoursFormula = {
         $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
       };
+      const keyToDelete = 'preAggregationTimeStampOfRequestSheet.requestSheet_month';
 
+
+      const newQueryObj = { ...queryObj };
+      delete newQueryObj[keyToDelete];
+  
       const bdTrendData = await RequestSheetOfBM.aggregate([
         {
-          $match: {
-            machineRef: mongoose.Types.ObjectId(req.params.machineId),
-            "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-              req.query?.selectedYear,
-          },
+          $match: newQueryObj,
         },
         {
           $lookup: {
@@ -8326,14 +8349,14 @@ router.get(
           },
         },
         { $unwind: "$array" },
-        // {
-        //   $replaceRoot: { newRoot: "$array" },
-        // },
+        // // {
+        // //   $replaceRoot: { newRoot: "$array" },
+        // // },
         {
           $group: {
             _id: "$_id",
             label: { $first: "$_id" },
-
+            month: { $push: "$array.month" },
             lessThanOne: { $push: { $trunc: ["$array.value.lessThanOne", 1] } },
 
             lessThanTwo: { $push: { $trunc: ["$array.value.lessThanTwo", 1] } },
@@ -8343,175 +8366,12 @@ router.get(
           },
         },
 
-        // {
-        //   $project: {
-        //     _id: 0,
-        //     label: 1,
-        //     data: {
-        //       $map: {
-        //         input: allMonths,
-        //         as: "month",
-        //         in: {
-        //           $cond: [
-        //             { $in: ["$$month.monthName", "$cellWiseTotal.month"] },
-        //             {
-        //               $arrayElemAt: [
-        //                 "$cellWiseTotal.bdTimeSum",
-        //                 {
-        //                   $indexOfArray: [
-        //                     "$cellWiseTotal.month",
-        //                     "$$month.monthName",
-        //                   ],
-        //                 },
-        //               ],
-        //             },
-        //             0,
-        //           ],
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
-        // {
-        //   $project: {
-        //     _id: 0,
-        //     array: {
-        //       $map: {
-        //         input: allMonths,
-        //         as: "month",
-        //         in: {
-        //           $cond: [
-        //             { $in: ["$$month.monthName", "$array._id"] },
-        //             {
-        //               month: "$$month.monthName",
-        //               value: {
-        //                 $arrayElemAt: [
-        //                   "$array",
-        //                   {
-        //                     $indexOfArray: [
-        //                       "$array._id",
-        //                       "$$month.monthInDecimal",
-        //                     ],
-        //                   },
-        //                 ],
-        //               },
-        //             },
-        //             {
-        //               month: "$$month.monthName",
-        //               value: {
-        //                 _id: "$$month.monthName",
-        //                 lessThanOne: 0,
-        //                 lessThanTwo: 0,
-        //                 greaterThanTwo: 0,
-        //               },
-        //             },
-        //           ],
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
-        // { $unwind: "$array" },
-        // {
-        //   $replaceRoot: { newRoot: "$array" },
-        // },
-        // {
-        //   $group: {
-        //     _id: null,
-
-        //     lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
-
-        //     lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
-        //     greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
-        //   },
-        // },
-        // {
-        //   $group: {
-        //     _id: null,
-        //     array: { $push: "$$ROOT" },
-        //   },
-        // },
-        // {
-        //   $project: {
-        //     _id: 0,
-        //     array: {
-        //       $map: {
-        //         input: allMonths,
-        //         as: "month",
-        //         in: {
-        //           $cond: [
-        //             { $in: ["$$month.monthName", "$array._id.month"] },
-        //             {
-        //               $arrayElemAt: [
-        //                 "$array",
-        //                 {
-        //                   $indexOfArray: ["$array._id.month", "$$month.monthName"],
-        //                 },
-        //               ],
-        //             },
-        //             {
-        //               _id: "$$month.monthName",
-        //               lessThanOne: 0,
-        //               lessThanTwo: 0,
-        //               greaterThanTwo: 0,
-        //             },
-        //           ],
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
-        // { $unwind: "$array" },
-        // {
-        //   $replaceRoot: { newRoot: "$array" },
-        // },
-        // {
-        //   $group: {
-        //     _id: null,
-        //     month: { $push: "$_id.month" },
-        //     lessThanOne: { $push: "$lessThanOne" },
-        //     lessThanTwo: { $push: "$lessThanTwo" },
-        //     greaterThanTwo: { $push: "$greaterThanTwo" },
-        //   },
-        // },
-        // {
-        //   $project: {
-        //     _id: 0,
-        //     hourlyArray: {
-        //       $map: {
-        //         input: ["<1", "<2", ">2"],
-        //         as: "label",
-        //         in: {
-        //           label: "$$label",
-        //           data: {
-        //             $switch: {
-        //               branches: [
-        //                 {
-        //                   case: { $eq: ["$$label", "<1"] },
-        //                   then: "$lessThanOne",
-        //                 },
-        //                 {
-        //                   case: { $eq: ["$$label", "<2"] },
-        //                   then: "$lessThanTwo",
-        //                 },
-        //                 {
-        //                   case: { $eq: ["$$label", ">2"] },
-        //                   then: "$greaterThanTwo",
-        //                 },
-        //               ],
-        //               default: [],
-        //             },
-        //           },
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
+     
       ]);
 
       return res.status(201).json({
         message: "Summary Card data get successfully",
-        bdTrendData,
+        bdTrendData: bdTrendData,
         // bdTrendData: [
         //   {mainLabel :bdTrendData?.[0]._id },
         //   { label: "<1", data: bdTrendData?.[0].lessThanOne },
@@ -9612,6 +9472,14 @@ router.get(
   filterForMonthlyData,
   cellMonthlyBdTrendForSectionMiddleware
 );
+
+// router.get(
+//   "/hourlyMonthlyPlanVsActualDataForCell/:filter/:selectedId",
+//   authenticate,
+//   filterMiddleware,
+//   filterForMonthlyData,
+//   hourlyMonthlyBdTrendForCellMiddleware
+// );
 
 router.get(
   "/getApprovalRequestSheetData",
