@@ -52,9 +52,9 @@ const RequestSheetMainDashboard = () => {
   const statusColorMap = {
     Generated: "#9bcbdb",
     Assigned: "#ffe031",
-    "Work Order Open": "#70b332",
+    "Work Order Open": "#ca2626",
     "Work Order Pending": "#F59F00",
-    "Work Order Closed": "#ca2626",
+    "Work Order Closed": "#70b332",
     "Fill Sheet": "#89e9eb",
     "Under MTD TL Approval": "#c196d4",
     "Under MTD HOSS Approval": "#c196d4",
@@ -221,7 +221,8 @@ const RequestSheetMainDashboard = () => {
 
   const conditionalBasedEditableFunctionForMTD = (col, row) => {
     if (
-      context?.tm_department === "MTD" &&
+      (context?.tm_department === "MTD" ||
+        row?.assignUser?._id === context?._id) &&
       (col?.field === "work_order_status"
         ? row?.requestSheetStatus !== statusArray[0]
         : row?.requestSheetStatus === statusArray[1])
@@ -387,6 +388,7 @@ const RequestSheetMainDashboard = () => {
               <input className="text-field mt-0" value={value} {...props} />
             )}
             value={value}
+            sx={{ width: "11rem" }}
             onChange={(handOverTime) => {
               onChange(handOverTime);
               // onChange(handOverTime.toString());
@@ -395,7 +397,7 @@ const RequestSheetMainDashboard = () => {
         </LocalizationProvider>
       ),
       validate: (rowData) => rowData.handOverTime !== "",
-      width: "10%",
+      width: "20%",
     },
     {
       title: "Loss Time",

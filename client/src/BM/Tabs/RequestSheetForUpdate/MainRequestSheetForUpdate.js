@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
 import PRDRequestSheetForUpdate from "./PRDRequestSheetForUpdate";
-import MTDRequestSheetForUpdate from "./MTDRequestSheetForUpdate";
 import { useParams, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import MTDRequestSheet from "../RequestSheet/MTDRequestSheet";
@@ -83,19 +82,21 @@ function MyTable() {
 
   return (
     <>
-      <PRDRequestSheetForUpdate
-        // selectedMachineDetails={selectedMachineDetails}
-        requestSheetDataOfBM={requestSheetDataOfBM}
-        // approvalListOfBM={approvalListOfBM}
-      />
+      <div style={{overflow: "scroll"}}>
+        <PRDRequestSheetForUpdate
+          // selectedMachineDetails={selectedMachineDetails}
+          requestSheetDataOfBM={requestSheetDataOfBM}
+          // approvalListOfBM={approvalListOfBM}
+        />
 
-      {/* need to add condition for PRD not able add data on MTD part */}
-      <MTDRequestSheet
-        selectedMachineDetails={selectedMachineDetails}
-        approvalListOfBM={approvalListOfBM}
-        requestSheetDataOfBM={requestSheetDataOfBM}
-        supportingTMList= {supportingTMList}
-      />
+        {/* need to add condition for PRD not able add data on MTD part */}
+        <MTDRequestSheet
+          selectedMachineDetails={selectedMachineDetails}
+          approvalListOfBM={approvalListOfBM}
+          requestSheetDataOfBM={requestSheetDataOfBM}
+          supportingTMList={supportingTMList}
+        />
+      </div>
     </>
   );
 }

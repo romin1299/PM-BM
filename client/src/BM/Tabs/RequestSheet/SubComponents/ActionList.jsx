@@ -3,7 +3,7 @@ import { Button, Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../../modules/PageModules";
 import "../RequestSheet.scss";
 
-const ActionList = ({ actions, setActions }) => {
+const ActionList = ({ actions, setActions, clearErrors }) => {
   const [newActionText, setNewActionText] = useState("");
   const [newActionStatus, setNewActionStatus] = useState("OK");
   const [isAdding, setIsAdding] = useState(false);
@@ -19,6 +19,7 @@ const ActionList = ({ actions, setActions }) => {
         status: newActionStatus,
       };
       setActions([...actions, newAction]);
+      clearErrors('actionValidation');
       setNewActionText("");
       setNewActionStatus("NG");
       setIsAdding(false);

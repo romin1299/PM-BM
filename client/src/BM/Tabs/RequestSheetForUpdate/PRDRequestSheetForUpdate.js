@@ -120,7 +120,9 @@ function MyTable({ requestSheetDataOfBM }) {
         reset();
         if (generateType === "scanned") {
           navigate("/", { replace: true });
-        } else if (loggedUserDetails?.user_type === "Operator") {
+        } else if (
+          requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id
+        ) {
           navigate("/bm/requestListDashboard", { replace: true });
         } else {
           navigate("/bm/approval", { replace: true });
@@ -173,6 +175,10 @@ function MyTable({ requestSheetDataOfBM }) {
         requestSheetDataOfBM?.breakDownBasicDataFilledByPRD
           ?.which_defectLocation
       );
+      setValue(
+        "how_details",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.how_details
+      );
       setValue("shiftOfBM", requestSheetDataOfBM?.shiftOfBM);
       setValue("qualityRelated", requestSheetDataOfBM?.qualityRelated);
       setValue(
@@ -182,9 +188,24 @@ function MyTable({ requestSheetDataOfBM }) {
     }
   }, [requestSheetDataOfBM?._id, setValue]);
 
+  const handleBack = () => {
+    if (requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id) {
+      navigate("/bm/requestListDashboard", { replace: true });
+    } else {
+      navigate("/bm/approval", { replace: true });
+    }
+  };
+
   return (
     <>
       <ToastContainer />
+      <Row>
+        <Col>
+          <button className="btn bg-button m-2" onClick={handleBack}>
+            Back
+          </button>
+        </Col>
+      </Row>
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
         <Table className="m-2 mt-3">
           <thead>
@@ -795,18 +816,27 @@ function MyTable({ requestSheetDataOfBM }) {
               </td>
             </tr>
           </tbody>
-
-          <Row>
-            <Col>
-              <button
-                type="submit"
-                className="btn bg-warning"
-                style={{ marginTop: "1rem" }}
-              >
-                Update Filled PRD Data
-              </button>
-            </Col>
-          </Row>
+          {loggedUserDetails?.tm_department === "MTD" ||
+          (requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
+            (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
+              requestSheetDataOfBM?.requestSheetStatus ===
+                "Work Order Pending" ||
+              requestSheetDataOfBM?.requestSheetStatus ===
+                "Work Order Closed")) ? (
+            <Row>
+              <Col>
+                <button
+                  type="submit"
+                  className="btn bg-warning"
+                  style={{ marginTop: "1rem" }}
+                >
+                  Update Filled PRD Data
+                </button>
+              </Col>
+            </Row>
+          ) : (
+            ""
+          )}
         </Table>
       </form>
     </>

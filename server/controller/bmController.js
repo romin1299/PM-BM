@@ -240,7 +240,6 @@ router.post(
           const prdDataUpdatedByOtherUser = JSON.parse(
             req?.body?.prdDataUpdatedByOtherUser
           );
-
           if (prdDataUpdatedByOtherUser) {
             let queryObjForUpdateDataByOtherUser = {
               priorityCode: requestSheetDataFilledByMTDUser?.priorityCode,
@@ -314,26 +313,26 @@ router.post(
               requestSheetDataFilledByMTDUser?.why4,
             "maintenanceReportFilledByMTD.whyAnalysis.why5":
               requestSheetDataFilledByMTDUser?.why5,
-            "maintenanceReportFilledByMTD.breakDownTime": parseInt(
-              requestSheetDataFilledByMTDUser?.breakDownTime
-            ),
-            "maintenanceReportFilledByMTD.maintenanceTime": parseInt(
-              requestSheetDataFilledByMTDUser?.maintenanceTime
-            ),
-            "maintenanceReportFilledByMTD.qualityCheckTime": parseInt(
-              requestSheetDataFilledByMTDUser?.qualityCheckTime
-            ),
-            "maintenanceReportFilledByMTD.breakTime": parseInt(
-              requestSheetDataFilledByMTDUser?.breakTime
-            ),
+            "maintenanceReportFilledByMTD.breakDownTime":
+              parseInt(requestSheetDataFilledByMTDUser?.breakDownTime) || 0,
+            "maintenanceReportFilledByMTD.spareWaitingTime":
+              parseInt(requestSheetDataFilledByMTDUser?.spareWaitingTime) || 0,
+            "maintenanceReportFilledByMTD.replacementTime":
+              parseInt(requestSheetDataFilledByMTDUser?.replacementTime) || 0,
+            "maintenanceReportFilledByMTD.analysisTime":
+              parseInt(requestSheetDataFilledByMTDUser?.analysisTime) || 0,
+            "maintenanceReportFilledByMTD.adjustmentTime":
+              parseInt(requestSheetDataFilledByMTDUser?.adjustmentTime) || 0,
+            "maintenanceReportFilledByMTD.qualityCheckTime":
+              parseInt(requestSheetDataFilledByMTDUser?.qualityCheckTime) || 0,
+            "maintenanceReportFilledByMTD.breakTime":
+              parseInt(requestSheetDataFilledByMTDUser?.breakTime) || 0,
             "maintenanceReportFilledByMTD.minorBD":
               requestSheetDataFilledByMTDUser?.minorBD,
             "maintenanceReportFilledByMTD.majorBD":
               requestSheetDataFilledByMTDUser?.majorBD,
-            "maintenanceReportFilledByMTD.firstTime":
-              requestSheetDataFilledByMTDUser?.firstTime,
-            "maintenanceReportFilledByMTD.repeat":
-              requestSheetDataFilledByMTDUser?.repeat,
+            "maintenanceReportFilledByMTD.firstTimeOrRepeat":
+              requestSheetDataFilledByMTDUser?.firstTimeOrRepeat,
             sparePartUsedOrNot:
               requestSheetDataFilledByMTDUser?.changedParts?.length > 0
                 ? "Yes"
@@ -1181,7 +1180,7 @@ const filterMiddleware = async (req, res, next) => {
         lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
         // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
       };
-    } else {
+    } else if (req.params?.filter === "based-on-machine") {
       queryObj = {
         ...queryObj,
         machineRef: mongoose.Types.ObjectId(req.params?.selectedId),
@@ -3616,7 +3615,6 @@ router.patch(
         approvalOfRequestSheet,
         rejectedRemarksOfRequestSheet,
       } = req.body;
-
       if (
         !assignApprovalList?.MTD_TL?.id &&
         requestSheetDataOfBM?.assignUser?._id ===
@@ -3672,6 +3670,35 @@ router.patch(
         delete assignApprovalList[formattedKey];
       // });
 
+      //Handling validation for approval list which is not selected by user from client-side
+      if(approvalOfRequestSheet === "Yes"){
+        for (
+          let index = 0;
+          index < Object.keys(assignApprovalList)?.length;
+          index++
+        ) {
+          if (
+            requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+              minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
+            ].includes(
+              Object.keys(assignApprovalList)?.[index].replace("_", " ")
+            )
+          ) {
+            if (
+              Object.keys(
+                assignApprovalList?.[Object.keys(assignApprovalList)?.[index]]
+              )?.length === 0
+            ) {
+              return res.status(400).json({
+                message: `Please select required approval list ${(requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+                  minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
+                ]).join(", ")}`,
+              });
+            }
+          }
+        }
+      }
+
       const updateTheStatusOfBMSheetApprover = async (
         keyOfDepartment,
         assignUser
@@ -3726,32 +3753,6 @@ router.patch(
 
       //request-sheet is approved/accepted
       if (approvalOfRequestSheet === "Yes") {
-        //Handling validation for approval list which is not selected by user from client-side
-        for (
-          let index = 0;
-          index < Object.keys(assignApprovalList)?.length;
-          index++
-        ) {
-          if (
-            requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
-              minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
-            ].includes(
-              Object.keys(assignApprovalList)?.[index].replace("_", " ")
-            )
-          ) {
-            if (
-              Object.keys(
-                assignApprovalList?.[Object.keys(assignApprovalList)?.[index]]
-              )?.length === 0
-            ) {
-              return res.status(400).json({
-                message: `Please select required approval list ${(requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
-                  minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
-                ]).join(", ")}`,
-              });
-            }
-          }
-        }
         let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
           {
             _id: mongoose.Types.ObjectId(req.params?.reqId),
@@ -4903,8 +4904,6 @@ router.post(
           },
         };
       }
-
-      console.log(queryObjForPM, "----", queryObjForBM);
 
       const BDHoursVsCountData = await Machine.aggregate([
         {
@@ -6209,16 +6208,406 @@ const bdHourTrendMiddleware = async (req, res, next) => {
   }
 };
 
+const hourlyMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
+  try {
+    let queryObj;
+    if (req.query?.selectedYear) {
+      queryObj = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+      };
+    }
+
+    const plant = await Plant.findOne({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+
+    queryObj = {
+      ...queryObj,
+      plantRef: mongoose.Types.ObjectId(plant._id),
+    };
+
+    // console.log(req.grpQuery);
+
+    const bdTrendData = await RequestSheetOfBM.aggregate([
+      {
+        $match: queryObj,
+      },
+
+      {
+        $group: {
+          _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+
+          ...req.grpQuery,
+        },
+      },
+
+      {
+        $group: {
+          _id: null,
+          array: { $push: "$$ROOT" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          array: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  { $in: ["$$month.monthName", "$array._id"] },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      $arrayElemAt: [
+                        "$array",
+                        {
+                          $indexOfArray: [
+                            "$array._id",
+                            "$$month.monthInDecimal",
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      _id: "$$month.monthName",
+                      lessThanOne: 0,
+                      lessThanTwo: 0,
+                      greaterThanTwo: 0,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      { $unwind: "$array" },
+      {
+        $replaceRoot: { newRoot: "$array" },
+      },
+      {
+        $group: {
+          _id: null,
+
+          lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
+
+          lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
+          greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      message: "PlantWise Monthly BD trend data get successfully",
+      // bdTrendData,
+      bdTrendData: [
+        { label: "<1", data: bdTrendData?.[0].lessThanOne },
+        { label: "<2", data: bdTrendData?.[0].lessThanTwo },
+        { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
+      ],
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
+  try {
+    let queryObj;
+    if (req.query?.selectedYear) {
+      queryObj = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+      };
+    }
+
+    const plant = await Plant.findOne({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+
+    queryObj = {
+      ...queryObj,
+      plantRef: mongoose.Types.ObjectId(plant._id),
+    };
+
+    const bdTrendData = await RequestSheetOfBM.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $lookup: {
+          from: "subsections",
+          localField: "subSectionRef",
+          foreignField: "_id",
+          as: "section_data",
+        },
+      },
+
+      {
+        $unwind: "$section_data",
+      },
+      {
+        $group: {
+          _id: {
+            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            sectionRef: "$section_data.subSection_name",
+          },
+          bdTimeSum: {
+            ...req.grpQueryForAllSum,
+          },
+        },
+      },
+
+      {
+        $group: {
+          _id: "$_id.sectionRef",
+          label: { $first: "$_id.sectionRef" },
+          sectionWiseTotal: {
+            $push: {
+              month: "$_id.date",
+
+              bdTimeSum: { $trunc: ["$bdTimeSum", 1] },
+            },
+          },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          label: 1,
+          data: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  {
+                    $in: ["$$month.monthName", "$sectionWiseTotal.month"],
+                  },
+                  {
+                    $arrayElemAt: [
+                      "$sectionWiseTotal.bdTimeSum",
+                      {
+                        $indexOfArray: [
+                          "$sectionWiseTotal.month",
+                          "$$month.monthName",
+                        ],
+                      },
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      message: "PlantWise Monthly BD trend data for Section get successfully",
+
+      bdTrendData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const hourlyMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
+  try {
+    const bdTrendData = await RequestSheetOfBM.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $group: {
+          _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+
+          ...req.grpQuery,
+        },
+      },
+
+      {
+        $group: {
+          _id: null,
+          array: { $push: "$$ROOT" },
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          array: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  { $in: ["$$month.monthName", "$array._id"] },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      $arrayElemAt: [
+                        "$array",
+                        {
+                          $indexOfArray: ["$array._id", "$$month.monthName"],
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      _id: "$$month.monthName",
+                      lessThanOne: 0,
+                      lessThanTwo: 0,
+                      greaterThanTwo: 0,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      { $unwind: "$array" },
+      {
+        $replaceRoot: { newRoot: "$array" },
+      },
+      {
+        $group: {
+          _id: null,
+          labels: { $push: "$month" },
+          // target: { $push: "$value.target" },
+          lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
+
+          lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
+          greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      message: "Section Wise Monthly BD trend data for hourly get successfully",
+      bdTrendData: [
+        { label: "<1", data: bdTrendData?.[0].lessThanOne },
+        { label: "<2", data: bdTrendData?.[0].lessThanTwo },
+        { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
+      ],
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
+  try {
+    const bdTrendData = await RequestSheetOfBM.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cellRef",
+          foreignField: "_id",
+          as: "cell_data",
+        },
+      },
+
+      {
+        $unwind: "$cell_data",
+      },
+      {
+        $group: {
+          _id: {
+            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            cellRef: "$cell_data.cell_name",
+          },
+          bdTimeSum: {
+            ...req.grpQueryForAllSum,
+          },
+        },
+      },
+
+      {
+        $group: {
+          _id: "$_id.cellRef",
+          label: { $first: "$_id.cellRef" },
+          cellWiseTotal: {
+            $push: {
+              month: "$_id.date",
+              bdTimeSum: { $trunc: [{ $sum: "$bdTimeSum" }, 1] },
+            },
+          },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          label: 1,
+          data: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  { $in: ["$$month.monthName", "$cellWiseTotal.month"] },
+                  {
+                    $arrayElemAt: [
+                      "$cellWiseTotal.bdTimeSum",
+                      {
+                        $indexOfArray: [
+                          "$cellWiseTotal.month",
+                          "$$month.monthName",
+                        ],
+                      },
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      message: "Section Wise Monthly BD trend data for cell get successfully",
+
+      bdTrendData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 const filterForMonthlyData = async (req, res, next) => {
   try {
     const grpQuery = {
-      _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+      // _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
 
       lessThanOne: {
         $sum: {
           $cond: [
             {
-              $lt: [
+              $lte: [
                 {
                   $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
                 },
@@ -6238,7 +6627,7 @@ const filterForMonthlyData = async (req, res, next) => {
             {
               $and: [
                 {
-                  $gte: [
+                  $gt: [
                     {
                       $divide: [
                         "$maintenanceReportFilledByMTD.breakDownTime",
@@ -6249,7 +6638,7 @@ const filterForMonthlyData = async (req, res, next) => {
                   ],
                 },
                 {
-                  $lt: [
+                  $lte: [
                     {
                       $divide: [
                         "$maintenanceReportFilledByMTD.breakDownTime",
@@ -6272,7 +6661,7 @@ const filterForMonthlyData = async (req, res, next) => {
         $sum: {
           $cond: [
             {
-              $gte: [
+              $gt: [
                 {
                   $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
                 },
@@ -6288,7 +6677,22 @@ const filterForMonthlyData = async (req, res, next) => {
       },
     };
 
+    const grpQueryForAllSum = {
+      $sum: {
+        $cond: [
+          {
+            $gt: ["$maintenanceReportFilledByMTD.workEndedDateOfBM", null],
+          },
+          {
+            $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+          },
+          0,
+        ],
+      },
+    };
+
     req.grpQuery = grpQuery;
+    req.grpQueryForAllSum = grpQueryForAllSum;
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -6299,245 +6703,14 @@ router.get(
   "/hourlyMonthlyBdTrendForPlant",
   authenticate,
   filterForMonthlyData,
-  // bdHourTrendMiddleware,
-  async (req, res, next) => {
-    try {
-      let queryObj;
-      if (req.query?.selectedYear) {
-        queryObj = {
-          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-            req.query?.selectedYear,
-        };
-      }
-        queryObj = {
-          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-            req.query?.selectedYear,
-        };
-    
-
-
-      const plant = await Plant.findOne({
-        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-      });
-
-      queryObj = {
-        ...queryObj,
-        plantRef: mongoose.Types.ObjectId(plant._id),
-      };
-
-      // console.log(queryObj);
-
-      const bdTrendData = await RequestSheetOfBM.aggregate([
-        {
-          $match: queryObj,
-        },
-
-        {
-          $group: req.grpQuery,
-        },
-
-        {
-          $group: {
-            _id: null,
-            array: { $push: "$$ROOT" },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            array: {
-              $map: {
-                input: allMonths,
-                as: "month",
-                in: {
-                  $cond: [
-                    { $in: ["$$month.monthName", "$array._id"] },
-                    {
-                      month: "$$month.monthName",
-                      value: {
-                        $arrayElemAt: [
-                          "$array",
-                          {
-                            $indexOfArray: [
-                              "$array._id",
-                              "$$month.monthInDecimal",
-                            ],
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      month: "$$month.monthName",
-                      value: {
-                        _id: "$$month.monthName",
-                        lessThanOne: 0,
-                        lessThanTwo: 0,
-                        greaterThanTwo: 0,
-                      },
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        },
-        { $unwind: "$array" },
-        {
-          $replaceRoot: { newRoot: "$array" },
-        },
-        {
-          $group: {
-            _id: null,
-
-            lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
-
-            lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
-            greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
-          },
-        },
-      ]);
-
-      return res.status(200).json({
-        message: "PlantWise Monthly BD trend data get successfully",
-
-        bdTrendData: [
-          { label: "<1", data: bdTrendData?.[0].lessThanOne },
-          { label: "<2", data: bdTrendData?.[0].lessThanTwo },
-          { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
-        ],
-      });
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  }
+  hourlyMonthlyBdTrendForPlantMiddleware
 );
 
 router.get(
   "/sectionMonthlyBdTrendForPlant",
   authenticate,
-  // BdTrendFilterMiddleware,
-  async (req, res, next) => {
-    try {
-      let queryObj;
-      if (req.query?.selectedYear) {
-        queryObj = {
-          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-            req.query?.selectedYear,
-        };
-      }
-
-      const plant = await Plant.findOne({
-        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-      });
-
-      queryObj = {
-        ...queryObj,
-        plantRef: mongoose.Types.ObjectId(plant._id),
-      };
-
-      const bdTrendData = await RequestSheetOfBM.aggregate([
-        {
-          $match: queryObj,
-        },
-        {
-          $lookup: {
-            from: "subsections",
-            localField: "subSectionRef",
-            foreignField: "_id",
-            as: "section_data",
-          },
-        },
-
-        {
-          $unwind: "$section_data",
-        },
-        {
-          $group: {
-            _id: {
-              date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-              sectionRef: "$section_data.subSection_name",
-            },
-            bdTimeSum: {
-              $sum: {
-                $cond: [
-                  {
-                    $gt: [
-                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                      null,
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  },
-                  0,
-                ],
-              },
-            },
-          },
-        },
-
-        {
-          $group: {
-            _id: "$_id.sectionRef",
-            label: { $first: "$_id.sectionRef" },
-            sectionWiseTotal: {
-              $push: {
-                month: "$_id.date",
-
-                bdTimeSum: { $trunc: [{ $sum: "$bdTimeSum" }, 1] },
-              },
-            },
-          },
-        },
-        {
-          $sort: { _id: 1 },
-        },
-
-        {
-          $project: {
-            _id: 0,
-            label: 1,
-            data: {
-              $map: {
-                input: allMonths,
-                as: "month",
-                in: {
-                  $cond: [
-                    {
-                      $in: ["$$month.monthName", "$sectionWiseTotal.month"],
-                    },
-                    {
-                      $arrayElemAt: [
-                        "$sectionWiseTotal.bdTimeSum",
-                        {
-                          $indexOfArray: [
-                            "$sectionWiseTotal.month",
-                            "$$month.monthName",
-                          ],
-                        },
-                      ],
-                    },
-                    0,
-                  ],
-                },
-              },
-            },
-          },
-        },
-      ]);
-
-      return res.status(200).json({
-        message: "PlantWise Monthly BD trend data for Section get successfully",
-
-        bdTrendData,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  }
+  filterForMonthlyData,
+  sectionMonthlyBdTrendForPlantMiddleware
 );
 
 router.get(
@@ -6546,7 +6719,114 @@ router.get(
 
   filterMiddleware,
   filterForMonthlyData,
+  hourlyMonthlyBdTrendForSectionMiddleware
+);
 
+router.get(
+  "/cellMonthlyBdTrendForSection/:filter/:selectedId",
+  authenticate,
+
+  filterMiddleware,
+  filterForMonthlyData,
+  cellMonthlyBdTrendForSectionMiddleware
+);
+
+// ---------------- Yearly BD Trend Chart -------------------
+
+const filterForYearlyData = async (req, res, next) => {
+  try {
+    const plant = await Plant.findOne({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+
+    const selectedYear = req.query.selectedYear?.split("-")?.[0];
+    // console.log("seses",  selectedYear)
+    const isValidYear = /^\d{4}$/.test(selectedYear);
+
+    let previousYear;
+    if (isValidYear) {
+      previousYear = (parseInt(selectedYear, 10) - 1).toString();
+    }
+
+    let queryObj = {};
+
+    if (req.query?.selectedYear) {
+      queryObj = {
+        $or: [
+          {
+            "preAggregationTimeStampOfRequestSheet.requestSheet_year": `${previousYear}-${selectedYear}`,
+          },
+          {
+            "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+              req.query?.selectedYear,
+          },
+        ],
+      };
+    }
+
+    // if (req.query?.selectedMonth) {
+    //   queryObj = {
+    //     ...queryObj,
+    //     "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+    //       req.query?.selectedMonth,
+    //   };
+    // }
+
+    if (req.params?.filter === "based-on-plant") {
+      queryObj = {
+        ...queryObj,
+        plantRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-section") {
+      queryObj = {
+        ...queryObj,
+        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-subSection") {
+      queryObj = {
+        ...queryObj,
+        subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-cell") {
+      queryObj = {
+        ...queryObj,
+        cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    } else if (req.params?.filter === "based-on-line") {
+      queryObj = {
+        ...queryObj,
+        lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    } else if (req.params?.filter === "based-on-machine") {
+      queryObj = {
+        ...queryObj,
+        machineRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    } else {
+      queryObj = {
+        ...queryObj,
+        plantRef: mongoose.Types.ObjectId(plant._id),
+      };
+    }
+    req.queryObj = queryObj;
+    req.selectedYear = selectedYear;
+    req.previousYear = previousYear;
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+router.get(
+  "/hourlyYearlyBdTrendForPlant",
+  authenticate,
+
+  filterForYearlyData,
+  filterForMonthlyData,
   async (req, res, next) => {
     try {
       const bdTrendData = await RequestSheetOfBM.aggregate([
@@ -6554,7 +6834,15 @@ router.get(
           $match: req.queryObj,
         },
         {
-          $group: req.grpQuery,
+          $group: {
+            _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
+
+            ...req.grpQuery,
+          },
+        },
+
+        {
+          $sort: { _id: 1 },
         },
 
         {
@@ -6567,28 +6855,32 @@ router.get(
         {
           $project: {
             _id: 0,
-            array: {
+            data: {
               $map: {
-                input: allMonths,
-                as: "month",
+                input: [
+                  `${req.previousYear}-${req.selectedYear}`,
+                  req.query?.selectedYear,
+                ],
+                as: "year",
+
                 in: {
                   $cond: [
-                    { $in: ["$$month.monthName", "$array._id"] },
+                    { $in: ["$$year", "$array._id"] },
                     {
-                      month: "$$month.monthName",
+                      year: "$$year",
                       value: {
                         $arrayElemAt: [
                           "$array",
                           {
-                            $indexOfArray: ["$array._id", "$$month.monthName"],
+                            $indexOfArray: ["$array._id", "$$year"],
                           },
                         ],
                       },
                     },
                     {
-                      month: "$$month.monthName",
+                      year: "$$year",
                       value: {
-                        _id: "$$month.monthName",
+                        _id: "$$year",
                         lessThanOne: 0,
                         lessThanTwo: 0,
                         greaterThanTwo: 0,
@@ -6600,15 +6892,15 @@ router.get(
             },
           },
         },
-        { $unwind: "$array" },
+
+        { $unwind: "$data" },
         {
-          $replaceRoot: { newRoot: "$array" },
+          $replaceRoot: { newRoot: "$data" },
         },
         {
           $group: {
             _id: null,
-            labels: { $push: "$month" },
-            // target: { $push: "$value.target" },
+
             lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
 
             lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
@@ -6618,332 +6910,17 @@ router.get(
       ]);
 
       return res.status(200).json({
-        message:
-          "Section Wise Monthly BD trend data for hourly get successfully",
+        message: "Plant Wise Yearly BD trend data get successfully",
+        labels: [
+          `${req.previousYear}-${req.selectedYear}`,
+          req.query?.selectedYear,
+        ],
+        // bdTrendData,
         bdTrendData: [
           { label: "<1", data: bdTrendData?.[0].lessThanOne },
           { label: "<2", data: bdTrendData?.[0].lessThanTwo },
           { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
         ],
-      });
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  }
-);
-
-router.get(
-  "/cellMonthlyBdTrendForSection/:filter/:selectedId",
-  authenticate,
-
-  filterMiddleware,
-  async (req, res, next) => {
-    try {
-      const bdTrendData = await RequestSheetOfBM.aggregate([
-        {
-          $match: req.queryObj,
-        },
-        {
-          $lookup: {
-            from: "cells",
-            localField: "cellRef",
-            foreignField: "_id",
-            as: "cell_data",
-          },
-        },
-
-        {
-          $unwind: "$cell_data",
-        },
-        {
-          $group: {
-            _id: {
-              date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-              cellRef: "$cell_data.cell_name",
-            },
-            bdTimeSum: {
-              $sum: {
-                $cond: [
-                  {
-                    $gt: [
-                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                      null,
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  },
-                  0,
-                ],
-              },
-            },
-          },
-        },
-
-        {
-          $group: {
-            _id: "$_id.cellRef",
-            label: { $first: "$_id.cellRef" },
-            cellWiseTotal: {
-              $push: {
-                month: "$_id.date",
-                bdTimeSum: { $trunc: [{ $sum: "$bdTimeSum" }, 1] },
-              },
-            },
-          },
-        },
-        {
-          $sort: { _id: 1 },
-        },
-
-        {
-          $project: {
-            _id: 0,
-            label: 1,
-            data: {
-              $map: {
-                input: allMonths,
-                as: "month",
-                in: {
-                  $cond: [
-                    { $in: ["$$month.monthName", "$cellWiseTotal.month"] },
-                    {
-                      $arrayElemAt: [
-                        "$cellWiseTotal.bdTimeSum",
-                        {
-                          $indexOfArray: [
-                            "$cellWiseTotal.month",
-                            "$$month.monthName",
-                          ],
-                        },
-                      ],
-                    },
-                    0,
-                  ],
-                },
-              },
-            },
-          },
-        },
-      ]);
-
-      return res.status(200).json({
-        message: "Section Wise Monthly BD trend data for cell get successfully",
-
-        bdTrendData,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  }
-);
-
-// ---------------- Yearly BD Trend Chart -------------------
-
-router.get(
-  "/hourlyYearlyBdTrendForPlant",
-  authenticate,
-  // BdTrendFilterMiddleware,
-  async (req, res, next) => {
-    try {
-      let queryObj;
-      if (req.query?.selectedYear) {
-        queryObj = {
-          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-            req.query?.selectedYear,
-        };
-      }
-
-      const plant = await Plant.findOne({
-        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-      });
-
-      queryObj = {
-        ...queryObj,
-        plantRef: mongoose.Types.ObjectId(plant._id),
-      };
-
-      const dumPrevYear = req.query.selectedYear?.split("-")?.[0];
-      const dumPrevYear2 = req.query.selectedYear?.split("-")?.[1];
-
-      const bdTrendData = await RequestSheetOfBM.aggregate([
-        {
-          $match: queryObj,
-        },
-        {
-          $group: {
-            _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
-
-            lessThanOne: {
-              $sum: {
-                $cond: [
-                  {
-                    $lte: [
-                      {
-                        $divide: [
-                          "$maintenanceReportFilledByMTD.breakDownTime",
-                          60,
-                        ],
-                      },
-                      1,
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  },
-                  0,
-                ],
-              },
-            },
-            lessThanTwo: {
-              $sum: {
-                $cond: [
-                  {
-                    $and: [
-                      {
-                        $gte: [
-                          {
-                            $divide: [
-                              "$maintenanceReportFilledByMTD.breakDownTime",
-                              60,
-                            ],
-                          },
-                          1,
-                        ],
-                      },
-                      {
-                        $lt: [
-                          {
-                            $divide: [
-                              "$maintenanceReportFilledByMTD.breakDownTime",
-                              60,
-                            ],
-                          },
-                          2,
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  },
-                  0,
-                ],
-              },
-            },
-            greaterThanTwo: {
-              $sum: {
-                $cond: [
-                  {
-                    $gt: [
-                      {
-                        $divide: [
-                          "$maintenanceReportFilledByMTD.breakDownTime",
-                          60,
-                        ],
-                      },
-                      1,
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  },
-                  0,
-                ],
-              },
-            },
-          },
-        },
-
-        {
-          $sort: { _id: 1 },
-        },
-
-        {
-          $group: {
-            _id: null,
-            data: {
-              $push: {
-                year: "$_id",
-                lessThanOne: { $trunc: ["$lessThanOne", 1] },
-                lessThanTwo: { $trunc: ["$lessThanTwo", 1] },
-                greaterThanTwo: { $trunc: ["$greaterThanTwo", 1] },
-              },
-            },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            hourlyArray: {
-              $map: {
-                input: ["<2", "<2", "<1"],
-                as: "label",
-                in: {
-                  label: "$$label",
-                  data: {
-                    $map: {
-                      input: "$data",
-                      as: "item",
-                      in: {
-                        $switch: {
-                          branches: [
-
-                            {
-                              case: { $eq: ["$$label", ">2"] },
-                              then: "$$item.greaterThanTwo",
-                            },
-                            {
-                              case: { $eq: ["$$label", "<2"] },
-                              then: "$$item.lessThanTwo",
-                            },
-                            {
-                              case: { $eq: ["$$label", "<1"] },
-                              then: "$$item.lessThanOne",
-                            },
-                          ],
-                          default: [],
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      ]);
-
-      return res.status(200).json({
-        message: "Plant Wise Yearly BD trend data get successfully",
-        labels: [dumPrevYear, dumPrevYear2],
-        bdTrendData: bdTrendData?.[0].hourlyArray,
-
-        // bdTrendData: {
-        //   data1: [
-        //     { label: "<1", data: bdTrendData?.[0].data[0]?.lessThanOne },
-        //     { label: "<2", data: bdTrendData?.[0].data[0]?.lessThanTwo },
-        //     { label: ">2", data: bdTrendData?.[0].data[0]?.greaterThanTwo },
-        //   ],
-
-          // data2 :  [
-          //   { label: "<1", data: bdTrendData?.[1].data[0]?.lessThanOne },
-          //   { label: "<2", data: bdTrendData?.[1].data[0]?.lessThanTwo },
-          //   { label: ">2", data: bdTrendData?.[1].data[0]?.greaterThanTwo },
-          // ],
-        // },
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -6954,36 +6931,14 @@ router.get(
 router.get(
   "/sectionYearlyBdTrendForPlant",
   authenticate,
+  filterForYearlyData,
+  filterForMonthlyData,
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
     try {
-      let dateObj = {
-        $dateToString: {
-          format: "%Y",
-          date: "$problemOccurredDateAndTimeOfBM",
-          timezone: timezone,
-        },
-      };
-
-      let queryObj = {
-        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-          req.query?.selectedYear,
-      };
-
-      const plant = await Plant.findOne({
-        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-      });
-
-      queryObj = {
-        ...queryObj,
-        plantRef: mongoose.Types.ObjectId(plant._id),
-      };
-      const dumPrevYear = req.query.selectedYear?.split("-")?.[0];
-      const dumPrevYear2 = req.query.selectedYear?.split("-")?.[1];
-
       const bdTrendData = await RequestSheetOfBM.aggregate([
         {
-          $match: queryObj,
+          $match: req.queryObj,
         },
 
         {
@@ -7001,56 +6956,12 @@ router.get(
         {
           $group: {
             _id: {
-              date: dateObj,
+              date: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
               sectionRef: "$section_data.subSection_name",
             },
             bdTimeSum: {
-              $push: {
-                $cond: [
-                  {
-                    $gt: [
-                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                      null,
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  },
-                  0,
-                ],
-              },
+              ...req.grpQueryForAllSum,
             },
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            bdTimeSum: 1,
-            categorizedHours: {
-              $map: {
-                input: "$bdTimeSum",
-                as: "hour",
-                in: {
-                  lessThanOne: { $cond: [{ $lt: ["$$hour", 1] }, "$$hour", 0] },
-                  lessThanTwo: { $cond: [{ $lt: ["$$hour", 2] }, "$$hour", 0] },
-                  greaterThanTwo: {
-                    $cond: [{ $gte: ["$$hour", 2] }, "$$hour", 0],
-                  },
-                },
-              },
-            },
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            bdTimeSum: 1,
-            lessThanOne: { $sum: "$categorizedHours.lessThanOne" },
-            lessThanTwo: { $sum: "$categorizedHours.lessThanTwo" },
-            greaterThanTwo: { $sum: "$categorizedHours.greaterThanTwo" },
           },
         },
 
@@ -7061,21 +6972,8 @@ router.get(
             sectionWiseTotal: {
               $push: {
                 year: "$_id.date",
-                bdTimeSum: { $trunc: [{ $sum: "$bdTimeSum" }, 1] },
-              },
-            },
-          },
-        },
-        // {
-        //   $sort: { _id: 1 },
-        // },
-        {
-          $group: {
-            _id: "$_id",
-            data: {
-              $push: {
-                year: "$sectionWiseTotal.year",
-                dataSum: "$sectionWiseTotal.bdTimeSum",
+
+                bdTimeSum: { $trunc: ["$bdTimeSum", 1] },
               },
             },
           },
@@ -7083,53 +6981,45 @@ router.get(
         {
           $sort: { _id: 1 },
         },
-        {
-          $unwind: "$data",
-        },
-        {
-          $project: {
-            _id: 0,
-            label: "$_id",
-            data: {
-              $map: {
-                input: [dumPrevYear, dumPrevYear2],
-                as: "year",
-                in: {
-                  year: "$$year",
-                  dataSum: {
-                    $cond: [
-                      { $in: ["$$year", "$data.year"] },
-                      {
-                        $arrayElemAt: [
-                          "$data.dataSum",
-                          {
-                            $indexOfArray: ["$data.year", "$$year"],
-                          },
-                        ],
-                      },
-                      null,
-                    ],
-                  },
-                },
-              },
-            },
-          },
-        },
 
         {
           $project: {
             _id: 0,
             label: 1,
-            data: "$data.dataSum",
+            data: {
+              $map: {
+                input: [
+                  `${req.previousYear}-${req.selectedYear}`,
+                  req.query?.selectedYear,
+                ],
+                as: "year",
+                in: {
+                  $cond: [
+                    {
+                      $in: ["$$year", "$sectionWiseTotal.year"],
+                    },
+                    {
+                      $arrayElemAt: [
+                        "$sectionWiseTotal.bdTimeSum",
+                        {
+                          $indexOfArray: ["$sectionWiseTotal.year", "$$year"],
+                        },
+                      ],
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
           },
-        },
-        {
-          $sort: { label: 1 },
         },
       ]);
       return res.status(201).json({
         message: "Plant Wise Yearly BD trend data get successfully",
-        labels: [dumPrevYear, dumPrevYear2],
+        labels: [
+          `${req.previousYear}-${req.selectedYear}`,
+          req.query?.selectedYear,
+        ],
 
         bdTrendData,
       });
@@ -7142,11 +7032,12 @@ router.get(
 router.get(
   "/hourlyYearlyBdTrendForSection/:filter/:selectedId",
   authenticate,
-  filterMiddleware,
+  filterForYearlyData,
+  filterForMonthlyData,
+
   async (req, res, next) => {
     try {
-      const dumPrevYear = req.query.selectedYear?.split("-")?.[0];
-      const dumPrevYear2 = req.query.selectedYear?.split("-")?.[1];
+      // console.log("queryObj", req.queryObj)
 
       const bdTrendData = await RequestSheetOfBM.aggregate([
         {
@@ -7154,61 +7045,9 @@ router.get(
         },
         {
           $group: {
-            _id: {
-              $dateToString: {
-                format: "%Y",
-                date: "$problemOccurredDateAndTimeOfBM",
-                timezone: timezone,
-              },
-            },
+            _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
 
-            totalHours: {
-              $push: {
-                $cond: [
-                  {
-                    $gt: [
-                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                      null,
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  },
-                  0,
-                ],
-              },
-            },
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            totalHours: 1,
-            categorizedHours: {
-              $map: {
-                input: "$totalHours",
-                as: "hour",
-                in: {
-                  lessThanOne: { $cond: [{ $lt: ["$$hour", 1] }, "$$hour", 0] },
-                  lessThanTwo: { $cond: [{ $lt: ["$$hour", 2] }, "$$hour", 0] },
-                  greaterThanTwo: {
-                    $cond: [{ $gte: ["$$hour", 2] }, "$$hour", 0],
-                  },
-                },
-              },
-            },
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            totalHours: 1,
-            lessThanOne: { $sum: "$categorizedHours.lessThanOne" },
-            lessThanTwo: { $sum: "$categorizedHours.lessThanTwo" },
-            greaterThanTwo: { $sum: "$categorizedHours.greaterThanTwo" },
+            ...req.grpQuery,
           },
         },
 
@@ -7219,61 +7058,79 @@ router.get(
         {
           $group: {
             _id: null,
+            array: { $push: "$$ROOT" },
+          },
+        },
+
+        {
+          $project: {
+            _id: 0,
             data: {
-              $push: {
-                year: "$_id",
-                lessThanOne: { $trunc: ["$lessThanOne", 1] },
-                lessThanTwo: { $trunc: ["$lessThanTwo", 1] },
-                greaterThanTwo: { $trunc: ["$greaterThanTwo", 1] },
+              $map: {
+                input: [
+                  `${req.previousYear}-${req.selectedYear}`,
+                  req.query?.selectedYear,
+                ], // Add all the years you want to include
+                as: "year",
+
+                in: {
+                  $cond: [
+                    { $in: ["$$year", "$array._id"] },
+                    {
+                      year: "$$year",
+                      value: {
+                        $arrayElemAt: [
+                          "$array",
+                          {
+                            $indexOfArray: ["$array._id", "$$year"],
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      year: "$$year",
+                      value: {
+                        _id: "$$year",
+                        lessThanOne: 0,
+                        lessThanTwo: 0,
+                        greaterThanTwo: 0,
+                      },
+                    },
+                  ],
+                },
               },
             },
           },
         },
+
+        { $unwind: "$data" },
         {
-          $project: {
-            _id: 0,
-            hourlyArray: {
-              $map: {
-                input: [">2", "<2", "<1"],
-                as: "label",
-                in: {
-                  label: "$$label",
-                  data: {
-                    $map: {
-                      input: "$data",
-                      as: "item",
-                      in: {
-                        $switch: {
-                          branches: [
-                            {
-                              case: { $eq: ["$$label", ">2"] },
-                              then: "$$item.greaterThanTwo",
-                            },
-                            {
-                              case: { $eq: ["$$label", "<2"] },
-                              then: "$$item.lessThanTwo",
-                            },
-                            {
-                              case: { $eq: ["$$label", "<1"] },
-                              then: "$$item.lessThanOne",
-                            },
-                          ],
-                          default: [],
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
+          $replaceRoot: { newRoot: "$data" },
+        },
+        {
+          $group: {
+            _id: null,
+
+            lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
+
+            lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
+            greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
           },
         },
       ]);
 
       return res.status(200).json({
         message: "Section Wise Yearly BD trend data get successfully",
-        labels: [dumPrevYear, dumPrevYear2],
-        bdTrendData: bdTrendData?.[0].hourlyArray,
+        labels: [
+          `${req.previousYear}-${req.selectedYear}`,
+          req.query?.selectedYear,
+        ],
+        // bdTrendData,
+        bdTrendData: [
+          { label: "<1", data: bdTrendData?.[0].lessThanOne },
+          { label: "<2", data: bdTrendData?.[0].lessThanTwo },
+          { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
+        ],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -7284,20 +7141,11 @@ router.get(
 router.get(
   "/cellYearlyBdTrendForSection/:filter/:selectedId",
   authenticate,
-  filterMiddleware,
+  filterForYearlyData,
+  filterForMonthlyData,
+
   async (req, res, next) => {
     try {
-      const dumPrevYear = req.query.selectedYear?.split("-")?.[0];
-      const dumPrevYear2 = req.query.selectedYear?.split("-")?.[1];
-
-      let dateObj = {
-        $dateToString: {
-          format: "%Y",
-          date: "$problemOccurredDateAndTimeOfBM",
-          timezone: timezone,
-        },
-      };
-
       const bdTrendData = await RequestSheetOfBM.aggregate([
         {
           $match: req.queryObj,
@@ -7317,82 +7165,25 @@ router.get(
         {
           $group: {
             _id: {
-              date: dateObj,
+              date: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
+
               cellRef: "$cell_data.cell_name",
             },
             bdTimeSum: {
-              $push: {
-                $cond: [
-                  {
-                    $gt: [
-                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                      null,
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  },
-                  0,
-                ],
-              },
+              ...req.grpQueryForAllSum,
             },
-          },
-        },
-
-        {
-          $project: {
-            _id: 1,
-            bdTimeSum: 1,
-            categorizedHours: {
-              $map: {
-                input: "$bdTimeSum",
-                as: "hour",
-                in: {
-                  lessThanOne: { $cond: [{ $lt: ["$$hour", 1] }, "$$hour", 0] },
-                  lessThanTwo: { $cond: [{ $lt: ["$$hour", 2] }, "$$hour", 0] },
-                  greaterThanTwo: {
-                    $cond: [{ $gte: ["$$hour", 2] }, "$$hour", 0],
-                  },
-                },
-              },
-            },
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            bdTimeSum: 1,
-            lessThanOne: { $sum: "$categorizedHours.lessThanOne" },
-            lessThanTwo: { $sum: "$categorizedHours.lessThanTwo" },
-            greaterThanTwo: { $sum: "$categorizedHours.greaterThanTwo" },
           },
         },
 
         {
           $group: {
             _id: "$_id.cellRef",
+            label: { $first: "$_id.cellRef" },
             cellWiseTotal: {
               $push: {
                 year: "$_id.date",
 
-                bdTimeSum: { $trunc: [{ $sum: "$bdTimeSum" }, 1] },
-              },
-            },
-          },
-        },
-        // {
-        //   $sort: { _id: 1 },
-        // },
-        {
-          $group: {
-            _id: "$_id",
-            data: {
-              $push: {
-                year: "$cellWiseTotal.year",
-                dataSum: "$cellWiseTotal.bdTimeSum",
+                bdTimeSum: { $trunc: ["$bdTimeSum", 1] },
               },
             },
           },
@@ -7400,53 +7191,46 @@ router.get(
         {
           $sort: { _id: 1 },
         },
-        {
-          $unwind: "$data",
-        },
-        {
-          $project: {
-            _id: 0,
-            label: "$_id",
-            data: {
-              $map: {
-                input: [dumPrevYear, dumPrevYear2],
-                as: "year",
-                in: {
-                  year: "$$year",
-                  dataSum: {
-                    $cond: [
-                      { $in: ["$$year", "$data.year"] },
-                      {
-                        $arrayElemAt: [
-                          "$data.dataSum",
-                          {
-                            $indexOfArray: ["$data.year", "$$year"],
-                          },
-                        ],
-                      },
-                      null,
-                    ],
-                  },
-                },
-              },
-            },
-          },
-        },
 
         {
           $project: {
             _id: 0,
             label: 1,
-            data: "$data.dataSum",
+            data: {
+              $map: {
+                input: [
+                  `${req.previousYear}-${req.selectedYear}`,
+                  req.query?.selectedYear,
+                ],
+                as: "year",
+                in: {
+                  $cond: [
+                    {
+                      $in: ["$$year", "$cellWiseTotal.year"],
+                    },
+                    {
+                      $arrayElemAt: [
+                        "$cellWiseTotal.bdTimeSum",
+                        {
+                          $indexOfArray: ["$cellWiseTotal.year", "$$year"],
+                        },
+                      ],
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
           },
-        },
-        {
-          $sort: { label: 1 },
         },
       ]);
       return res.status(200).json({
         message: "Section Wise Yearly BD trend data get successfully",
-        labels: [dumPrevYear, dumPrevYear2],
+        labels: [
+          `${req.previousYear}-${req.selectedYear}`,
+          req.query?.selectedYear,
+        ],
+
         bdTrendData,
       });
     } catch (error) {
@@ -7460,6 +7244,7 @@ router.get(
 router.get(
   "/majorBDCountForPlant",
   authenticate,
+  filterForYearlyData,
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
     try {
@@ -7504,8 +7289,30 @@ router.get(
               sectionRef: "$section_data.subSection_name",
             },
 
-            count: { $sum: 1 },
-            // bdTimeSum: { $sum: "$bdTime" },
+            count: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      {
+                        $gt: [
+                          "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                          null,
+                        ],
+                      },
+                      {
+                        $gte: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          120,
+                        ],
+                      },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
           },
         },
         {
@@ -7555,16 +7362,6 @@ router.get(
             },
           },
         },
-
-        // {
-        //   $group: {
-        //     _id: null,
-        //     labels: { $push: "$_id" },
-        //     // target: { $push: "$value.target" },
-        //     data:  {$push : "$data"},
-
-        //   },
-        // },
       ]);
 
       return res.status(200).json({
@@ -7608,8 +7405,30 @@ router.get(
               cellRef: "$cell_data.cell_name",
             },
 
-            count: { $sum: 1 },
-            // bdTimeSum: { $sum: "$bdTime" },
+            count: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      {
+                        $gt: [
+                          "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                          null,
+                        ],
+                      },
+                      {
+                        $gte: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          120,
+                        ],
+                      },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
           },
         },
         {
@@ -8271,82 +8090,87 @@ router.get(
 );
 
 router.get(
-  "/getSummaryCard/:filter/:selectedId/:machineId",
+  "/getSummaryCard/:machineId",
   authenticate,
-  filterMiddleware,
+  // filterMiddleware,
   productionHourFiltration,
   bdHourTrendMiddleware,
   async (req, res, next) => {
-    
-
     let MTBF_monthlyFilterQueryPipeline = [],
-    mtbfCalculation = {
-      $divide: [
+      mtbfCalculation = {
+        $divide: [
+          {
+            $subtract: [req.productionHrs?.yearTotalProductionHrs, "$bdHours"],
+          },
+          "$count",
+        ],
+      },
+      groupingObj = {
+        groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
+      },
+      queryObj = {
+        machineRef: mongoose.Types.ObjectId(req.params.machineId),
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+      };
+
+    if (req.query?.selectedMonth) {
+      queryObj = {
+        ...queryObj,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      };
+      groupingObj = {
+        groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+      };
+
+      MTBF_monthlyFilterQueryPipeline = [
         {
-          $subtract: [
-            req.productionHrs?.yearTotalProductionHrs,
-            "$bdHours",
-          ],
-        },
-        "$count",
-      ],
-    },
-    groupingObj = {
-      groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
-    },
-    queryObj = {
-      machineRef: mongoose.Types.ObjectId(req.params.machineId),
-      "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-        req.query?.selectedYear,
-    };
-
-  queryObj = {
-    ...req.queryObj,
-    machineRef: mongoose.Types.ObjectId(req.params.machineId),
-  };
-
-
-  if (req.query?.selectedMonth) {
-    queryObj = {
-      ...queryObj,
-      "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-        req.query?.selectedMonth,
-    };
-    groupingObj = {
-      groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-    };
-
-    MTBF_monthlyFilterQueryPipeline = [
-      {
-        $addFields: {
-          productionDataBasedOnSelectedFilter: {
-            $function: {
-              body: function (month, productionHrs) {
-                return productionHrs?.monthlyProductionHrs?.[month];
+          $addFields: {
+            productionDataBasedOnSelectedFilter: {
+              $function: {
+                body: function (month, productionHrs) {
+                  return productionHrs?.monthlyProductionHrs?.[month];
+                },
+                args: ["$_id.groupId", req.productionHrs],
+                lang: "js",
               },
-              args: ["$_id.groupId", req.productionHrs],
-              lang: "js",
             },
           },
         },
-      },
-    ];
+      ];
 
-    mtbfCalculation = {
-      $divide: [
-        {
-          $subtract: ["$productionDataBasedOnSelectedFilter", "$bdHours"],
-        },
-        "$count",
-      ],
-    };
-  }
+      mtbfCalculation = {
+        $divide: [
+          {
+            $subtract: ["$productionDataBasedOnSelectedFilter", "$bdHours"],
+          },
+          "$count",
+        ],
+      };
+    }
+
+    // console.log(MTBF_monthlyFilterQueryPipeline);
     try {
       const machineSummaryCardData = await RequestSheetOfBM.aggregate([
         { $match: queryObj },
+
+        {
+          $lookup: {
+            from: "cells",
+            localField: "cellRef",
+            foreignField: "_id",
+            as: "cell_data",
+          },
+        },
+
+        {
+          $unwind: "$cell_data",
+        },
+
         {
           $group: {
-            _id: groupingObj,
+            _id: "$cell_data.cell_name",
             count: { $sum: 1 },
             bdHours: {
               $sum: {
@@ -8382,10 +8206,319 @@ router.get(
         },
       ]);
 
+      let bdHoursFormula = {
+        $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+      };
+
+      const bdTrendData = await RequestSheetOfBM.aggregate([
+        {
+          $match: {
+            machineRef: mongoose.Types.ObjectId(req.params.machineId),
+            "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+              req.query?.selectedYear,
+          },
+        },
+        {
+          $lookup: {
+            from: "cells",
+            localField: "cellRef",
+            foreignField: "_id",
+            as: "cell_data",
+          },
+        },
+
+        {
+          $unwind: "$cell_data",
+        },
+        {
+          $group: {
+            _id: {
+              cellRef: "$cell_data.cell_name",
+              date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            },
+            lessThanOne: {
+              $sum: {
+                $cond: [
+                  {
+                    $lte: [bdHoursFormula, 1],
+                  },
+                  bdHoursFormula,
+                  0,
+                ],
+              },
+            },
+            lessThanTwo: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      {
+                        $gt: [bdHoursFormula, 1],
+                      },
+                      {
+                        $lte: [bdHoursFormula, 2],
+                      },
+                    ],
+                  },
+                  bdHoursFormula,
+                  0,
+                ],
+              },
+            },
+            greaterThanTwo: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: [bdHoursFormula, 2],
+                  },
+                  bdHoursFormula,
+                  0,
+                ],
+              },
+            },
+          },
+        },
+
+        {
+          $group: {
+            _id: "$_id.cellRef",
+            array: { $push: "$$ROOT" },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            // label: "$_id",
+            array: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthName", "$array._id.date"] },
+                    {
+                      month: "$$month.monthName",
+                      value: {
+                        $arrayElemAt: [
+                          "$array",
+                          {
+                            $indexOfArray: [
+                              "$array._id.date",
+                              "$$month.monthInDecimal",
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      month: "$$month.monthName",
+                      value: {
+                        _id: "$$month.monthName",
+                        lessThanOne: 0,
+                        lessThanTwo: 0,
+                        greaterThanTwo: 0,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        { $unwind: "$array" },
+        // {
+        //   $replaceRoot: { newRoot: "$array" },
+        // },
+        {
+          $group: {
+            _id: "$_id",
+            label: { $first: "$_id" },
+
+            lessThanOne: { $push: { $trunc: ["$array.value.lessThanOne", 1] } },
+
+            lessThanTwo: { $push: { $trunc: ["$array.value.lessThanTwo", 1] } },
+            greaterThanTwo: {
+              $push: { $trunc: ["$array.value.greaterThanTwo", 1] },
+            },
+          },
+        },
+
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     label: 1,
+        //     data: {
+        //       $map: {
+        //         input: allMonths,
+        //         as: "month",
+        //         in: {
+        //           $cond: [
+        //             { $in: ["$$month.monthName", "$cellWiseTotal.month"] },
+        //             {
+        //               $arrayElemAt: [
+        //                 "$cellWiseTotal.bdTimeSum",
+        //                 {
+        //                   $indexOfArray: [
+        //                     "$cellWiseTotal.month",
+        //                     "$$month.monthName",
+        //                   ],
+        //                 },
+        //               ],
+        //             },
+        //             0,
+        //           ],
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     array: {
+        //       $map: {
+        //         input: allMonths,
+        //         as: "month",
+        //         in: {
+        //           $cond: [
+        //             { $in: ["$$month.monthName", "$array._id"] },
+        //             {
+        //               month: "$$month.monthName",
+        //               value: {
+        //                 $arrayElemAt: [
+        //                   "$array",
+        //                   {
+        //                     $indexOfArray: [
+        //                       "$array._id",
+        //                       "$$month.monthInDecimal",
+        //                     ],
+        //                   },
+        //                 ],
+        //               },
+        //             },
+        //             {
+        //               month: "$$month.monthName",
+        //               value: {
+        //                 _id: "$$month.monthName",
+        //                 lessThanOne: 0,
+        //                 lessThanTwo: 0,
+        //                 greaterThanTwo: 0,
+        //               },
+        //             },
+        //           ],
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+        // { $unwind: "$array" },
+        // {
+        //   $replaceRoot: { newRoot: "$array" },
+        // },
+        // {
+        //   $group: {
+        //     _id: null,
+
+        //     lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
+
+        //     lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
+        //     greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
+        //   },
+        // },
+        // {
+        //   $group: {
+        //     _id: null,
+        //     array: { $push: "$$ROOT" },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     array: {
+        //       $map: {
+        //         input: allMonths,
+        //         as: "month",
+        //         in: {
+        //           $cond: [
+        //             { $in: ["$$month.monthName", "$array._id.month"] },
+        //             {
+        //               $arrayElemAt: [
+        //                 "$array",
+        //                 {
+        //                   $indexOfArray: ["$array._id.month", "$$month.monthName"],
+        //                 },
+        //               ],
+        //             },
+        //             {
+        //               _id: "$$month.monthName",
+        //               lessThanOne: 0,
+        //               lessThanTwo: 0,
+        //               greaterThanTwo: 0,
+        //             },
+        //           ],
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+        // { $unwind: "$array" },
+        // {
+        //   $replaceRoot: { newRoot: "$array" },
+        // },
+        // {
+        //   $group: {
+        //     _id: null,
+        //     month: { $push: "$_id.month" },
+        //     lessThanOne: { $push: "$lessThanOne" },
+        //     lessThanTwo: { $push: "$lessThanTwo" },
+        //     greaterThanTwo: { $push: "$greaterThanTwo" },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     hourlyArray: {
+        //       $map: {
+        //         input: ["<1", "<2", ">2"],
+        //         as: "label",
+        //         in: {
+        //           label: "$$label",
+        //           data: {
+        //             $switch: {
+        //               branches: [
+        //                 {
+        //                   case: { $eq: ["$$label", "<1"] },
+        //                   then: "$lessThanOne",
+        //                 },
+        //                 {
+        //                   case: { $eq: ["$$label", "<2"] },
+        //                   then: "$lessThanTwo",
+        //                 },
+        //                 {
+        //                   case: { $eq: ["$$label", ">2"] },
+        //                   then: "$greaterThanTwo",
+        //                 },
+        //               ],
+        //               default: [],
+        //             },
+        //           },
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+      ]);
+
       return res.status(201).json({
         message: "Summary Card data get successfully",
-        machineSummaryCardData,
-       
+        bdTrendData,
+        // bdTrendData: [
+        //   {mainLabel :bdTrendData?.[0]._id },
+        //   { label: "<1", data: bdTrendData?.[0].lessThanOne },
+        //   { label: "<2", data: bdTrendData?.[0].lessThanTwo },
+        //   { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
+        // ],
+        machineSummaryCardData: machineSummaryCardData,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -8489,13 +8622,13 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
       {
         $group: {
           _id: {
-            user: req.params.tmId,
+            user: req?.query?.tmId,
             month: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
           },
 
           count: { $sum: 1 },
           hours: {
-            $sum: req.mbdQuery,
+            $sum: req?.mbdQuery,
           },
         },
       },
@@ -8861,19 +8994,16 @@ const filterMiddlewareForTmMTTR = async (req, res, next) => {
       queryObj = {
         ...queryObj,
         cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
-        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
       };
     } else if (req.params?.filter === "based-on-line") {
       queryObj = {
         ...queryObj,
         lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
-        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
       };
     } else {
       queryObj = {
         ...queryObj,
         machineRef: mongoose.Types.ObjectId(req.params?.selectedId),
-        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
       };
     }
 
@@ -8883,10 +9013,12 @@ const filterMiddlewareForTmMTTR = async (req, res, next) => {
       allQuery = queryObj;
     } else {
       allQuery = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
         $or: [
-          { assignUser: mongoose.Types.ObjectId(req.params.tmId) },
-          { supportingTM: mongoose.Types.ObjectId(req.params.tmId) },
-          { handOverUser: mongoose.Types.ObjectId(req.params.tmId) },
+          { assignUser: mongoose.Types.ObjectId(req?.query?.tmId) },
+          { supportingTM: mongoose.Types.ObjectId(req?.query?.tmId) },
+          { handOverUser: mongoose.Types.ObjectId(req?.query?.tmId) },
         ],
       };
     }
@@ -8939,14 +9071,14 @@ const filterMiddlewareForTmMTTR = async (req, res, next) => {
 
 const altfindTLandOperatorList = async (req, res, next) => {
   try {
-    let findObject = {
+    let findId = {
       _id: mongoose.Types.ObjectId(req.params?.selectedId),
     };
 
     let altTmUsers = [];
 
     if (req.params?.filter === "based-on-subSection") {
-      const section = await SubSection.findOne(findObject);
+      const section = await SubSection.findOne(findId);
 
       altTmUsers = [
         {
@@ -8957,7 +9089,7 @@ const altfindTLandOperatorList = async (req, res, next) => {
       ];
     }
     if (req.params?.filter === "based-on-cell") {
-      const cell = await Cell.findOne(findObject);
+      const cell = await Cell.findOne(findId);
 
       altTmUsers = [
         {
@@ -8968,7 +9100,7 @@ const altfindTLandOperatorList = async (req, res, next) => {
       ];
     }
 
-    console.log(altTmUsers);
+    // console.log(altTmUsers);
 
     let TLHOSS_and_TM_user_list = await User.find(
       {
@@ -9032,7 +9164,7 @@ const altfindTLandOperatorList = async (req, res, next) => {
 router.get(
   "/getAllTmNames/:filter/:selectedId",
   authenticate,
-  filterMiddlewareForTmMTTR,
+  // filterMiddlewareForTmMTTR,
   altfindTLandOperatorList,
   async (req, res, next) => {
     try {
@@ -9047,7 +9179,7 @@ router.get(
 );
 
 router.get(
-  "/tmProgress/tmMTTRSkill/:filter/:selectedId/:tmId",
+  "/tmProgress/tmMTTRSkill/:filter/:selectedId",
   authenticate,
   filterMiddlewareForTmMTTR,
   filterMiddlewareForTmMTTRSkillReport,
@@ -9452,203 +9584,33 @@ router.get(
 );
 
 router.get(
-  "/hourlyMonthlyPlanVsActualData/:filter/:selectedId",
+  "/hourlyMonthlyPlanVsActualDataForPlant",
   authenticate,
-  filterMiddleware,
   filterForMonthlyData,
-  async (req, res, next) => {
-    try {
-      const bdTrendData = await RequestSheetOfBM.aggregate([
-        {
-          $match: req.queryObj,
-        },
-
-        {
-          $group: req.grpQuery,
-        },
-
-        {
-          $group: {
-            _id: null,
-            array: { $push: "$$ROOT" },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            array: {
-              $map: {
-                input: allMonths,
-                as: "month",
-                in: {
-                  $cond: [
-                    { $in: ["$$month.monthName", "$array._id"] },
-                    {
-                      month: "$$month.monthName",
-                      value: {
-                        $arrayElemAt: [
-                          "$array",
-                          {
-                            $indexOfArray: [
-                              "$array._id",
-                              "$$month.monthInDecimal",
-                            ],
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      month: "$$month.monthName",
-                      value: {
-                        _id: "$$month.monthName",
-                        lessThanOne: 0,
-                        lessThanTwo: 0,
-                        greaterThanTwo: 0,
-                      },
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        },
-        { $unwind: "$array" },
-        {
-          $replaceRoot: { newRoot: "$array" },
-        },
-        {
-          $group: {
-            _id: null,
-
-            lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
-            lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
-            greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
-          },
-        },
-      ]);
-
-      return res.status(200).json({
-        message: "PlantWise Monthly BD trend data get successfully",
-
-        bdTrendData: [
-          { label: "<1", data: bdTrendData?.[0].lessThanOne },
-          { label: "<2", data: bdTrendData?.[0].lessThanTwo },
-          { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
-        ],
-      });
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  }
+  hourlyMonthlyBdTrendForPlantMiddleware
 );
 
 router.get(
-  "/cellMonthlyPlanVsActualData/:filter/:selectedId",
+  "/sectionMonthlyPlanVsActualDataForPlant",
+  authenticate,
+  filterForMonthlyData,
+  sectionMonthlyBdTrendForPlantMiddleware
+);
+
+router.get(
+  "/hourlyMonthlyPlanVsActualDataForSection/:filter/:selectedId",
   authenticate,
   filterMiddleware,
   filterForMonthlyData,
-  async (req, res, next) => {
-    try {
-      const bdTrendData = await RequestSheetOfBM.aggregate([
-        {
-          $match: req.queryObj,
-        },
-        {
-          $lookup: {
-            from: "cells",
-            localField: "cellRef",
-            foreignField: "_id",
-            as: "cell_data",
-          },
-        },
+  hourlyMonthlyBdTrendForSectionMiddleware
+);
 
-        {
-          $unwind: "$cell_data",
-        },
-        {
-          $group: {
-            _id: {
-              date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-              cellRef: "$cell_data.cell_name",
-            },
-            bdTimeSum: {
-              $sum: {
-                $cond: [
-                  {
-                    $gt: [
-                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                      null,
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  },
-                  0,
-                ],
-              },
-            },
-          },
-        },
-
-        {
-          $group: {
-            _id: "$_id.cellRef",
-            label: { $first: "$_id.cellRef" },
-            cellWiseTotal: {
-              $push: {
-                month: "$_id.date",
-                bdTimeSum: { $trunc: [{ $sum: "$bdTimeSum" }, 1] },
-              },
-            },
-          },
-        },
-        {
-          $sort: { _id: 1 },
-        },
-
-        {
-          $project: {
-            _id: 0,
-            label: 1,
-            data: {
-              $map: {
-                input: allMonths,
-                as: "month",
-                in: {
-                  $cond: [
-                    { $in: ["$$month.monthName", "$cellWiseTotal.month"] },
-                    {
-                      $arrayElemAt: [
-                        "$cellWiseTotal.bdTimeSum",
-                        {
-                          $indexOfArray: [
-                            "$cellWiseTotal.month",
-                            "$$month.monthName",
-                          ],
-                        },
-                      ],
-                    },
-                    0,
-                  ],
-                },
-              },
-            },
-          },
-        },
-      ]);
-
-      return res.status(200).json({
-        message: "PlantWise Monthly BD trend data get successfully",
-
-        bdTrendData,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  }
+router.get(
+  "/cellMonthlyPlanVsActualDataForSection/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  filterForMonthlyData,
+  cellMonthlyBdTrendForSectionMiddleware
 );
 
 router.get(
