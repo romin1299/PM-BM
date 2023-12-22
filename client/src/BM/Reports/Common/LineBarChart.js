@@ -15,7 +15,14 @@ import { Row } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "./ChartTitleBar";
 
-const LineBarChart = ({ title, label, xAxisTitle, dataset }) => {
+const LineBarChart = ({
+  title,
+  label,
+  xAxisTitle,
+  y1AxisTitle,
+  y2AxisTitle,
+  dataset,
+}) => {
   ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -100,22 +107,27 @@ const LineBarChart = ({ title, label, xAxisTitle, dataset }) => {
           display: false,
         },
         title: {
-          display: true,
+          display: xAxisTitle ? true : false,
           text: xAxisTitle,
         },
       },
-      y: {
+      y1: {
         stacked: true,
-        // grid: {
-        //   display: false,
-        // },
-      },
-      y2: {
-        position: "right",
-        grid: {
-          display: false,
+        title: {
+          display: y1AxisTitle ? true : false,
+          text: y1AxisTitle,
         },
       },
+      // y2: {
+      //   position: "right",
+      //   grid: {
+      //     display: false,
+      //   },
+      //   title: {
+      //     display: y2AxisTitle ? true : false,
+      //     text: y2AxisTitle,
+      //   },
+      // },
     },
   };
 
@@ -127,14 +139,14 @@ const LineBarChart = ({ title, label, xAxisTitle, dataset }) => {
       borderColor: chartColors[1],
       borderWidth: 2,
       fill: false,
-      yAxisID: "y2",
+      yAxisID: "y1",
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: label.barLabel,
       data: dataset?.data,
-      yAxisID: "y",
+      yAxisID: "y1",
       backgroundColor: chartColors[0],
     },
   ];

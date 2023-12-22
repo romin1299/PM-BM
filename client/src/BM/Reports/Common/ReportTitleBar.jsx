@@ -7,7 +7,7 @@ const ReportTitleBar = ({ title, Toolbar }) => {
   // box style={{ borderBottom: "3px solid #004b5b", padding: "1rem" }}
 
   return (
-    <Row className="cell p-3 mt-3 gap-2 g-0">
+    <Row className="cell p-3 mt-3 gap-2 g-0 align-items-center">
       <Col className="d-flex align-items-center">
         <Typography
           noWrap

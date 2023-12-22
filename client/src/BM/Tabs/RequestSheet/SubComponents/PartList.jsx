@@ -3,7 +3,7 @@ import { Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../../modules/PageModules";
 
 const initialState = {
-  id: "",
+  _id: "",
   partNo: "",
   partName: "",
   makerName: "",
@@ -12,6 +12,9 @@ const initialState = {
 };
 
 const PartList = ({ parts, setParts }) => {
+  console.clear();
+  console.log("parts:", parts);
+
   const [isAdding, setIsAdding] = useState(false);
   const [editedPart, setEditedPart] = useState(null);
   const [newPart, setNewPart] = useState(initialState);
@@ -28,12 +31,12 @@ const PartList = ({ parts, setParts }) => {
     ) {
       // Find the maximum id from existing parts
       const maxId = parts.reduce(
-        (max, part) => (part.id > max ? part.id : max),
+        (max, part) => (part._id > max ? part._id : max),
         0
       );
 
       // Assign a new id by incrementing the maximum id
-      newPart.id = maxId + 1;
+      newPart._id = maxId + 1;
 
       setParts([...parts, newPart]);
       setNewPart(initialState);
@@ -56,7 +59,7 @@ const PartList = ({ parts, setParts }) => {
       editedPart.cost
     ) {
       const updatedParts = parts.map((part) =>
-        part.id === editedPart.id ? editedPart : part
+        part._id === editedPart._id ? editedPart : part
       );
       setParts(updatedParts);
       setEditedPart(null);
@@ -74,47 +77,60 @@ const PartList = ({ parts, setParts }) => {
   const deletePart = (event, partId) => {
     event.preventDefault();
 
-    const updatedParts = parts.filter((part) => part.id !== partId);
+    const updatedParts = parts.filter((part) => part._id !== partId);
     setParts(updatedParts);
   };
 
   return (
     <div className="mtd-parts-section">
-      <Row className="m-0 d-flex" style={{width:"100vw"}}>
+      <Row className="m-0 d-flex" style={{ width: "100vw" }}>
         <Col lg={2} md={1} sm={2} className="border">
-          <small style={{fontSize:"12px"}}><b>PART NO.</b></small>
+          <small style={{ fontSize: "12px" }}>
+            <b>PART NO.</b>
+          </small>
         </Col>
         <Col lg={2} md={2} sm={2} className="border">
-          <small style={{fontSize:"12px"}}><b>PART NAME</b></small>
-        </Col>
-        <Col lg={2} md={1} sm={2} className="border" >
-          <small style={{fontSize:"12px"}}><b>MAKER</b></small>
-        </Col>
-        <Col lg={2} md={2} sm={2} className="border">
-          <small style={{fontSize:"12px"}}><b>QUANTITY</b></small>
+          <small style={{ fontSize: "12px" }}>
+            <b>PART NAME</b>
+          </small>
         </Col>
         <Col lg={2} md={1} sm={2} className="border">
-          <small style={{fontSize:"12px"}}><b>Cost</b></small>
+          <small style={{ fontSize: "12px" }}>
+            <b>MAKER</b>
+          </small>
+        </Col>
+        <Col lg={2} md={2} sm={2} className="border">
+          <small style={{ fontSize: "12px" }}>
+            <b>QUANTITY</b>
+          </small>
+        </Col>
+        <Col lg={2} md={1} sm={2} className="border">
+          <small style={{ fontSize: "12px" }}>
+            <b>Cost</b>
+          </small>
         </Col>
         <Col
-          lg={2} md={2} sm={2}
+          lg={2}
+          md={2}
+          sm={2}
           className="border"
           // className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <small style={{fontSize:"12px"}}><b>UPDATE</b></small>
+          <small style={{ fontSize: "12px" }}>
+            <b>UPDATE</b>
+          </small>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
         </Col>
       </Row>
 
       {parts.map((part) =>
-        editedPart && editedPart.id === part.id ? (
-          <Row key={part.id} className="m-0 d-flex">
+        editedPart && editedPart._id === part._id ? (
+          <Row key={part._id} className="m-0 d-flex">
             {/* Render input fields for editing */}
             <Col lg={2} md={1} sm={2} className="border">
               <input
                 type="text"
                 className="mb-2 mt-2"
-
                 value={editedPart.partNo}
                 onChange={(e) =>
                   setEditedPart({ ...editedPart, partNo: e.target.value })
@@ -125,7 +141,6 @@ const PartList = ({ parts, setParts }) => {
               <input
                 type="text"
                 className="mb-2 mt-2"
-
                 value={editedPart.partName}
                 onChange={(e) =>
                   setEditedPart({ ...editedPart, partName: e.target.value })
@@ -136,7 +151,6 @@ const PartList = ({ parts, setParts }) => {
               <input
                 type="text"
                 className="mb-2 mt-2"
-
                 value={editedPart.makerName}
                 onChange={(e) =>
                   setEditedPart({ ...editedPart, makerName: e.target.value })
@@ -147,7 +161,6 @@ const PartList = ({ parts, setParts }) => {
               <input
                 type="number"
                 className="mb-2 mt-2"
-
                 value={editedPart.quantity}
                 onChange={(e) =>
                   setEditedPart({ ...editedPart, quantity: e.target.value })
@@ -158,21 +171,32 @@ const PartList = ({ parts, setParts }) => {
               <input
                 type="number"
                 className="mb-2 mt-2"
-
                 value={editedPart.cost}
                 onChange={(e) =>
                   setEditedPart({ ...editedPart, cost: e.target.value })
                 }
               />
             </Col>
-            <Col lg={2} md={2} sm={2} className="border d-block align-items-center gap-1 p-1">
-              <button class="bg-info text-white border-0" onClick={updatePart}>Update</button>
-              <br/>
-              <button class="bg-danger text-white border-0" onClick={cancelEdit}>Cancel</button>
+            <Col
+              lg={2}
+              md={2}
+              sm={2}
+              className="border d-block align-items-center gap-1 p-1"
+            >
+              <button class="bg-info text-white border-0" onClick={updatePart}>
+                Update
+              </button>
+              <br />
+              <button
+                class="bg-danger text-white border-0"
+                onClick={cancelEdit}
+              >
+                Cancel
+              </button>
             </Col>
           </Row>
         ) : (
-          <Row key={part.id} className="m-0">
+          <Row key={part._id} className="m-0">
             {/* Render part information */}
             <Col lg={2} md={1} sm={2} className="border">
               {part.partNo}
@@ -189,20 +213,25 @@ const PartList = ({ parts, setParts }) => {
             <Col lg={2} md={1} sm={2} className="border">
               {part.cost}
             </Col>
-            <Col lg={2} md={2} sm={2} className="border d-block align-items-center gap-1 p-1">
+            <Col
+              lg={2}
+              md={2}
+              sm={2}
+              className="border d-block align-items-center gap-1 p-1"
+            >
               <button
-              class="bg-warning text-white border-0"
+                class="bg-warning text-white border-0"
                 onClick={(event) => {
                   editPart(event, part);
                 }}
               >
                 Edit
               </button>
-              <br/>
+              <br />
               <button
-              class="bg-danger text-white border-0"
+                class="bg-danger text-white border-0"
                 onClick={(event) => {
-                  deletePart(event, part.id);
+                  deletePart(event, part._id);
                 }}
               >
                 Delete
@@ -214,11 +243,10 @@ const PartList = ({ parts, setParts }) => {
 
       {isAdding ? (
         <Row className="m-0">
-          <Col  lg={2} md={1} sm={2} className="border">
+          <Col lg={2} md={1} sm={2} className="border">
             <input
               type="text"
               className="mb-2 mt-2"
-
               placeholder="Part No."
               value={newPart.partNo}
               onChange={(e) =>
@@ -226,11 +254,10 @@ const PartList = ({ parts, setParts }) => {
               }
             />
           </Col>
-          <Col  lg={2} md={2} sm={2} className="border">
+          <Col lg={2} md={2} sm={2} className="border">
             <input
               type="text"
               className="mb-2 mt-2"
-
               placeholder="Part Name"
               value={newPart.partName}
               onChange={(e) =>
@@ -238,11 +265,10 @@ const PartList = ({ parts, setParts }) => {
               }
             />
           </Col>
-          <Col  lg={2} md={1} sm={2} className="border">
+          <Col lg={2} md={1} sm={2} className="border">
             <input
               type="text"
               className="mb-2 mt-2"
-
               placeholder="Maker Name"
               value={newPart.makerName}
               onChange={(e) =>
@@ -250,19 +276,18 @@ const PartList = ({ parts, setParts }) => {
               }
             />
           </Col>
-          <Col  lg={2} md={2} sm={2} className="border">
+          <Col lg={2} md={2} sm={2} className="border">
             <input
               type="number"
               placeholder="Quantity"
               className="mb-2 mt-2"
-
               value={newPart.quantity}
               onChange={(e) =>
                 setNewPart({ ...newPart, quantity: e.target.value })
               }
             />
           </Col>
-          <Col  lg={2} md={1} sm={2} className="border">
+          <Col lg={2} md={1} sm={2} className="border">
             <input
               type="number"
               placeholder="cost"
@@ -271,17 +296,30 @@ const PartList = ({ parts, setParts }) => {
               onChange={(e) => setNewPart({ ...newPart, cost: e.target.value })}
             />
           </Col>
-          <Col lg={2} md={2} sm={2} className="border d-block align-items-center gap-1 p-1">
-            <button class="bg-success text-white border-0" onClick={addPart}>Add</button>
-            <br/>
-            <button class="bg-danger text-white border-0" onClick={cancelEdit}>Cancel</button>
+          <Col
+            lg={2}
+            md={2}
+            sm={2}
+            className="border d-block align-items-center gap-1 p-1"
+          >
+            <button class="bg-success text-white border-0" onClick={addPart}>
+              Add
+            </button>
+            <br />
+            <button class="bg-danger text-white border-0" onClick={cancelEdit}>
+              Cancel
+            </button>
           </Col>
         </Row>
       ) : (
         <Row className="m-0  p-1 border">
           <Col lg={4}>
-          <button class="bg-warning text-white border-0" onClick={() => setIsAdding(true)}>Add Part</button>
-
+            <button
+              class="bg-warning text-white border-0"
+              onClick={() => setIsAdding(true)}
+            >
+              Add Part
+            </button>
           </Col>
         </Row>
       )}

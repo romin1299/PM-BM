@@ -514,12 +514,14 @@ const RequestSheetMainDashboard = () => {
   ];
 
   const filtration = [
-    <ChartsToolbar
-      baseUrlForFiltering={baseUrlForFiltering}
-      reduceState={reduceState}
-      reducerDispatch={reducerDispatch}
-      monthFiltration
-    />,
+    <Box m={2}>
+      <ChartsToolbar
+        baseUrlForFiltering={baseUrlForFiltering}
+        reduceState={reduceState}
+        reducerDispatch={reducerDispatch}
+        monthFiltration
+      />
+    </Box>,
   ];
 
   return (
@@ -541,7 +543,7 @@ const RequestSheetMainDashboard = () => {
           <Col>
             <Row>
               <Col>
-                <Box className="cell rounded-0 p-1 m-0 bg-button text-white">
+                <Box className="cell rounded-2 p-1 m-0 bg-button text-white">
                   <div className="d-flex align-items-center">
                     <InsertDriveFileIcon /> &nbsp;&nbsp;{" "}
                     <p>
@@ -555,7 +557,7 @@ const RequestSheetMainDashboard = () => {
                 </Box>
               </Col>
               <Col>
-                <Box className="cell p-1 m-0 rounded-0 bg-dang text-white">
+                <Box className="cell p-1 m-0 rounded-2 bg-dang text-white">
                   <div className="d-flex align-items-center">
                     <ArrowCircleRightIcon /> &nbsp;&nbsp;{" "}
                     <p>
@@ -569,7 +571,7 @@ const RequestSheetMainDashboard = () => {
                 </Box>
               </Col>
               <Col>
-                <Box className="cell p-1 m-0 rounded-0 bg-succ text-white">
+                <Box className="cell p-1 m-0 rounded-2 bg-succ text-white">
                   <div className="d-flex align-items-center">
                     <CancelIcon /> &nbsp;&nbsp;{" "}
                     <p>

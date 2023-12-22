@@ -25,8 +25,6 @@ ChartJS.register(
 );
 
 const BDHoursTrendChart = ({ bdHourTrend }) => {
-  ChartJS.register(ChartDataLabels);
-
   const options = {
     maintainAspectRatio: false,
     responsive: true,
@@ -129,7 +127,7 @@ const BDHoursTrendChart = ({ bdHourTrend }) => {
   return (
     <Box className="container-fluid cell p-3 mt-1">
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        <Chart options={options} data={data} />
+        <Chart options={options} data={data} plugins={[ChartDataLabels]} />
       </Box>
     </Box>
   );

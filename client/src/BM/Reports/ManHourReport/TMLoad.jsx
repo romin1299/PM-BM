@@ -48,7 +48,7 @@ export const options = {
       },
       title: {
         display: true,
-        text: "Months",
+        text: "Team Members",
       },
       ticks: {
         maxRotation: 90,
@@ -63,7 +63,7 @@ export const options = {
 
       title: {
         display: true,
-        text: "Hours",
+        text: "Percentage",
       },
       ticks: {
         color: "black",

@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { Table } from "reactstrap";
 
@@ -5,7 +6,7 @@ const UserWisePendingCount = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
-  allMonths
+  allMonths,
 }) => {
   const [UserWisePendingApprovalCount, setUserWisePendingApprovalCount] =
     useState([
@@ -39,8 +40,7 @@ const UserWisePendingCount = ({
         }
       );
 
-      const { message,  UserWisePendingApprovalCount } =
-        await res.json();
+      const { message, UserWisePendingApprovalCount } = await res.json();
 
       if (res?.status === 201) {
         setUserWisePendingApprovalCount(UserWisePendingApprovalCount);
@@ -57,8 +57,8 @@ const UserWisePendingCount = ({
   }, [selectedValue, flagForTogglingFilter, selectedYear]);
 
   return (
-    <>
-      <Table striped bordered hover>
+    <Box className="cell p-3 mt-3 rounded-2">
+      <Table striped bordered hover className="m-0">
         <tr>
           <th>User Type</th>
           <th>TM Name</th>
@@ -82,7 +82,7 @@ const UserWisePendingCount = ({
           </>
         ))}
       </Table>
-    </>
+    </Box>
   );
 };
 

@@ -16,6 +16,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 
 ChartJS.register(
   CategoryScale,
@@ -37,19 +38,7 @@ export const options = {
         usePointStyle: true,
       },
     },
-    datalabels: {
-      formatter: (value, context) => {
-        if (context.dataset.type === "bar") {
-          return value > 30 ? value : "";
-        }
-        return value;
-      },
-      font: { weight: "bold", size: 8 },
-      // color: (context) => context.dataset.type === "line" ? chartColors[3] : "gray",
-      anchor: (context) => (context.dataset.type === "line" ? "end" : "center"),
-      align: (context) => (context.dataset.type === "line" ? "top" : "center"),
-      offset: (context) => (context.dataset.type === "line" ? -2 : 0),
-    },
+    datalabels: commonDatalabels,
   },
   // elements: {
   //   bar: {
@@ -74,6 +63,10 @@ export const options = {
     y: {
       stacked: true,
       position: "left",
+      title: {
+        display: true,
+        text: "BD Hours",
+      },
       ticks: {
         color: "black",
       },
@@ -96,15 +89,12 @@ const MonthlyBDTrendChart = ({
   sectionId,
   filter,
   setFilter,
+  selectedYear,
 }) => {
-  const [data, setData] = useState([]);
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [],
   });
-
-  // Register the plugin to all charts:
-  ChartJS.register(ChartDataLabels);
 
   useEffect(() => {
     if (currentTabViewName === "Plant" && filter === "cell")
@@ -119,39 +109,44 @@ const MonthlyBDTrendChart = ({
         ? `/${filter}MonthlyBdTrendForPlant`
         : `/${filter}MonthlyBdTrendForSection/based-on-subSection/${sectionId}`;
 
+    const params = { selectedYear };
+
     try {
       const res = await axios.get(url, {
+        params,
         withCredentials: true,
         credentials: "include",
       });
-      // console.log("Monthly hourly res:", res);
 
-      setData(res?.data?.bdTrendData);
+      const data = res?.data?.bdTrendData;
+      if (data) {
+        // console.log("Monthly hourly res:", res);
+
+        setChartData({
+          labels: MONTH_LABELS,
+          datasets: res?.data?.bdTrendData?.map((item, index) => ({
+            type: "bar",
+            stack: "bar-stacked",
+            label: item?.label || item?._id,
+            data: item?.data,
+            backgroundColor: chartColors.palettes[0][index],
+          })),
+        });
+      }
     } catch (error) {
       console.log("error:", error);
+      setChartData({
+        labels: [],
+        datasets: [],
+      });
     }
   };
 
-  useEffect(() => {
-    fetchChartData();
-  }, [currentTabViewName, sectionId, filter]);
+  // console.log("chartData:", chartData);
 
   useEffect(() => {
-    setChartData({
-      labels: MONTH_LABELS,
-      datasets: data?.map((item, index) => ({
-        type: "bar",
-        stack: "bar-stacked",
-        label: item?.label || item?._id,
-        data: item?.data,
-        backgroundColor: chartColors.palettes[0][index],
-      })),
-    });
-  }, [data]);
-
-  // React.useEffect(() => {
-  //   console.log("plant data:", data);
-  // }, [data]);
+    if (selectedYear && filter) fetchChartData();
+  }, [currentTabViewName, sectionId, filter, selectedYear]);
 
   return (
     <Box className="container-fluid cell p-3 mt-1">
@@ -163,10 +158,15 @@ const MonthlyBDTrendChart = ({
       />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        {data?.length <= 0 ? (
+        {chartData === undefined || chartData?.datasets?.length < 1 ? (
           <DataNotFound />
         ) : (
-          <Chart options={options} data={chartData} />
+          <Chart
+            type="bar"
+            options={options}
+            data={chartData}
+            plugins={[ChartDataLabels]}
+          />
         )}
       </Box>
     </Box>
