@@ -6589,7 +6589,94 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
     ]);
 
     return res.status(200).json({
-      message: "Section Wise Monthly BD trend data for cell get successfully",
+      message: "Cell Wise Monthly BD trend data for cell get successfully",
+
+      bdTrendData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
+  try {
+    const bdTrendData = await RequestSheetOfBM.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineRef",
+          foreignField: "_id",
+          as: "line_data",
+        },
+      },
+
+      {
+        $unwind: "$line_data",
+      },
+      {
+        $group: {
+          _id: {
+            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            lineRef: "$line_data.line_name",
+          },
+          bdTimeSum: {
+            ...req.grpQueryForAllSum,
+          },
+        },
+      },
+
+      {
+        $group: {
+          _id: "$_id.lineRef",
+          label: { $first: "$_id.lineRef" },
+          lineWiseTotal: {
+            $push: {
+              month: "$_id.date",
+              bdTimeSum: { $trunc: [{ $sum: "$bdTimeSum" }, 1] },
+            },
+          },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          label: 1,
+          data: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  { $in: ["$$month.monthName", "$lineWiseTotal.month"] },
+                  {
+                    $arrayElemAt: [
+                      "$lineWiseTotal.bdTimeSum",
+                      {
+                        $indexOfArray: [
+                          "$lineWiseTotal.month",
+                          "$$month.monthName",
+                        ],
+                      },
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      message: "Line Wise Monthly BD trend data for line get successfully",
 
       bdTrendData,
     });
@@ -8468,23 +8555,35 @@ const middlewareForFindingTmMTTRSkillTrendData = async (req, res, next) => {
 const middlewareForFindingTmProgressData = async (req, res, next) => {
   try {
     // console.log("req.altQuery",req.allQuery)
-    // console.log("req.mbdQuery",req.mbdQuery)
+    console.log("req.mbdQuery",req.mbdQuery)
 
     const tmProgress = await RequestSheetOfBM.aggregate([
       {
-        $match: req.allQuery,
+        $match: {
+          ...req.queryObj,
+          $or: [
+            { assignUser: mongoose.Types.ObjectId(req?.query?.tmId) },
+            { supportingTM: mongoose.Types.ObjectId(req?.query?.tmId) },
+            { handOverUser: mongoose.Types.ObjectId(req?.query?.tmId) },
+          ],
+        },
       },
 
       {
         $group: {
           _id: {
             user: req?.query?.tmId,
+          //   user:{ $or: [
+          //   { assignUser: mongoose.Types.ObjectId(req?.query?.tmId) },
+          //   { supportingTM: mongoose.Types.ObjectId(req?.query?.tmId) },
+          //   { handOverUser: mongoose.Types.ObjectId(req?.query?.tmId) },
+          // ]},
             month: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
           },
 
           count: { $sum: 1 },
           hours: {
-            $sum: req?.mbdQuery,
+            $sum: req.mbdQuery,
           },
         },
       },
@@ -8569,7 +8668,7 @@ const responseMiddlewareForMTTRSkillReport = async (req, res, next) => {
   try {
     return res.status(201).json({
       message: req.message,
-      data: req?.tmProgress?.[0],
+      data: req?.tmProgress,
       // alldata: req?.allData?.[0],
     });
   } catch (error) {
@@ -8881,20 +8980,28 @@ const filterMiddlewareForTmMTTR = async (req, res, next) => {
 
     let mbdQuery = {};
 
-    if (req.query.includeMBD === "include-mbd") {
+    if (req.query.time) {
+      console.log("req.query.time", parseInt(req.query.time))
       mbdQuery = {
         $cond: [
           {
-            $gt: ["$maintenanceReportFilledByMTD.workEndedDateOfBM", null],
+            $and: [
+              {
+                $gt: ["$maintenanceReportFilledByMTD.workEndedDateOfBM", null],
+              },
+              {
+                $lt: ["$maintenanceReportFilledByMTD.breakDownTime", parseInt(req.query.time)],
+              },
+            ],
           },
-
           {
             $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
           },
           0,
         ],
       };
-    } else {
+    }
+    else{
       mbdQuery = {
         $cond: [
           {
@@ -9080,10 +9187,10 @@ router.get(
 
   async (req, res, next) => {
     try {
+
+      
       const topMachineBd = await RequestSheetOfBM.aggregate([
-        {
-          $limit: req.topQuery,
-        },
+        
         { $match: req.queryObj },
 
         {
@@ -9124,7 +9231,10 @@ router.get(
           },
         },
         {
-          $sort: { machine_hours: 1 },
+          $sort: { machine_hours: -1 },
+        },
+        {
+          $limit: req.topQuery,
         },
         {
           $group: {
@@ -9469,13 +9579,21 @@ router.get(
   cellMonthlyBdTrendForSectionMiddleware
 );
 
-// router.get(
-//   "/hourlyMonthlyPlanVsActualDataForCell/:filter/:selectedId",
-//   authenticate,
-//   filterMiddleware,
-//   filterForMonthlyData,
-//   hourlyMonthlyBdTrendForCellMiddleware
-// );
+router.get(
+  "/hourlyMonthlyPlanVsActualDataForCell/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  filterForMonthlyData,
+  hourlyMonthlyBdTrendForSectionMiddleware
+);
+
+router.get(
+  "/lineMonthlyPlanVsActualDataForCell/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  filterForMonthlyData,
+  lineMonthlyBdTrendForSectionMiddleware
+);
 
 router.get(
   "/getApprovalRequestSheetData",
