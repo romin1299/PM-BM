@@ -90,7 +90,7 @@ function MyTable({ selectedMachineDetails }) {
     // requestSheetData.qualityRelated = selectedQuality;
     // requestSheetData.shiftOfBM = selectedShift;
 
-    console.log('requestSheetData:', requestSheetData)
+    console.log("requestSheetData:", requestSheetData);
 
     try {
       const res = await fetch(
@@ -114,7 +114,7 @@ function MyTable({ selectedMachineDetails }) {
         // if (generateType === "scanned") {
         //   navigate("/", { replace: true });
         // } else {
-          navigate("/bm/requestListDashboard", { replace: true });
+        navigate("/bm/requestListDashboard", { replace: true });
         // }
       } else {
         WarningToast(data?.message);
@@ -172,9 +172,20 @@ function MyTable({ selectedMachineDetails }) {
     fetchShiftData();
   }, []);
 
+  const handleBack = () => {
+    navigate("/bm/requestListDashboard", { replace: true });
+  };
+
   return (
     <>
       <ToastContainer />
+      <Row>
+        <Col>
+          <button className="btn bg-button m-2" onClick={handleBack}>
+            Back
+          </button>
+        </Col>
+      </Row>
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
         <Table className="container-fluid m-2 mt-3">
           <thead>

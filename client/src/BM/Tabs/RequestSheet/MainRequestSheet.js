@@ -51,18 +51,20 @@ function MyTable() {
 
   return (
     <>
-      {context?.tm_department === "PRD" && (
-        <PRDRequestSheet
-          selectedMachineDetails={selectedMachineDetails}
-          // approvalListOfBM={approvalListOfBM}
-        />
-      )}
+      <div style={{ overflow: "scroll" }}>
+        {context?.tm_department === "PRD" && (
+          <PRDRequestSheet
+            selectedMachineDetails={selectedMachineDetails}
+            // approvalListOfBM={approvalListOfBM}
+          />
+        )}
 
-      {/* need to add condition for PRD not able add data on MTD part */}
-      {/* <MTDRequestSheet
+        {/* need to add condition for PRD not able add data on MTD part */}
+        {/* <MTDRequestSheet
         selectedMachineDetails={selectedMachineDetails}
         approvalListOfBM={approvalListOfBM}
       /> */}
+      </div>
     </>
   );
 }

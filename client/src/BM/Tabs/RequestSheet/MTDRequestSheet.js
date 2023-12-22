@@ -55,6 +55,7 @@ function MyTable({
   } = useForm({
     defaultValues: {
       workEndedDateOfBM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
+      spareWaitingTime: 0,
     },
   });
 
@@ -71,45 +72,49 @@ function MyTable({
     );
 
   const newRequestSheetRegistration = async (requestSheetData) => {
-    requestSheetData.problemsOfBM = problems;
-    requestSheetData.actionAndCounterMeasureStep = actions;
-    requestSheetData.breakDownTime = timeDifferenceMinutes;
-    requestSheetData.minorBD = timeDifferenceMinutes <= 120 ? "Yes" : "No";
-    requestSheetData.majorBD = timeDifferenceMinutes > 120 ? "Yes" : "No";
-    requestSheetData.changedParts = parts;
-    requestSheetData.supportingTM =
-      selectedSupportedTM?.length > 0
-        ? selectedSupportedTM?.map((obj) => obj?._id)
-        : requestSheetDataOfBM?.supportingTM?.map((obj) => obj?._id);
-    requestSheetData.partQualityCheckedByPRD =
-      approvalListOfBM?.prdTL?.[requestSheetData?.partQualityCheckedByPRD]?._id;
-    requestSheetData.partQualityCheckedByMTD =
-      approvalListOfBM?.mtdTL?.[requestSheetData?.partQualityCheckedByMTD]?._id;
-    requestSheetData.dataSheetOfRequestSheet =
-      timeDifferenceMinutes > 120
-        ? "Yes"
-        : requestSheetData.dataSheetOfRequestSheet;
-
-    const formData = new FormData();
-    const { ...otherFields } = requestSheetData;
-    formData.append("prdDataUpdatedByOtherUser", false);
-
-    // Append the file field
-    formData.append(
-      "attachedDataSheets",
-      requestSheetData?.attachedDataSheets?.[0]
-    );
-
-    for (let i = 0; i < requestSheetData?.attachedDrawings?.length; i++) {
-      formData.append(
-        "attachedDrawings",
-        requestSheetData?.attachedDrawings[i]
-      );
-    }
-
-    formData.append("otherData", JSON.stringify(otherFields));
-
     try {
+      requestSheetData.problemsOfBM = problems;
+      requestSheetData.actionAndCounterMeasureStep = actions;
+      requestSheetData.breakDownTime = timeDifferenceMinutes;
+      requestSheetData.minorBD = timeDifferenceMinutes <= 120 ? "Yes" : "No";
+      requestSheetData.majorBD = timeDifferenceMinutes > 120 ? "Yes" : "No";
+      requestSheetData.changedParts = parts;
+      requestSheetData.supportingTM =
+        selectedSupportedTM?.length > 0
+          ? selectedSupportedTM?.map((obj) => obj?._id)
+          : requestSheetDataOfBM?.supportingTM?.map((obj) => obj?._id);
+      requestSheetData.partQualityCheckedByPRD =
+        approvalListOfBM?.prdTL?.[
+          requestSheetData?.partQualityCheckedByPRD
+        ]?._id;
+      requestSheetData.partQualityCheckedByMTD =
+        approvalListOfBM?.mtdTL?.[
+          requestSheetData?.partQualityCheckedByMTD
+        ]?._id;
+      requestSheetData.dataSheetOfRequestSheet =
+        timeDifferenceMinutes > 120
+          ? "Yes"
+          : requestSheetData.dataSheetOfRequestSheet;
+
+      const formData = new FormData();
+      const { ...otherFields } = requestSheetData;
+      formData.append("prdDataUpdatedByOtherUser", false);
+
+      // Append the file field
+      formData.append(
+        "attachedDataSheets",
+        requestSheetData?.attachedDataSheets?.[0]
+      );
+
+      for (let i = 0; i < requestSheetData?.attachedDrawings?.length; i++) {
+        formData.append(
+          "attachedDrawings",
+          requestSheetData?.attachedDrawings[i]
+        );
+      }
+
+      formData.append("otherData", JSON.stringify(otherFields));
+
       const res = await fetch(
         `/newRequestSheetRegistration/?reqId=${requestSheetID}&&machineRef=${machine_code}`,
         {
@@ -157,32 +162,275 @@ function MyTable({
       );
       return true;
     }
+    let flagCountForHandlingError = 0;
+    if (
+      requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
+      requestSheetDataOfBM?.requestSheetStatus === "Work Order Pending" ||
+      requestSheetDataOfBM?.requestSheetStatus === "Work Order Closed" ||
+      loggedUserDetails?.tm_department === "MTD"
+    ) {
+      // if (!watch("workStartedDateOfBM")) {
+      //   setError("root.handleApprovalErrorFromServerSide", {
+      //     type: "workStartedDateOfBM",
+      //     message: "This field is required !",
+      //   });
+      // }
+      // if (!watch("workEndedDateOfBM")) {
+      //   setError("root.handleApprovalErrorFromServerSide", {
+      //     type: "workEndedDateOfBM",
+      //     message: "This field is required !",
+      //   });
+      // }
+      if (
+        !watch("feedbackMTD_HOS") &&
+        loggedUserDetails?.tm_department === "MTD" &&
+        loggedUserDetails?.tm_grade === "HOS" &&
+        timeDifferenceMinutes > 120
+      ) {
+        setError(
+          "feedbackMTD_HOS",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+
+      if (watch("analysisTime") === undefined) {
+        setError(
+          "analysisTime",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+        // return true;
+      }
+      if (watch("spareWaitingTime") === undefined) {
+        setError(
+          "spareWaitingTime",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+      if (watch("replacementTime") === undefined) {
+        setError(
+          "replacementTime",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+      if (watch("adjustmentTime") === undefined) {
+        setError(
+          "adjustmentTime",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+      if (watch("qualityCheckTime") === undefined) {
+        setError(
+          "qualityCheckTime",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+      if (watch("breakTime") === undefined) {
+        setError(
+          "breakTime",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+
+      if (
+        parseInt(watch("analysisTime")) +
+          parseInt(watch("spareWaitingTime")) +
+          parseInt(watch("replacementTime")) +
+          parseInt(watch("adjustmentTime")) +
+          parseInt(watch("qualityCheckTime")) +
+          parseInt(watch("breakTime")) !==
+        timeDifferenceMinutes
+      ) {
+        setError(
+          "totalTimeValidation",
+          {
+            message: "Total time is not valid!",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+
+      if (!watch("qualityConfirmed")) {
+        setError(
+          "qualityConfirmed",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+
+      if (!watch("firstTimeOrRepeat")) {
+        setError(
+          "firstTimeOrRepeat",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+
+      if (!watch("actionTemporaryOrNot")) {
+        setError(
+          "actionTemporaryOrNot",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+
+      if (
+        !watch("preventive_corrective_maintenance") &&
+        timeDifferenceMinutes > 120
+      ) {
+        setError(
+          "preventive_corrective_maintenance",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+
+      if (!watch("yokotenkai") && timeDifferenceMinutes > 120) {
+        setError(
+          "yokotenkai",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+
+      if (problems?.length === 0) {
+        setError(
+          "problemValidation",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+
+      if (actions?.length === 0) {
+        setError(
+          "actionValidation",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+      }
+
+      if (!watch("dataSheetOfRequestSheet")) {
+        setError("dataSheetOfRequestSheet", {
+          message: "This field is required !",
+        });
+        flagCountForHandlingError++;
+      }
+
+      if (Object.keys(watch("categories"))?.length > 0) {
+        Object.keys(watch("categories"))?.map((obj) => {
+          if (watch("categories")[obj] === null) {
+            setError(`categories.${obj}`, {
+              message: "This field is required !",
+            });
+            flagCountForHandlingError++;
+          }
+        });
+      }
+
+      if (
+        timeDifferenceMinutes > 120 ||
+        watch("dataSheetOfRequestSheet") === "Yes"
+      ) {
+        setError("attachedDataSheets", {
+          message: "This field is required !",
+        });
+        flagCountForHandlingError++;
+      }
+
+      if (watch("drawingOfRequestSheet") === "Yes") {
+        setError("attachedDrawings", {
+          message: "This field is required !",
+        });
+        flagCountForHandlingError++;
+      }
+
+      if (!watch("partQualityCheckedByPRD")) {
+        setError("partQualityCheckedByPRD", {
+          message: "This field is required !",
+        });
+        flagCountForHandlingError++;
+      }
+
+      if (!watch("partQualityCheckedByMTD")) {
+        setError("partQualityCheckedByMTD", {
+          message: "This field is required !",
+        });
+        flagCountForHandlingError++;
+      }
+    }
     if (requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id) {
       if (!watch("approvalOfRequestSheet")) {
-        setError("root.handleApprovalErrorFromServerSide", {
-          type: "approvalOfRequestSheet",
+        setError("approvalOfRequestSheet", {
           message: "Please select approval value (Yes/No)",
         });
-        return true;
+        flagCountForHandlingError++;
       }
 
       if (
         watch("approvalOfRequestSheet") === "No" &&
         !watch("rejectedRemarksOfRequestSheet")
       ) {
-        setError("root.handleApprovalErrorFromServerSide", {
+        setError("rejectedRemarksOfRequestSheet", {
           message: "Please fill rejected remarks",
-          type: "rejectedRemarksOfRequestSheet",
         });
-        return true;
+        flagCountForHandlingError++;
       }
     }
+    return flagCountForHandlingError;
   };
-
   const sendApprovalForRequestSheetOfBM = async (assignApprovalList) => {
     try {
-      let checkWhetherAnyErrorOccurredOrNot = handleCustomErrors();
-      if (checkWhetherAnyErrorOccurredOrNot) {
+      let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
+      if (checkWhetherAnyErrorOccurredOrNot > 0) {
         return;
       } else {
         const res = await fetch(
@@ -268,7 +516,7 @@ function MyTable({
 
   const approveRequestSheetFromHigherAuthority = async () => {
     let checkWhetherAnyErrorOccurredOrNot = handleCustomErrors();
-    if (checkWhetherAnyErrorOccurredOrNot) {
+    if (checkWhetherAnyErrorOccurredOrNot > 0) {
       return;
     } else {
       try {
@@ -331,8 +579,20 @@ function MyTable({
         requestSheetDataOfBM?.maintenanceReportFilledByMTD?.breakDownTime
       );
       setValue(
-        "maintenanceTime",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.maintenanceTime
+        "analysisTime",
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.analysisTime
+      );
+      setValue(
+        "spareWaitingTime",
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.spareWaitingTime
+      );
+      setValue(
+        "replacementTime",
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.replacementTime
+      );
+      setValue(
+        "adjustmentTime",
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.adjustmentTime
       );
       setValue(
         "qualityCheckTime",
@@ -351,13 +611,13 @@ function MyTable({
         requestSheetDataOfBM?.maintenanceReportFilledByMTD?.majorBD
       );
       setValue(
-        "firstTime",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.firstTime
+        "firstTimeOrRepeat",
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.firstTimeOrRepeat
       );
-      setValue(
-        "repeat",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.repeat
-      );
+      // setValue(
+      //   "repeat",
+      //   requestSheetDataOfBM?.maintenanceReportFilledByMTD?.repeat
+      // );
       setValue("feedbackMTD_HOS", requestSheetDataOfBM?.feedbackMTD_HOS);
       setValue(
         "why1",
@@ -395,6 +655,8 @@ function MyTable({
         "dataSheetOfRequestSheet",
         requestSheetDataOfBM?.dataSheetOfRequestSheet
       );
+
+      setValue("attachedDataSheets", requestSheetDataOfBM?.attachedDataSheets);
 
       setValue(
         "drawingOfRequestSheet",
@@ -440,6 +702,7 @@ function MyTable({
 
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
+      {/* <fieldset disabled={loggedUserDetails?.tm_department === "PRD" && true}> */}
       <Table bordered className="mb-5">
         <thead>
           <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
@@ -551,8 +814,17 @@ function MyTable({
                               <input
                                 type="datetime-local"
                                 // defaultValue={currentDate}
+                                // onChange={(e) => {
+                                //   setValue(
+                                //     "workStartedDateOfBM",
+                                //     e.target.value
+                                //   );
+                                //   clearErrors(
+                                //     "root.handleApprovalErrorFromServerSide"
+                                //   );
+                                // }}
                                 {...register("workStartedDateOfBM", {
-                                  required: "Work start date is required",
+                                  // required: "Work start date is required",
                                 })}
                               />
                               {errors?.["workStartedDateOfBM"] && (
@@ -614,8 +886,14 @@ function MyTable({
                                 type="datetime-local"
                                 defaultValue={currentDate}
                                 {...register("workEndedDateOfBM", {
-                                  required: "Work Ended date is required",
+                                  // required: "Work Ended date is required",
                                 })}
+                                // onChange={(e) => {
+                                //   setValue("workEndedDateOfBM", e.target.value);
+                                //   clearErrors(
+                                //     "root.handleApprovalErrorFromServerSide"
+                                //   );
+                                // }}
                                 disabled={
                                   requestSheetDataOfBM?.assignUser?._id !==
                                     loggedUserDetails?._id &&
@@ -792,9 +1070,15 @@ function MyTable({
                               className="widthwhy"
                               id="feedbackMTD_HOS"
                               name="feedbackMTD_HOS"
-                              {...register("feedbackMTD_HOS", {
-                                required: "This field is required",
-                              })}
+                              // {...register("feedbackMTD_HOS", {
+                              //   required: "This field is required",
+                              // })}
+                              onChange={(e) => {
+                                setValue("feedbackMTD_HOS", e.target.value, {
+                                  shouldDirty: true,
+                                });
+                                clearErrors("feedbackMTD_HOS");
+                              }}
                             />
 
                             {errors?.["feedbackMTD_HOS"] && (
@@ -959,7 +1243,22 @@ function MyTable({
 
           <tr class="row m-2">
             <td class="col-lg-4 col-md-6 col-sm-12 border-bottom">
-              <ProblemList problems={problems} setProblems={setProblems} />
+              <ProblemList
+                problems={problems}
+                setProblems={setProblems}
+                clearErrors={clearErrors}
+              />
+              <input
+                {...register("problemValidation", {
+                  // required: "This field is required",
+                })}
+                class="visually-hidden"
+              ></input>
+              {errors?.["problemValidation"] && (
+                <p className="text-error">
+                  {errors?.["problemValidation"]?.message}
+                </p>
+              )}
 
               <Row className="m-0">
                 <Col
@@ -980,21 +1279,134 @@ function MyTable({
                   className="border text-center pb-2 pt-2"
                 >
                   <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>MAINTENANCE TIME</b>
+                    <b>ANALYSIS TIME</b>
+                  </small>
+                  <input
+                    type="number"
+                    style={{ width: "100%" }}
+                    id="analysisTime"
+                    name="analysisTime"
+                    {...register("analysisTime", {
+                      // required: "This field is required",
+                    })}
+                    onChange={(e) => {
+                      setValue("analysisTime", e.target.value, {
+                        shouldDirty: true,
+                      });
+                      clearErrors("analysisTime");
+                      clearErrors("totalTimeValidation");
+                    }}
+                    // onChange={handleanalysisTime}
+                  />
+                  {errors?.["analysisTime"] && (
+                    <p className="text-error">
+                      {errors?.["analysisTime"]?.message}
+                    </p>
+                  )}
+                </Col>
+                <Col
+                  lg={3}
+                  md={6}
+                  sm={6}
+                  className="border text-center pb-2 pt-2"
+                >
+                  <p className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>SPARE WAITING</b>
+                  </p>
+                  <input
+                    type="number"
+                    className="mb-2"
+                    style={{ width: "100%" }}
+                    id="spareWaitingTime"
+                    name="spareWaitingTime"
+                    {...register("spareWaitingTime", {
+                      // required: "This field is required",
+                    })}
+                    onChange={(e) => {
+                      setValue("spareWaitingTime", e.target.value, {
+                        shouldDirty: true,
+                      });
+                      clearErrors("spareWaitingTime");
+                      clearErrors("totalTimeValidation");
+                    }}
+                    // onChange={handlespareWaitingTime}
+                  />
+                  {errors?.["spareWaitingTime"] && (
+                    <p className="text-error">
+                      {errors?.["spareWaitingTime"]?.message}
+                    </p>
+                  )}
+                </Col>
+                <Col
+                  lg={3}
+                  md={6}
+                  sm={6}
+                  className="border text-center pb-2 pt-2"
+                >
+                  <small className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>REPLACEMENT TIME</b>
+                  </small>
+                  <input
+                    type="number"
+                    className="mb-2"
+                    style={{ width: "100%" }}
+                    id="replacementTime"
+                    name="replacementTime"
+                    {...register("replacementTime", {
+                      // required: "This field is required",
+                    })}
+                    onChange={(e) => {
+                      setValue("replacementTime", e.target.value, {
+                        shouldDirty: true,
+                      });
+                      clearErrors("replacementTime");
+                      clearErrors("totalTimeValidation");
+                    }}
+                    // onChange={handlereplacementTime}
+                  />
+                  {errors?.["replacementTime"] && (
+                    <p className="text-error">
+                      {errors?.["replacementTime"]?.message}
+                    </p>
+                  )}
+                </Col>
+              </Row>
+              <Row className="m-0">
+                <Col
+                  lg={3}
+                  md={6}
+                  sm={6}
+                  className="border text-center pb-2 pt-2"
+                ></Col>
+                <Col
+                  lg={3}
+                  md={6}
+                  sm={6}
+                  className="border text-center pb-2 pt-2"
+                >
+                  <small className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>ADJUSTMENT TIME</b>
                   </small>
                   <input
                     type="number"
                     style={{ width: "100%" }}
                     id="mainTime"
                     name="mainTime"
-                    {...register("maintenanceTime", {
-                      required: "This field is required",
+                    {...register("adjustmentTime", {
+                      // required: "This field is required",
                     })}
-                    // onChange={handleMaintenanceTime}
+                    onChange={(e) => {
+                      setValue("adjustmentTime", e.target.value, {
+                        shouldDirty: true,
+                      });
+                      clearErrors("adjustmentTime");
+                      clearErrors("totalTimeValidation");
+                    }}
+                    // onChange={handleadjustmentTime}
                   />
-                  {errors?.["maintenanceTime"] && (
+                  {errors?.["adjustmentTime"] && (
                     <p className="text-error">
-                      {errors?.["maintenanceTime"]?.message}
+                      {errors?.["adjustmentTime"]?.message}
                     </p>
                   )}
                 </Col>
@@ -1014,8 +1426,15 @@ function MyTable({
                     id="qualityTime"
                     name="qualityTime"
                     {...register("qualityCheckTime", {
-                      required: "This field is required",
+                      // required: "This field is required",
                     })}
+                    onChange={(e) => {
+                      setValue("qualityCheckTime", e.target.value, {
+                        shouldDirty: true,
+                      });
+                      clearErrors("qualityCheckTime");
+                      clearErrors("totalTimeValidation");
+                    }}
                     // onChange={handleQualityCheckTime}
                   />
                   {errors?.["qualityCheckTime"] && (
@@ -1037,11 +1456,18 @@ function MyTable({
                     type="number"
                     className="mb-2"
                     style={{ width: "100%" }}
-                    id="breaktime"
-                    name="breaktime"
+                    id="breakTime"
+                    name="breakTime"
                     {...register("breakTime", {
-                      required: "This field is required",
+                      // required: "This field is required",
                     })}
+                    onChange={(e) => {
+                      setValue("breakTime", e.target.value, {
+                        shouldDirty: true,
+                      });
+                      clearErrors("breakTime");
+                      clearErrors("totalTimeValidation");
+                    }}
                     // onChange={handleBreakTime}
                   />
                   {errors?.["breakTime"] && (
@@ -1051,15 +1477,16 @@ function MyTable({
                   )}
                 </Col>
               </Row>
-              {parseInt(watch("maintenanceTime")) +
-                parseInt(watch("qualityCheckTime")) +
-                parseInt(watch("breakTime")) !==
-                timeDifferenceMinutes && (
-                <p
-                  class="mt-1 m-2 p-2 border"
-                  style={{ color: "red", marginLeft: "8px" }}
-                >
-                  Total time exceeds!!!
+
+              <input
+                {...register("totalTimeValidation", {
+                  // required: "This field is required",
+                })}
+                class="visually-hidden"
+              ></input>
+              {errors?.["totalTimeValidation"] && (
+                <p className="text-error">
+                  {errors?.["totalTimeValidation"]?.message}
                 </p>
               )}
               <Row className="m-0">
@@ -1107,41 +1534,49 @@ function MyTable({
                       sm={6}
                       className="border d-flex align-items-center"
                     >
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>FIRST TIME </b>
-                      </p>
-                      &nbsp;&nbsp;&nbsp;
-                      <Form className="d-flex align-items-center justify-content-center">
+                      <Form className="align-items-center justify-content-center">
                         <div className="d-flex">
                           <Form.Check
                             flex
-                            label="Yes"
-                            name="firstTime"
+                            label="FIRST TIME"
+                            name="firstTimeOrRepeat"
                             type="radio"
-                            value="Yes"
-                            id="firstTime"
+                            value="First Time"
+                            id="firstTimeOrRepeat"
                             // onChange={handleFirstTime}
-                            {...register("firstTime", {
-                              required: "This field is required",
+                            {...register("firstTimeOrRepeat", {
+                              // required: "This field is required",
                             })}
+                            onChange={(e) => {
+                              setValue("firstTimeOrRepeat", e.target.value, {
+                                shouldDirty: true,
+                              });
+                              clearErrors("firstTimeOrRepeat");
+                            }}
                           />
                           &nbsp;&nbsp;
                           <Form.Check
                             flex
-                            label="No"
-                            name="firstTime"
+                            label="REPEAT"
+                            name="firstTimeOrRepeat"
                             type="radio"
-                            value="No"
-                            id="firstTime"
-                            // onChange={handleFirstTime}
-                            {...register("firstTime", {
-                              required: "This field is required",
+                            value="REPEAT"
+                            id="firstTimeOrRepeat"
+                            {...register("firstTimeOrRepeat", {
+                              // required: "This field is required",
                             })}
+                            // onChange={handleFirstTime}
+                            onChange={(e) => {
+                              setValue("firstTimeOrRepeat", e.target.value, {
+                                shouldDirty: true,
+                              });
+                              clearErrors("firstTimeOrRepeat");
+                            }}
                           />
                         </div>
-                        {errors?.["firstTime"] && (
+                        {errors?.["firstTimeOrRepeat"] && (
                           <p className="text-error">
-                            {errors?.["firstTime"]?.message}
+                            {errors?.["firstTimeOrRepeat"]?.message}
                           </p>
                         )}
                       </Form>
@@ -1187,51 +1622,51 @@ function MyTable({
                         </div>
                       </Form>
                     </Col>
-                    <Col
-                      lg={6}
-                      md={6}
-                      sm={6}
-                      className="border d-flex align-items-center"
-                    >
-                      <p className="mb-0" style={{ fontSize: "12px" }}>
-                        <b>REPEAT </b>
-                      </p>{" "}
-                      &nbsp;&nbsp;&nbsp;
-                      <Form>
-                        <div className="d-flex">
-                          <Form.Check
-                            flex
-                            label="Yes"
-                            name="repeat"
-                            type="radio"
-                            value="Yes"
-                            id="repeat"
-                            // onChange={handleRepeated}
-                            {...register("repeat", {
-                              required: "This field is required",
-                            })}
-                          />{" "}
-                          &nbsp;&nbsp;
-                          <Form.Check
-                            flex
-                            label="No"
-                            name="repeat"
-                            type="radio"
-                            value="No"
-                            id="repeat"
-                            // onChange={handleRepeated}
-                            {...register("repeat", {
-                              required: "This field is required",
-                            })}
-                          />
-                        </div>
-                        {errors?.["repeat"] && (
-                          <p className="text-error">
-                            {errors?.["repeat"]?.message}
-                          </p>
-                        )}
-                      </Form>
-                    </Col>
+                    {/* <Col
+                        lg={6}
+                        md={6}
+                        sm={6}
+                        className="border d-flex align-items-center"
+                      >
+                        <p className="mb-0" style={{ fontSize: "12px" }}>
+                          <b>REPEAT </b>
+                        </p>{" "}
+                        &nbsp;&nbsp;&nbsp;
+                        <Form>
+                          <div className="d-flex">
+                            <Form.Check
+                              flex
+                              label="Yes"
+                              name="repeat"
+                              type="radio"
+                              value="Yes"
+                              id="repeat"
+                              // onChange={handleRepeated}
+                              {...register("repeat", {
+                                required: "This field is required",
+                              })}
+                            />{" "}
+                            &nbsp;&nbsp;
+                            <Form.Check
+                              flex
+                              label="No"
+                              name="repeat"
+                              type="radio"
+                              value="No"
+                              id="repeat"
+                              // onChange={handleRepeated}
+                              {...register("repeat", {
+                                required: "This field is required",
+                              })}
+                            />
+                          </div>
+                          {errors?.["repeat"] && (
+                            <p className="text-error">
+                              {errors?.["repeat"]?.message}
+                            </p>
+                          )}
+                        </Form>
+                      </Col> */}
                   </Row>
                 </Col>
                 {/* <Col className="border">
@@ -1490,10 +1925,17 @@ function MyTable({
                         value="Yes"
                         id="qualityConfirmed"
                         {...register("qualityConfirmed", {
-                          required: "This field is required",
+                          // required: "This field is required",
                         })}
+                        onChange={(e) => {
+                          setValue("qualityConfirmed", e.target.value, {
+                            shouldDirty: true,
+                          });
+                          clearErrors("qualityConfirmed");
+                        }}
                         // onChange={handleQuality}
                       />
+                      &nbsp;&nbsp;
                       <Form.Check
                         flex
                         label="No"
@@ -1502,8 +1944,14 @@ function MyTable({
                         value="No"
                         id="qualityConfirmed"
                         {...register("qualityConfirmed", {
-                          required: "This field is required",
+                          // required: "This field is required",
                         })}
+                        onChange={(e) => {
+                          setValue("qualityConfirmed", e.target.value, {
+                            shouldDirty: true,
+                          });
+                          clearErrors("qualityConfirmed");
+                        }}
                         // onChange={handleQuality}
                       />
                     </div>
@@ -1541,7 +1989,7 @@ function MyTable({
                   <small className="mb-0">
                     <b>MTD</b>
                   </small>
-                  {requestSheetDataOfBM?.partQualityCheckedByPRD ? (
+                  {requestSheetDataOfBM?.partQualityCheckedByMTD ? (
                     <p className="mb-0">
                       {requestSheetDataOfBM?.partQualityCheckedByMTD?.tm_name}
                     </p>
@@ -1579,10 +2027,13 @@ function MyTable({
                             ? true
                             : false
                         }
-                        // onChange={handledataSheetOfRequestSheet}
-                        {...register("dataSheetOfRequestSheet", {
-                          required: "This field is required",
-                        })}
+                        {...register("dataSheetOfRequestSheet")}
+                        onChange={(e) => {
+                          setValue("dataSheetOfRequestSheet", e.target.value, {
+                            shouldDirty: true,
+                          });
+                          clearErrors("dataSheetOfRequestSheet");
+                        }}
                       />
                       &nbsp;&nbsp;
                       <Form.Check
@@ -1593,10 +2044,13 @@ function MyTable({
                         value="No"
                         id="dataSheetOfRequestSheet"
                         disabled={timeDifferenceMinutes > 120 && true}
-                        // onChange={handledataSheetOfRequestSheet}
-                        {...register("dataSheetOfRequestSheet", {
-                          required: "This field is required",
-                        })}
+                        {...register("dataSheetOfRequestSheet")}
+                        onChange={(e) => {
+                          setValue("dataSheetOfRequestSheet", e.target.value, {
+                            shouldDirty: true,
+                          });
+                          clearErrors("dataSheetOfRequestSheet");
+                        }}
                       />
                     </div>
                     {errors?.["dataSheetOfRequestSheet"] && (
@@ -1612,12 +2066,18 @@ function MyTable({
                         <Form.Control
                           type="file"
                           {...register("attachedDataSheets", {
-                            required:
-                              timeDifferenceMinutes > 120 ||
-                              watch("dataSheetOfRequestSheet") === "Yes"
-                                ? true
-                                : false,
+                            // required:
+                            //   timeDifferenceMinutes > 120 ||
+                            //   watch("dataSheetOfRequestSheet") === "Yes"
+                            //     ? true
+                            //     : false,
                           })}
+                          onChange={(e) => {
+                            setValue("attachedDataSheets", e.target.value, {
+                              shouldDirty: true,
+                            });
+                            clearErrors("attachedDataSheets");
+                          }}
                         />
                         {errors?.["attachedDataSheets"] && (
                           <p className="text-error">
@@ -1673,11 +2133,17 @@ function MyTable({
                           type="file"
                           multiple
                           {...register("attachedDrawings", {
-                            required:
-                              watch("dataSheetOfRequestSheet") === "Yes"
-                                ? true
-                                : false,
+                            // required:
+                            //   watch("drawingOfRequestSheet") === "Yes"
+                            //     ? true
+                            //     : false,
                           })}
+                          onChange={(e) => {
+                            setValue("attachedDrawings", e.target.value, {
+                              shouldDirty: true,
+                            });
+                            clearErrors("attachedDrawings");
+                          }}
                         />
                         {errors?.["attachedDrawings"] && (
                           <p className="text-error">
@@ -1696,7 +2162,22 @@ function MyTable({
 
           <tr class="row m-2">
             <td class="col-lg-6 col-md-12 col-sm-12">
-              <ActionList actions={actions} setActions={setActions} />
+              <ActionList
+                actions={actions}
+                setActions={setActions}
+                clearErrors={clearErrors}
+              />
+              <input
+                {...register("actionValidation", {
+                  // required: "This field is required",
+                })}
+                class="visually-hidden"
+              ></input>
+              {errors?.["actionValidation"] && (
+                <p className="text-error">
+                  {errors?.["actionValidation"]?.message}
+                </p>
+              )}
             </td>
             <td class="col-lg-6 col-md-12 col-sm-12">
               <Row className="m-0">
@@ -1714,12 +2195,20 @@ function MyTable({
                     {...register("preventive_corrective_maintenance", {
                       // required: "This field is required",
                     })}
+                    onChange={(e) => {
+                      setValue(
+                        "preventive_corrective_maintenance",
+                        e.target.value,
+                        { shouldDirty: true }
+                      );
+                      clearErrors("preventive_corrective_maintenance");
+                    }}
                   />
-                  {/* {errors?.["preventive_corrective_maintenance"] && (
-                  <p className="text-error">
-                    {errors?.["preventive_corrective_maintenance"]?.message}
-                  </p>
-                )} */}
+                  {errors?.["preventive_corrective_maintenance"] && (
+                    <p className="text-error">
+                      {errors?.["preventive_corrective_maintenance"]?.message}
+                    </p>
+                  )}
                 </Col>
               </Row>
 
@@ -1744,12 +2233,18 @@ function MyTable({
                     {...register("yokotenkai", {
                       // required: "This field is required",
                     })}
+                    onChange={(e) => {
+                      setValue("yokotenkai", e.target.value, {
+                        shouldDirty: true,
+                      });
+                      clearErrors("yokotenkai");
+                    }}
                   />
-                  {/* {errors?.["yokotenkai"] && (
-                  <p className="text-error">
-                    {errors?.["yokotenkai"]?.message}
-                  </p>
-                )} */}
+                  {errors?.["yokotenkai"] && (
+                    <p className="text-error">
+                      {errors?.["yokotenkai"]?.message}
+                    </p>
+                  )}
                 </Col>
               </Row>
             </td>
@@ -1775,8 +2270,14 @@ function MyTable({
                         id="actionTemporaryOrNot"
                         // onChange={handleactionTemporaryOrNot}
                         {...register("actionTemporaryOrNot", {
-                          required: "This field is required",
+                          // required: "This field is required",
                         })}
+                        onChange={(e) => {
+                          setValue("actionTemporaryOrNot", e.target.value, {
+                            shouldDirty: true,
+                          });
+                          clearErrors("actionTemporaryOrNot");
+                        }}
                       />{" "}
                       &nbsp;&nbsp;
                       <Form.Check
@@ -1788,8 +2289,14 @@ function MyTable({
                         id="actionTemporaryOrNot"
                         // onChange={handleactionTemporaryOrNot}
                         {...register("actionTemporaryOrNot", {
-                          required: "This field is required",
+                          // required: "This field is required",
                         })}
+                        onChange={(e) => {
+                          setValue("actionTemporaryOrNot", e.target.value, {
+                            shouldDirty: true,
+                          });
+                          clearErrors("actionTemporaryOrNot");
+                        }}
                       />
                     </div>
                     {errors?.["actionTemporaryOrNot"] && (
@@ -1864,11 +2371,21 @@ function MyTable({
                                   className="col-lg-4 col-md-4"
                                   // onChange={handleactionTemporaryOrNot}
                                   {...register(
-                                    `categories.${categoryObj?.name}`,
-                                    {
-                                      required: "This field is required",
-                                    }
+                                    `categories.${categoryObj?.name}`
+                                    // {
+                                    //   required: "This field is required",
+                                    // }
                                   )}
+                                  onChange={(e) => {
+                                    setValue(
+                                      `categories.${categoryObj?.name}`,
+                                      e.target.value,
+                                      { shouldDirty: true }
+                                    );
+                                    clearErrors(
+                                      `categories.${categoryObj?.name}`
+                                    );
+                                  }}
                                 />
                               )
                             )}
@@ -2235,7 +2752,7 @@ function MyTable({
                       id="approvalOfRequestSheet"
                       onChange={(e) => {
                         setValue("approvalOfRequestSheet", e.target.value);
-                        clearErrors("root.handleApprovalErrorFromServerSide");
+                        clearErrors("approvalOfRequestSheet");
                       }}
                     />{" "}
                     &nbsp;&nbsp;
@@ -2248,14 +2765,13 @@ function MyTable({
                       id="approvalOfRequestSheet"
                       onChange={(e) => {
                         setValue("approvalOfRequestSheet", e.target.value);
-                        clearErrors("root.handleApprovalErrorFromServerSide");
+                        clearErrors("approvalOfRequestSheet");
                       }}
                     />
                   </div>
-                  {errors?.root?.handleApprovalErrorFromServerSide?.type ===
-                    "approvalOfRequestSheet" && (
+                  {errors?.["approvalOfRequestSheet"] && (
                     <p className="text-error">
-                      {errors?.root?.handleApprovalErrorFromServerSide?.message}
+                      {errors?.["approvalOfRequestSheet"]?.message}
                     </p>
                   )}
                   {watch("approvalOfRequestSheet") === "No" ? (
@@ -2270,16 +2786,12 @@ function MyTable({
                             "rejectedRemarksOfRequestSheet",
                             e.target.value
                           );
-                          clearErrors("root.handleApprovalErrorFromServerSide");
+                          clearErrors("rejectedRemarksOfRequestSheet");
                         }}
                       />
-                      {errors?.root?.handleApprovalErrorFromServerSide?.type ===
-                        "rejectedRemarksOfRequestSheet" && (
+                      {errors?.["rejectedRemarksOfRequestSheet"] && (
                         <p className="text-error">
-                          {
-                            errors?.root?.handleApprovalErrorFromServerSide
-                              ?.message
-                          }
+                          {errors?.["rejectedRemarksOfRequestSheet"]?.message}
                         </p>
                       )}
                     </>
@@ -2327,12 +2839,15 @@ function MyTable({
           // &&requestSheetDataOfBM?.assignUser?._id !==
           //   requestSheetDataOfBM?.approvalOfMTD_TL?._id
           <>
-            <Row>
+            <Row
+              className="m-1 d-flex justify-content-start"
+              style={{ width: "100vw" }}
+            >
               {loggedUserDetails?.tm_department === "MTD" && (
-                <Col>
+                <Col className="col-lg-6 col-md-6 m-1 p-0">
                   <button
                     type="submit"
-                    className="btn bg-button"
+                    className="btn bg-succ"
                     style={{ marginTop: "1rem" }}
                     onClick={handleSubmit(newRequestSheetRegistration)}
                   >
@@ -2340,9 +2855,8 @@ function MyTable({
                   </button>
                 </Col>
               )}
-            </Row>
-            <Row>
-              <Col>
+
+              <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
                 Kindly approve request-sheet.{" "}
                 <Form>
                   <div className="d-flex">
@@ -2357,7 +2871,8 @@ function MyTable({
                         // required: "This field is required",
                       })}
                       // onChange={handleQuality}
-                    />
+                    />{" "}
+                    &nbsp;
                     <Form.Check
                       flex
                       label="No"
@@ -2371,10 +2886,9 @@ function MyTable({
                       // onChange={handleQuality}
                     />
                   </div>
-                  {errors?.root?.handleApprovalErrorFromServerSide?.type ===
-                    "approvalOfRequestSheet" && (
+                  {errors?.["approvalOfRequestSheet"] && (
                     <p className="text-error">
-                      {errors?.root?.handleApprovalErrorFromServerSide?.message}
+                      {errors?.["approvalOfRequestSheet"]?.message}
                     </p>
                   )}
                   {watch("approvalOfRequestSheet") === "No" ? (
@@ -2385,16 +2899,12 @@ function MyTable({
                         placeholder="Enter rejected remarks"
                         className="p-1 m-1"
                         {...register("rejectedRemarksOfRequestSheet", {
-                          required: "Please fill this field",
+                          // required: "Please fill this field",
                         })}
                       />
-                      {errors?.root?.handleApprovalErrorFromServerSide?.type ===
-                        "rejectedRemarksOfRequestSheet" && (
+                      {errors?.["rejectedRemarksOfRequestSheet"] && (
                         <p className="text-error">
-                          {
-                            errors?.root?.handleApprovalErrorFromServerSide
-                              ?.message
-                          }
+                          {errors?.["rejectedRemarksOfRequestSheet"]?.message}
                         </p>
                       )}
                     </>
@@ -2404,7 +2914,7 @@ function MyTable({
                   &nbsp;
                   <button
                     type="submit"
-                    className="btn bg-button"
+                    className="btn bg-darkyellow"
                     onClick={handleSubmit(
                       approveRequestSheetFromHigherAuthority
                     )}
@@ -2423,6 +2933,7 @@ function MyTable({
       <br />
       <br />
       <br />
+      {/* </fieldset> */}
     </form>
   );
 }

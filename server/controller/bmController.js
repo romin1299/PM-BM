@@ -240,7 +240,6 @@ router.post(
           const prdDataUpdatedByOtherUser = JSON.parse(
             req?.body?.prdDataUpdatedByOtherUser
           );
-
           if (prdDataUpdatedByOtherUser) {
             let queryObjForUpdateDataByOtherUser = {
               priorityCode: requestSheetDataFilledByMTDUser?.priorityCode,
@@ -314,26 +313,26 @@ router.post(
               requestSheetDataFilledByMTDUser?.why4,
             "maintenanceReportFilledByMTD.whyAnalysis.why5":
               requestSheetDataFilledByMTDUser?.why5,
-            "maintenanceReportFilledByMTD.breakDownTime": parseInt(
-              requestSheetDataFilledByMTDUser?.breakDownTime
-            ),
-            "maintenanceReportFilledByMTD.maintenanceTime": parseInt(
-              requestSheetDataFilledByMTDUser?.maintenanceTime
-            ),
-            "maintenanceReportFilledByMTD.qualityCheckTime": parseInt(
-              requestSheetDataFilledByMTDUser?.qualityCheckTime
-            ),
-            "maintenanceReportFilledByMTD.breakTime": parseInt(
-              requestSheetDataFilledByMTDUser?.breakTime
-            ),
+            "maintenanceReportFilledByMTD.breakDownTime":
+              parseInt(requestSheetDataFilledByMTDUser?.breakDownTime) || 0,
+            "maintenanceReportFilledByMTD.spareWaitingTime":
+              parseInt(requestSheetDataFilledByMTDUser?.spareWaitingTime) || 0,
+            "maintenanceReportFilledByMTD.replacementTime":
+              parseInt(requestSheetDataFilledByMTDUser?.replacementTime) || 0,
+            "maintenanceReportFilledByMTD.analysisTime":
+              parseInt(requestSheetDataFilledByMTDUser?.analysisTime) || 0,
+            "maintenanceReportFilledByMTD.adjustmentTime":
+              parseInt(requestSheetDataFilledByMTDUser?.adjustmentTime) || 0,
+            "maintenanceReportFilledByMTD.qualityCheckTime":
+              parseInt(requestSheetDataFilledByMTDUser?.qualityCheckTime) || 0,
+            "maintenanceReportFilledByMTD.breakTime":
+              parseInt(requestSheetDataFilledByMTDUser?.breakTime) || 0,
             "maintenanceReportFilledByMTD.minorBD":
               requestSheetDataFilledByMTDUser?.minorBD,
             "maintenanceReportFilledByMTD.majorBD":
               requestSheetDataFilledByMTDUser?.majorBD,
-            "maintenanceReportFilledByMTD.firstTime":
-              requestSheetDataFilledByMTDUser?.firstTime,
-            "maintenanceReportFilledByMTD.repeat":
-              requestSheetDataFilledByMTDUser?.repeat,
+            "maintenanceReportFilledByMTD.firstTimeOrRepeat":
+              requestSheetDataFilledByMTDUser?.firstTimeOrRepeat,
             sparePartUsedOrNot:
               requestSheetDataFilledByMTDUser?.changedParts?.length > 0
                 ? "Yes"
@@ -3568,7 +3567,6 @@ router.patch(
         approvalOfRequestSheet,
         rejectedRemarksOfRequestSheet,
       } = req.body;
-
       if (
         !assignApprovalList?.MTD_TL?.id &&
         requestSheetDataOfBM?.assignUser?._id ===
@@ -3624,6 +3622,35 @@ router.patch(
         delete assignApprovalList[formattedKey];
       // });
 
+      //Handling validation for approval list which is not selected by user from client-side
+      if(approvalOfRequestSheet === "Yes"){
+        for (
+          let index = 0;
+          index < Object.keys(assignApprovalList)?.length;
+          index++
+        ) {
+          if (
+            requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+              minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
+            ].includes(
+              Object.keys(assignApprovalList)?.[index].replace("_", " ")
+            )
+          ) {
+            if (
+              Object.keys(
+                assignApprovalList?.[Object.keys(assignApprovalList)?.[index]]
+              )?.length === 0
+            ) {
+              return res.status(400).json({
+                message: `Please select required approval list ${(requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+                  minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
+                ]).join(", ")}`,
+              });
+            }
+          }
+        }
+      }
+
       const updateTheStatusOfBMSheetApprover = async (
         keyOfDepartment,
         assignUser
@@ -3678,32 +3705,6 @@ router.patch(
 
       //request-sheet is approved/accepted
       if (approvalOfRequestSheet === "Yes") {
-        //Handling validation for approval list which is not selected by user from client-side
-        for (
-          let index = 0;
-          index < Object.keys(assignApprovalList)?.length;
-          index++
-        ) {
-          if (
-            requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
-              minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
-            ].includes(
-              Object.keys(assignApprovalList)?.[index].replace("_", " ")
-            )
-          ) {
-            if (
-              Object.keys(
-                assignApprovalList?.[Object.keys(assignApprovalList)?.[index]]
-              )?.length === 0
-            ) {
-              return res.status(400).json({
-                message: `Please select required approval list ${(requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
-                  minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
-                ]).join(", ")}`,
-              });
-            }
-          }
-        }
         let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
           {
             _id: mongoose.Types.ObjectId(req.params?.reqId),
@@ -4855,8 +4856,6 @@ router.post(
           },
         };
       }
-
-      console.log(queryObjForPM, "----", queryObjForBM);
 
       const BDHoursVsCountData = await Machine.aggregate([
         {

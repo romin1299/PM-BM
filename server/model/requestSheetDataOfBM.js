@@ -57,12 +57,17 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
     //Mostly use fields for charts
     breakDownTime: { type: Number },
-    maintenanceTime: { type: Number },
+    analysisTime: { type: Number },
+    spareWaitingTime: { type: Number },
+    replacementTime: { type: Number },
+    adjustmentTime: { type: Number },
     qualityCheckTime: { type: Number },
     breakTime: { type: Number },
 
     minorBD: { type: String },
     majorBD: { type: String },
+
+    firstTimeOrRepeat: {type: String},
 
     firstTime: { type: String }, // need to change if new func. occurred for this
     repeat: { type: String }, // need to change if new func. occurred for this

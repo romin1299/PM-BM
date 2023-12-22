@@ -3,7 +3,7 @@ import { Button, Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../../modules/PageModules";
 import "../RequestSheet.scss";
 
-const ProblemList = ({ problems, setProblems }) => {
+const ProblemList = ({ problems, setProblems, clearErrors }) => {
   const [newProblemText, setNewProblemText] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [editedProblem, setEditedProblem] = useState(null);
@@ -17,6 +17,7 @@ const ProblemList = ({ problems, setProblems }) => {
         problem: newProblemText,
       };
       setProblems([...problems, newProblem]);
+      clearErrors('problemValidation')
       setNewProblemText("");
       setIsAdding(false);
     }

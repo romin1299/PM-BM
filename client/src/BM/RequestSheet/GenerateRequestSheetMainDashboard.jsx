@@ -39,7 +39,7 @@ const MapComponent = ({ propsArray, handleNavigationToRequestSheet }) => {
                           })
                         }
                       >
-                        {machine?.machine_code}
+                        {machine?.machine_nickname}
                       </button>
                     ))}
                   </div>
