@@ -78,7 +78,9 @@ function MyTable({
       requestSheetData.breakDownTime = timeDifferenceMinutes;
       requestSheetData.minorBD = timeDifferenceMinutes <= 120 ? "Yes" : "No";
       requestSheetData.majorBD = timeDifferenceMinutes > 120 ? "Yes" : "No";
-      requestSheetData.changedParts = parts;
+      requestSheetData.changedParts = parts?.map(({ _id, ...rest }) => ({
+        ...rest,
+      }));
       requestSheetData.supportingTM =
         selectedSupportedTM?.length > 0
           ? selectedSupportedTM?.map((obj) => obj?._id)

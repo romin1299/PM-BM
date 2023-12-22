@@ -11,7 +11,7 @@ import RoutingContext from "../../../../context/routing/RoutingContext";
 import { fetchFinancialYears } from "../../../../Integration/APIExports";
 
 import { ACTION, getFiltrationValue } from "./CommonFiltrationComponent";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -97,9 +97,6 @@ export default function LineSelectionDropdown({
   useEffect(() => {
     fetchFYYearData();
   }, []);
-
-  console.log("cells:", cells);
-  console.log("selectedCell:", selectedCell);
 
   const getFiltrationValueBasedOnSection = async ({ section }) => {
     try {
@@ -210,14 +207,32 @@ export default function LineSelectionDropdown({
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      const { res, data } = await getFiltrationValue({
-        url: `${baseUrlForFiltering}/byDefault`,
-      });
+  const getFiltrationValueByDefault = async () => {
+    const { res, data } = await getFiltrationValue({
+      url: `${baseUrlForFiltering}/byDefault`,
+    });
 
-      const {
-        message,
+    const {
+      message,
+
+      flagForTogglingFilter,
+      selectedValue,
+
+      selectedSection,
+      sections,
+      selectedSubSection,
+      subSections,
+      selectedCell,
+      cells,
+      selectedLine,
+      lines,
+      selectedMachine,
+      machines,
+    } = data;
+
+    if (res?.status === 201) {
+      reducerDispatch({
+        type: ACTION.GET_DATA,
 
         flagForTogglingFilter,
         selectedValue,
@@ -226,80 +241,67 @@ export default function LineSelectionDropdown({
         sections,
         selectedSubSection,
         subSections,
-        selectedCell,
         cells,
+        selectedCell,
         selectedLine,
         lines,
         selectedMachine,
         machines,
-      } = data;
+        message,
+      });
+    }
+  };
 
-      if (res?.status === 201) {
-        reducerDispatch({
-          type: ACTION.GET_DATA,
-
-          flagForTogglingFilter,
-          selectedValue,
-
-          selectedSection,
-          sections,
-          selectedSubSection,
-          subSections,
-          cells,
-          selectedCell,
-          selectedLine,
-          lines,
-          selectedMachine,
-          machines,
-          message,
-        });
-      }
-    })();
+  useEffect(() => {
+    getFiltrationValueByDefault();
   }, []);
 
   return (
-    <Box className="m-3" sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-      {context?.tm_grade === "HOD" && sections?.length > 0 && (
-        <FormControl size="small">
-          <Select
-            displayEmpty
-            value={selectedSection}
-            onChange={(e) => {
-              reducerDispatch({
-                type: ACTION.HANDLE_SELECT_SECTION,
-                flagForTogglingFilter: "based-on-section",
-                selectedSection: e.target.value,
-              });
-              getFiltrationValueBasedOnSection({ section: e.target.value });
-            }}
-            input={<OutlinedInput />}
-            // renderValue={(selected) => <strong>{selected}</strong>}
-            sx={{
-              width: 130,
-              "& .MuiSelect-select": {
-                paddingTop: "5px",
-                paddingBottom: "5px",
-              },
-            }}
-            MenuProps={MenuProps}
-            inputProps={{ "aria-label": "Without label" }}
-          >
-            <MenuItem disabled value="">
-              <em style={{ fontSize: "14px", color: "#9f9f9f" }}>Sections</em>
-            </MenuItem>
-
-            {sections.map((item) => (
-              <MenuItem
-                key={item?._id}
-                value={item?._id}
-                style={getStyleForSelectedValue(item, selectedSection)}
-              >
-                {item?.section_name}
+    <Box sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+      {(baseUrlForFiltering === "/getFiltrationValue/plant-level-filtration"
+        ? true
+        : context?.tm_grade === "HOD") &&
+        sections?.length > 0 && (
+          <FormControl size="small">
+            <Select
+              displayEmpty
+              value={selectedSection}
+              onChange={(e) => {
+                reducerDispatch({
+                  type: ACTION.HANDLE_SELECT_SECTION,
+                  flagForTogglingFilter: "based-on-section",
+                  selectedSection: e.target.value,
+                });
+                getFiltrationValueBasedOnSection({ section: e.target.value });
+              }}
+              input={<OutlinedInput />}
+              // renderValue={(selected) => <strong>{selected}</strong>}
+              sx={{
+                width: 130,
+                "& .MuiSelect-select": {
+                  paddingTop: "5px",
+                  paddingBottom: "5px",
+                },
+              }}
+              MenuProps={MenuProps}
+              inputProps={{ "aria-label": "Without label" }}
+            >
+              <MenuItem disabled value="">
+                <em style={{ fontSize: "14px", color: "#9f9f9f" }}>Sections</em>
               </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      )}
+
+              {sections.map((item) => (
+                <MenuItem
+                  key={item?._id}
+                  value={item?._id}
+                  style={getStyleForSelectedValue(item, selectedSection)}
+                >
+                  {item?.section_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
 
       {subSections?.length > 0 && (
         <FormControl size="small">
@@ -562,6 +564,29 @@ export default function LineSelectionDropdown({
           </Select>
         )}
       </FormControl>
+
+      <Button
+        // className="btn bg-button"
+        variant="contained"
+        size="small"
+        disableElevation
+        className="bg-button"
+        onClick={async () => {
+          let selectedYear =
+            new Date().getMonth() < 3
+              ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+              : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+          await reducerDispatch({
+            type: ACTION.HANDLE_SELECT_YEAR,
+            selectedYear,
+          });
+
+          getFiltrationValueByDefault(selectedYear);
+        }}
+      >
+        Reset
+      </Button>
     </Box>
   );
 }

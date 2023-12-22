@@ -11,6 +11,7 @@ import {
   Colors,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { Box } from "@mui/material";
 
 const RequestSheetMonitoringBarChart = ({
   selectedValue,
@@ -68,12 +69,16 @@ const RequestSheetMonitoringBarChart = ({
   const options = {
     maintainAspectRatio: false,
     responsive: true,
+    maxBarThickness: 100,
     plugins: {
       legend: {
-        position: "bottom",
+        align: "end",
+        labels: {
+          usePointStyle: true,
+        },
       },
       title: {
-        display: true,
+        display: false,
         text: "Request sheet monitoring",
         color: "black",
         font: {
@@ -88,6 +93,9 @@ const RequestSheetMonitoringBarChart = ({
     scales: {
       x: {
         stacked: true,
+        grid: {
+          display: false,
+        },
         title: {
           display: false,
           text: "status",
@@ -96,6 +104,10 @@ const RequestSheetMonitoringBarChart = ({
           // mirror: true,
           fontSize: 16,
           padding: 10,
+
+          autoSkip: false,
+          maxRotation: 0,
+          minRotation: 0,
         },
       },
 
@@ -121,11 +133,17 @@ const RequestSheetMonitoringBarChart = ({
   };
 
   const data = {
-    labels: ["Sheet Generated", "Status", "Completed"],
+    labels: ["Generated", "Status", "Completed"],
     datasets: allStatusCounterForGraph,
   };
 
-  return <Bar options={options} height={75} data={data} />;
+  return (
+    <Box className="cell p-3">
+      <Box sx={{ height: { xs: "400px", md: "500px" } }}>
+        <Bar options={options} height={75} data={data} />
+      </Box>
+    </Box>
+  );
 };
 
 export default RequestSheetMonitoringBarChart;

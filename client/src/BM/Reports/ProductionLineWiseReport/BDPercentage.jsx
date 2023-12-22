@@ -57,14 +57,13 @@ const BDPercentageChart = ({
           credentials: "include",
         }
       );
+      const response = await res.json();
 
-      const { message, getBdPercentage } = await res.json();
-
-      if (res?.status === 200) {
+      if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET,
-          message,
-          BDPercentageReportData: getBdPercentage,
+          message: response.message,
+          BDPercentageReportData: response.data,
         });
       }
     } catch (error) {
@@ -82,6 +81,7 @@ const BDPercentageChart = ({
     <SmallChartCardComponent title="BD %">
       <LineBarChartForProductionLineWise
         ReportData={reduceState?.BDPercentageReportData}
+        xAxisVerticleTicks
       />
     </SmallChartCardComponent>
   );

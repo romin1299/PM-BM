@@ -20,6 +20,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import RoutingContext from "../../context/routing/RoutingContext";
 
 import MachineHistoryCard from "../HistoryCard/MachineHistoryCard";
+import CellHistoryCard from "../HistoryCard/CellHistoryCard";
 
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
@@ -46,6 +47,8 @@ const RequestSheetMainDashboard = () => {
 
   const [selectedRow, setSelectedRow] = useState();
   const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
+  const [cellHistoryCardModal, setCellHistoryCardModal] = useState(false);
+
   const statusColorMap = {
     Generated: "#9bcbdb",
     Assigned: "#ffe031",
@@ -473,6 +476,11 @@ const RequestSheetMainDashboard = () => {
       (machineHistoryCardModal) => !machineHistoryCardModal
     );
   };
+
+  const handleCellHistoryCardState = () => {
+    setCellHistoryCardModal((cellHistoryCardModal) => !cellHistoryCardModal);
+  };
+
   const requestSheetActions = [
     {
       icon: () => <CreditCardIcon className="text-primary1" />,
@@ -508,12 +516,14 @@ const RequestSheetMainDashboard = () => {
   ];
 
   const filtration = [
-    <ChartsToolbar
-      baseUrlForFiltering={baseUrlForFiltering}
-      reduceState={reduceState}
-      reducerDispatch={reducerDispatch}
-      monthFiltration
-    />,
+    <Box m={2}>
+      <ChartsToolbar
+        baseUrlForFiltering={baseUrlForFiltering}
+        reduceState={reduceState}
+        reducerDispatch={reducerDispatch}
+        monthFiltration
+      />
+    </Box>,
   ];
 
   return (
@@ -535,7 +545,7 @@ const RequestSheetMainDashboard = () => {
           <Col>
             <Row>
               <Col>
-                <Box className="cell rounded-0 p-1 m-0 bg-button text-white">
+                <Box className="cell rounded-2 p-1 m-0 bg-button text-white">
                   <div className="d-flex align-items-center">
                     <InsertDriveFileIcon /> &nbsp;&nbsp;{" "}
                     <p>
@@ -549,7 +559,7 @@ const RequestSheetMainDashboard = () => {
                 </Box>
               </Col>
               <Col>
-                <Box className="cell p-1 m-0 rounded-0 bg-dang text-white">
+                <Box className="cell p-1 m-0 rounded-2 bg-dang text-white">
                   <div className="d-flex align-items-center">
                     <ArrowCircleRightIcon /> &nbsp;&nbsp;{" "}
                     <p>
@@ -563,7 +573,7 @@ const RequestSheetMainDashboard = () => {
                 </Box>
               </Col>
               <Col>
-                <Box className="cell p-1 m-0 rounded-0 bg-succ text-white">
+                <Box className="cell p-1 m-0 rounded-2 bg-succ text-white">
                   <div className="d-flex align-items-center">
                     <CancelIcon /> &nbsp;&nbsp;{" "}
                     <p>
@@ -648,13 +658,30 @@ const RequestSheetMainDashboard = () => {
 
       {machineHistoryCardModal && (
         <MachineHistoryCard
+          selectedYear={reduceState?.selectedYear}
+          selectedMonth={reduceState?.selectedMonth}
           selectedRow={selectedRow}
           modelProp={{
             show: machineHistoryCardModal,
-            onHide: () => setMachineHistoryCardModal(false),
+            onHide: () => handleMachineHistoryCardState(),
           }}
         />
       )}
+
+      {(reduceState?.flagForTogglingFilter === "based-on-section" ||
+        reduceState?.flagForTogglingFilter === "based-on-subSection") &&
+        cellHistoryCardModal && (
+          <CellHistoryCard
+            selectedValue={reduceState?.selectedValue}
+            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+            selectedYear={reduceState?.selectedYear}
+            selectedMonth={reduceState?.selectedMonth}
+            modelProp={{
+              show: cellHistoryCardModal,
+              onHide: () => handleCellHistoryCardState(),
+            }}
+          />
+        )}
     </>
   );
 };

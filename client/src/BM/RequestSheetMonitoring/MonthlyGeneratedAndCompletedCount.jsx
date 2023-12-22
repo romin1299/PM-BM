@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { Table } from "reactstrap";
 
@@ -45,8 +46,8 @@ const MonthlyGeneratedAndCompletedCount = ({
   }, [selectedValue, flagForTogglingFilter, selectedYear]);
 
   return (
-    <>
-      <Table striped bordered hover>
+    <Box className="cell p-3 rounded-2">
+      <Table striped bordered hover className="m-0">
         <tr>
           <th>Status</th>
           {allMonths?.map((item) => (
@@ -63,7 +64,7 @@ const MonthlyGeneratedAndCompletedCount = ({
           </tr>
         ))}
       </Table>
-    </>
+    </Box>
   );
 };
 

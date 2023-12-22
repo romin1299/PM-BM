@@ -10,6 +10,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import SectionsDropdown from "./SectionsDropdown";
 import FilterSwitchButtons from "./FilterSwitchButtons";
+import YearDropdown from "./YearDropdown";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -37,6 +38,7 @@ const MonthlyBDTDashboard = () => {
   const [currentTabView, setCurrentTabView] = React.useState(0);
   const [sectionId, setSectionId] = React.useState("");
   const [filter, setFilter] = React.useState("hourly");
+  const [selectedYear, setSelectedYear] = React.useState("");
   const currentTabViewName = currentTabView === 0 ? "Plant" : "Section";
 
   // const context = useContext(RoutingContext);
@@ -92,7 +94,7 @@ const MonthlyBDTDashboard = () => {
 
         <Box
           className="col-auto"
-          sx={{ display: "flex", alignItems: "center" }}
+          sx={{ display: "flex", alignItems: "center", gap: 2 }}
         >
           {currentTabView === 1 && (
             <SectionsDropdown
@@ -100,6 +102,11 @@ const MonthlyBDTDashboard = () => {
               setSectionId={setSectionId}
             />
           )}
+          <YearDropdown
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+          />
+
           <FilterSwitchButtons
             filter={filter}
             setFilter={setFilter}
@@ -119,6 +126,7 @@ const MonthlyBDTDashboard = () => {
             setFilter={setFilter}
             currentTabViewName={currentTabViewName}
             sectionId={sectionId}
+            selectedYear={selectedYear}
           />
         </Col>
         <Col md={12} lg={3}>
@@ -127,6 +135,7 @@ const MonthlyBDTDashboard = () => {
             setFilter={setFilter}
             currentTabViewName={currentTabViewName}
             sectionId={sectionId}
+            selectedYear={selectedYear}
           />
         </Col>
       </Row>
@@ -136,6 +145,7 @@ const MonthlyBDTDashboard = () => {
         setFilter={setFilter}
         currentTabViewName={currentTabViewName}
         sectionId={sectionId}
+        selectedYear={selectedYear}
       />
     </Container>
   );
