@@ -3,15 +3,15 @@ import { Container, Row, Col, Modal } from "react-bootstrap";
 
 import BDHoursTrendChart from "./BDHoursTrendChart";
 
-const CellHistoryCard = (
+const SummeryCard = ({
   selectedYear,
   selectedMonth,
 
   selectedValue,
   flagForTogglingFilter,
 
-  modelProp
-) => {
+  modelProp,
+}) => {
   const getSummaryCard = async () => {
     try {
       const res = await fetch(
@@ -36,6 +36,8 @@ const CellHistoryCard = (
   useEffect(() => {
     getSummaryCard();
   }, []);
+
+  console.log(modelProp);
 
   return (
     <Modal
@@ -96,4 +98,4 @@ const CellHistoryCard = (
   );
 };
 
-export default CellHistoryCard;
+export default SummeryCard;
