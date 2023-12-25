@@ -8096,6 +8096,7 @@ router.get(
   productionHourFiltration,
   bdHourTrendMiddleware,
   async (req, res, next) => {
+    try {
     let MTBF_monthlyFilterQueryPipeline = [],
       mtbfCalculation = {
         $divide: [
@@ -8105,25 +8106,16 @@ router.get(
           "$count",
         ],
       },
-      // groupingObj = {
-      //   groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
-      // },
-      queryObj = {
-        ...req.queryObj,
-        // "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-        //   req.query?.selectedYear,
+      groupingObj = {
+        groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
       };
+     
 
     if (req.query?.selectedMonth) {
-      queryObj = {
-        ...queryObj,
-        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-          req.query?.selectedMonth,
+      
+      groupingObj = {
+        groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
       };
-
-      // groupingObj = {
-      //   groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-      // };
 
       MTBF_monthlyFilterQueryPipeline = [
         {
@@ -8151,9 +8143,12 @@ router.get(
       };
     }
 
+
+   
+  
     try {
       const machineSummaryCardData = await RequestSheetOfBM.aggregate([
-        { $match: queryObj },
+        { $match: req.queryObj },
 
         {
           $lookup: {
@@ -8172,8 +8167,8 @@ router.get(
           $group: {
             _id: {
               cell: "$cell_data.cell_name",
-              date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-            },
+              groupingObj,
+            }, 
             count: { $sum: 1 },
             bdHours: {
               $sum: {
@@ -8199,19 +8194,7 @@ router.get(
         {
           $sort: { "_id.cell": 1 },
         },
-        {
-          $addFields: {
-            productionDataBasedOnSelectedFilter: {
-              $function: {
-                body: function (month, productionHrs) {
-                  return productionHrs?.monthlyProductionHrs?.[month];
-                },
-                args: ["$_id.date", req.productionHrs],
-                lang: "js",
-              },
-            },
-          },
-        },
+        ...MTBF_monthlyFilterQueryPipeline,
         {
           $project: {
             count: 1,
@@ -8227,12 +8210,12 @@ router.get(
       let bdHoursFormula = {
         $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
       };
-      const keyToDelete =
-        "preAggregationTimeStampOfRequestSheet.requestSheet_month";
 
-      const newQueryObj = { ...queryObj };
+      const keyToDelete = 'preAggregationTimeStampOfRequestSheet.requestSheet_month';
+      const newQueryObj = { ...req.queryObj };
       delete newQueryObj[keyToDelete];
 
+  
       const bdTrendData = await RequestSheetOfBM.aggregate([
         {
           $match: newQueryObj,
@@ -8297,13 +8280,14 @@ router.get(
             },
           },
         },
-
+      
         {
           $group: {
             _id: "$_id.cellRef",
             array: { $push: "$$ROOT" },
           },
         },
+       
         {
           $project: {
             _id: 1,
@@ -8344,6 +8328,7 @@ router.get(
             },
           },
         },
+        
         { $unwind: "$array" },
         // // {
         // //   $replaceRoot: { newRoot: "$array" },
@@ -8361,11 +8346,25 @@ router.get(
             },
           },
         },
+        {
+          $sort :{ "_id" : 1}
+        },
+        // {
+        //   $project : {
+        //     label :1,
+            // month: 1,
+        //     lessThanOne:1,
+        //     lessThanTwo : 1,
+        //     greaterThanTwo :1,
+        //   }
+        // }
+
+     
       ]);
 
       return res.status(201).json({
         message: "Summary Card data get successfully",
-        bdTrendData: bdTrendData,
+        bdTrendData,
         // bdTrendData: [
         //   {mainLabel :bdTrendData?.[0]._id },
         //   { label: "<1", data: bdTrendData?.[0].lessThanOne },
@@ -8377,7 +8376,10 @@ router.get(
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
     }
+  }catch (error) {
+    res.status(500).json({ message: error?.message, error });
   }
+}
 );
 
 const filterMiddlewareForTmMTTRSkillReport = async (req, res, next) => {
