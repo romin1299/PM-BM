@@ -607,9 +607,10 @@ const RequestSheetMainDashboard = () => {
             <button
               onClick={handleSummeryCardState}
               className={
-                context?.tm_department === "PRD"
-                  ? `btn bg-button d-inline`
-                  : "d-none"
+                `btn bg-button d-inline`
+                // context?.tm_department === "PRD"
+                //   ? `btn bg-button d-inline`
+                //   : "d-none"
               }
             >
               Summery

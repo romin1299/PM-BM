@@ -8280,7 +8280,9 @@ router.get(
             },
           },
         },
-      
+              {
+          $sort: { "_id.cell": 1 },
+        },
         {
           $group: {
             _id: "$_id.cellRef",
