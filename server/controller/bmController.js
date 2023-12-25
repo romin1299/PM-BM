@@ -3671,7 +3671,7 @@ router.patch(
       // });
 
       //Handling validation for approval list which is not selected by user from client-side
-      if(approvalOfRequestSheet === "Yes"){
+      if (approvalOfRequestSheet === "Yes") {
         for (
           let index = 0;
           index < Object.keys(assignApprovalList)?.length;
@@ -8109,7 +8109,7 @@ router.get(
       //   groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
       // },
       queryObj = {
-       ...req.queryObj,
+        ...req.queryObj,
         // "preAggregationTimeStampOfRequestSheet.requestSheet_year":
         //   req.query?.selectedYear,
       };
@@ -8151,10 +8151,6 @@ router.get(
       };
     }
 
- 
-
-   
-  
     try {
       const machineSummaryCardData = await RequestSheetOfBM.aggregate([
         { $match: queryObj },
@@ -8174,10 +8170,10 @@ router.get(
 
         {
           $group: {
-             _id: {
+            _id: {
               cell: "$cell_data.cell_name",
               date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-            }, 
+            },
             count: { $sum: 1 },
             bdHours: {
               $sum: {
@@ -8201,7 +8197,7 @@ router.get(
           },
         },
         {
-          $sort :{ "_id.cell" : 1}
+          $sort: { "_id.cell": 1 },
         },
         {
           $addFields: {
@@ -8231,12 +8227,12 @@ router.get(
       let bdHoursFormula = {
         $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
       };
-      const keyToDelete = 'preAggregationTimeStampOfRequestSheet.requestSheet_month';
-
+      const keyToDelete =
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month";
 
       const newQueryObj = { ...queryObj };
       delete newQueryObj[keyToDelete];
-  
+
       const bdTrendData = await RequestSheetOfBM.aggregate([
         {
           $match: newQueryObj,
@@ -8365,8 +8361,6 @@ router.get(
             },
           },
         },
-
-     
       ]);
 
       return res.status(201).json({
@@ -9080,16 +9074,23 @@ router.get(
   "/topMachineBreakdown/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-  topFilterMiddleware,
+  /* 
+    don't need this bcs we directly get the limit value in integer
+   */
+  // topFilterMiddleware,
 
   async (req, res, next) => {
     try {
       const topMachineBd = await RequestSheetOfBM.aggregate([
-        {
-          $limit: req.topQuery,
-        },
+        /* 
+          below will tack only first entered value and apply the next pipeline on it,
+          instead of writing here we need to use it after topMachineBD 
+          so we can get the proper data 
+         */
+        // {
+        //   $limit: req.topQuery,
+        // },
         { $match: req.queryObj },
-
         {
           $lookup: {
             from: "machinesalldatas",
@@ -9105,7 +9106,10 @@ router.get(
 
         {
           $group: {
-            _id: "$machine_data.machine_name",
+            _id: {
+              machineId: "$machine_data._id",
+              machineName: "$machine_data.machine_name",
+            },
             machine_hours: {
               $sum: {
                 $cond: [
@@ -9131,16 +9135,20 @@ router.get(
           $sort: { machine_hours: 1 },
         },
         {
+          $limit: req.query?.documentLimitInTheGraph * 1,
+        },
+        {
           $group: {
             _id: null,
-            machines: { $push: "$_id" },
-            hours: { $push: "$machine_hours" },
+            machineId: { $push: "$_id.machineId" },
+            labels: { $push: "$_id.machineName" },
+            data: { $push: "$machine_hours" },
           },
         },
       ]);
       return res.status(201).json({
         message: "Top Machine Breakdown data get successfully",
-        topMachineBd,
+        topMachineBd: topMachineBd?.[0],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -9349,7 +9357,7 @@ router.get(
 );
 
 router.get(
-  "/machineBdCategory/:filter/:selectedId",
+  "/machineBdCategoryAndFactor/:filter/:selectedId",
   authenticate,
   filterMiddleware,
 
