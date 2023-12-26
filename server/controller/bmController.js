@@ -8907,7 +8907,7 @@ router.get(
 );
 
 router.get(
-  "/tmProgress/tmMTTRSkill/:tmId/:filter/:selectedId",
+  "/tmProgress/tmMTTRSkill/:filter/:selectedId/:tmId",
   authenticate,
   filterMiddleware,
   filterMiddlewareForTmMTTRSkillReport,
