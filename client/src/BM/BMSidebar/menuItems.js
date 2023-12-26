@@ -144,6 +144,10 @@ export const menuItems = [
         title: "TM MTTR Skill",
         route: "/bm/report/tm-mtr",
       },
+      {
+        title: "Top Machine Breakdown",
+        route: "/bm/report/top-machine-breakdown",
+      },
     ],
   },
   {
@@ -152,8 +156,7 @@ export const menuItems = [
     route: "/bm/profile",
     allowedRoles: allusers,
   },
-  
-  
+
   // {
   //   title: "Creation",
   //   icon: <FaThList className="text-white" />,

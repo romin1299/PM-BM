@@ -680,19 +680,25 @@ const RequestSheetMainDashboard = () => {
           }}
         />
       )}
-
-      {summeryCardModal && (
-        <SummeryCard
-          selectedValue={reduceState?.selectedValue}
-          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-          selectedYear={reduceState?.selectedYear}
-          selectedMonth={reduceState?.selectedMonth}
-          modelProp={{
-            show: summeryCardModal,
-            onHide: () => handleSummeryCardState(),
-          }}
-        />
-      )}
+      {summeryCardModal &&
+        (reduceState?.selectedSubSection || reduceState?.selectedSection) && (
+          <SummeryCard
+            selectedValue={
+              reduceState?.selectedSubSection || reduceState?.selectedSection
+            }
+            flagForTogglingFilter={
+              reduceState?.selectedSubSection
+                ? "based-on-subSection"
+                : "based-on-section"
+            }
+            selectedYear={reduceState?.selectedYear}
+            selectedMonth={reduceState?.selectedMonth}
+            modelProp={{
+              show: summeryCardModal,
+              onHide: () => handleSummeryCardState(),
+            }}
+          />
+        )}
     </>
   );
 };
