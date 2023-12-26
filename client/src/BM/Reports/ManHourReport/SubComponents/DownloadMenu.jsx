@@ -12,6 +12,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import Tooltip from "@mui/material/Tooltip";
 
 export default function DownloadMenu({
+  handleDownloadPPTX,
   handleDownloadCSV,
   handleDownloadPDF,
   handleDownloadImage,
@@ -63,13 +64,13 @@ export default function DownloadMenu({
         //   horizontal: "right",
         // }}
       >
-        <MenuItem onClick={handleDownloadCSV}>
+        <MenuItem onClick={handleDownloadPPTX}>
           <ListItemIcon>
             <DescriptionIcon className="text-warning" />
           </ListItemIcon>
           <ListItemText>PPTX</ListItemText>
         </MenuItem>
-        <MenuItem onClick={handleDownloadCSV}>
+        {/* <MenuItem onClick={handleDownloadCSV}>
           <ListItemIcon>
             <DescriptionIcon className="text-success" />
           </ListItemIcon>
@@ -86,7 +87,7 @@ export default function DownloadMenu({
             <ImageIcon className="text-primary" />
           </ListItemIcon>
           <ListItemText>Image</ListItemText>
-        </MenuItem>
+        </MenuItem> */}
       </Menu>
     </div>
   );

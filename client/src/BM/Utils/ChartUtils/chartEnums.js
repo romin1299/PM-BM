@@ -40,8 +40,10 @@ export const chartColors = {
     palette2: ["#0aa3d2", "#65cc97"],
     palette3: ["#2693ff", "#bbd0e5", "#23313f"],
     palette4: ["#c2c933", "#bbd0e5", "#0BB4CB", "#ffcd38", "#ff7b64"],
+    palette5: ["#2f79bf", "#bbd0e5", "#2693ff", "#ffcd38", "#ff7b64"],
   },
   gray: "#bbd0e5",
+  text: "#23313f",
 };
 
 /*

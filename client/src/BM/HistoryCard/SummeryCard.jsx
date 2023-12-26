@@ -3,7 +3,42 @@ import { Container, Row, Col, Modal } from "react-bootstrap";
 
 import BDHoursTrendChart from "./BDHoursTrendChart";
 
+const AllFieldComponent = ({ cellName, data }) => {
+  return (
+    <>
+      <Row>
+        <Col>
+          <b>{cellName}</b>
+        </Col>
+      </Row>
+      <Row>
+        <Col>{data?.bdHours || 0}</Col>
+      </Row>
+      <Row>
+        <Col>{data?.count || 0}</Col>
+      </Row>
+      <Row>
+        <Col>{data?.mttr || 0}</Col>
+      </Row>
+      <Row>
+        <Col>{data?.mtbf || 0}</Col>
+      </Row>
+    </>
+  );
+};
+
+const CountComponent = ({ data }) => {
+  return (
+    <>
+      {data?.completedCount || 0}/{data?.totalCount || 0}
+    </>
+  );
+};
+
 const BarChartComponentMapping = ({ data }) => {
+  if (!data) {
+    return <h3>No data to display</h3>;
+  }
   return (
     <BDHoursTrendChart
       bdHourTrend={{
@@ -14,6 +49,7 @@ const BarChartComponentMapping = ({ data }) => {
     />
   );
 };
+
 const SummeryCard = ({
   selectedYear,
   selectedMonth,
@@ -24,6 +60,12 @@ const SummeryCard = ({
   modelProp,
 }) => {
   const [summeryCardData, setSummeryCardData] = useState({
+    cells: [
+      {
+        _id: "",
+        cell_name: "",
+      },
+    ],
     bdTrendData: [
       {
         label: "",
@@ -47,6 +89,13 @@ const SummeryCard = ({
         mtbf: 0,
       },
     ],
+    cellWiseCount: [
+      {
+        _id: "",
+        totalCount: 0,
+        completedCount: 0,
+      },
+    ],
   });
   const getSummaryCard = async () => {
     try {
@@ -61,9 +110,20 @@ const SummeryCard = ({
           credentials: "include",
         }
       );
-      const { message, machineSummaryCardData, bdTrendData } = await res.json();
+      const {
+        message,
+        cells,
+        machineSummaryCardData,
+        bdTrendData,
+        cellWiseCount,
+      } = await res.json();
       if (res.status === 201) {
-        setSummeryCardData({ machineSummaryCardData, bdTrendData });
+        setSummeryCardData({
+          cells,
+          machineSummaryCardData,
+          bdTrendData,
+          cellWiseCount,
+        });
       }
     } catch (error) {
       console.log(error);
@@ -115,35 +175,37 @@ const SummeryCard = ({
                   <b>MTBF</b>
                 </Col>
               </Row>
+              <Col>
+                <b>PM Status</b>
+              </Col>
               {/* <Row>
                 <Col>
                   <b>BD Hr Trend</b>
                 </Col>
               </Row> */}
             </Col>
-            {summeryCardData?.machineSummaryCardData?.map((item) => (
+            {summeryCardData?.cells?.map((item) => (
               <Col xxl={3}>
+                <AllFieldComponent
+                  cellName={item?.cell_name}
+                  data={summeryCardData.machineSummaryCardData.find(
+                    (item1) => item?._id === item1?._id?.cell
+                  )}
+                />
+
                 <Row>
                   <Col>
-                    <b>{item?._id?.cell}</b>
+                    <CountComponent
+                      data={summeryCardData?.cellWiseCount.find(
+                        (item1) => item1?._id === item?._id
+                      )}
+                    />
                   </Col>
-                </Row>
-                <Row>
-                  <Col>{item?.bdHours}</Col>
-                </Row>
-                <Row>
-                  <Col>{item?.count}</Col>
-                </Row>
-                <Row>
-                  <Col>{item?.mttr}</Col>
-                </Row>
-                <Row>
-                  <Col>{item?.mtbf || 0}</Col>
                 </Row>
                 <Row>
                   <BarChartComponentMapping
                     data={summeryCardData?.bdTrendData?.find(
-                      (item1) => item1?.label === item?._id?.cell
+                      (item1) => item1?._id === item?._id
                     )}
                   />
                 </Row>

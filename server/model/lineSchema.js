@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const { productionHrs } = require("./common");
+const { allTargetData } = require("./common");
 
 const commonVarForTypeString = {
   type: String,
@@ -82,7 +82,7 @@ const lineSchema = new mongoose.Schema({
     },
   ],
 
-  productionHrs,
+  allTargetData,
 
   requestSheetNos: {
     type: Number,

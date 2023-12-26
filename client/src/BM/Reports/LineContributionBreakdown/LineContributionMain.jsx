@@ -11,6 +11,8 @@ import {
   reducer,
 } from "../ManHourReport/SubComponents/CommonFiltrationComponent";
 import ReportTitleBar from "../Common/ReportTitleBar";
+import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu";
+import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
 
 const LineContributionMain = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -21,10 +23,20 @@ const LineContributionMain = () => {
         <ReportTitleBar
           title="Line Contribution BD"
           Toolbar={
-            <YearMonthDropdown
-              {...reduceState}
-              reducerDispatch={reducerDispatch}
-            />
+            <>
+              <YearMonthDropdown
+                {...reduceState}
+                reducerDispatch={reducerDispatch}
+              />
+
+              <Col className="col-auto">
+                <DownloadMenu
+                  handleDownloadPPTX={() => {
+                    exportPPTX(EXPORT_REPORT.LINE_CONTRIBUTION, reduceState);
+                  }}
+                />
+              </Col>
+            </>
           }
         />
 
