@@ -151,6 +151,10 @@ export const menuItems = [
         title: "TM MTTR Skill",
         route: "/bm/report/tm-mtr",
       },
+      {
+        title: "Top Machine Breakdown",
+        route: "/bm/report/top-machine-breakdown",
+      },
     ],
   },
   {

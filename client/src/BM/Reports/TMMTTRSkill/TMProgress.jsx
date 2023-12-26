@@ -82,7 +82,7 @@ const TMProgress = ({
 }) => {
   const [data, setData] = React.useState({});
   const [tmId, setTmId] = React.useState("");
-  const [isAllTM, setIsAllTM] = React.useState(true);
+  const [isAllTM, setIsAllTM] = React.useState(false);
 
   const fetchChartData = async () => {
     // console.log("selectedValue:", selectedValue);

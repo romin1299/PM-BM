@@ -20,7 +20,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import RoutingContext from "../../context/routing/RoutingContext";
 
 import MachineHistoryCard from "../HistoryCard/MachineHistoryCard";
-import CellHistoryCard from "../HistoryCard/CellHistoryCard";
+import SummeryCard from "../HistoryCard/SummeryCard";
 
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
@@ -47,7 +47,7 @@ const RequestSheetMainDashboard = () => {
 
   const [selectedRow, setSelectedRow] = useState();
   const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
-  const [cellHistoryCardModal, setCellHistoryCardModal] = useState(false);
+  const [summeryCardModal, setSummeryCardModal] = useState(false);
 
   const statusColorMap = {
     Generated: "#9bcbdb",
@@ -477,8 +477,8 @@ const RequestSheetMainDashboard = () => {
     );
   };
 
-  const handleCellHistoryCardState = () => {
-    setCellHistoryCardModal((cellHistoryCardModal) => !cellHistoryCardModal);
+  const handleSummeryCardState = () => {
+    setSummeryCardModal((summeryCardModal) => !summeryCardModal);
   };
 
   const requestSheetActions = [
@@ -603,6 +603,19 @@ const RequestSheetMainDashboard = () => {
               <AddCircleIcon /> &nbsp; Generate New Request-Sheet
             </button>
           </Col>
+          <Col className="col-auto">
+            <button
+              onClick={handleSummeryCardState}
+              className={
+                `btn bg-button d-inline`
+                // context?.tm_department === "PRD"
+                //   ? `btn bg-button d-inline`
+                //   : "d-none"
+              }
+            >
+              Summery
+            </button>
+          </Col>
         </Row>
 
         {/* <Row>
@@ -667,18 +680,22 @@ const RequestSheetMainDashboard = () => {
           }}
         />
       )}
-
-      {(reduceState?.flagForTogglingFilter === "based-on-section" ||
-        reduceState?.flagForTogglingFilter === "based-on-subSection") &&
-        cellHistoryCardModal && (
-          <CellHistoryCard
-            selectedValue={reduceState?.selectedValue}
-            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+      {summeryCardModal &&
+        (reduceState?.selectedSubSection || reduceState?.selectedSection) && (
+          <SummeryCard
+            selectedValue={
+              reduceState?.selectedSubSection || reduceState?.selectedSection
+            }
+            flagForTogglingFilter={
+              reduceState?.selectedSubSection
+                ? "based-on-subSection"
+                : "based-on-section"
+            }
             selectedYear={reduceState?.selectedYear}
             selectedMonth={reduceState?.selectedMonth}
             modelProp={{
-              show: cellHistoryCardModal,
-              onHide: () => handleCellHistoryCardState(),
+              show: summeryCardModal,
+              onHide: () => handleSummeryCardState(),
             }}
           />
         )}

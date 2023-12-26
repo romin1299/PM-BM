@@ -11,6 +11,11 @@ import Tab from "@mui/material/Tab";
 import SectionsDropdown from "./SectionsDropdown";
 import FilterSwitchButtons from "./FilterSwitchButtons";
 import YearDropdown from "./YearDropdown";
+import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu.jsx";
+import {
+  EXPORT_REPORT,
+  exportPPTX,
+} from "../../Utils/ExportPPTX/exportPPTX.js";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -59,6 +64,14 @@ const MonthlyBDTDashboard = () => {
 
   const handleChange = (event, newValue) => {
     setCurrentTabView(newValue);
+  };
+
+  const urlOptions = {
+    filter,
+    setFilter,
+    currentTabViewName,
+    sectionId,
+    selectedYear,
   };
 
   return (
@@ -111,6 +124,12 @@ const MonthlyBDTDashboard = () => {
             filter={filter}
             setFilter={setFilter}
             currentTabViewName={currentTabViewName}
+          />
+
+          <DownloadMenu
+            handleDownloadPPTX={() => {
+              exportPPTX(EXPORT_REPORT.MONTHLY_BD, urlOptions);
+            }}
           />
         </Box>
 

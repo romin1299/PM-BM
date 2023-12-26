@@ -10,8 +10,7 @@ import {
   Legend,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { Box, Divider, Paper, Typography } from "@mui/material";
-import { Row } from "react-bootstrap";
+import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "./ChartTitleBar";
 
@@ -131,20 +130,28 @@ const LineBarChart = ({
     },
   };
 
+  let lineArr = [];
+
+  if (label?.lineLabel && dataset?.target) {
+    lineArr = [
+      {
+        type: "line",
+        label: label?.lineLabel,
+        data: dataset?.target,
+        borderColor: chartColors[1],
+        borderWidth: 2,
+        fill: false,
+        yAxisID: "y1",
+      },
+    ];
+  }
+
   const datasets = [
-    {
-      type: "line",
-      label: label.lineLabel,
-      data: dataset?.target,
-      borderColor: chartColors[1],
-      borderWidth: 2,
-      fill: false,
-      yAxisID: "y1",
-    },
+    ...lineArr,
     {
       type: "bar",
       stack: "bar-stacked",
-      label: label.barLabel,
+      label: label?.barLabel,
       data: dataset?.data,
       yAxisID: "y1",
       backgroundColor: chartColors[0],

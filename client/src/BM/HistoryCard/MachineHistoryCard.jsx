@@ -14,6 +14,7 @@ const MachineHistoryCard = ({
     bdCount: 0,
     mttrData: 0,
     mtbf: 0,
+    PM_Status: "",
     bdHourTrend: {
       lessThanOne: [],
       lessThanTwo: [],
@@ -34,7 +35,8 @@ const MachineHistoryCard = ({
           credentials: "include",
         }
       );
-      const { message, machineHistoryCardData, bdTrendData } = await res.json();
+      const { message, PM_Status, machineHistoryCardData, bdTrendData } =
+        await res.json();
       if (res.status === 201) {
         setHistoryCardData({
           bdTime: machineHistoryCardData?.bdHours,
@@ -42,6 +44,7 @@ const MachineHistoryCard = ({
           mttrData: machineHistoryCardData?.mttr,
           mtbf: machineHistoryCardData?.mtbf,
           bdHourTrend: bdTrendData,
+          PM_Status,
         });
       }
     } catch (error) {
@@ -90,6 +93,12 @@ const MachineHistoryCard = ({
               <b>MTBF</b>
             </Col>
             <Col>{historyCardData?.mtbf}</Col>
+          </Row>
+          <Row>
+            <Col>
+              <b>PM Status</b>
+            </Col>
+            <Col>{historyCardData?.PM_Status}</Col>
           </Row>
           <Row>
             <Col>
