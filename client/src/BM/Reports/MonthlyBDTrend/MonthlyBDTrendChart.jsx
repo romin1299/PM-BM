@@ -71,12 +71,12 @@ export const options = {
         color: "black",
       },
     },
-    y2: {
-      position: "right",
-      ticks: {
-        color: "black",
-      },
-    },
+    // y2: {
+    //   position: "right",
+    //   ticks: {
+    //     color: "black",
+    //   },
+    // },
   },
 };
 

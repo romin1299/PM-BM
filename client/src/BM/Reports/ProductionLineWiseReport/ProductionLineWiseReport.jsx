@@ -19,6 +19,11 @@ import {
   reducer,
 } from "../ManHourReport/SubComponents/CommonFiltrationComponent";
 import ReportTitleBar from "../Common/ReportTitleBar.jsx";
+import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu.jsx";
+import {
+  EXPORT_REPORT,
+  exportPPTX,
+} from "../../Utils/ExportPPTX/exportPPTX.js";
 
 const ProductionLineWiseReport = () => {
   const {
@@ -178,11 +183,21 @@ const ProductionLineWiseReport = () => {
         <ReportTitleBar
           title="Product/Line Wise KPI"
           Toolbar={
-            <ChartsToolbar
-              baseUrlForFiltering={baseUrlForFiltering}
-              reduceState={reduceState}
-              reducerDispatch={reducerDispatch}
-            />
+            <>
+              <ChartsToolbar
+                baseUrlForFiltering={baseUrlForFiltering}
+                reduceState={reduceState}
+                reducerDispatch={reducerDispatch}
+              />
+
+              <Col className="col-auto">
+                <DownloadMenu
+                  handleDownloadPPTX={() => {
+                    exportPPTX(EXPORT_REPORT.PRODUCT_LINE_WISE, reduceState);
+                  }}
+                />
+              </Col>
+            </>
           }
         />
 
