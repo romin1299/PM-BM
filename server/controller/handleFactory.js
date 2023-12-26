@@ -1,3 +1,6 @@
+const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
+
+
 exports.getUserData =
   (machineModel, sectionModel, userModel) => async (req, res) => {
     const machine = await machineModel
@@ -21,6 +24,67 @@ exports.getUserData =
       .exec();
 
     // console.log("machine", machine);
+
+//     const getPMStatus = async(req,res,next)=>{
+
+//       const pmStatus = await machineModel.aggregate([
+//         {
+//           $match : 
+//         }
+//       ])
+// console.log(machine?.checkSheet_data[0]?.PMStatus)
+//     }
+
+//     getPMStatus();
+
+
+
+
+
+   
+
+      // console.log("req.query?.machine_code",req?.query?.machine_code)
+
+      const getBMData = await RequestSheetOfBM.aggregate([
+        // {
+        //   $match : {
+        //     machineRef : mongoose.Types.ObjectId(req.query?.selectedId),
+        //   }
+        // },
+        {
+          $lookup: {
+            from: "machinesalldatas",
+            localField: "machineRef",
+            foreignField: "_id",
+            as: "machines",
+          },
+        },
+        {
+          $unwind: "$machines",
+        },
+        {
+          $match : {
+            "machines.machine_code" : req?.query?.machine_code,
+            // "machines.machine_code" : "M-EN-O2-BOA-030-1",
+          }
+        },
+
+        {
+          $group : {
+            _id : null,
+            count : {$sum : 1},
+            sumOfHours : {$sum : "$maintenanceReportFilledByMTD.breakDownTime" }
+          }
+        }
+      ]);
+// console.log(machine?.checkSheet_data[0]?.BM)
+console.log("bmbmbmbm",getBMData?.[0])
+   
+
+   
+
+
+
 
     const section = await sectionModel.findOne({
       section_id: req?.rootUser?.section_data?.split("-")?.[0],
@@ -111,6 +175,7 @@ exports.getUserData =
         message: "Sheet data get successfully",
         machine,
         requestSheetApprovalList,
+    
       });
     } else {
       res.status(404).json({ message: "Machine not found" });

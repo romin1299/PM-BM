@@ -6691,44 +6691,55 @@ const filterForMonthlyData = async (req, res, next) => {
   }
 };
 
-// const middlewareForPlant = async(req,res,next)=>{
-//   let queryObj;
+const middlewareForPlant = async (req,res,next)=>{
+  let queryObj;
 
-//   const plant = await Plant.findOne({
-//     plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-//   });
+  const plant = await Plant.findOne({
+    plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+  });
 
-//   queryObj = {
-//     ...req.queryObj,
-//     plantRef: mongoose.Types.ObjectId(plant._id),
-//   };
+if(req.params.filter === "based-on-plantId"){
+  
+  queryObj = {
+    ...req.queryObj,  
+    plantRef: mongoose.Types.ObjectId(plant._id),
+  };
 
-//   console.log("PlantqueryObj",queryObj)
+} else{
 
-//   req.queryObj = queryObj;
-//   next();
+  queryObj = {
+    ...req.queryObj
+  }
 
-// }
+}     
+
+  console.log("PlantqueryObj",queryObj)
+
+  req.queryObj = queryObj;
+  next();
+
+}
 
 router.get(
   "/hourlyMonthlyBdTrend/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-  // middlewareForPlant,
+  middlewareForPlant,
   filterForMonthlyData,
   hourlyMonthlyBdTrendMiddleware
 );
 
 router.get(
-  "/sectionMonthlyBdTrendForPlant/:filter/:selectedId",
+  "/sectionMonthlyBdTrend/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  middlewareForPlant,
   filterForMonthlyData,
   sectionMonthlyBdTrendForPlantMiddleware
 );
 
 router.get(
-  "/cellMonthlyBdTrendForSection/:filter/:selectedId",
+  "/cellMonthlyBdTrend/:filter/:selectedId",
   authenticate,
   filterMiddleware,
   filterForMonthlyData,
