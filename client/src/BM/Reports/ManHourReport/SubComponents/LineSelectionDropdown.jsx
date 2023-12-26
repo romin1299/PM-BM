@@ -437,7 +437,7 @@ export default function LineSelectionDropdown({
         </FormControl>
       )}
 
-      {machines?.length > 0 && (
+      {/* {machines?.length > 0 && (
         <FormControl size="small">
           <Select
             displayEmpty
@@ -477,7 +477,7 @@ export default function LineSelectionDropdown({
             ))}
           </Select>
         </FormControl>
-      )}
+      )} */}
 
       <FormControl size="small">
         <Select

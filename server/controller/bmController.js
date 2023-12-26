@@ -2654,31 +2654,34 @@ router.get(
 router.post(
   "/addDynamicApprovalListOfBM",
   authenticate,
-  authenticate,
   async (req, res, next) => {
-    const approvalListOfMinorAndMajor = req.body;
+    try {
+      const approvalListOfMinorAndMajor = req.body;
 
-    const addDynamicApprovalListInPlant = await Plant.findOneAndUpdate(
-      {
-        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-      },
-      {
-        $set: {
-          ...approvalListOfMinorAndMajor,
+      const addDynamicApprovalListInPlant = await Plant.findOneAndUpdate(
+        {
+          plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
         },
-      },
-      { new: true }
-    );
+        {
+          $set: {
+            ...approvalListOfMinorAndMajor,
+          },
+        },
+        { new: true }
+      );
 
-    if (!addDynamicApprovalListInPlant) {
-      return res.status(400).json({
-        message: "Approval list not added",
-      });
-    } else {
-      return res.status(201).json({
-        message: "Approval list added successfully",
-        addDynamicApprovalListInPlant,
-      });
+      if (!addDynamicApprovalListInPlant) {
+        return res.status(400).json({
+          message: "Approval list not added",
+        });
+      } else {
+        return res.status(201).json({
+          message: "Approval list added successfully",
+          addDynamicApprovalListInPlant,
+        });
+      }
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
     }
   }
 );
@@ -3671,7 +3674,7 @@ router.patch(
       // });
 
       //Handling validation for approval list which is not selected by user from client-side
-      if(approvalOfRequestSheet === "Yes"){
+      if (approvalOfRequestSheet === "Yes") {
         for (
           let index = 0;
           index < Object.keys(assignApprovalList)?.length;
@@ -7845,7 +7848,7 @@ router.get(
           $divide: [
             {
               $subtract: [
-                req.productionHrs?.yearTotalProductionHrs,
+                req.productionHrs?.yearTotalallTargetData,
                 "$bdHours",
               ],
             },
@@ -8100,7 +8103,7 @@ router.get(
       mtbfCalculation = {
         $divide: [
           {
-            $subtract: [req.productionHrs?.yearTotalProductionHrs, "$bdHours"],
+            $subtract: [req.productionHrs?.yearTotalallTargetData, "$bdHours"],
           },
           "$count",
         ],
@@ -12856,3 +12859,222 @@ module.exports = router;
 //     ],
 //   },
 // ],
+const filterMiddlewareForTargetData = async (req, res, next) => {
+  try {
+    let queryObj = {};
+    let schemaName;
+
+    if (req.params?.filter === "based-on-cell") {
+      schemaName = Cell;
+      queryObj = {
+        _id: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    } else if (req.params?.filter === "based-on-line") {
+      schemaName = Line;
+      queryObj = {
+        _id: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+    }
+
+    const allTargetData = await schemaName.aggregate([
+      {
+        $match: {
+          ...req.queryObj,
+        },
+      },
+      {
+        $unwind: "$allTargetData",
+      },
+      {
+        $match: {
+          "allTargetData.current_year": req.query?.selectedYear,
+        },
+      },
+    ]);
+    if (allTargetData) {
+      req.allTargetData = allTargetData;
+    } else {
+      res.status(404).json({ message: "Target data not found !!" });
+    }
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+router.post(
+  "/setTargetOfTheBDCharts/:filter/:selectedId",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      const { targetValue } = req.body;;
+
+      if (req.params?.filter === "based-on-cell") {
+        let sumOfMonthlyMBDtargetForYearlyTarget = Object.values(
+          targetValue?.monthlyMBDCountTarget
+        )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
+
+        const yearExistsOrNotInCellTargetField = await Cell.findOne({
+          _id: mongoose.Types.ObjectId(req?.params?.selectedId),
+          "allTargetData.current_year": {
+            $eq: req?.query?.selectedYear,
+            $exists: true,
+          },
+        });
+
+        if (yearExistsOrNotInCellTargetField) {
+          const updateMonthlyMBDTargetValueInCell = await Cell.updateOne(
+            {
+              _id: mongoose.Types.ObjectId(req?.params?.selectedId),
+              "allTargetData.current_year": {
+                $eq: req?.query?.selectedYear,
+                $exists: true,
+              },
+            },
+            {
+              $set: {
+                "allTargetData.$[outer].monthlyMBDCountTarget":
+                  targetValue?.monthlyMBDCountTarget,
+                "allTargetData.$[outer].yearTotalMBDCountTarget":
+                  sumOfMonthlyMBDtargetForYearlyTarget,
+              },
+            },
+            {
+              arrayFilters: [
+                { "outer.current_year": req?.query?.selectedYear },
+              ],
+            }
+          );
+
+          if (updateMonthlyMBDTargetValueInCell) {
+            return res.status(201).json({
+              message: `MBD target updated successfully`,
+              updateMonthlyMBDTargetValueInCell,
+            });
+          }
+        } else {
+          const addMonthlyMBDTargetValueInCell = await Cell.updateOne(
+            {
+              _id: mongoose.Types.ObjectId(req?.params?.selectedId),
+            },
+            {
+              $push: {
+                allTargetData: {
+                  current_year: req?.query?.selectedYear,
+                  monthlyMBDCountTarget: targetValue?.monthlyMBDCountTarget,
+                  yearTotalMBDCountTarget: sumOfMonthlyMBDtargetForYearlyTarget,
+                },
+              },
+            }
+          );
+
+          if (addMonthlyMBDTargetValueInCell)
+            return res.status(201).json({
+              message: `MBD target set successfully`,
+              addMonthlyMBDTargetValueInCell,
+            });
+        }
+      } else {
+        let sumOfMonthlyProductionHrsTargetForYearlyTarget = Object.values(
+          targetValue?.monthlyProductionHrs
+        )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
+
+        let sumOfMonthlyBDHrsTargetForYearlyTarget = Object.values(
+          targetValue?.monthlyBDHrsTarget
+        )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
+
+        const yearExistsOrNotInLineTargetField = await Line.findOne({
+          _id: mongoose.Types.ObjectId(req?.params?.selectedId),
+          "allTargetData.current_year": {
+            $eq: req?.query?.selectedYear,
+            $exists: true,
+          },
+        });
+
+        if (yearExistsOrNotInLineTargetField) {
+          const updateMonthlyProductionAndBDHrsTargetValueInLine =
+            await Line.updateOne(
+              {
+                _id: mongoose.Types.ObjectId(req?.params?.selectedId),
+                "allTargetData.current_year": {
+                  $eq: req?.query?.selectedYear,
+                  $exists: true,
+                },
+              },
+              {
+                $set: {
+                  "allTargetData.$[outer].monthlyProductionHrs":
+                    targetValue?.monthlyProductionHrs,
+                  "allTargetData.$[outer].monthlyBDHrsTarget":
+                    targetValue?.monthlyBDHrsTarget,
+                  "allTargetData.$[outer].yearTotalProductionHrs":
+                    sumOfMonthlyProductionHrsTargetForYearlyTarget,
+                  "allTargetData.$[outer].yearTotalBDHrsTarget":
+                    sumOfMonthlyBDHrsTargetForYearlyTarget,
+                },
+              },
+              {
+                arrayFilters: [
+                  { "outer.current_year": req?.query?.selectedYear },
+                ],
+              }
+            );
+
+          if (updateMonthlyProductionAndBDHrsTargetValueInLine) {
+            return res.status(201).json({
+              message: `Production and BD Hrs target updated successfully`,
+              updateMonthlyProductionAndBDHrsTargetValueInLine,
+            });
+          }
+        } else {
+          const addMonthlyProductionAndBDHesTargetValueInLine =
+            await Line.updateOne(
+              {
+                _id: mongoose.Types.ObjectId(req?.params?.selectedId),
+              },
+              {
+                $push: {
+                  allTargetData: {
+                    current_year: req?.query?.selectedYear,
+                    monthlyProductionHrs: targetValue?.monthlyProductionHrs,
+                    yearTotalProductionHrs:
+                      sumOfMonthlyProductionHrsTargetForYearlyTarget,
+                    monthlyBDHrsTarget: targetValue?.monthlyBDHrsTarget,
+                    yearTotalBDHrsTarget:
+                      sumOfMonthlyBDHrsTargetForYearlyTarget,
+                  },
+                },
+              }
+            );
+
+          if (addMonthlyProductionAndBDHesTargetValueInLine)
+            return res.status(201).json({
+              message: `Production and BD Hrs target set successfully`,
+              addMonthlyProductionAndBDHesTargetValueInLine,
+            });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getTargetDetails/:filter/:selectedId",
+  authenticate,
+  filterMiddlewareForTargetData,
+  async (req, res, next) => {
+    try {
+      return res.status(201).json({
+        message: "Target data get successfully",
+        targetData: req?.allTargetData?.[0],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);

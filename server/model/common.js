@@ -7,10 +7,9 @@ const production_hrs_refObj = {
   default: 0,
 };
 
-exports.productionHrs = [
+exports.allTargetData = [
   {
     current_year: commonVarForTypeString,
-    yearTotalProductionHrs: production_hrs_refObj,
     monthlyProductionHrs: {
       Apr: production_hrs_refObj,
       May: production_hrs_refObj,
@@ -25,6 +24,7 @@ exports.productionHrs = [
       Feb: production_hrs_refObj,
       Mar: production_hrs_refObj,
     },
+    yearTotalProductionHrs: production_hrs_refObj,
 
     monthlyBDHrsTarget: {
       Apr: production_hrs_refObj,
@@ -40,5 +40,6 @@ exports.productionHrs = [
       Feb: production_hrs_refObj,
       Mar: production_hrs_refObj,
     },
+    yearTotalBDHrsTarget: production_hrs_refObj,
   },
 ];
