@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useReducer } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import tableIcons from "../../components/MatrialTableIcon";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -8,6 +8,15 @@ import RoutingContext from "../../context/routing/RoutingContext";
 import { useNavigate } from "react-router-dom";
 import BMTitlebar from "../Component/BMTitlebar";
 import { MaterialTableOptions } from "../Utils/TableUtils/MaterialTableProps";
+
+import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
+
+import MonthlyGeneratedAndCompletedCount from "../RequestSheetMonitoring/MonthlyGeneratedAndCompletedCount";
+
+import {
+  reducer,
+  initialState,
+} from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 
 const ApprovalDashboardOfRequestSheet = () => {
   const loggedUserDetails = useContext(RoutingContext);
@@ -113,6 +122,24 @@ const ApprovalDashboardOfRequestSheet = () => {
     }),
   ];
 
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+
+  const allMonths = [
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+  ];
+
   const getApprovalRequestSheetData = async () => {
     try {
       const res = await fetch(
@@ -144,36 +171,54 @@ const ApprovalDashboardOfRequestSheet = () => {
   return (
     <>
       <Container fluid>
-        <BMTitlebar title="Approval Dashboard" />
-
+        <BMTitlebar
+          title="Approval Dashboard"
+          Toolbar={
+            <ChartsToolbar
+              baseUrlForFiltering={baseUrlForFiltering}
+              reduceState={reduceState}
+              reducerDispatch={reducerDispatch}
+            />
+          }
+        />
+        <Row className="cell p-2 mt-3 gap-2 g-0">
+          <MonthlyGeneratedAndCompletedCount
+            selectedValue={reduceState?.selectedValue}
+            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+            selectedYear={reduceState?.selectedYear}
+            allMonths={allMonths}
+          />
+        </Row>
         <Row>
           <Col>
-          <MaterialTable
-            localization={{
-              header: {
-                actions: "Actions",
-              },
-              // toolbar: {
-              //   exportCSVName: "Export some Excel format",
-              //   exportPDFName: "Export as pdf!!"
-              // }
-            }}
-            actions={requestSheetApprovalAction}
-            icons={tableIcons}
-            columns={approvalDashboardHeader}
-            data={approvalRequestSheetDataOfBM}
-            // title="User Management"
-            // tableRef={this.tableRef.current.onQueryChange()}
+            <MaterialTable
+              localization={{
+                header: {
+                  actions: "Actions",
+                },
+                // toolbar: {
+                //   exportCSVName: "Export some Excel format",
+                //   exportPDFName: "Export as pdf!!"
+                // }
+              }}
+              actions={requestSheetApprovalAction}
+              icons={tableIcons}
+              columns={approvalDashboardHeader}
+              data={approvalRequestSheetDataOfBM}
+              // title="User Management"
+              // tableRef={this.tableRef.current.onQueryChange()}
 
-            editable={{
-              // onRowUpdate: (updatedRow, oldRow) =>
-              // new Promise(async (resolve, reject) => {
-              //   //   await updateRequestSheet(updatedRow);
-              //   resolve();
-              // }),
-            }}
-            options={MaterialTableOptions}
-          />
+              editable={
+                {
+                  // onRowUpdate: (updatedRow, oldRow) =>
+                  // new Promise(async (resolve, reject) => {
+                  //   //   await updateRequestSheet(updatedRow);
+                  //   resolve();
+                  // }),
+                }
+              }
+              options={MaterialTableOptions}
+            />
           </Col>
         </Row>
       </Container>

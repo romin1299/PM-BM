@@ -62,24 +62,26 @@ const BarChart = ({
       y: {
         title: {
           display: true,
-          text: "Total Hours"
+          text: "Total Hours",
         },
       },
     },
 
-    onClick: (event, element) => {
-      if (element?.length > 0) {
-        setValue(
-          "selectedMachine._id",
-          dataset?.machineId?.[element?.[0]?.index]
-        );
-        setValue(
-          "selectedMachine.machine_code",
-          dataset?.labels?.[element?.[0]?.index]
-        );
-        clearErrors("selectedMachine");
-      }
-    },
+    onClick:
+      setValue &&
+      ((event, element) => {
+        if (element?.length > 0) {
+          setValue(
+            "selectedMachine._id",
+            dataset?.machineId?.[element?.[0]?.index]
+          );
+          setValue(
+            "selectedMachine.machine_code",
+            dataset?.labels?.[element?.[0]?.index]
+          );
+          clearErrors("selectedMachine");
+        }
+      }),
   };
   const datasets = [
     {

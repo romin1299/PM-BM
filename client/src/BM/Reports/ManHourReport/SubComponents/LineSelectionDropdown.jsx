@@ -73,6 +73,7 @@ export default function LineSelectionDropdown({
   reducerDispatch,
   baseUrlForFiltering,
   monthFiltration,
+  machineFiltration,
 }) {
   const context = useContext(RoutingContext);
 
@@ -437,7 +438,7 @@ export default function LineSelectionDropdown({
         </FormControl>
       )}
 
-      {machines?.length > 0 && (
+      {machineFiltration && machines?.length > 0 && (
         <FormControl size="small">
           <Select
             displayEmpty

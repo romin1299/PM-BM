@@ -7975,49 +7975,49 @@ router.get(
             $unwind: "$cell_data",
           },
 
-          {
-            $group: {
-              _id: {
-                cell: "$cell_data.cell_name",
-                groupingObj,
-              },
-              count: { $sum: 1 },
-              bdHours: {
-                $sum: {
-                  $cond: [
-                    {
-                      $gt: [
-                        "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                        null,
-                      ],
-                    },
-                    {
-                      $divide: [
-                        "$maintenanceReportFilledByMTD.breakDownTime",
-                        60,
-                      ],
-                    },
-                    0,
-                  ],
-                },
+        {
+          $group: {
+            _id: {
+              cell: "$cell_data.cell_name",
+              groupingObj,
+            }, 
+            count: { $sum: 1 },
+            bdHours: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
               },
             },
           },
-          {
-            $sort: { "_id.cell": 1 },
-          },
-          ...MTBF_monthlyFilterQueryPipeline,
-          {
-            $project: {
-              count: 1,
-              bdHours: 1,
-              mttr: {
-                $divide: ["$bdHours", "$count"],
-              },
-              mtbf: mtbfCalculation,
+        },
+        {
+          $sort: { "_id.cell": 1 },
+        },
+        ...MTBF_monthlyFilterQueryPipeline,
+        {
+          $project: {
+            count: 1,
+            bdHours: 1,
+            mttr: {
+              $divide: ["$bdHours", "$count"],
             },
+            mtbf: mtbfCalculation,
           },
-        ]);
+        },
+      ]);
 
         let bdHoursFormula = {
           $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
@@ -8943,13 +8943,23 @@ router.get(
   "/topMachineBreakdown/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-  topFilterMiddleware,
+  /* 
+    don't need this bcs we directly get the limit value in integer
+   */
+  // topFilterMiddleware,
 
   async (req, res, next) => {
     try {
       const topMachineBd = await RequestSheetOfBM.aggregate([
+        /* 
+          below will tack only first entered value and apply the next pipeline on it,
+          instead of writing here we need to use it after topMachineBD 
+          so we can get the proper data 
+         */
+        // {
+        //   $limit: req.topQuery,
+        // },
         { $match: req.queryObj },
-
         {
           $lookup: {
             from: "machinesalldatas",
@@ -8965,7 +8975,10 @@ router.get(
 
         {
           $group: {
-            _id: "$machine_data.machine_name",
+            _id: {
+              machineId: "$machine_data._id",
+              machineName: "$machine_data.machine_name",
+            },
             machine_hours: {
               $sum: {
                 $cond: [
@@ -8991,19 +9004,20 @@ router.get(
           $sort: { machine_hours: -1 },
         },
         {
-          $limit: req.topQuery,
+          $limit: req.query?.documentLimitInTheGraph * 1,
         },
         {
           $group: {
             _id: null,
-            machines: { $push: "$_id" },
-            hours: { $push: "$machine_hours" },
+            machineId: { $push: "$_id.machineId" },
+            labels: { $push: "$_id.machineName" },
+            data: { $push: "$machine_hours" },
           },
         },
       ]);
       return res.status(201).json({
         message: "Top Machine Breakdown data get successfully",
-        topMachineBd,
+        topMachineBd: topMachineBd?.[0],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
