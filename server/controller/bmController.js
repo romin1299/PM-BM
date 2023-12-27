@@ -6691,34 +6691,29 @@ const filterForMonthlyData = async (req, res, next) => {
   }
 };
 
-const middlewareForPlant = async (req,res,next)=>{
+const middlewareForPlant = async (req, res, next) => {
   let queryObj;
 
   const plant = await Plant.findOne({
     plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
   });
 
-if(req.params.filter === "based-on-plantId"){
-  
-  queryObj = {
-    ...req.queryObj,  
-    plantRef: mongoose.Types.ObjectId(plant._id),
-  };
-
-} else{
-
-  queryObj = {
-    ...req.queryObj
+  if (req.params.filter === "based-on-plantId") {
+    queryObj = {
+      ...req.queryObj,
+      plantRef: mongoose.Types.ObjectId(plant._id),
+    };
+  } else {
+    queryObj = {
+      ...req.queryObj,
+    };
   }
 
-}     
-
-  console.log("PlantqueryObj",queryObj)
+  // console.log("PlantqueryObj", queryObj);
 
   req.queryObj = queryObj;
   next();
-
-}
+};
 
 router.get(
   "/hourlyMonthlyBdTrend/:filter/:selectedId",
@@ -7015,7 +7010,6 @@ router.get(
 
   async (req, res, next) => {
     try {
-      
       const bdTrendData = await RequestSheetOfBM.aggregate([
         {
           $match: req.queryObj,
@@ -7998,21 +7992,21 @@ router.get(
         groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
       };
 
-        MTBF_monthlyFilterQueryPipeline = [
-          {
-            $addFields: {
-              productionDataBasedOnSelectedFilter: {
-                $function: {
-                  body: function (month, productionHrs) {
-                    return productionHrs?.monthlyProductionHrs?.[month];
-                  },
-                  args: ["$_id.groupId", req.productionHrs],
-                  lang: "js",
+      MTBF_monthlyFilterQueryPipeline = [
+        {
+          $addFields: {
+            productionDataBasedOnSelectedFilter: {
+              $function: {
+                body: function (month, productionHrs) {
+                  return productionHrs?.monthlyProductionHrs?.[month];
                 },
+                args: ["$_id.groupId", req.productionHrs],
+                lang: "js",
               },
             },
           },
-        ];
+        },
+      ];
 
       mtbfCalculation = {
         $divide: [
@@ -8771,7 +8765,7 @@ const middlewareForMttrTrend = async (req, res, next) => {
           },
 
           data: {
-            $push: {$trunc: ["$hours",1] },
+            $push: { $trunc: ["$hours", 1] },
           },
         },
       },
@@ -8779,7 +8773,7 @@ const middlewareForMttrTrend = async (req, res, next) => {
 
     return res.status(201).json({
       message: "TM load data get successfully",
-      data : tmLoadData?.[0],
+      data: tmLoadData?.[0],
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
