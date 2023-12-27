@@ -16,7 +16,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import CancelIcon from "@mui/icons-material/Cancel";
-
+import FactCheckIcon from "@mui/icons-material/FactCheck";
 import RoutingContext from "../../context/routing/RoutingContext";
 
 import MachineHistoryCard from "../HistoryCard/MachineHistoryCard";
@@ -28,6 +28,7 @@ import {
   Button,
   Divider,
   Stack,
+  Chip,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -87,7 +88,7 @@ const RequestSheetMainDashboard = () => {
       total_request_sheet_count: 0,
     },
     message: "",
-
+    emptyDataSourceMessage: false,
     // MTD_or_PRD_user_list: [],
     TLHOSS_and_TM_user_list: [],
   };
@@ -161,6 +162,11 @@ const RequestSheetMainDashboard = () => {
           TLHOSS_and_TM_user_list,
           // MTD_or_PRD_user_list,
           counters,
+          message,
+        });
+      } else {
+        reducerDispatchForRequestSheetData({
+          type: ACTION.GET,
           message,
         });
       }
@@ -525,66 +531,80 @@ const RequestSheetMainDashboard = () => {
       />
     </Box>,
   ];
-
+  // console.log(reduceStateForRequestSheetData?.errorCode)
   return (
     <>
       <Container fluid>
-        <Row className="d-flex align-items-center justify-content-center cell mt-3 p-2 gap-2 g-0">
-          <Col>
+        <Row className="d-flex align-items-center justify-content-center cell mt-3 p-2 g-0">
+          <Col lg={4} md={4}>
             <Typography
               noWrap
               variant="h4"
               component="h4"
               fontSize={25}
               fontWeight={600}
-              sx={{ mr: 3 }}
+              // sx={{ mr: 3 }}
             >
               Request-Sheet Work Order
             </Typography>
           </Col>
-          <Col>
-            <Row>
-              <Col>
-                <Box className="cell rounded-2 p-1 m-0 bg-button text-white">
-                  <div className="d-flex align-items-center">
-                    <InsertDriveFileIcon /> &nbsp;&nbsp;{" "}
-                    <p>
-                      Total Request: &nbsp;
-                      {
-                        reduceStateForRequestSheetData?.counters
-                          ?.total_request_sheet_count
-                      }
-                    </p>
-                  </div>
-                </Box>
+          <Col md={{ span: 4, offset: 4 }}>
+            <Row className="text-center">
+              <Col lg={4} md={4}>
+                <span>
+                  <b>Total Request</b>
+                </span>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ justifyContent: "center" }}
+                >
+                  <Chip
+                    icon={<InsertDriveFileIcon />}
+                    label={
+                      reduceStateForRequestSheetData?.counters
+                        ?.total_request_sheet_count || 0
+                    }
+                    color="primary"
+                    sx={{ padding: 2.5, textAlign: "center", fontSize: 20 }}
+                  />
+                </Stack>
               </Col>
-              <Col>
-                <Box className="cell p-1 m-0 rounded-2 bg-dang text-white">
-                  <div className="d-flex align-items-center">
-                    <ArrowCircleRightIcon /> &nbsp;&nbsp;{" "}
-                    <p>
-                      Open Request:{" "}
-                      {
-                        reduceStateForRequestSheetData?.counters
-                          ?.open_request_sheet_count
-                      }
-                    </p>
-                  </div>
-                </Box>
+              <Col lg={4} md={4}>
+                <b> Open Request</b>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ justifyContent: "center" }}
+                >
+                  <Chip
+                    icon={<ArrowCircleRightIcon />}
+                    label={
+                      reduceStateForRequestSheetData?.counters
+                        ?.open_request_sheet_count || 0
+                    }
+                    color="secondary"
+                    sx={{ padding: 2.5, textAlign: "center", fontSize: 20 }}
+                  />
+                </Stack>
               </Col>
-              <Col>
-                <Box className="cell p-1 m-0 rounded-2 bg-succ text-white">
-                  <div className="d-flex align-items-center">
-                    <CancelIcon /> &nbsp;&nbsp;{" "}
-                    <p>
-                      Closed Request:{" "}
-                      {
-                        reduceStateForRequestSheetData?.counters
-                          ?.closed_request_sheet_count
-                      }
-                    </p>
-                  </div>
-                </Box>
+              <Col lg={4} md={4}>
+                <b>Closed Request</b>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ justifyContent: "center" }}
+                >
+                  <Chip
+                    icon={<FactCheckIcon />}
+                    label={
+                      reduceStateForRequestSheetData?.counters
+                        ?.closed_request_sheet_count || 0
+                    }
+                    color="success"
+                    sx={{ padding: 2.5, textAlign: "center", fontSize: 20 }}
+                  />
+                </Stack>
               </Col>
             </Row>
           </Col>
@@ -663,7 +683,10 @@ const RequestSheetMainDashboard = () => {
                     resolve();
                   }),
               }}
-              options={{ ...MaterialTableOptions, showTitle: true }}
+              options={{
+                ...MaterialTableOptions,
+                showTitle: true,
+              }}
             />
           </Col>
         </Row>
