@@ -1212,8 +1212,52 @@ const filterMiddleware = async (req, res, next) => {
         _id: mongoose.Types.ObjectId(req.params?.selectedId),
       };
     }
+
     req.queryObj = queryObj;
     req.queryObjForPM = queryObjForPM;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const getCountBDCountBasedOnLoggedUserMiddleware = async (req, res, next) => {
+  try {
+    const section = await Section.findOne({
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    });
+
+    const getPlantIdForRequestSheetDashboard = await Plant.findOne({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+
+    let queryObjForCountOfBDForRequestSheetDashboard = {
+      plantRef: getPlantIdForRequestSheetDashboard?._id,
+    };
+
+    if (req?.rootUser?.tm_grade !== "HOD") {
+      if (section.dashboardLevel === "Yes") {
+        queryObjForCountOfBDForRequestSheetDashboard = {
+          ...queryObjForCountOfBDForRequestSheetDashboard,
+          sectionRef: section?._id,
+        };
+      } else {
+        const subSectionsData = await SubSection.find({
+          subSection_id: {
+            $in: req.rootUser?.subSection_data?.map(
+              (item) => item?.split("-")?.[0]
+            ),
+          },
+        });
+
+        queryObjForCountOfBDForRequestSheetDashboard = {
+          ...queryObjForCountOfBDForRequestSheetDashboard,
+          subSectionRef: { $in: subSectionsData?.map((item) => item?._id) },
+        };
+      }
+    }
+    req.queryObjForCountOfBDForRequestSheetDashboard =
+      queryObjForCountOfBDForRequestSheetDashboard;
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -1270,12 +1314,13 @@ router.get(
   findRequestSheetMiddleware,
   dashboardLevelUserCheckMiddleware,
   findTLandOperatorList,
+  getCountBDCountBasedOnLoggedUserMiddleware,
   async (req, res, next) => {
     try {
       const counters = await RequestSheetOfBM.aggregate([
         {
           $match: {
-            requestSheetCreatedBy: req.rootUser?._id,
+            ...req?.queryObjForCountOfBDForRequestSheetDashboard,
           },
         },
         {
@@ -1283,12 +1328,12 @@ router.get(
             _id: null,
             open_request_sheet_count: {
               $sum: {
-                $cond: [{ $eq: ["$breakDownAttendedStatus", "Open"] }, 1, 0],
+                $cond: [{ $ne: ["$requestSheetStatus", "Generated"] }, 1, 0],
               },
             },
             closed_request_sheet_count: {
               $sum: {
-                $cond: [{ $eq: ["$breakDownAttendedStatus", "Closed"] }, 1, 0],
+                $cond: [{ $eq: ["$work_order_status", "Closed"] }, 1, 0],
               },
             },
           },
@@ -3132,25 +3177,26 @@ router.get(
 
 const getRequestSheetData = async (req, res, next) => {
   try {
-    let queryObj = {};
+    let queryObjForGetRequestSheetData = {};
 
     if (req.query?._id) {
-      queryObj = {
+      queryObjForGetRequestSheetData = {
         _id: mongoose.Types.ObjectId(req.query?._id),
       };
     }
-
+    
     if (req.query?.getDataForApprovalDashboardId) {
-      queryObj = {
+      queryObjForGetRequestSheetData = {
         "getDataForApprovalDashboard.Id": mongoose.Types.ObjectId(
           req.query.getDataForApprovalDashboardId
         ),
+        ...req.queryObj
       };
     }
 
     const requestSheetData = await RequestSheetOfBM.aggregate([
       {
-        $match: queryObj,
+        $match: queryObjForGetRequestSheetData,
       },
       {
         $lookup: {
@@ -3529,8 +3575,9 @@ const getRequestSheetData = async (req, res, next) => {
 };
 
 router.get(
-  "/getMachineRequestSheetDetails",
+  "/getMachineRequestSheetDetails/:filter/:selectedId",
   authenticate,
+  filterMiddleware,
   getRequestSheetData,
   dashboardLevelUserCheckMiddleware,
   findTLandOperatorList,
@@ -12889,7 +12936,7 @@ router.post(
   authenticate,
   async (req, res, next) => {
     try {
-      const { targetValue } = req.body;;
+      const { targetValue } = req.body;
 
       if (req.params?.filter === "based-on-cell") {
         let sumOfMonthlyMBDtargetForYearlyTarget = Object.values(

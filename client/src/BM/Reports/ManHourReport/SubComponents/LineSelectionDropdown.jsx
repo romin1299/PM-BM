@@ -478,7 +478,7 @@ export default function LineSelectionDropdown({
             ))}
           </Select>
         </FormControl>
-      )} */}
+      )}
 
       <FormControl size="small">
         <Select

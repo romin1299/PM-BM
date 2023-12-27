@@ -24,7 +24,7 @@ const TargetDashboard = () => {
   } = useForm({
     defaultValues: {},
   });
-  
+
   const monthKeyArray = [
     {
       key: "Apr",
@@ -143,7 +143,7 @@ const TargetDashboard = () => {
   return (
     <>
       <BMTitlebar
-        title="Set Target (BD Hrs., PRD Hrs., MBD Count)"
+        title="Set Target (MBD Count, PRD Hrs., BD Hrs.)"
         Toolbar={
           <ChartsToolbar
             baseUrlForFiltering={baseUrlForFiltering}
