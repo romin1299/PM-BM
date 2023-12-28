@@ -36,7 +36,7 @@ import TMMTR from "./Reports/TMMTTRSkill/TMMTRDashboard";
 
 import ApprovalLogs from "./ApprovalLogs/ApprovalLogs";
 import BMTitlebar from "./Component/BMTitlebar";
-
+import TargetDashboard from "./TargetOfBD/TargetDashboard";
 const reportRoutes = [
   {
     path: "/bm/report/productionLineWiseReport",
@@ -168,6 +168,10 @@ const userRoutes = [
         element: <MainCustomized />,
       },
       {
+        path: "/bm/targetDashboard",
+        element: <TargetDashboard />,
+      },
+      {
         path: "/bm/profile",
         element: <Profile />,
       },
@@ -221,6 +225,10 @@ const userRoutes = [
       {
         path: "/bm/customizedDashboard",
         element: <MainCustomized />,
+      },
+      {
+        path: "/bm/targetDashboard",
+        element: <TargetDashboard />,
       },
       {
         path: "/bm/profile",

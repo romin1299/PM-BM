@@ -13,6 +13,7 @@ import Tooltip from "@mui/material/Tooltip";
 
 export default function DownloadMenu({
   handleDownloadPPTX,
+  handleDownloadPPTXForLineWiseKPI,
   handleDownloadCSV,
   handleDownloadPDF,
   handleDownloadImage,
@@ -64,6 +65,15 @@ export default function DownloadMenu({
         //   horizontal: "right",
         // }}
       >
+        {handleDownloadPPTXForLineWiseKPI && (
+          <MenuItem onClick={handleDownloadPPTXForLineWiseKPI}>
+            <ListItemIcon>
+              <DescriptionIcon className="text-warning" />
+            </ListItemIcon>
+            <ListItemText>PPTX LineWise</ListItemText>
+          </MenuItem>
+        )}
+
         <MenuItem onClick={handleDownloadPPTX}>
           <ListItemIcon>
             <DescriptionIcon className="text-warning" />

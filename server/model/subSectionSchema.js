@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { productionHrs } = require("./common");
+const { allTargetData } = require("./common");
 
 const subSectionSchema = new mongoose.Schema({
   subSection_id: {
@@ -19,7 +19,7 @@ const subSectionSchema = new mongoose.Schema({
     type: String,
   },
 
-  productionHrs,
+  allTargetData,
 });
 
 const SubSection = new mongoose.model("SubSections", subSectionSchema);
