@@ -2,9 +2,146 @@ import { MONTH_LABELS } from "../ChartUtils/chartEnums";
 import { commonPptOptions, genSlideTitle } from "./exportPPTXOptions";
 import axios from "axios";
 
-export async function generateTestPpt(pptx, urlOptions) {
+export async function generateManHourPpt(pptx, urlOptions) {
+  await genSlide01(pptx, urlOptions);
   await genSlide02(pptx, urlOptions);
 }
+
+/**
+ *
+ * @add First - Slide
+ *
+ */
+
+const fetchHourTrendData = async (urlOptions) => {
+  const { flagForTogglingFilter, selectedValue, selectedYear } = urlOptions;
+
+  const url = `/manHourReport/hourTrend/${flagForTogglingFilter}/${selectedValue}`;
+  const params = { selectedYear };
+
+  try {
+    const res = await axios.get(url, {
+      params,
+      withCredentials: true,
+      credentials: "include",
+    });
+
+    const data = res?.data?.hourTrendData;
+    if (data) {
+      return [
+        {
+          name: "BM",
+          labels: MONTH_LABELS,
+          values: data?.BMHourTrend,
+        },
+        {
+          name: "PM",
+          labels: MONTH_LABELS,
+          values: data?.PMHourTrend,
+        },
+      ];
+    }
+
+    return [];
+  } catch (error) {
+    console.log("error:", error);
+    return [];
+  }
+};
+
+const fetchManHourTrendData = async (urlOptions) => {
+  const { flagForTogglingFilter, selectedValue, selectedYear } = urlOptions;
+
+  const url = `/manHourReport/manHourTrend/${flagForTogglingFilter}/${selectedValue}`;
+  const params = { selectedYear };
+
+  try {
+    const res = await axios.get(url, {
+      params,
+      withCredentials: true,
+      credentials: "include",
+    });
+
+    const data = res?.data?.manHourTrendData;
+    if (data) {
+      return [
+        {
+          name: "BM",
+          labels: MONTH_LABELS,
+          values: data?.BMManHourTrend,
+        },
+        {
+          name: "PM",
+          labels: MONTH_LABELS,
+          values: data?.PMManHourTrend,
+        },
+      ];
+    }
+
+    return [];
+  } catch (error) {
+    console.log("error:", error);
+    return [];
+  }
+};
+
+async function genSlide01(pptx, urlOptions) {
+  let slide = pptx.addSlide();
+
+  genSlideTitle(pptx, slide, "Man Hour Report");
+
+  /**
+   *
+   * @add first chart
+   *
+   */
+  let hourTrendData = await fetchHourTrendData(urlOptions);
+
+  let chartOptions01 = {
+    ...commonPptOptions,
+    x: 0.5,
+    y: 1.15,
+    w: 5.95,
+    // h: 2.75,
+    h: 5.9,
+    //
+    title: "Hour Trend",
+    catAxisTitle: "Months",
+    valAxisTitle: "Hours",
+  };
+
+  // Add chart to the slide with specified options
+  slide.addChart(pptx.ChartType.bar, hourTrendData, chartOptions01);
+
+  /**
+   *
+   * @add Second chart
+   *
+   */
+  let chartData02 = await fetchManHourTrendData(urlOptions);
+
+  let chartOptions02 = {
+    ...commonPptOptions,
+    x: 6.95,
+    y: 1.15,
+    w: 5.95,
+    // h: 2.75,
+    h: 5.9,
+    //
+    title: "Man-Hour Trend",
+    catAxisTitle: "Months",
+    valAxisTitle: "Hours",
+  };
+
+  // Add chart to the slide with specified options
+  slide.addChart(pptx.ChartType.bar, chartData02, chartOptions02);
+}
+
+/**
+ *
+ * @add Second - Slide
+ *
+ */
 
 const fetchLineTrendData = async (urlOptions) => {
   const { flagForTogglingFilter, selectedValue, selectedYear } = urlOptions;
@@ -59,15 +196,14 @@ const fetchTMHourTrendData = async (urlOptions) => {
 async function genSlide02(pptx, urlOptions) {
   let slide = pptx.addSlide();
 
-  genSlideTitle(pptx, slide, "Man Hour Report");
-
   /**
    *
    * @add first chart
    *
    */
   let data = await fetchLineTrendData(urlOptions);
-  let chartData01 = [
+  console.log("pptx.charts.BAR:", pptx.charts.LINE);
+  let lineTrendData = [
     {
       type: pptx.charts.BAR,
       data: [
@@ -103,14 +239,14 @@ async function genSlide02(pptx, urlOptions) {
     },
   ];
 
-  let chartOptions01 = {
+  let lineTrendOptions = {
     ...commonPptOptions,
     x: 0.5,
-    y: 4.3,
+    y: 0.5,
     w: 5.95,
-    h: 2.75,
+    h: 6.55,
     //
-    title: "Hour Trend",
+    title: "Line Trend",
     catAxisTitle: "Lines",
     valAxisTitle: "Hours",
     //
@@ -130,7 +266,7 @@ async function genSlide02(pptx, urlOptions) {
   };
 
   // Add chart to the slide with specified options
-  slide.addChart(chartData01, chartOptions01);
+  slide.addChart(lineTrendData, lineTrendOptions);
 
   /**
    *
@@ -139,7 +275,7 @@ async function genSlide02(pptx, urlOptions) {
    */
   let data02 = await fetchTMHourTrendData(urlOptions);
   console.log("data02:", data02);
-  let chartData02 = [
+  let TMHourData = [
     {
       type: pptx.charts.BAR,
       data: [
@@ -175,12 +311,12 @@ async function genSlide02(pptx, urlOptions) {
     },
   ];
 
-  let chartOptions02 = {
+  let TMHourTrendOptions = {
     ...commonPptOptions,
     x: 6.95,
-    y: 4.3,
+    y: 0.5,
     w: 5.95,
-    h: 2.75,
+    h: 6.55,
     //
     title: "TM Hour Trend",
     catAxisTitle: "TM Names",
@@ -202,5 +338,5 @@ async function genSlide02(pptx, urlOptions) {
   };
 
   // Add chart to the slide with specified options
-  slide.addChart(chartData02, chartOptions02);
+  slide.addChart(TMHourData, TMHourTrendOptions);
 }
