@@ -12,6 +12,8 @@ import {
   reducer,
 } from "./SubComponents/CommonFiltrationComponent";
 import ReportTitleBar from "../Common/ReportTitleBar";
+import DownloadMenu from "./SubComponents/DownloadMenu";
+import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
 
 const ManHourDashboard = () => {
   // const initialState = {
@@ -327,12 +329,21 @@ const ManHourDashboard = () => {
         <ReportTitleBar
           title="Man-Hour Report"
           Toolbar={
-            <ChartsToolbar
-              baseUrlForFiltering={baseUrlForFiltering}
-              reduceState={reduceState}
-              reducerDispatch={reducerDispatch}
-              monthFiltration
-            />
+            <>
+              <ChartsToolbar
+                baseUrlForFiltering={baseUrlForFiltering}
+                reduceState={reduceState}
+                reducerDispatch={reducerDispatch}
+                monthFiltration
+              />
+              <Col className="col-auto">
+                <DownloadMenu
+                  handleDownloadPPTX={() => {
+                    exportPPTX(EXPORT_REPORT.MAN_HOUR_REPORT, reduceState);
+                  }}
+                />
+              </Col>
+            </>
           }
         />
 

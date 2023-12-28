@@ -2,55 +2,145 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Modal } from "react-bootstrap";
 
 import BDHoursTrendChart from "./BDHoursTrendChart";
+import { Box, Button, Divider, Paper, Typography } from "@mui/material";
+import { roundValue } from "../Utils/math/roundValue";
 
-const AllFieldComponent = ({ cellName, data }) => {
-  return (
-    <>
-      <Row>
-        <Col>
-          <b>{cellName}</b>
-        </Col>
-      </Row>
-      <Row>
-        <Col>{data?.bdHours || 0}</Col>
-      </Row>
-      <Row>
-        <Col>{data?.count || 0}</Col>
-      </Row>
-      <Row>
-        <Col>{data?.mttr || 0}</Col>
-      </Row>
-      <Row>
-        <Col>{data?.mtbf || 0}</Col>
-      </Row>
-    </>
-  );
-};
-
-const CountComponent = ({ data }) => {
-  return (
-    <>
-      {data?.completedCount || 0}/{data?.totalCount || 0}
-    </>
-  );
-};
-
-const BarChartComponentMapping = ({ data }) => {
-  if (!data) {
-    return <h3>No data to display</h3>;
-  }
-  return (
-    <BDHoursTrendChart
-      bdHourTrend={{
-        lessThanOne: data?.lessThanOne,
-        lessThanTwo: data?.lessThanTwo,
-        greaterThanTwo: data?.greaterThanTwo,
+const CellInfoBox = ({ title, value }) => (
+  <Box
+    className="row"
+    sx={{
+      borderBottom: "1px solid #8db5a2c2",
+      ":last-of-type": { borderBottom: "none" },
+    }}
+  >
+    <Box
+      className="col col-sm-5"
+      pt={"4px"}
+      pb={"4px"}
+      sx={{
+        display: "flex",
+        alignItems: "center",
       }}
-    />
+    >
+      <Typography variant="body2" component="div">
+        {title}
+      </Typography>
+    </Box>
+
+    {/* <Col className="col-auto">
+      <Divider orientation="vertical" sx={{ borderColor: "black" }} />
+    </Col> */}
+
+    <Box
+      className="col col-sm-7"
+      sx={{
+        // backgroundColor: "#c6efce",
+        display: "flex",
+        alignItems: "center",
+        minHeight: "24px",
+      }}
+    >
+      <Typography
+        variant="body1"
+        component="div"
+        // fontWeight={500}
+        color="black"
+      >
+        {value}
+      </Typography>
+    </Box>
+  </Box>
+);
+
+const CellSummaryCard = ({ summeryCardData, item }) => {
+  const infoItems = [
+    { name: "BD Hour", key: "bdHours" },
+    { name: "BD Count", key: "count" },
+    { name: "MTTR", key: "mttr" },
+    { name: "MTBF", key: "mtbf" },
+  ];
+
+  const machineData = summeryCardData.machineSummaryCardData.find(
+    (item1) => item?._id === item1?._id?.cell
+  );
+
+  const pmStatus = summeryCardData?.cellWiseCount.find(
+    (item1) => item1?._id === item?._id
+  );
+
+  const chartData = summeryCardData?.bdTrendData?.find(
+    (item1) => item1?._id === item?._id
+  );
+
+  return (
+    <Box className="cell p-2 m-0" sx={{ border: "1px solid #becdc1" }}>
+      <Typography
+        className="mb-2"
+        variant="h5"
+        textAlign="center"
+        fontWeight={500}
+      >
+        {item?.cell_name}
+      </Typography>
+
+      <Paper
+        className="container-fluid mb-2"
+        variant="outlined"
+        sx={{ pt: "2px", pb: "2px", backgroundColor: "#e8fbeb" }}
+      >
+        {infoItems.map((info, index) => (
+          <CellInfoBox
+            title={info.name}
+            value={roundValue(machineData?.[info?.key], 3)}
+          />
+        ))}
+        <CellInfoBox
+          title={"PM Status"}
+          value={`${pmStatus?.completedCount || 0}/${
+            pmStatus?.totalCount || 0
+          }`}
+        />
+      </Paper>
+
+      {/* <Box variant="outlined" className="mb-2 p-1">
+        <Typography textAlign="center" component="div" fontSize={14}>
+          {pmStatus?.completedCount || 0}/{pmStatus?.totalCount || 0}
+        </Typography>
+      </Box> */}
+
+      {chartData ? (
+        <BDHoursTrendChart
+          bdHourTrend={{
+            lessThanOne: chartData?.lessThanOne,
+            lessThanTwo: chartData?.lessThanTwo,
+            greaterThanTwo: chartData?.greaterThanTwo,
+          }}
+          chartHeight={{ xs: "200px", md: "250px" }}
+          labelsFontSize="10px"
+        />
+      ) : (
+        <Box
+          className="alert alert-secondary"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            height: { xs: "200px", md: "250px" },
+            m: 0,
+            mt: 1,
+          }}
+        >
+          <Typography variant="h5" component="h5" textAlign="center">
+            No data to display
+          </Typography>
+        </Box>
+      )}
+    </Box>
   );
 };
 
-const SummeryCard = ({
+const SummeryCardModal = ({
   selectedYear,
   selectedMonth,
 
@@ -97,6 +187,7 @@ const SummeryCard = ({
       },
     ],
   });
+
   const getSummaryCard = async () => {
     try {
       const res = await fetch(
@@ -134,6 +225,8 @@ const SummeryCard = ({
     getSummaryCard();
   }, []);
 
+  console.log("summeryCardData:", summeryCardData);
+
   return (
     <Modal
       {...modelProp}
@@ -141,86 +234,42 @@ const SummeryCard = ({
       aria-labelledby="contained-modal-title-vcenter"
       centered
     >
-      {/* <Modal.Header closeButton>
+      <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          {selectedValue}
+          {/* {selectedValue} */} Summary
         </Modal.Title>
-      </Modal.Header> */}
-      <Modal.Body>
-        <Container>
-          <Row>
-            <Col xxl={2}>
-              <Row>
-                <Col>
-                  <b>Cell</b>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <b>BD Time</b>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <b>BD Count</b>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <b>MTTR</b>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <b>MTBF</b>
-                </Col>
-              </Row>
-              <Col>
-                <b>PM Status</b>
-              </Col>
-              {/* <Row>
-                <Col>
-                  <b>BD Hr Trend</b>
-                </Col>
-              </Row> */}
-            </Col>
-            {summeryCardData?.cells?.map((item) => (
-              <Col xxl={3}>
-                <AllFieldComponent
-                  cellName={item?.cell_name}
-                  data={summeryCardData.machineSummaryCardData.find(
-                    (item1) => item?._id === item1?._id?.cell
-                  )}
-                />
+      </Modal.Header>
 
-                <Row>
-                  <Col>
-                    <CountComponent
-                      data={summeryCardData?.cellWiseCount.find(
-                        (item1) => item1?._id === item?._id
-                      )}
-                    />
-                  </Col>
-                </Row>
-                <Row>
-                  <BarChartComponentMapping
-                    data={summeryCardData?.bdTrendData?.find(
-                      (item1) => item1?._id === item?._id
-                    )}
-                  />
-                </Row>
-              </Col>
-            ))}
-          </Row>
-        </Container>
+      <Modal.Body className="container pt-0 pb-0">
+        {/* <Row className="flex-nowrap overflow-auto gx-3 pt-3 pb-3">
+          {summeryCardData?.cells?.map((item) => (
+            <Col xs={7} sm={7} lg={5} xl={3} xxl={3}>
+              <CellSummaryCard summeryCardData={summeryCardData} item={item} />
+            </Col>
+          ))}
+        </Row> */}
+
+        <Row className="flex-nowrap overflow-auto gx-3 pt-3 pb-3">
+          {summeryCardData?.cells?.map((item) => (
+            <Col style={{ minWidth: "260px", maxWidth:"380px" }}>
+              <CellSummaryCard summeryCardData={summeryCardData} item={item} />
+            </Col>
+          ))}
+        </Row>
       </Modal.Body>
+
       <Modal.Footer>
-        <button className="btn bg-button" onClick={modelProp?.onHide}>
+        <Button
+          size="small"
+          variant="contained"
+          disableElevation
+          className="bg-button"
+        >
           Close
-        </button>
+        </Button>
       </Modal.Footer>
     </Modal>
   );
 };
 
-export default SummeryCard;
+export default SummeryCardModal;

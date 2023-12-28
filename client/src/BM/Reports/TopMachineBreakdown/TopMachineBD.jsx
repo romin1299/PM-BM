@@ -1,6 +1,5 @@
 import React, { useReducer } from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import BMTitlebar from "../../Component/BMTitlebar";
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
 
 import {
@@ -11,6 +10,8 @@ import {
 import TopMachineBDComponent from "./TopMachineBDComponent";
 import BDCategoryAndFactor from "./BDCategoryAndFactor";
 import MachineWiseMTTRAndMTBF from "./MachineWiseMTTRAndMTBF";
+import ReportTitleBar from "../Common/ReportTitleBar";
+import { Box } from "@mui/system";
 
 const TopMachineBD = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -18,7 +19,7 @@ const TopMachineBD = () => {
   return (
     <>
       <Container fluid>
-        <BMTitlebar
+        <ReportTitleBar
           title="Top Machine Breakdown"
           Toolbar={
             <ChartsToolbar
@@ -30,20 +31,18 @@ const TopMachineBD = () => {
           }
         />
 
-        <Row>
-          <Col>
-            <TopMachineBDComponent
-              selectedValue={reduceState?.selectedValue}
-              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-              selectedYear={reduceState?.selectedYear}
-              selectedMonth={reduceState?.selectedMonth}
-            />
-          </Col>
-        </Row>
+        <Box mt={2}>
+          <TopMachineBDComponent
+            selectedValue={reduceState?.selectedValue}
+            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+            selectedYear={reduceState?.selectedYear}
+            selectedMonth={reduceState?.selectedMonth}
+          />
+        </Box>
 
         {reduceState?.flagForTogglingFilter === "based-on-machine" && (
-          <Row className="cell mt-3 g-2">
-            <Col xxl={6} lg={6} md={6} className="d-flex">
+          <Row className="mt-3 gx-3">
+            <Col xxl={6} lg={6} md={12} className="mb-2">
               <BDCategoryAndFactor
                 selectedValue={reduceState?.selectedValue}
                 flagForTogglingFilter={reduceState?.flagForTogglingFilter}
@@ -51,7 +50,7 @@ const TopMachineBD = () => {
                 selectedMonth={reduceState?.selectedMonth}
               />
             </Col>
-            <Col xxl={3} lg={6} md={6}>
+            <Col xxl={3} lg={6} md={12} className="mb-2">
               <MachineWiseMTTRAndMTBF
                 chartFor="MTTR"
                 selectedValue={reduceState?.selectedValue}
@@ -59,7 +58,7 @@ const TopMachineBD = () => {
                 selectedYear={reduceState?.selectedYear}
               />
             </Col>
-            <Col xxl={3} lg={6} md={6}>
+            <Col xxl={3} lg={6} md={12} className="mb-2">
               <MachineWiseMTTRAndMTBF
                 chartFor="MTBF"
                 selectedValue={reduceState?.selectedValue}
