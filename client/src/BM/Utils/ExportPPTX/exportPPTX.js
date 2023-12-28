@@ -58,17 +58,8 @@ export async function exportPPTX(reportName, urlOptions) {
       await generateKPIFromDBPpt(pptx, urlOptions);
       break;
 
-
     case EXPORT_REPORT.LINE_WISE_KPI_STATUS:
       await generateLineWiseKpiStatusPpt(pptx, urlOptions);
-      break;
-
-    case EXPORT_REPORT.COMMON_TEMPLATE_REPORT:
-      await commonPPTGeneratorForSameTemplate(pptx, urlOptions);
-      break;
-
-    case EXPORT_REPORT.KPI_FROM_DB:
-      await generateKPIFromDBPpt(pptx, urlOptions);
       break;
 
     case EXPORT_REPORT.TEST:
