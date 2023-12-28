@@ -8169,7 +8169,7 @@ router.get(
         });
       } else {
         const subSections = await SubSection.find({
-          section_name: mongoose.Types.ObjectId(req.params?.selectedId),
+          section_names: mongoose.Types.ObjectId(req.params?.selectedId),
         });
 
         cells = await Cell.find({
@@ -9796,8 +9796,8 @@ const middlewareForFindingTrendData = async (req, res, next) => {
                 {
                   $lte: ["$value.hours", "$value.target"],
                 },
-                "green",
-                "red",
+                "c2c933", //"green",
+                "ca1f4b", //"red",
               ],
             },
           },
@@ -10170,7 +10170,7 @@ router.get(
 );
 
 router.get(
-  "/getMachineWiseMTBFTrendDataData/:filter/:selectedId",
+  "/getMachineWiseMTBFTrendData/:filter/:selectedId",
   authenticate,
   middlewareForLimitValidation,
   filterMiddleware,
@@ -12154,6 +12154,55 @@ const conditionMiddlewareForSectionQuery = async (req, res, next) => {
   }
 };
 
+const conditionMiddlewareForSubSectionQuery = async (req, res, next) => {
+  try {
+    let subSectionQuery = {};
+
+    if (req.section.dashboardLevel === "Yes") {
+      if (req.rootUser?.tm_grade === "HOD") {
+        return res.status(201).json({
+          message: "Sections get successfully",
+
+          flagForTogglingFilter: "based-on-section",
+          selectedValue: req.section?._id,
+
+          selectedSection: req.section?._id,
+          sections: req.sections,
+          selectedSubSection: "",
+          subSections: [],
+          selectedCell: "",
+          cells: [],
+          selectedLine: "",
+          lines: [],
+        });
+      }
+
+      subSectionQuery = {
+        section_names: req.section?._id,
+      };
+    } else {
+      if (req.rootUser?.tm_grade === "HOD") {
+        subSectionQuery = {
+          section_names: req.section?._id,
+        };
+      } else {
+        subSectionQuery = {
+          subSection_id: {
+            $in: req.rootUser?.subSection_data?.map(
+              (item) => item?.split("-")?.[0]
+            ),
+          },
+        };
+      }
+    }
+
+    req.subSectionQuery = subSectionQuery;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 const sectionQueryMiddlewareForParamsId = async (req, res, next) => {
   try {
     req.sectionQuery = {
@@ -12216,54 +12265,7 @@ router.get(
   plantFiltrationMiddleware,
   conditionMiddlewareForSectionQuery,
   sectionFiltrationMiddleware,
-  (req, res, next) => {
-    try {
-      let subSectionQuery = {};
-
-      if (req.section.dashboardLevel === "Yes") {
-        if (req.rootUser?.tm_grade === "HOD") {
-          return res.status(201).json({
-            message: "Sections get successfully",
-
-            flagForTogglingFilter: "based-on-section",
-            selectedValue: req.section?._id,
-
-            selectedSection: req.section?._id,
-            sections: req.sections,
-            selectedSubSection: "",
-            subSections: [],
-            selectedCell: "",
-            cells: [],
-            selectedLine: "",
-            lines: [],
-          });
-        }
-
-        subSectionQuery = {
-          section_names: req.section?._id,
-        };
-      } else {
-        if (req.rootUser?.tm_grade === "HOD") {
-          subSectionQuery = {
-            section_names: req.section?._id,
-          };
-        } else {
-          subSectionQuery = {
-            subSection_id: {
-              $in: req.rootUser?.subSection_data?.map(
-                (item) => item?.split("-")?.[0]
-              ),
-            },
-          };
-        }
-      }
-
-      req.subSectionQuery = subSectionQuery;
-      next();
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
-  },
+  conditionMiddlewareForSubSectionQuery,
   subSectionFiltrationMiddleware,
   cellFiltrationMiddleware
 );
@@ -12448,7 +12450,7 @@ router.get(
   }
 );
 
-router.get(
+router.get(  
   "/getFiltrationValue/cell-level-filtration/sectionBased/:id",
   authenticate,
   sectionQueryMiddlewareForParamsId,
@@ -12651,6 +12653,131 @@ router.get(
   "/getFiltrationValue/plant-level-filtration/cellBased/:id",
   authenticate,
   functionForFindingLineBasedOnSelectedCell
+);
+
+router.get(
+  "/getFiltrationValue/monthly-breakdown-filter/byDefault",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      const plant = await Plant.findOne({
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+      });
+
+      return res.status(201).json({
+        message: "Plant get successfully",
+
+        flagForTogglingFilter: "based-on-plant",
+        selectedValue: plant?._id,
+
+        selectedSection: "",
+        sections: [],
+        selectedSubSection: "",
+        subSections: [],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/monthly-breakdown-filter/plant-section-toggle",
+  authenticate,
+  plantFiltrationMiddleware,
+  conditionMiddlewareForSectionQuery,
+  sectionFiltrationMiddleware,
+  conditionMiddlewareForSubSectionQuery,
+  async (req, res, next) => {
+    try {
+      const subSections = await SubSection.find(req.subSectionQuery);
+
+      let selectedSubSection = subSections?.[0]?._id;
+
+      if (req.rootUser?.tm_grade === "HOD") {
+        if (req.section.dashboardLevel === "No") {
+          return res.status(201).json({
+            message: "SubSections get successfully",
+
+            flagForTogglingFilter: "based-on-subSection",
+            selectedValue: selectedSubSection,
+
+            selectedSection: req.section?._id,
+            sections: req.sections,
+            selectedSubSection,
+            subSections,
+          });
+        } else {
+          return res.status(201).json({
+            message: "Sections get successfully",
+
+            flagForTogglingFilter: "based-on-section",
+            selectedValue: req.section?._id,
+
+            selectedSection: req.section?._id,
+            sections: req.sections,
+            selectedSubSection: "",
+            subSections: [],
+          });
+        }
+      }
+
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "SubSections get successfully",
+
+          flagForTogglingFilter: "based-on-subSection",
+          selectedValue: selectedSubSection,
+
+          selectedSection: "",
+          sections: [],
+          selectedSubSection,
+          subSections,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Cell dropdown value get successfully",
+
+        flagForTogglingFilter: "based-on-section",
+        selectedValue: req.section?._id,
+
+        selectedSection: req.section?._id,
+        sections: [],
+        selectedSubSection: "",
+        subSections: [],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/monthly-breakdown-filter/sectionBased/:id",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      const subSections = await SubSection.find({
+        section_names: mongoose.Types.ObjectId(req.params?.id),
+      });
+
+      let selectedSubSection = subSections?.[0]?._id;
+
+      return res.status(201).json({
+        message: "SubSections get successfully",
+
+        flagForTogglingFilter: "based-on-subSection",
+        selectedValue: selectedSubSection,
+        selectedSection: req.params?.id,
+
+        selectedSubSection,
+        subSections,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
 );
 
 router.get("/dummyAPI", authenticate, async (req, res, next) => {

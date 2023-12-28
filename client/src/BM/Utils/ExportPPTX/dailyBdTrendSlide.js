@@ -2,11 +2,15 @@ import axios from "axios";
 import { commonPptOptions } from "./exportPPTXOptions";
 
 const fetchDailyBdTrendData = async (urlOptions) => {
-  const { selectedYear, selectedMonth, flagForTogglingFilter, selectedValue } =
-    urlOptions;
+  const {
+    selectedYear,
+    dailyBDSelectedMonth,
+    flagForTogglingFilter,
+    selectedValue,
+  } = urlOptions;
 
   const url = `/getDailyBreakdownTrendData/${flagForTogglingFilter}/${selectedValue}`;
-  const params = { selectedYear, selectedMonth };
+  const params = { selectedYear, selectedMonth: dailyBDSelectedMonth };
 
   try {
     const res = await axios.get(url, {
@@ -38,7 +42,7 @@ export async function genSlideDailyBDTrend(pptx, urlOptions) {
   slide.addText(
     [
       {
-        text: "Product/Line Wise KPI",
+        text: urlOptions?.text,
         options: { fontSize: 32, breakLine: true },
       },
     ],

@@ -4,7 +4,10 @@ import { commonPptOptions } from "./exportPPTXOptions";
 import axios from "axios";
 
 export async function generateProductLineWisePpt(pptx, urlOptions) {
-  await genSlideDailyBDTrend(pptx, urlOptions);
+  await genSlideDailyBDTrend(pptx, {
+    ...urlOptions,
+    text: "Product/Line Wise KPI",
+  });
   await genSlide02(pptx, urlOptions);
   await genSlide03(pptx, urlOptions);
 }
