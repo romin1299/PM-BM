@@ -3184,13 +3184,13 @@ const getRequestSheetData = async (req, res, next) => {
         _id: mongoose.Types.ObjectId(req.query?._id),
       };
     }
-    
+
     if (req.query?.getDataForApprovalDashboardId) {
       queryObjForGetRequestSheetData = {
         "getDataForApprovalDashboard.Id": mongoose.Types.ObjectId(
           req.query.getDataForApprovalDashboardId
         ),
-        ...req.queryObj
+        ...req.queryObj,
       };
     }
 
@@ -4702,6 +4702,217 @@ router.get(
   }
 );
 
+router.get(
+  "/getLineWiseKpiStatusData/:selectedId",
+  authenticate,
+  async (req, res, nex) => {
+    try {
+      const lineWisePptExportationData = await RequestSheetOfBM.aggregate([
+        {
+          $match: {
+            cellRef: mongoose.Types.ObjectId(req.params.selectedId),
+            "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+              req.query?.selectedYear,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              lineRef: "$lineRef",
+              month:
+                "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            },
+            count: { $sum: 1 },
+            bdHours: {
+              $sum: {
+                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "lines",
+            localField: "_id.lineRef",
+            let: { month: "$_id.month" },
+            foreignField: "_id",
+            pipeline: [
+              {
+                $unwind: "$allTargetData",
+              },
+              {
+                $match: {
+                  "allTargetData.current_year": req.query?.selectedYear,
+                },
+              },
+              {
+                $project: {
+                  line_name: 1,
+                  // monthlyProductionHrs: "$allTargetData.monthlyProductionHrs",
+                  monthlyProductionHrs: {
+                    $map: {
+                      input: {
+                        $objectToArray: "$allTargetData.monthlyProductionHrs",
+                      },
+                      as: "obj",
+                      in: "$$obj.v",
+                    },
+                  },
+                  eachMonthProductionHrs: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: {
+                            $objectToArray:
+                              "$allTargetData.monthlyProductionHrs",
+                          },
+                          as: "monthlyProduction",
+                          cond: {
+                            $eq: ["$$monthlyProduction.k", "$$month"],
+                          },
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                },
+              },
+            ],
+            as: "line",
+          },
+        },
+        {
+          $unwind: "$line",
+        },
+        {
+          $group: {
+            _id: {
+              lineName: "$line.line_name",
+              monthlyProductionHrs: "$line.monthlyProductionHrs",
+            },
+            data: {
+              $push: {
+                month: "$_id.month",
+                bdHours: "$bdHours",
+                mttr: {
+                  $divide: ["$bdHours", "$count"],
+                },
+                mtbf: {
+                  $divide: [
+                    {
+                      $subtract: ["$line.eachMonthProductionHrs.v", "$bdHours"],
+                    },
+                    "$count",
+                  ],
+                },
+                bdPercentage: {
+                  $multiply: [
+                    { $divide: ["$bdHours", "$line.eachMonthProductionHrs.v"] },
+                    100,
+                  ],
+                },
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            lineName: "$_id.lineName",
+            target: "$_id.monthlyProductionHrs",
+            bdHours: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthName", "$data.month"] },
+                    {
+                      $arrayElemAt: [
+                        "$data.bdHours",
+                        {
+                          $indexOfArray: ["$data.month", "$$month.monthName"],
+                        },
+                      ],
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+            mttrData: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthName", "$data.month"] },
+                    {
+                      $arrayElemAt: [
+                        "$data.mttr",
+                        {
+                          $indexOfArray: ["$data.month", "$$month.monthName"],
+                        },
+                      ],
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+            mtbfData: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthName", "$data.month"] },
+                    {
+                      $arrayElemAt: [
+                        "$data.mtbf",
+                        {
+                          $indexOfArray: ["$data.month", "$$month.monthName"],
+                        },
+                      ],
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+            bdPercentage: {
+              $map: {
+                input: allMonths,
+                as: "month",
+                in: {
+                  $cond: [
+                    { $in: ["$$month.monthName", "$data.month"] },
+                    {
+                      $arrayElemAt: [
+                        "$data.bdPercentage",
+                        {
+                          $indexOfArray: ["$data.month", "$$month.monthName"],
+                        },
+                      ],
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        },
+      ]);
+
+      return res.status(201).json({
+        message: "Line-wise-KPI-status data get successfully",
+        lineWisePptExportationData,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
 router.post(
   "/getBDhoursVsCountDataFunction/:purpose/:filter/:selectedId",
   authenticate,
@@ -6286,7 +6497,6 @@ const bdHourTrendMiddleware = async (req, res, next) => {
 
 const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
   try {
-    
     const bdTrendData = await RequestSheetOfBM.aggregate([
       {
         $match: req.queryObj,
@@ -7051,7 +7261,6 @@ router.get(
 
   async (req, res, next) => {
     try {
-      
       const bdTrendData = await RequestSheetOfBM.aggregate([
         {
           $match: req.queryObj,
@@ -8006,59 +8215,59 @@ router.get(
   productionHourFiltration,
   bdHourTrendMiddleware,
   async (req, res, next) => {
-    let MTBF_monthlyFilterQueryPipeline = [],
-      mtbfCalculation = {
-        $divide: [
-          {
-            $subtract: [req.productionHrs?.yearTotalallTargetData, "$bdHours"],
-          },
-          "$count",
-        ],
-      },
-      groupingObj = {
-        groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
-      },
-      queryObj = {
-        machineRef: mongoose.Types.ObjectId(req.params.machineId),
-        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-          req.query?.selectedYear,
-      };
+    // let MTBF_monthlyFilterQueryPipeline = [],
+    //   mtbfCalculation = {
+    //     $divide: [
+    //       {
+    //         $subtract: [req.productionHrs?.yearTotalallTargetData, "$bdHours"],
+    //       },
+    //       "$count",
+    //     ],
+    //   },
+    //   groupingObj = {
+    //     groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
+    //   },
+    //   queryObj = {
+    //     machineRef: mongoose.Types.ObjectId(req.params.machineId),
+    //     "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+    //       req.query?.selectedYear,
+    //   };
 
-    if (req.query?.selectedMonth) {
-      queryObj = {
-        ...queryObj,
-        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-          req.query?.selectedMonth,
-      };
-      groupingObj = {
-        groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-      };
+    // if (req.query?.selectedMonth) {
+    //   queryObj = {
+    //     ...queryObj,
+    //     "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+    //       req.query?.selectedMonth,
+    //   };
+    //   groupingObj = {
+    //     groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+    //   };
 
-        MTBF_monthlyFilterQueryPipeline = [
-          {
-            $addFields: {
-              productionDataBasedOnSelectedFilter: {
-                $function: {
-                  body: function (month, productionHrs) {
-                    return productionHrs?.monthlyProductionHrs?.[month];
-                  },
-                  args: ["$_id.groupId", req.productionHrs],
-                  lang: "js",
-                },
-              },
-            },
-          },
-        ];
+    //     MTBF_monthlyFilterQueryPipeline = [
+    //       {
+    //         $addFields: {
+    //           productionDataBasedOnSelectedFilter: {
+    //             $function: {
+    //               body: function (month, productionHrs) {
+    //                 return productionHrs?.monthlyProductionHrs?.[month];
+    //               },
+    //               args: ["$_id.groupId", req.productionHrs],
+    //               lang: "js",
+    //             },
+    //           },
+    //         },
+    //       },
+    //     ];
 
-      mtbfCalculation = {
-        $divide: [
-          {
-            $subtract: ["$productionDataBasedOnSelectedFilter", "$bdHours"],
-          },
-          "$count",
-        ],
-      };
-    }
+    //   mtbfCalculation = {
+    //     $divide: [
+    //       {
+    //         $subtract: ["$productionDataBasedOnSelectedFilter", "$bdHours"],
+    //       },
+    //       "$count",
+    //     ],
+    //   };
+    // }
 
     // console.log(MTBF_monthlyFilterQueryPipeline);
     try {
@@ -8807,7 +9016,7 @@ const middlewareForMttrTrend = async (req, res, next) => {
           },
 
           data: {
-            $push: {$trunc: ["$hours",1] },
+            $push: { $trunc: ["$hours", 1] },
           },
         },
       },
@@ -8815,7 +9024,7 @@ const middlewareForMttrTrend = async (req, res, next) => {
 
     return res.status(201).json({
       message: "TM load data get successfully",
-      data : tmLoadData?.[0],
+      data: tmLoadData?.[0],
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -12430,7 +12639,7 @@ router.get(
   }
 );
 
-router.get(  
+router.get(
   "/getFiltrationValue/cell-level-filtration/sectionBased/:id",
   authenticate,
   sectionQueryMiddlewareForParamsId,

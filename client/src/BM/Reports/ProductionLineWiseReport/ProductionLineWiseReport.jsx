@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useEffect } from "react";
 import { Container, Row, Col } from "reactstrap";
 import { useForm } from "react-hook-form";
 
@@ -181,6 +181,35 @@ const ProductionLineWiseReport = () => {
     }
   };
 
+  // const getLineWiseKpiStatusData = async (req, res, next) => {
+  //   try {
+  //     const res = await fetch(
+  //       `/getLineWiseKpiStatusData/${reduceState?.selectedCell}?selectedYear=${reduceState?.selectedYear}`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           Accept: "application/json",
+  //           "Content-Type": "application/json",
+  //         },
+  //         credentials: "include",
+  //       }
+  //     );
+
+  //     const { message, lineWisePptExportationData } = await res.json();
+
+  //     if (res?.status === 201) {
+  //       console.log(lineWisePptExportationData);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (reduceState?.selectedCell) {
+  //     getLineWiseKpiStatusData();
+  //   }
+  // }, [reduceState?.selectedCell]);
   return (
     <Container fluid>
       <Box>

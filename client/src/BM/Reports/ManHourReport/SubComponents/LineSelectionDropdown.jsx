@@ -150,12 +150,20 @@ export default function LineSelectionDropdown({
         url: `${baseUrlForFiltering}/subSectionBased/${subSection}`,
       });
 
-      const { message, selectedCell, cells, selectedLine, lines } = data;
+      const {
+        message,
+        flagForTogglingFilter,
+        selectedCell,
+        cells,
+        selectedLine,
+        lines,
+      } = data;
 
       if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_SUBSECTION,
 
+          flagForTogglingFilter,
           selectedCell,
           cells,
           selectedLine,
