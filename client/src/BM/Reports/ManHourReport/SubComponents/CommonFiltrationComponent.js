@@ -112,12 +112,20 @@ export const reducer = (state, action) => {
       };
 
     case ACTION?.GET_DATA_BASED_ON_SUBSECTION:
+      let obj = {};
+      if (action?.selectedCell) {
+        obj = {
+          selectedCell: action?.selectedCell,
+          selectedValue: action?.selectedCell,
+          flagForTogglingFilter: action?.flagForTogglingFilter,
+        };
+      }
       return {
         ...state,
         isLoading: false,
         message: action?.message,
 
-        selectedCell: action?.selectedCell || "",
+        ...obj,
         cells: action?.cells,
         selectedLine: action?.selectedLine || "",
         lines: action?.lines,

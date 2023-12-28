@@ -64,3 +64,25 @@ export const commonPptOptions = {
   catAxisLabelFontSize: userOptions.textSize,
   valAxisLabelFontSize: userOptions.textSize,
 };
+
+export function genSlideTitle(pptx, slide, title) {
+  slide.addText(
+    [
+      {
+        text: title,
+        options: { fontSize: 32, breakLine: true },
+      },
+    ],
+    {
+      x: 0,
+      y: 0,
+      w: 13.33,
+      h: 0.75,
+      color: "FFFFFF",
+      fill: { color: pptx.colors.ACCENT1, transparency: 5 },
+      valign: "middle",
+      align: "center",
+      isTextBox: true,
+    }
+  );
+}

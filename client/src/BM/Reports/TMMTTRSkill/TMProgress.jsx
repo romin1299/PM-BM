@@ -90,7 +90,7 @@ const TMProgress = ({
     const params = {
       selectedYear,
       includeMBD: mbdIncluded ? "include-mbd" : "",
-      allFilter: isAllTM ? "include-all" : "",
+      // allFilter: isAllTM ? "include-all" : "",
     };
 
     try {
@@ -109,7 +109,7 @@ const TMProgress = ({
 
   React.useEffect(() => {
     if (selectedValue) fetchChartData();
-  }, [selectedValue, tmId, selectedYear, mbdIncluded, isAllTM]);
+  }, [selectedValue, tmId, selectedYear, mbdIncluded]);
 
   const chartData = {
     labels: MONTH_LABELS,
@@ -172,7 +172,7 @@ const TMProgress = ({
               />
             </Col>
 
-            {AllTMCheckBox}
+            {/* {AllTMCheckBox} */}
           </>
         }
       />

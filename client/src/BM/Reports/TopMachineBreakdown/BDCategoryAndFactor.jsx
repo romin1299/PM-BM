@@ -40,8 +40,8 @@ const BDCategoryAndFactor = ({
   }, [selectedValue, selectedYear, selectedMonth]);
 
   return (
-    <Container>
-      <Row>
+    <>
+      <Row className="gx-3">
         <Col xxl={6} lg={6} md={6}>
           <DoughnutChart title="Breakdown Category" />
         </Col>
@@ -49,7 +49,7 @@ const BDCategoryAndFactor = ({
           <DoughnutChart title="Breakdown Factor" />
         </Col>
       </Row>
-    </Container>
+    </>
   );
 };
 
