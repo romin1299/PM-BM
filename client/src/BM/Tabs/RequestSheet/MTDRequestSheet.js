@@ -1270,7 +1270,7 @@ function MyTable({
                   className="border text-center pb-2 pt-2"
                 >
                   <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>BREAKDOWN TIME</b>
+                    <b>BREAKDOWN</b>
                   </small>
                   <p>{timeDifferenceMinutes || null}</p>
                 </Col>
@@ -1281,7 +1281,7 @@ function MyTable({
                   className="border text-center pb-2 pt-2"
                 >
                   <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>ANALYSIS TIME</b>
+                    <b>ANALYSIS</b>
                   </small>
                   <input
                     type="number"
@@ -1346,7 +1346,7 @@ function MyTable({
                   className="border text-center pb-2 pt-2"
                 >
                   <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>REPLACEMENT TIME</b>
+                    <b>REPLACEMENT</b>
                   </small>
                   <input
                     type="number"
@@ -1387,7 +1387,7 @@ function MyTable({
                   className="border text-center pb-2 pt-2"
                 >
                   <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>ADJUSTMENT TIME</b>
+                    <b>ADJUSTMENT</b>
                   </small>
                   <input
                     type="number"
@@ -1419,7 +1419,7 @@ function MyTable({
                   className="border text-center pb-2 pt-2"
                 >
                   <p className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>QUALITY CHECK TIME</b>
+                    <b>QUALITY CHECK</b>
                   </p>
                   <input
                     type="number"
@@ -1452,7 +1452,7 @@ function MyTable({
                   className="border text-center pb-2 pt-2"
                 >
                   <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>BREAK TIME</b>
+                    <b>BREAK</b>
                   </small>
                   <input
                     type="number"

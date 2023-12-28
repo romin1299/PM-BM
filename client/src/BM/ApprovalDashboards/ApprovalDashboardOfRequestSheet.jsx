@@ -143,7 +143,7 @@ const ApprovalDashboardOfRequestSheet = () => {
   const getApprovalRequestSheetData = async () => {
     try {
       const res = await fetch(
-        `/getMachineRequestSheetDetails/?getDataForApprovalDashboardId=${loggedUserDetails?._id}`,
+        `/getMachineRequestSheetDetails/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&getDataForApprovalDashboardId=${loggedUserDetails?._id}`,
         {
           method: "GET",
           headers: {
@@ -165,8 +165,12 @@ const ApprovalDashboardOfRequestSheet = () => {
   };
 
   useEffect(() => {
-    getApprovalRequestSheetData();
-  }, []);
+    if (reduceState?.selectedValue) getApprovalRequestSheetData();
+  }, [
+    reduceState?.selectedValue,
+    reduceState?.selectedYear,
+    reduceState?.selectedMonth,
+  ]);
 
   return (
     <>
@@ -178,6 +182,7 @@ const ApprovalDashboardOfRequestSheet = () => {
               baseUrlForFiltering={baseUrlForFiltering}
               reduceState={reduceState}
               reducerDispatch={reducerDispatch}
+              monthFiltration
             />
           }
         />

@@ -24,7 +24,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
-
+import CrisisAlertIcon from '@mui/icons-material/CrisisAlert';
 const allusers = [
   "Admin",
   "Plant-Admin",
@@ -103,7 +103,14 @@ export const menuItems = [
     title: "Customized Dashboard",
     icon: <ControlPointIcon className="text-white" />,
     route: "/bm/customizedDashboard",
-    allowedRoles: ["Admin", "Plant-Admin", "Section-Admin"],
+    allowedRoles: ["Plant-Admin", "Section-Admin"],
+  },
+
+  {
+    title: "Target Dashboard",
+    icon: <CrisisAlertIcon className="text-white" />,
+    route: "/bm/targetDashboard",
+    allowedRoles: ["Plant-Admin", "Section-Admin"],
   },
 
   // ------- Reports Dashboards -------
