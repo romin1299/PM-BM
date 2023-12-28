@@ -13,6 +13,7 @@ import BDPercentageChart from "./BDPercentage.jsx";
 import CategoryPieCharts from "./CategoryPieCharts.jsx";
 
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
+import currentMonth from "../../../pages/Dashboard/DashboardComponent/currentMonth";
 
 import {
   initialState,
@@ -148,9 +149,12 @@ const ProductionLineWiseReport = () => {
   // }, []);
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
-  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+  const baseUrlForFiltering = "/getFiltrationValue/cell-level-filtration";
 
   const [requestSheetData, setRequestSheetData] = useState([]);
+
+  const [dailyBDSelectedMonth, setDailyBDSelectedMonth] =
+    useState(currentMonth);
 
   const getRequestSheetDataBasedOnSelectedDate = async (data) => {
     try {
@@ -192,8 +196,14 @@ const ProductionLineWiseReport = () => {
 
               <Col className="col-auto">
                 <DownloadMenu
+                  handleDownloadPPTXForLineWiseKPI={() => {
+                    exportPPTX(EXPORT_REPORT.LINE_WISE_KPI_STATUS, reduceState);
+                  }}
                   handleDownloadPPTX={() => {
-                    exportPPTX(EXPORT_REPORT.PRODUCT_LINE_WISE, reduceState);
+                    exportPPTX(EXPORT_REPORT.PRODUCT_LINE_WISE, {
+                      ...reduceState,
+                      dailyBDSelectedMonth,
+                    });
                   }}
                 />
               </Col>
@@ -205,7 +215,8 @@ const ProductionLineWiseReport = () => {
           selectedValue={reduceState?.selectedValue}
           flagForTogglingFilter={reduceState?.flagForTogglingFilter}
           selectedYear={reduceState?.selectedYear}
-          selectedMonth={reduceState?.selectedMonth}
+          dailyBDSelectedMonth={dailyBDSelectedMonth}
+          setDailyBDSelectedMonth={setDailyBDSelectedMonth}
         />
 
         <Paper variant="outlined" sx={{ p: 2 }} className="mt-3 g-0">

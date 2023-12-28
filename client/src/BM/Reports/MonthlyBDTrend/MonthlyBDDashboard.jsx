@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useReducer } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { Box } from "@mui/material";
 import MonthlyBDTrendChart from "./MonthlyBDTrendChart";
@@ -16,6 +16,8 @@ import {
   EXPORT_REPORT,
   exportPPTX,
 } from "../../Utils/ExportPPTX/exportPPTX.js";
+
+import axios from "axios";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -41,10 +43,21 @@ CustomTabPanel.propTypes = {
 
 const MonthlyBDTDashboard = () => {
   const [currentTabView, setCurrentTabView] = React.useState(0);
-  const [sectionId, setSectionId] = React.useState("");
   const [filter, setFilter] = React.useState("hourly");
   const [selectedYear, setSelectedYear] = React.useState("");
   const currentTabViewName = currentTabView === 0 ? "Plant" : "Section";
+
+  let initialState = {
+    message: "",
+    flagForTogglingFilter: "",
+    selectedValue: "",
+
+    selectedSection: "",
+    sections: [],
+    selectedSubSection: "",
+    subSections: [],
+  };
+  const [filterState, setFilterState] = useState(initialState);
 
   // const context = useContext(RoutingContext);
   // console.log("context:", context);
@@ -62,17 +75,78 @@ const MonthlyBDTDashboard = () => {
     };
   }
 
-  const handleChange = (event, newValue) => {
-    setCurrentTabView(newValue);
-  };
-
   const urlOptions = {
     filter,
     setFilter,
     currentTabViewName,
-    sectionId,
+    sectionId: filterState?.selectedValue,
     selectedYear,
   };
+
+  const baseUrlForFiltering = "/getFiltrationValue/monthly-breakdown-filter";
+
+  const fetchValues = async ({ url }) => {
+    try {
+      const res = await axios.get(url, {
+        withCredentials: true,
+        credentials: "include",
+      });
+
+      if (res.status === 201) {
+        setFilterState({
+          ...filterState,
+          ...res.data,
+        });
+      }
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchValues({
+      url: `${baseUrlForFiltering}/byDefault`,
+    });
+  }, []);
+
+  const handleChange = (event, newValue) => {
+    setCurrentTabView(newValue);
+    if (newValue === 0) {
+      return setFilterState(initialState);
+    }
+
+    fetchValues({
+      url: `${baseUrlForFiltering}/plant-section-toggle`,
+    });
+  };
+
+  const handleChangeSection = (selectedSection) => {
+    if (
+      filterState?.sections.find((item) => item?._id === selectedSection)
+        ?.dashboardLevel === "No"
+    ) {
+      fetchValues({
+        url: `${baseUrlForFiltering}/sectionBased/${selectedSection}`,
+      });
+    } else {
+      setFilterState({
+        ...filterState,
+        selectedSection,
+        flagForTogglingFilter: "based-on-section",
+        selectedValue: selectedSection,
+        selectedSubSection: "",
+        subSections: [],
+      });
+    }
+  };
+
+  const handleChangeSubSection = (selectedSubSection) =>
+    setFilterState({
+      ...filterState,
+      selectedSubSection,
+      flagForTogglingFilter: "based-on-subSection",
+      selectedValue: selectedSubSection,
+    });
 
   return (
     <Container fluid style={{ paddingBottom: "3rem" }}>
@@ -109,10 +183,23 @@ const MonthlyBDTDashboard = () => {
           className="col-auto"
           sx={{ display: "flex", alignItems: "center", gap: 2 }}
         >
-          {currentTabView === 1 && (
+          {filterState.sections?.length > 0 && (
             <SectionsDropdown
-              sectionId={sectionId}
-              setSectionId={setSectionId}
+              sectionId={filterState?.selectedSection}
+              setSectionId={handleChangeSection}
+              dropdownArray={filterState.sections}
+              name="Sections"
+              objKey="section_name"
+            />
+          )}
+
+          {filterState.subSections?.length > 0 && (
+            <SectionsDropdown
+              sectionId={filterState?.selectedSubSection}
+              setSectionId={handleChangeSubSection}
+              dropdownArray={filterState.subSections}
+              name="Sub Sections"
+              objKey="subSection_name"
             />
           )}
           <YearDropdown
@@ -141,29 +228,32 @@ const MonthlyBDTDashboard = () => {
       <Row className="mt-3 gx-3">
         <Col md={12} lg={9}>
           <MonthlyBDTrendChart
+            filterState={filterState}
             filter={filter}
             setFilter={setFilter}
             currentTabViewName={currentTabViewName}
-            sectionId={sectionId}
+            sectionId={filterState?.selectedValue}
             selectedYear={selectedYear}
           />
         </Col>
         <Col md={12} lg={3}>
           <YearlyTrendChart
+            filterState={filterState}
             filter={filter}
             setFilter={setFilter}
             currentTabViewName={currentTabViewName}
-            sectionId={sectionId}
+            sectionId={filterState?.selectedValue}
             selectedYear={selectedYear}
           />
         </Col>
       </Row>
 
       <MajorBDCount
+        filterState={filterState}
         filter={filter}
         setFilter={setFilter}
         currentTabViewName={currentTabViewName}
-        sectionId={sectionId}
+        sectionId={filterState?.selectedValue}
         selectedYear={selectedYear}
       />
     </Container>
