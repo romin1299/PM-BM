@@ -206,7 +206,7 @@ const DailyBTDashboard = () => {
             </Button>
           </form>
 
-          <BDRequestSheetTable requestSheetData={requestSheetData} />
+          <BDRequestSheetTable requestSheetData={requestSheetData} downloadFileName={"Daily breakdown trend"}/>
         </Paper>
 
         <Row className="mb-3 gx-3">

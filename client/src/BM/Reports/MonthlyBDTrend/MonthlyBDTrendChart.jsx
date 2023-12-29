@@ -17,6 +17,7 @@ import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
+import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
 
 ChartJS.register(
   CategoryScale,
@@ -80,13 +81,10 @@ export const options = {
   },
 };
 
-const getRandomDataArray = (max = 30) => {
-  return Array.from({ length: 8 }, () => Math.floor(Math.random() * max));
-};
-
 const MonthlyBDTrendChart = ({
   currentTabViewName,
   sectionId,
+  filterState,
   filter,
   setFilter,
   selectedYear,
@@ -104,10 +102,15 @@ const MonthlyBDTrendChart = ({
   }, [currentTabViewName]);
 
   const fetchChartData = async () => {
-    const url =
-      currentTabViewName === "Plant"
-        ? `/${filter}MonthlyBdTrendForPlant`
-        : `/${filter}MonthlyBdTrendForSection/based-on-subSection/${sectionId}`;
+    const basedON = currentTabViewName === "Plant" ? "plantId" : "subSection";
+    const selectedId = currentTabViewName === "Plant" ? "undefined" : sectionId;
+
+    // const url =
+    //   currentTabViewName === "Plant"
+    //     ? `/${filter}MonthlyBdTrend/based-on-plant/${sectionId}`
+    //     : `/${filter}MonthlyBdTrend/based-on-subSection/${sectionId}`;
+    const url = `/${filter}MonthlyBdTrend/based-on-${basedON}/${selectedId}`;
+    // console.log("url:", url);
 
     const params = { selectedYear };
 
@@ -116,21 +119,37 @@ const MonthlyBDTrendChart = ({
         params,
         withCredentials: true,
         credentials: "include",
+        headers: { "content-type": "application/json" },
       });
+      // console.log("monthly bd trend res:", res);
 
       const data = res?.data?.bdTrendData;
-      if (data) {
-        // console.log("Monthly hourly res:", res);
+      const barDatasets = res?.data?.bdTrendData?.map((item, index) => ({
+        type: "bar",
+        stack: "bar-stacked",
+        label: item?.label || item?._id,
+        data: item?.data,
+        backgroundColor: chartColors.palettes[0][index],
+      }));
 
+      // const targetData = res?.data?.targetData;
+      const targetData = getRandomDataArray(12, 5, 8);
+
+      if (data) {
         setChartData({
           labels: MONTH_LABELS,
-          datasets: res?.data?.bdTrendData?.map((item, index) => ({
-            type: "bar",
-            stack: "bar-stacked",
-            label: item?.label || item?._id,
-            data: item?.data,
-            backgroundColor: chartColors.palettes[0][index],
-          })),
+          datasets: [
+            {
+              type: "line",
+              label: "Target",
+              data: targetData,
+              borderWidth: 2,
+              borderColor: chartColors.red[2],
+              backgroundColor: chartColors.red[2],
+              pointStyle: "rectRot",
+            },
+            ...barDatasets,
+          ],
         });
       }
     } catch (error) {
