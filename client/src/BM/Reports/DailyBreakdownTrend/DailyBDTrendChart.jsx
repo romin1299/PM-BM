@@ -102,6 +102,8 @@ const DailyBDTrendChart = ({
   setDailyBDSelectedMonth,
   dailyBDSelectedMonth,
 }) => {
+  console.log(selectedValue, flagForTogglingFilter);
+
   const [dailyBreakdownTrendData, setDailyBreakdownTrendData] = useState({
     // labels: daysLabels,
 
@@ -147,10 +149,9 @@ const DailyBDTrendChart = ({
 
   useEffect(() => {
     if (
-      selectedValue
-      // &&
-      // (flagForTogglingFilter === "based-on-cell" ||
-      //   flagForTogglingFilter === "based-on-line")
+      selectedValue &&
+      (flagForTogglingFilter === "based-on-cell" ||
+        flagForTogglingFilter === "based-on-line")
     ) {
       getDailyBreakdownTrendData();
     }
