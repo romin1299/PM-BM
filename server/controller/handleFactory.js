@@ -1,3 +1,7 @@
+const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
+const moment = require("moment-timezone");
+const timezone = "Asia/Kolkata";
+
 exports.getUserData =
   (machineModel, sectionModel, userModel) => async (req, res) => {
     const machine = await machineModel
@@ -21,6 +25,96 @@ exports.getUserData =
       .exec();
 
     // console.log("machine", machine);
+
+    const startDate = moment().tz(timezone).year();
+    const endDate = moment().tz(timezone).year() + 1;
+    // console.log(startDate);
+    // console.log(endDate);
+
+
+    // const currentMonth = moment().format("MMMM");
+    let currentMonth;
+    if(moment().format("MMM") === "Jun"){
+      currentMonth = "June";
+    }
+    else if(moment().format("MMM") === "Jul"){
+      currentMonth = "July";
+    }
+    else{
+      currentMonth = moment().format("MMM");
+    }
+    
+    
+    // console.log(currentMonth);
+
+    const pmStatus = await machineModel.aggregate([
+      {
+        $match: { machine_code: req.query?.machine_code },
+      },
+      {
+        $unwind: "$checkSheet_data",
+      },
+      {
+        $match: {
+          "checkSheet_data.current_year": `${startDate}-${endDate}`,
+          // [`checkSheet_data.PMStatus.${currentMonth}`]: currentMonth,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          PMStatus: `$checkSheet_data.PMStatus.${currentMonth}`,
+         
+
+        },
+      },
+    ]);
+
+    //  console.log("pmpmpmpm",pmStatus)
+
+    const bmData = await RequestSheetOfBM.aggregate([
+      // {
+      //   $match : {
+      //     machineRef : mongoose.Types.ObjectId(req.query?.selectedId),
+      //   }
+      // },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          as: "machines",
+        },
+      },
+      {
+        $unwind: "$machines",
+      },
+      {
+        $match: {
+          "machines.machine_code": req?.query?.machine_code,
+          // "machines.machine_code" : "M-EN-O2-BOA-030-1",
+        },
+      },
+
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+          totalHours: {
+            $sum: {
+              $trunc: [
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+                },
+                1,
+              ],
+            },
+          },
+        },
+      },
+    ]);
+    // // console.log(machine?.checkSheet_data[0]?.BM)
+    // console.log("bmbmbmbm",bmData?.[0])
 
     const section = await sectionModel.findOne({
       section_id: req?.rootUser?.section_data?.split("-")?.[0],
@@ -111,6 +205,8 @@ exports.getUserData =
         message: "Sheet data get successfully",
         machine,
         requestSheetApprovalList,
+        pmStatus: pmStatus?.[0],
+        bmData: bmData?.[0],
       });
     } else {
       res.status(404).json({ message: "Machine not found" });

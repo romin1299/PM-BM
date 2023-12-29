@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, Paper } from "@mui/material";
 
 import {
   Chart as ChartJS,
@@ -14,6 +14,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 
 import { Chart } from "react-chartjs-2";
 import { MONTH_LABELS, chartColors } from "../Utils/ChartUtils/chartEnums";
+import ChartTitleBar from "../Reports/Common/ChartTitleBar";
 
 ChartJS.register(
   CategoryScale,
@@ -24,7 +25,13 @@ ChartJS.register(
   Legend
 );
 
-const BDHoursTrendChart = ({ bdHourTrend }) => {
+const BDHoursTrendChart = ({
+  bdHourTrend,
+  chartHeight = { xs: "250px", md: "300px" },
+  labelsFontSize = 12,
+  axisLabelsFontSize = 14,
+}) => {
+  // Chart.defaults.font.size = 16;
   const options = {
     maintainAspectRatio: false,
     responsive: true,
@@ -34,6 +41,9 @@ const BDHoursTrendChart = ({ bdHourTrend }) => {
         align: "end",
         labels: {
           usePointStyle: true,
+          font: {
+            size: labelsFontSize,
+          },
         },
       },
       datalabels: {
@@ -67,9 +77,15 @@ const BDHoursTrendChart = ({ bdHourTrend }) => {
         title: {
           display: true,
           text: "Months",
+          font: {
+            size: axisLabelsFontSize,
+          },
         },
         ticks: {
           color: "black",
+          font: {
+            size: labelsFontSize,
+          },
         },
       },
       y: {
@@ -77,12 +93,18 @@ const BDHoursTrendChart = ({ bdHourTrend }) => {
         position: "left",
         ticks: {
           color: "black",
+          font: {
+            size: labelsFontSize,
+          },
         },
       },
       y2: {
         position: "right",
         ticks: {
           color: "black",
+          font: {
+            size: labelsFontSize,
+          },
         },
       },
     },
@@ -125,8 +147,10 @@ const BDHoursTrendChart = ({ bdHourTrend }) => {
   };
 
   return (
-    <Box className="container-fluid cell p-3 mt-1">
-      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+    <Box>
+      {/* <ChartTitleBar title="BD Hour Trend" /> */}
+
+      <Box sx={{ height: chartHeight }}>
         <Chart options={options} data={data} plugins={[ChartDataLabels]} />
       </Box>
     </Box>

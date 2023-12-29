@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useState, useReducer } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { Box, Typography } from "@mui/material";
 
@@ -14,9 +14,14 @@ import {
 } from "../ManHourReport/SubComponents/CommonFiltrationComponent";
 import ReportTitleBar from "../Common/ReportTitleBar";
 
+import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu";
+import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
+
 const MTBFReportDashboard = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+
+  const [documentLimitInTheGraph, setDocumentLimitInTheGraph] = useState(20);
 
   return (
     <Container fluid>
@@ -24,12 +29,26 @@ const MTBFReportDashboard = () => {
         <ReportTitleBar
           title="MTBF Report"
           Toolbar={
-            <ChartsToolbar
-              baseUrlForFiltering={baseUrlForFiltering}
-              reduceState={reduceState}
-              reducerDispatch={reducerDispatch}
-              monthFiltration
-            />
+            <>
+              <ChartsToolbar
+                baseUrlForFiltering={baseUrlForFiltering}
+                reduceState={reduceState}
+                reducerDispatch={reducerDispatch}
+                monthFiltration
+              />
+
+              <Col className="col-auto">
+                <DownloadMenu
+                  handleDownloadPPTX={() => {
+                    exportPPTX(EXPORT_REPORT.COMMON_TEMPLATE_REPORT, {
+                      ...reduceState,
+                      name: "MTBF",
+                      documentLimitInTheGraph,
+                    });
+                  }}
+                />
+              </Col>
+            </>
           }
         />
 
@@ -58,6 +77,8 @@ const MTBFReportDashboard = () => {
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
               selectedMonth={reduceState?.selectedMonth}
+              documentLimitInTheGraph={documentLimitInTheGraph}
+              setDocumentLimitInTheGraph={setDocumentLimitInTheGraph}
             />
           </Col>
         </Row>

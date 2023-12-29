@@ -19,6 +19,8 @@ import ChartTitleBar from "../Common/ChartTitleBar";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 
+import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -95,7 +97,13 @@ const DailyBDTrendChart = ({
   flagForTogglingFilter,
   selectedYear,
   // selectedMonth,
+  // dailyBDSelectedMonth,
+  // setDailyBDSelectedMonth
+  setDailyBDSelectedMonth,
+  dailyBDSelectedMonth,
 }) => {
+  console.log(selectedValue, flagForTogglingFilter);
+
   const [dailyBreakdownTrendData, setDailyBreakdownTrendData] = useState({
     // labels: daysLabels,
 
@@ -112,13 +120,13 @@ const DailyBDTrendChart = ({
     greaterThenTwoHourData: [],
   });
 
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  // const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
   const getDailyBreakdownTrendData = async () => {
     try {
       const res = await fetch(
         // `/getDailyBreakdownTrendData/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
-        `/getDailyBreakdownTrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        `/getDailyBreakdownTrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${dailyBDSelectedMonth}`,
         {
           method: "GET",
           headers: {
@@ -141,14 +149,13 @@ const DailyBDTrendChart = ({
 
   useEffect(() => {
     if (
-      selectedValue
-      // &&
-      // (flagForTogglingFilter === "based-on-cell" ||
-      //   flagForTogglingFilter === "based-on-line")
+      selectedValue &&
+      (flagForTogglingFilter === "based-on-cell" ||
+        flagForTogglingFilter === "based-on-line")
     ) {
       getDailyBreakdownTrendData();
     }
-  }, [selectedValue, selectedYear, selectedMonth]);
+  }, [selectedValue, selectedYear, dailyBDSelectedMonth]);
 
   const datasets = [
     {
@@ -199,8 +206,8 @@ const DailyBDTrendChart = ({
         Toolbar={
           <Col className="col-auto">
             <MonthDropdown
-              selectedMonth={selectedMonth}
-              setSelectedMonth={setSelectedMonth}
+              selectedMonth={dailyBDSelectedMonth}
+              setSelectedMonth={setDailyBDSelectedMonth}
             />
           </Col>
         }

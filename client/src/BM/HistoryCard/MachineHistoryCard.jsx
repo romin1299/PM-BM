@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Modal } from "react-bootstrap";
 
 import BDHoursTrendChart from "./BDHoursTrendChart";
+import { Box, Button, Divider, Paper, Typography } from "@mui/material";
+import { roundValue } from "../Utils/math/roundValue";
 
 const MachineHistoryCard = ({
   selectedYear,
@@ -56,6 +58,57 @@ const MachineHistoryCard = ({
     getHistoryCard();
   }, []);
 
+  const infoItems = [
+    { name: "BD Time", key: "bdTime" },
+    { name: "BD Count", key: "bdCount" },
+    { name: "MTTR", key: "mttrData" },
+    { name: "MTBF", key: "mtbf" },
+    { name: "PM Status", key: "PM_Status" },
+  ];
+
+  const MachineInfoBox = ({ title, value }) => (
+    <Container>
+      <Paper
+        className="row"
+        variant="outlined"
+        sx={{
+          minHeight: "32px",
+          borderColor: "#40694842",
+        }}
+      >
+        <Box
+          className="col col-sm-5"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            mt: "2px",
+          }}
+        >
+          <Typography variant="body2" component="div" fontWeight={500}>
+            {title}
+          </Typography>
+        </Box>
+        <Box
+          className="col col-sm-7"
+          sx={{
+            backgroundColor: "#c6efce",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <Typography
+            variant="body1"
+            component="span"
+            fontWeight={500}
+            color="black"
+          >
+            {value}
+          </Typography>
+        </Box>
+      </Paper>
+    </Container>
+  );
+
   return (
     <Modal
       {...modelProp}
@@ -68,48 +121,37 @@ const MachineHistoryCard = ({
           {selectedRow?.machines?.[0]?.machine_code}
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body>
-        <Container>
-          <Row>
-            <Col>
-              <b>BD Time</b>
+      <Modal.Body className="container">
+        <Row className="gx-2">
+          {infoItems.map((info, index) => (
+            <Col lg={4} sm={6} xs={6} className="mb-2">
+              <MachineInfoBox
+                title={info.name}
+                value={roundValue(historyCardData?.[info?.key], 3)}
+              />
             </Col>
-            <Col>{historyCardData?.bdTime}</Col>
-          </Row>
-          <Row>
-            <Col>
-              <b>BD Count</b>
-            </Col>
-            <Col>{historyCardData?.bdCount}</Col>
-          </Row>
-          <Row>
-            <Col>
-              <b>MTTR</b>
-            </Col>
-            <Col>{historyCardData?.mttrData}</Col>
-          </Row>
-          <Row>
-            <Col>
-              <b>MTBF</b>
-            </Col>
-            <Col>{historyCardData?.mtbf}</Col>
-          </Row>
-          <Row>
-            <Col>
-              <b>PM Status</b>
-            </Col>
-            <Col>{historyCardData?.PM_Status}</Col>
-          </Row>
-          <Row>
-            <Col>
-              <b>BD Hr Trend</b>
-            </Col>
-            <BDHoursTrendChart bdHourTrend={historyCardData?.bdHourTrend} />
-          </Row>
-        </Container>
+          ))}
+        </Row>
+
+        <BDHoursTrendChart bdHourTrend={historyCardData?.bdHourTrend} />
       </Modal.Body>
-      <Modal.Footer>
-        <button>History</button>
+      <Modal.Footer className="gap-2">
+        <Button
+          size="small"
+          variant="contained"
+          disableElevation
+          className="bg-button"
+        >
+          Document
+        </Button>
+        <Button
+          size="small"
+          variant="contained"
+          disableElevation
+          className="bg-button"
+        >
+          History
+        </Button>
       </Modal.Footer>
     </Modal>
   );

@@ -17,35 +17,16 @@ const MenuProps = {
   },
 };
 
-export default function SectionsDropdown({ sectionId, setSectionId }) {
-  const [sectionValues, setsectionValues] = React.useState([]);
-
+export default function SectionsDropdown({
+  dropdownArray,
+  sectionId,
+  setSectionId,
+  name,
+  objKey,
+}) {
   const handleChange = (event) => {
     setSectionId(event.target.value);
   };
-
-  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
-
-  const fetchValues = async () => {
-    const url = `${baseUrlForFiltering}/byDefault`;
-    try {
-      const res = await axios.get(url, {
-        withCredentials: true,
-        credentials: "include",
-      });
-
-      console.log("section dropdown res:", res.data.subSections);
-
-      setsectionValues(res.data.subSections);
-      setSectionId(res.data.subSections[0]?._id);
-    } catch (error) {
-      console.log("error:", error);
-    }
-  };
-
-  React.useEffect(() => {
-    fetchValues();
-  }, []);
 
   return (
     <FormControl sx={{ minWidth: 120 }} size="small">
@@ -64,14 +45,13 @@ export default function SectionsDropdown({ sectionId, setSectionId }) {
         onChange={handleChange}
       >
         <MenuItem disabled sx={{ pt: 0, pb: 0 }}>
-          <em>Sub Sections</em>
+          <em>{name}</em>
         </MenuItem>
-        {sectionValues &&
-          sectionValues.map((section, index) => (
-            <MenuItem key={index} value={section._id}>
-              {section.subSection_name}
-            </MenuItem>
-          ))}
+        {dropdownArray.map((item, index) => (
+          <MenuItem key={index} value={item._id}>
+            {item[objKey]}
+          </MenuItem>
+        ))}
       </Select>
     </FormControl>
   );

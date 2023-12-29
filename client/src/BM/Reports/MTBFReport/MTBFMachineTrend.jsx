@@ -12,6 +12,8 @@ const MTBFMachineTrend = ({
   flagForTogglingFilter,
   selectedYear,
   selectedMonth,
+  documentLimitInTheGraph,
+  setDocumentLimitInTheGraph,
 }) => {
   const {
     register,
@@ -40,8 +42,6 @@ const MTBFMachineTrend = ({
 
     requestSheetData: [],
 
-    documentLimitInTheGraph: 20,
-
     message: "",
     isLoading: true,
     isError: false,
@@ -51,7 +51,6 @@ const MTBFMachineTrend = ({
     GET_MACHINE_MTTR: "get-machineWise-MTTR-data",
     GET_RS_DATA: "get-requestSheet-data-based-on-selectedMachine",
     HANDLE_SELECTED_MACHINE: "handle-selected-machine",
-    HANDLE_CHANGE_LIMIT: "handle-change-of-document-limit",
   };
 
   const reducer = (state, action) => {
@@ -72,12 +71,6 @@ const MTBFMachineTrend = ({
           requestSheetData: action?.requestSheetData,
         };
 
-      case ACTION?.HANDLE_CHANGE_LIMIT:
-        return {
-          ...state,
-          documentLimitInTheGraph: action?.documentLimitInTheGraph,
-        };
-
       default:
         return state;
     }
@@ -88,8 +81,7 @@ const MTBFMachineTrend = ({
   const getMachineWiseMTBFTrendDataData = async () => {
     try {
       const res = await fetch(
-        // `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
-        `/getMachineWiseMTBFTrendDataData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}&&documentLimitInTheGraph=${reduceState?.documentLimitInTheGraph}`,
+        `/getMachineWiseMTBFTrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}&&documentLimitInTheGraph=${documentLimitInTheGraph}`,
         {
           method: "GET",
           headers: {
@@ -155,7 +147,7 @@ const MTBFMachineTrend = ({
   };
 
   const TopDataFilterInput = (
-    <Col  className="col-auto">
+    <Col className="col-auto">
       <Box
         component="form"
         sx={{ display: "flex", alignItems: "center", gap: "10px" }}
@@ -181,12 +173,9 @@ const MTBFMachineTrend = ({
           }}
           size="small"
           onChange={(e) => {
-            reducerDispatch({
-              type: ACTION.HANDLE_CHANGE_LIMIT,
-              documentLimitInTheGraph: e.target.value,
-            });
+            setDocumentLimitInTheGraph(e.target.value);
           }}
-          value={reduceState?.documentLimitInTheGraph}
+          value={documentLimitInTheGraph}
         />
         <Button
           // size="small"
