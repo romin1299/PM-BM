@@ -7,6 +7,7 @@ import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
+import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
 
 const sectionBoxStyle = {
   p: 1,
@@ -88,20 +89,18 @@ const MajorBDCount = ({ currentTabViewName, sectionId, selectedYear }) => {
     datasets: [],
   });
 
-  // const d = new Date();
-  // let year = d.getFullYear().toString().slice(-2);
-  // let month = d.getMonth().toString();
-
   const fetchChartData = async () => {
-    const url =
-      currentTabViewName === "Plant"
-        ? `/majorBDCountForPlant`
-        : `/majorBDCountForSection/based-on-subSection/${sectionId}`;
+    const basedON = currentTabViewName === "Plant" ? "plantId" : "subSection";
+    const selectedId = currentTabViewName === "Plant" ? "undefined" : sectionId;
+
+    // const url =
+    //   currentTabViewName === "Plant"
+    //     ? `/majorBDCountForPlant`
+    //     : `/majorBDCountForSection/based-on-subSection/${sectionId}`;
+    const url = `/majorBDCount/based-on-${basedON}/${selectedId}`;
+    // console.log("url:", url);
 
     const params = { selectedYear };
-
-    // /majorBDCountForPlant
-    // /majorBDCountForSection/based-on-subSection/6322e5dffdb4a3119153b9e7
 
     try {
       const res = await axios.get(url, {
@@ -109,23 +108,50 @@ const MajorBDCount = ({ currentTabViewName, sectionId, selectedYear }) => {
         withCredentials: true,
         credentials: "include",
       });
+      // console.log("major bd count trend res:", res);
 
-      // console.log("BD count res:", res?.data?.bdTrendData);
       const data = res?.data?.bdTrendData;
-      setData(data);
+      const barDatasets = res?.data?.bdTrendData?.map((item, index) => ({
+        type: "bar",
+        stack: "bar-stacked",
+        label: item?.label || item?._id,
+        data: item?.data,
+        backgroundColor: chartColors.palettes[0][index],
+      }));
+
+      // const targetData = res?.data?.targetData;
+      const targetData = getRandomDataArray(12, 5, 8);
 
       if (data) {
         setChartData({
           labels: labels,
-          datasets: data?.map((item, index) => ({
-            type: "bar",
-            stack: "bar-stacked",
-            label: item?.label || item?._id,
-            data: item?.data,
-            backgroundColor: chartColors.palettes[0][index],
-          })),
+          datasets: [
+            {
+              type: "line",
+              label: "Target",
+              data: targetData,
+              borderWidth: 2,
+              borderColor: chartColors.red[2],
+              backgroundColor: chartColors.red[2],
+              pointStyle: "circ",
+            },
+            ...barDatasets,
+          ],
         });
       }
+
+      // if (data) {
+      //   setChartData({
+      //     labels: labels,
+      //     datasets: data?.map((item, index) => ({
+      //       type: "bar",
+      //       stack: "bar-stacked",
+      //       label: item?.label || item?._id,
+      //       data: item?.data,
+      //       backgroundColor: chartColors.palettes[0][index],
+      //     })),
+      //   });
+      // }
     } catch (error) {
       console.log("error:", error);
       setData([]);
