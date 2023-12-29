@@ -48,6 +48,11 @@ const machineSchema = mongoose.Schema({
     type: String,
   },
 
+  plant_names: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Plants",
+  },
+
   section_names: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Sections",

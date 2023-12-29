@@ -529,7 +529,7 @@ function App() {
                 />
 
                 <Route
-                  path="/pm/pm/summeryDashboard"
+                  path="/pm/summeryDashboard"
                   element={<SummeryDashboard />}
                 />
                 <Route

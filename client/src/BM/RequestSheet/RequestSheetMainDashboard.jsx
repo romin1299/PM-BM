@@ -18,10 +18,10 @@ import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import CancelIcon from "@mui/icons-material/Cancel";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import RoutingContext from "../../context/routing/RoutingContext";
-
+import { format } from "date-fns";
 import MachineHistoryCard from "../HistoryCard/MachineHistoryCard";
 import SummeryCard from "../HistoryCard/SummeryCard";
-
+import moment from "moment";
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   Box,
@@ -34,7 +34,7 @@ import {
 } from "@mui/material";
 import BMTitlebar from "../Component/BMTitlebar";
 import { MaterialTableOptions } from "../Utils/TableUtils/MaterialTableProps";
-
+import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import {
   initialState,
   reducer,
@@ -229,22 +229,30 @@ const RequestSheetMainDashboard = () => {
     if (
       (context?.tm_department === "MTD" ||
         row?.assignUser?._id === context?._id) &&
-      (col?.field === "work_order_status"
-        ? row?.requestSheetStatus !== statusArray[0]
-        : row?.requestSheetStatus === statusArray[1])
+      (row?.requestSheetStatus !== statusArray[0] ||
+        row?.requestSheetStatus === statusArray[1] ||
+        row?.requestSheetStatus === statusArray[2] ||
+        row?.requestSheetStatus === statusArray[3] ||
+        row?.requestSheetStatus === statusArray[4])
     ) {
       return true;
     }
     return false;
   };
 
-  const dropDownComponent = ({ value, onChange, dropDownArray }) => (
+  const dropDownComponent = ({
+    value,
+    onChange,
+    dropDownArray,
+    defaultValue,
+  }) => (
     <select
       aria-label=".form-select-sm example"
       id="standard-select-currency"
       name={value}
       fullWidth
       select
+      defaultValue={defaultValue}
       autoComplete="off"
       onChange={(e) => onChange(e.target.value)}
       variant="standard"
@@ -328,10 +336,11 @@ const RequestSheetMainDashboard = () => {
         row?.requestSheetStatus === statusArray[0]
           ? true
           : false,
-      editComponent: ({ value, onChange }) =>
+      editComponent: ({ value, onChange, rowData }) =>
         dropDownComponent({
           value,
           onChange,
+          defaultValue: rowData?.assignUserId,
           dropDownArray:
             reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
         }),
@@ -340,15 +349,19 @@ const RequestSheetMainDashboard = () => {
       title: "Handover To",
       field: "handOverUser",
       // editable: context?.tm_department === "MTD" ? "always" : "never",
-      editable: (_, row) =>
+      editable: (col, row) =>
         context?.tm_department === "MTD" &&
-        row?.requestSheetStatus === statusArray[0]
+        (row?.requestSheetStatus !== statusArray[0] ||
+          row?.requestSheetStatus === statusArray[1] ||
+          row?.requestSheetStatus === statusArray[2] ||
+          row?.requestSheetStatus === statusArray[3])
           ? true
           : false,
-      editComponent: ({ value, onChange }) =>
+      editComponent: ({ value, onChange, rowData }) =>
         dropDownComponent({
           value,
           onChange,
+          defaultValue: rowData?.handOverUserId,
           dropDownArray:
             reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
         }),
@@ -387,13 +400,20 @@ const RequestSheetMainDashboard = () => {
       title: "H/O Time Work End", //hand-over time
       field: "handOverTime",
       editable: conditionalBasedEditableFunctionForMTD,
-      editComponent: ({ value, onChange }) => (
+      editComponent: ({ value, onChange, rowData }) => (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <MobileDateTimePicker
             renderInput={(props) => (
               <input className="text-field mt-0" value={value} {...props} />
             )}
-            value={value}
+            value={
+              value
+                ? value
+                : moment(
+                    rowData?.handOverTimeForDefault,
+                    "MM/DD/YYYY hh:mm:ss a"
+                  )
+            }
             sx={{ width: "11rem" }}
             onChange={(handOverTime) => {
               onChange(handOverTime);
@@ -454,13 +474,14 @@ const RequestSheetMainDashboard = () => {
       title: "W.O. Status",
       field: "work_order_status",
       editable: conditionalBasedEditableFunctionForMTD,
-      editComponent: ({ value, onChange }) => (
+      editComponent: ({ value, onChange, rowData }) => (
         <select
           aria-label=".form-select-sm example"
           id="standard-select-currency"
           name="work_order_status"
           fullWidth
           select
+          defaultValue={rowData?.work_order_status}
           autoComplete="off"
           onChange={(e) => onChange(e.target.value)}
           variant="standard"
@@ -686,6 +707,26 @@ const RequestSheetMainDashboard = () => {
               options={{
                 ...MaterialTableOptions,
                 showTitle: true,
+                exportMenu: [
+                  {
+                    label: "Export PDF",
+                    exportFunc: (cols, data) =>
+                      ExportPdf(
+                        cols,
+                        data,
+                        `All requestSheet ${moment().format("DD-MM-YYYY")}`
+                      ),
+                  },
+                  {
+                    label: "Export CSV",
+                    exportFunc: (cols, data) =>
+                      ExportCsv(
+                        cols,
+                        data,
+                        `All requestSheet ${moment().format("DD-MM-YYYY")}`
+                      ),
+                  },
+                ],
               }}
             />
           </Col>

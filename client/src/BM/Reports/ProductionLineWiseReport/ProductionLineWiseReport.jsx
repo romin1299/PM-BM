@@ -239,7 +239,7 @@ const ProductionLineWiseReport = () => {
             </Button>
           </form>
 
-          <BDRequestSheetTable requestSheetData={requestSheetData} />
+          <BDRequestSheetTable requestSheetData={requestSheetData} downloadFileName={"Product/Line wise KPI"}/>
         </Paper>
 
         <Row className="mt-3 g-2">

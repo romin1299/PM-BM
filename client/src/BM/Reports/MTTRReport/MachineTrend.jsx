@@ -319,6 +319,7 @@ const MachineTrend = ({
 
           <BDRequestSheetTable
             requestSheetData={reduceState?.requestSheetData}
+            downloadFileName={"MTTR trend"}
           />
         </Col>
       </Row>

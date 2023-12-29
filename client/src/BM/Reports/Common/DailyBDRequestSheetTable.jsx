@@ -5,8 +5,9 @@ import tableIcons from "../../../components/MatrialTableIcon";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { Container, Row, Col } from "react-bootstrap";
-
-const BDRequestSheetTable = ({ requestSheetData }) => {
+import { ExportCsv, ExportPdf } from "@material-table/exporters";
+import moment from "moment"
+const BDRequestSheetTable = ({ requestSheetData, downloadFileName }) => {
   const requestSheetHeader = [
     {
       title: "Sr. No.",
@@ -131,6 +132,26 @@ const BDRequestSheetTable = ({ requestSheetData }) => {
             fontSize: "14px",
             fontWeight: "bold",
           },
+          exportMenu: [
+            {
+              label: "Export PDF",
+              exportFunc: (cols, data) =>
+                ExportPdf(
+                  cols,
+                  data,
+                  `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
+                ),
+            },
+            {
+              label: "Export CSV",
+              exportFunc: (cols, data) =>
+                ExportCsv(
+                  cols,
+                  data,
+                  `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
+                ),
+            },
+          ],
         }}
       />
     </>
