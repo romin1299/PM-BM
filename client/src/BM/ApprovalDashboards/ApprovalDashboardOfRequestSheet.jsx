@@ -143,7 +143,7 @@ const ApprovalDashboardOfRequestSheet = () => {
   const getApprovalRequestSheetData = async () => {
     try {
       const res = await fetch(
-        `/getMachineRequestSheetDetails/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&getDataForApprovalDashboardId=${loggedUserDetails?._id}`,
+        `/getMachineRequestSheetDetailsForApproval/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&getDataForApprovalDashboardId=${loggedUserDetails?._id}`,
         {
           method: "GET",
           headers: {

@@ -657,10 +657,15 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           handOverUser: {
             $arrayElemAt: ["$handoverUserDetails.tm_name", 0],
           },
+          handOverUserId: {
+            $arrayElemAt: ["$handoverUserDetails._id", 0],
+          },
+          handOverTimeForDefault:
+            "$maintenanceReportFilledByMTD.refHandOverTime",
           handOverTime: {
             $dateToString: {
               format: "%d-%m-%Y %H:%M",
-              date: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+              date: "$maintenanceReportFilledByMTD.refHandOverTime",
               timezone: "Asia/Kolkata",
             },
           },
@@ -983,7 +988,6 @@ router.patch(
         queryObj = {
           ...queryObj,
           assignUser: req.body?.assignUser,
-          handOverUser: req.body?.handOverUser,
           requestSheetStatus: statusArray[1],
           approvalOfMTD_SL: req?.rootUser?._id,
           approvalDateAndTimeOfMTD_SL: new Date(),
@@ -1006,17 +1010,28 @@ router.patch(
           requestSheetStatus = statusArray[4];
         }
 
-        queryObj = {
-          finalActivity: req.body?.finalActivity,
-          "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
-            req.body?.handOverTime
-          ),
-          "maintenanceReportFilledByMTD.refHandOverTime": new Date(
-            req.body?.handOverTime
-          ),
-          requestSheetStatus,
-          work_order_status: req.body?.work_order_status,
-        };
+        if (moment(req.body?.handOverTime, moment.ISO_8601).isValid()) {
+          
+          queryObj = {
+            finalActivity: req.body?.finalActivity,
+            "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
+              req.body?.handOverTime
+            ),
+            "maintenanceReportFilledByMTD.refHandOverTime": new Date(
+              req.body?.handOverTime
+            ),
+            handOverUser: req.body?.handOverUserId,
+            requestSheetStatus,
+            work_order_status: req.body?.work_order_status,
+          };
+        } else {
+          queryObj = {
+            finalActivity: req.body?.finalActivity,
+            handOverUser: req.body?.handOverUserId,
+            requestSheetStatus,
+            work_order_status: req.body?.work_order_status,
+          };
+        }
       }
       await RequestSheetOfBM.findOneAndUpdate(
         req.query,
@@ -3575,7 +3590,29 @@ const getRequestSheetData = async (req, res, next) => {
 };
 
 router.get(
-  "/getMachineRequestSheetDetails/:filter/:selectedId",
+  "/getMachineRequestSheetDetails",
+  authenticate,
+  filterMiddleware,
+  getRequestSheetData,
+  findTLandOperatorList,
+  async (req, res, next) => {
+    try {
+      res.status(201).json({
+        message: "Request-sheet data get successfully",
+        requestSheetData: req.requestSheetData,
+        TLHOSS_and_TM_user_list: req?.TLHOSS_and_TM_user_list,
+      });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  }
+);
+
+router.get(
+  "/getMachineRequestSheetDetailsForApproval/:filter/:selectedId",
   authenticate,
   filterMiddleware,
   getRequestSheetData,
@@ -13844,8 +13881,21 @@ router.get("/dummyAPI", authenticate, async (req, res, next) => {
                       foreignField: "_id",
                       pipeline: [
                         {
+                          $lookup: {
+                            from: "sections",
+                            localField: "section_names",
+                            foreignField: "_id",
+                            pipeline: [
+                              {
+                                $project: { plant_names: 1 },
+                              },
+                            ],
+                            as: "section",
+                          },
+                        },
+                        {
                           $project: {
-                            section_names: 1,
+                            section: 1,
                           },
                         },
                       ],
@@ -13895,12 +13945,155 @@ router.get("/dummyAPI", authenticate, async (req, res, next) => {
           subSection_names:
             machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]?._id,
           section_names:
-            machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]
-              ?.section_names,
+            machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]?.section[0]
+              ?._id,
+          plant_names:
+            machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]?.section[0]
+              ?.plant_names,
         }
       );
 
       console.log("machine-updated : ", machineFind[i]?.machine_code);
+    }
+
+    const lineFind = await Line.aggregate([
+      {
+        $match: {},
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cell_names",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $lookup: {
+                from: "subsections",
+                localField: "subSection_names",
+                foreignField: "_id",
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: "sections",
+                      localField: "section_names",
+                      foreignField: "_id",
+                      pipeline: [
+                        {
+                          $project: { plant_names: 1 },
+                        },
+                      ],
+                      as: "section",
+                    },
+                  },
+                  {
+                    $project: {
+                      section: 1,
+                    },
+                  },
+                ],
+                as: "subSection",
+              },
+            },
+            {
+              $project: {
+                subSection: 1,
+              },
+            },
+          ],
+          as: "cell",
+        },
+      },
+      {
+        $project: {
+          line_name: 1,
+          cell: 1,
+        },
+      },
+      // {
+      //   $match: {
+      //     "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
+      //       req.params?.selectedId
+      //     ),
+      //   },
+      // },
+    ]);
+
+    for (let i = 0; i < lineFind.length; i++) {
+      await Line.updateOne(
+        {
+          _id: lineFind[i]?._id,
+        },
+        {
+          subSection_names: lineFind[i]?.cell?.[0]?.subSection?.[0]?._id,
+          section_names:
+            lineFind[i]?.cell?.[0]?.subSection?.[0]?.section[0]?._id,
+          plant_names:
+            lineFind[i]?.cell?.[0]?.subSection?.[0]?.section[0]?.plant_names,
+        }
+      );
+
+      console.log("Line-updated : ", lineFind[i]?.line_name);
+    }
+
+    const cellFind = await Cell.aggregate([
+      {
+        $match: {},
+      },
+      {
+        $lookup: {
+          from: "subsections",
+          localField: "subSection_names",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $lookup: {
+                from: "sections",
+                localField: "section_names",
+                foreignField: "_id",
+                pipeline: [
+                  {
+                    $project: { plant_names: 1 },
+                  },
+                ],
+                as: "section",
+              },
+            },
+            {
+              $project: {
+                section: 1,
+              },
+            },
+          ],
+          as: "subSection",
+        },
+      },
+      {
+        $project: {
+          cell_name: 1,
+          subSection: 1,
+        },
+      },
+      // {
+      //   $match: {
+      //     "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
+      //       req.params?.selectedId
+      //     ),
+      //   },
+      // },
+    ]);
+
+    for (let i = 0; i < cellFind.length; i++) {
+      await Cell.updateOne(
+        {
+          _id: cellFind[i]?._id,
+        },
+        {
+          section_names: cellFind[i]?.subSection?.[0]?.section[0]?._id,
+          plant_names: cellFind[i]?.subSection?.[0]?.section[0]?.plant_names,
+        }
+      );
+
+      console.log("Cell-updated : ", cellFind[i]?.cell_name);
     }
 
     return res.status(201).json({

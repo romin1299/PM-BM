@@ -38,7 +38,7 @@ require(path.join(__dirname, "./controller/financialYearController"));
 // require(path.join(__dirname, './controller/everyDayAutoBackup'));
 
 //for logos and other image
-app.use("/bm",express.static(path.join(__dirname, "images")));
+app.use("/bm", express.static(path.join(__dirname, "images")));
 // build folder path
 app.use(express.static(path.join(__dirname, "build")));
 //for PM images
