@@ -48,11 +48,11 @@ const allMonths = [
     monthInDecimal: "05",
   },
   {
-    monthName: "Jun",
+    monthName: "June",
     monthInDecimal: "06",
   },
   {
-    monthName: "Jul",
+    monthName: "July",
     monthInDecimal: "07",
   },
   {
@@ -1229,6 +1229,104 @@ const filterMiddleware = async (req, res, next) => {
 
     req.queryObj = queryObj;
     req.queryObjForPM = queryObjForPM;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const targetMiddleware = async (req, res, next) => {
+  try {
+    let queryObj = {},
+      pipeline = [];
+
+    if (req.params?.filter === "based-on-line") {
+      queryObj = {
+        _id: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+
+      pipeline = [
+        {
+          $project: {
+            _id: 0,
+            monthlyTarget: {
+              $map: {
+                input: {
+                  $objectToArray: "$allTargetData.monthlyBDHrsTarget",
+                },
+                as: "obj",
+                in: "$$obj.v",
+              },
+            },
+          },
+        },
+      ];
+    } else {
+      let obj = {},
+        arr = [];
+
+      for (let i = 0; i < allMonths.length; i++) {
+        obj[allMonths?.[i]?.monthName] = {
+          $sum: `$allTargetData.monthlyBDHrsTarget.${allMonths?.[i]?.monthName}`,
+        };
+
+        arr.push(`$${allMonths?.[i]?.monthName}`);
+      }
+
+      pipeline = [
+        {
+          $group: {
+            _id: null,
+            line_name: {
+              $push: "$line_name",
+            },
+            ...obj,
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            monthlyTarget: arr,
+          },
+        },
+      ];
+
+      if (req.params?.filter === "based-on-plant") {
+        queryObj = {
+          plant_names: mongoose.Types.ObjectId(req.params.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-section") {
+        queryObj = {
+          section_names: mongoose.Types.ObjectId(req.params.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-subSection") {
+        queryObj = {
+          subSection_names: mongoose.Types.ObjectId(req.params.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-cell") {
+        queryObj = {
+          cell_names: mongoose.Types.ObjectId(req.params.selectedId),
+        };
+      }
+    }
+
+    const target = await Line.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $unwind: "$allTargetData",
+      },
+      {
+        $match: {
+          "allTargetData.current_year": req.query?.selectedYear,
+        },
+      },
+
+      ...pipeline,
+    ]);
+
+    req.target = target?.[0]?.monthlyTarget || [];
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -4495,6 +4593,7 @@ router.get(
   "/getMTTRGraphData/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  targetMiddleware,
   async (req, res, next) => {
     try {
       const MTTRReportData = await RequestSheetOfBM.aggregate([
@@ -4533,31 +4632,11 @@ router.get(
                 ],
               },
             },
-            target: {
-              $sum: {
-                $cond: [
-                  {
-                    $gt: [
-                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                      null,
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  },
-                  0,
-                ],
-              },
-            },
           },
         },
         {
           $project: {
             count: 1,
-            target: 1,
             hours: {
               $divide: ["$hours", "$count"],
             },
@@ -4599,7 +4678,6 @@ router.get(
                         _id: "$$month.monthInDecimal",
                         count: 0,
                         hours: 0,
-                        target: 0,
                       },
                     },
                   ],
@@ -4616,20 +4694,8 @@ router.get(
           $group: {
             _id: null,
             labels: { $push: "$month" },
-            target: { $push: "$value.target" },
             data: {
               $push: "$value.hours",
-            },
-            backgroundColor: {
-              $push: {
-                $cond: [
-                  {
-                    $lte: ["$value.hours", "$value.target"],
-                  },
-                  "green",
-                  "red",
-                ],
-              },
             },
           },
         },
@@ -4637,7 +4703,13 @@ router.get(
 
       return res.status(201).json({
         message: "MTTR graph data get successfully",
-        MTTRReportData: MTTRReportData?.[0],
+        MTTRReportData: {
+          ...MTTRReportData?.[0],
+          target: req.target,
+          backgroundColor: req.target?.map((item, index) =>
+            MTTRReportData?.[0]?.data?.[index] <= item ? "green" : "red"
+          ),
+        },
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -4649,6 +4721,7 @@ router.get(
   "/getBDHoursGraphData/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  targetMiddleware,
   async (req, res, next) => {
     try {
       const BDHours = await RequestSheetOfBM.aggregate([
@@ -4665,11 +4738,6 @@ router.get(
               },
             },
             hours: {
-              $sum: {
-                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              },
-            },
-            target: {
               $sum: {
                 $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
               },
@@ -4711,7 +4779,6 @@ router.get(
                       value: {
                         _id: "$$month.monthInDecimal",
                         hours: 0,
-                        target: 0,
                       },
                     },
                   ],
@@ -4728,20 +4795,8 @@ router.get(
           $group: {
             _id: null,
             labels: { $push: "$month" },
-            target: { $push: "$value.target" },
             data: {
               $push: "$value.hours",
-            },
-            backgroundColor: {
-              $push: {
-                $cond: [
-                  {
-                    $gt: ["$value.hours", "$value.target"],
-                  },
-                  "red",
-                  "green",
-                ],
-              },
             },
           },
         },
@@ -4749,7 +4804,13 @@ router.get(
 
       return res.status(201).json({
         message: "BDHours graph data get successfully",
-        BDHours: BDHours?.[0],
+        BDHours: {
+          ...BDHours?.[0],
+          target: req.target,
+          backgroundColor: req.target?.map((item, index) =>
+            item > BDHours?.[0]?.data?.[index] ? "green" : "red"
+          ),
+        },
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -4762,6 +4823,27 @@ router.get(
   authenticate,
   async (req, res, nex) => {
     try {
+      const returnQueryObj = ({ key, defaultValue }) => ({
+        $concatArrays: [
+          `$$value.${key}`,
+          {
+            $cond: [
+              { $in: ["$$this.monthName", "$data.month"] },
+              [
+                {
+                  $arrayElemAt: [
+                    `$data.${key}`,
+                    {
+                      $indexOfArray: ["$data.month", "$$this.monthName"],
+                    },
+                  ],
+                },
+              ],
+              [defaultValue],
+            ],
+          },
+        ],
+      });
       const lineWisePptExportationData = await RequestSheetOfBM.aggregate([
         {
           $match: {
@@ -4804,14 +4886,30 @@ router.get(
                 $project: {
                   line_name: 1,
                   // monthlyProductionHrs: "$allTargetData.monthlyProductionHrs",
-                  monthlyProductionHrs: {
+                  monthlyBDHrsTarget: {
                     $map: {
                       input: {
-                        $objectToArray: "$allTargetData.monthlyProductionHrs",
+                        $objectToArray: "$allTargetData.monthlyBDHrsTarget",
                       },
                       as: "obj",
                       in: "$$obj.v",
                     },
+                  },
+                  eachMonthBDHrsTarget: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: {
+                            $objectToArray: "$allTargetData.monthlyBDHrsTarget",
+                          },
+                          as: "monthlyProduction",
+                          cond: {
+                            $eq: ["$$monthlyProduction.k", "$$month"],
+                          },
+                        },
+                      },
+                      0,
+                    ],
                   },
                   eachMonthProductionHrs: {
                     $arrayElemAt: [
@@ -4843,16 +4941,37 @@ router.get(
           $group: {
             _id: {
               lineName: "$line.line_name",
-              monthlyProductionHrs: "$line.monthlyProductionHrs",
+              monthlyBDHrsTarget: "$line.monthlyBDHrsTarget",
             },
             data: {
               $push: {
                 month: "$_id.month",
                 bdHours: "$bdHours",
-                mttr: {
+                backgroundColorForBDHrs: {
+                  $cond: [
+                    { $gt: ["$bdHours", "$line.eachMonthBDHrsTarget.v"] },
+                    "ef5350",
+                    "c2c933",
+                  ],
+                },
+                mttrData: {
                   $divide: ["$bdHours", "$count"],
                 },
-                mtbf: {
+                backgroundColorForMTTR: {
+                  $cond: [
+                    {
+                      $lte: [
+                        {
+                          $divide: ["$bdHours", "$count"],
+                        },
+                        "$line.eachMonthBDHrsTarget.v",
+                      ],
+                    },
+                    "c2c933",
+                    "ef5350",
+                  ],
+                },
+                mtbfData: {
                   $divide: [
                     {
                       $subtract: ["$line.eachMonthProductionHrs.v", "$bdHours"],
@@ -4860,10 +4979,54 @@ router.get(
                     "$count",
                   ],
                 },
+                backgroundColorForMTBF: {
+                  $cond: [
+                    {
+                      $lte: [
+                        {
+                          $divide: [
+                            {
+                              $subtract: [
+                                "$line.eachMonthProductionHrs.v",
+                                "$bdHours",
+                              ],
+                            },
+                            "$count",
+                          ],
+                        },
+                        "$line.eachMonthBDHrsTarget.v",
+                      ],
+                    },
+                    "ef5350",
+                    "c2c933",
+                  ],
+                },
                 bdPercentage: {
                   $multiply: [
                     { $divide: ["$bdHours", "$line.eachMonthProductionHrs.v"] },
                     100,
+                  ],
+                },
+                backgroundColorForBDPercentage: {
+                  $cond: [
+                    {
+                      $gt: [
+                        {
+                          $multiply: [
+                            {
+                              $divide: [
+                                "$bdHours",
+                                "$line.eachMonthProductionHrs.v",
+                              ],
+                            },
+                            100,
+                          ],
+                        },
+                        "$line.eachMonthBDHrsTarget.v",
+                      ],
+                    },
+                    "ef5350",
+                    "c2c933",
                   ],
                 },
               },
@@ -4874,84 +5037,55 @@ router.get(
           $project: {
             _id: 0,
             lineName: "$_id.lineName",
-            target: "$_id.monthlyProductionHrs",
-            bdHours: {
-              $map: {
+            target: "$_id.monthlyBDHrsTarget",
+
+            allData: {
+              $reduce: {
                 input: allMonths,
-                as: "month",
-                in: {
-                  $cond: [
-                    { $in: ["$$month.monthName", "$data.month"] },
-                    {
-                      $arrayElemAt: [
-                        "$data.bdHours",
-                        {
-                          $indexOfArray: ["$data.month", "$$month.monthName"],
-                        },
-                      ],
-                    },
-                    0,
-                  ],
+                initialValue: {
+                  // months: [],
+                  bdHours: [],
+                  backgroundColorForBDHrs: [],
+                  mttrData: [],
+                  backgroundColorForMTTR: [],
+                  mtbfData: [],
+                  backgroundColorForMTBF: [],
+                  bdPercentage: [],
+                  backgroundColorForBDPercentage: [],
                 },
-              },
-            },
-            mttrData: {
-              $map: {
-                input: allMonths,
-                as: "month",
                 in: {
-                  $cond: [
-                    { $in: ["$$month.monthName", "$data.month"] },
-                    {
-                      $arrayElemAt: [
-                        "$data.mttr",
-                        {
-                          $indexOfArray: ["$data.month", "$$month.monthName"],
-                        },
-                      ],
-                    },
-                    0,
-                  ],
-                },
-              },
-            },
-            mtbfData: {
-              $map: {
-                input: allMonths,
-                as: "month",
-                in: {
-                  $cond: [
-                    { $in: ["$$month.monthName", "$data.month"] },
-                    {
-                      $arrayElemAt: [
-                        "$data.mtbf",
-                        {
-                          $indexOfArray: ["$data.month", "$$month.monthName"],
-                        },
-                      ],
-                    },
-                    0,
-                  ],
-                },
-              },
-            },
-            bdPercentage: {
-              $map: {
-                input: allMonths,
-                as: "month",
-                in: {
-                  $cond: [
-                    { $in: ["$$month.monthName", "$data.month"] },
-                    {
-                      $arrayElemAt: [
-                        "$data.bdPercentage",
-                        {
-                          $indexOfArray: ["$data.month", "$$month.monthName"],
-                        },
-                      ],
-                    },
-                    0,
-                  ],
+                  // months: {
+                  //   $concatArrays: ["$$value.months", ["$$this.monthName"]],
+                  // },
+                  bdHours: returnQueryObj({ key: "bdHours", defaultValue: 0 }),
+                  backgroundColorForBDHrs: returnQueryObj({
+                    key: "backgroundColorForBDHrs",
+                    defaultValue: null,
+                  }),
+                  mttrData: returnQueryObj({
+                    key: "mttrData",
+                    defaultValue: 0,
+                  }),
+                  backgroundColorForMTTR: returnQueryObj({
+                    key: "backgroundColorForMTTR",
+                    defaultValue: null,
+                  }),
+                  mtbfData: returnQueryObj({
+                    key: "mtbfData",
+                    defaultValue: 0,
+                  }),
+                  backgroundColorForMTBF: returnQueryObj({
+                    key: "backgroundColorForMTBF",
+                    defaultValue: null,
+                  }),
+                  bdPercentage: returnQueryObj({
+                    key: "bdPercentage",
+                    defaultValue: 0,
+                  }),
+                  backgroundColorForBDPercentage: returnQueryObj({
+                    key: "backgroundColorForBDPercentage",
+                    defaultValue: null,
+                  }),
                 },
               },
             },
