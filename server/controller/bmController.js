@@ -1011,7 +1011,6 @@ router.patch(
         }
 
         if (moment(req.body?.handOverTime, moment.ISO_8601).isValid()) {
-          
           queryObj = {
             finalActivity: req.body?.finalActivity,
             "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
@@ -3937,33 +3936,42 @@ router.patch(
   }
 );
 
-const monthValidationMiddleware = async (req, res, next) => {
-  try {
-    if (currentYear === req.query?.selectedYear) {
-      if (
-        moment().tz(timezone).month(req.query.selectedMonth).month() >
-          moment().tz(timezone).month() ||
-        [0, 1, 2].includes(
-          moment().tz(timezone).month(req.query.selectedMonth).month()
-        )
-      ) {
-        return res
-          .status(400)
-          .json({ message: "You can't selected the future month!!!" });
-      }
-    }
+// const monthValidationMiddleware = async (req, res, next) => {
+//   try {
+//     if (currentYear === req.query?.selectedYear) {
+//       let year;
 
-    next();
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
+//       if (
+//         [0, 1, 2].includes(
+//           moment().tz(timezone).month(req.query.selectedMonth).month()
+//         )
+//       ) {
+//         year = req.query?.selectedYear?.split("-")?.[1];
+//       } else {
+//         year = req.query?.selectedYear?.split("-")?.[0];
+//       }
+
+//       if (
+//         moment().tz(timezone).year(year).month(req.query.selectedMonth) >
+//         moment().tz(timezone)
+//       ) {
+//         return res
+//           .status(400)
+//           .json({ message: "You can't selected the future month!!!" });
+//       }
+//     }
+
+//     next();
+//   } catch (error) {
+//     res.status(500).json({ message: error?.message, error });
+//   }
+// };
 
 //          Daily breakdown trend
 router.get(
   "/getDailyBreakdownTrendData/:filter/:selectedId",
   authenticate,
-  monthValidationMiddleware,
+  // monthValidationMiddleware,
   filterMiddleware,
   async (req, res, next) => {
     try {
@@ -3974,6 +3982,16 @@ router.get(
         year = spiltArrayOfYear[1];
       } else {
         year = spiltArrayOfYear[0];
+      }
+
+      if (
+        currentYear === req.query?.selectedYear &&
+        moment().tz(timezone).year(year).month(req.query.selectedMonth) >
+          moment().tz(timezone)
+      ) {
+        return res
+          .status(400)
+          .json({ message: "You can't selected the future month!!!" });
       }
 
       if (
