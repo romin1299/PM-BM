@@ -149,9 +149,10 @@ const DailyBDTrendChart = ({
 
   useEffect(() => {
     if (
-      selectedValue &&
-      (flagForTogglingFilter === "based-on-cell" ||
-        flagForTogglingFilter === "based-on-line")
+      selectedValue
+      // &&
+      // (flagForTogglingFilter === "based-on-cell" ||
+      //   flagForTogglingFilter === "based-on-line")
     ) {
       getDailyBreakdownTrendData();
     }

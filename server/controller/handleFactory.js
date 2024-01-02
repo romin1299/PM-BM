@@ -44,8 +44,7 @@ exports.getUserData =
       currentMonth = moment().format("MMM");
     }
     
-    
-    // console.log(currentMonth);
+
 
     const pmStatus = await machineModel.aggregate([
       {

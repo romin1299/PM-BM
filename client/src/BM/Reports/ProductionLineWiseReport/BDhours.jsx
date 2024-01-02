@@ -7,7 +7,6 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   const initialState = {
     BDHours: {
       labels: [],
-      MTTR: [],
       target: [],
       backgroundColor: [],
     },

@@ -25,6 +25,18 @@ const lineSchema = new mongoose.Schema({
   line_id: commonVarForTypeString,
 
   line_name: commonVarForTypeString,
+  plant_names: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Plants",
+  },
+  section_names: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Sections",
+  },
+  subSection_names: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SubSections",
+  },
 
   cell_names: {
     type: mongoose.Schema.Types.ObjectId,

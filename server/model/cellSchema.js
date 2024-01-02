@@ -17,6 +17,14 @@ const cellSchema = new mongoose.Schema({
   cell_name: {
     type: String,
   },
+  plant_names: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Plants",
+  },
+  section_names: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Sections",
+  },
   subSection_names: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "SubSections",
