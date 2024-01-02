@@ -6198,6 +6198,53 @@ const productionHourFiltration = async (req, res, next) => {
   }
 };
 
+const altproductionHourFiltration = async (req, res, next) => {
+  try {
+    let schema;
+
+    if (req.params?.filter === "based-on-section") {
+      schema = Section;
+    } else if (req.params?.filter === "based-on-subSection") {
+      schema = SubSection;
+    } else if (req.params?.filter === "based-on-cell") {
+      schema = Cell;
+    } else {
+      schema = Line;
+    }
+
+    const data = await schema.aggregate([
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(req.params?.selectedId),
+        },
+      },
+      {
+        $unwind: "$allTargetData",
+
+      },
+      {
+        $match: {
+          "allTargetData.current_year": req.query?.selectedYear,
+        },
+      },
+      {
+        $project: {
+          _id : 0,
+          "allTargetData.yearTotalProductionHrs": 1,
+        },
+      },
+    ]);
+
+ 
+
+    req.productionHrs = data?.[0]?.allTargetData?.yearTotalProductionHrs;
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 router.get(
   "/getBdPercentage/:filter/:selectedId",
   authenticate,
@@ -6400,6 +6447,8 @@ const altResponseMiddlewareForReport = async (req, res, next) => {
     return res.status(201).json({
       message: req.message,
       data: req?.mtbfData?.[0],
+      target : req.target,
+      
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -6795,7 +6844,7 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
         { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
       ],
 
-      bdTrendTarget : bdTrendData[0].target
+      bdTrendTarget : req.target
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -7209,6 +7258,7 @@ if (req.params.selectedId) {
       message: "PlantWise Monthly BD trend data for Section get successfully",
 
       bdTrendData,
+      bdTrendTargetData :req.target,
       // subSectionQuery,
       // sectionQuery
     });
@@ -8117,6 +8167,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       message: "Cell Wise Monthly BD trend data for Section get successfully",
 
       bdTrendData,
+      bdTrendDataTarget: req.target,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -8428,6 +8479,7 @@ router.get(
   "/hourlyMonthlyBdTrend/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  targetMiddleware,
   // middlewareForPlant,    
   filterForMonthlyData,
   hourlyMonthlyBdTrendMiddleware
@@ -8437,6 +8489,7 @@ router.get(
   "/sectionMonthlyBdTrend/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  targetMiddleware,
   // middlewareForPlant,
   filterForMonthlyData,
   sectionMonthlyBdTrendForPlantMiddleware
@@ -8446,6 +8499,7 @@ router.get(
   "/cellMonthlyBdTrend/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  targetMiddleware,
   filterForMonthlyData,
   cellMonthlyBdTrendForSectionMiddleware
 );
@@ -8618,11 +8672,23 @@ router.get(
   filterForMonthlyData,
   async (req, res, next) => {
     try {
-      const sub = "6322e549fdb4a3119153b9b2";
-      const sec = "6322e558fdb4a3119153b9c2";
+      let sectionIds;
+      let sectionIdsYes;
+      
+      if (req.params.selectedId) {
+        const sections = await Section.find({ plant_names: mongoose.Types.ObjectId(req.queryObj.plantRef.toString()) });
+        // console.log(sections);
+      
+        const noDashboardSections = sections.filter((section) => section.dashboardLevel === "No");
+        const yesDashboardSections = sections.filter((section) => section.dashboardLevel === "Yes");
+      
+         sectionIds = noDashboardSections.map((section) => section._id.toString());
+         sectionIdsYes = yesDashboardSections.map((section) => section._id.toString());
+         
+        }
       const subSectionQuery = await SubSection.aggregate([
         {
-          $match: { section_names: mongoose.Types.ObjectId(sub) },
+          $match: { section_names: mongoose.Types.ObjectId(...sectionIds) },
         },
 
         {
@@ -8735,7 +8801,7 @@ router.get(
       ]);
       const sectionQuery = await Section.aggregate([
         {
-          $match: { _id: mongoose.Types.ObjectId(sec) },
+          $match: { _id: mongoose.Types.ObjectId(...sectionIdsYes) },
         },
 
         // {
@@ -9563,6 +9629,7 @@ router.get(
 router.get(
   "/lineWiseBdContributionForPlant",
   authenticate,
+  // filterMiddleware,
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
     try {
@@ -9591,7 +9658,16 @@ router.get(
         plantRef: mongoose.Types.ObjectId(plant._id),
       };
 
-      console.log(queryObj) 
+      // console.log(queryObj) 
+
+      let newQueryObj = { ...queryObj };
+      delete newQueryObj[
+        "plantRef"
+      ];
+
+
+  
+      // console.log("newQueryObj",newQueryObj)
 
       const lineWiseBDData = await Line.aggregate([
         {
@@ -9603,40 +9679,61 @@ router.get(
             let: { line: "$_id" },
             pipeline: [
               {
-                $match: {
-                  // queryObj,
-                  $expr: {
-                    $eq: ["$$line", "$lineRef"],
-                  },
-                },
+                $match : newQueryObj,
               },
+
               {
-                $group: {
+                $group : {
                   _id: null,
+
+                  total : {$sum : {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  }, },
+
+                }
+              },
+              // {
+              //   $match: {
+                  
+              //     $expr: {
+              //       $eq: ["$$line", "$lineRef"],
+              //     },
+              //   },
+              // },
+              // {
+              //   $group: {
+              //     _id: null,
+
+             
   
-                  bdHoursLineWise: {
-                    $sum: {
-                      $cond: [
-                        {
-                          $gt: [
-                            "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                            null,
-                          ],
-                        },
-                        {
-                          $divide: [
-                            "$maintenanceReportFilledByMTD.breakDownTime",
-                            60,
-                          ],
-                        },
-                        0,
-                      ],
-                    },
-                  },
+              //     bdHoursLineWise: {
+              //       $sum: {
+              //         $cond: [
+              //           {
+              //             $gt: [
+              //               "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+              //               null,
+              //             ],
+              //           },
+              //           {
+              //             $divide: [
+              //               "$maintenanceReportFilledByMTD.breakDownTime",
+              //               60,
+              //             ],
+              //           },
+              //           0,
+              //         ],
+              //       },
+              //     },
   
           
-                },
-              },
+              //   },
+              // },
+
+           
   
         // {
         //   $group: {
@@ -9644,7 +9741,7 @@ router.get(
         //     totalBdTime: { $sum: "$bdHoursLineWise" },
         //     lineData: {
         //       $push: {
-        //         // line_name: "$_id",
+        //         line_name: "$_id",
         //         bdHoursLineWise: "$bdHoursLineWise",
         //       },
         //     },
@@ -9670,29 +9767,29 @@ router.get(
         //                       },
         //                     },
   
-                            // {
-                            //             $sort: {
-                            //               percentage: -1,
-                            //             },
-                            //           },
+        // //                     // {
+        // //                     //             $sort: {
+        // //                     //               percentage: -1,
+        // //                     //             },
+        // //                     //           },
                               
-                            //           {
-                            //             $group: {
-                            //               _id: null,
+        //                               {
+        //                                 $project: {
+        //                                   _id: null,
                               
-                            //               // lineNames: { $push: "$_id" },
-                            //               bdHours: { $push: { $trunc: ["$bdHours", 1] } },
-                            //               percentages: { $push: { $trunc: ["$percentage", 1] } },
-                            //             },
-                            //           },
+        //                                   // lineNames: { $push: "$_id" },
+        //                                   bdHours:  { $trunc: ["$bdHours", 1] } ,
+        //                                   percentages: { $trunc: ["$percentage", 1]  },
+        //                                 },
+        //                               },
 
                                       
-            // {
-            //   $unwind: "$bdHours",
-            // },
-            // {
-            //   $unwind: "$percentages",
-            // },
+        //     {
+        //       $unwind: "$bdHours",
+        //     },
+        //     {
+        //       $unwind: "$percentages",
+        //     },
   
              
             ],
@@ -9700,38 +9797,27 @@ router.get(
           },
         },
 
-         {
-          $group: {
-            _id: "$line_name",
-            totalBdTime: { $sum: "$line_data.bdHoursLineWise" },
-            lineData: {
-              $push: {
-                // line_name: "$_id",
-                bdHoursLineWise: "$line_data.bdHoursLineWise",
-              },
-            },
-          },
-        },
+        
 
-         {
-                    $unwind: "$lineData",
-                  },
+// {
+//           $unwind: "$line_data",
+//         },
+        //   {
+        //   $group: {
+        //     _id: null,
+        //     totalBdTime: { $sum: "$line_data.bdHoursLineWise" },
+        //     // lineData: {
+        //     //   $push: {
+        //     //     // line_name: "$_id",
+        //     //     bdHoursLineWise: "$bdHoursLineWise",
+        //     //   },
+        //     // },
+        //   },
+        // },
 
-                  // {
-                  //             $project: {
-                  //               _id: "$_id",
-                  //               totalBdTime: 1,
-                  //               bdHours: "$lineData.bdHoursLineWise",
-                  //               percentage: {
-                  //                 $multiply: [
-                  //                   {
-                  //                     $divide: ["$lineData.bdHoursLineWise", "$totalBdTime"],
-                  //                   },
-                  //                   100,
-                  //                 ],
-                  //               },
-                  //             },
-                  //           },
+     
+
+       
         // {
         //   $project: {
         //     _id: "$line_name",
@@ -9741,15 +9827,22 @@ router.get(
         //   },
         // },
         // {
-        //   $unwind: "$percentages",
+        //   $unwind: "$line_data",
         // },
+
+        // {
+        //     $unwind: "$bdHours",
+        //   },
+          // {
+          //   $unwind: "$percentage",
+          // },
 
         // {
         //   $group : {
         //     _id : null,
         //     lineNames : {$push : "$line_name"},
         //     bdHours :  {$push :"$line_data.bdHours"},
-        //     percentages : {$push : "$line_data.percentage"}
+        //     percentages : {$push : "$line_data.percentages"}
         //   }
         // },
 
