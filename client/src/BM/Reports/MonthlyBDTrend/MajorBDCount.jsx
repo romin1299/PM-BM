@@ -97,7 +97,9 @@ const MajorBDCount = ({ currentTabViewName, sectionId, selectedYear }) => {
     //   currentTabViewName === "Plant"
     //     ? `/majorBDCountForPlant`
     //     : `/majorBDCountForSection/based-on-subSection/${sectionId}`;
-    const url = `/majorBDCount/based-on-${basedON}/${selectedId}`;
+    const url = `/majorBDCount${
+      currentTabViewName === "Section" ? "ForSection" : ""
+    }/based-on-${basedON}/${selectedId}`;
     // console.log("url:", url);
 
     const params = { selectedYear };
