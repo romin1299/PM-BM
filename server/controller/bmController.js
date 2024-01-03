@@ -6025,22 +6025,7 @@ const altMiddlewareForFindingPercentageData = async (req, res, next) => {
               ],
             },
           },
-          target: {
-            $sum: {
-              $cond: [
-                {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ],
-                },
-                {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                },
-                0,
-              ],
-            },
-          },
+        
         },
       },
 
@@ -6062,7 +6047,7 @@ const altMiddlewareForFindingPercentageData = async (req, res, next) => {
       {
         $project: {
           // count: 1,
-          target: 1,
+         
           hours: req.hourCalculationFormula,
         },
       },
@@ -6099,7 +6084,7 @@ const altMiddlewareForFindingPercentageData = async (req, res, next) => {
                       _id: "$$month.monthName",
                       // count: 0,
                       hours: 0,
-                      target: 0,
+                   
                     },
                   },
                 ],
@@ -6117,43 +6102,27 @@ const altMiddlewareForFindingPercentageData = async (req, res, next) => {
           _id: null,
           labels: { $push: "$month" },
 
-          target: { $push: { $trunc: ["$value.target", 1] } },
+         
           data: {
             $push: { $trunc: ["$value.hours", 1] },
           },
-          backgroundColor: {
-            $push: {
-              $cond: [
-                {
-                  $lte: ["$value.hours", "$value.target"],
-                },
-                "green",
-                "red",
-              ],
-            },
-          },
+          
         },
       },
     ]);
 
-    req.getBdPercentage = getBdPercentage;
-
-    next();
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
-
-const altResponseMiddlewareForPercentageReport = async (req, res, next) => {
-  try {
     return res.status(201).json({
-      message: req.message,
-      data: req?.getBdPercentage?.[0],
+      message: "BD Percentage data for Product/Line Wise KPI get successfully",
+      data:{ ...getBdPercentage?.[0], target: req.target},
     });
+
+
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
 };
+
+
 
 const productionHourFiltration = async (req, res, next) => {
   try {
@@ -6251,6 +6220,8 @@ const productionHourFiltration = async (req, res, next) => {
         },
       },
     ]);
+
+ 
 
     req.productionHrs = data?.[0];
 
@@ -6395,18 +6366,24 @@ const altproductionHourFiltration = async (req, res, next) => {
           "allTargetData.current_year": req.query?.selectedYear,
         },
       },
+
       {
-        $group: {
-          _id: null,
-          line_name: {
-            $push: "$line_name",
-          },
-          ...obj,
-        },
-      },
+        $project : {
+          "allTargetData.monthlyProductionHrs" :1 
+        }
+      }
+      // {
+      //   $group: {
+      //     _id: null,
+      //     line_name: {
+      //       $push: "$line_name",
+      //     },
+      //     ...obj,
+      //   },
+      // },
     ]);
 
-    req.productionHrs = data?.[0];
+    req.productionHrs = data?.[0]?.allTargetData;
 
     next();
   } catch (error) {
@@ -6418,7 +6395,8 @@ router.get(
   "/getBdPercentage/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-  productionHourFiltration,
+  targetMiddleware,
+  altproductionHourFiltration,
   async (req, res, next) => {
     try {
       req.queryPipeline = [
@@ -6452,7 +6430,7 @@ router.get(
     }
   },
   altMiddlewareForFindingPercentageData,
-  altResponseMiddlewareForPercentageReport
+  
 );
 
 // ---------------- MTBF Chart -------------------
@@ -6496,19 +6474,7 @@ const altMiddlewareForFindingTrendData = async (req, res, next) => {
       },
       ...req.queryPipeline,
 
-      {
-        $addFields: {
-          productionDataBasedOnRSMonth: {
-            $function: {
-              body: function (month, productionHrs) {
-                return productionHrs?.monthlyProductionHrs?.[month];
-              },
-              args: ["$_id", req.productionHrs],
-              lang: "js",
-            },
-          },
-        },
-      },
+      
       {
         $project: {
           count: 1,
@@ -6584,12 +6550,14 @@ const altMiddlewareForFindingTrendData = async (req, res, next) => {
       },
     ]);
 
+    // console.log("mtbfData",mtbfData)
+
     return res.status(201).json({
       message: "MTBF data in Product/Line Report get successfully",
       // data: mtbfData?.[0],
       // target : req?.target,
 
-      MTBFReportData: {
+      data: {
         ...mtbfData?.[0],
         target: req.target,
         // backgroundColor: req.target?.map((item, index) =>
@@ -6895,22 +6863,6 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
 
           ...req.grpQuery,
 
-          target: {
-            $sum: {
-              $cond: [
-                {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ],
-                },
-                {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                },
-                0,
-              ],
-            },
-          },
         },
       },
 
@@ -6949,7 +6901,7 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
                       lessThanOne: 0,
                       lessThanTwo: 0,
                       greaterThanTwo: 0,
-                      target: 0,
+                      
                     },
                   },
                 ],
@@ -6966,7 +6918,7 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
         $group: {
           _id: null,
           labels: { $push: "$month" },
-          target: { $push: { $trunc: ["$value.target", 1] } },
+        
           lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
 
           lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
@@ -6982,8 +6934,8 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
         { label: "<2", data: bdTrendData?.[0].lessThanTwo },
         { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
       ],
-
       bdTrendTarget: req.target,
+
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
