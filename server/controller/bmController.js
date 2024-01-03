@@ -6220,7 +6220,6 @@ const altproductionHourFiltration = async (req, res, next) => {
       },
       {
         $unwind: "$allTargetData",
-
       },
       {
         $match: {
@@ -6229,15 +6228,15 @@ const altproductionHourFiltration = async (req, res, next) => {
       },
       {
         $project: {
-          _id : 0,
-          "allTargetData.yearTotalProductionHrs": 1,
+          _id: 0,
+          "allTargetData.monthlyProductionHrs": 1,
         },
       },
     ]);
 
- 
+    // console.log("alt", data?.[0]?.allTargetData);
 
-    req.productionHrs = data?.[0]?.allTargetData?.yearTotalProductionHrs;
+    req.productionHrs = data?.[0]?.allTargetData;
 
     next();
   } catch (error) {
@@ -6327,41 +6326,27 @@ const altMiddlewareForFindingTrendData = async (req, res, next) => {
               ],
             },
           },
-          target: {
-            $sum: {
-              $cond: [
-                {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ],
-                },
-                {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                },
-                0,
-              ],
-            },
-          },
         },
       },
       ...req.queryPipeline,
 
-      // // $addFields: {
-      // //   productionDataBasedOnRSMonth: {
-      // //     $function: {
-      // //       body: function (month, productionHrs) {
-      // //         return productionHrs?.monthlyProductionHrs?.[month];
-      // //       },
-      // //       args: ["$_id", req.productionHrs],
-      // //       lang: "js",
-      // //     },
-      // //   },
-      // // },
+      {
+        $addFields: {
+          productionDataBasedOnRSMonth: {
+            $function: {
+              body: function (month, productionHrs) {
+                return productionHrs?.monthlyProductionHrs?.[month];
+              },
+              args: ["$_id", req.productionHrs],
+              lang: "js",
+            },
+          },
+        },
+      },
       {
         $project: {
           count: 1,
-          target: 1,
+
           hours: req.hourCalculationFormula,
         },
       },
@@ -6398,7 +6383,6 @@ const altMiddlewareForFindingTrendData = async (req, res, next) => {
                       _id: "$$month.monthName",
                       count: 0,
                       hours: 0,
-                      target: 0,
                     },
                   },
                 ],
@@ -6415,7 +6399,7 @@ const altMiddlewareForFindingTrendData = async (req, res, next) => {
         $group: {
           _id: null,
           labels: { $push: "$month" },
-          target: { $push: { $trunc: ["$value.target", 1] } },
+
           data: {
             $push: { $trunc: ["$value.hours", 1] },
           },
@@ -6434,21 +6418,18 @@ const altMiddlewareForFindingTrendData = async (req, res, next) => {
       },
     ]);
 
-    req.mtbfData = mtbfData;
-
-    next();
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
-
-const altResponseMiddlewareForReport = async (req, res, next) => {
-  try {
     return res.status(201).json({
-      message: req.message,
-      data: req?.mtbfData?.[0],
-      target : req.target,
-      
+      message: "MTBF data in Product/Line Report get successfully",
+      // data: mtbfData?.[0],
+      // target : req?.target,
+
+      MTBFReportData: {
+        ...mtbfData?.[0],
+        target: req.target,
+        // backgroundColor: req.target?.map((item, index) =>
+        // mtbfData?.[0]?.data?.[index] <= item ? "green" : "red"
+        // ),
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -6459,7 +6440,8 @@ router.get(
   "/getMtbfData/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-  productionHourFiltration,
+  targetMiddleware,
+  altproductionHourFiltration,
   async (req, res, next) => {
     try {
       req.queryPipeline = [
@@ -6487,14 +6469,12 @@ router.get(
         ],
       };
 
-      req.message = "MTBF data in Product/Line Report get successfully";
       next();
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
     }
   },
-  altMiddlewareForFindingTrendData,
-  altResponseMiddlewareForReport
+  altMiddlewareForFindingTrendData
 );
 
 router.get(
@@ -6762,10 +6742,7 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
                   ],
                 },
                 {
-                  $divide: [
-                    "$maintenanceReportFilledByMTD.breakDownTime",
-                    60,
-                  ],
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
                 },
                 0,
               ],
@@ -6810,7 +6787,6 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
                       lessThanTwo: 0,
                       greaterThanTwo: 0,
                       target: 0,
-
                     },
                   },
                 ],
@@ -6844,7 +6820,7 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
         { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
       ],
 
-      bdTrendTarget : req.target
+      bdTrendTarget: req.target,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -6853,31 +6829,30 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
 
 const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
   try {
+    let sectionIds;
+    let sectionIdsYes;
 
-    
+    if (req.params.selectedId) {
+      const sections = await Section.find({
+        plant_names: mongoose.Types.ObjectId(req.queryObj.plantRef.toString()),
+      });
+      // console.log(sections);
 
+      const noDashboardSections = sections.filter(
+        (section) => section.dashboardLevel === "No"
+      );
+      const yesDashboardSections = sections.filter(
+        (section) => section.dashboardLevel === "Yes"
+      );
 
+      sectionIds = noDashboardSections.map((section) => section._id.toString());
+      sectionIdsYes = yesDashboardSections.map((section) =>
+        section._id.toString()
+      );
+    }
 
-let sectionIds;
-let sectionIdsYes;
-
-if (req.params.selectedId) {
-  const sections = await Section.find({ plant_names: mongoose.Types.ObjectId(req.queryObj.plantRef.toString()) });
-  // console.log(sections);
-
-  const noDashboardSections = sections.filter((section) => section.dashboardLevel === "No");
-  const yesDashboardSections = sections.filter((section) => section.dashboardLevel === "Yes");
-
-   sectionIds = noDashboardSections.map((section) => section._id.toString());
-   sectionIdsYes = yesDashboardSections.map((section) => section._id.toString());
-   
-  }
-  
-  // console.log(...sectionIds)
-  // console.log(...sectionIdsYes)
-
-
-
+    // console.log(...sectionIds)
+    // console.log(...sectionIdsYes)
 
     const subSectionQuery = await SubSection.aggregate([
       {
@@ -6890,7 +6865,6 @@ if (req.params.selectedId) {
           pipeline: [
             {
               $match: {
-                
                 $expr: {
                   $eq: ["$$subsection", "$subSectionRef"],
                 },
@@ -6991,10 +6965,8 @@ if (req.params.selectedId) {
             },
 
             {
-        $unwind: "$data",
-      },
-
-           
+              $unwind: "$data",
+            },
           ],
           as: "section_data",
         },
@@ -7004,7 +6976,6 @@ if (req.params.selectedId) {
       //   $unwind: "$section_data",
       // },
 
-     
       {
         $project: {
           _id: 0,
@@ -7258,7 +7229,7 @@ if (req.params.selectedId) {
       message: "PlantWise Monthly BD trend data for Section get successfully",
 
       bdTrendData,
-      bdTrendTargetData :req.target,
+      bdTrendTargetData: req.target,
       // subSectionQuery,
       // sectionQuery
     });
@@ -8037,16 +8008,14 @@ if (req.params.selectedId) {
 
 const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
   try {
-    
-
     const bdTrendData = await Cell.aggregate([
       {
         $match: {
-      
           $or: [
-            { subSection_names: mongoose.Types.ObjectId(req.params.selectedId) },
+            {
+              subSection_names: mongoose.Types.ObjectId(req.params.selectedId),
+            },
             { section_names: mongoose.Types.ObjectId(req.params.selectedId) },
-         
           ],
         },
       },
@@ -8450,7 +8419,7 @@ const filterForMonthlyData = async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
- 
+
 const middlewareForPlant = async (req, res, next) => {
   let queryObj;
 
@@ -8468,7 +8437,7 @@ const middlewareForPlant = async (req, res, next) => {
       ...req.queryObj,
     };
   }
-     
+
   // console.log("PlantqueryObj", queryObj);
 
   req.queryObj = queryObj;
@@ -8480,7 +8449,7 @@ router.get(
   authenticate,
   filterMiddleware,
   targetMiddleware,
-  // middlewareForPlant,    
+  // middlewareForPlant,
   filterForMonthlyData,
   hourlyMonthlyBdTrendMiddleware
 );
@@ -8674,18 +8643,29 @@ router.get(
     try {
       let sectionIds;
       let sectionIdsYes;
-      
+
       if (req.params.selectedId) {
-        const sections = await Section.find({ plant_names: mongoose.Types.ObjectId(req.queryObj.plantRef.toString()) });
+        const sections = await Section.find({
+          plant_names: mongoose.Types.ObjectId(
+            req.queryObj.plantRef.toString()
+          ),
+        });
         // console.log(sections);
-      
-        const noDashboardSections = sections.filter((section) => section.dashboardLevel === "No");
-        const yesDashboardSections = sections.filter((section) => section.dashboardLevel === "Yes");
-      
-         sectionIds = noDashboardSections.map((section) => section._id.toString());
-         sectionIdsYes = yesDashboardSections.map((section) => section._id.toString());
-         
-        }
+
+        const noDashboardSections = sections.filter(
+          (section) => section.dashboardLevel === "No"
+        );
+        const yesDashboardSections = sections.filter(
+          (section) => section.dashboardLevel === "Yes"
+        );
+
+        sectionIds = noDashboardSections.map((section) =>
+          section._id.toString()
+        );
+        sectionIdsYes = yesDashboardSections.map((section) =>
+          section._id.toString()
+        );
+      }
       const subSectionQuery = await SubSection.aggregate([
         {
           $match: { section_names: mongoose.Types.ObjectId(...sectionIds) },
@@ -9049,9 +9029,12 @@ router.get(
         {
           $match: {
             $or: [
-              { subSection_names: mongoose.Types.ObjectId(req.params.selectedId) },
+              {
+                subSection_names: mongoose.Types.ObjectId(
+                  req.params.selectedId
+                ),
+              },
               { section_names: mongoose.Types.ObjectId(req.params.selectedId) },
-           
             ],
           },
         },
@@ -9197,25 +9180,34 @@ router.get(
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
     try {
-      
       let sectionIds;
       let sectionIdsYes;
 
-// console.log("mbssdsd", req.queryObj)
+      // console.log("mbssdsd", req.queryObj)
 
-if (req.params.selectedId ) {
-  const sections = await Section.find({ plant_names: mongoose.Types.ObjectId(req.queryObj.plantRef.toString()) });
-  // console.log(sections);
+      if (req.params.selectedId) {
+        const sections = await Section.find({
+          plant_names: mongoose.Types.ObjectId(
+            req.queryObj.plantRef.toString()
+          ),
+        });
+        // console.log(sections);
 
-  const noDashboardSections = sections.filter((section) => section.dashboardLevel === "No");
-  const yesDashboardSections = sections.filter((section) => section.dashboardLevel === "Yes");
+        const noDashboardSections = sections.filter(
+          (section) => section.dashboardLevel === "No"
+        );
+        const yesDashboardSections = sections.filter(
+          (section) => section.dashboardLevel === "Yes"
+        );
 
-   sectionIds = noDashboardSections.map((section) => section._id.toString());
-   sectionIdsYes = yesDashboardSections.map((section) => section._id.toString());
-   
-  }
+        sectionIds = noDashboardSections.map((section) =>
+          section._id.toString()
+        );
+        sectionIdsYes = yesDashboardSections.map((section) =>
+          section._id.toString()
+        );
+      }
 
-  
       const subSectionQuery = await SubSection.aggregate([
         {
           $match: { section_names: mongoose.Types.ObjectId(...sectionIds) },
@@ -9227,144 +9219,17 @@ if (req.params.selectedId ) {
             pipeline: [
               {
                 $match: {
-                  
                   $expr: {
                     $eq: ["$$subsection", "$subSectionRef"],
                   },
                 },
               },
               {
-                    $group: {
-                      _id: {
-                        date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-          
-                      
-                      },
-          
-                      count: {
-                        $sum: {
-                          $cond: [
-                            {
-                              $and: [
-                                {
-                                  $gt: [
-                                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                                    null,
-                                  ],
-                                },
-                                {
-                                  $gte: [
-                                    "$maintenanceReportFilledByMTD.breakDownTime",
-                                    120,
-                                  ],
-                                },
-                              ],
-                            },
-                            1,
-                            0,
-                          ],
-                        },
-                      },
-                    },
-                  },
-  
-              {
-                $group: {
-                  _id: "$section_name",
-                  label: { $first: "$section_name" },
-                  sectionWiseTotal: {
-                    $push: {
-                      month: "$_id.date",
-  
-                      count: "$count",
-                    },
-                  },
-                },
-              },
-  
-              {
-                $project: {
-                  _id: 0,
-                  // label: 1,
-                  data: {
-                    $map: {
-                      input: allMonths,
-                      as: "month",
-                      in: {
-                        $cond: [
-                          {
-                            $in: ["$$month.monthName", "$sectionWiseTotal.month"],
-                          },
-                          {
-                            $arrayElemAt: [
-                              "$sectionWiseTotal.count",
-                              {
-                                $indexOfArray: [
-                                  "$sectionWiseTotal.month",
-                                  "$$month.monthName",
-                                ],
-                              },
-                            ],
-                          },
-                          0,
-                        ],
-                      },
-                    },
-                  },
-                },
-              },
-              {
-          $unwind: "$data",
-        },
-            ],
-            as: "section_data",
-          },
-        },
-  
-        // {
-        //   $unwind: "$section_data",
-        // },
-        {
-          $project: {
-            _id: 0,
-            label: "$subSection_name",
-            data: "$section_data.data",
-          },
-        },
-      ]);
-
-      const sectionQuery = await Section.aggregate([
-        {
-          $match: { _id: mongoose.Types.ObjectId(...sectionIdsYes) },
-        },
-  
-        // {
-        //   $group : {
-        //     _id : "$section_name"
-        //   }
-        // },
-  
-        {
-          $lookup: {
-            from: "requestsheetofbms",
-            let: { section: "$_id" },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $eq: ["$$section", "$sectionRef"],
-                  },
-                },
-              },
-  
-              {
                 $group: {
                   _id: {
                     date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-      
-                  
                   },
-      
+
                   count: {
                     $sum: {
                       $cond: [
@@ -9391,7 +9256,7 @@ if (req.params.selectedId ) {
                   },
                 },
               },
-  
+
               {
                 $group: {
                   _id: "$section_name",
@@ -9399,13 +9264,13 @@ if (req.params.selectedId ) {
                   sectionWiseTotal: {
                     $push: {
                       month: "$_id.date",
-  
-                      count:"$count",
+
+                      count: "$count",
                     },
                   },
                 },
               },
-  
+
               {
                 $project: {
                   _id: 0,
@@ -9417,7 +9282,135 @@ if (req.params.selectedId ) {
                       in: {
                         $cond: [
                           {
-                            $in: ["$$month.monthName", "$sectionWiseTotal.month"],
+                            $in: [
+                              "$$month.monthName",
+                              "$sectionWiseTotal.month",
+                            ],
+                          },
+                          {
+                            $arrayElemAt: [
+                              "$sectionWiseTotal.count",
+                              {
+                                $indexOfArray: [
+                                  "$sectionWiseTotal.month",
+                                  "$$month.monthName",
+                                ],
+                              },
+                            ],
+                          },
+                          0,
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $unwind: "$data",
+              },
+            ],
+            as: "section_data",
+          },
+        },
+
+        // {
+        //   $unwind: "$section_data",
+        // },
+        {
+          $project: {
+            _id: 0,
+            label: "$subSection_name",
+            data: "$section_data.data",
+          },
+        },
+      ]);
+
+      const sectionQuery = await Section.aggregate([
+        {
+          $match: { _id: mongoose.Types.ObjectId(...sectionIdsYes) },
+        },
+
+        // {
+        //   $group : {
+        //     _id : "$section_name"
+        //   }
+        // },
+
+        {
+          $lookup: {
+            from: "requestsheetofbms",
+            let: { section: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$$section", "$sectionRef"],
+                  },
+                },
+              },
+
+              {
+                $group: {
+                  _id: {
+                    date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+                  },
+
+                  count: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $and: [
+                            {
+                              $gt: [
+                                "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                                null,
+                              ],
+                            },
+                            {
+                              $gte: [
+                                "$maintenanceReportFilledByMTD.breakDownTime",
+                                120,
+                              ],
+                            },
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+
+              {
+                $group: {
+                  _id: "$section_name",
+                  label: { $first: "$section_name" },
+                  sectionWiseTotal: {
+                    $push: {
+                      month: "$_id.date",
+
+                      count: "$count",
+                    },
+                  },
+                },
+              },
+
+              {
+                $project: {
+                  _id: 0,
+                  // label: 1,
+                  data: {
+                    $map: {
+                      input: allMonths,
+                      as: "month",
+                      in: {
+                        $cond: [
+                          {
+                            $in: [
+                              "$$month.monthName",
+                              "$sectionWiseTotal.month",
+                            ],
                           },
                           {
                             $arrayElemAt: [
@@ -9438,14 +9431,14 @@ if (req.params.selectedId ) {
                 },
               },
 
-                {
-          $unwind: "$data",
-        },
+              {
+                $unwind: "$data",
+              },
             ],
             as: "section_data",
           },
         },
-  
+
         // {
         //   $unwind: "$section_data",
         // },
@@ -9457,7 +9450,6 @@ if (req.params.selectedId ) {
           },
         },
       ]);
-
 
       const bdTrendData = [...subSectionQuery, ...sectionQuery];
       return res.status(200).json({
@@ -9479,26 +9471,26 @@ router.get(
   filterMiddleware,
   async (req, res, next) => {
     try {
-    
-
       const bdTrendData = await Cell.aggregate([
         {
           $match: {
-             $or: [
-            { subSection_names: mongoose.Types.ObjectId(req.params.selectedId) },
-            { section_names: mongoose.Types.ObjectId(req.params.selectedId) },
-         
-          ],
-            
+            $or: [
+              {
+                subSection_names: mongoose.Types.ObjectId(
+                  req.params.selectedId
+                ),
+              },
+              { section_names: mongoose.Types.ObjectId(req.params.selectedId) },
+            ],
           },
         },
-  
+
         // {
         //   $group : {
         //     _id : "$section_name"
         //   }
         // },
-  
+
         {
           $lookup: {
             from: "requestsheetofbms",
@@ -9511,15 +9503,13 @@ router.get(
                   },
                 },
               },
-  
+
               {
                 $group: {
                   _id: {
                     date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-      
-                  
                   },
-      
+
                   count: {
                     $sum: {
                       $cond: [
@@ -9546,7 +9536,7 @@ router.get(
                   },
                 },
               },
-  
+
               {
                 $group: {
                   _id: "$section_name",
@@ -9554,13 +9544,13 @@ router.get(
                   cellWiseTotal: {
                     $push: {
                       month: "$_id.date",
-  
-                      count:"$count",
+
+                      count: "$count",
                     },
                   },
                 },
               },
-  
+
               {
                 $project: {
                   _id: 0,
@@ -9603,7 +9593,7 @@ router.get(
         // {
         //   $unwind: "$cell_data",
         // },
-  
+
         {
           $project: {
             _id: 0,
@@ -9626,52 +9616,101 @@ router.get(
 
 // ---------------- LineWise BD Contribution Charts -------------------
 
+const middlewareForLineWiseContribution = async (req, res, next) => {
+  try {
+    let queryFilter;
+    let queryObj;
+    if (req.query?.selectedYear) {
+      queryObj = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+      };
+    }
+
+    if (req.query?.selectedMonth) {
+      queryObj = {
+        ...queryObj,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      };
+    }
+
+    if (req.params?.filter === "based-on-plant") {
+      queryFilter = {
+        plant_names: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    }
+    if (req.params?.filter === "based-on-section") {
+      queryFilter = {
+        section_names: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    }
+    if (req.params?.filter === "based-on-subSection") {
+      queryFilter = {
+        subSection_names: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    }
+    if (req.params?.filter === "based-on-cell") {
+      queryFilter = {
+        cell_names: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    }
+
+    req.queryFilter = queryFilter;
+    req.queryObj = queryObj;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 router.get(
-  "/lineWiseBdContributionForPlant",
+  "/lineWiseBdContributionForPlant/:filter/:selectedId",
   authenticate,
+  middlewareForLineWiseContribution,
   // filterMiddleware,
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
     try {
-      let queryObj;
-      if (req.query?.selectedYear) {
-        queryObj = {
-          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-            req.query?.selectedYear,
-        };
-      }
+      // console.log("queryObj",queryFilter)
 
-      if (req.query?.selectedMonth) {
-        queryObj = {
-          ...queryObj,
-          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-            req.query?.selectedMonth,
-        };
-      }
+      const linewiseTotalSum = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
 
-      const plant = await Plant.findOne({
-        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-      });
+        {
+          $group: {
+            _id: null,
 
-      queryObj = {
-        ...queryObj,
-        plantRef: mongoose.Types.ObjectId(plant._id),
-      };
+            totalOfLine: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      ]);
 
-      // console.log(queryObj) 
-
-      let newQueryObj = { ...queryObj };
-      delete newQueryObj[
-        "plantRef"
-      ];
-
-
-  
-      // console.log("newQueryObj",newQueryObj)
+      const totalSumOfLines = linewiseTotalSum?.[0]?.totalOfLine;
 
       const lineWiseBDData = await Line.aggregate([
         {
-          $match:{ plant_names: mongoose.Types.ObjectId(queryObj.plantRef.toString()) },
+          $match: req.queryFilter,
         },
         {
           $lookup: {
@@ -9679,182 +9718,107 @@ router.get(
             let: { line: "$_id" },
             pipeline: [
               {
-                $match : newQueryObj,
+                $match: {
+                  $expr: {
+                    $eq: ["$$line", "$lineRef"],
+                  },
+                },
               },
-
               {
-                $group : {
+                $group: {
                   _id: null,
 
-                  total : {$sum : {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  }, },
-
-                }
+                  bdHoursLineWise: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gt: [
+                            "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                            null,
+                          ],
+                        },
+                        {
+                          $divide: [
+                            "$maintenanceReportFilledByMTD.breakDownTime",
+                            60,
+                          ],
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                },
               },
-              // {
-              //   $match: {
-                  
-              //     $expr: {
-              //       $eq: ["$$line", "$lineRef"],
-              //     },
-              //   },
-              // },
-              // {
-              //   $group: {
-              //     _id: null,
-
-             
-  
-              //     bdHoursLineWise: {
-              //       $sum: {
-              //         $cond: [
-              //           {
-              //             $gt: [
-              //               "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-              //               null,
-              //             ],
-              //           },
-              //           {
-              //             $divide: [
-              //               "$maintenanceReportFilledByMTD.breakDownTime",
-              //               60,
-              //             ],
-              //           },
-              //           0,
-              //         ],
-              //       },
-              //     },
-  
-          
-              //   },
-              // },
-
-           
-  
-        // {
-        //   $group: {
-        //     _id: null,
-        //     totalBdTime: { $sum: "$bdHoursLineWise" },
-        //     lineData: {
-        //       $push: {
-        //         line_name: "$_id",
-        //         bdHoursLineWise: "$bdHoursLineWise",
-        //       },
-        //     },
-        //   },
-        // },
-        // {
-        //             $unwind: "$lineData",
-        //           },
-
-        //           {
-        //                       $project: {
-        //                         _id: null,
-        //                         totalBdTime: 1,
-        //                         bdHours: "$lineData.bdHoursLineWise",
-        //                         percentage: {
-        //                           $multiply: [
-        //                             {
-        //                               $divide: ["$lineData.bdHoursLineWise", "$totalBdTime"],
-        //                             },
-        //                             100,
-        //                           ],
-        //                         },
-        //                       },
-        //                     },
-  
-        // //                     // {
-        // //                     //             $sort: {
-        // //                     //               percentage: -1,
-        // //                     //             },
-        // //                     //           },
-                              
-        //                               {
-        //                                 $project: {
-        //                                   _id: null,
-                              
-        //                                   // lineNames: { $push: "$_id" },
-        //                                   bdHours:  { $trunc: ["$bdHours", 1] } ,
-        //                                   percentages: { $trunc: ["$percentage", 1]  },
-        //                                 },
-        //                               },
-
-                                      
-        //     {
-        //       $unwind: "$bdHours",
-        //     },
-        //     {
-        //       $unwind: "$percentages",
-        //     },
-  
-             
             ],
             as: "line_data",
           },
         },
 
-        
+        {
+          $project: {
+            line_name: 1,
+            sumOfLine: {
+              $cond: [
+                {
+                  $gt: [
+                    {
+                      $arrayElemAt: ["$line_data.bdHoursLineWise", 0],
+                    },
+                    null,
+                  ],
+                },
+                { $arrayElemAt: ["$line_data.bdHoursLineWise", 0] },
+                0,
+              ],
+            },
+            percentage: {
+              $divide: [
+                {
+                  $multiply: [
+                    {
+                      $cond: [
+                        {
+                          $gt: [
+                            {
+                              $arrayElemAt: ["$line_data.bdHoursLineWise", 0],
+                            },
+                            null,
+                          ],
+                        },
+                        {
+                          $arrayElemAt: ["$line_data.bdHoursLineWise", 0],
+                        },
+                        0,
+                      ],
+                    },
+                    100,
+                  ],
+                },
+                totalSumOfLines,
+              ],
+            },
+          },
+        },
 
-// {
-//           $unwind: "$line_data",
-//         },
-        //   {
-        //   $group: {
-        //     _id: null,
-        //     totalBdTime: { $sum: "$line_data.bdHoursLineWise" },
-        //     // lineData: {
-        //     //   $push: {
-        //     //     // line_name: "$_id",
-        //     //     bdHoursLineWise: "$bdHoursLineWise",
-        //     //   },
-        //     // },
-        //   },
-        // },
-
-     
-
-       
-        // {
-        //   $project: {
-        //     _id: "$line_name",
-        //     lineNames : "$line_name",
-        //     bdHours: "$line_data.bdHours",
-        //     percentages: "$line_data.percentages",
-        //   },
-        // },
-        // {
-        //   $unwind: "$line_data",
-        // },
-
-        // {
-        //     $unwind: "$bdHours",
-        //   },
-          // {
-          //   $unwind: "$percentage",
-          // },
-
-        // {
-        //   $group : {
-        //     _id : null,
-        //     lineNames : {$push : "$line_name"},
-        //     bdHours :  {$push :"$line_data.bdHours"},
-        //     percentages : {$push : "$line_data.percentages"}
-        //   }
-        // },
-
-        
+        {
+          $sort: {
+            percentage: -1,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            lineNames: { $push: "$line_name" },
+            bdHours: { $push: "$sumOfLine" },
+            percentages: { $push: "$percentage" },
+          },
+        },
       ]);
-
 
       return res.status(200).json({
         message: "LineWise Bd contribution for Plant get successfully",
-        total : lineWiseBDData.length,
+        total: lineWiseBDData.length,
         lineWiseBDData,
-        
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
