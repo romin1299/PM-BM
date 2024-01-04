@@ -1270,7 +1270,9 @@ const targetMiddleware = async (req, res, next) => {
           $sum: `$allTargetData.monthlyBDHrsTarget.${allMonths?.[i]?.monthName}`,
         };
 
+        
         arr.push(`$${allMonths?.[i]?.monthName}`);
+     
       }
 
       pipeline = [
@@ -5990,246 +5992,11 @@ router.get(
 
 // ---------------- BD percentage Chart -------------------
 
-const altMiddlewareForFindingPercentageData = async (req, res, next) => {
-  try {
-    const getBdPercentage = await RequestSheetOfBM.aggregate([
-      {
-        // $match: {},
-        $match: req.queryObj,
-      },
-      {
-        $group: {
-          // _id: {
-          //   $dateToString: {
-          //     format: "%m",
-          //     date: "$problemOccurredDateAndTimeOfBM",
-          //     timezone: timezone,
-          //   },
-          // },
-
-          _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-
-          hours: {
-            $sum: {
-              $cond: [
-                {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ],
-                },
-                {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                },
-                0,
-              ],
-            },
-          },
-        
-        },
-      },
-
-      ...req.queryPipeline,
-
-      //   $addFields: {
-      //     productionDataBasedOnRSMonth: {
-      //       $function: {
-      //         body: function (month, productionHrs) {
-      //           return productionHrs?.monthlyProductionHrs?.[month];
-      //         },
-      //         args: ["$_id", req.productionHrs],
-      //         lang: "js",
-      //       },
-      //     },
-      //   },
-      // },
-
-      {
-        $project: {
-          // count: 1,
-         
-          hours: req.hourCalculationFormula,
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          array: { $push: "$$ROOT" },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          array: {
-            $map: {
-              input: allMonths,
-              as: "month",
-              in: {
-                $cond: [
-                  { $in: ["$$month.monthName", "$array._id"] },
-                  {
-                    month: "$$month.monthName",
-                    value: {
-                      $arrayElemAt: [
-                        "$array",
-                        {
-                          $indexOfArray: ["$array._id", "$$month.monthName"],
-                        },
-                      ],
-                    },
-                  },
-                  {
-                    month: "$$month.monthName",
-                    value: {
-                      _id: "$$month.monthName",
-                      // count: 0,
-                      hours: 0,
-                   
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        },
-      },
-      { $unwind: "$array" },
-      {
-        $replaceRoot: { newRoot: "$array" },
-      },
-      {
-        $group: {
-          _id: null,
-          labels: { $push: "$month" },
-
-         
-          data: {
-            $push: { $trunc: ["$value.hours", 1] },
-          },
-          
-        },
-      },
-    ]);
-
-    return res.status(201).json({
-      message: "BD Percentage data for Product/Line Wise KPI get successfully",
-      data:{ ...getBdPercentage?.[0], target: req.target},
-    });
-
-
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
 
 
 
-const productionHourFiltration = async (req, res, next) => {
-  try {
-    // let schema;
 
-    // if (req.params?.filter === "based-on-section") {
-    //   schema = Section;
-    // } else if (req.params?.filter === "based-on-subSection") {
-    //   schema = SubSection;
-    // } else if (req.params?.filter === "based-on-cell") {
-    //   schema = Cell;
-    // } else {
-    //   schema = Line;
-    // }
 
-    // const data = await schema.aggregate([
-    //   {
-    //     $match: {
-    //       _id: mongoose.Types.ObjectId(req.params?.selectedId),
-    //     },
-    //   },
-    //   {
-    //     $unwind: "$productionHrs",
-    //   },
-    //   {
-    //     $match: {
-    //       "productionHrs.current_year": req.query?.selectedYear,
-    //     },
-    //   },
-    //   {
-    //     $project: {
-    //       productionHrs: 1,
-    //     },
-    //   },
-    // ]);
-
-    // req.productionHrs = data?.[0]?.productionHrs;
-
-    // next();
-
-    let queryObj = {},
-      obj = {
-        yearTotalProductionHrs: {
-          $sum: `$allTargetData.yearTotalProductionHrs`,
-        },
-      };
-
-    for (let i = 0; i < allMonths.length; i++) {
-      obj[allMonths?.[i]?.monthName] = {
-        $sum: `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`,
-      };
-    }
-
-    if (req.params?.filter === "based-on-plant") {
-      queryObj = {
-        plant_names: mongoose.Types.ObjectId(req.params.selectedId),
-      };
-    } else if (req.params?.filter === "based-on-section") {
-      queryObj = {
-        section_names: mongoose.Types.ObjectId(req.params.selectedId),
-      };
-    } else if (req.params?.filter === "based-on-subSection") {
-      queryObj = {
-        subSection_names: mongoose.Types.ObjectId(req.params.selectedId),
-      };
-    } else if (req.params?.filter === "based-on-cell") {
-      queryObj = {
-        cell_names: mongoose.Types.ObjectId(req.params.selectedId),
-      };
-    } else if (req.params?.filter === "based-on-line") {
-      queryObj = {
-        _id: mongoose.Types.ObjectId(req.params.selectedId),
-      };
-    }
-
-    const data = await Line.aggregate([
-      {
-        $match: queryObj,
-      },
-      {
-        $unwind: "$allTargetData",
-      },
-      {
-        $match: {
-          "allTargetData.current_year": req.query?.selectedYear,
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          line_name: {
-            $push: "$line_name",
-          },
-          ...obj,
-        },
-      },
-    ]);
-
- 
-
-    req.productionHrs = data?.[0];
-
-    next();
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
 
 // const altproductionHourFiltration = async (req, res, next) => {
 //   try {
@@ -6338,6 +6105,123 @@ const productionHourFiltration = async (req, res, next) => {
 //   }
 // };
 
+
+
+
+
+// ---------------- MTBF Chart -------------------
+const productionHourFiltration = async (req, res, next) => {
+  try {
+    // let schema;
+
+    // if (req.params?.filter === "based-on-section") {
+    //   schema = Section;
+    // } else if (req.params?.filter === "based-on-subSection") {
+    //   schema = SubSection;
+    // } else if (req.params?.filter === "based-on-cell") {
+    //   schema = Cell;
+    // } else {
+    //   schema = Line;
+    // }
+
+    // const data = await schema.aggregate([
+    //   {
+    //     $match: {
+    //       _id: mongoose.Types.ObjectId(req.params?.selectedId),
+    //     },
+    //   },
+    //   {
+    //     $unwind: "$productionHrs",
+    //   },
+    //   {
+    //     $match: {
+    //       "productionHrs.current_year": req.query?.selectedYear,
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       productionHrs: 1,
+    //     },
+    //   },
+    // ]);
+
+    // req.productionHrs = data?.[0]?.productionHrs;
+
+    // next();
+
+    let queryObj = {},
+      obj = {
+        yearTotalProductionHrs: {
+          $sum: `$allTargetData.yearTotalProductionHrs`,
+        },
+      };
+
+      
+      for (let i = 0; i < allMonths.length; i++) {
+        obj[allMonths?.[i]?.monthName] = {
+          $sum: `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`,
+        };
+      }
+      
+
+    if (req.params?.filter === "based-on-plant") {
+      queryObj = {
+        plant_names: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-section") {
+      queryObj = {
+        section_names: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-subSection") {
+      queryObj = {
+        subSection_names: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-cell") {
+      queryObj = {
+        cell_names: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-line") {
+      queryObj = {
+        _id: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    }
+
+    const data = await Line.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $unwind: "$allTargetData",
+      },
+      {
+        $match: {
+          "allTargetData.current_year": req.query?.selectedYear,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          line_name: {
+            $push: "$line_name",
+          },
+          ...obj,
+        },
+      },
+    ]);
+
+   console.log(data)
+
+ 
+
+    req.productionHrs = data?.[0];
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+
 const altproductionHourFiltration = async (req, res, next) => {
   try {
     let schema;
@@ -6383,6 +6267,8 @@ const altproductionHourFiltration = async (req, res, next) => {
       // },
     ]);
 
+
+
     req.productionHrs = data?.[0]?.allTargetData;
 
     next();
@@ -6391,49 +6277,220 @@ const altproductionHourFiltration = async (req, res, next) => {
   }
 };
 
-router.get(
-  "/getBdPercentage/:filter/:selectedId",
-  authenticate,
-  filterMiddleware,
-  targetMiddleware,
-  altproductionHourFiltration,
-  async (req, res, next) => {
-    try {
-      req.queryPipeline = [
-        {
-          $addFields: {
-            productionDataBasedOnRSMonth: {
-              $function: {
-                body: function (month, productionHrs) {
-                  return productionHrs?.monthlyProductionHrs?.[month];
+const altMiddlewareForFindingPercentageData = async (req, res, next) => {
+  try {
+    const getBdPercentage = await RequestSheetOfBM.aggregate([
+      {
+        // $match: {},
+        $match: req.queryObj,
+      },
+      {
+        $group: {
+          // _id: {
+          //   $dateToString: {
+          //     format: "%m",
+          //     date: "$problemOccurredDateAndTimeOfBM",
+          //     timezone: timezone,
+          //   },
+          // },
+
+          _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+
+          hours: {
+            $sum: {
+              $cond: [
+                {
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
+                  ],
                 },
-                args: ["$_id", req.productionHrs],
-                lang: "js",
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+                },
+                0,
+              ],
+            },
+          },
+        
+        },
+      },
+
+      // ...req.queryPipeline,
+
+      //   $addFields: {
+      //     productionDataBasedOnRSMonth: {
+      //       $function: {
+      //         body: function (month, productionHrs) {
+      //           return productionHrs?.monthlyProductionHrs?.[month];
+      //         },
+      //         args: ["$_id", req.productionHrs],
+      //         lang: "js",
+      //       },
+      //     },
+      //   },
+      // },
+
+      {
+        $project: {
+          // count: 1,
+         
+          hours: req.hourCalculationFormula,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          array: { $push: "$$ROOT" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          array: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  { $in: ["$$month.monthName", "$array._id"] },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      $arrayElemAt: [
+                        "$array",
+                        {
+                          $indexOfArray: ["$array._id", "$$month.monthName"],
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      _id: "$$month.monthName",
+                      // count: 0,
+                      hours: 0,
+                   
+                    },
+                  },
+                ],
               },
             },
           },
         },
-      ];
+      },
+      { $unwind: "$array" },
+      {
+        $replaceRoot: { newRoot: "$array" },
+      },
+      {
+        $group: {
+          _id: null,
+          labels: { $push: "$month" },
 
-      req.hourCalculationFormula = {
-        $multiply: [
-          { $divide: ["$hours", "$productionDataBasedOnRSMonth"] },
-          100,
-        ],
+         
+          data: {
+            $push: { $trunc: ["$value.hours", 1] },
+          },
+          
+        },
+      },
+    ]);
+
+    return res.status(201).json({
+      message: "BD Percentage data for Product/Line Wise KPI get successfully",
+      data:{ ...getBdPercentage?.[0], target: req.target},
+    });
+
+
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+
+const productionMiddleware = async (req, res, next) => {
+  try {
+    
+
+    let queryObj = {},
+      obj = {
+        yearTotalProductionHrs: {
+          $sum: `$allTargetData.yearTotalProductionHrs`,
+        },
       };
 
-      req.message =
-        "BD percentage data in Product/Line Report get successfully";
-      next();
-    } catch (error) {
-      res.status(500).json({ message: "error?.message, error" });
-    }
-  },
-  altMiddlewareForFindingPercentageData,
-  
-);
+      
+      for (let i = 0; i < allMonths.length; i++) {
+      obj[allMonths?.[i]?.monthName] = {
+           $sum: `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`,
+      
+      
+      };
+      }
+      
 
-// ---------------- MTBF Chart -------------------
+    if (req.params?.filter === "based-on-plant") {
+      queryObj = {
+        plant_names: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-section") {
+      queryObj = {
+        section_names: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-subSection") {
+      queryObj = {
+        subSection_names: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-cell") {
+      queryObj = {
+        cell_names: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-line") {
+      queryObj = {
+        _id: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    }
+
+    const data = await Line.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $unwind: "$allTargetData",
+      },
+      {
+        $match: {
+          "allTargetData.current_year": req.query?.selectedYear,
+        },
+      },
+      {
+        $group: {
+          _id: null, 
+          line_name: {
+            $push: "$line_name",
+          },
+          ...obj,
+        },
+      },
+    ]);
+
+    // console.log("DATA",data)
+
+   
+
+ 
+
+    req.productionHrs = data?.[0];
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+
 const altMiddlewareForFindingTrendData = async (req, res, next) => {
   try {
     const mtbfData = await RequestSheetOfBM.aggregate([
@@ -6472,7 +6529,7 @@ const altMiddlewareForFindingTrendData = async (req, res, next) => {
           },
         },
       },
-      ...req.queryPipeline,
+      // ...req.queryPipeline,
 
       
       {
@@ -6575,7 +6632,7 @@ router.get(
   authenticate,
   filterMiddleware,
   targetMiddleware,
-  altproductionHourFiltration,
+  productionMiddleware,
   async (req, res, next) => {
     try {
       req.queryPipeline = [
@@ -6597,7 +6654,30 @@ router.get(
       req.hourCalculationFormula = {
         $divide: [
           {
-            $subtract: ["$productionDataBasedOnRSMonth", "$hours"],
+            $subtract: [
+              {
+                $getField: {
+                  field: "v",
+                  input: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: {
+                            $objectToArray: req.productionHrs,
+                          },
+                          as: "monthlyProduction",
+                          cond: {
+                            $eq: ["$$monthlyProduction.k", "$_id"],
+                          },
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                },
+              },
+              "$hours",
+            ],
           },
           "$count",
         ],
@@ -6609,6 +6689,81 @@ router.get(
     }
   },
   altMiddlewareForFindingTrendData
+);
+
+router.get(
+  "/getBdPercentage/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  targetMiddleware,
+  productionMiddleware,
+  async (req, res, next) => {
+    try {
+      req.queryPipeline = [
+        {
+          $addFields: {
+            productionDataBasedOnRSMonth: {
+              $function: {
+                body: function (month, productionHrs) {
+                  return productionHrs?.monthlyProductionHrs?.[month];
+                },
+                args: ["$_id", req.productionHrs],
+                lang: "js",
+              },
+            },
+          },
+        },
+      ];
+
+      // req.hourCalculationFormula = {
+      //   $multiply: [
+      //     { $divide: ["$hours", "$productionDataBasedOnRSMonth"] },
+      //     100,
+      //   ],
+      // };
+
+      req.hourCalculationFormula = {
+        $multiply: [
+          {
+            $divide: [
+              "$hours",
+              {
+                $getField: {
+                  field: "v",
+                  input: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: {
+                            $objectToArray: req.productionHrs,
+                          },
+                          as: "monthlyProduction",
+                          cond: {
+                            $eq: ["$$monthlyProduction.k", "$_id"],
+                          },
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                },
+              },
+            
+            ],
+          },
+          100,
+        ],
+      };
+
+      req.message =
+        "BD percentage data in Product/Line Report get successfully";
+      next();
+    } catch (error) {
+      res.status(500).json({ message: "error?.message, error" });
+    }
+  },
+  altMiddlewareForFindingPercentageData,
+  
 );
 
 router.get(
@@ -8559,11 +8714,115 @@ const middlewareForPlant = async (req, res, next) => {
   next();
 };
 
+const targetMiddlewareForMBD = async (req, res, next) => {
+  try {
+    let queryObj = {},
+      pipeline = [];
+
+    if (req.params?.filter === "based-on-cell") {
+      queryObj = {
+        _id: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+
+      pipeline = [
+        {
+          $project: {
+            _id: 0,
+            monthlyTarget: {
+              $map: {
+                input: {
+                  $objectToArray: "$allTargetData.monthlyBDHrsTarget",
+                },
+                as: "obj",
+                in: "$$obj.v",
+              },
+            },
+          },
+        },
+      ];
+    } else {
+      let obj = {},
+        arr = [];
+
+      for (let i = 0; i < allMonths.length; i++) {
+        obj[allMonths?.[i]?.monthName] = {
+          $sum: `$allTargetData.monthlyBDHrsTarget.${allMonths?.[i]?.monthName}`,
+        };
+
+        
+        arr.push(`$${allMonths?.[i]?.monthName}`);
+     
+      }
+
+      pipeline = [
+        {
+          $group: {
+            _id: null,
+            line_name: {
+              $push: "$line_name",
+            },
+            ...obj,
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            monthlyTarget: arr,
+          },
+        },
+      ];
+
+      if (req.params?.filter === "based-on-plant") {
+        queryObj = {
+          plant_names: mongoose.Types.ObjectId(req.params.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-section") {
+        queryObj = {
+          section_names: mongoose.Types.ObjectId(req.params.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-subSection") {
+        queryObj = {
+          subSection_names: mongoose.Types.ObjectId(req.params.selectedId),
+        };
+      } 
+      // else if (req.params?.filter === "based-on-cell") {
+      //   queryObj = {
+      //     cell_names: mongoose.Types.ObjectId(req.params.selectedId),
+      //   };
+      // }
+    }
+
+    const target = await Line.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $unwind: "$allTargetData",
+      },
+      {
+        $match: {
+          "allTargetData.current_year": req.query?.selectedYear,
+        },
+      },
+
+      ...pipeline,
+    ]);
+
+
+    console.log("target?.[0]?.PLANTmonthlyTarget",target?.[0]?.monthlyTarget)
+
+    req.target = target?.[0]?.monthlyTarget || [];
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 router.get(
   "/hourlyMonthlyBdTrend/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-  targetMiddleware,
+  targetMiddlewareForMBD,
   // middlewareForPlant,
   filterForMonthlyData,
   hourlyMonthlyBdTrendMiddleware
