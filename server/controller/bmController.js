@@ -1270,9 +1270,7 @@ const targetMiddleware = async (req, res, next) => {
           $sum: `$allTargetData.monthlyBDHrsTarget.${allMonths?.[i]?.monthName}`,
         };
 
-        
         arr.push(`$${allMonths?.[i]?.monthName}`);
-     
       }
 
       pipeline = [
@@ -5992,12 +5990,6 @@ router.get(
 
 // ---------------- BD percentage Chart -------------------
 
-
-
-
-
-
-
 // const altproductionHourFiltration = async (req, res, next) => {
 //   try {
 //     // let schema;
@@ -6105,10 +6097,6 @@ router.get(
 //   }
 // };
 
-
-
-
-
 // ---------------- MTBF Chart -------------------
 const productionHourFiltration = async (req, res, next) => {
   try {
@@ -6156,13 +6144,11 @@ const productionHourFiltration = async (req, res, next) => {
         },
       };
 
-      
-      for (let i = 0; i < allMonths.length; i++) {
-        obj[allMonths?.[i]?.monthName] = {
-          $sum: `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`,
-        };
-      }
-      
+    for (let i = 0; i < allMonths.length; i++) {
+      obj[allMonths?.[i]?.monthName] = {
+        $sum: `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`,
+      };
+    }
 
     if (req.params?.filter === "based-on-plant") {
       queryObj = {
@@ -6209,9 +6195,7 @@ const productionHourFiltration = async (req, res, next) => {
       },
     ]);
 
-   console.log(data)
-
- 
+    console.log(data);
 
     req.productionHrs = data?.[0];
 
@@ -6220,7 +6204,6 @@ const productionHourFiltration = async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
-
 
 const altproductionHourFiltration = async (req, res, next) => {
   try {
@@ -6252,10 +6235,10 @@ const altproductionHourFiltration = async (req, res, next) => {
       },
 
       {
-        $project : {
-          "allTargetData.monthlyProductionHrs" :1 
-        }
-      }
+        $project: {
+          "allTargetData.monthlyProductionHrs": 1,
+        },
+      },
       // {
       //   $group: {
       //     _id: null,
@@ -6266,8 +6249,6 @@ const altproductionHourFiltration = async (req, res, next) => {
       //   },
       // },
     ]);
-
-
 
     req.productionHrs = data?.[0]?.allTargetData;
 
@@ -6312,7 +6293,6 @@ const altMiddlewareForFindingPercentageData = async (req, res, next) => {
               ],
             },
           },
-        
         },
       },
 
@@ -6334,7 +6314,7 @@ const altMiddlewareForFindingPercentageData = async (req, res, next) => {
       {
         $project: {
           // count: 1,
-         
+
           hours: req.hourCalculationFormula,
         },
       },
@@ -6371,7 +6351,6 @@ const altMiddlewareForFindingPercentageData = async (req, res, next) => {
                       _id: "$$month.monthName",
                       // count: 0,
                       hours: 0,
-                   
                     },
                   },
                 ],
@@ -6389,31 +6368,24 @@ const altMiddlewareForFindingPercentageData = async (req, res, next) => {
           _id: null,
           labels: { $push: "$month" },
 
-         
           data: {
             $push: { $trunc: ["$value.hours", 1] },
           },
-          
         },
       },
     ]);
 
     return res.status(201).json({
       message: "BD Percentage data for Product/Line Wise KPI get successfully",
-      data:{ ...getBdPercentage?.[0], target: req.target},
+      data: { ...getBdPercentage?.[0], target: req.target },
     });
-
-
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
 };
 
-
 const productionMiddleware = async (req, res, next) => {
   try {
-    
-
     let queryObj = {},
       obj = {
         yearTotalProductionHrs: {
@@ -6421,15 +6393,11 @@ const productionMiddleware = async (req, res, next) => {
         },
       };
 
-      
-      for (let i = 0; i < allMonths.length; i++) {
+    for (let i = 0; i < allMonths.length; i++) {
       obj[allMonths?.[i]?.monthName] = {
-           $sum: `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`,
-      
-      
+        $sum: `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`,
       };
-      }
-      
+    }
 
     if (req.params?.filter === "based-on-plant") {
       queryObj = {
@@ -6467,7 +6435,7 @@ const productionMiddleware = async (req, res, next) => {
       },
       {
         $group: {
-          _id: null, 
+          _id: null,
           line_name: {
             $push: "$line_name",
           },
@@ -6478,10 +6446,6 @@ const productionMiddleware = async (req, res, next) => {
 
     // console.log("DATA",data)
 
-   
-
- 
-
     req.productionHrs = data?.[0];
 
     next();
@@ -6489,7 +6453,6 @@ const productionMiddleware = async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
-
 
 const altMiddlewareForFindingTrendData = async (req, res, next) => {
   try {
@@ -6531,7 +6494,6 @@ const altMiddlewareForFindingTrendData = async (req, res, next) => {
       },
       // ...req.queryPipeline,
 
-      
       {
         $project: {
           count: 1,
@@ -6748,7 +6710,6 @@ router.get(
                   },
                 },
               },
-            
             ],
           },
           100,
@@ -6762,8 +6723,7 @@ router.get(
       res.status(500).json({ message: "error?.message, error" });
     }
   },
-  altMiddlewareForFindingPercentageData,
-  
+  altMiddlewareForFindingPercentageData
 );
 
 router.get(
@@ -7017,7 +6977,6 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
           _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
 
           ...req.grpQuery,
-
         },
       },
 
@@ -7056,7 +7015,6 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
                       lessThanOne: 0,
                       lessThanTwo: 0,
                       greaterThanTwo: 0,
-                      
                     },
                   },
                 ],
@@ -7073,7 +7031,7 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
         $group: {
           _id: null,
           labels: { $push: "$month" },
-        
+
           lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
 
           lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
@@ -7089,8 +7047,7 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
         { label: "<2", data: bdTrendData?.[0].lessThanTwo },
         { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
       ],
-      bdTrendTarget: req.target,
-
+      bdTrendDataTarget: req.target,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -7370,911 +7327,17 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
     ]);
 
     const bdTrendData = [...subSectionQuery, ...sectionQuery];
-    // const bdTrendData = await RequestSheetOfBM.aggregate([
-    //   {
-    //     $match: {
-    //       subSectionRef: `${subSection?.subSection_id}-${subSection?.subSection_name}`,
-    //       sectionRef: `${subSection?.subSection_id}-${subSection?.subSection_name}`,
-    //     },
-    //   },
-    //   // {
-    //   //   $lookup: {
-    //   //     from: "sections",
-    //   //     localField: "sectionRef",
-    //   //     foreignField: "_id",
-    //   //     as: "section_data",
-    //   //   },
-    //   // },
-
-    //   // {
-    //   //   $unwind: "$section_data",
-    //   // },
-    //   // {
-    //   //   $lookup: {
-    //   //     from: "sections",
-    //   //     let: { section: "$sectionRef" },
-    //   //     pipeline: [
-    //   //       {
-    //   //         $match: {_id : mongoose.Types.ObjectId(sec)},
-    //   //       },
-
-    //   //     ],
-    //   //     as: "section_data",
-    //   //   },
-    //   // },
-
-    //   {
-    //     $lookup: {
-    //       from: "subsections",
-    //       let: { subSection: "$subSectionRef" },
-    //       pipeline: [
-
-    //         {
-    //           $match: {section_names : mongoose.Types.ObjectId(sub)},
-    //         },
-
-    //       ],
-    //       as: "subsection_data",
-    //     },
-    //   },
-    //   // {
-    //   //   $lookup: {
-    //   //     from: "sections",
-    //   //     localField: "sectionRef",
-    //   //     foreignField: "_id",
-    //   //     as: "section_data",
-    //   //   },
-    //   // },
-
-    //   // {
-    //   //   $unwind: "$section_data",
-    //   // },
-    //   // {
-    //   //   $unwind: "$subsection_data",
-    //   // },
-    //   // {
-    //   //   $group: {
-    //   //     _id: {
-    //   //       date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-    //   //       // sectionRef: "$section_data.section_name",
-    //   //       subSectionRef : "$subsection_data.subSection_name"
-    //   //     },
-    //   //     bdTimeSum: {
-    //   //       ...req.grpQueryForAllSum,
-    //   //     },
-    //   //   },
-    //   // },
-
-    //   // {
-    //   //   $group: {
-    //   //     _id: {section : "$_id.sectionRef", subsection : "$_id.subSectionRef" },
-    //   //     // label: { $first: "$_id.sectionRef" },
-    //   //     sectionWiseTotal: {
-    //   //       $push: {
-    //   //         month: "$_id.date",
-
-    //   //         bdTimeSum: { $trunc: ["$bdTimeSum", 1] },
-    //   //       },
-    //   //     },
-    //   //   },
-    //   // },
-    //   // {
-    //   //   $sort: { _id: 1 },
-    //   // },
-
-    //   // {
-    //   //   $project: {
-    //   //     _id: 1,
-    //   //     // label: 1,
-    //   //     data: {
-    //   //       $map: {
-    //   //         input: allMonths,
-    //   //         as: "month",
-    //   //         in: {
-    //   //           $cond: [
-    //   //             {
-    //   //               $in: ["$$month.monthName", "$sectionWiseTotal.month"],
-    //   //             },
-    //   //             {
-    //   //               $arrayElemAt: [
-    //   //                 "$sectionWiseTotal.bdTimeSum",
-    //   //                 {
-    //   //                   $indexOfArray: [
-    //   //                     "$sectionWiseTotal.month",
-    //   //                     "$$month.monthName",
-    //   //                   ],
-    //   //                 },
-    //   //               ],
-    //   //             },
-    //   //             0,
-    //   //           ],
-    //   //         },
-    //   //       },
-    //   //     },
-    //   //   },
-    //   // },
-    // ]);
 
     return res.status(200).json({
       message: "PlantWise Monthly BD trend data for Section get successfully",
 
       bdTrendData,
-      bdTrendTargetData: req.target,
-      // subSectionQuery,
-      // sectionQuery
+      bdTrendDataTarget: req.target,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
   }
 };
-
-// const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
-//   try {
-// const sub = "6322e549fdb4a3119153b9b2";
-// const sec = "6322e558fdb4a3119153b9c2";
-// // const sub = "6322e549fdb4a3119153b9b2";
-
-//     const bdTrendData = await RequestSheetOfBM.aggregate([
-//       {
-//         $match: req.queryObj,
-//       },
-//       // {
-//       //   $lookup: {
-//       //     from: "sections",
-//       //     localField: "sectionRef",
-//       //     foreignField: "_id",
-//       //     as: "section_data",
-//       //   },
-//       // },
-
-//       // {
-//       //   $unwind: "$section_data",
-//       // },
-//       // {
-//       //   $lookup: {
-//       //     from: "sections",
-//       //     let: { section: "$sectionRef" },
-//       //     pipeline: [
-//       //       {
-//       //         $match: {_id : mongoose.Types.ObjectId(sec)},
-//       //       },
-
-//       //     ],
-//       //     as: "section_data",
-//       //   },
-//       // },
-
-//       {
-//         $lookup: {
-//           from: "subsections",
-//           let: { subSection: "$subSectionRef" },
-//           pipeline: [
-
-//             {
-//               $match: {section_names : mongoose.Types.ObjectId(sub)},
-//             },
-
-//           ],
-//           as: "subsection_data",
-//         },
-//       },
-//       // {
-//       //   $lookup: {
-//       //     from: "sections",
-//       //     localField: "sectionRef",
-//       //     foreignField: "_id",
-//       //     as: "section_data",
-//       //   },
-//       // },
-
-//       // {
-//       //   $unwind: "$section_data",
-//       // },
-//       // {
-//       //   $unwind: "$subsection_data",
-//       // },
-//       // {
-//       //   $group: {
-//       //     _id: {
-//       //       date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-//       //       // sectionRef: "$section_data.section_name",
-//       //       subSectionRef : "$subsection_data.subSection_name"
-//       //     },
-//       //     bdTimeSum: {
-//       //       ...req.grpQueryForAllSum,
-//       //     },
-//       //   },
-//       // },
-
-//       // {
-//       //   $group: {
-//       //     _id: {section : "$_id.sectionRef", subsection : "$_id.subSectionRef" },
-//       //     // label: { $first: "$_id.sectionRef" },
-//       //     sectionWiseTotal: {
-//       //       $push: {
-//       //         month: "$_id.date",
-
-//       //         bdTimeSum: { $trunc: ["$bdTimeSum", 1] },
-//       //       },
-//       //     },
-//       //   },
-//       // },
-//       // {
-//       //   $sort: { _id: 1 },
-//       // },
-
-//       // {
-//       //   $project: {
-//       //     _id: 1,
-//       //     // label: 1,
-//       //     data: {
-//       //       $map: {
-//       //         input: allMonths,
-//       //         as: "month",
-//       //         in: {
-//       //           $cond: [
-//       //             {
-//       //               $in: ["$$month.monthName", "$sectionWiseTotal.month"],
-//       //             },
-//       //             {
-//       //               $arrayElemAt: [
-//       //                 "$sectionWiseTotal.bdTimeSum",
-//       //                 {
-//       //                   $indexOfArray: [
-//       //                     "$sectionWiseTotal.month",
-//       //                     "$$month.monthName",
-//       //                   ],
-//       //                 },
-//       //               ],
-//       //             },
-//       //             0,
-//       //           ],
-//       //         },
-//       //       },
-//       //     },
-//       //   },
-//       // },
-//     ]);
-
-//     return res.status(200).json({
-//       message: "PlantWise Monthly BD trend data for Section get successfully",
-
-//       bdTrendData,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: error?.message, error });
-//   }
-// };
-
-// const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
-//   try {
-//     const section = await Section.findOne({
-//       section_id: req?.rootUser?.section_data?.split("-")?.[0],
-//     });
-
-//     let pipeline = [];
-
-//     if (section && section.dashboardLevel === "Yes") {
-//       pipeline = [
-//         {
-//           $facet: {
-//             sectionQuery: [
-//               {
-//                 $match: req.queryObj,
-//               },
-//               {
-//                 $addFields: {
-//                   sectionRef: section._id,
-//                   section_data: section,
-//                 },
-//               },
-//               // {
-//               //   $lookup: {
-//               //     from: "sections",
-//               //     localField: "sectionRef",
-//               //     foreignField: "_id",
-//               //     as: "section_data",
-//               //   },
-//               // },
-
-//               // {
-//               //   $unwind: "$section_data",
-//               // },
-//               {
-//                 $group: {
-//                   _id: {
-//                     date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-//                     sectionRef: "$section_data.section_name",
-//                   },
-//                   bdTimeSum: {
-//                     ...req.grpQueryForAllSum,
-//                   },
-//                 },
-//               },
-
-//               {
-//                 $group: {
-//                   _id: "$_id.sectionRef",
-//                   label: { $first: "$_id.sectionRef" },
-//                   sectionWiseTotal: {
-//                     $push: {
-//                       month: "$_id.date",
-
-//                       bdTimeSum: { $trunc: ["$bdTimeSum", 1] },
-//                     },
-//                   },
-//                 },
-//               },
-//               {
-//                 $sort: { _id: 1 },
-//               },
-
-//               {
-//                 $project: {
-//                   _id: 0,
-//                   label: 1,
-//                   data: {
-//                     $map: {
-//                       input: allMonths,
-//                       as: "month",
-//                       in: {
-//                         $cond: [
-//                           {
-//                             $in: [
-//                               "$$month.monthName",
-//                               "$sectionWiseTotal.month",
-//                             ],
-//                           },
-//                           {
-//                             $arrayElemAt: [
-//                               "$sectionWiseTotal.bdTimeSum",
-//                               {
-//                                 $indexOfArray: [
-//                                   "$sectionWiseTotal.month",
-//                                   "$$month.monthName",
-//                                 ],
-//                               },
-//                             ],
-//                           },
-//                           0,
-//                         ],
-//                       },
-//                     },
-//                   },
-//                 },
-//               },
-//             ],
-//             subSectionQuery: [
-//               {
-//                 $match: req.queryObj,
-//               },
-//               {
-//                 $lookup: {
-//                   from: "subsections",
-//                   localField: "subSectionRef",
-//                   foreignField: "_id",
-//                   as: "section_data",
-//                 },
-//               },
-
-//               {
-//                 $unwind: "$section_data",
-//               },
-//               {
-//                 $group: {
-//                   _id: {
-//                     date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-//                     sectionRef: "$section_data.subSection_name",
-//                   },
-//                   bdTimeSum: {
-//                     ...req.grpQueryForAllSum,
-//                   },
-//                 },
-//               },
-
-//               {
-//                 $group: {
-//                   _id: "$_id.sectionRef",
-//                   label: { $first: "$_id.sectionRef" },
-//                   sectionWiseTotal: {
-//                     $push: {
-//                       month: "$_id.date",
-
-//                       bdTimeSum: { $trunc: ["$bdTimeSum", 1] },
-//                     },
-//                   },
-//                 },
-//               },
-//               {
-//                 $sort: { _id: 1 },
-//               },
-
-//               {
-//                 $project: {
-//                   _id: 0,
-//                   label: 1,
-//                   data: {
-//                     $map: {
-//                       input: allMonths,
-//                       as: "month",
-//                       in: {
-//                         $cond: [
-//                           {
-//                             $in: [
-//                               "$$month.monthName",
-//                               "$sectionWiseTotal.month",
-//                             ],
-//                           },
-//                           {
-//                             $arrayElemAt: [
-//                               "$sectionWiseTotal.bdTimeSum",
-//                               {
-//                                 $indexOfArray: [
-//                                   "$sectionWiseTotal.month",
-//                                   "$$month.monthName",
-//                                 ],
-//                               },
-//                             ],
-//                           },
-//                           0,
-//                         ],
-//                       },
-//                     },
-//                   },
-//                 },
-//               },
-//             ],
-//           },
-//         },
-//         {
-//           $project: {
-//             data: { $setUnion: ["$sectionQuery", "$subSectionQuery"] },
-//           },
-//         },
-//         { $unwind: "$data" },
-//         { $replaceRoot: { newRoot: "$data" } },
-//       ];
-//     } else {
-//       pipeline = [
-//         {
-//           $facet: {
-//             subSectionQuery: [
-//               {
-//                 $match: req.queryObj,
-//               },
-//               {
-//                 $lookup: {
-//                   from: "subsections",
-//                   localField: "subSectionRef",
-//                   foreignField: "_id",
-//                   as: "section_data",
-//                 },
-//               },
-
-//               {
-//                 $unwind: "$section_data",
-//               },
-//               {
-//                 $group: {
-//                   _id: {
-//                     date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-//                     sectionRef: "$section_data.subSection_name",
-//                   },
-//                   bdTimeSum: {
-//                     ...req.grpQueryForAllSum,
-//                   },
-//                 },
-//               },
-
-//               {
-//                 $group: {
-//                   _id: "$_id.sectionRef",
-//                   label: { $first: "$_id.sectionRef" },
-//                   sectionWiseTotal: {
-//                     $push: {
-//                       month: "$_id.date",
-
-//                       bdTimeSum: { $trunc: ["$bdTimeSum", 1] },
-//                     },
-//                   },
-//                 },
-//               },
-//               {
-//                 $sort: { _id: 1 },
-//               },
-
-//               {
-//                 $project: {
-//                   _id: 0,
-//                   label: 1,
-//                   data: {
-//                     $map: {
-//                       input: allMonths,
-//                       as: "month",
-//                       in: {
-//                         $cond: [
-//                           {
-//                             $in: [
-//                               "$$month.monthName",
-//                               "$sectionWiseTotal.month",
-//                             ],
-//                           },
-//                           {
-//                             $arrayElemAt: [
-//                               "$sectionWiseTotal.bdTimeSum",
-//                               {
-//                                 $indexOfArray: [
-//                                   "$sectionWiseTotal.month",
-//                                   "$$month.monthName",
-//                                 ],
-//                               },
-//                             ],
-//                           },
-//                           0,
-//                         ],
-//                       },
-//                     },
-//                   },
-//                 },
-//               },
-//             ],
-//           },
-//         },
-//       ];
-//     }
-
-//     const bdTrendData = await RequestSheetOfBM.aggregate([...pipeline]);
-
-//     return res.status(200).json({
-//       message: "PlantWise Monthly BD trend data for Section get successfully",
-
-//       // bdTrendData: bdTrendData?.[0].subSectionQuery,
-//       bdTrendData,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: error?.message, error });
-//   }
-// };
-
-// const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
-//   try {
-
-//     const section = await Section.findOne({
-//       section_id: req?.rootUser?.section_data?.split("-")?.[0],
-//     });
-
-//     console.log(section.section_name)
-//     // let subSectionsData;
-//     // if (section.dashboardLevel === "Yes") {
-//     //   subSectionsData = await SubSection.find({
-//     //     section_names: section?._id,
-//     //   });
-
-//     // }
-
-// // console.log(req.grpQueryForAllSum)
-
-//     // console.log(subSectionsData)
-
-//     const bdTrendData = await RequestSheetOfBM.aggregate([
-//       {
-//         $match: req.queryObj,
-//       },
-//       {
-//         $lookup: {
-//           from: "subsections",
-//           localField: "subSectionRef",
-//           foreignField: "_id",
-//           as: "section_data",
-//         },
-//       },
-
-//       // {
-//       //   $lookup: {
-//       //     from: "subsections",
-//       //     // localField: "subSectionRef",
-//       //     // foreignField: "_id",
-//       //        let: { section: "$subSectionRef" },
-//       //     pipeline: [
-//       //       // {
-//       //       //   $match: {
-//       //       //     section_names: mongoose.Types.ObjectId(section._id),
-//       //       //   },
-//       //       // },
-//       //       {
-//       //         $group: {
-
-//       //           _id: {
-//       //       date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-
-//       //             sectionRef: "$section",
-//       //           },
-//       //           bdTimeSum: {
-//       //             ...req.grpQueryForAllSum, // Replace with the actual field you want to sum
-//       //           },
-//       //         },
-//       //       },
-//       //     ],
-//       //     as: "subsection",
-//       //   },
-//       // },
-
-//       // {
-//       //   $lookup: {
-//       //     from: "sections",
-//       //     let: { section: "$section_name" },
-//       //     pipeline: [
-//       //       {
-//       //         $match: {section_names : mongoose.Types.ObjectId(section._id),},
-//       //       },
-//       //       // {
-//       //       //   $unwind: "$checkSheet_data",
-//       //       // },
-//       //       // {
-//       //       //   $match: {
-//       //       //     "checkSheet_data.current_year": req.query?.selectedYear,
-//       //       //   },
-//       //       // },
-//       //       // ...monthFilterQueryPipelineForMatchingAndGrouping,
-//       //     ],
-//       //     as: "subsection",
-//       //   },
-//       // },
-//       {
-//         $lookup: {
-//           from: "sections",
-//           localField: "sectionRef",
-//           foreignField: "_id",
-
-//           as: "Section_data",
-//         },
-//       },
-
-//       {
-//         $unwind: "$section_data",
-//       },
-//       {
-//         $unwind: "$Section_data",
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-//             sectionRef: "$section_data.subSection_name",
-//       section: "$Section_data.section_name",
-
-//           },
-//           bdTimeSum: {
-//             ...req.grpQueryForAllSum,
-//           },
-//         },
-//       },
-
-// //       // {
-// //       //   $group : {
-// //       //     _id : "$_id.section",
-// //       //     sum : {$sum : "$bdTimeSum"}
-// //       //   }
-// //       // }
-
-// //       // {
-// //       //   $group: {
-// //       //     _id: {
-// //       //       date: "$_id.date",
-// //       //       section: "$_id.section",
-// //       //       sectionRef: "$_id.sectionRef",
-
-// //       //     },
-// //       //     // Subsections: {
-// //       //     //   $push: {
-// //       //     //     // date: "$_id.date",
-// //       //     //     sectionRef: "$_id.sectionRef",
-// //       //     //     // section: "$_id.section",
-// //       //     //     bdTimeSum: "$bdTimeSum",
-// //       //     //   },
-// //       //     // },
-
-// //       //     // sections: {
-// //       //     //   $push: {
-// //       //     //     date: "$_id.date",
-// //       //     //     section: "$_id.section",
-// //       //     //     totalBdTimeSum: {
-// //       //     //       $sum: "$bdTimeSum",
-// //       //     //     },
-// //       //     //   },
-// //       //     // },
-
-// //       //     totalBdTimeSum: {
-// //       //       $sum: "$bdTimeSum",
-// //       //     },
-// //       //   },
-// //       // },
-
-// // //       {$unwind : "$Subsections"},
-
-//       // {
-//       //   $group: {
-//       //     _id: "$_id.sectionRef" ,
-//       //     label: { $first: "$_id.sectionRef"},
-
-//       //     sectionWiseTotal: {
-//       //       $push: {
-//       //         month: "$_id.date",
-
-//       //         bdTimeSum: {$sum : "$bdTimeSum"} ,
-//       //       },
-//       //     },
-//       //   },
-//       // },
-// //       {
-// //         $group: {
-// //           _id: "$_id.sectionRef" ,
-// //           label: { $first: "$_id.section"},
-
-// //           sectionWiseTotal: {
-// //             $push: {
-// //               month: "$_id.date",
-
-// //               bdTimeSum: {$sum : "$bdTimeSum"} ,
-// //             },
-// //           },
-// //         },
-// //       },
-
-// //       // {
-// //       //   $group: {
-// //       //     _id: {
-// //       //       sectionRef: "$_id.sectionRef",
-// //       //       section: "$_id.section",
-// //       //     },
-// //       //     label: { $first: "$_id.sectionRef" },
-// //       //     sectionWiseTotal: {
-// //       //       $push: {
-// //       //         month: "$_id.date",
-// //       //         bdTimeSum: { $sum: "$totalBdTimeSum" },
-// //       //       },
-// //       //     },
-// //       //   },
-// //       // },
-
-// // //       // // {
-// // //       // //   $sort: { _id: 1 },
-// // //       // // },
-
-// // // // {
-// // // //   $unwind : "$Subsections"
-// // // // },
-// // // // {
-// // // //   $unwind : "$sections"
-// // // // },
-
-// // // // {
-// // // //   $project: {
-// // // //     _id: 0,
-// // // //     label: "$_id.section",
-// // // //     data: {
-// // // //       $map: {
-// // // //         input: allMonths,
-// // // //         as: "month",
-// // // //         in: {
-// // // //           $cond: [
-// // // //             {
-// // // //               $in: ["$$month", "$sectionWiseTotal.month"],
-// // // //             },
-// // // //             {
-// // // //               $arrayElemAt: [
-// // // //                 "$sectionWiseTotal.bdTimeSum",
-// // // //                 {
-// // // //                   $indexOfArray: [
-// // // //                     "$sectionWiseTotal.month",
-// // // //                     "$$month",
-// // // //                   ],
-// // // //                 },
-// // // //               ],
-// // // //             },
-// // // //             0,
-// // // //           ],
-// // // //         },
-// // // //       },
-// // // //     },
-// // // //   },
-// // // // },
-// // // // {
-// // // //   $unwind: "$label"
-// // // // }
-
-// //  {
-// //         $project: {
-// //           _id: 1,
-// //           label: 1,
-// //           data: {
-// //             $map: {
-// //               input: allMonths,
-// //               as: "month",
-// //               in: {
-// //                 $cond: [
-// //                   {
-// //                     $in: ["$$month.monthName", "$sectionWiseTotal.month"],
-// //                   },
-// //                   {
-// //                     $arrayElemAt: [
-// //                       "$sectionWiseTotal.bdTimeSum",
-// //                       {
-// //                         $indexOfArray: [
-// //                           "$sectionWiseTotal.month",
-// //                           "$$month.monthName",
-// //                         ],
-// //                       },
-// //                     ],
-// //                   },
-// //                   0,
-// //                 ],
-// //               },
-// //             },
-// //           },
-// //         },
-// //       },
-
-// //       //  {
-// //       //     $unwind: "$label"
-// //       //   }
-
-// //       {
-// //         $group: {
-// //           _id: "$label",
-// //           bdTrendData: {
-// //             $push: {
-// //               label: "$_id",
-// //               data: "$data",
-// //               totalBdTimeSum: "$totalBdTimeSum",
-// //             },
-// //           },
-// //         },
-// //       },
-
-// // {
-// //   $project: {
-// //     _id: 0,
-// //     sectionRef: "$Subsections.sectionRef",
-// //     section: "$_id.section",
-// //     data: {
-// //       $map: {
-// //         input: allMonths,
-// //         as: "month",
-// //         in: {
-// //           $cond: [
-// //             {
-// //               $in: ["$$month.monthName", "$_id.date"],
-// //             },
-// //             {
-// //               $arrayElemAt: [
-// //                 "$totalBdTimeSum",
-// //                 {
-// //                   $indexOfArray: [
-// //                     "$Subsections.date",
-// //                     "$$month.monthName",
-// //                   ],
-// //                 },
-// //               ],
-// //             },
-// //             0,
-// //           ],
-// //         },
-// //       },
-// //     },
-// //   },
-// // },
-//     ]);
-
-//     return res.status(200).json({
-//       message: "PlantWise Monthly BD trend data for Section get successfully",
-
-//       bdTrendData,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: error?.message, error });
-//   }
-// };
 
 const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
   try {
@@ -8413,175 +7476,132 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
   }
 };
 
-// const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
-//   try {
-
-//     // const bdTrendData = await RequestSheetOfBM.aggregate([
-//     //   {
-//     //     $match: req.queryObj,
-//     //   },
-//     //   {
-//     //     $lookup: {
-//     //       from: "cells",
-//     //       localField: "cellRef",
-//     //       foreignField: "_id",
-//     //       as: "cell_data",
-//     //     },
-//     //   },
-
-//     //   {
-//     //     $unwind: "$cell_data",
-//     //   },
-//     //   {
-//     //     $group: {
-//     //       _id: {
-//     //         date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-//     //         cellRef: "$cell_data.cell_name",
-//     //       },
-//     //       bdTimeSum: {
-//     //         ...req.grpQueryForAllSum,
-//     //       },
-//     //     },
-//     //   },
-
-//     //   {
-//     //     $group: {
-//     //       _id: "$_id.cellRef",
-//     //       label: { $first: "$_id.cellRef" },
-//     //       cellWiseTotal: {
-//     //         $push: {
-//     //           month: "$_id.date",
-//     //           bdTimeSum: { $trunc: [{ $sum: "$bdTimeSum" }, 1] },
-//     //         },
-//     //       },
-//     //     },
-//     //   },
-//     //   {
-//     //     $sort: { _id: 1 },
-//     //   },
-
-//     //   {
-//     //     $project: {
-//     //       _id: 0,
-//     //       label: 1,
-//     //       data: {
-//     //         $map: {
-//     //           input: allMonths,
-//     //           as: "month",
-//     //           in: {
-//     //             $cond: [
-//     //               { $in: ["$$month.monthName", "$cellWiseTotal.month"] },
-//     //               {
-//     //                 $arrayElemAt: [
-//     //                   "$cellWiseTotal.bdTimeSum",
-//     //                   {
-//     //                     $indexOfArray: [
-//     //                       "$cellWiseTotal.month",
-//     //                       "$$month.monthName",
-//     //                     ],
-//     //                   },
-//     //                 ],
-//     //               },
-//     //               0,
-//     //             ],
-//     //           },
-//     //         },
-//     //       },
-//     //     },
-//     //   },
-//     // ]);
-
-//     return res.status(200).json({
-//       message: "Cell Wise Monthly BD trend data for Section get successfully",
-
-//       bdTrendData,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: error?.message, error });
-//   }
-// };
-
 const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
   try {
-    const bdTrendData = await RequestSheetOfBM.aggregate([
+    const bdTrendData = await Line.aggregate([
       {
-        $match: req.queryObj,
+        $match: {
+          cell_names: mongoose.Types.ObjectId(req.params.selectedId),
+        },
       },
+
+      // {
+      //   $group : {
+      //     _id : "$section_name"
+      //   }
+      // },
+
       {
         $lookup: {
-          from: "lines",
-          localField: "lineRef",
-          foreignField: "_id",
+          from: "requestsheetofbms",
+          let: { line: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$$line", "$lineRef"],
+                },
+              },
+            },
+
+            {
+              $group: {
+                _id: {
+                  date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+                },
+
+                sumBM: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $gt: [
+                          "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                          null,
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          60,
+                        ],
+                      },
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+
+            {
+              $group: {
+                _id: "$line_name",
+                label: { $first: "$line_name" },
+                lineWiseTotal: {
+                  $push: {
+                    month: "$_id.date",
+                    bdTimeSum: { $trunc: ["$sumBM", 1] },
+                  },
+                },
+              },
+            },
+
+            {
+              $project: {
+                _id: 0,
+                // label: 1,
+                data: {
+                  $map: {
+                    input: allMonths,
+                    as: "month",
+                    in: {
+                      $cond: [
+                        {
+                          $in: ["$$month.monthName", "$lineWiseTotal.month"],
+                        },
+                        {
+                          $arrayElemAt: [
+                            "$lineWiseTotal.bdTimeSum",
+                            {
+                              $indexOfArray: [
+                                "$lineWiseTotal.month",
+                                "$$month.monthName",
+                              ],
+                            },
+                          ],
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+
+            {
+              $unwind: "$data",
+            },
+          ],
           as: "line_data",
         },
       },
-
-      {
-        $unwind: "$line_data",
-      },
-      {
-        $group: {
-          _id: {
-            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-            lineRef: "$line_data.line_name",
-          },
-          bdTimeSum: {
-            ...req.grpQueryForAllSum,
-          },
-        },
-      },
-
-      {
-        $group: {
-          _id: "$_id.lineRef",
-          label: { $first: "$_id.lineRef" },
-          lineWiseTotal: {
-            $push: {
-              month: "$_id.date",
-              bdTimeSum: { $trunc: [{ $sum: "$bdTimeSum" }, 1] },
-            },
-          },
-        },
-      },
-      {
-        $sort: { _id: 1 },
-      },
+      // {
+      //   $unwind: "$line_data",
+      // },
 
       {
         $project: {
           _id: 0,
-          label: 1,
-          data: {
-            $map: {
-              input: allMonths,
-              as: "month",
-              in: {
-                $cond: [
-                  { $in: ["$$month.monthName", "$lineWiseTotal.month"] },
-                  {
-                    $arrayElemAt: [
-                      "$lineWiseTotal.bdTimeSum",
-                      {
-                        $indexOfArray: [
-                          "$lineWiseTotal.month",
-                          "$$month.monthName",
-                        ],
-                      },
-                    ],
-                  },
-                  0,
-                ],
-              },
-            },
-          },
+          label: "$line_name",
+          data: "$line_data.data",
         },
       },
     ]);
 
     return res.status(200).json({
-      message: "Line Wise Monthly BD trend data for Cell get successfully",
+      message: "Line Wise Monthly BD trend data for line get successfully",
 
       bdTrendData,
+      bdTrendDataTarget: req.target,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -8717,7 +7737,8 @@ const middlewareForPlant = async (req, res, next) => {
 const targetMiddlewareForMBD = async (req, res, next) => {
   try {
     let queryObj = {},
-      pipeline = [];
+      pipeline = [],
+      pipelineCount = [];
 
     if (req.params?.filter === "based-on-cell") {
       queryObj = {
@@ -8741,17 +7762,29 @@ const targetMiddlewareForMBD = async (req, res, next) => {
         },
       ];
     } else {
-      let obj = {},
-        arr = [];
+      let objCount = {
+        yearTotalMBDCountTarget: {
+          $sum: `$allTargetData.yearTotalMBDCountTarget`,
+        },
+      };
+
+      let obj = {
+        yearTotalBDHrsTarget: {
+          $sum: `$allTargetData.monthlyBDHrsTarget`,
+        },
+      };
+
+      arr = [];
 
       for (let i = 0; i < allMonths.length; i++) {
         obj[allMonths?.[i]?.monthName] = {
           $sum: `$allTargetData.monthlyBDHrsTarget.${allMonths?.[i]?.monthName}`,
         };
+        objCount[allMonths?.[i]?.monthName] = {
+          $sum: `$allTargetData.monthlyMBDCountTarget.${allMonths?.[i]?.monthName}`,
+        };
 
-        
         arr.push(`$${allMonths?.[i]?.monthName}`);
-     
       }
 
       pipeline = [
@@ -8764,9 +7797,58 @@ const targetMiddlewareForMBD = async (req, res, next) => {
             ...obj,
           },
         },
+        // {
+        //   $project: {
+        //     monthlyBDHrsTarget: {
+        //       $objectToArray: "$allTargetData.monthlyBDHrsTarget"
+        //     },
+        //     // monthlyMBDCountTarget: {
+        //     //   $objectToArray: "$allTargetData.monthlyMBDCountTarget"
+        //     // }
+        //   }
+        // },
+        // {
+        //   $unwind: "$monthlyBDHrsTarget"
+        // },
+        // {
+        //   $group: {
+        //     _id: "$monthlyBDHrsTarget.k",
+        //     totalMonthlyBDHrsTarget: { $sum: "$monthlyBDHrsTarget.v" },
+        //     // totalMonthlyMBDCountTarget: { $sum: "$monthlyMBDCountTarget.v" }
+        //   }
+        // },
+        // {
+        //   $project: {
+        //     monthName: "$_id",
+        //     _id: 0,
+        //     totalMonthlyBDHrsTarget: 1,
+        //     // totalMonthlyMBDCountTarget: 1
+        //   }
+        // },
+
         {
           $project: {
             _id: 0,
+            yearlyTarget: "$yearTotalBDHrsTarget",
+            monthlyTarget: arr,
+          },
+        },
+      ];
+
+      pipelineCount = [
+        {
+          $group: {
+            _id: null,
+            line_name: {
+              $push: "$cell_name",
+            },
+            ...objCount,
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            yearlyTarget: "$yearTotalMBDCountTarget",
             monthlyTarget: arr,
           },
         },
@@ -8784,7 +7866,7 @@ const targetMiddlewareForMBD = async (req, res, next) => {
         queryObj = {
           subSection_names: mongoose.Types.ObjectId(req.params.selectedId),
         };
-      } 
+      }
       // else if (req.params?.filter === "based-on-cell") {
       //   queryObj = {
       //     cell_names: mongoose.Types.ObjectId(req.params.selectedId),
@@ -8808,10 +7890,140 @@ const targetMiddlewareForMBD = async (req, res, next) => {
       ...pipeline,
     ]);
 
+    const targetForCount = await Cell.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $unwind: "$allTargetData",
+      },
+      {
+        $match: {
+          "allTargetData.current_year": req.query?.selectedYear,
+        },
+      },
 
-    console.log("target?.[0]?.PLANTmonthlyTarget",target?.[0]?.monthlyTarget)
+      ...pipelineCount,
+    ]);
+
+    // console.log("target?.[0]?.PLANTmonthlyTarget",targetForYearlyChart)
 
     req.target = target?.[0]?.monthlyTarget || [];
+    // req.yearlyTarget = target?.[0]?.yearlyTarget || [];
+    req.targetForCount = targetForCount?.[0].monthlyTarget || [];
+    // req.yearlyTargetForCount = targetForCount?.[0].yearlyTarget || [];
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const yearlyTargetMiddlewareForMBD = async (req, res, next) => {
+  try {
+    // console.log("YEARARRA", req.selectedYear)
+
+    let queryObj = {};
+
+    if (req.params?.filter === "based-on-cell") {
+      queryObj = {
+        _id: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+
+      pipeline = [
+        {
+          $project: {
+            _id: 0,
+            monthlyTarget: {
+              $map: {
+                input: {
+                  $objectToArray: "$allTargetData.monthlyBDHrsTarget",
+                },
+                as: "obj",
+                in: "$$obj.v",
+              },
+            },
+          },
+        },
+      ];
+    } else {
+      if (req.params?.filter === "based-on-plant") {
+        queryObj = {
+          plant_names: mongoose.Types.ObjectId(req.params.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-section") {
+        queryObj = {
+          section_names: mongoose.Types.ObjectId(req.params.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-subSection") {
+        queryObj = {
+          subSection_names: mongoose.Types.ObjectId(req.params.selectedId),
+        };
+      }
+      // else if (req.params?.filter === "based-on-cell") {
+      //   queryObj = {
+      //     cell_names: mongoose.Types.ObjectId(req.params.selectedId),
+      //   };
+      // }
+    }
+
+    const targetForYearlyChart = await Line.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $unwind: "$allTargetData",
+      },
+      {
+        $match: {
+          $or: [
+            { "allTargetData.current_year": req.query?.selectedYear },
+            {
+              "allTargetData.current_year": `${req.previousYear}-${req.selectedYear}`,
+            },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          line_name: {
+            $push: "$line_name",
+          },
+          yearTotalBDHrsTarget: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ["$allTargetData.current_year", req.query?.selectedYear],
+                },
+                "$allTargetData.yearTotalProductionHrs",
+                0,
+              ],
+            },
+          },
+          previousYearTotalBDHrsTarget: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: [
+                    "$allTargetData.current_year",
+                    `${req.previousYear}-${req.selectedYear}`,
+                  ],
+                },
+                "$allTargetData.yearTotalProductionHrs",
+                0,
+              ],
+            },
+          },
+        },
+      },
+    ]);
+
+    req.currentYearlyTarget =
+      targetForYearlyChart?.[0]?.yearTotalBDHrsTarget || 0;
+    req.previousYearlyTarget =
+      targetForYearlyChart?.[0]?.previousYearTotalBDHrsTarget || 0;
+
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -8832,7 +8044,7 @@ router.get(
   "/sectionMonthlyBdTrend/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-  targetMiddleware,
+  targetMiddlewareForMBD,
   // middlewareForPlant,
   filterForMonthlyData,
   sectionMonthlyBdTrendForPlantMiddleware
@@ -8842,7 +8054,7 @@ router.get(
   "/cellMonthlyBdTrend/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-  targetMiddleware,
+  targetMiddlewareForMBD,
   filterForMonthlyData,
   cellMonthlyBdTrendForSectionMiddleware
 );
@@ -8851,6 +8063,7 @@ router.get(
   "/lineMonthlyBdTrendForCell/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  targetMiddlewareForMBD,
   filterForMonthlyData,
   lineMonthlyBdTrendForSectionMiddleware
 );
@@ -8903,8 +8116,9 @@ router.get(
   "/hourlyYearlyBdTrend/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-  // middlewareForPlant,
   filterForYearlyData,
+  yearlyTargetMiddlewareForMBD,
+  // middlewareForPlant,
   filterForMonthlyData,
   async (req, res, next) => {
     try {
@@ -9000,6 +8214,7 @@ router.get(
           { label: "<2", data: bdTrendData?.[0].lessThanTwo },
           { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
         ],
+        bdTrendDataTarget: [req.previousYearlyTarget, req.currentYearlyTarget],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -9012,6 +8227,7 @@ router.get(
   authenticate,
   filterMiddleware,
   filterForYearlyData,
+  yearlyTargetMiddlewareForMBD,
   filterForMonthlyData,
   async (req, res, next) => {
     try {
@@ -9283,6 +8499,7 @@ router.get(
         ],
 
         bdTrendData,
+        bdTrendDataTarget: [req.previousYearlyTarget, req.currentYearlyTarget],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -9395,6 +8612,7 @@ router.get(
   authenticate,
   filterMiddleware,
   filterForYearlyData,
+  yearlyTargetMiddlewareForMBD,
   filterForMonthlyData,
 
   async (req, res, next) => {
@@ -9535,6 +8753,7 @@ router.get(
         ],
 
         bdTrendData,
+        bdTrendDataTarget: [req.previousYearlyTarget, req.currentYearlyTarget],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -9548,6 +8767,7 @@ router.get(
   "/majorBDCount/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  targetMiddlewareForMBD,
   // middlewareForPlant,
 
   // filterForYearlyData,
@@ -9830,6 +9050,7 @@ router.get(
         message: "Mbd Count data get successfully",
 
         bdTrendData,
+        bdTrendDataTarget: req.targetForCount,
         // sectionQuery,
         // subSectionQuery,
       });
@@ -9843,6 +9064,7 @@ router.get(
   "/majorBDCountForSection/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  targetMiddlewareForMBD,
   async (req, res, next) => {
     try {
       const bdTrendData = await Cell.aggregate([
@@ -9981,6 +9203,7 @@ router.get(
         message: "Mbd Count data get successfully",
 
         bdTrendData,
+        bdTrendDataTarget: req.targetForCount,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -11921,68 +11144,183 @@ router.get(
 
   async (req, res, next) => {
     try {
-      const topMachineBd = await RequestSheetOfBM.aggregate([
-        /* 
-          below will tack only first entered value and apply the next pipeline on it,
-          instead of writing here we need to use it after topMachineBD 
-          so we can get the proper data 
-         */
-        // {
-        //   $limit: req.topQuery,
-        // },
-        { $match: req.queryObj },
+      // const topMachineBd = await RequestSheetOfBM.aggregate([
+      //   /*
+      //     below will tack only first entered value and apply the next pipeline on it,
+      //     instead of writing here we need to use it after topMachineBD
+      //     so we can get the proper data
+      //    */
+      //   // {
+      //   //   $limit: req.topQuery,
+      //   // },
+      //   { $match: req.queryObj },
+      //   {
+      //     $lookup: {
+      //       from: "machinesalldatas",
+      //       localField: "machineRef",
+      //       foreignField: "_id",
+      //       as: "machine_data",
+      //     },
+      //   },
+
+      //   {
+      //     $unwind: "$machine_data",
+      //   },
+
+      //   {
+      //     $group: {
+      //       _id: {
+      //         machineId: "$machine_data._id",
+      //         machineName: "$machine_data.machine_name",
+      //       },
+      //       machine_hours: {
+      //         $sum: {
+      //           $cond: [
+      //             {
+      //               $gt: [
+      //                 "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+      //                 null,
+      //               ],
+      //             },
+      //             {
+      //               $divide: [
+      //                 "$maintenanceReportFilledByMTD.breakDownTime",
+      //                 60,
+      //               ],
+      //             },
+      //             0,
+      //           ],
+      //         },
+      //       },
+      //     },
+      //   },
+      //   {
+      //     $sort: { machine_hours: -1 },
+      //   },
+      //   {
+      //     $limit: req.query?.documentLimitInTheGraph * 1,
+      //   },
+      //   {
+      //     $group: {
+      //       _id: null,
+      //       machineId: { $push: "$_id.machineId" },
+      //       labels: { $push: "$_id.machineName" },
+      //       data: { $push: "$machine_hours" },
+      //     },
+      //   },
+      // ]);
+      // const machinewiseTotalSum = await RequestSheetOfBM.aggregate([
+      //   {
+      //     $match: req.queryObj,
+      //   },
+
+      //   {
+      //     $group: {
+      //       _id: null,
+
+      //       totalOfMachine: {
+      //         $sum: {
+      //           $cond: [
+      //             {
+      //               $gt: [
+      //                 "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+      //                 null,
+      //               ],
+      //             },
+      //             {
+      //               $divide: [
+      //                 "$maintenanceReportFilledByMTD.breakDownTime",
+      //                 60,
+      //               ],
+      //             },
+      //             0,
+      //           ],
+      //         },
+      //       },
+      //     },
+      //   },
+      // ]);
+
+      // const totalSumOfMachines = machinewiseTotalSum?.[0]?.totalOfLine;
+
+      const topMachineBd = await Machine.aggregate([
+        {
+          $match: {
+            cell_names: mongoose.Types.ObjectId(req.params.selectedId),
+          },
+        },
         {
           $lookup: {
-            from: "machinesalldatas",
-            localField: "machineRef",
-            foreignField: "_id",
+            from: "requestsheetofbms",
+            let: { machine: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$$machine", "$machineRef"],
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+
+                  bdHoursmachineWise: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gt: [
+                            "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                            null,
+                          ],
+                        },
+                        {
+                          $divide: [
+                            "$maintenanceReportFilledByMTD.breakDownTime",
+                            60,
+                          ],
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
             as: "machine_data",
           },
         },
 
         {
-          $unwind: "$machine_data",
-        },
-
-        {
-          $group: {
-            _id: {
-              machineId: "$machine_data._id",
-              machineName: "$machine_data.machine_name",
-            },
-            machine_hours: {
-              $sum: {
-                $cond: [
-                  {
-                    $gt: [
-                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                      null,
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  },
-                  0,
-                ],
-              },
+          $project: {
+            machine_code: 1,
+            sumOfmachine: {
+              $cond: [
+                {
+                  $gt: [
+                    {
+                      $arrayElemAt: ["$machine_data.bdHoursmachineWise", 0],
+                    },
+                    null,
+                  ],
+                },
+                { $arrayElemAt: ["$machine_data.bdHoursmachineWise", 0] },
+                0,
+              ],
             },
           },
         },
-        {
-          $sort: { machine_hours: -1 },
-        },
-        {
-          $limit: req.query?.documentLimitInTheGraph * 1,
-        },
+
+        // {
+        //   $sort: {
+        //     percentage: -1,
+        //   },
+        // },
         {
           $group: {
             _id: null,
-            machineId: { $push: "$_id.machineId" },
-            labels: { $push: "$_id.machineName" },
-            data: { $push: "$machine_hours" },
+            labels: { $push: "$machine_code" },
+            data: { $push: "$sumOfmachine" },
           },
         },
       ]);
