@@ -66,7 +66,7 @@ const MachineHistoryCard = ({
     { name: "PM Status", key: "PM_Status" },
   ];
 
-  const MachineInfoBox = ({ title, value }) => (
+  const MachineStatusBox = ({ title, value }) => (
     <Container>
       <Paper
         className="row"
@@ -125,7 +125,7 @@ const MachineHistoryCard = ({
         <Row className="gx-2">
           {infoItems.map((info, index) => (
             <Col lg={4} sm={6} xs={6} className="mb-2">
-              <MachineInfoBox
+              <MachineStatusBox
                 title={info.name}
                 value={roundValue(historyCardData?.[info?.key], 3)}
               />

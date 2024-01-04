@@ -15,24 +15,14 @@ import { Box } from "@mui/material";
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
-import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
-import { Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import MachineInfoBox from "./SubComponents/MachineInfoBox";
-
-const list = [
-  { key: "A", value: "A" },
-  { key: "B", value: "B" },
-  { key: "C", value: "C" },
-  { key: "D", value: "D" },
-];
+import MachineStatusBox from "../SubComponents/MachineStatusBox";
 
 function MyTable({ requestSheetDataOfBM }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { machine_code, generateType, requestSheetID } = useParams();
   const {
     register,
     handleSubmit,
@@ -153,57 +143,41 @@ function MyTable({ requestSheetDataOfBM }) {
     <>
       <ToastContainer />
 
-      <form onSubmit={() => {}}>
-        <Table className="m-2 mt-3">
-          <thead>
-            {/* <tr>
-              <th colSpan="4">Header with 4 Columns</th>
-            </tr> */}
-          </thead>
+      <form className="p-2" onSubmit={() => {}}>
+        <Table className="mt-3">
           <tbody className="m-1 border p-3">
-            <tr class="row " style={{ width: "100vw" }}>
-              {/* <td width={100}>
-              <img
-                src={denso_log}
-                width="120"
-                height="30"
-                className="d-inline-block align-top"
-                alt="React Bootstrap logo"
-              />
-            </td> */}
+            <tr class="row m-2">
               <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
                 <Row>
-                  <Col>
+                  <Col className="col-auto">
                     <button className="btn bg-button m-2" onClick={handleBack}>
                       Back
                     </button>
                   </Col>
-                  <Col>
-                    <h4 className="d-flex align-items-center justify-content-center">
-                      MAINTENANCE WORK REQUEST/REPORT
-                    </h4>
+                  <Col className="d-flex align-items-center justify-content-center text-center">
+                    <h4>MAINTENANCE WORK REQUEST/REPORT</h4>
                   </Col>
-                  <Col>
+                  <Col className="col-sm col-lg-auto">
                     <Box
                       display="flex"
                       justifyContent="end"
                       gap={1}
                       // sx={{ position: "absolute", top: "10px", right: "20px" }}
                     >
-                      <MachineInfoBox
+                      <MachineStatusBox
                         title="PM Status"
                         bodyText1="Completed"
                         bodyText2="(13/10/2023)"
                       />
-                      <MachineInfoBox title="BM" bodyText1="170 hrs/5 Nos" />
-                      <MachineInfoBox title="CM" />
+                      <MachineStatusBox title="BM" bodyText1="170 hrs/5 Nos" />
+                      <MachineStatusBox title="CM" />
                     </Box>
                   </Col>
                 </Row>
               </td>
             </tr>
 
-            <tr className="row m-2" style={{ width: "100vw" }}>
+            <tr className="row m-2">
               <td className="mb-0 pb-0 border col-lg-1 col-md-2">
                 <small>
                   <b>MAINT. TYPE</b>
@@ -354,7 +328,10 @@ function MyTable({ requestSheetDataOfBM }) {
                     </small>
                   </Col>
                 </Row>
-                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
+                <Row
+                  className="pt-0 mb-0  col-lg-12 col-md-12 col-sm-12"
+                  style={{ marginLeft: "-8px" }}
+                >
                   <Col className="border pb-2">
                     <small className="fs-6 mb-0">
                       <b>TL [PRD]</b>
@@ -374,7 +351,8 @@ function MyTable({ requestSheetDataOfBM }) {
                 </Row>
               </td>
             </tr>
-            <tr class="row">
+
+            <tr class="row m-2">
               <td className="border p-3 col-lg-8 col-md-7 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={4} md={6}>

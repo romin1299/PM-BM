@@ -20,6 +20,7 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import { Box, Divider, Paper, Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import MachineStatusBox from "../SubComponents/MachineStatusBox";
 
 const list = [
   { key: "A", value: "A" },
@@ -176,57 +177,6 @@ function MyTable({ selectedMachineDetails }) {
     navigate("/bm/requestListDashboard", { replace: true });
   };
 
-  const MachineInfoBox = ({ title, bodyText1 = " ", bodyText2 = " " }) => (
-    <Paper
-      variant="outlined"
-      sx={{
-        minHeight: "32px",
-        minWidth: "100px",
-        borderColor: "#40694842",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          mt: "2px",
-        }}
-        p={"2px 8px"}
-      >
-        <Typography variant="body2" component="div" fontWeight={500}>
-          {title}
-        </Typography>
-      </Box>
-
-      <Divider sx={{ borderColor: "black" }} />
-      <Box
-        sx={{
-          backgroundColor: "#c6efce",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "48px",
-        }}
-        p={"2px 8px"}
-      >
-        <Typography
-          variant="body1"
-          component="span"
-          fontWeight={500}
-          color="black"
-        >
-          {bodyText1}
-        </Typography>
-
-        <Typography variant="body2" component="span" color="black">
-          {bodyText2}
-        </Typography>
-      </Box>
-    </Paper>
-  );
-
   return (
     <>
       <ToastContainer />
@@ -273,13 +223,13 @@ function MyTable({ selectedMachineDetails }) {
                       gap={1}
                       // sx={{ position: "absolute", top: "10px", right: "20px" }}
                     >
-                      <MachineInfoBox
+                      <MachineStatusBox
                         title="PM Status"
                         bodyText1="Completed"
                         bodyText2="(13/10/2023)"
                       />
-                      <MachineInfoBox title="BM" bodyText1="170 hrs/5 Nos" />
-                      <MachineInfoBox title="CM" />
+                      <MachineStatusBox title="BM" bodyText1="170 hrs/5 Nos" />
+                      <MachineStatusBox title="CM" />
                     </Box>
                   </Col>
                 </Row>
