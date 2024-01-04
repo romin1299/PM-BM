@@ -2,7 +2,7 @@
 // import Table from "react-bootstrap/Table";
 import React, { useState, useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Row, Col, Form } from "react-bootstrap";
+import { Row, Col, Form, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
 import Radio from "@mui/material/Radio";
@@ -17,7 +17,7 @@ import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
-import { Typography } from "@mui/material";
+import { Box, Divider, Paper, Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 
@@ -176,15 +176,66 @@ function MyTable({ selectedMachineDetails }) {
     navigate("/bm/requestListDashboard", { replace: true });
   };
 
+  const MachineInfoBox = ({ title, bodyText1 = " ", bodyText2 = " " }) => (
+    <Paper
+      variant="outlined"
+      sx={{
+        minHeight: "32px",
+        minWidth: "100px",
+        borderColor: "#40694842",
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mt: "2px",
+        }}
+        p={"2px 8px"}
+      >
+        <Typography variant="body2" component="div" fontWeight={500}>
+          {title}
+        </Typography>
+      </Box>
+
+      <Divider sx={{ borderColor: "black" }} />
+      <Box
+        sx={{
+          backgroundColor: "#c6efce",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "48px",
+        }}
+        p={"2px 8px"}
+      >
+        <Typography
+          variant="body1"
+          component="span"
+          fontWeight={500}
+          color="black"
+        >
+          {bodyText1}
+        </Typography>
+
+        <Typography variant="body2" component="span" color="black">
+          {bodyText2}
+        </Typography>
+      </Box>
+    </Paper>
+  );
+
   return (
     <>
       <ToastContainer />
       <Row>
-        <Col>
+        {/* <Col>
           <button className="btn bg-button m-2" onClick={handleBack}>
             Back
           </button>
-        </Col>
+        </Col> */}
       </Row>
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
         <Table className="container-fluid m-2 mt-3">
@@ -201,11 +252,37 @@ function MyTable({ selectedMachineDetails }) {
                 className="d-inline-block align-top"
                 alt="React Bootstrap logo"
               />
+              
             </td> */}
-              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0">
-                <h4 className="d-flex align-items-center justify-content-center">
-                  MAINTENANCE WORK REQUEST/REPORT
-                </h4>
+              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
+                <Row>
+                  <Col>
+                    <button className="btn bg-button m-2" onClick={handleBack}>
+                      Back
+                    </button>
+                  </Col>
+                  <Col>
+                    <h4 className="d-flex align-items-center justify-content-center">
+                      MAINTENANCE WORK REQUEST/REPORT
+                    </h4>
+                  </Col>
+                  <Col>
+                    <Box
+                      display="flex"
+                      justifyContent="end"
+                      gap={1}
+                      // sx={{ position: "absolute", top: "10px", right: "20px" }}
+                    >
+                      <MachineInfoBox
+                        title="PM Status"
+                        bodyText1="Completed"
+                        bodyText2="(13/10/2023)"
+                      />
+                      <MachineInfoBox title="BM" bodyText1="170 hrs/5 Nos" />
+                      <MachineInfoBox title="CM" />
+                    </Box>
+                  </Col>
+                </Row>
               </td>
             </tr>
             <tr className="row m-2" style={{ width: "100vw" }}>
