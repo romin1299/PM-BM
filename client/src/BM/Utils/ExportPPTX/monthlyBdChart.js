@@ -1,14 +1,14 @@
 import axios from "axios";
 import { commonPptOptions } from "./exportPPTXOptions";
 import { MONTH_LABELS } from "../ChartUtils/chartEnums";
+import { getRandomDataArray } from "../math/generateRandomValues";
 
 const fetchMonthlyBDChartData = async (urlOptions) => {
-  const { filter, currentTabViewName, sectionId, selectedYear } = urlOptions;
+  const { filter, flagForTogglingFilter, selectedValue, selectedYear } =
+    urlOptions;
 
-  const url =
-    currentTabViewName === "Plant"
-      ? `/${filter}MonthlyBdTrendForPlant`
-      : `/${filter}MonthlyBdTrendForSection/based-on-subSection/${sectionId}`;
+  const url = `/${filter}MonthlyBdTrend/${flagForTogglingFilter}/${selectedValue}`;
+  // console.log("url:", url);
 
   const params = { selectedYear };
 
@@ -20,13 +20,37 @@ const fetchMonthlyBDChartData = async (urlOptions) => {
     });
 
     const data = res?.data?.bdTrendData;
+    const target = res?.data?.bdTrendTarget;
+
     if (data) {
-      // console.log("Monthly hourly res:", res);
-      return data?.map((item, index) => ({
-        name: item?.label || item?._id,
-        labels: MONTH_LABELS,
-        values: item?.data,
-      }));
+      const chartData = [
+        {
+          type: "bar",
+          data: data?.map((item, index) => ({
+            name: item?.label || item?._id,
+            labels: MONTH_LABELS,
+            values: item?.data,
+          })),
+          options: {
+            chartColors: ["2f79bf", "bbd0e5", "2693ff", "ffcd38", "ff7b64"],
+          },
+        },
+        {
+          type: "line",
+          data: [
+            {
+              name: "Target",
+              labels: MONTH_LABELS,
+              values: target || getRandomDataArray(12, 6, 6),
+            },
+          ],
+          options: {
+            chartColors: ["F38940"],
+          },
+        },
+      ];
+
+      return chartData;
     }
 
     return [];
@@ -37,9 +61,9 @@ const fetchMonthlyBDChartData = async (urlOptions) => {
 };
 
 export async function monthlyBdChart(pptx, slide, urlOptions) {
-  const monthlyChartData = await fetchMonthlyBDChartData(urlOptions);
+  const monthlyBdChartData = await fetchMonthlyBDChartData(urlOptions);
 
-  const MonthlyBDChartOptions = {
+  let comboProps = {
     ...commonPptOptions,
     x: 0.5,
     y: 1.6,
@@ -51,5 +75,5 @@ export async function monthlyBdChart(pptx, slide, urlOptions) {
     valAxisTitle: "BD Hours",
   };
   // Add chart to the slide with specified options
-  slide.addChart(pptx.ChartType.bar, monthlyChartData, MonthlyBDChartOptions);
+  slide.addChart(monthlyBdChartData, comboProps);
 }

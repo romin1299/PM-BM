@@ -66,6 +66,7 @@ export const options = {
 };
 
 const YearlyTrendChart = ({
+  filterState,
   currentTabViewName,
   sectionId,
   filter,
@@ -77,6 +78,8 @@ const YearlyTrendChart = ({
     datasets: [],
   });
 
+  const { flagForTogglingFilter, selectedValue } = filterState;
+
   React.useEffect(() => {
     if (currentTabViewName === "Plant" && filter === "cell")
       setFilter("section");
@@ -85,16 +88,20 @@ const YearlyTrendChart = ({
   }, [currentTabViewName]);
 
   const fetchChartData = async () => {
-    const basedON = currentTabViewName === "Plant" ? "plantId" : "subSection";
-    const selectedId = currentTabViewName === "Plant" ? "undefined" : sectionId;
+    // console.log("filterState:", filterState.flagForTogglingFilter);
+
+    // const basedON = currentTabViewName === "Plant" ? "plantId" : "subSection";
+    // const selectedId = currentTabViewName === "Plant" ? "undefined" : sectionId;
+    // const url = `/${filter}YearlyBdTrend/based-on-${basedON}/${selectedId}`;
 
     // console.log("sectionId:", sectionId);
     // const url =
     //   currentTabViewName === "Plant"
     //     ? `/${filter}YearlyBdTrendForPlant`
     //     : `/${filter}YearlyBdTrendForSection/based-on-subSection/${sectionId}`;
-    const url = `/${filter}YearlyBdTrend/based-on-${basedON}/${selectedId}`;
-    // console.log("url:", url);
+
+    const url = `/${filter}YearlyBdTrend/${flagForTogglingFilter}/${selectedValue}`;
+    console.log("url:", url);
 
     const params = { selectedYear };
 
@@ -104,7 +111,7 @@ const YearlyTrendChart = ({
         withCredentials: true,
         credentials: "include",
       });
-      console.log("yearly bd trend res:", res);
+      // console.log("yearly bd trend res:", res);
 
       const data = res?.data?.bdTrendData;
       const barDatasets = res?.data?.bdTrendData?.map((item, index) => ({
@@ -144,13 +151,14 @@ const YearlyTrendChart = ({
   };
 
   React.useEffect(() => {
-    if (selectedYear) fetchChartData();
-  }, [currentTabViewName, sectionId, filter, selectedYear]);
+    if (flagForTogglingFilter && selectedValue && selectedYear && filter)
+      fetchChartData();
+  }, [flagForTogglingFilter, selectedValue, filter, selectedYear]);
 
   // console.log('chartData:', chartData)
 
   return (
-    <Box className="cell p-3 mt-1">
+    <Box className="cell p-3">
       <ChartTitleBar
         title="Yearly Trend"
         // titleProps={{

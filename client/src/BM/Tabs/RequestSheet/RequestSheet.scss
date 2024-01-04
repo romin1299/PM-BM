@@ -46,3 +46,22 @@
   color: red;
   font-size: 14px;
 }
+
+.value {
+  // padding: 2px 8px;
+  // border: 1px solid #ccc;
+  // border-radius: 4px;
+  // background-color: #bcfdcc;
+  font-size: 14px;
+}
+.value-box {
+  padding: 2px 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  // background-color: #bcfdcc;
+  width: 100%;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  min-height: 24px;
+  font-size: 14px;
+}

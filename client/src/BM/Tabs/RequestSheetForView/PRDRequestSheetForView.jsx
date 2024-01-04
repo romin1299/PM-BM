@@ -2,7 +2,7 @@
 // import Table from "react-bootstrap/Table";
 import React, { useState, useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Row, Col, Form, Container } from "react-bootstrap";
+import { Row, Col, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
 import Radio from "@mui/material/Radio";
@@ -10,16 +10,17 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
-import { denso_logo } from "../../../components/NavbarComponent/ImportModules";
+import { Box } from "@mui/material";
 
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
-import { Box, Divider, Paper, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import MachineInfoBox from "./SubComponents/MachineInfoBox";
 
 const list = [
   { key: "A", value: "A" },
@@ -28,41 +29,27 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable({ selectedMachineDetails }) {
+function MyTable({ requestSheetDataOfBM }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { machine_code, generateType } = useParams();
-  const context = useContext(RoutingContext);
+  const { machine_code, generateType, requestSheetID } = useParams();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     watch,
     reset,
     setValue,
   } = useForm({
     defaultValues: {
-      problemOccurredDateAndTimeOfBM: moment(new Date()).format(
-        "YYYY-MM-DDTHH:mm"
-      ),
-      // requestSheettime: new Date().toLocaleString("en-US", {
-      //   timeZone: "Asia/Kolkata",
-      //   hour: "2-digit",
-      //   minute: "2-digit",
-      //   hour12: false,
-      // }),
-      sheetIssuedDateAndTimeOfBM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
-      // sheetIssuedTime: new Date().toLocaleString("en-US", {
-      //   timeZone: "Asia/Kolkata",
-      //   hour: "2-digit",
-      //   minute: "2-digit",
-      //   hour12: false,
-      // }),
+      ...requestSheetDataOfBM,
     },
   });
-  const selectedRequestSheetData = useLocation();
 
-  const [plantShiftsData, setPlantShiftsData] = useState([]);
+  const selectedRequestSheetData = useLocation();
+  const loggedUserDetails = useContext(RoutingContext);
+  // console.log(selectedRequestSheetData?.state?.selectedRow)
+
   // const [selectedShift, setSelectedShift] = useState("");
   // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
@@ -83,75 +70,7 @@ function MyTable({ selectedMachineDetails }) {
   //   setSelectedQuality(event.target.value);
   // };
 
-  const newRequestSheetRegistration = async (requestSheetData) => {
-    // const machineRef = "63b67ccea716e21c95cd471a";
-    // requestSheetData.maintenanceType = selectedMaintenanceType;
-    // requestSheetData.priorityCode = selectedPriorityCode;
-    // requestSheetData.qualityRelated = selectedQuality;
-    // requestSheetData.shiftOfBM = selectedShift;
-
-    console.log("requestSheetData:", requestSheetData);
-
-    try {
-      const res = await fetch(
-        `/newRequestSheetRegistration/?machineRef=${machine_code}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...requestSheetData,
-          }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (res.status === 201) {
-        SuccessToast(data?.message);
-        reset();
-        // if (generateType === "scanned") {
-        //   navigate("/", { replace: true });
-        // } else {
-        navigate("/bm/requestListDashboard", { replace: true });
-        // }
-      } else {
-        WarningToast(data?.message);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const timezone = "Asia/Kolkata";
-  const startedDate = moment().tz(timezone).month() + 1;
-
-  let sheetIssuedTime = new Date().toLocaleString("en-US", {
-    timeZone: "Asia/Kolkata",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-
-  const momentTime = moment(sheetIssuedTime, "HH:mm");
-
-  useEffect(() => {
-    const getCurrentShiftName = () => {
-      for (let shiftInfo of plantShiftsData) {
-        if (
-          momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
-          momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
-        )
-          return shiftInfo.shiftName;
-      }
-
-      return "";
-    };
-
-    setValue("shiftOfBM", getCurrentShiftName());
-  }, [plantShiftsData]);
-
+  const [shiftOfBM, setShiftOfBM] = useState([]);
   React.useEffect(() => {
     const fetchShiftData = async () => {
       const url = "/getAllShifts";
@@ -163,7 +82,7 @@ function MyTable({ selectedMachineDetails }) {
         });
 
         // console.log("fetch shifts res:", res);
-        setPlantShiftsData(res?.data?.getShifts);
+        setShiftOfBM(res?.data?.getShifts);
       } catch (error) {
         console.log("error:", error);
       }
@@ -172,87 +91,85 @@ function MyTable({ selectedMachineDetails }) {
     fetchShiftData();
   }, []);
 
+  useEffect(() => {
+    if (requestSheetDataOfBM?._id) {
+      console.log("requestSheetDataOfBM:", requestSheetDataOfBM);
+      setValue(
+        "problemOccurredDateAndTimeOfBM",
+        moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM)
+          .tz("Asia/Kolkata")
+          .format("YYYY-MM-DDTHH:mm")
+      );
+      setValue("maintenanceType", requestSheetDataOfBM?.maintenanceType);
+      setValue("priorityCode", requestSheetDataOfBM?.priorityCode);
+      setValue(
+        "problemFaced",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.problemFaced
+      );
+      setValue(
+        "PRD_ObservationForProblem_5Why_1How",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD
+          ?.PRD_ObservationForProblem_5Why_1How
+      );
+      setValue(
+        "why_5M_1E",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.why_5M_1E
+      );
+      setValue(
+        "where_process",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.where_process
+      );
+      setValue(
+        "when_frequency",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.when_frequency
+      );
+      setValue(
+        "who_person",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.who_person
+      );
+      setValue(
+        "which_defectLocation",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD
+          ?.which_defectLocation
+      );
+      setValue(
+        "how_details",
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.how_details
+      );
+      setValue("shiftOfBM", requestSheetDataOfBM?.shiftOfBM);
+      setValue("qualityRelated", requestSheetDataOfBM?.qualityRelated);
+      setValue(
+        "breakDownAttendedBy",
+        requestSheetDataOfBM?.breakDownAttendedBy
+      );
+    }
+  }, [requestSheetDataOfBM?._id, setValue]);
+
   const handleBack = () => {
-    navigate("/bm/requestListDashboard", { replace: true });
+    navigate("/bm/report/productionLineWiseReport", { replace: true });
   };
-
-  const MachineInfoBox = ({ title, bodyText1 = " ", bodyText2 = " " }) => (
-    <Paper
-      variant="outlined"
-      sx={{
-        minHeight: "32px",
-        minWidth: "100px",
-        borderColor: "#40694842",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          mt: "2px",
-        }}
-        p={"2px 8px"}
-      >
-        <Typography variant="body2" component="div" fontWeight={500}>
-          {title}
-        </Typography>
-      </Box>
-
-      <Divider sx={{ borderColor: "black" }} />
-      <Box
-        sx={{
-          backgroundColor: "#c6efce",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "48px",
-        }}
-        p={"2px 8px"}
-      >
-        <Typography
-          variant="body1"
-          component="span"
-          fontWeight={500}
-          color="black"
-        >
-          {bodyText1}
-        </Typography>
-
-        <Typography variant="body2" component="span" color="black">
-          {bodyText2}
-        </Typography>
-      </Box>
-    </Paper>
-  );
 
   return (
     <>
       <ToastContainer />
-      <Row>
-        {/* <Col>
-          <button className="btn bg-button m-2" onClick={handleBack}>
-            Back
-          </button>
-        </Col> */}
-      </Row>
-      <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
-        <Table className="container-fluid m-2 mt-3">
+
+      <form onSubmit={() => {}}>
+        <Table className="m-2 mt-3">
           <thead>
-            <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
+            {/* <tr>
+              <th colSpan="4">Header with 4 Columns</th>
+            </tr> */}
           </thead>
-          <tbody className="m-1 box-shadow p-3">
-            <tr className="row" style={{ width: "100vw" }}>
+          <tbody className="m-1 border p-3">
+            <tr class="row " style={{ width: "100vw" }}>
               {/* <td width={100}>
               <img
-                src={denso_logo}
+                src={denso_log}
                 width="120"
                 height="30"
                 className="d-inline-block align-top"
                 alt="React Bootstrap logo"
               />
-              
             </td> */}
               <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
                 <Row>
@@ -285,149 +202,25 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
               </td>
             </tr>
+
             <tr className="row m-2" style={{ width: "100vw" }}>
-              <td className="mb-0 pb-0 border col-lg-1 col-md-2 col-sm-12">
+              <td className="mb-0 pb-0 border col-lg-1 col-md-2">
                 <small>
                   <b>MAINT. TYPE</b>
                 </small>
-                <Form>
-                  <div key={`inline-radio`}>
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="BM"
-                      name="maintenanceType"
-                      type="radio"
-                      id={`inline-radio-1`}
-                      value="BM"
-                      {...register("maintenanceType", {
-                        required: "Please select maintenance type",
-                      })}
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "BM"}
-                    />
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="PM"
-                      name="maintenanceType"
-                      type="radio"
-                      id={`inline-radio-2`}
-                      value="PM"
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "PM"}
-                      {...register("maintenanceType", {
-                        required: "Please select maintenance type",
-                      })}
-                    />
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="CM"
-                      type="radio"
-                      name="maintenanceType"
-                      id={`inline-radio-3`}
-                      value="CM"
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "CM"}
-                      {...register("maintenanceType", {
-                        required: "Please select maintenance type",
-                      })}
-                    />
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="TPM"
-                      type="radio"
-                      name="maintenanceType"
-                      id={`inline-radio-4`}
-                      value="TPM"
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "TPM"}
-                      {...register("maintenanceType", {
-                        required: "Please select maintenance type",
-                      })}
-                    />
-                  </div>
-                  {errors?.["maintenanceType"] && (
-                    <p className="text-error">
-                      {errors?.["maintenanceType"]?.message}
-                    </p>
-                  )}
-                </Form>
+                <div className="value">
+                  {requestSheetDataOfBM.maintenanceType}
+                </div>
               </td>
-              <td className="mb-0 pb-0 border col-lg-1 col-md-2 col-sm-12">
+
+              <td className="mb-0 pb-0 border col-lg-1 col-md-2">
                 <small>
-                  {" "}
                   <b>PRIORITY CODE</b>
                 </small>
-                <Form>
-                  <div key={`inline-radio`}>
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="EMERGENCY"
-                      name="priorityCode"
-                      type="radio"
-                      id={`inline-radio-1`}
-                      value="EMERGENCY"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "EMERGENCY"}
-                      {...register("priorityCode", {
-                        required: "Please select priority code",
-                      })}
-                    />
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="IMPORTANT"
-                      name="priorityCode"
-                      type="radio"
-                      id={`inline-radio-2`}
-                      value="IMPORTANT"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "IMPORTANT"}
-                      {...register("priorityCode", {
-                        required: "Please select priority code",
-                      })}
-                    />
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="DATA NEEDED"
-                      name="priorityCode"
-                      type="radio"
-                      id={`inline-radio-3`}
-                      value="DATA NEEDED"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "DATA NEEDED"}
-                      {...register("priorityCode", {
-                        required: "Please select priority code",
-                      })}
-                    />
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="KAIZEN"
-                      name="priorityCode"
-                      type="radio"
-                      id={`inline-radio-4`}
-                      value="KAIZEN"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "KAIZEN"}
-                      {...register("priorityCode", {
-                        required: "Please select priority code",
-                      })}
-                    />
-                  </div>
-                  {errors?.["priorityCode"] && (
-                    <p className="text-error">
-                      {errors?.["priorityCode"]?.message}
-                    </p>
-                  )}
-                </Form>
+                <div className="value">{requestSheetDataOfBM.priorityCode}</div>
               </td>
-              <td className="mb-0 pb-0 border col-lg-8 col-md-4 col-sm-12">
+
+              <td className="mb-0 pb-0 border col-lg-8 col-md-4">
                 <div className="mb-2 border">
                   <Row className="m-0">
                     <Col className="border">
@@ -439,22 +232,8 @@ function MyTable({ selectedMachineDetails }) {
                   <Row className="m-0">
                     <Col className="border">
                       <small className="text-left p-1 mb-2">
-                        <b>REQUEST No.</b>{" "}
-                        {selectedMachineDetails?.line_names?.cell_names
-                          ?.subSection_names?.section_names?.dashboardLevel ===
-                        "Yes"
-                          ? selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.section_name
-                              ?.trim()
-                              ?.substring(0, 2)
-                              ?.toUpperCase()
-                          : selectedMachineDetails?.line_names?.cell_names?.subSection_names?.subSection_name
-                              ?.trim()
-                              ?.substring(0, 2)
-                              ?.toUpperCase()}
-                        -{selectedMachineDetails?.line_names?.line_name?.trim()}
-                        -{startedDate}-
-                        {selectedMachineDetails?.line_names?.requestSheetNos +
-                          1 || 1}
+                        <b>REQUEST No.</b>
+                        {requestSheetDataOfBM?.requestSheetNoOfBM}
                       </small>
                     </Col>
                   </Row>
@@ -466,24 +245,20 @@ function MyTable({ selectedMachineDetails }) {
                         </small>
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
-                            <p className="mb-0">
+                            <small className="mb-0">
                               <b>DATE & TIME: </b>
                               <br />
                               <input
                                 type="datetime-local"
-                                {...register("problemOccurredDateAndTimeOfBM", {
-                                  required: "RequestSheet date is required",
-                                })}
+                                {...register("problemOccurredDateAndTimeOfBM")}
+                                disabled={
+                                  requestSheetDataOfBM?.assignUser?._id !==
+                                    loggedUserDetails?._id &&
+                                  requestSheetDataOfBM?.approvalOfMTD_TL
+                                    ?._id !== loggedUserDetails?._id
+                                }
                               />
-                              {errors?.["problemOccurredDateAndTimeOfBM"] && (
-                                <p className="text-error">
-                                  {
-                                    errors?.["problemOccurredDateAndTimeOfBM"]
-                                      ?.message
-                                  }
-                                </p>
-                              )}
-                            </p>
+                            </small>
                           </div>{" "}
                           {/* &nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
@@ -492,15 +267,8 @@ function MyTable({ selectedMachineDetails }) {
                               <br />
                               <input
                                 type="time"
-                                {...register("requestSheettime", {
-                                  required: "RequestSheet time is required",
-                                })}
+                                {...register("requestSheettime")}
                               />
-                              {errors?.["requestSheettime"] && (
-                                <p className="text-error">
-                                  {errors?.["requestSheettime"]?.message}
-                                </p>
-                              )}
                             </p>
                           </div> */}
                         </div>
@@ -516,36 +284,33 @@ function MyTable({ selectedMachineDetails }) {
                             <small className="mb-0">
                               <b>DATE & TIME: </b>
                               <br />
-                              <input
-                                type="datetime-local"
+                              {/* <input
+                                type="date"
                                 {...register(
-                                  "sheetIssuedDateAndTimeOfBM"
+                                  "sheetIssuedDate"
                                   //  {
                                   //   required: "Sheet Issued date is required",
                                   // }
                                 )}
                                 disabled
-                              />
-                              {/* {errors?.["sheetIssuedDateAndTimeOfBM"] && (
-                              <p className="text-error">{errors?.["sheetIssuedDateAndTimeOfBM"]?.message}</p>
-                            )} */}
+                              /> */}
+                              {moment(
+                                requestSheetDataOfBM?.sheetIssuedDateAndTimeOfBM
+                              )
+                                .tz("Asia/Kolkata")
+                                .format("DD-MM-YYYY THH:mm")}
                             </small>
                           </div>{" "}
-                          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                          {/* <div className="text-center">
+                          {/* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                          <div className="text-center">
                             <p className="mb-0">
                               <b>TIME: </b>
                               <br />
-                              <input
-                                type="time"
-                                {...register(
-                                  "sheetIssuedTime"
-                                  //  {
-                                  //   required: "Sheet Issued time is required",
-                                  // }
-                                )}
-                                disabled
-                              />
+                              {moment(
+                                requestSheetDataOfBM?.sheetIssuedDateAndTimeOfBM
+                              )
+                                .tz("Asia/Kolkata")
+                                .format("hh:mm")}
                             </p>
                           </div> */}
                         </div>
@@ -555,10 +320,7 @@ function MyTable({ selectedMachineDetails }) {
                 </div>
               </td>
 
-              <td
-                className="mb-0 pb-0 pt-0 col-lg-2 col-md-4 col-sm-12"
-                style={{ marginLeft: "-8px" }}
-              >
+              <td className="mb-0 pb-0 pt-0 col-lg-2 col-md-4">
                 {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
@@ -577,18 +339,18 @@ function MyTable({ selectedMachineDetails }) {
                   </p>
                 </Col>
               </Row> */}
-                <Row className="pt-0 mb-0 ">
-                  <Col className="border pb-2 pt-1">
+                <Row
+                  className="pt-0 mb-0 border col-lg-12 col-md-12 col-sm-12"
+                  style={{ marginLeft: "-8px" }}
+                >
+                  <Col className="pb-2 pt-1">
                     <small className="mb-0">
                       <b>DEPT./LINE</b>
                     </small>
                     <br />
                     <small>
-                      {
-                        selectedMachineDetails?.line_names?.cell_names
-                          ?.cell_name
-                      }
-                      /{selectedMachineDetails?.line_names?.line_name}
+                      {requestSheetDataOfBM?.cellRef?.cell_name}/
+                      {requestSheetDataOfBM?.lineRef?.line_name}
                     </small>
                   </Col>
                 </Row>
@@ -598,7 +360,9 @@ function MyTable({ selectedMachineDetails }) {
                       <b>TL [PRD]</b>
                     </small>
                     <br />
-                    <small>{context?.tm_name}</small>
+                    <small>
+                      {requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}
+                    </small>
                     {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
@@ -611,21 +375,21 @@ function MyTable({ selectedMachineDetails }) {
               </td>
             </tr>
             <tr class="row">
-              <td className="border p-3 col-lg-7 col-md-8 col-sm-12">
+              <td className="border p-3 col-lg-8 col-md-7 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={4} md={6}>
                     <small className="mb-0">
                       <b>MACHINE NAME:</b>{" "}
                     </small>{" "}
                     &nbsp;&nbsp;
-                    {selectedMachineDetails.machine_name}
+                    {requestSheetDataOfBM?.machineRef?.machine_name}
                   </Col>
                   <Col lg={4} md={6}>
                     <small className="mb-0">
                       <b>MACHINE NO.:</b>
                     </small>
                     &nbsp;&nbsp;
-                    {selectedMachineDetails.machine_code}
+                    {requestSheetDataOfBM?.machineRef?.machine_code}
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
@@ -634,22 +398,23 @@ function MyTable({ selectedMachineDetails }) {
                       <b>PROBLEM FACED: </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={3}>
                     <input
+                      disabled={true}
                       type="text"
                       id="prob"
-                      name="problemfaced"
+                      name="problemFaced"
                       className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("problemFaced", {
                         required: "Please fill this field",
                       })}
                     />
-                    {errors?.["problemFaced"] && (
+                    {/* {errors?.["problemFaced"] && (
                       <p className="text-error">
                         {errors?.["problemFaced"]?.message}
                       </p>
-                    )}
+                    )} */}
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
@@ -660,8 +425,9 @@ function MyTable({ selectedMachineDetails }) {
                       </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={3}>
                     <input
+                      disabled={true}
                       type="text"
                       id="prdobv"
                       name="prdobv"
@@ -671,14 +437,14 @@ function MyTable({ selectedMachineDetails }) {
                         required: "Please fill this field",
                       })}
                     />
-                    {errors?.["PRD_ObservationForProblem_5Why_1How"] && (
+                    {/* {errors?.["PRD_ObservationForProblem_5Why_1How"] && (
                       <p className="text-error">
                         {
                           errors?.["PRD_ObservationForProblem_5Why_1How"]
                             ?.message
                         }
                       </p>
-                    )}
+                    )} */}
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
@@ -689,6 +455,7 @@ function MyTable({ selectedMachineDetails }) {
                   </Col>
                   <Col lg={7}>
                     <input
+                      disabled={true}
                       type="text"
                       id="why"
                       name="why"
@@ -711,6 +478,7 @@ function MyTable({ selectedMachineDetails }) {
                   </Col>
                   <Col lg={7}>
                     <input
+                      disabled={true}
                       type="text"
                       id="where"
                       name="where"
@@ -733,6 +501,7 @@ function MyTable({ selectedMachineDetails }) {
                   </Col>
                   <Col lg={7}>
                     <input
+                      disabled={true}
                       type="text"
                       id="when"
                       name="when"
@@ -755,6 +524,7 @@ function MyTable({ selectedMachineDetails }) {
                   </Col>
                   <Col lg={7}>
                     <input
+                      disabled={true}
                       type="text"
                       id="who"
                       name="who"
@@ -777,6 +547,7 @@ function MyTable({ selectedMachineDetails }) {
                   </Col>
                   <Col lg={7}>
                     <input
+                      disabled={true}
                       type="text"
                       id="which"
                       name="which"
@@ -799,6 +570,7 @@ function MyTable({ selectedMachineDetails }) {
                   </Col>
                   <Col lg={7}>
                     <input
+                      disabled={true}
                       type="text"
                       id="how"
                       name="how"
@@ -815,7 +587,7 @@ function MyTable({ selectedMachineDetails }) {
                 </Row>
               </td>
 
-              <td className="border p-3 col-lg-4 col-md-12 col-sm-12">
+              <td className="border p-3 col-lg-4 col-md-4 col-sm-12">
                 <Row className="m-0">
                   <Col className="border p-2">
                     <FormControl>
@@ -829,11 +601,10 @@ function MyTable({ selectedMachineDetails }) {
                         <RadioGroup
                           row
                           value={watch("shiftOfBM")}
-                          // value={"B"}
                           aria-labelledby="demo-radio-buttons-group-label"
                           name="radio-buttons-group"
                         >
-                          {plantShiftsData?.map((shiftInfo) => (
+                          {shiftOfBM.map((shiftInfo) => (
                             <FormControlLabel
                               value={shiftInfo.shiftName}
                               control={<Radio color="default" size="small" />}
@@ -854,41 +625,7 @@ function MyTable({ selectedMachineDetails }) {
                     <small className="mb-0 d-flex align-items-center justify-content-start">
                       <b>QUALITY RELATED</b>&nbsp;&nbsp;&nbsp;
                     </small>
-                  </Col>
-                  <Col className="border p-2 d-flex align-items-center">
-                    <Form>
-                      {["radio"].map((type) => (
-                        <div key={`inline-${type}`} className="d-block">
-                          <Form.Check
-                            flex
-                            label="Yes"
-                            name="group1"
-                            type={type}
-                            id={`inline-${type}-1`}
-                            value="Yes"
-                            {...register("qualityRelated", {
-                              required: "Please select quality related",
-                            })}
-                          />
-                          <Form.Check
-                            flex
-                            label="No"
-                            name="group1"
-                            type={type}
-                            id={`inline-${type}-2`}
-                            value="No"
-                            {...register("qualityRelated", {
-                              required: "Please select quality related",
-                            })}
-                          />
-                        </div>
-                      ))}
-                      {errors?.["qualityRelated"] && (
-                        <p className="text-error">
-                          {errors?.["qualityRelated"]?.message}
-                        </p>
-                      )}
-                    </Form>
+                    <div>{requestSheetDataOfBM?.qualityRelated}</div>
                   </Col>
                 </Row>
                 <Row className="pt-0 mb-0 m-0">
@@ -897,24 +634,17 @@ function MyTable({ selectedMachineDetails }) {
                       <b>BREAKDOWN ATTENDED BY</b>
                     </small>
                     <br />
-                    {/* {selectedAttendee} */}
+                    {requestSheetDataOfBM?.assignUser?.tm_name} {", "}
+                    {requestSheetDataOfBM?.supportingTM
+                      ?.map((obj) => obj?.tm_name)
+                      ?.join(", ")}
                   </Col>
                 </Row>
               </td>
             </tr>
           </tbody>
 
-          <Row>
-            <Col>
-              <button
-                type="submit"
-                className="btn bg-success"
-                style={{ marginTop: "1rem" }}
-              >
-                Submit Request-Sheet
-              </button>
-            </Col>
-          </Row>
+          <div style={{ width: "100%", height: "50px" }}></div>
         </Table>
       </form>
     </>
