@@ -2537,23 +2537,17 @@ router.get(
         },
       ]);
 
-      const generatedStatusCount = await RequestSheetOfBM.aggregate([
-        {
-          $match: req.queryObj,
-        },
-        {
-          $group: {
-            _id: null,
-            count: { $sum: 1 },
-          },
-        },
-      ]);
+      const generatedStatusCount = await RequestSheetOfBM.countDocuments(
+        req.queryObj
+      );
+
       return res.status(201).json({
         message: "Monitoring request-sheet chart data get successfully",
         allStatusCounterForGraph: [
           {
             label: "Generated",
-            data: [generatedStatusCount?.[0]?.count],
+            data: [generatedStatusCount],
+            backgroundColor: "red",
           },
           ...allStatusCounterForGraph,
         ],
@@ -2664,85 +2658,108 @@ router.get(
         {
           $project: {
             preAggregationTimeStampOfRequestSheet: 1,
-            userWithStatusInfo: [
-              {
-                userType: "MTD TL",
-                userId: { $arrayElemAt: ["$approvalOfMTD_TL", -1] },
-                userName: { $arrayElemAt: ["$approverNameLogOfMTD_TL", -1] },
-                timeStamp: {
-                  $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
+            userWithStatusInfo: {
+              $filter: {
+                input: [
+                  {
+                    userType: "MTD TL",
+                    userId: { $arrayElemAt: ["$approvalOfMTD_TL", -1] },
+                    userName: {
+                      $arrayElemAt: ["$approverNameLogOfMTD_TL", -1],
+                    },
+                    timeStamp: {
+                      $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
+                    },
+                    status: {
+                      $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
+                    },
+                  },
+                  {
+                    userType: "MTD HOSS",
+                    userId: { $arrayElemAt: ["$approvalOfMTD_HOSS", -1] },
+                    userName: {
+                      $arrayElemAt: ["$approverNameLogOfMTD_HOSS", -1],
+                    },
+                    timeStamp: {
+                      $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
+                    },
+                    status: {
+                      $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
+                    },
+                  },
+                  {
+                    userType: "MTD HOS",
+                    userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
+                    userName: {
+                      $arrayElemAt: ["$approverNameLogOfMTD_HOS", -1],
+                    },
+                    timeStamp: {
+                      $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
+                    },
+                    status: {
+                      $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
+                    },
+                  },
+                  {
+                    userType: "PRD TL",
+                    userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
+                    userName: {
+                      $arrayElemAt: ["$approverNameLogOfPRD_TL", -1],
+                    },
+                    timeStamp: {
+                      $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
+                    },
+                    status: {
+                      $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
+                    },
+                  },
+                  {
+                    userType: "PRD HOS",
+                    userId: { $arrayElemAt: ["$approvalOfPRD_HOS", -1] },
+                    userName: {
+                      $arrayElemAt: ["$approverNameLogOfPRD_HOS", -1],
+                    },
+                    timeStamp: {
+                      $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
+                    },
+                    status: {
+                      $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
+                    },
+                  },
+                  {
+                    userType: "PRD HOD",
+                    userId: { $arrayElemAt: ["$approvalOfPRD_HOD", -1] },
+                    userName: {
+                      $arrayElemAt: ["$approverNameLogOfPRD_HOD", -1],
+                    },
+                    timeStamp: {
+                      $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
+                    },
+                    status: {
+                      $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
+                    },
+                  },
+                  {
+                    userType: "MTD HOD",
+                    userId: { $arrayElemAt: ["$approvalOfMTD_HOD", -1] },
+                    userName: {
+                      $arrayElemAt: ["$approverNameLogOfMTD_HOD", -1],
+                    },
+                    timeStamp: {
+                      $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
+                    },
+                    status: {
+                      $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
+                    },
+                  },
+                ],
+                as: "user",
+                cond: {
+                  $eq: ["$$user.status", "Pending"],
                 },
-                status: {
-                  $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
-                },
+                limit: 1,
               },
-              {
-                userType: "MTD HOSS",
-                userId: { $arrayElemAt: ["$approvalOfMTD_HOSS", -1] },
-                userName: { $arrayElemAt: ["$approverNameLogOfMTD_HOSS", -1] },
-                timeStamp: {
-                  $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
-                },
-                status: {
-                  $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
-                },
-              },
-              {
-                userType: "MTD HOS",
-                userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
-                userName: { $arrayElemAt: ["$approverNameLogOfMTD_HOS", -1] },
-                timeStamp: {
-                  $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
-                },
-                status: {
-                  $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
-                },
-              },
-              {
-                userType: "PRD TL",
-                userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
-                userName: { $arrayElemAt: ["$approverNameLogOfPRD_TL", -1] },
-                timeStamp: {
-                  $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
-                },
-                status: {
-                  $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
-                },
-              },
-              {
-                userType: "PRD HOS",
-                userId: { $arrayElemAt: ["$approvalOfPRD_HOS", -1] },
-                userName: { $arrayElemAt: ["$approverNameLogOfPRD_HOS", -1] },
-                timeStamp: {
-                  $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
-                },
-                status: {
-                  $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
-                },
-              },
-              {
-                userType: "PRD HOD",
-                userId: { $arrayElemAt: ["$approvalOfPRD_HOD", -1] },
-                userName: { $arrayElemAt: ["$approverNameLogOfPRD_HOD", -1] },
-                timeStamp: {
-                  $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
-                },
-                status: {
-                  $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
-                },
-              },
-              {
-                userType: "MTD HOD",
-                userId: { $arrayElemAt: ["$approvalOfMTD_HOD", -1] },
-                userName: { $arrayElemAt: ["$approverNameLogOfMTD_HOD", -1] },
-                timeStamp: {
-                  $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
-                },
-                status: {
-                  $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
-                },
-              },
-            ],
+            },
           },
         },
         {
@@ -4065,6 +4082,182 @@ router.patch(
 //   }
 // };
 
+const filtrationMiddlewareForKPiFromDBReport = async (req, res, next) => {
+  try {
+    let queryObjForPm = {};
+
+    if (req.params?.filter === "based-on-plant") {
+      queryObjForPm = {
+        plant_names: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-section") {
+      queryObjForPm = {
+        section_names: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-subSection") {
+      queryObjForPm = {
+        subSection_names: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    }
+
+    req.queryObjForPm = queryObjForPm;
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const functionForFindingBDHourOrCountStatus = async ({
+  Model,
+  queryObj,
+  selectedYear,
+  SumString,
+}) => {
+  try {
+    return Model.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $unwind: "$allTargetData",
+      },
+      {
+        $match: {
+          "allTargetData.current_year": selectedYear,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          annualSum: {
+            $sum: SumString,
+          },
+        },
+      },
+    ]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+router.get(
+  "/getBdCountStatus/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  filtrationMiddlewareForKPiFromDBReport,
+  async (req, res, next) => {
+    try {
+      let queryObj = req.queryObjForPm;
+
+      if (req.params?.filter === "based-on-cell") {
+        queryObj = {
+          _id: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      }
+
+      const annualMBDCount = await functionForFindingBDHourOrCountStatus({
+        Model: Cell,
+        queryObj,
+        selectedYear: req.query?.selectedYear,
+        SumString: "$allTargetData.yearTotalMBDCountTarget",
+      });
+
+      const MBDActualAndMinorBdCount = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
+        {
+          $group: {
+            // _id: {
+            //   minorBD: "$maintenanceReportFilledByMTD.minorBD",
+            //   majorBD: "$maintenanceReportFilledByMTD.majorBD",
+            // },
+            _id: "$maintenanceReportFilledByMTD.majorBD",
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+
+      let obj = {}
+
+      MBDActualAndMinorBdCount.map(item=>{
+        if (item?._id === "Yes") {
+          obj["majorCount"] = item?.count
+        }else if (item?._id === "No") {
+          obj["minorCount"] = item?.count
+        }
+      })
+
+
+      return res.status(201).json({
+        message: "Bd count status get successfully",
+        BDCountStatus:{
+          annualMBDCount: annualMBDCount?.[0]?.annualSum,
+          MBDActualAndMinorBdCount:obj,
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getBdHoursStatus/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  filtrationMiddlewareForKPiFromDBReport,
+  async (req, res, next) => {
+    try {
+      let queryObj = req.queryObjForPm;
+
+      if (req.params?.filter === "based-on-cell") {
+        queryObj = {
+          cell_names: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      } else if (req.params?.filter === "based-on-line") {
+        queryObj = {
+          _id: mongoose.Types.ObjectId(req.params?.selectedId),
+        };
+      }
+
+      const annualBDTarget = await functionForFindingBDHourOrCountStatus({
+        Model: Line,
+        queryObj,
+        selectedYear: req.query?.selectedYear,
+        SumString: "$allTargetData.yearTotalBDHrsTarget",
+      });
+
+      const BDActual = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
+        {
+          $group: {
+            _id: null,
+            BDhour: {
+              $sum:{
+                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+              },
+            }
+          },
+        },
+      ]);
+
+      return res.status(201).json({
+        message: "Bd hours status get successfully",
+        BDHoursStatus:{
+          annualBDTarget: annualBDTarget?.[0]?.annualSum,
+          BDActual:BDActual?.[0]?.BDhour,
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
 //          Daily breakdown trend
 router.get(
   "/getDailyBreakdownTrendData/:filter/:selectedId",

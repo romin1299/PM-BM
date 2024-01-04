@@ -29,6 +29,23 @@ const RequestSheetMonitoringBarChart = ({
     Colors
   );
 
+  const statusColorMap = {
+    Generated: "#9bcbdb",
+    Assigned: "#ffe031",
+    "Work Order Open": "#ca2626",
+    "Work Order Pending": "#F59F00",
+    "Work Order Closed": "#70b332",
+    "Fill Sheet": "#89e9eb",
+    "Under MTD TL Approval": "#c196d4",
+    "Under MTD HOSS Approval": "#c196d4",
+    "Under PRD TL Approval": "#c196d4",
+    "Under PRD HOS Approval": "#c196d4",
+    "Under MTD HOS Approval": "#c196d4",
+    "Under MTD HOD Approval": "#c196d4",
+    "Under PRD HOD Approval": "#c196d4",
+    Completed: "#3fad3f",
+  };
+
   const [allStatusCounterForGraph, setAllStatusCounterForGraph] = useState([
     {
       label: "",
@@ -134,7 +151,10 @@ const RequestSheetMonitoringBarChart = ({
 
   const data = {
     labels: ["Generated", "Status", "Completed"],
-    datasets: allStatusCounterForGraph,
+    datasets: allStatusCounterForGraph?.map((item) => ({
+      ...item,
+      backgroundColor: statusColorMap?.[item?.label],
+    })),
   };
 
   return (
