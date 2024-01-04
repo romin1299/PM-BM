@@ -1,15 +1,20 @@
 import { commonPptOptions } from "./exportPPTXOptions";
 import axios from "axios";
 import { MONTH_LABELS } from "../ChartUtils/chartEnums";
+import {
+  getRandomColorsArray,
+  getRandomDataArray,
+} from "../math/generateRandomValues";
 
 export async function generateLineWiseKpiStatusPpt(pptx, urlOptions) {
-  const resData = await fetchData(pptx, urlOptions);
-  // const resData = await getLineWiseKpiStatusData(urlOptions);
+  // const resData = await fetchData(pptx, urlOptions);
+  const resData = await getLineWiseKpiStatusData(urlOptions);
 
   await genChartMatrix(pptx, resData);
 }
 
 const getLineWiseKpiStatusData = async (urlOptions) => {
+  // console.log('urlOptions:', urlOptions)
   try {
     const res = await fetch(
       `/getLineWiseKpiStatusData/${urlOptions?.selectedCell}?selectedYear=${urlOptions?.selectedYear}`,
@@ -23,9 +28,9 @@ const getLineWiseKpiStatusData = async (urlOptions) => {
       }
     );
 
-    const dataaa = await res.json();
-    console.log("dataaa:", dataaa);
-    const { message, lineWisePptExportationData } = dataaa;
+    const kpiRes = await res.json();
+    // console.log("kpiRes:", kpiRes);
+    const { message, lineWisePptExportationData } = kpiRes;
 
     if (res?.status === 201) {
       return lineWisePptExportationData;
@@ -37,78 +42,78 @@ const getLineWiseKpiStatusData = async (urlOptions) => {
 
 // implement data fetching logic here
 function fetchData() {
+  let prevDataType = [
+    {
+      lineName: "line1",
+      target: getRandomDataArray(12, 100, 120),
+      bdHours: getRandomDataArray(12, 0, 150),
+      bdPercentage: getRandomDataArray(12, 0, 150),
+      mttrData: getRandomDataArray(12, 0, 150),
+      mtbfData: getRandomDataArray(12, 0, 150),
+    },
+  ];
+
+  let colorOptions = ["9ccc65", "9ccc65", "9ccc65", "ef5350"];
   let generateData = [
     {
       lineName: "line1",
       target: getRandomDataArray(12, 100, 120),
-      bdHours: getRandomDataArray(12, 40, 150),
-      bdPercentage: getRandomDataArray(12, 40, 150),
-      mttrData: getRandomDataArray(12, 40, 150),
-      mtbfData: getRandomDataArray(12, 40, 150),
+      allData: {
+        bdHours: getRandomDataArray(12, 0, 150),
+        bdPercentage: getRandomDataArray(12, 0, 150),
+        mttrData: getRandomDataArray(12, 0, 150),
+        mtbfData: getRandomDataArray(12, 0, 150),
+
+        backgroundColorForBDHrs: getRandomColorsArray(12, colorOptions),
+        backgroundColorForMTTR: getRandomColorsArray(12, colorOptions),
+        backgroundColorForMTBF: getRandomColorsArray(12, colorOptions),
+        backgroundColorForBDPercentage: getRandomColorsArray(12, colorOptions),
+      },
     },
     {
-      lineName: "line2",
+      lineName: "line1",
       target: getRandomDataArray(12, 100, 120),
-      bdHours: getRandomDataArray(12, 40, 150),
-      bdPercentage: getRandomDataArray(12, 40, 150),
-      mttrData: getRandomDataArray(12, 40, 150),
-      mtbfData: getRandomDataArray(12, 40, 150),
+      allData: {
+        bdHours: getRandomDataArray(12, 0, 150),
+        bdPercentage: getRandomDataArray(12, 0, 150),
+        mttrData: getRandomDataArray(12, 0, 150),
+        mtbfData: getRandomDataArray(12, 0, 150),
+
+        backgroundColorForBDHrs: getRandomColorsArray(12, colorOptions),
+        backgroundColorForMTTR: getRandomColorsArray(12, colorOptions),
+        backgroundColorForMTBF: getRandomColorsArray(12, colorOptions),
+        backgroundColorForBDPercentage: getRandomColorsArray(12, colorOptions),
+      },
     },
     {
-      lineName: "line3",
+      lineName: "line1",
       target: getRandomDataArray(12, 100, 120),
-      bdHours: getRandomDataArray(12, 40, 150),
-      bdPercentage: getRandomDataArray(12, 40, 150),
-      mttrData: getRandomDataArray(12, 40, 150),
-      mtbfData: getRandomDataArray(12, 40, 150),
+      allData: {
+        bdHours: getRandomDataArray(12, 0, 150),
+        bdPercentage: getRandomDataArray(12, 0, 150),
+        mttrData: getRandomDataArray(12, 0, 150),
+        mtbfData: getRandomDataArray(12, 0, 150),
+
+        backgroundColorForBDHrs: getRandomColorsArray(12, colorOptions),
+        backgroundColorForMTTR: getRandomColorsArray(12, colorOptions),
+        backgroundColorForMTBF: getRandomColorsArray(12, colorOptions),
+        backgroundColorForBDPercentage: getRandomColorsArray(12, colorOptions),
+      },
     },
     {
-      lineName: "line4",
+      lineName: "line1",
       target: getRandomDataArray(12, 100, 120),
-      bdHours: getRandomDataArray(12, 40, 150),
-      bdPercentage: getRandomDataArray(12, 40, 150),
-      mttrData: getRandomDataArray(12, 40, 150),
-      mtbfData: getRandomDataArray(12, 40, 150),
-    },
-    {
-      lineName: "line5",
-      target: getRandomDataArray(12, 100, 120),
-      bdHours: getRandomDataArray(12, 40, 150),
-      bdPercentage: getRandomDataArray(12, 40, 150),
-      mttrData: getRandomDataArray(12, 40, 150),
-      mtbfData: getRandomDataArray(12, 40, 150),
-    },
-    {
-      lineName: "line6",
-      target: getRandomDataArray(12, 100, 120),
-      bdHours: getRandomDataArray(12, 40, 150),
-      bdPercentage: getRandomDataArray(12, 40, 150),
-      mttrData: getRandomDataArray(12, 40, 150),
-      mtbfData: getRandomDataArray(12, 40, 150),
-    },
-    {
-      lineName: "line7",
-      target: getRandomDataArray(12, 100, 120),
-      bdHours: getRandomDataArray(12, 40, 150),
-      bdPercentage: getRandomDataArray(12, 40, 150),
-      mttrData: getRandomDataArray(12, 40, 150),
-      mtbfData: getRandomDataArray(12, 40, 150),
-    },
-    {
-      lineName: "line5",
-      target: getRandomDataArray(12, 100, 120),
-      bdHours: getRandomDataArray(12, 40, 150),
-      bdPercentage: getRandomDataArray(12, 40, 150),
-      mttrData: getRandomDataArray(12, 40, 150),
-      mtbfData: getRandomDataArray(12, 40, 150),
-    },
-    {
-      lineName: "line6",
-      target: getRandomDataArray(12, 100, 120),
-      bdHours: getRandomDataArray(12, 40, 150),
-      bdPercentage: getRandomDataArray(12, 40, 150),
-      mttrData: getRandomDataArray(12, 40, 150),
-      mtbfData: getRandomDataArray(12, 40, 150),
+      allData: {
+        bdHours: getRandomDataArray(12, 0, 150),
+        bdPercentage: getRandomDataArray(12, 0, 150),
+        mttrData: getRandomDataArray(12, 0, 150),
+        mtbfData: getRandomDataArray(12, 0, 150),
+
+        backgroundColorForBDHrs: getRandomColorsArray(12, colorOptions),
+        backgroundColorForMTTR: getRandomColorsArray(12, colorOptions),
+        backgroundColorForMTBF: getRandomColorsArray(12, colorOptions),
+        backgroundColorForBDPercentage: getRandomColorsArray(12, colorOptions),
+      },
     },
   ];
 
@@ -128,7 +133,7 @@ function convertResData(data) {
         },
       ],
       options: {
-        chartColors: ["9ccc65", "9ccc65", "9ccc65", "ef5350"], // previous green: c2c933 // previous red "ca1f4b"
+        chartColors: data.chartColors, // ["9ccc65", "9ccc65", "9ccc65", "ef5350"], // previous green: c2c933 // previous red "ca1f4b"
       },
     },
     {
@@ -150,27 +155,22 @@ function convertResData(data) {
   return comboData;
 }
 
-// Generates an array of random numbers for dummy data set
-const getRandomDataArray = (arrayLength, min = 30, max = 30) => {
-  return Array.from({ length: arrayLength }, () =>
-    Math.floor(Math.random() * (max - min) + min)
-  );
-};
-
 export async function genChartMatrix(pptx, dataArray) {
-  console.log("dataArray:", dataArray);
-  if (dataArray?.length <= 0) {
-    console.log("return");
+  // console.log("dataArray:", dataArray);
+  const noOfLines = dataArray?.length;
+
+  if (noOfLines <= 0) {
+    // console.log("return");
     return;
   }
 
   function calculateCols() {
-    if (dataArray?.length > 4) return 4;
-    else return dataArray?.length;
+    if (noOfLines > 4) return 4;
+    else return noOfLines;
   }
 
   function equalColsCalculator() {
-    let length = dataArray?.length;
+    let length = noOfLines;
     let noOfCols;
 
     if (length > 8) noOfCols = 4;
@@ -234,8 +234,14 @@ export async function genChartMatrix(pptx, dataArray) {
     );
   }
 
-  let chartTypeArray = ["bdHours", "bdPercentage", "mttrData", "mtbfData"];
   let chartTypeNamesArray = ["BD Hours", "BD %", "MTTR", "MTBF"];
+  let chartTypeArray = ["bdHours", "bdPercentage", "mttrData", "mtbfData"];
+  let chartTypeColorKeyArray = [
+    "backgroundColorForBDHrs",
+    "backgroundColorForBDPercentage",
+    "backgroundColorForMTTR",
+    "backgroundColorForMTBF",
+  ];
 
   const titleBarOffset = 0.4;
   const totalWidth = 13.33 - titleBarOffset;
@@ -287,8 +293,9 @@ export async function genChartMatrix(pptx, dataArray) {
       }
 
       let chartData = convertResData({
-        data: dataArray?.[i]?.[chartTypeArray[j]],
-        target: dataArray?.[i]?.["target"],
+        data: dataArray?.[i]?.allData?.[chartTypeArray[j]],
+        target: dataArray?.[i]?.target,
+        chartColors: dataArray?.[i]?.allData?.[chartTypeColorKeyArray[j]],
       });
 
       let coordinates = {

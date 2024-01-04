@@ -7,10 +7,29 @@ export async function generateLineContributionPpt(pptx, urlOptions) {
   await genSlide02(pptx, urlOptions);
 }
 
+const fetchPlantId = async ({ url }) => {
+  try {
+    const res = await axios.get(url, {
+      withCredentials: true,
+      credentials: "include",
+    });
+
+    if (res.status === 201) {
+      return res?.data?.selectedValue;
+    }
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
 const fetchPlantData = async (urlOptions) => {
   const { selectedYear } = urlOptions;
 
-  const url = `/lineWiseBdContributionForPlant`;
+  const plantId = await fetchPlantId({
+    url: `/getFiltrationValue/monthly-breakdown-filter/byDefault`,
+  });
+
+  const url = `/lineWiseBdContribution/based-on-plant/${plantId}`;
   const params = { selectedYear };
 
   try {
@@ -40,7 +59,7 @@ const fetchSectionData = async (urlOptions) => {
   const { selectedYear, selectedMonth, flagForTogglingFilter, selectedValue } =
     urlOptions;
 
-  const url = `/lineWiseBdContributionForSection/${flagForTogglingFilter}/${selectedValue}`;
+  const url = `/lineWiseBdContribution/${flagForTogglingFilter}/${selectedValue}`;
   const params = { selectedYear, selectedMonth };
 
   try {
