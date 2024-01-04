@@ -22,6 +22,7 @@ import TmMttrSkillScore from "./TmMttrSkillScore";
 import Checkbox from "@mui/material/Checkbox";
 import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu";
 import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
+import TmMttrSkillScoreCrud from "./TMMttrSkillScoreCrud";
 
 const TMMTRMain = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -29,6 +30,7 @@ const TMMTRMain = () => {
 
   const [mbdIncluded, setMbdIncluded] = React.useState(false);
   const [timeFilter, setTimeFilter] = React.useState(2);
+  const timeFilterRef = React.useRef(null);
   const handleChange = (event) => {
     setMbdIncluded(event.target.checked);
   };
@@ -56,6 +58,7 @@ const TMMTRMain = () => {
     <Col className="col-auto">
       <Box
         component="form"
+        onSubmit={(e) => e.preventDefault()}
         sx={{ display: "flex", alignItems: "center", gap: "10px" }}
       >
         {/* <p style={{ fontSize: "1rem" }}>Time:</p> */}
@@ -71,31 +74,27 @@ const TMMTRMain = () => {
             // width: "12ch",
             width: "6rem",
             pl: 0,
-            "& .MuiInputBase-input": {
-              bgcolor: "white",
-              // border: "1px solid gray",
-            },
-            "&.MuiFormControl-root": {
-              bgcolor: "#c9c6c65c",
-              // border: "1px solid gray",
-            },
-            "& .MuiOutlinedInput-root": { pl: 0 },
+            "&.MuiFormControl-root": { bgcolor: "#c9c6c65c" },
+            "& .MuiInputBase-input": { bgcolor: "white" },
             "& .MuiTypography-root": { m: 0, fontSize: 14 },
-            "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
+            "& .MuiOutlinedInput-input": { p: "6px 8px" },
           }}
           InputProps={{
             sx: { fontSize: 14 },
             endAdornment: <InputAdornment position="end">Hr</InputAdornment>,
           }}
+          inputRef={timeFilterRef}
           size="small"
-          onChange={(e) => {
-            setTimeFilter(e.target.value);
-          }}
-          value={timeFilter}
+          // onChange={(e) => {
+          //   setTimeFilter(e.target.value);
+          // }}
+          // value={timeFilter}
+          defaultValue={2}
         />
         <Button
           // size="small"
           disableElevation
+          type="submit"
           className="bg-button"
           variant="contained"
           sx={{
@@ -103,7 +102,10 @@ const TMMTRMain = () => {
             height: "32px",
             paddingInline: "10px",
           }}
-          // onClick={getMachineWiseMTTRTrendData}
+          onClick={() => {
+            // console.log("timeFilterRef.current:", timeFilterRef.current.value);
+            setTimeFilter(timeFilterRef.current.value);
+          }}
         >
           Go
         </Button>
@@ -143,17 +145,11 @@ const TMMTRMain = () => {
 
         <Row className="mt-3">
           <Col md={12} lg={6}>
-            <MTTRTrend
-              selectedValue={reduceState?.selectedValue}
-              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-              selectedYear={reduceState?.selectedYear}
-              selectedMonth={reduceState?.selectedMonth}
-              mbdIncluded={mbdIncluded}
-            />
+            <MTTRTrend {...reduceState} timeFilter={timeFilter} />
           </Col>
 
           <Col md={12} lg={6}>
-            <TMProgress {...reduceState} mbdIncluded={mbdIncluded} />
+            <TMProgress {...reduceState} timeFilter={timeFilter} />
           </Col>
 
           <Col md={12} style={{ marginTop: "1rem" }}>

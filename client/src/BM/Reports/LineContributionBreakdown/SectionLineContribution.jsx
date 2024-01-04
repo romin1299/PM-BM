@@ -19,6 +19,7 @@ import axios from "axios";
 import SectionCellSelectionDropdown from "./SectionCellSelectionDropdown";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 
 ChartJS.register(
   CategoryScale,
@@ -42,28 +43,8 @@ export const options = {
         usePointStyle: true,
       },
     },
-    datalabels: {
-      formatter: (value, context) => {
-        if (context.dataset.type === "bar") {
-          return value !== 0 ? `${Math.round(value * 100) / 100} %` : null;
-        } else if (context.dataset.type === "line") {
-          return value !== 0 ? `${Math.round(value * 100) / 100}` : null;
-        } else return value;
-      },
-      font: { weight: "bold", size: 12 },
-      // backgroundColor: (context) => {
-      //   if (context.dataset.type === "bar") {
-      //     return chartColors.palettes[0][0];
-      //   } else if (context.dataset.type === "line") {
-      //     return "blue";
-      //   } else return "red";
-      // },
-      // color: "white",
-      borderRadius: 3,
-      anchor: (context) => (context.dataset.type === "line" ? "end" : "center"),
-      align: (context) => (context.dataset.type === "line" ? "top" : "center"),
-      offset: (context) => (context.dataset.type === "line" ? 4 : 0),
-    },
+    datalabels: { display: false },
+    // datalabels: commonDatalabels,
   },
   scales: {
     x: {
@@ -121,7 +102,7 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
     reduceState;
 
   const fetchChartData = async () => {
-    const url = `/lineWiseBdContributionForSection/${flagForTogglingFilter}/${selectedValue}`;
+    const url = `/lineWiseBdContribution/${flagForTogglingFilter}/${selectedValue}`;
     const params = { selectedYear, selectedMonth };
 
     try {

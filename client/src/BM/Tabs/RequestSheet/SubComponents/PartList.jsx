@@ -12,7 +12,7 @@ const initialState = {
 };
 
 const PartList = ({ parts, setParts }) => {
-  console.clear();
+  // console.clear();
   console.log("parts:", parts);
 
   const [isAdding, setIsAdding] = useState(false);
