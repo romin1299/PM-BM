@@ -4,10 +4,15 @@ import MaterialTable from "@material-table/core";
 import tableIcons from "../../../components/MatrialTableIcon";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import DescriptionIcon from "@mui/icons-material/Description";
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Container, Row, Col } from "react-bootstrap";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
-import moment from "moment"
+import moment from "moment";
+import { useNavigate } from "react-router-dom";
+
 const BDRequestSheetTable = ({ requestSheetData, downloadFileName }) => {
+  const navigate = useNavigate();
+
   const requestSheetHeader = [
     {
       title: "Sr. No.",
@@ -55,7 +60,24 @@ const BDRequestSheetTable = ({ requestSheetData, downloadFileName }) => {
     },
   ];
 
-  const requestSheetActions = [];
+  const requestSheetActions = [
+    (row) => ({
+      icon: () => <VisibilityIcon className="text-primary" />,
+      tooltip: "View",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        navigate(
+          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`
+          // {
+          //   state: {
+          //     supportingTM:
+          //       reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
+          //   },
+          // }
+        );
+      },
+    }),
+  ];
 
   return (
     <>

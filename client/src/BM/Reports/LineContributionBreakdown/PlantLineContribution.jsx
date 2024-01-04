@@ -17,6 +17,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 
 ChartJS.register(
   CategoryScale,
@@ -40,28 +41,8 @@ export const options = {
         usePointStyle: true,
       },
     },
-    datalabels: {
-      formatter: (value, context) => {
-        if (context.dataset.type === "bar") {
-          return value !== 0 ? `${Math.round(value * 100) / 100} %` : null;
-        } else if (context.dataset.type === "line") {
-          return value !== 0 ? `${Math.round(value * 100) / 100}` : null;
-        } else return value;
-      },
-      font: { weight: "bold", size: 12 },
-      // backgroundColor: (context) => {
-      //   if (context.dataset.type === "bar") {
-      //     return chartColors.palettes[0][0];
-      //   } else if (context.dataset.type === "line") {
-      //     return "blue";
-      //   } else return "red";
-      // },
-      // color: "white",
-      borderRadius: 3,
-      anchor: (context) => (context.dataset.type === "line" ? "end" : "center"),
-      align: (context) => (context.dataset.type === "line" ? "top" : "center"),
-      offset: (context) => (context.dataset.type === "line" ? 4 : 0),
-    },
+    // datalabels: { display: false },
+    datalabels: commonDatalabels,
   },
   scales: {
     x: {
@@ -115,8 +96,27 @@ export const options = {
 const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
   const [data, setData] = React.useState({});
 
+  const fetchPlantId = async ({ url }) => {
+    try {
+      const res = await axios.get(url, {
+        withCredentials: true,
+        credentials: "include",
+      });
+
+      if (res.status === 201) {
+        return res?.data?.selectedValue;
+      }
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
   const fetchChartData = async () => {
-    const url = `/lineWiseBdContributionForPlant`;
+    const plantId = await fetchPlantId({
+      url: `/getFiltrationValue/monthly-breakdown-filter/byDefault`,
+    });
+
+    const url = `/lineWiseBdContribution/based-on-plant/${plantId}`;
     const params = { selectedYear: selectedYear, selectedMonth: selectedMonth };
 
     try {
@@ -126,9 +126,13 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
         credentials: "include",
       });
 
-      // console.log("plant contri res:", res.data);
+      console.log("plant contri res:", res.data);
       setData(res?.data?.lineWiseBDData[0]);
+
+      // delete this piece of code after successful server response
+      // setData(undefined); //keep undefined till api is stable
     } catch (error) {
+      setData(undefined);
       console.log("error:", error);
     }
   };

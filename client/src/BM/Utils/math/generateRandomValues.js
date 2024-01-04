@@ -4,3 +4,14 @@ export const getRandomDataArray = (arrayLength, min = 30, max = 30) => {
     Math.floor(Math.random() * (max - min) + min)
   );
 };
+
+export const getRandomColorsArray = (
+  arrayLength,
+  colorOptions = ["green", "red"]
+) => {
+  return Array.from({ length: arrayLength }, () => {
+    let index = Math.floor(Math.random() * colorOptions.length);
+
+    return colorOptions[index];
+  });
+};

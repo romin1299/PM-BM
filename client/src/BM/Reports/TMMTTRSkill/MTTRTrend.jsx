@@ -74,16 +74,22 @@ export const options = {
   },
 };
 
-const TMLoad = ({ selectedValue, mbdIncluded, selectedYear }) => {
+const TMLoad = ({
+  timeFilter,
+  selectedValue,
+  selectedYear,
+  flagForTogglingFilter,
+}) => {
   const [data, setData] = React.useState({});
 
   const fetchChartData = async () => {
-    console.log("selectedValue:", selectedValue);
-    const url = `/mttrTrend/tmMTTRSkill/based-on-subSection/${selectedValue}`;
+    console.log("timeFilter:", timeFilter);
+    const url = `/mttrTrend/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}`;
 
     const params = {
       selectedYear,
-      includeMBD: mbdIncluded ? "include-mbd" : "",
+      time: timeFilter,
+      // includeMBD: mbdIncluded ? "include-mbd" : "",
     };
 
     try {
@@ -94,7 +100,7 @@ const TMLoad = ({ selectedValue, mbdIncluded, selectedYear }) => {
       });
       console.log("MTTR Trend res:", res);
 
-      setData(res?.data?.tmLoadData?.[0]);
+      setData(res?.data?.data);
     } catch (error) {
       console.log("error:", error);
     }
@@ -102,7 +108,7 @@ const TMLoad = ({ selectedValue, mbdIncluded, selectedYear }) => {
 
   React.useEffect(() => {
     if (selectedValue) fetchChartData();
-  }, [selectedValue, selectedYear, mbdIncluded]);
+  }, [selectedValue, selectedYear, timeFilter]);
 
   const chartData = {
     labels: data?.tm_names,

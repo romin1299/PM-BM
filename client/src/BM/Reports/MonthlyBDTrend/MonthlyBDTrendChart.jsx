@@ -82,9 +82,8 @@ export const options = {
 };
 
 const MonthlyBDTrendChart = ({
-  currentTabViewName,
-  sectionId,
   filterState,
+  currentTabViewName,
   filter,
   setFilter,
   selectedYear,
@@ -94,6 +93,8 @@ const MonthlyBDTrendChart = ({
     datasets: [],
   });
 
+  const { flagForTogglingFilter, selectedValue } = filterState;
+
   useEffect(() => {
     if (currentTabViewName === "Plant" && filter === "cell")
       setFilter("section");
@@ -102,15 +103,19 @@ const MonthlyBDTrendChart = ({
   }, [currentTabViewName]);
 
   const fetchChartData = async () => {
-    const basedON = currentTabViewName === "Plant" ? "plantId" : "subSection";
-    const selectedId = currentTabViewName === "Plant" ? "undefined" : sectionId;
+    // console.count("Monthly BD Report");
+    // console.log("filterState:", filterState.flagForTogglingFilter);
+
+    // let basedON = currentTabViewName === "Plant" ? "plantId" : "subSection";
+    // const selectedId = currentTabViewName === "Plant" ? "undefined" : sectionId;
 
     // const url =
     //   currentTabViewName === "Plant"
     //     ? `/${filter}MonthlyBdTrend/based-on-plant/${sectionId}`
     //     : `/${filter}MonthlyBdTrend/based-on-subSection/${sectionId}`;
-    const url = `/${filter}MonthlyBdTrend/based-on-${basedON}/${selectedId}`;
-    // console.log("url:", url);
+
+    const url = `/${filter}MonthlyBdTrend/${flagForTogglingFilter}/${selectedValue}`;
+    console.log("url:", url);
 
     const params = { selectedYear };
 
@@ -132,8 +137,8 @@ const MonthlyBDTrendChart = ({
         backgroundColor: chartColors.palettes[0][index],
       }));
 
-      // const targetData = res?.data?.targetData;
-      const targetData = getRandomDataArray(12, 5, 8);
+      const targetData = res?.data?.bdTrendTarget;
+      // const targetData = getRandomDataArray(12, 5, 8);
 
       if (data) {
         setChartData({
@@ -164,11 +169,12 @@ const MonthlyBDTrendChart = ({
   // console.log("chartData:", chartData);
 
   useEffect(() => {
-    if (selectedYear && filter) fetchChartData();
-  }, [currentTabViewName, sectionId, filter, selectedYear]);
+    if (flagForTogglingFilter && selectedValue && selectedYear && filter)
+      fetchChartData();
+  }, [flagForTogglingFilter, selectedValue, filter, selectedYear]);
 
   return (
-    <Box className="container-fluid cell p-3 mt-1">
+    <Box className="container-fluid cell p-3">
       <ChartTitleBar
         title="Monthly Breakdown Trend"
         // titleProps={{

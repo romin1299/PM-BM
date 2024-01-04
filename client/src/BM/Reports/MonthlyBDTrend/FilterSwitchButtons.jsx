@@ -3,7 +3,7 @@ import React from "react";
 
 const FilterSwitchButtons = ({ filter, setFilter, currentTabViewName }) => {
   const handleSelect = (event) => {
-    console.log("event.target.value:", event.target.value);
+    // console.log("event.target.value:", event.target.value);
     setFilter(event.target.value);
   };
 

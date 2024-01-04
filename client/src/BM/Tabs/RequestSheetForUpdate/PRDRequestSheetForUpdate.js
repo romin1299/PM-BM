@@ -16,9 +16,10 @@ import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
-import { Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import MachineInfoBox from "../RequestSheetForView/SubComponents/MachineInfoBox";
 
 const list = [
   { key: "A", value: "A" },
@@ -200,11 +201,11 @@ function MyTable({ requestSheetDataOfBM }) {
     <>
       <ToastContainer />
       <Row>
-        <Col>
+        {/* <Col>
           <button className="btn bg-button m-2" onClick={handleBack}>
             Back
           </button>
-        </Col>
+        </Col> */}
       </Row>
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
         <Table className="m-2 mt-3">
@@ -225,9 +226,34 @@ function MyTable({ requestSheetDataOfBM }) {
               />
             </td> */}
               <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0">
-                <h4 className="d-flex align-items-center justify-content-center">
-                  MAINTENANCE WORK REQUEST/REPORT
-                </h4>
+                <Row>
+                  <Col>
+                    <button className="btn bg-button m-2" onClick={handleBack}>
+                      Back
+                    </button>
+                  </Col>
+                  <Col>
+                    <h4 className="d-flex align-items-center justify-content-center">
+                      MAINTENANCE WORK REQUEST/REPORT
+                    </h4>
+                  </Col>
+                  <Col>
+                    <Box
+                      display="flex"
+                      justifyContent="end"
+                      gap={1}
+                      // sx={{ position: "absolute", top: "10px", right: "20px" }}
+                    >
+                      <MachineInfoBox
+                        title="PM Status"
+                        bodyText1="Completed"
+                        bodyText2="(13/10/2023)"
+                      />
+                      <MachineInfoBox title="BM" bodyText1="170 hrs/5 Nos" />
+                      <MachineInfoBox title="CM" />
+                    </Box>
+                  </Col>
+                </Row>
               </td>
             </tr>
             <tr className="row m-2" style={{ width: "100vw" }}>
