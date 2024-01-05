@@ -3,6 +3,8 @@ import { Container, Row, Col } from "reactstrap";
 import { useForm } from "react-hook-form";
 
 import DailyBDTrendChart from "../DailyBreakdownTrend/DailyBDTrendChart";
+import BDRequestSheetAntDesignTable from "../Common/DailyBDRequestSheetAntDesignTable.jsx";
+
 import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
 import BDHoursVsCountComponent from "./BDHoursVsCountComponent";
 import MTTRComponent from "./MTTRComponent";
@@ -28,9 +30,17 @@ import {
 
 const ProductionLineWiseReport = () => {
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
+    register: registerBasedOnSelectedDate,
+    handleSubmit: handleSubmitBasedOnSelectedDate,
+    formState: { errors: errorsBasedOnSelectedDate },
+    reset: resetBasedOnSelectedDate,
+  } = useForm({});
+
+  const {
+    register: registerBasedOnFromAndToDate,
+    handleSubmit: handleSubmitBasedOnFromAndToDate,
+    formState: { errors: errorsBasedOnFromAndToDate },
+    reset: resetBasedOnFromAndToDate,
   } = useForm({});
 
   // const initialState = {
@@ -153,6 +163,11 @@ const ProductionLineWiseReport = () => {
 
   const [requestSheetData, setRequestSheetData] = useState([]);
 
+  const [
+    requestSheetDataForProductAndLineWise,
+    setRequestSheetDataForProductAndLineWise,
+  ] = useState([]);
+
   const [dailyBDSelectedMonth, setDailyBDSelectedMonth] =
     useState(currentMonth);
 
@@ -175,6 +190,30 @@ const ProductionLineWiseReport = () => {
 
       if (res?.status === 201) {
         setRequestSheetData(requestSheetData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getRequestSheetDataBasedOnFromAndToDateSelection = async (data) => {
+    try {
+      const res = await fetch(
+        `/getRequestSheetDataBasedOnFromAndToDateSelection/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/${data?.selectedToDate}/${data?.selectedFromDate}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, requestSheetData } = await res.json();
+
+      if (res?.status === 201) {
+        setRequestSheetDataForProductAndLineWise(requestSheetData);
       }
     } catch (error) {
       console.log(error);
@@ -210,6 +249,13 @@ const ProductionLineWiseReport = () => {
   //     getLineWiseKpiStatusData();
   //   }
   // }, [reduceState?.selectedCell]);
+
+  useEffect(() => {
+    if (reduceState?.selectedValue) {
+      getRequestSheetDataBasedOnFromAndToDateSelection();
+    }
+  }, [reduceState?.selectedValue, reduceState?.selectedYear]);
+
   return (
     <Container fluid>
       <Box>
@@ -250,17 +296,22 @@ const ProductionLineWiseReport = () => {
 
         <Paper variant="outlined" sx={{ p: 2 }} className="mt-3 g-0">
           <form
-            onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedDate)}
+            onSubmit={handleSubmitBasedOnSelectedDate(
+              getRequestSheetDataBasedOnSelectedDate
+            )}
             className="pt-1 d-flex align-items-center justify-content-end"
           >
             <input
               type="date"
-              {...register("selectedDate", {
+              {...registerBasedOnSelectedDate("selectedDate", {
                 required: "Please select date",
               })}
             />
-            {errors?.["selectedDate"] && (
-              <p className="text-error">{errors?.["selectedDate"]?.message}</p>
+            <br />
+            {errorsBasedOnSelectedDate?.["selectedDate"] && (
+              <p className="text-error">
+                {errorsBasedOnSelectedDate?.["selectedDate"]?.message}
+              </p>
             )}
             <Button
               size="small"
@@ -279,7 +330,10 @@ const ProductionLineWiseReport = () => {
             </Button>
           </form>
 
-          <BDRequestSheetTable requestSheetData={requestSheetData} downloadFileName={"Product/Line wise KPI"}/>
+          <BDRequestSheetTable
+            requestSheetData={requestSheetData}
+            downloadFileName={"Product/Line wise KPI"}
+          />
         </Paper>
 
         <Row className="mt-3 g-2">
@@ -331,6 +385,90 @@ const ProductionLineWiseReport = () => {
             />
           </Col>
         </Row>
+
+        <Paper variant="outlined" sx={{ p: 2 }} className="mt-3 g-0">
+          <Row>
+            <form
+              onSubmit={handleSubmitBasedOnFromAndToDate(
+                getRequestSheetDataBasedOnFromAndToDateSelection
+              )}
+              className="p-1 d-flex align-items-center justify-content-end"
+            >
+              <div>
+                <span className="m-1">
+                  <b>From Date:</b>
+                </span>
+                <input
+                  type="date"
+                  {...registerBasedOnFromAndToDate("selectedFromDate", {
+                    required: "Please select date",
+                  })}
+                />
+                <br />
+                {errorsBasedOnFromAndToDate?.["selectedFromDate"] && (
+                  <p className="text-error">
+                    {errorsBasedOnFromAndToDate?.["selectedFromDate"]?.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <span className="m-1">
+                  <b>To Date:</b>
+                </span>
+                <input
+                  type="date"
+                  {...registerBasedOnFromAndToDate("selectedToDate", {
+                    required: "Please select date",
+                  })}
+                />
+                <br />
+                {errorsBasedOnFromAndToDate?.["selectedToDate"] && (
+                  <p className="text-error">
+                    {errorsBasedOnFromAndToDate?.["selectedToDate"]?.message}
+                  </p>
+                )}
+              </div>
+              <Button
+                size="small"
+                disableElevation
+                className="bg-button"
+                variant="contained"
+                type="submit"
+                sx={{
+                  ml: 1,
+                  minWidth: "30px",
+                  height: "30px",
+                  paddingInline: "10px",
+                }}
+              >
+                Go
+              </Button>
+            </form>
+          </Row>
+          <Button
+            size="small"
+            disableElevation
+            className="bg-button"
+            variant="contained"
+            type="submit"
+            sx={{
+              ml: 1,
+              minWidth: "30px",
+              height: "30px",
+              paddingInline: "10px",
+            }}
+            onClick={() => {
+              resetBasedOnFromAndToDate();
+              getRequestSheetDataBasedOnFromAndToDateSelection();
+            }}
+          >
+            Reset
+          </Button>
+          <BDRequestSheetAntDesignTable
+            requestSheetData={requestSheetDataForProductAndLineWise}
+            downloadFileName={"Product/Line wise KPI"}
+          />
+        </Paper>
       </Box>
     </Container>
   );

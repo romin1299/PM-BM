@@ -122,6 +122,18 @@ const TargetDashboard = () => {
             `monthlyBDHrsTarget.${monthName?.key}`,
             data?.targetData?.allTargetData?.monthlyBDHrsTarget?.[monthName?.key] || 0
           );
+          setValue(
+            `monthlyMTTRTarget.${monthName?.key}`,
+            data?.targetData?.allTargetData?.monthlyMTTRTarget?.[monthName?.key] || 0
+          );
+          setValue(
+            `monthlyMTBFTarget.${monthName?.key}`,
+            data?.targetData?.allTargetData?.monthlyMTBFTarget?.[monthName?.key] || 0
+          );
+          setValue(
+            `monthlyBDPercentageTarget.${monthName?.key}`,
+            data?.targetData?.allTargetData?.monthlyBDPercentageTarget?.[monthName?.key] || 0
+          );
         });
         // setApproverHeaderList(data?.mergedApprovalListArray);
       }
@@ -165,7 +177,7 @@ const TargetDashboard = () => {
                     <>
                       <Row className="m-1 p-1">
                         <Col>
-                          <small>MBD Target Value:</small>
+                          <small>MBD Target Counts:</small>
                           &nbsp;
                         </Col>
                         <Col>
@@ -219,6 +231,63 @@ const TargetDashboard = () => {
                             name={`${monthName?.key}`}
                             {...register(
                               `monthlyBDHrsTarget.${monthName?.key}`,
+                              {
+                                // required: "This field is required",
+                              }
+                            )}
+                          />
+                        </Col>
+                        <Col lg={8} md={6}>
+                          <small>MTTR Target Value:</small>
+                        </Col>
+                        <Col lg={4} md={4}>
+                          <input
+                            type="number"
+                            className="mb-2"
+                            style={{ width: "80%" }}
+                            id={`${monthName?.key}`}
+                            defaultValue={0}
+                            name={`${monthName?.key}`}
+                            {...register(
+                              `monthlyMTTRTarget.${monthName?.key}`,
+                              {
+                                // required: "This field is required",
+                              }
+                            )}
+                          />
+                        </Col>
+                        <Col lg={8} md={6}>
+                          <small>MTBF Target Value:</small>
+                        </Col>
+                        <Col lg={4} md={4}>
+                          <input
+                            type="number"
+                            className="mb-2"
+                            style={{ width: "80%" }}
+                            id={`${monthName?.key}`}
+                            defaultValue={0}
+                            name={`${monthName?.key}`}
+                            {...register(
+                              `monthlyMTBFTarget.${monthName?.key}`,
+                              {
+                                // required: "This field is required",
+                              }
+                            )}
+                          />
+                        </Col>
+                        <Col lg={8} md={6}>
+                          <small>BD % Target Value:</small>
+                        </Col>
+                        <Col lg={4} md={4}>
+                          <input
+                            type="number"
+                            className="mb-2"
+                            style={{ width: "80%" }}
+                            id={`${monthName?.key}`}
+                            defaultValue={0}
+                            name={`${monthName?.key}`}
+                            {...register(
+                              `monthlyBDPercentageTarget.${monthName?.key}`,
                               {
                                 // required: "This field is required",
                               }

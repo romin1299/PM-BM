@@ -75,6 +75,10 @@ function MyTable({
 
   const newRequestSheetRegistration = async (requestSheetData) => {
     try {
+
+      console.log(requestSheetData?.attachedDataSheets)
+
+
       requestSheetData.problemsOfBM = problems;
       requestSheetData.actionAndCounterMeasureStep = actions;
       requestSheetData.breakDownTime = timeDifferenceMinutes;
@@ -103,7 +107,6 @@ function MyTable({
       const formData = new FormData();
       const { ...otherFields } = requestSheetData;
       formData.append("prdDataUpdatedByOtherUser", false);
-
       // Append the file field
       formData.append(
         "attachedDataSheets",
@@ -2092,6 +2095,13 @@ function MyTable({
                           //   //     ? true
                           //   //     : false,
                           // })}
+                          // {...register("attachedDataSheets", {
+                          //   // required:
+                          //   //   timeDifferenceMinutes > 120 ||
+                          //   //   watch("dataSheetOfRequestSheet") === "Yes"
+                          //   //     ? true
+                          //   //     : false,
+                          // })}
                           onChange={(e) => {
                             setValue("attachedDataSheets", e.target.files, {
                               shouldDirty: true,
@@ -2190,18 +2200,18 @@ function MyTable({
                         <Form.Control
                           type="file"
                           multiple
-                          {...register("attachedDrawings", {
-                            // required:
-                            //   watch("drawingOfRequestSheet") === "Yes"
-                            //     ? true
-                            //     : false,
-                          })}
-                          // onChange={(e) => {
-                          //   setValue("attachedDrawings", e.target.value, {
-                          //     shouldDirty: true,
-                          //   });
-                          //   clearErrors("attachedDrawings");
-                          // }}
+                          // {...register("attachedDrawings", {
+                          //   // required:
+                          //   //   watch("drawingOfRequestSheet") === "Yes"
+                          //   //     ? true
+                          //   //     : false,
+                          // })}
+                          onChange={(e) => {
+                            setValue("attachedDrawings", e.target.files, {
+                              shouldDirty: true,
+                            });
+                            clearErrors("attachedDrawings");
+                          }}
                         />
                         {errors?.["attachedDrawings"] && (
                           <p className="text-error">
