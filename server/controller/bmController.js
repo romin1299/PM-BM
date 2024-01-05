@@ -7797,34 +7797,7 @@ const targetMiddlewareForMBD = async (req, res, next) => {
             ...obj,
           },
         },
-        // {
-        //   $project: {
-        //     monthlyBDHrsTarget: {
-        //       $objectToArray: "$allTargetData.monthlyBDHrsTarget"
-        //     },
-        //     // monthlyMBDCountTarget: {
-        //     //   $objectToArray: "$allTargetData.monthlyMBDCountTarget"
-        //     // }
-        //   }
-        // },
-        // {
-        //   $unwind: "$monthlyBDHrsTarget"
-        // },
-        // {
-        //   $group: {
-        //     _id: "$monthlyBDHrsTarget.k",
-        //     totalMonthlyBDHrsTarget: { $sum: "$monthlyBDHrsTarget.v" },
-        //     // totalMonthlyMBDCountTarget: { $sum: "$monthlyMBDCountTarget.v" }
-        //   }
-        // },
-        // {
-        //   $project: {
-        //     monthName: "$_id",
-        //     _id: 0,
-        //     totalMonthlyBDHrsTarget: 1,
-        //     // totalMonthlyMBDCountTarget: 1
-        //   }
-        // },
+        
 
         {
           $project: {
@@ -7888,6 +7861,37 @@ const targetMiddlewareForMBD = async (req, res, next) => {
       },
 
       ...pipeline,
+
+      // {
+      //   $project: {
+      //     monthlyBDHrsTarget: {
+      //       $objectToArray: "$allTargetData.monthlyBDHrsTarget"
+      //     },
+      //     // monthlyMBDCountTarget: {
+      //     //   $objectToArray: "$allTargetData.monthlyMBDCountTarget"
+      //     // }
+      //   }
+      // },
+      // {
+      //   $unwind: "$monthlyBDHrsTarget"
+      // },
+      // {
+      //   $group: {
+      //     _id: "$monthlyBDHrsTarget.k",
+      //     totalMonthlyBDHrsTarget: { $sum: "$monthlyBDHrsTarget.v" },
+      //     // totalMonthlyMBDCountTarget: { $sum: "$monthlyMBDCountTarget.v" }
+      //   }
+      // },
+      // {
+      //   $project: {
+      //     monthName: "$_id",
+      //     _id: 0,
+      //     totalMonthlyBDHrsTarget: 1,
+      //     // totalMonthlyMBDCountTarget: 1
+      //   }
+      // },
+
+      
     ]);
 
     const targetForCount = await Cell.aggregate([
@@ -7906,7 +7910,7 @@ const targetMiddlewareForMBD = async (req, res, next) => {
       ...pipelineCount,
     ]);
 
-    // console.log("target?.[0]?.PLANTmonthlyTarget",targetForYearlyChart)
+ 
 
     req.target = target?.[0]?.monthlyTarget || [];
     // req.yearlyTarget = target?.[0]?.yearlyTarget || [];
