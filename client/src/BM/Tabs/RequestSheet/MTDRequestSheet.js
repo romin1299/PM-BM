@@ -5,9 +5,9 @@ import { DropdownButton, Dropdown } from "react-bootstrap";
 import React, { useState, useEffect, useContext } from "react";
 import { Table } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
-import ProblemList from "./SubComponents/ProblemList";
-import ActionList from "./SubComponents/ActionList";
-import PartList from "./SubComponents/PartList";
+import ProblemList from "../SubComponents/ProblemList";
+import ActionList from "../SubComponents/ActionList";
+import PartList from "../SubComponents/PartList";
 import { Controller, useForm } from "react-hook-form";
 import moment from "moment";
 import DropdownElem from "../../Component/DropdownElem";
@@ -73,6 +73,10 @@ function MyTable({
 
   const newRequestSheetRegistration = async (requestSheetData) => {
     try {
+
+      console.log(requestSheetData?.attachedDataSheets)
+
+
       requestSheetData.problemsOfBM = problems;
       requestSheetData.actionAndCounterMeasureStep = actions;
       requestSheetData.breakDownTime = timeDifferenceMinutes;
@@ -101,7 +105,6 @@ function MyTable({
       const formData = new FormData();
       const { ...otherFields } = requestSheetData;
       formData.append("prdDataUpdatedByOtherUser", false);
-
       // Append the file field
       formData.append(
         "attachedDataSheets",
@@ -2067,15 +2070,15 @@ function MyTable({
                       <Form.Group controlId="formFileMultiple" className="mb-3">
                         <Form.Control
                           type="file"
-                          {...register("attachedDataSheets", {
-                            // required:
-                            //   timeDifferenceMinutes > 120 ||
-                            //   watch("dataSheetOfRequestSheet") === "Yes"
-                            //     ? true
-                            //     : false,
-                          })}
+                          // {...register("attachedDataSheets", {
+                          //   // required:
+                          //   //   timeDifferenceMinutes > 120 ||
+                          //   //   watch("dataSheetOfRequestSheet") === "Yes"
+                          //   //     ? true
+                          //   //     : false,
+                          // })}
                           onChange={(e) => {
-                            setValue("attachedDataSheets", e.target.value, {
+                            setValue("attachedDataSheets", e.target.files, {
                               shouldDirty: true,
                             });
                             clearErrors("attachedDataSheets");
@@ -2134,14 +2137,14 @@ function MyTable({
                         <Form.Control
                           type="file"
                           multiple
-                          {...register("attachedDrawings", {
-                            // required:
-                            //   watch("drawingOfRequestSheet") === "Yes"
-                            //     ? true
-                            //     : false,
-                          })}
+                          // {...register("attachedDrawings", {
+                          //   // required:
+                          //   //   watch("drawingOfRequestSheet") === "Yes"
+                          //   //     ? true
+                          //   //     : false,
+                          // })}
                           onChange={(e) => {
-                            setValue("attachedDrawings", e.target.value, {
+                            setValue("attachedDrawings", e.target.files, {
                               shouldDirty: true,
                             });
                             clearErrors("attachedDrawings");

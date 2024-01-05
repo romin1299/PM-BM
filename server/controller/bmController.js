@@ -4589,6 +4589,44 @@ router.get(
   requestSheetMiddleware
 );
 
+//for production/line wise table data
+router.get(
+  "/getRequestSheetDataBasedOnFromAndToDateSelection/:filter/:selectedId/:toDate/:fromDate",
+  authenticate,
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      if (
+        req?.params?.toDate !== "undefined" &&
+        req?.params?.fromDate !== "undefined"
+      ) {
+        req.queryObj = {
+          ...req?.queryObj,
+          $and: [
+            {
+              problemOccurredDateAndTimeOfBM: {
+                $gte: new Date(moment(req?.params?.fromDate).format()),
+              },
+            },
+            {
+              problemOccurredDateAndTimeOfBM: {
+                $lte: new Date(
+                  moment(req?.params?.toDate).endOf("day").format()
+                ),
+              },
+            },
+          ],
+        };
+      }
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  requestSheetMiddleware
+);
+
 router.get(
   "/getMTTRGraphData/:filter/:selectedId",
   authenticate,
@@ -15204,26 +15242,20 @@ const filterMiddlewareForTargetData = async (req, res, next) => {
   try {
     let queryObj = {};
     let schemaName;
-
     if (req.params?.filter === "based-on-cell") {
       schemaName = Cell;
       queryObj = {
         _id: mongoose.Types.ObjectId(req.params?.selectedId),
-        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
       };
     } else if (req.params?.filter === "based-on-line") {
       schemaName = Line;
       queryObj = {
         _id: mongoose.Types.ObjectId(req.params?.selectedId),
-        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
       };
     }
-
     const allTargetData = await schemaName.aggregate([
       {
-        $match: {
-          ...req.queryObj,
-        },
+        $match: queryObj,
       },
       {
         $unwind: "$allTargetData",
@@ -15326,6 +15358,18 @@ router.post(
           targetValue?.monthlyBDHrsTarget
         )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
 
+        let sumOfMonthlyMTTRTargetForYearlyTarget = Object.values(
+          targetValue?.monthlyMTTRTarget
+        )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
+
+        let sumOfMonthlyMTBFTargetForYearlyTarget = Object.values(
+          targetValue?.monthlyMTBFTarget
+        )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
+
+        let sumOfMonthlyBDPercentageTargetForYearlyTarget = Object.values(
+          targetValue?.monthlyBDPercentageTarget
+        )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
+
         const yearExistsOrNotInLineTargetField = await Line.findOne({
           _id: mongoose.Types.ObjectId(req?.params?.selectedId),
           "allTargetData.current_year": {
@@ -15350,10 +15394,22 @@ router.post(
                     targetValue?.monthlyProductionHrs,
                   "allTargetData.$[outer].monthlyBDHrsTarget":
                     targetValue?.monthlyBDHrsTarget,
+                  "allTargetData.$[outer].monthlyMTTRTarget":
+                    targetValue?.monthlyMTTRTarget,
+                  "allTargetData.$[outer].monthlyMTBFTarget":
+                    targetValue?.monthlyMTBFTarget,
+                  "allTargetData.$[outer].monthlyBDPercentageTarget":
+                    targetValue?.monthlyBDPercentageTarget,
                   "allTargetData.$[outer].yearTotalProductionHrs":
                     sumOfMonthlyProductionHrsTargetForYearlyTarget,
                   "allTargetData.$[outer].yearTotalBDHrsTarget":
                     sumOfMonthlyBDHrsTargetForYearlyTarget,
+                  "allTargetData.$[outer].yearTotalMTTRTarget":
+                    sumOfMonthlyMTTRTargetForYearlyTarget,
+                  "allTargetData.$[outer].yearTotalMTBFTarget":
+                    sumOfMonthlyMTBFTargetForYearlyTarget,
+                  "allTargetData.$[outer].yearTotalBDPercentageTarget":
+                    sumOfMonthlyBDPercentageTargetForYearlyTarget,
                 },
               },
               {
@@ -15370,7 +15426,7 @@ router.post(
             });
           }
         } else {
-          const addMonthlyProductionAndBDHesTargetValueInLine =
+          const addMonthlyProductionAndBDHrsTargetValueInLine =
             await Line.updateOne(
               {
                 _id: mongoose.Types.ObjectId(req?.params?.selectedId),
@@ -15385,12 +15441,20 @@ router.post(
                     monthlyBDHrsTarget: targetValue?.monthlyBDHrsTarget,
                     yearTotalBDHrsTarget:
                       sumOfMonthlyBDHrsTargetForYearlyTarget,
+                    monthlyMTTRTarget: targetValue?.monthlyMTTRTarget,
+                    yearTotalMTTRTarget: sumOfMonthlyMTTRTargetForYearlyTarget,
+                    monthlyMTBFTarget: targetValue?.monthlyMTBFTarget,
+                    yearTotalMTBFTarget: sumOfMonthlyMTBFTargetForYearlyTarget,
+                    monthlyBDPercentageTarget:
+                      targetValue?.monthlyBDPercentageTarget,
+                    yearTotalBDPercentageTarget:
+                      sumOfMonthlyBDPercentageTargetForYearlyTarget,
                   },
                 },
               }
             );
 
-          if (addMonthlyProductionAndBDHesTargetValueInLine)
+          if (addMonthlyProductionAndBDHrsTargetValueInLine)
             return res.status(201).json({
               message: `Production and BD Hrs target set successfully`,
               addMonthlyProductionAndBDHesTargetValueInLine,

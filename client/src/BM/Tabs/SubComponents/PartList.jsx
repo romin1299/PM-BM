@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
-import { AddBoxIcon } from "../../../../modules/PageModules";
+import { AddBoxIcon } from "../../../modules/PageModules";
 
 const initialState = {
   _id: "",
@@ -13,7 +13,7 @@ const initialState = {
 
 const PartList = ({ parts, setParts }) => {
   // console.clear();
-  console.log("parts:", parts);
+  // console.log("parts:", parts);
 
   const [isAdding, setIsAdding] = useState(false);
   const [editedPart, setEditedPart] = useState(null);
@@ -44,7 +44,8 @@ const PartList = ({ parts, setParts }) => {
     }
   };
 
-  const editPart = (part) => {
+  const editPart = (event, part) => {
+    event.preventDefault();
     setEditedPart({ ...part });
   };
 
@@ -83,7 +84,7 @@ const PartList = ({ parts, setParts }) => {
 
   return (
     <div className="mtd-parts-section">
-      <Row className="m-0 d-flex" style={{ width: "100vw" }}>
+      <Row className="m-0 d-flex">
         <Col lg={2} md={1} sm={2} className="border">
           <small style={{ fontSize: "12px" }}>
             <b>PART NO.</b>
