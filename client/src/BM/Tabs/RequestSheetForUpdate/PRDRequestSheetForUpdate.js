@@ -842,13 +842,13 @@ function MyTable({ requestSheetDataOfBM }) {
               </td>
             </tr>
           </tbody>
-          {loggedUserDetails?.tm_department === "MTD" ||
-          (requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
-            (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
-              requestSheetDataOfBM?.requestSheetStatus ===
-                "Work Order Pending" ||
-              requestSheetDataOfBM?.requestSheetStatus ===
-                "Work Order Closed")) ? (
+
+          {loggedUserDetails?.tm_department === "MTD" &&
+          requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
+          (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
+            requestSheetDataOfBM?.requestSheetStatus === "Work Order Pending" ||
+            requestSheetDataOfBM?.requestSheetStatus === "Work Order Closed") &&
+          requestSheetDataOfBM?.requestSheetStatus !== "Completed" ? (
             <Row>
               <Col>
                 <button

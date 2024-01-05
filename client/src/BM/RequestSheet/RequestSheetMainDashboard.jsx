@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useReducer, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import { RadioGroup } from "@mui/material";
+import { IconButton, RadioGroup } from "@mui/material";
 import TextField from "@material-ui/core/TextField";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import DescriptionIcon from "@mui/icons-material/Description";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -519,8 +520,16 @@ const RequestSheetMainDashboard = () => {
       },
     },
     (row) => ({
-      icon: () => <DescriptionIcon className="text-primary" />,
-      tooltip: "Update Action",
+      icon: () => (
+        <DescriptionIcon
+          className={
+            row?.work_order_status === "Open"
+              ? "text-secondary"
+              : "text-primary"
+          }
+        />
+      ),
+      tooltip: "Update",
       position: "row",
       disabled:
         row?.assignUserId === context?._id &&
@@ -528,9 +537,29 @@ const RequestSheetMainDashboard = () => {
           row?.work_order_status === "Closed")
           ? false
           : true,
+      hidden: row?.assignUserId === context?._id ? false : true,
       onClick: (event, selectedRow) => {
+        console.log("selectedRow:", selectedRow);
+
         navigate(
           `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
+          {
+            state: {
+              supportingTM:
+                reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
+            },
+          }
+        );
+      },
+    }),
+
+    (row) => ({
+      icon: () => <VisibilityIcon className="text-primary" />,
+      tooltip: "View",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        navigate(
+          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
           {
             state: {
               supportingTM:
