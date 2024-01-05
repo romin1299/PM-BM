@@ -132,8 +132,8 @@ const MajorBDCount = ({
         backgroundColor: chartColors.palettes[0][index],
       }));
 
-      // const targetData = res?.data?.targetData;
-      const targetData = getRandomDataArray(12, 5, 8);
+      const targetData = res?.data?.bdTrendDataTarget;
+      // const targetData = getRandomDataArray(12, 5, 8);
 
       if (data) {
         setData(data);
