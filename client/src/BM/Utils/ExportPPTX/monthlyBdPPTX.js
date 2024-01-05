@@ -3,6 +3,7 @@ import { commonPptOptions } from "./exportPPTXOptions";
 import axios from "axios";
 
 import { monthlyBdChart } from "./monthlyBdChart";
+import { getRandomDataArray } from "../math/generateRandomValues";
 
 export async function generateMonthlyBdPpt(pptx, urlOptions) {
   await genSlide01(pptx, urlOptions);
@@ -11,9 +12,6 @@ export async function generateMonthlyBdPpt(pptx, urlOptions) {
 
 async function genSlide01(pptx, urlOptions) {
   let slide = pptx.addSlide();
-
-  let yearlyBDChartOptions;
-  const yearlyChartData = await fetchYearlyBDChartData(urlOptions);
 
   /*
    * @add Title
@@ -43,18 +41,64 @@ async function genSlide01(pptx, urlOptions) {
     }
   );
 
-  /*
-   * @add first chart
+  /**
+   *
+   * @first chart
    *
    */
 
   await monthlyBdChart(pptx, slide, urlOptions);
 
-  /*
-   * @add second chart
+  /**
+   *
+   * @second chart
    *
    */
-  yearlyBDChartOptions = {
+  const yearlyChartData = await fetchYearlyBDChartData(urlOptions);
+  // console.log("yearlyChartData:", yearlyChartData);
+
+  // const yearlyChartData = [
+  //   {
+  //     type: pptx.charts.BAR,
+  //     data: [
+  //       {
+  //         name: "< 1",
+  //         labels: data?.labels,
+  //         values: data?.bdTrendData?.[0]?.data,
+  //       },
+  //       {
+  //         name: "< 2",
+  //         labels: data?.labels,
+  //         values: data?.bdTrendData?.[1]?.data,
+  //       },
+  //       {
+  //         name: "> 2",
+  //         labels: data?.labels,
+  //         values: data?.bdTrendData?.[2]?.data,
+  //       },
+  //     ],
+  //     options: {
+  //       chartColors: ["2f79bf", "bbd0e5", "2693ff", "ffcd38", "ff7b64"],
+  //     },
+  //   },
+  //   {
+  //     type: pptx.charts.LINE,
+  //     data: [
+  //       {
+  //         name: "Target",
+  //         labels: data?.labels,
+  //         values: [8, 8],
+  //       },
+  //     ],
+  //     options: {
+  //       chartColors: ["F38940"],
+  //       secondaryValAxis: true,
+  //       secondaryCatAxis: true,
+  //     },
+  //   },
+  // ];
+
+  let comboProps = {
     ...commonPptOptions,
     x: 9.4,
     y: 1.6,
@@ -68,7 +112,7 @@ async function genSlide01(pptx, urlOptions) {
     valAxisTitle: "BD Hours",
   };
   // Add chart to the slide with specified options
-  slide.addChart(pptx.ChartType.bar, yearlyChartData, yearlyBDChartOptions);
+  slide.addChart(yearlyChartData, comboProps);
 }
 
 async function genSlide02(pptx, urlOptions) {
@@ -122,23 +166,14 @@ async function genSlide02(pptx, urlOptions) {
     valAxisTitle: "BD Hours",
   };
   // Add chart to the slide with specified options
-  slide.addChart(
-    pptx.ChartType.bar,
-    sectionNosChartData,
-    sectionNosChartOptions
-  );
+  slide.addChart(sectionNosChartData, sectionNosChartOptions);
 }
 
 const fetchYearlyBDChartData = async (urlOptions) => {
-  const { filter, setFilter, currentTabViewName, sectionId, selectedYear } =
+  const { filter, flagForTogglingFilter, selectedValue, selectedYear } =
     urlOptions;
 
-  // console.log("sectionId:", sectionId);
-  const url =
-    currentTabViewName === "Plant"
-      ? `/${filter}YearlyBdTrendForPlant`
-      : `/${filter}YearlyBdTrendForSection/based-on-subSection/${sectionId}`;
-
+  const url = `/${filter}YearlyBdTrend/${flagForTogglingFilter}/${selectedValue}`;
   const params = { selectedYear };
 
   try {
@@ -148,17 +183,42 @@ const fetchYearlyBDChartData = async (urlOptions) => {
       credentials: "include",
     });
 
-    // console.log("labells:", res.data.labels);
+    // console.log("res:", res);
     // setData(res?.data?.labels);
 
     const data = res?.data?.bdTrendData;
+    const labels = res?.data?.labels;
+    const target = res?.data?.bdTrendTarget;
+
     if (data) {
-      // console.log("Monthly hourly res:", res);
-      return data?.map((item, index) => ({
-        name: item?.label || item?._id,
-        labels: res?.data?.labels,
-        values: item?.data,
-      }));
+      const chartData = [
+        {
+          type: "bar",
+          data: data?.map((item, index) => ({
+            name: item?.label || item?._id,
+            labels: labels,
+            values: item?.data,
+          })),
+          options: {
+            chartColors: ["2f79bf", "bbd0e5", "2693ff", "ffcd38", "ff7b64"],
+          },
+        },
+        {
+          type: "line",
+          data: [
+            {
+              name: "Target",
+              labels: labels,
+              values: target || [7, 7],
+            },
+          ],
+          options: {
+            chartColors: ["F38940"],
+          },
+        },
+      ];
+
+      return chartData;
     }
 
     return [];
@@ -170,8 +230,12 @@ const fetchYearlyBDChartData = async (urlOptions) => {
 };
 
 const fetchSectionNosData = async (urlOptions) => {
-  const { filter, setFilter, currentTabViewName, sectionId, selectedYear } =
-    urlOptions;
+  const {
+    flagForTogglingFilter,
+    selectedValue,
+    currentTabViewName,
+    selectedYear,
+  } = urlOptions;
 
   // console.log("sectionId:", sectionId);
   const labels = [
@@ -189,10 +253,9 @@ const fetchSectionNosData = async (urlOptions) => {
     "Mar-24",
   ];
 
-  const url =
-    currentTabViewName === "Plant"
-      ? `/majorBDCountForPlant`
-      : `/majorBDCountForSection/based-on-subSection/${sectionId}`;
+  const url = `/majorBDCount${
+    currentTabViewName === "Section" ? "ForSection" : ""
+  }/${flagForTogglingFilter}/${selectedValue}`;
 
   const params = { selectedYear };
 
@@ -208,12 +271,41 @@ const fetchSectionNosData = async (urlOptions) => {
 
     const data = res?.data?.bdTrendData;
     if (data) {
+      const chartData = [
+        {
+          type: "bar",
+          data: data?.map((item, index) => ({
+            name: item?.label || item?._id,
+            labels: labels,
+            values: item?.data,
+          })),
+
+          options: {
+            chartColors: ["2f79bf", "bbd0e5", "2693ff", "ffcd38", "ff7b64"],
+          },
+        },
+        {
+          type: "line",
+          data: [
+            {
+              name: "Target",
+              labels: MONTH_LABELS,
+              values: getRandomDataArray(12, 6, 6),
+            },
+          ],
+          options: {
+            chartColors: ["F38940"],
+          },
+        },
+      ];
       // console.log("Monthly hourly res:", res);
-      return data?.map((item, index) => ({
-        name: item?.label || item?._id,
-        labels: labels,
-        values: item?.data,
-      }));
+      // return data?.map((item, index) => ({
+      //   name: item?.label || item?._id,
+      //   labels: labels,
+      //   values: item?.data,
+      // }));
+
+      return chartData;
     }
 
     return [];

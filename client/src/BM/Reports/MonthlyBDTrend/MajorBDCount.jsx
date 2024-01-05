@@ -82,24 +82,35 @@ const labels = [
   "Mar-24",
 ];
 
-const MajorBDCount = ({ currentTabViewName, sectionId, selectedYear }) => {
+const MajorBDCount = ({
+  filterState,
+  currentTabViewName,
+  sectionId,
+  selectedYear,
+}) => {
   const [data, setData] = React.useState([]);
   const [chartData, setChartData] = React.useState({
     labels: [],
     datasets: [],
   });
 
+  const { flagForTogglingFilter, selectedValue } = filterState;
+
   const fetchChartData = async () => {
-    const basedON = currentTabViewName === "Plant" ? "plantId" : "subSection";
-    const selectedId = currentTabViewName === "Plant" ? "undefined" : sectionId;
+    // const basedON = currentTabViewName === "Plant" ? "plantId" : "subSection";
+    // const selectedId = currentTabViewName === "Plant" ? "undefined" : sectionId;
 
     // const url =
     //   currentTabViewName === "Plant"
     //     ? `/majorBDCountForPlant`
     //     : `/majorBDCountForSection/based-on-subSection/${sectionId}`;
+    // const url = `/majorBDCount${
+    //   currentTabViewName === "Section" ? "ForSection" : ""
+    // }/based-on-${basedON}/${selectedId}`;
+
     const url = `/majorBDCount${
       currentTabViewName === "Section" ? "ForSection" : ""
-    }/based-on-${basedON}/${selectedId}`;
+    }/${flagForTogglingFilter}/${selectedValue}`;
     // console.log("url:", url);
 
     const params = { selectedYear };
@@ -125,6 +136,7 @@ const MajorBDCount = ({ currentTabViewName, sectionId, selectedYear }) => {
       const targetData = getRandomDataArray(12, 5, 8);
 
       if (data) {
+        setData(data);
         setChartData({
           labels: labels,
           datasets: [
@@ -165,8 +177,9 @@ const MajorBDCount = ({ currentTabViewName, sectionId, selectedYear }) => {
   };
 
   React.useEffect(() => {
-    if (selectedYear) fetchChartData();
-  }, [currentTabViewName, sectionId, selectedYear]);
+    if (flagForTogglingFilter && selectedValue && selectedYear)
+      fetchChartData();
+  }, [currentTabViewName, flagForTogglingFilter, selectedValue, selectedYear]);
 
   function sumOfArray(array) {
     return array?.reduce((accumulator, currentValue) => {

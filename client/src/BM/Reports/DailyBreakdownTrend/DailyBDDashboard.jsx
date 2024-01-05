@@ -70,7 +70,7 @@ const DailyBTDashboard = () => {
   const [currentTabView, setCurrentTabView] = React.useState(0);
   const [sectionId, setSectionId] = React.useState("");
   const [filter, setFilter] = React.useState("hourly");
-  const [selectedYear, setSelectedYear] = React.useState("");
+  // const [selectedYear, setSelectedYear] = React.useState("");
   const currentTabViewName = currentTabView === 0 ? "Plant" : "Section";
 
   const {
@@ -130,6 +130,7 @@ const DailyBTDashboard = () => {
                   handleDownloadPPTX={() => {
                     exportPPTX(EXPORT_REPORT.KPI_FROM_DB, {
                       ...reduceState,
+                      filter,
                       dailyBDSelectedMonth,
                     });
                   }}
@@ -139,8 +140,8 @@ const DailyBTDashboard = () => {
           }
         />
 
-        <Row className="g-3 mt-2">
-          <Col md={12} lg={6}>
+        <Row className="gx-3 mt-1">
+          <Col md={12} lg={6} className="mt-2">
             <Box className="cell p-3 mb-0">
               <Typography variant="h6" textAlign="center" fontWeight={600}>
                 BD Counts Status
@@ -153,7 +154,7 @@ const DailyBTDashboard = () => {
             </Box>
           </Col>
 
-          <Col md={12} lg={6}>
+          <Col md={12} lg={6} className="mt-2">
             <Box className="cell p-3 mb-0">
               <Typography variant="h6" textAlign="center" fontWeight={600}>
                 BD Hours Status
@@ -206,10 +207,13 @@ const DailyBTDashboard = () => {
             </Button>
           </form>
 
-          <BDRequestSheetTable requestSheetData={requestSheetData} downloadFileName={"Daily breakdown trend"}/>
+          <BDRequestSheetTable
+            requestSheetData={requestSheetData}
+            downloadFileName={"Daily breakdown trend"}
+          />
         </Paper>
 
-        <Row className="mb-3 gx-3">
+        <Row className="mb-3 gx-3 mt-3">
           <Col md={12} lg={6}>
             {/* <MonthlyPlanVsActualChart /> */}
 
@@ -262,11 +266,12 @@ const DailyBTDashboard = () => {
             </Box> */}
 
             <MonthlyBDTrendChart
+              filterState={reduceState}
               filter={filter}
               setFilter={setFilter}
               currentTabViewName={currentTabViewName}
               sectionId={sectionId}
-              selectedYear={selectedYear}
+              selectedYear={reduceState.selectedYear}
             />
           </Col>
           <Col md={12} lg={6}>

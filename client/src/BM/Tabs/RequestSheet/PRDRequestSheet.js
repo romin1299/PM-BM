@@ -2,7 +2,7 @@
 // import Table from "react-bootstrap/Table";
 import React, { useState, useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Row, Col, Form } from "react-bootstrap";
+import { Row, Col, Form, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
 import Radio from "@mui/material/Radio";
@@ -17,9 +17,10 @@ import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
-import { Typography } from "@mui/material";
+import { Box, Divider, Paper, Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import MachineStatusBox from "../SubComponents/MachineStatusBox";
 
 const list = [
   { key: "A", value: "A" },
@@ -180,11 +181,11 @@ function MyTable({ selectedMachineDetails }) {
     <>
       <ToastContainer />
       <Row>
-        <Col>
+        {/* <Col>
           <button className="btn bg-button m-2" onClick={handleBack}>
             Back
           </button>
-        </Col>
+        </Col> */}
       </Row>
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
         <Table className="container-fluid m-2 mt-3">
@@ -201,11 +202,37 @@ function MyTable({ selectedMachineDetails }) {
                 className="d-inline-block align-top"
                 alt="React Bootstrap logo"
               />
+              
             </td> */}
-              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0">
-                <h4 className="d-flex align-items-center justify-content-center">
-                  MAINTENANCE WORK REQUEST/REPORT
-                </h4>
+              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
+                <Row>
+                  <Col>
+                    <button className="btn bg-button m-2" onClick={handleBack}>
+                      Back
+                    </button>
+                  </Col>
+                  <Col>
+                    <h4 className="d-flex align-items-center justify-content-center">
+                      MAINTENANCE WORK REQUEST/REPORT
+                    </h4>
+                  </Col>
+                  <Col>
+                    <Box
+                      display="flex"
+                      justifyContent="end"
+                      gap={1}
+                      // sx={{ position: "absolute", top: "10px", right: "20px" }}
+                    >
+                      <MachineStatusBox
+                        title="PM Status"
+                        bodyText1="Completed"
+                        bodyText2="(13/10/2023)"
+                      />
+                      <MachineStatusBox title="BM" bodyText1="170 hrs/5 Nos" />
+                      <MachineStatusBox title="CM" />
+                    </Box>
+                  </Col>
+                </Row>
               </td>
             </tr>
             <tr className="row m-2" style={{ width: "100vw" }}>

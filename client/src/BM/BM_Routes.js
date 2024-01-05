@@ -10,14 +10,13 @@ import Profile from "../pages/Profile";
 
 import AdminCreationDashboard from "../pages/Admin/AdminCreationDashboard";
 import OperatorDashboard from "../pages/Operator/OperatorDashboard";
-import SummeryDashboard from "../pages/Dashboard/SummeryDashboard/SummeryDashboard";
 import BMSidebar from "./BMSidebar/BMSidebar";
 import RequestSheet from "./Tabs/RequestSheet/MainRequestSheet";
 import RequestSheetMainDashboard from "./RequestSheet/RequestSheetMainDashboard";
 import GenerateRequestSheetMainDashboard from "./RequestSheet/GenerateRequestSheetMainDashboard";
-import BMTabDashboard from "./Tabs/BMTabDashboard";
 import RequestSheetMonitoring from "./RequestSheetMonitoring/RequestSheetMonitoring";
 import RequestSheetUpdate from "./Tabs/RequestSheetForUpdate/MainRequestSheetForUpdate";
+import RequestSheetView from "./Tabs/RequestSheetForView/MainRequestSheetForView";
 import ProductionLineWiseReport from "./Reports/ProductionLineWiseReport/ProductionLineWiseReport";
 
 import MainCustomized from "./Customized/MainCustomized";
@@ -160,6 +159,10 @@ const userRoutes = [
         element: <RequestSheetUpdate />,
       },
       {
+        path: "/bm/view/request-sheet/:machine_code/:requestSheetID",
+        element: <RequestSheetView />,
+      },
+      {
         path: "/bm/approvalLogs",
         element: <ApprovalLogs />,
       },
@@ -217,6 +220,10 @@ const userRoutes = [
       {
         path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
         element: <RequestSheetUpdate />,
+      },
+      {
+        path: "/bm/view/request-sheet/:machine_code/:requestSheetID",
+        element: <RequestSheetView />,
       },
       {
         path: "/bm/approvalLogs",
@@ -279,6 +286,10 @@ const userRoutes = [
         element: <RequestSheetUpdate />,
       },
       {
+        path: "/bm/view/request-sheet/:machine_code/:requestSheetID",
+        element: <RequestSheetView />,
+      },
+      {
         path: "/bm/approval",
         element: <ApprovalDashboardOfRequestSheet />,
       },
@@ -332,6 +343,10 @@ const userRoutes = [
       {
         path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
         element: <RequestSheetUpdate />,
+      },
+      {
+        path: "/bm/view/request-sheet/:machine_code/:requestSheetID",
+        element: <RequestSheetView />,
       },
       {
         path: "/bm/profile",

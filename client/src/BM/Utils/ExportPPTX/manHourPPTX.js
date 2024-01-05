@@ -9,7 +9,7 @@ export async function generateManHourPpt(pptx, urlOptions) {
 
 /**
  *
- * @add First - Slide
+ * @First - Slide
  *
  */
 
@@ -198,7 +198,7 @@ async function genSlide02(pptx, urlOptions) {
 
   /**
    *
-   * @add first chart
+   * @first chart
    *
    */
   let data = await fetchLineTrendData(urlOptions);
@@ -270,7 +270,7 @@ async function genSlide02(pptx, urlOptions) {
 
   /**
    *
-   * @add first chart
+   * @first chart
    *
    */
   let data02 = await fetchTMHourTrendData(urlOptions);

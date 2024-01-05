@@ -76,10 +76,8 @@ const MonthlyBDTDashboard = () => {
   }
 
   const urlOptions = {
+    ...filterState,
     filter,
-    setFilter,
-    currentTabViewName,
-    sectionId: filterState?.selectedValue,
     selectedYear,
   };
 
@@ -112,7 +110,9 @@ const MonthlyBDTDashboard = () => {
   const handleChange = (event, newValue) => {
     setCurrentTabView(newValue);
     if (newValue === 0) {
-      return setFilterState(initialState);
+      return fetchValues({
+        url: `${baseUrlForFiltering}/byDefault`,
+      });
     }
 
     fetchValues({
