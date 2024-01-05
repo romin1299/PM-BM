@@ -1,26 +1,12 @@
-import denso_log from "../../../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
-import { DropdownButton, Dropdown } from "react-bootstrap";
 
 import React, { useState, useEffect, useContext } from "react";
 import { Table } from "react-bootstrap";
-import { AddBoxIcon } from "../../../modules/PageModules";
-import ProblemList from "../RequestSheet/SubComponents/ProblemList";
-import ActionList from "../RequestSheet/SubComponents/ActionList";
-import PartList from "../RequestSheet/SubComponents/PartList";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import moment from "moment";
 import DropdownElem from "../../Component/DropdownElem";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
-import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
-import Multiselect from "multiselect-react-dropdown";
-const list = [
-  { key: "A", value: "A" },
-  { key: "B", value: "B" },
-  { key: "C", value: "C" },
-  { key: "D", value: "D" },
-];
 
 function MyTable({
   selectedMachineDetails,
@@ -29,10 +15,6 @@ function MyTable({
   supportingTMList,
 }) {
   const loggedUserDetails = useContext(RoutingContext);
-
-  const navigate = useNavigate();
-
-  const { machine_code, requestSheetID, generateType } = useParams();
 
   const [actions, setActions] = useState([]);
   const [problems, setProblems] = useState([]);
@@ -221,14 +203,11 @@ function MyTable({
   }, [timeDifferenceMinutes]);
 
   return (
-    <form>
+    <form className="p-2">
       {/* <fieldset disabled={loggedUserDetails?.tm_department === "PRD" && true}> */}
-      <Table bordered className="mb-5">
-        <thead>
-          <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
-        </thead>
-        <tbody>
-          <tr className="row m-2 mb-0" style={{ width: "100vw" }}>
+      <Table className="mb-5">
+        <tbody className="m-1 border p-3">
+          <tr className="row m-0 mb-0">
             <td class="col-lg-8 col-md-6 col-sm-12">
               <h4 className="mt-0 d-flex align-items-center justify-content-center">
                 MAINTENANCE REPORT ( To be filled by MTD)
@@ -299,9 +278,9 @@ function MyTable({
             </td>
           </tr>
 
-          <tr className="row m-2 mt-0">
+          <tr className="row m-0 mt-0">
             <td lg={12} md={12} sm={12}>
-              <div className="mb-2" style={{ width: "100vw" }}>
+              <div className="mb-2">
                 <Row className="m-0">
                   <Col className="border border-left-0" lg={12} md={12} sm={12}>
                     <Row className="d-flex align-items-center ">
@@ -330,10 +309,10 @@ function MyTable({
                           <div className="text-center">
                             <small className="mb-0 d-block">
                               <b>DATE & TIME: </b>
-                              <br />
                               <input
                                 disabled
                                 type="datetime-local"
+                                style={{ width: "165px" }}
                                 // defaultValue={currentDate}
                                 // onChange={(e) => {
                                 //   setValue(
@@ -407,6 +386,7 @@ function MyTable({
                               <input
                                 disabled
                                 type="datetime-local"
+                                style={{ width: "160px" }}
                                 defaultValue={currentDate}
                                 {...register("workEndedDateOfBM", {
                                   // required: "Work Ended date is required",
@@ -617,7 +597,7 @@ function MyTable({
             </td>
 
             {/* <td className="mb-0 pb-0 pt-0 col-lg-4">
-              <div className="mb-2" style={{ width: "100vw" }}>
+              <div className="mb-2" >
                 <Row className="m-0">
                   <Col lg={6} md={6} sm={12} className="border">
                     <p className="mb-0">
@@ -762,7 +742,7 @@ function MyTable({
             </td> */}
           </tr>
 
-          <tr class="row m-2">
+          <tr class="row m-0">
             <td class="col-lg-4 col-md-6 col-sm-12 border-bottom">
               <div className="mtd-problem-section">
                 <small
@@ -1263,7 +1243,7 @@ function MyTable({
                     type="text"
                     id="Why1"
                     name="why1"
-                    className="m-1 widthwhy"
+                    className="widthwhy"
                     {...register("why1", {
                       // required: "This field is required",
                     })}
@@ -1279,7 +1259,7 @@ function MyTable({
                     type="text"
                     id="Why2"
                     name="why2"
-                    className="m-1 widthwhy"
+                    className="widthwhy"
                     {...register("why2", {
                       // required: "This field is required",
                     })}
@@ -1295,7 +1275,7 @@ function MyTable({
                     type="text"
                     id="Why3"
                     name="why3"
-                    className="m-1 widthwhy"
+                    className="widthwhy"
                     {...register("why3", {
                       // required: "This field is required",
                     })}
@@ -1311,7 +1291,7 @@ function MyTable({
                     type="text"
                     id="Why4"
                     name="why4"
-                    className="m-1 widthwhy"
+                    className="widthwhy"
                     {...register("why4", {
                       // required: "This field is required",
                     })}
@@ -1327,7 +1307,7 @@ function MyTable({
                     type="text"
                     id="Why5"
                     name="why5"
-                    className="m-1 widthwhy"
+                    className="widthwhy"
                     {...register("why5", {
                       // required: "This field is required",
                     })}
@@ -1566,7 +1546,7 @@ function MyTable({
             </td>
           </tr>
 
-          <tr class="row m-2">
+          <tr class="row m-0">
             <td class="col-lg-6 col-md-12 col-sm-12">
               <div className="mtd-actions-section">
                 <Row className="m-0">
@@ -1622,7 +1602,7 @@ function MyTable({
                     type="text"
                     id="preventive_corrective_maintenance"
                     name="preventive_corrective_maintenance"
-                    style={{ width: "80%" }}
+                    style={{ width: "100%" }}
                     {...register("preventive_corrective_maintenance", {
                       // required: "This field is required",
                     })}
@@ -1660,8 +1640,7 @@ function MyTable({
                     type="text"
                     id="yokotenkai"
                     name="yokotenkai"
-                    className="m-1"
-                    style={{ width: "80%" }}
+                    style={{ width: "100%" }}
                     {...register("yokotenkai", {
                       // required: "This field is required",
                     })}
@@ -1682,7 +1661,7 @@ function MyTable({
             </td>
           </tr>
 
-          <tr className="row">
+          <tr className="row m-0">
             <td className="col-lg-6 col-md-6">
               <Row className="m-0">
                 <Col className="border p-2">
@@ -2154,11 +2133,6 @@ function MyTable({
           </tr>
         </tbody>
       </Table>
-      <br />
-      <br />
-      <br />
-      <br />
-      {/* </fieldset> */}
     </form>
   );
 }

@@ -1,7 +1,8 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useEffect } from "react";
 import { Container, Row, Col } from "reactstrap";
 
 import DailyBDTrendChart from "../DailyBreakdownTrend/DailyBDTrendChart";
+
 import BDHoursVsCountComponent from "./BDHoursVsCountComponent";
 import MTTRComponent from "./MTTRComponent";
 import MTBFComponent from "./MTBFComponent.jsx";
@@ -11,6 +12,7 @@ import BDPercentageChart from "./BDPercentage.jsx";
 import CategoryPieCharts from "./CategoryPieCharts.jsx";
 
 import BDRSTableWithDateFiltration from "../Common/BDRSTableWithDateFiltration";
+import AntDesignRSTableWithFiltration from "../Common/AntDesignRSTableWithFiltration";
 
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
 import currentMonth from "../../../pages/Dashboard/DashboardComponent/currentMonth";
@@ -125,6 +127,13 @@ const ProductionLineWiseReport = () => {
             />
           </Col>
         </Row>
+
+        <AntDesignRSTableWithFiltration
+          selectedValue={reduceState?.selectedValue}
+          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+          selectedYear={reduceState?.selectedYear}
+          downloadFileName="Product/Line wise KPI"
+        />
       </Box>
     </Container>
   );

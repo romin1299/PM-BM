@@ -82,7 +82,7 @@ function MyTable() {
 
   return (
     <>
-      <div style={{ overflow: "scroll" }}>
+      <div>
         <PRDRequestSheetForUpdate
           // selectedMachineDetails={selectedMachineDetails}
           requestSheetDataOfBM={requestSheetDataOfBM}

@@ -19,7 +19,7 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import { Box, Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import MachineInfoBox from "../RequestSheetForView/SubComponents/MachineInfoBox";
+import MachineStatusBox from "../SubComponents/MachineStatusBox";
 
 const list = [
   { key: "A", value: "A" },
@@ -244,13 +244,13 @@ function MyTable({ requestSheetDataOfBM }) {
                       gap={1}
                       // sx={{ position: "absolute", top: "10px", right: "20px" }}
                     >
-                      <MachineInfoBox
+                      <MachineStatusBox
                         title="PM Status"
                         bodyText1="Completed"
                         bodyText2="(13/10/2023)"
                       />
-                      <MachineInfoBox title="BM" bodyText1="170 hrs/5 Nos" />
-                      <MachineInfoBox title="CM" />
+                      <MachineStatusBox title="BM" bodyText1="170 hrs/5 Nos" />
+                      <MachineStatusBox title="CM" />
                     </Box>
                   </Col>
                 </Row>
