@@ -39,18 +39,26 @@ const actionStyle = {
   gap: "5px",
 };
 
-const TmMttrSkillScoreCrud = () => {
+const TmMttrSkillScoreCrud = ({
+  selectedSection,
+  selectedSubSection,
+  setHighestScore,
+}) => {
   const [skillScore, setSkillScore] = React.useState(tmSkillMeasures);
   const [isAdding, setIsAdding] = useState(false);
   const [editedScore, setEditedScore] = useState(null);
   const [newSkillScore, setNewSkillScore] = useState({});
 
+  let baseQuery =`?selectedSection=${selectedSection}&&selectedSubSection=${selectedSubSection}`
+  
   React.useEffect(() => {
-    // fetchScoreData();
-  }, []);
+    if (selectedSection || selectedSubSection) {
+      fetchScoreData();
+    }
+  }, [selectedSection, selectedSubSection]);
 
   const fetchScoreData = async () => {
-    const url = "/getAll";
+    const url = `/tmMTTRSkill/getScore/${baseQuery}`;
 
     try {
       const res = await axios.get(url, {
@@ -58,81 +66,63 @@ const TmMttrSkillScoreCrud = () => {
         credentials: "include",
       });
 
-      // console.log("fetch skillScore res:", res);
-      setSkillScore(res?.data?.data);
+      if (res.status === 201) {
+        setSkillScore(res?.data?.allScore);
+        setHighestScore(res?.data?.maxScore);
+      }
     } catch (error) {
       console.log("error:", error);
     }
   };
 
   const addScoreAPI = async (payload) => {
-    const url = "/addScore";
+    const url = `/tmMTTRSkill/addNewScore/${baseQuery}`;
 
     try {
-      await axios.post(url, {
-        withCredentials: true,
-        credentials: "include",
-        ...payload,
-      });
-    } catch (error) {
-      console.log("error:", error);
-    }
+      const res = await axios.post(url, payload);
 
-    fetchScoreData();
-  };
-
-  const updateScoretAPI = async (payload) => {
-    console.log("update payload:", payload);
-    const url = `/updateScore/${payload._id}`;
-
-    try {
-      await axios.patch(url, {
-        withCredentials: true,
-        credentials: "include",
-        ...payload,
-      });
-    } catch (error) {
-      console.log("error:", error);
-    }
-
-    fetchScoreData();
-  };
-
-  const deleteScoreAPI = async (id) => {
-    const url = `/deleteScore/${id}`;
-
-    try {
-      await axios.patch(url, {
-        withCredentials: true,
-        credentials: "include",
-      });
-    } catch (error) {
-      console.log("error:", error);
-    }
-
-    fetchScoreData();
-  };
-
-  const addScore = async () => {
-    //   { _id: 1, score: 4, from: 0, to: 0.5 },
-    if (newSkillScore.score && newSkillScore.from && newSkillScore.to) {
-      console.log("newSkillScore:", newSkillScore);
-      //   addScoreAPI(newSkillScore);
-
-      setSkillScore([...skillScore, newSkillScore]);
+      if (res.status === 201) {
+        setSkillScore([...skillScore, payload]);
+        setHighestScore(res?.data?.maxScore);
+      }
       setNewSkillScore(initialState);
       setIsAdding(false);
+    } catch (error) {
+      console.log("error:", error);
     }
   };
 
-  const updateScore = () => {
-    if (editedScore.score && editedScore.from && editedScore.to) {
+  const updateScoreAPI = async () => {
+    const url = `/tmMTTRSkill/updateScore/${editedScore._id}/${baseQuery}`;
+
+    try {
+      const res = await axios.patch(url, editedScore);
+
       const updatedScores = skillScore?.map((score) =>
         score._id === editedScore._id ? editedScore : score
       );
-      //   updateScoreAPI(editedScore);
+
+      setHighestScore(res?.data?.maxScore);
+
       setSkillScore(updatedScores);
+
       setEditedScore(null);
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
+  const deleteScoreAPI = async (id) => {
+    const url = `/tmMTTRSkill/deleteScore/${id}/${baseQuery}`;
+
+    try {
+      await axios.delete(url);
+
+      const updatedScores = skillScore?.filter((score) => score._id !== id);
+
+      setSkillScore(updatedScores);
+    } catch (error) {
+      console.log("error:", error);
     }
   };
 
@@ -217,7 +207,7 @@ const TmMttrSkillScoreCrud = () => {
                   <td style={actionStyle}>
                     <IconRender
                       Icon={SaveIcon}
-                      onClick={updateScore}
+                      onClick={updateScoreAPI}
                       tooltipTitle="Save Changes"
                       type="submit"
                     />
@@ -273,7 +263,7 @@ const TmMttrSkillScoreCrud = () => {
                 <td style={actionStyle}>
                   <IconRender
                     Icon={SaveIcon}
-                    onClick={() => addScore(newSkillScore)}
+                    onClick={() => addScoreAPI(newSkillScore)}
                     tooltipTitle="Add Score"
                     type="submit"
                   />
