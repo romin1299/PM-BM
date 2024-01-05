@@ -4179,24 +4179,22 @@ router.get(
         },
       ]);
 
+      let obj = {};
 
-      let obj = {}
-
-      MBDActualAndMinorBdCount.map(item=>{
+      MBDActualAndMinorBdCount.map((item) => {
         if (item?._id === "Yes") {
-          obj["majorCount"] = item?.count
-        }else if (item?._id === "No") {
-          obj["minorCount"] = item?.count
+          obj["majorCount"] = item?.count;
+        } else if (item?._id === "No") {
+          obj["minorCount"] = item?.count;
         }
-      })
-
+      });
 
       return res.status(201).json({
         message: "Bd count status get successfully",
-        BDCountStatus:{
+        BDCountStatus: {
           annualMBDCount: annualMBDCount?.[0]?.annualSum,
-          MBDActualAndMinorBdCount:obj,
-        }
+          MBDActualAndMinorBdCount: obj,
+        },
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -4238,20 +4236,20 @@ router.get(
           $group: {
             _id: null,
             BDhour: {
-              $sum:{
+              $sum: {
                 $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
               },
-            }
+            },
           },
         },
       ]);
 
       return res.status(201).json({
         message: "Bd hours status get successfully",
-        BDHoursStatus:{
+        BDHoursStatus: {
           annualBDTarget: annualBDTarget?.[0]?.annualSum,
-          BDActual:BDActual?.[0]?.BDhour,
-        }
+          BDActual: BDActual?.[0]?.BDhour,
+        },
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -11544,6 +11542,7 @@ const middlewareForMttrTrend = async (req, res, next) => {
       {
         $project: {
           tm_name: 1,
+          tm_no: 1,
 
           "requestSheet.count": 1,
           hours: {
@@ -11610,6 +11609,8 @@ const middlewareForMttrTrend = async (req, res, next) => {
           data: {
             $push: { $trunc: ["$hours", 1] },
           },
+
+          pieChartData: { $push: "$$ROOT" },
         },
       },
     ]);
@@ -11866,6 +11867,161 @@ router.get(
   filterMiddlewareForTmMTTRSkillReport,
   // filterMiddlewareForMTTRReport,
   middlewareForFindingTmProgressData
+);
+
+const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
+  try {
+    let Model,
+      findObj = {};
+
+    if (req.query?.selectedSection) {
+      Model = Section;
+      findObj = {
+        _id: mongoose.Types.ObjectId(req.query?.selectedSection),
+      };
+    } else {
+      Model = SubSection;
+      findObj = {
+        _id: mongoose.Types.ObjectId(req.query?.selectedSubSection),
+      };
+    }
+
+    req.Model = Model;
+    req.findObj = findObj;
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const middlewareForFindingMaxValue = async (req, res, next) => {
+  try {
+    const maxScore = await req.Model.aggregate([
+      {
+        $match: req.findObj,
+      },
+      {
+        $project: {
+          maxValue: {
+            $max: "$TmMttrSkillScoresAndLimit.score",
+          },
+        },
+      },
+    ]);
+
+    req.maxScore = maxScore?.[0]?.maxValue;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+router.get(
+  "/tmMTTRSkill/getScore",
+  authenticate,
+  sectionOrSubSectionFilterMiddleware,
+  middlewareForFindingMaxValue,
+  async (req, res, next) => {
+    try {
+      const result = await req.Model.findOne(req.findObj);
+
+      return res.status(201).json({
+        message: "All score get successfully",
+        maxScore: req.maxScore,
+        allScore: result?.TmMttrSkillScoresAndLimit,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.post(
+  "/tmMTTRSkill/addNewScore",
+  authenticate,
+  sectionOrSubSectionFilterMiddleware,
+  async (req, res, next) => {
+    try {
+      await req.Model.findOneAndUpdate(req.findObj, {
+        $push: { TmMttrSkillScoresAndLimit: req.body },
+      });
+
+      next()
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  middlewareForFindingMaxValue,
+  async (req, res, next) => {
+    try {
+      return res.status(201).json({
+        message: "Score added successfully",
+        maxScore: req.maxScore,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.patch(
+  "/tmMTTRSkill/updateScore/:id",
+  authenticate,
+  sectionOrSubSectionFilterMiddleware,
+  async (req, res, next) => {
+    try {
+      await req.Model.findOneAndUpdate(
+        req.findObj,
+        {
+          $set: {
+            "TmMttrSkillScoresAndLimit.$[outer]": req.body,
+          },
+        },
+        {
+          arrayFilters: [{ "outer._id": req.params?.id }],
+        }
+      );
+
+      next()
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  middlewareForFindingMaxValue,
+  async (req, res, next) => {
+    try {
+
+      return res.status(201).json({
+        message: "Score added successfully",
+        maxScore: req.maxScore,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+);
+
+router.delete(
+  "/tmMTTRSkill/deleteScore/:id",
+  authenticate,
+  sectionOrSubSectionFilterMiddleware,
+  async (req, res, next) => {
+    try {
+      await req.Model.findOneAndUpdate(req.findObj, {
+        $pull: {
+          TmMttrSkillScoresAndLimit: {
+            _id: mongoose.Types.ObjectId(req.params?.id),
+          },
+        },
+      });
+
+      return res.status(201).json({
+        message: "Score added successfully",
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
 );
 
 const topFilterMiddleware = async (req, res, next) => {

@@ -43,3 +43,11 @@ exports.allTargetData = [
     yearTotalBDHrsTarget: production_hrs_refObj,
   },
 ];
+
+exports.TmMttrSkillScoresAndLimit = [
+  {
+    from:production_hrs_refObj,
+    to:production_hrs_refObj,
+    score:production_hrs_refObj
+  }
+]
