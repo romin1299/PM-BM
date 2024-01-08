@@ -23,6 +23,7 @@ import Checkbox from "@mui/material/Checkbox";
 import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu";
 import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
 import TmMttrSkillScoreCrud from "./TMMttrSkillScoreCrud";
+import axios from "axios";
 
 const TMMTRMain = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -113,6 +114,45 @@ const TMMTRMain = () => {
     </Col>
   );
 
+  const [userWiseData, setUserWiseData] = React.useState({
+    tm_names: [],
+    data: [],
+    pieChartData: [
+      {
+        tm_name: "",
+        tm_no: 0,
+        hours: 0,
+      },
+    ],
+  });
+
+  const fetchChartData = async () => {
+    console.log("timeFilter:", timeFilter);
+    const url = `/mttrTrend/tmMTTRSkill/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}`;
+
+    const params = {
+      selectedYear: reduceState?.selectedYear,
+      time: timeFilter,
+      // includeMBD: mbdIncluded ? "include-mbd" : "",
+    };
+
+    try {
+      const res = await axios.get(url, {
+        params,
+        withCredentials: true,
+        credentials: "include",
+      });
+
+      setUserWiseData(res?.data?.data);
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
+  React.useEffect(() => {
+    if (reduceState?.selectedValue) fetchChartData();
+  }, [reduceState?.selectedValue, reduceState?.selectedYear, timeFilter]);
+
   return (
     <Container fluid>
       <Box>
@@ -145,7 +185,7 @@ const TMMTRMain = () => {
 
         <Row className="mt-3">
           <Col md={12} lg={6}>
-            <MTTRTrend {...reduceState} timeFilter={timeFilter} />
+            <MTTRTrend {...userWiseData} />
           </Col>
 
           <Col md={12} lg={6}>
@@ -153,7 +193,10 @@ const TMMTRMain = () => {
           </Col>
 
           <Col md={12} style={{ marginTop: "1rem" }}>
-            <TmMttrSkillScore />
+            <TmMttrSkillScore
+              {...reduceState}
+              pieChartData={userWiseData?.pieChartData}
+            />
           </Col>
 
           {/* <Col

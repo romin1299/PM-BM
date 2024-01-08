@@ -25,14 +25,15 @@ const initialData = [
   },
 ];
 
-const TmMttrSkillScore = () => {
-  const [tmSkillData, setTmSkillData] = useState(initialData);
+const TmMttrSkillScore = (prop) => {
+  const [highestScore, setHighestScore] = useState(0);
+
   const context = useContext(RoutingContext);
 
   return (
     <Box className="cell p-3">
       <Row className="gx-3">
-        {tmSkillData?.map((tm, index) => (
+        {prop?.pieChartData?.map((tm, index) => (
           <Col
             // lg={1}
             md={2}
@@ -42,16 +43,19 @@ const TmMttrSkillScore = () => {
           >
             <Box className="aleart alert-primary border">
               <Typography variant="h6" textAlign="center">
-                {tm.name}
+                {tm.tm_name}
               </Typography>
               <Typography variant="body2" fontSize={16} textAlign="center">
-                {tm.tmNumber}
+                {tm.tm_no}
               </Typography>
               <Box>
-                <CircularSkillChart score={tm.skill} highestScore={4} />
+                <CircularSkillChart
+                  score={tm.hours}
+                  highestScore={highestScore}
+                />
               </Box>
               <Typography variant="h6" textAlign="center">
-                {tm.skill}
+                {tm.hours}
               </Typography>
             </Box>
           </Col>
@@ -61,7 +65,10 @@ const TmMttrSkillScore = () => {
       <Row className="gx-3">
         <Col xs={12} md={6} lg={4}>
           {context.tm_grade === "HOS" ? (
-            <TmMttrSkillScoreCrud />
+            <TmMttrSkillScoreCrud
+              {...prop}
+              setHighestScore={setHighestScore}
+            />
           ) : (
             <TmSkillScoreTable />
           )}

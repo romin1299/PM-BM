@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const { TmMttrSkillScoresAndLimit } = require("./common");
+
 const sectionSchema = new mongoose.Schema({
   section_id: {
     type: String,
@@ -17,6 +19,8 @@ const sectionSchema = new mongoose.Schema({
   remarksOnMainDashboard: {
     type: String,
   },
+
+  TmMttrSkillScoresAndLimit,
 });
 
 const Section = new mongoose.model("Sections", sectionSchema);
