@@ -29,12 +29,14 @@ const TMMTRMain = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
-  const [mbdIncluded, setMbdIncluded] = React.useState(false);
+  // const [mbdIncluded, setMbdIncluded] = React.useState(false);
+  const [tmId, setTmId] = React.useState("");
   const [timeFilter, setTimeFilter] = React.useState(2);
   const timeFilterRef = React.useRef(null);
-  const handleChange = (event) => {
-    setMbdIncluded(event.target.checked);
-  };
+
+  // const handleChange = (event) => {
+  //   setMbdIncluded(event.target.checked);
+  // };
 
   // const MBDCheckBox = (
   //   <Col className="col-auto justify-content-center align-items-center d-flex">
@@ -127,7 +129,7 @@ const TMMTRMain = () => {
   });
 
   const fetchChartData = async () => {
-    console.log("timeFilter:", timeFilter);
+    // console.log("timeFilter:", timeFilter);
     const url = `/mttrTrend/tmMTTRSkill/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}`;
 
     const params = {
@@ -171,7 +173,8 @@ const TMMTRMain = () => {
                   handleDownloadPPTX={() => {
                     exportPPTX(EXPORT_REPORT.TM_MTTR_SKILL, {
                       ...reduceState,
-                      mbdIncluded,
+                      timeFilter,
+                      tmId,
                     });
                   }}
                 />
@@ -189,7 +192,12 @@ const TMMTRMain = () => {
           </Col>
 
           <Col md={12} lg={6}>
-            <TMProgress {...reduceState} timeFilter={timeFilter} />
+            <TMProgress
+              {...reduceState}
+              timeFilter={timeFilter}
+              tmId={tmId}
+              setTmId={setTmId}
+            />
           </Col>
 
           <Col md={12} style={{ marginTop: "1rem" }}>

@@ -7,10 +7,15 @@ export async function generateTMMTTRSkillPpt(pptx, urlOptions) {
 }
 
 const fetchMTTRTrendData = async (urlOptions) => {
-  const { selectedValue, selectedYear, mbdIncluded } = urlOptions;
+  const { flagForTogglingFilter, timeFilter, selectedValue, selectedYear } =
+    urlOptions;
 
-  const url = `/mttrTrend/tmMTTRSkill/based-on-subSection/${selectedValue}`;
-  const params = { selectedYear, includeMBD: mbdIncluded ? "include-mbd" : "" };
+  // console.log("timeFilter:", timeFilter);
+  const url = `/mttrTrend/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}`;
+  const params = {
+    selectedYear: selectedYear,
+    time: timeFilter,
+  };
 
   try {
     const res = await axios.get(url, {
@@ -18,9 +23,10 @@ const fetchMTTRTrendData = async (urlOptions) => {
       withCredentials: true,
       credentials: "include",
     });
+    // console.log("res:", res);
 
-    const data = res?.data?.tmLoadData[0];
-    console.log("data:", data);
+    const data = res?.data?.data;
+    // console.log("data:", data);
     if (data) {
       return [
         {
@@ -38,13 +44,51 @@ const fetchMTTRTrendData = async (urlOptions) => {
   }
 };
 
+const fetchTMProgressData = async (urlOptions) => {
+  const {
+    tmId,
+    flagForTogglingFilter,
+    timeFilter,
+    selectedValue,
+    selectedYear,
+  } = urlOptions;
+
+  const url = `/tmProgress/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}/${tmId}`;
+  const params = {
+    selectedYear,
+    time: timeFilter,
+  };
+
+  try {
+    const res = await axios.get(url, {
+      params,
+      withCredentials: true,
+      credentials: "include",
+    });
+
+    const data = res?.data?.data;
+    // console.log("data:", data);
+    if (data) {
+      return [
+        {
+          name: "MTTR Hour",
+          labels: data?.labels,
+          values: data?.data,
+        },
+      ];
+    }
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
 async function genSlide01(pptx, urlOptions) {
   let slide = pptx.addSlide();
 
   genSlideTitle(pptx, slide, "TM MTTR Skill Report");
 
-  /*
-   * @add first chart
+  /**
+   * @first chart
    *
    */
   let mttrTrendData = await fetchMTTRTrendData(urlOptions);
@@ -62,10 +106,19 @@ async function genSlide01(pptx, urlOptions) {
     //
     chartColors: ["2f79bf"],
   };
-  console.log("mttrTrendOptions:", mttrTrendOptions);
+  // console.log("mttrTrendOptions:", mttrTrendOptions);
   // Add chart to the slide with specified options
   slide.addChart(pptx.ChartType.bar, mttrTrendData, mttrTrendOptions);
-  slide.addChart(pptx.ChartType.bar, mttrTrendData, {
+
+  /**
+   * @Second chart
+   *
+   */
+
+  let tmProgressData = await fetchTMProgressData(urlOptions);
+  // console.log("tmProgressData:", tmProgressData);
+
+  slide.addChart(pptx.ChartType.line, tmProgressData, {
     ...commonPptOptions,
     x: 6.95,
     y: 1.15,

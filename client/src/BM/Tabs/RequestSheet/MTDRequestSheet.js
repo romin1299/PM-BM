@@ -2102,6 +2102,7 @@ function MyTable({
                           //   //     ? true
                           //   //     : false,
                           // })}
+                          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
                           onChange={(e) => {
                             setValue("attachedDataSheets", e.target.files, {
                               shouldDirty: true,
@@ -2206,6 +2207,7 @@ function MyTable({
                           //   //     ? true
                           //   //     : false,
                           // })}
+                          accept="image/png, image/gif, image/jpeg"
                           onChange={(e) => {
                             setValue("attachedDrawings", e.target.files, {
                               shouldDirty: true,
@@ -2436,7 +2438,7 @@ function MyTable({
                                   type="radio"
                                   value={subCategoryObj?.name}
                                   name={`categories`}
-                                  className="col-lg-4 col-md-4"
+                                  className="col-auto"
                                   // onChange={handleactionTemporaryOrNot}
                                   {...register(
                                     `categories.${categoryObj?.name}`

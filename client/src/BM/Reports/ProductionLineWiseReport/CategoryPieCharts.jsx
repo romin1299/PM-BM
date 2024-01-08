@@ -8,6 +8,71 @@ import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import DataNotFound from "../Common/DataNotFound";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
+const ChartCard = ({ category }) => {
+  ChartJS.register(ArcElement, Tooltip, Legend);
+
+  const options = {
+    plugins: {
+      legend: {
+        position: "bottom",
+        align: "center",
+        labels: {
+          usePointStyle: true,
+        },
+      },
+      datalabels: {
+        formatter: (value, context) => {
+          return `${Math.round(value * 100) / 100} (${
+            Math.round(category?.bdCount?.[context?.dataIndex] * 100) / 100
+          })`;
+        },
+      },
+    },
+  };
+
+  const chartData = {
+    labels: category?.subcategories,
+    datasets: [
+      {
+        label: "Hour",
+        data: category?.bdTime,
+        backgroundColor: category?.subcategories?.map(
+          (item, i) => chartColors.palettes.palette4[i]
+        ),
+        // borderWidth: 0,
+      },
+    ],
+  };
+
+  return (
+    <Box className="cell p-3">
+      {/* <ChartTitleBar title="BD Hours Vs Count" /> */}
+      <Typography variant="body1" style={{ fontSize: "1rem" }}>
+        {category?.category} Category
+      </Typography>
+
+      <Divider sx={{ mt: 1, mb: 2, borderColor: "gray" }} />
+
+      <Box
+        className="ratio ratio-1x1"
+        // sx={{ height: { xs: "300px", md: "350px" } }}
+        sx={{ maxHeight: "350px" }}
+      >
+        {category?.bdCount === undefined ? (
+          <DataNotFound />
+        ) : (
+          <Chart
+            type="pie"
+            data={chartData}
+            options={options}
+            plugins={[ChartDataLabels]}
+          />
+        )}
+      </Box>
+    </Box>
+  );
+};
+
 const CategoryPieCharts = ({
   selectedValue,
   flagForTogglingFilter,
@@ -15,70 +80,6 @@ const CategoryPieCharts = ({
   selectedMonth,
 }) => {
   const [categories, setCategories] = React.useState([]);
-
-  const ChartCard = ({ category }) => {
-    ChartJS.register(ArcElement, Tooltip, Legend);
-
-    const options = {
-      plugins: {
-        legend: {
-          position: "bottom",
-          align: "center",
-          labels: {
-            usePointStyle: true,
-          },
-        },
-        datalabels: {
-          formatter: (value, context) => {
-            return `${Math.round(value * 100) / 100} (${
-              Math.round(category?.bdCount?.[context?.dataIndex] * 100) / 100
-            })`;
-          },
-        },
-      },
-    };
-
-    const chartData = {
-      labels: category?.subcategories,
-      datasets: [
-        {
-          label: "Hour",
-          data: category?.bdTime,
-          backgroundColor: category?.subcategories?.map(
-            (item, i) => chartColors.palettes.palette4[i]
-          ),
-          // borderWidth: 0,
-        },
-      ],
-    };
-
-    return (
-      <Box className="cell p-3">
-        {/* <ChartTitleBar title="BD Hours Vs Count" /> */}
-        <Typography variant="body1" style={{ fontSize: "1rem" }}>
-          {category?.category} Category
-        </Typography>
-
-        <Divider sx={{ mt: 1, mb: 2, borderColor: "gray" }} />
-
-        <Box
-          className="ratio ratio-1x1"
-          // sx={{ height: { xs: "300px", md: "350px" } }}
-        >
-          {category?.bdCount === undefined ? (
-            <DataNotFound />
-          ) : (
-            <Chart
-              type="pie"
-              data={chartData}
-              options={options}
-              plugins={[ChartDataLabels]}
-            />
-          )}
-        </Box>
-      </Box>
-    );
-  };
 
   const fetchChartData = async () => {
     const url = `/getPieChartData/${flagForTogglingFilter}/${selectedValue}`;

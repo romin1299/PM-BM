@@ -79,9 +79,10 @@ const TMProgress = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
+  tmId,
+  setTmId,
 }) => {
   const [data, setData] = React.useState({});
-  const [tmId, setTmId] = React.useState("");
   const [isAllTM, setIsAllTM] = React.useState(false);
 
   const fetchChartData = async () => {
@@ -129,34 +130,34 @@ const TMProgress = ({
     ],
   };
 
-  React.useEffect(() => {
-    console.log("TM progress data:", data);
-  }, [data]);
+  // React.useEffect(() => {
+  //   console.log("TM progress data:", data);
+  // }, [data]);
 
-  const handleChange = (event) => {
-    setIsAllTM(event.target.checked);
-  };
+  // const handleChange = (event) => {
+  //   setIsAllTM(event.target.checked);
+  // };
 
-  const AllTMCheckBox = (
-    <Col className="col-auto">
-      <FormControlLabel
-        control={
-          <Checkbox
-            // size="small"
-            sx={{
-              color: "#004b5b",
-              "&.MuiCheckbox-root": { p: "0px", mr: "10px" },
-              "&.Mui-checked": { color: "#004b5b" },
-            }}
-            checked={isAllTM}
-            onChange={handleChange}
-            inputProps={{ size: "10px" }}
-          />
-        }
-        label="All"
-      />
-    </Col>
-  );
+  // const AllTMCheckBox = (
+  //   <Col className="col-auto">
+  //     <FormControlLabel
+  //       control={
+  //         <Checkbox
+  //           // size="small"
+  //           sx={{
+  //             color: "#004b5b",
+  //             "&.MuiCheckbox-root": { p: "0px", mr: "10px" },
+  //             "&.Mui-checked": { color: "#004b5b" },
+  //           }}
+  //           checked={isAllTM}
+  //           onChange={handleChange}
+  //           inputProps={{ size: "10px" }}
+  //         />
+  //       }
+  //       label="All"
+  //     />
+  //   </Col>
+  // );
 
   return (
     <Box className="cell p-3">
