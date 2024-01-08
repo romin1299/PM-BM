@@ -31,18 +31,21 @@ exports.getUserData =
     // console.log(startDate);
     // console.log(endDate);
 
+    // let currentMonth;
+    // if(moment().format("MMM") === "Jun"){
+    //   currentMonth = "June";
+    // }
+    // else if(moment().format("MMM") === "Jul"){
+    //   currentMonth = "July";
+    // }
+    // else{
+    //   currentMonth = moment().format("MMM");
+    // }
 
-    // const currentMonth = moment().format("MMMM");
-    let currentMonth;
-    if(moment().format("MMM") === "Jun"){
-      currentMonth = "June";
-    }
-    else if(moment().format("MMM") === "Jul"){
-      currentMonth = "July";
-    }
-    else{
-      currentMonth = moment().format("MMM");
-    }
+    let currentMonth = moment().format("MMM") === "Jun" ? "June" :
+    moment().format("MMM") === "Jul" ? "July" :
+    moment().format("MMM");
+
     
 
 
@@ -63,13 +66,13 @@ exports.getUserData =
         $project: {
           _id: 0,
           PMStatus: `$checkSheet_data.PMStatus.${currentMonth}`,
-         
+          PMdate: { $arrayElemAt: [`$checkSheet_data.implemetation_completed_date.${currentMonth}`, 0] }
 
         },
       },
     ]);
 
-    //  console.log("pmstatus",pmStatus)
+    //  console.log("pmstatus",pmStatus?.[0])
 
     const bmData = await RequestSheetOfBM.aggregate([
       // {
