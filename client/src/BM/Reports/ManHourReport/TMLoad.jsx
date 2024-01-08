@@ -186,6 +186,7 @@ const TMLoad = ({
         data: tmLoadData?.percentage,
         borderColor: chartColors.blue[1],
         borderWidth: 2,
+        pointRadius: 4,
         fill: false,
         backgroundColor: chartColors.blue[1],
         pointBorderColor: chartColors.blue[1],
@@ -196,7 +197,7 @@ const TMLoad = ({
         stack: "bar-stacked",
         label: "BM",
         data: tmLoadData?.totalSumOf_BM,
-        backgroundColor: chartColors.brown[0],
+        backgroundColor: chartColors.palettes.bmpm[0],
         borderColor: chartColors.brown[0],
         borderWidth: 0,
         pointStyle: "rect",
@@ -207,7 +208,7 @@ const TMLoad = ({
         stack: "bar-stacked",
         label: "PM",
         data: tmLoadData?.totalSumOf_PM,
-        backgroundColor: chartColors.red[0],
+        backgroundColor: chartColors.palettes.bmpm[1],
         borderColor: chartColors.red[0],
         borderWidth: 0,
         pointStyle: "rect",
@@ -218,7 +219,7 @@ const TMLoad = ({
 
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="Hour Trend" />
+      <ChartTitleBar title="TM Load" />
 
       <Chart options={options} data={data} />
     </Box>

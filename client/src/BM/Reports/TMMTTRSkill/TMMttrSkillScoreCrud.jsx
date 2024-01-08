@@ -13,6 +13,7 @@ import { blueGrey } from "@mui/material/colors";
 
 import MuiDeleteDialog from "../../Customized/CustomizedShifts/MuiDeleteButtonAndDialog";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import "./TmMttrScoreCrudTable.scss";
 
 const initialState = {
   score: "",
@@ -49,8 +50,8 @@ const TmMttrSkillScoreCrud = ({
   const [editedScore, setEditedScore] = useState(null);
   const [newSkillScore, setNewSkillScore] = useState({});
 
-  let baseQuery =`?selectedSection=${selectedSection}&&selectedSubSection=${selectedSubSection}`
-  
+  let baseQuery = `?selectedSection=${selectedSection}&&selectedSubSection=${selectedSubSection}`;
+
   React.useEffect(() => {
     if (selectedSection || selectedSubSection) {
       fetchScoreData();
@@ -187,7 +188,7 @@ const TmMttrSkillScoreCrud = ({
       </Box>
 
       <form onSubmit={(e) => e.preventDefault()}>
-        <table className="shifts-table" style={{ width: "100%" }}>
+        <table className="tm-mttr-score-table" style={{ width: "100%" }}>
           <thead>
             {skillMeasuresFields?.map((score, index) => (
               <th key={index} style={{ maxWidth: "100px" }}>
@@ -315,7 +316,7 @@ const TmSkillScoreTable = () => {
 
   return (
     <Paper variant="outlined" sx={{ mt: 2 }}>
-      <table className="shifts-table" style={{ width: "100%" }}>
+      <table className="tm-mttr-score-table" style={{ width: "100%" }}>
         <thead>
           {skillMeasuresFields?.map((shift, index) => (
             <th key={index} style={{ maxWidth: "100px" }}>
@@ -328,7 +329,12 @@ const TmSkillScoreTable = () => {
           {tmSkillMeasures?.map((shift, index) => (
             <tr>
               {skillMeasuresFields?.map((field, index) => (
-                <td key={index}>{shift[field.key]}</td>
+                <td
+                  key={index}
+                  style={field.key === "score" ? { fontWeight: "600" } : null}
+                >
+                  {shift[field.key]}
+                </td>
               ))}
             </tr>
           ))}

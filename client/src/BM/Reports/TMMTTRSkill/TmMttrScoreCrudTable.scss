@@ -1,0 +1,52 @@
+.tm-mttr-score-table {
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  td,
+  th {
+    text-align: left;
+    padding: 8px;
+
+    // input[type="time"] {
+    // }
+
+    input[type="text"] {
+      width: 100%;
+      min-width: 50px;
+      max-width: 200px;
+    }
+  }
+
+  th {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #004b5b;
+    background-color: #6eaebd33;
+  }
+
+  tr {
+    border-top: 1px solid #dddddd;
+    font-size: 14px;
+  }
+
+  thead {
+    border-top: none;
+
+    // & > th {
+    //   padding-bottom: 12px;
+    // }
+  }
+
+  td + td,
+  th + th {
+    border-left: 1px solid #dddddd;
+  }
+
+  // tr:nth-child(even) {
+  //   background-color: #dddddd;
+  // }
+}
