@@ -13,7 +13,7 @@ const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     try {
       const res = await fetch(
         // `/getTrendData/MTTR/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
-        `/getTrendData/MTTR/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
+        `/getTrendData/MTTR/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&targetKey=monthlyMTTRTarget`,
         {
           method: "GET",
           headers: {

@@ -123,14 +123,14 @@ const TMMTRMain = () => {
       {
         tm_name: "",
         tm_no: 0,
-        hours: 0,
+        score: 0,
       },
     ],
   });
 
   const fetchChartData = async () => {
-    // console.log("timeFilter:", timeFilter);
-    const url = `/mttrTrend/tmMTTRSkill/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}`;
+    console.log("timeFilter:", timeFilter);
+    const url = `/mttrTrend/tmMTTRSkill/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedSection=${reduceState?.selectedSection}&&selectedSubSection=${reduceState?.selectedSubSection}`;
 
     const params = {
       selectedYear: reduceState?.selectedYear,

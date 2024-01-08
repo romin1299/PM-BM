@@ -1,5 +1,9 @@
 import { MONTH_LABELS, chartColors } from "../ChartUtils/chartEnums";
-import { commonPptOptions, genSlideTitle } from "./exportPPTXOptions";
+import {
+  commonPptOptions,
+  genNoDataFoundText,
+  genSlideTitle,
+} from "./exportPPTXOptions";
 import axios from "axios";
 
 export async function generateTMMTTRSkillPpt(pptx, urlOptions) {
@@ -7,12 +11,21 @@ export async function generateTMMTTRSkillPpt(pptx, urlOptions) {
 }
 
 const fetchMTTRTrendData = async (urlOptions) => {
-  const { flagForTogglingFilter, timeFilter, selectedValue, selectedYear } =
-    urlOptions;
+  const {
+    flagForTogglingFilter,
+    timeFilter,
+    selectedValue,
+    selectedYear,
+    selectedSection,
+    selectedSubSection,
+  } = urlOptions;
 
-  // console.log("timeFilter:", timeFilter);
-  const url = `/mttrTrend/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}`;
+  console.log("urlOptions:", urlOptions);
+  const url = `/mttrTrend/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}/?selectedSection=${selectedSection}&&selectedSubSection=${selectedSubSection}`;
+  // console.log("url:", url);
   const params = {
+    // selectedSection,
+    // selectedSubSection,
     selectedYear: selectedYear,
     time: timeFilter,
   };
@@ -46,15 +59,21 @@ const fetchMTTRTrendData = async (urlOptions) => {
 
 const fetchTMProgressData = async (urlOptions) => {
   const {
-    tmId,
     flagForTogglingFilter,
     timeFilter,
     selectedValue,
     selectedYear,
+    selectedSection,
+    selectedSubSection,
+    tmId,
   } = urlOptions;
 
+  console.log("urlOptions:", urlOptions);
   const url = `/tmProgress/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}/${tmId}`;
+
   const params = {
+    // selectedSection,
+    // selectedSubSection,
     selectedYear,
     time: timeFilter,
   };
@@ -77,8 +96,11 @@ const fetchTMProgressData = async (urlOptions) => {
         },
       ];
     }
+
+    return [];
   } catch (error) {
     console.log("error:", error);
+    return [];
   }
 };
 
@@ -108,7 +130,11 @@ async function genSlide01(pptx, urlOptions) {
   };
   // console.log("mttrTrendOptions:", mttrTrendOptions);
   // Add chart to the slide with specified options
-  slide.addChart(pptx.ChartType.bar, mttrTrendData, mttrTrendOptions);
+  if (mttrTrendData.length > 0) {
+    slide.addChart(pptx.ChartType.bar, mttrTrendData, mttrTrendOptions);
+  } else {
+    genNoDataFoundText(slide, { x: 0.5, y: 1.15, w: 5.95, h: 5.9 });
+  }
 
   /**
    * @Second chart
@@ -116,19 +142,29 @@ async function genSlide01(pptx, urlOptions) {
    */
 
   let tmProgressData = await fetchTMProgressData(urlOptions);
-  // console.log("tmProgressData:", tmProgressData);
 
-  slide.addChart(pptx.ChartType.line, tmProgressData, {
-    ...commonPptOptions,
-    x: 6.95,
-    y: 1.15,
-    w: 5.95,
-    h: 5.9,
-    //
-    title: "TM Progress",
-    catAxisTitle: "Months",
-    valAxisTitle: "Hours",
-    //
-    chartColors: ["2f79bf"],
-  });
+  if (urlOptions.tmId && tmProgressData.length > 0) {
+    console.log("tmProgressData:", tmProgressData);
+
+    slide.addChart(pptx.ChartType.line, tmProgressData, {
+      ...commonPptOptions,
+      x: 6.95,
+      y: 1.15,
+      w: 5.95,
+      h: 5.9,
+      //
+      title: "TM Progress",
+      catAxisTitle: "Months",
+      valAxisTitle: "Hours",
+      //
+      chartColors: ["2f79bf"],
+    });
+  } else {
+    genNoDataFoundText(slide, {
+      x: 6.95,
+      y: 1.15,
+      w: 5.95,
+      h: 5.9,
+    });
+  }
 }

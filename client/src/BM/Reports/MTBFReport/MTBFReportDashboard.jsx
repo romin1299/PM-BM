@@ -43,6 +43,7 @@ const MTBFReportDashboard = () => {
                     exportPPTX(EXPORT_REPORT.COMMON_TEMPLATE_REPORT, {
                       ...reduceState,
                       name: "MTBF",
+                      targetKey:"monthlyMTBFTarget",
                       documentLimitInTheGraph,
                     });
                   }}

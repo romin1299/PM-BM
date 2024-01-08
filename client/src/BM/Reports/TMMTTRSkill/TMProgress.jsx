@@ -82,7 +82,7 @@ const TMProgress = ({
   tmId,
   setTmId,
 }) => {
-  const [data, setData] = React.useState({});
+  const [data, setData] = React.useState(undefined);
   const [isAllTM, setIsAllTM] = React.useState(false);
 
   const fetchChartData = async () => {
@@ -103,9 +103,15 @@ const TMProgress = ({
       });
       // console.log("MTTR Trend res:", res.data.data);
 
-      setData(res?.data?.data);
+      const data = res?.data?.data;
+      if (data) {
+        setData(data);
+      } else {
+        setData(undefined);
+      }
     } catch (error) {
       console.log("error:", error);
+      setData(undefined);
     }
   };
 

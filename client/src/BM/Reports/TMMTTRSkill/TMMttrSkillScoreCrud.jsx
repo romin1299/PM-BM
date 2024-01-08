@@ -21,13 +21,6 @@ const initialState = {
   to: "",
 };
 
-const tmSkillMeasures = [
-  { _id: 1, score: 4, from: 0, to: 0.5 },
-  { _id: 2, score: 3, from: 0.5, to: 0.75 },
-  { _id: 3, score: 2, from: 0.75, to: 1.0 },
-  { _id: 4, score: 1, from: 1.0, to: "n" },
-];
-
 const skillMeasuresFields = [
   { key: "from", name: "From", type: "number" },
   { key: "to", name: "To", type: "number" },
@@ -45,7 +38,9 @@ const TmMttrSkillScoreCrud = ({
   selectedSubSection,
   setHighestScore,
 }) => {
-  const [skillScore, setSkillScore] = React.useState(tmSkillMeasures);
+  const [skillScore, setSkillScore] = React.useState([
+    { _id: "", score: 4, from: 0, to: 0 },
+  ]);
   const [isAdding, setIsAdding] = useState(false);
   const [editedScore, setEditedScore] = useState(null);
   const [newSkillScore, setNewSkillScore] = useState({});
@@ -300,19 +295,41 @@ const TmMttrSkillScoreCrud = ({
   );
 };
 
-const TmSkillScoreTable = () => {
-  const tmSkillMeasures = [
-    { _id: 1, score: 4, from: 0, to: 0.5 },
-    { _id: 2, score: 3, from: 0.5, to: 0.75 },
-    { _id: 3, score: 2, from: 0.75, to: 1.0 },
-    { _id: 4, score: 1, from: 1.0, to: "n" },
-  ];
+const TmSkillScoreTable = ({
+  selectedSection,
+  selectedSubSection,
+  setHighestScore,
+}) => {
 
-  const skillMeasuresFields = [
-    { key: "from", name: "From", type: "time" },
-    { key: "to", name: "To", type: "time" },
-    { key: "score", name: "Score", type: "text" },
-  ];
+  const [skillScore, setSkillScore] = React.useState([
+    { _id: "", score: 4, from: 0, to: 0 },
+  ]);
+
+  let baseQuery = `?selectedSection=${selectedSection}&&selectedSubSection=${selectedSubSection}`;
+
+  const fetchScoreData = async () => {
+    const url = `/tmMTTRSkill/getScore/${baseQuery}`;
+
+    try {
+      const res = await axios.get(url, {
+        withCredentials: true,
+        credentials: "include",
+      });
+
+      if (res.status === 201) {
+        setSkillScore(res?.data?.allScore);
+        setHighestScore(res?.data?.maxScore);
+      }
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
+  React.useEffect(() => {
+    if (selectedSection || selectedSubSection) {
+      fetchScoreData();
+    }
+  }, [selectedSection, selectedSubSection]);
 
   return (
     <Paper variant="outlined" sx={{ mt: 2 }}>
@@ -326,14 +343,14 @@ const TmSkillScoreTable = () => {
         </thead>
 
         <tbody>
-          {tmSkillMeasures?.map((shift, index) => (
+          {skillScore?.map((score, index) => (
             <tr>
               {skillMeasuresFields?.map((field, index) => (
                 <td
                   key={index}
                   style={field.key === "score" ? { fontWeight: "600" } : null}
                 >
-                  {shift[field.key]}
+                  {score[field.key]}
                 </td>
               ))}
             </tr>
