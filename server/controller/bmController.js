@@ -1238,7 +1238,8 @@ const filterMiddleware = async (req, res, next) => {
 const targetMiddleware = async (req, res, next) => {
   try {
     let queryObj = {},
-      pipeline = [];
+      targetKey = `$allTargetData.${req.query?.targetKey}`;
+    pipeline = [];
 
     if (req.params?.filter === "based-on-line") {
       queryObj = {
@@ -1252,7 +1253,7 @@ const targetMiddleware = async (req, res, next) => {
             monthlyTarget: {
               $map: {
                 input: {
-                  $objectToArray: "$allTargetData.monthlyBDHrsTarget",
+                  $objectToArray: targetKey,
                 },
                 as: "obj",
                 in: "$$obj.v",
@@ -1267,7 +1268,7 @@ const targetMiddleware = async (req, res, next) => {
 
       for (let i = 0; i < allMonths.length; i++) {
         obj[allMonths?.[i]?.monthName] = {
-          $sum: `$allTargetData.monthlyBDHrsTarget.${allMonths?.[i]?.monthName}`,
+          $sum: `${targetKey}.${allMonths?.[i]?.monthName}`,
         };
 
         arr.push(`$${allMonths?.[i]?.monthName}`);
@@ -5076,7 +5077,7 @@ router.get(
       const lineWisePptExportationData = await RequestSheetOfBM.aggregate([
         {
           $match: {
-            cellRef: mongoose.Types.ObjectId(req.params.selectedId),
+            // cellRef: mongoose.Types.ObjectId(req.params.selectedId),
             "preAggregationTimeStampOfRequestSheet.requestSheet_year":
               req.query?.selectedYear,
           },
@@ -5087,6 +5088,9 @@ router.get(
               lineRef: "$lineRef",
               month:
                 "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+              monthInDecimal: {
+                $subtract: [{ $month: "$problemOccurredDateAndTimeOfBM" }, 1],
+              },
             },
             count: { $sum: 1 },
             bdHours: {
@@ -5100,7 +5104,7 @@ router.get(
           $lookup: {
             from: "lines",
             localField: "_id.lineRef",
-            let: { month: "$_id.month" },
+            let: { month: "$_id.monthInDecimal" },
             foreignField: "_id",
             pipeline: [
               {
@@ -5124,39 +5128,81 @@ router.get(
                       in: "$$obj.v",
                     },
                   },
-                  eachMonthBDHrsTarget: {
-                    $arrayElemAt: [
-                      {
-                        $filter: {
-                          input: {
-                            $objectToArray: "$allTargetData.monthlyBDHrsTarget",
-                          },
-                          as: "monthlyTarget",
-                          cond: {
-                            $eq: ["$$monthlyTarget.k", "$$month"],
-                          },
-                        },
+                  monthlyMTTRTarget: {
+                    $map: {
+                      input: {
+                        $objectToArray: "$allTargetData.monthlyMTTRTarget",
                       },
-                      0,
-                    ],
+                      as: "obj",
+                      in: "$$obj.v",
+                    },
+                  },
+                  monthlyMTBFTarget: {
+                    $map: {
+                      input: {
+                        $objectToArray: "$allTargetData.monthlyMTBFTarget",
+                      },
+                      as: "obj",
+                      in: "$$obj.v",
+                    },
+                  },
+                  monthlyBDPercentageTarget: {
+                    $map: {
+                      input: {
+                        $objectToArray: "$allTargetData.monthlyBDPercentageTarget",
+                      },
+                      as: "obj",
+                      in: "$$obj.v",
+                    },
                   },
                   eachMonthProductionHrs: {
                     $arrayElemAt: [
                       {
-                        $filter: {
+                        $map: {
                           input: {
                             $objectToArray:
                               "$allTargetData.monthlyProductionHrs",
                           },
-                          as: "monthlyProduction",
-                          cond: {
-                            $eq: ["$$monthlyProduction.k", "$$month"],
-                          },
+                          as: "obj",
+                          in: "$$obj.v",
                         },
                       },
-                      0,
+                      "$$month",
                     ],
                   },
+                  // eachMonthBDHrsTarget: {
+                  //   $arrayElemAt: [
+                  //     {
+                  //       $filter: {
+                  //         input: {
+                  //           $objectToArray: "$allTargetData.monthlyBDHrsTarget",
+                  //         },
+                  //         as: "monthlyTarget",
+                  //         cond: {
+                  //           $eq: ["$$monthlyTarget.k", "$$month"],
+                  //         },
+                  //       },
+                  //     },
+                  //     0,
+                  //   ],
+                  // },
+                  // eachMonthProductionHrs: {
+                  //   $arrayElemAt: [
+                  //     {
+                  //       $filter: {
+                  //         input: {
+                  //           $objectToArray:
+                  //             "$allTargetData.monthlyProductionHrs",
+                  //         },
+                  //         as: "monthlyProduction",
+                  //         cond: {
+                  //           $eq: ["$$monthlyProduction.k", "$$month"],
+                  //         },
+                  //       },
+                  //     },
+                  //     0,
+                  //   ],
+                  // },
                 },
               },
             ],
@@ -5171,6 +5217,9 @@ router.get(
             _id: {
               lineName: "$line.line_name",
               monthlyBDHrsTarget: "$line.monthlyBDHrsTarget",
+              monthlyMTTRTarget: "$line.monthlyMTTRTarget",
+              monthlyMTBFTarget: "$line.monthlyMTBFTarget",
+              monthlyBDPercentageTarget: "$line.monthlyBDPercentageTarget",
             },
             data: {
               $push: {
@@ -5178,7 +5227,18 @@ router.get(
                 bdHours: "$bdHours",
                 backgroundColorForBDHrs: {
                   $cond: [
-                    { $gt: ["$bdHours", "$line.eachMonthBDHrsTarget.v"] },
+                    // { $gt: ["$bdHours", "$line.eachMonthBDHrsTarget.v"] },
+                    {
+                      $gt: [
+                        "$bdHours",
+                        {
+                          $arrayElemAt: [
+                            "$line.monthlyBDHrsTarget",
+                            "$_id.monthInDecimal",
+                          ],
+                        },
+                      ],
+                    },
                     "ef5350",
                     "c2c933",
                   ],
@@ -5193,7 +5253,13 @@ router.get(
                         {
                           $divide: ["$bdHours", "$count"],
                         },
-                        "$line.eachMonthBDHrsTarget.v",
+                        {
+                          $arrayElemAt: [
+                            "$line.monthlyMTTRTarget",
+                            "$_id.monthInDecimal",
+                          ],
+                        },
+                        // "$line.eachMonthBDHrsTarget.v",
                       ],
                     },
                     "c2c933",
@@ -5203,7 +5269,7 @@ router.get(
                 mtbfData: {
                   $divide: [
                     {
-                      $subtract: ["$line.eachMonthProductionHrs.v", "$bdHours"],
+                      $subtract: ["$line.eachMonthProductionHrs", "$bdHours"],
                     },
                     "$count",
                   ],
@@ -5216,14 +5282,20 @@ router.get(
                           $divide: [
                             {
                               $subtract: [
-                                "$line.eachMonthProductionHrs.v",
+                                "$line.eachMonthProductionHrs",
                                 "$bdHours",
                               ],
                             },
                             "$count",
                           ],
                         },
-                        "$line.eachMonthBDHrsTarget.v",
+                        {
+                          $arrayElemAt: [
+                            "$line.monthlyMTBFTarget",
+                            "$_id.monthInDecimal",
+                          ],
+                        },
+                        // "$line.eachMonthBDHrsTarget.v",
                       ],
                     },
                     "ef5350",
@@ -5232,7 +5304,7 @@ router.get(
                 },
                 bdPercentage: {
                   $multiply: [
-                    { $divide: ["$bdHours", "$line.eachMonthProductionHrs.v"] },
+                    { $divide: ["$bdHours", "$line.eachMonthProductionHrs"] },
                     100,
                   ],
                 },
@@ -5245,13 +5317,19 @@ router.get(
                             {
                               $divide: [
                                 "$bdHours",
-                                "$line.eachMonthProductionHrs.v",
+                                "$line.eachMonthProductionHrs",
                               ],
                             },
                             100,
                           ],
                         },
-                        "$line.eachMonthBDHrsTarget.v",
+                        {
+                          $arrayElemAt: [
+                            "$line.monthlyBDPercentageTarget",
+                            "$_id.monthInDecimal",
+                          ],
+                        },
+                        // "$line.eachMonthBDHrsTarget.v",
                       ],
                     },
                     "ef5350",
@@ -5267,6 +5345,10 @@ router.get(
             _id: 0,
             lineName: "$_id.lineName",
             target: "$_id.monthlyBDHrsTarget",
+            monthlyBDHrsTarget: "$_id.monthlyBDHrsTarget",
+            monthlyMTTRTarget: "$_id.monthlyMTTRTarget",
+            monthlyMTBFTarget: "$_id.monthlyMTBFTarget",
+            monthlyBDPercentageTarget: "$_id.monthlyBDPercentageTarget",
 
             allData: {
               $reduce: {
@@ -8026,7 +8108,6 @@ const targetMiddlewareForMBD = async (req, res, next) => {
             ...obj,
           },
         },
-        
 
         {
           $project: {
@@ -8119,8 +8200,6 @@ const targetMiddlewareForMBD = async (req, res, next) => {
       //     // totalMonthlyMBDCountTarget: 1
       //   }
       // },
-
-      
     ]);
 
     const targetForCount = await Cell.aggregate([
@@ -8138,8 +8217,6 @@ const targetMiddlewareForMBD = async (req, res, next) => {
 
       ...pipelineCount,
     ]);
-
- 
 
     req.target = target?.[0]?.monthlyTarget || [];
     // req.yearlyTarget = target?.[0]?.yearlyTarget || [];
@@ -10940,6 +11017,8 @@ const middlewareForMttrTrend = async (req, res, next) => {
 
     // console.log(" matchQuery", matchQuery);
 
+    const result = await req.Model.findOne(req.findObj);
+
     const tmLoadData = await User.aggregate([
       ...queryPipelineForUser,
 
@@ -11019,6 +11098,49 @@ const middlewareForMttrTrend = async (req, res, next) => {
         $project: {
           tm_name: 1,
           tm_no: 1,
+          score: {
+            $getField: {
+              field: "score",
+              input: {
+                $arrayElemAt: [
+                  {
+                    $filter: {
+                      input: result?.TmMttrSkillScoresAndLimit,
+                      as: "item",
+                      cond: {
+                        $and: [
+                          {
+                            $gte: [
+                              {
+                                $divide: [
+                                  "$requestSheet.sumOfBM",
+                                  "$requestSheet.count",
+                                ],
+                              },
+                              "$$item.from",
+                            ],
+                          },
+                          {
+                            $lt: [
+                              {
+                                $divide: [
+                                  "$requestSheet.sumOfBM",
+                                  "$requestSheet.count",
+                                ],
+                              },
+                              "$$item.to",
+                            ],
+                          },
+                        ],
+                      },
+                      limit: 1,
+                    },
+                  },
+                  0,
+                ],
+              },
+            },
+          },
 
           "requestSheet.count": 1,
           hours: {
@@ -11100,9 +11222,36 @@ const middlewareForMttrTrend = async (req, res, next) => {
   }
 };
 
+const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
+  try {
+    let Model,
+      findObj = {};
+
+    if (req.query?.selectedSubSection) {
+      Model = SubSection;
+      findObj = {
+        _id: mongoose.Types.ObjectId(req.query?.selectedSubSection),
+      };
+    } else {
+      Model = Section;
+      findObj = {
+        _id: mongoose.Types.ObjectId(req.query?.selectedSection),
+      };
+    }
+
+    req.Model = Model;
+    req.findObj = findObj;
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 router.get(
   "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
   authenticate,
+  sectionOrSubSectionFilterMiddleware,
   middlewareForMttrTrend
 );
 
@@ -11345,32 +11494,6 @@ router.get(
   middlewareForFindingTmProgressData
 );
 
-const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
-  try {
-    let Model,
-      findObj = {};
-
-    if (req.query?.selectedSection) {
-      Model = Section;
-      findObj = {
-        _id: mongoose.Types.ObjectId(req.query?.selectedSection),
-      };
-    } else {
-      Model = SubSection;
-      findObj = {
-        _id: mongoose.Types.ObjectId(req.query?.selectedSubSection),
-      };
-    }
-
-    req.Model = Model;
-    req.findObj = findObj;
-
-    next();
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
-
 const middlewareForFindingMaxValue = async (req, res, next) => {
   try {
     const maxScore = await req.Model.aggregate([
@@ -11422,7 +11545,7 @@ router.post(
         $push: { TmMttrSkillScoresAndLimit: req.body },
       });
 
-      next()
+      next();
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
     }
@@ -11458,7 +11581,7 @@ router.patch(
         }
       );
 
-      next()
+      next();
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
     }
@@ -11466,7 +11589,6 @@ router.patch(
   middlewareForFindingMaxValue,
   async (req, res, next) => {
     try {
-
       return res.status(201).json({
         message: "Score added successfully",
         maxScore: req.maxScore,
@@ -11474,7 +11596,7 @@ router.patch(
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
     }
-  },
+  }
 );
 
 router.delete(
@@ -12302,10 +12424,10 @@ const middlewareForFindingTrendData = async (req, res, next) => {
 
 const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
   try {
-    let target = "$allTargetData.yearTotalBDHrsTarget";
+    let target = `$allTargetData.${req.query?.yearTargetKey}`;
 
     if (req.query?.selectedMonth) {
-      target = `$allTargetData.monthlyBDHrsTarget.${req.query?.selectedMonth}`;
+      target = `$allTargetData.${req.query?.monthTargetKey}.${req.query?.selectedMonth}`;
     }
 
     const TrendData = await RequestSheetOfBM.aggregate([
