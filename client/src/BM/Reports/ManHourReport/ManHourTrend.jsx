@@ -16,6 +16,7 @@ import { chartColors, MONTH_LABELS } from "../../Utils/ChartUtils/chartEnums";
 import { Col, Row } from "react-bootstrap";
 import { FilterMenu } from "./SubComponents/FilterMenu";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -72,12 +73,16 @@ const ManHourTrend = ({
   flagForTogglingFilter,
   selectedYear,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [manHourTrendData, setManHourTrendData] = useState({
     BMManHourTrend: [],
     PMManHourTrend: [],
   });
 
   const getManHourTrendData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/manHourReport/manHourTrend/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -100,6 +105,8 @@ const ManHourTrend = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -129,8 +136,11 @@ const ManHourTrend = ({
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="Man-Hour Trend" />
-
-      <Bar options={options} data={data} />
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Bar options={options} data={data} />
+      )}
     </Box>
   );
 };

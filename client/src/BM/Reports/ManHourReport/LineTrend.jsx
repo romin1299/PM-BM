@@ -16,6 +16,7 @@ import {
   PointElement,
 } from "chart.js";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -84,27 +85,13 @@ export const options = {
   },
 };
 
-const machineNames = [
-  "MA5",
-  "FANW21",
-  "MFI21",
-  "OEPS21",
-  "PPLIN1",
-  "SHN1",
-  "JLD2",
-  "ABT2",
-  "MIK1",
-  "LPD2",
-  "PWL12",
-  "AWQ4",
-];
-
 const LineTrend = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
   selectedMonth,
 }) => {
+  const [loading, setLoading] = React.useState(true);
   const [labels, setLabels] = useState([]);
 
   const [lineTrendData, setLineTrendData] = useState({
@@ -115,6 +102,8 @@ const LineTrend = ({
   });
 
   const getLineTrendData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/manHourReport/lineTrend/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -137,6 +126,8 @@ const LineTrend = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -206,8 +197,11 @@ const LineTrend = ({
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="Line Trend" />
-
-      <Chart options={options} data={data} />
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Chart options={options} data={data} />
+      )}
       {/* <button onClick={dummyAPI}>For Test</button> */}
     </Box>
     // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>

@@ -16,6 +16,7 @@ import {
   PointElement,
 } from "chart.js";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -82,21 +83,6 @@ export const options = {
   },
 };
 
-const TM_Names = [
-  "Jatindar",
-  "Mangal",
-  "Ujjawal",
-  "NeeraK",
-  "Dalip",
-  "Gagandeep",
-  "Inderjeet",
-  "Shubhash",
-  "Ashish",
-  "Sandeep",
-  "Anshul",
-  "Shreekant",
-];
-
 // export const data = {
 //   labels: TM_Names,
 //   datasets: [
@@ -139,6 +125,8 @@ const TMLoad = ({
   selectedYear,
   selectedMonth,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [tmLoadData, setTmLoadData] = useState({
     tm_names: [],
     totalSumOf_PM: [],
@@ -147,6 +135,8 @@ const TMLoad = ({
   });
 
   const getTmLoadData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/manHourReport/tmLoad/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -169,6 +159,8 @@ const TMLoad = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -220,8 +212,11 @@ const TMLoad = ({
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="TM Load" />
-
-      <Chart options={options} data={data} />
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Chart options={options} data={data} />
+      )}
     </Box>
     // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>
     //   <Typography variant="h5" component="h4">

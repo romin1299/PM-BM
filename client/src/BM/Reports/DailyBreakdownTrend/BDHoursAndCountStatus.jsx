@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Col } from "react-bootstrap";
 import { Box, Paper, Typography } from "@mui/material";
+import Loading from "../../../components/Loading/Loading";
 
 const sectionBodyBoxStyle = {
   // display: "flex",
@@ -30,6 +31,7 @@ const StatusBox = ({ title, value }) => (
       variant="outlined"
       sx={{
         backgroundColor: "#c6efce", //alternative color #deebf7
+        height: "48px",
         // md: { width: "120px" },
         // sm: { width: "100%" },
       }}
@@ -52,11 +54,16 @@ const BdHoursComponent = ({
   selectedYear,
   flagForTogglingFilter,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [BDHoursStatus, setBDHoursStatus] = useState({
     annualBDTarget: 0,
     BDActual: 0,
   });
+
   const getBdHoursStatus = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         `/getBdHoursStatus/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
@@ -78,6 +85,8 @@ const BdHoursComponent = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -85,20 +94,27 @@ const BdHoursComponent = ({
       getBdHoursStatus();
     }
   }, [selectedValue, selectedYear]);
+
   return (
     <>
       <Col md={12} lg={6}>
         <Box className="cell p-3 mb-0">
-          <Typography variant="h6" textAlign="center" fontWeight={600}>
-            BD Hours Status
-          </Typography>
-          <Box className="row gx-3" sx={sectionBodyBoxStyle}>
-            <StatusBox
-              title="Annual BD Target"
-              value={BDHoursStatus?.annualBDTarget}
-            />
-            <StatusBox title="BD Actual" value={BDHoursStatus?.BDActual} />
-          </Box>
+          {loading ? (
+            <Loading height={100} />
+          ) : (
+            <>
+              <Typography variant="h6" textAlign="center" fontWeight={600}>
+                BD Hours Status
+              </Typography>
+              <Box className="row gx-3" sx={sectionBodyBoxStyle}>
+                <StatusBox
+                  title="Annual BD Target"
+                  value={BDHoursStatus?.annualBDTarget}
+                />
+                <StatusBox title="BD Actual" value={BDHoursStatus?.BDActual} />
+              </Box>
+            </>
+          )}
         </Box>
       </Col>
     </>
@@ -110,6 +126,8 @@ const BdCountComponent = ({
   selectedYear,
   flagForTogglingFilter,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [BDCountStatus, setBDCountStatus] = useState({
     annualMBDCount: 0,
     MBDActualAndMinorBdCount: {
@@ -117,7 +135,10 @@ const BdCountComponent = ({
       majorCount: 0,
     },
   });
+
   const getBdCountStatus = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         `/getBdCountStatus/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
@@ -139,6 +160,8 @@ const BdCountComponent = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -151,23 +174,29 @@ const BdCountComponent = ({
     <>
       <Col md={12} lg={6}>
         <Box className="cell p-3 mb-0">
-          <Typography variant="h6" textAlign="center" fontWeight={600}>
-            BD Counts Status
-          </Typography>
-          <Box className="row gx-3" sx={sectionBodyBoxStyle}>
-            <StatusBox
-              title="Annual MBD Target"
-              value={BDCountStatus?.annualMBDCount}
-            />
-            <StatusBox
-              title="MBD Actual"
-              value={BDCountStatus?.MBDActualAndMinorBdCount?.majorCount}
-            />
-            <StatusBox
-              title="Minor BD Count"
-              value={BDCountStatus?.MBDActualAndMinorBdCount?.minorCount}
-            />
-          </Box>
+          {loading ? (
+            <Loading height={100} />
+          ) : (
+            <>
+              <Typography variant="h6" textAlign="center" fontWeight={600}>
+                BD Counts Status
+              </Typography>
+              <Box className="row gx-3" sx={sectionBodyBoxStyle}>
+                <StatusBox
+                  title="Annual MBD Target"
+                  value={BDCountStatus?.annualMBDCount}
+                />
+                <StatusBox
+                  title="MBD Actual"
+                  value={BDCountStatus?.MBDActualAndMinorBdCount?.majorCount}
+                />
+                <StatusBox
+                  title="Minor BD Count"
+                  value={BDCountStatus?.MBDActualAndMinorBdCount?.minorCount}
+                />
+              </Box>
+            </>
+          )}
         </Box>
       </Col>
     </>

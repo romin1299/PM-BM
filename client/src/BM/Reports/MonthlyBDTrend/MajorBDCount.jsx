@@ -8,6 +8,7 @@ import DataNotFound from "../Common/DataNotFound";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
+import Loading from "../../../components/Loading/Loading";
 
 const sectionBoxStyle = {
   p: 1,
@@ -88,6 +89,7 @@ const MajorBDCount = ({
   sectionId,
   selectedYear,
 }) => {
+  const [loading, setLoading] = React.useState(true);
   const [data, setData] = React.useState([]);
   const [chartData, setChartData] = React.useState({
     labels: [],
@@ -97,6 +99,8 @@ const MajorBDCount = ({
   const { flagForTogglingFilter, selectedValue } = filterState;
 
   const fetchChartData = async () => {
+    setLoading(true);
+
     // const basedON = currentTabViewName === "Plant" ? "plantId" : "subSection";
     // const selectedId = currentTabViewName === "Plant" ? "undefined" : sectionId;
 
@@ -174,6 +178,8 @@ const MajorBDCount = ({
         datasets: [],
       });
     }
+
+    setLoading(false);
   };
 
   React.useEffect(() => {
@@ -208,18 +214,32 @@ const MajorBDCount = ({
           </Typography>
 
           <Box className="row cell" sx={{ m: 0, mt: 3, display: "flex" }}>
-            {data?.map((item, index) => (
-              <Box className="col col-4" sx={sectionBoxStyle} key={index}>
-                <Typography variant="h6" textAlign="center" fontWeight={600}>
-                  {item.label}
-                </Typography>
-                <Box sx={sectionBodyBoxStyle}>
-                  <Typography variant="h4" textAlign="center" fontWeight={600}>
-                    {sumOfArray(item?.data)}
-                  </Typography>
-                </Box>
-              </Box>
-            ))}
+            {loading ? (
+              <Loading height={100} />
+            ) : (
+              <>
+                {data?.map((item, index) => (
+                  <Box className="col col-4" sx={sectionBoxStyle} key={index}>
+                    <Typography
+                      variant="h6"
+                      textAlign="center"
+                      fontWeight={600}
+                    >
+                      {item.label}
+                    </Typography>
+                    <Box sx={sectionBodyBoxStyle}>
+                      <Typography
+                        variant="h4"
+                        textAlign="center"
+                        fontWeight={600}
+                      >
+                        {sumOfArray(item?.data)}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </>
+            )}
           </Box>
         </Col>
 
@@ -233,17 +253,22 @@ const MajorBDCount = ({
             >
               Sections
             </Typography>
-            <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-              {chartData === undefined || chartData?.datasets?.length < 1 ? (
-                <DataNotFound />
-              ) : (
-                <Bar
-                  options={options}
-                  data={chartData}
-                  plugins={[ChartDataLabels]}
-                />
-              )}
-            </Box>
+
+            {loading ? (
+              <Loading height={200} />
+            ) : (
+              <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+                {chartData === undefined || chartData?.datasets?.length < 1 ? (
+                  <DataNotFound />
+                ) : (
+                  <Bar
+                    options={options}
+                    data={chartData}
+                    plugins={[ChartDataLabels]}
+                  />
+                )}
+              </Box>
+            )}
           </Paper>
         </Col>
       </Row>

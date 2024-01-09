@@ -14,6 +14,7 @@ import { Col, Row } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { FilterMenu } from "./SubComponents/FilterMenu";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -120,12 +121,16 @@ const ChartToPPTExample = ({
   flagForTogglingFilter,
   selectedYear,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [HourTrendData, setHourTrendData] = useState({
     BMHourTrend: [],
     PMHourTrend: [],
   });
 
   const getHourTrendData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/manHourReport/hourTrend/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -148,6 +153,8 @@ const ChartToPPTExample = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -180,8 +187,11 @@ const ChartToPPTExample = ({
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="Hour Trend" />
-
-      <Bar options={options} data={data} />
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Bar options={options} data={data} />
+      )}
     </Box>
   );
 };

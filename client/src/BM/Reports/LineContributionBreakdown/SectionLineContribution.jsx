@@ -20,6 +20,7 @@ import SectionCellSelectionDropdown from "./SectionCellSelectionDropdown";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -96,12 +97,15 @@ export const options = {
 };
 
 const SectionContribution = ({ reduceState, reducerDispatch }) => {
+  const [loading, setLoading] = React.useState(true);
   const [data, setData] = React.useState({});
 
   const { selectedYear, selectedMonth, flagForTogglingFilter, selectedValue } =
     reduceState;
 
   const fetchChartData = async () => {
+    setLoading(true);
+
     const url = `/lineWiseBdContribution/${flagForTogglingFilter}/${selectedValue}`;
     const params = { selectedYear, selectedMonth };
 
@@ -117,6 +121,8 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
     } catch (error) {
       console.log("error:", error);
     }
+
+    setLoading(false);
   };
 
   React.useEffect(() => {
@@ -166,17 +172,21 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
         />
       </Row>
 
-      <Box sx={{ height: { xs: "300px", md: "400px" } }}>
-        {data === undefined ? (
-          <DataNotFound sx={{ mt: 2 }} />
-        ) : (
-          <Chart
-            options={options}
-            data={chartData}
-            plugins={[ChartDataLabels]}
-          />
-        )}
-      </Box>
+      {loading ? (
+        <Loading height={200} sx={{ mt: 2 }} />
+      ) : (
+        <Box sx={{ height: { xs: "300px", md: "400px" } }}>
+          {data === undefined ? (
+            <DataNotFound sx={{ mt: 2 }} />
+          ) : (
+            <Chart
+              options={options}
+              data={chartData}
+              plugins={[ChartDataLabels]}
+            />
+          )}
+        </Box>
+      )}
     </Box>
   );
 };

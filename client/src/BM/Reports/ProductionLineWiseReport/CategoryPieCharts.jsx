@@ -7,6 +7,8 @@ import axios from "axios";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import DataNotFound from "../Common/DataNotFound";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import Loading from "../../../components/Loading/Loading";
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 const ChartCard = ({ category }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
@@ -80,8 +82,11 @@ const CategoryPieCharts = ({
   selectedMonth,
 }) => {
   const [categories, setCategories] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
 
   const fetchChartData = async () => {
+    setLoading(true);
+
     const url = `/getPieChartData/${flagForTogglingFilter}/${selectedValue}`;
     const params = { selectedYear, selectedMonth };
 
@@ -98,11 +103,22 @@ const CategoryPieCharts = ({
       // setCategories([]);
       console.log("error:", error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
     if (selectedValue) fetchChartData();
   }, [selectedValue, selectedYear]);
+
+  if (loading) {
+    return (
+      <Box className="cell p-3">
+        <ChartTitleBar title="Categories" />
+        <Loading height={300} />
+      </Box>
+    );
+  }
 
   return (
     <Row className="g-2">

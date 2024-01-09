@@ -9,7 +9,7 @@ import {
   Legend,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { Box } from "@mui/material";
+import { Box, Skeleton, Typography } from "@mui/material";
 import { Col } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 
@@ -20,6 +20,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 
 import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -102,8 +103,7 @@ const DailyBDTrendChart = ({
   setDailyBDSelectedMonth,
   dailyBDSelectedMonth,
 }) => {
-  // console.log(selectedValue, flagForTogglingFilter);
-
+  const [loading, setLoading] = React.useState(true);
   const [dailyBreakdownTrendData, setDailyBreakdownTrendData] = useState({
     // labels: daysLabels,
 
@@ -123,6 +123,8 @@ const DailyBDTrendChart = ({
   // const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
   const getDailyBreakdownTrendData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/getDailyBreakdownTrendData/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
@@ -145,6 +147,8 @@ const DailyBDTrendChart = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -215,7 +219,11 @@ const DailyBDTrendChart = ({
       />
 
       <div style={{ width: "100%", height: "300px" }}>
-        <Chart data={data} options={options} plugins={[ChartDataLabels]} />
+        {loading ? (
+          <Loading />
+        ) : (
+          <Chart data={data} options={options} plugins={[ChartDataLabels]} />
+        )}
       </div>
     </Box>
   );

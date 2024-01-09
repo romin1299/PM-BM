@@ -186,7 +186,7 @@ const StackedBarChart = () => {
   return (
     <Box className="container-fluid cell p-3">
       <ChartTitleBar
-        title="Monthly Breakdown Trend"
+        title="Machine Age"
         // titleProps={{
         //   sx: { fontWeight: "500" },
         // }}

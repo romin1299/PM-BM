@@ -2,12 +2,15 @@ import React, { useEffect, useReducer } from "react";
 import SmallChartCardComponent from "./SmallChartCardComponent";
 
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
+import Loading from "../../../components/Loading/Loading";
 
 const MTTRComponent = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const initialState = {
     MTTRReportData: {
       labels: [],
@@ -43,6 +46,8 @@ const MTTRComponent = ({
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getMTTRReportData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/getMTTRGraphData/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}`,
@@ -69,6 +74,8 @@ const MTTRComponent = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -79,9 +86,13 @@ const MTTRComponent = ({
 
   return (
     <SmallChartCardComponent title="MTTR">
-      <LineBarChartForProductionLineWise
-        ReportData={reduceState?.MTTRReportData}
-      />
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <LineBarChartForProductionLineWise
+          ReportData={reduceState?.MTTRReportData}
+        />
+      )}
     </SmallChartCardComponent>
   );
 };
