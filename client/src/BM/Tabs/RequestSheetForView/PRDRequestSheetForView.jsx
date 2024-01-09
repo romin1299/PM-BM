@@ -226,8 +226,9 @@ function MyTable({ requestSheetDataOfBM }) {
                                 type="datetime-local"
                                 {...register("problemOccurredDateAndTimeOfBM")}
                                 disabled={
-                                  requestSheetDataOfBM?.assignUser?._id !==
-                                    loggedUserDetails?._id &&
+                                  (requestSheetDataOfBM?.assignUser?._id !==
+                                    loggedUserDetails?._id ||
+                                    requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id) &&
                                   requestSheetDataOfBM?.approvalOfMTD_TL
                                     ?._id !== loggedUserDetails?._id
                                 }
@@ -591,6 +592,7 @@ function MyTable({ requestSheetDataOfBM }) {
                     </small>
                     <br />
                     {requestSheetDataOfBM?.assignUser?.tm_name} {", "}
+                    {requestSheetDataOfBM?.handOverUser?.tm_name} {", "}
                     {requestSheetDataOfBM?.supportingTM
                       ?.map((obj) => obj?.tm_name)
                       ?.join(", ")}

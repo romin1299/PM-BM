@@ -75,10 +75,6 @@ function MyTable({
 
   const newRequestSheetRegistration = async (requestSheetData) => {
     try {
-
-      console.log(requestSheetData?.attachedDataSheets)
-
-
       requestSheetData.problemsOfBM = problems;
       requestSheetData.actionAndCounterMeasureStep = actions;
       requestSheetData.breakDownTime = timeDifferenceMinutes;
@@ -135,7 +131,10 @@ function MyTable({
       const data = await res.json();
       if (res.status === 201) {
         SuccessToast(data?.message);
-        if (requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id) {
+        if (
+          requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
+          requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
+        ) {
           navigate("/bm/requestListDashboard", { replace: true });
         } else {
           navigate("/bm/approval", { replace: true });
@@ -414,7 +413,10 @@ function MyTable({
         flagCountForHandlingError++;
       }
     }
-    if (requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id) {
+    if (
+      requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id &&
+      requestSheetDataOfBM?.handOverUser?._id !== loggedUserDetails?._id
+    ) {
       if (!watch("approvalOfRequestSheet")) {
         setError("approvalOfRequestSheet", {
           message: "Please select approval value (Yes/No)",
@@ -506,8 +508,10 @@ function MyTable({
         if (res.status === 201) {
           SuccessToast(data?.message);
           if (
-            requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id
+            requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
+            requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
           ) {
+            newRequestSheetRegistration(assignApprovalList);
             navigate("/bm/requestListDashboard", { replace: true });
           } else {
             navigate("/bm/approval", { replace: true });
@@ -763,7 +767,9 @@ function MyTable({
                       errors={errors}
                       displayOrNot={
                         requestSheetDataOfBM?.assignUser?._id ===
-                        loggedUserDetails?._id
+                          loggedUserDetails?._id ||
+                        requestSheetDataOfBM?.handOverUser?._id ===
+                          loggedUserDetails?._id
                       }
                       options={approvalListOfBM?.mtdTL}
                       // required={
@@ -903,6 +909,8 @@ function MyTable({
                                 // }}
                                 disabled={
                                   requestSheetDataOfBM?.assignUser?._id !==
+                                    loggedUserDetails?._id &&
+                                  requestSheetDataOfBM?.handOverUser?._id !==
                                     loggedUserDetails?._id &&
                                   requestSheetDataOfBM?.approvalOfMTD_TL
                                     ?._id !== loggedUserDetails?._id
@@ -2754,7 +2762,8 @@ function MyTable({
         </tbody>
 
         {/* for Assign user send for approval */}
-        {requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
+        {(requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
+          requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id) &&
         (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
           requestSheetDataOfBM?.requestSheetStatus === "Work Order Pending" ||
           requestSheetDataOfBM?.requestSheetStatus === "Work Order Closed" ||
@@ -2793,7 +2802,9 @@ function MyTable({
           requestSheetDataOfBM?.approvalStatusOfPRD_HOS === "Rejected" ||
           requestSheetDataOfBM?.approvalStatusOfPRD_HOD === "Rejected" ||
           requestSheetDataOfBM?.approvalStatusOfMTD_HOD === "Rejected") &&
-          requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id) ? (
+          (requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id ||
+            requestSheetDataOfBM?.handOverUser?._id !==
+              loggedUserDetails?._id)) ? (
           <>
             <Row
               className="m-1 d-flex justify-content-start"
@@ -2905,7 +2916,8 @@ function MyTable({
         requestSheetDataOfBM?.requestSheetStatus !== "Work Order Closed" &&
         requestSheetDataOfBM?.approvalOfMTD_TL?._id !==
           loggedUserDetails?._id &&
-        requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id ? (
+        requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id &&
+        requestSheetDataOfBM?.handOverUser?._id !== loggedUserDetails?._id ? (
           // &&requestSheetDataOfBM?.assignUser?._id !==
           //   requestSheetDataOfBM?.approvalOfMTD_TL?._id
           <>

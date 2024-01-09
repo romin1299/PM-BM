@@ -256,7 +256,9 @@ function MyTable({
                       errors={errors}
                       displayOrNot={
                         requestSheetDataOfBM?.assignUser?._id ===
-                        loggedUserDetails?._id
+                          loggedUserDetails?._id ||
+                        requestSheetDataOfBM?.handOverUser?._id ===
+                          loggedUserDetails?._id
                       }
                       options={approvalListOfBM?.mtdTL}
                       // required={
