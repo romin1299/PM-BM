@@ -59,6 +59,7 @@ async function genSlide01(pptx, urlOptions) {
     selectedMonth,
     flagForTogglingFilter,
     selectedValue,
+    targetKey
   } = urlOptions;
 
   slide.addText(
@@ -82,7 +83,7 @@ async function genSlide01(pptx, urlOptions) {
   );
 
   const trendData = await fetchDataAPI({
-    url: `/getTrendData/${name}/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
+    url: `/getTrendData/${name}/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&targetKey=${targetKey}`,
   });
 
   const chartData01 = await chartDataMake(pptx, trendData, name);

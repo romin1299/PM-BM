@@ -17,7 +17,7 @@ const fetchBdHoursData = async (urlOptions) => {
 
   const url = `/getBDHoursGraphData/${flagForTogglingFilter}/${selectedValue}`;
 
-  const params = { selectedYear };
+  const params = { selectedYear,targetKey:"monthlyBDHrsTarget" };
 
   try {
     const res = await axios.get(url, {
@@ -43,7 +43,7 @@ const fetchMTTRData = async (urlOptions) => {
 
   const url = `/getMTTRGraphData/${flagForTogglingFilter}/${selectedValue}`;
 
-  const params = { selectedYear };
+  const params = { selectedYear,targetKey:"monthlyMTTRTarget" };
 
   try {
     const res = await axios.get(url, {

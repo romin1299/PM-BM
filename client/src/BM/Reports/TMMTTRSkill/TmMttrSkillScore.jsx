@@ -30,6 +30,8 @@ const TmMttrSkillScore = (prop) => {
 
   const context = useContext(RoutingContext);
 
+  console.log(prop?.pieChartData);
+
   return (
     <Box className="cell p-3">
       <Row className="gx-3">
@@ -50,7 +52,7 @@ const TmMttrSkillScore = (prop) => {
               </Typography>
               <Box>
                 <CircularSkillChart
-                  score={tm.hours}
+                  score={tm.score}
                   highestScore={highestScore}
                 />
               </Box>
@@ -65,12 +67,9 @@ const TmMttrSkillScore = (prop) => {
       <Row className="gx-3">
         <Col xs={12} md={6} lg={4}>
           {context.tm_grade === "HOS" ? (
-            <TmMttrSkillScoreCrud
-              {...prop}
-              setHighestScore={setHighestScore}
-            />
+            <TmMttrSkillScoreCrud {...prop} setHighestScore={setHighestScore} />
           ) : (
-            <TmSkillScoreTable />
+            <TmSkillScoreTable {...prop} setHighestScore={setHighestScore} />
           )}
         </Col>
       </Row>
