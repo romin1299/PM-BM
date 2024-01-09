@@ -74,54 +74,21 @@ export const options = {
   },
 };
 
-const TMLoad = ({ selectedValue, mbdIncluded, selectedYear }) => {
-  const [data, setData] = React.useState({});
-
-  const fetchChartData = async () => {
-    console.log("selectedValue:", selectedValue);
-    const url = `/mttrTrend/tmMTTRSkill/based-on-subSection/${selectedValue}`;
-
-    const params = {
-      selectedYear,
-      includeMBD: mbdIncluded ? "include-mbd" : "",
-    };
-
-    try {
-      const res = await axios.get(url, {
-        params,
-        withCredentials: true,
-        credentials: "include",
-      });
-      console.log("MTTR Trend res:", res);
-
-      setData(res?.data?.tmLoadData?.[0]);
-    } catch (error) {
-      console.log("error:", error);
-    }
-  };
-
-  React.useEffect(() => {
-    if (selectedValue) fetchChartData();
-  }, [selectedValue, selectedYear, mbdIncluded]);
-
+const TMLoad = ({ tm_names, data }) => {
   const chartData = {
-    labels: data?.tm_names,
+    labels: tm_names,
     datasets: [
       {
         type: "bar",
         stack: "bar-stacked",
         label: "Hours",
-        data: data?.data,
+        data: data,
         backgroundColor: chartColors.palettes[0][2],
         pointStyle: "rect",
         yAxisID: "y",
       },
     ],
   };
-
-  // React.useEffect(() => {
-  //   console.log("MTTR skill data:", data);
-  // }, [data]);
 
   return (
     <Box className="cell p-3">

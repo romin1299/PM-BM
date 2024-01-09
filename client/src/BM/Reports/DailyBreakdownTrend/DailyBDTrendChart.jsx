@@ -102,7 +102,7 @@ const DailyBDTrendChart = ({
   setDailyBDSelectedMonth,
   dailyBDSelectedMonth,
 }) => {
-  console.log(selectedValue, flagForTogglingFilter);
+  // console.log(selectedValue, flagForTogglingFilter);
 
   const [dailyBreakdownTrendData, setDailyBreakdownTrendData] = useState({
     // labels: daysLabels,

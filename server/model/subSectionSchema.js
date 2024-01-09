@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { allTargetData } = require("./common");
+const { allTargetData, TmMttrSkillScoresAndLimit } = require("./common");
 
 const subSectionSchema = new mongoose.Schema({
   subSection_id: {
@@ -20,6 +20,8 @@ const subSectionSchema = new mongoose.Schema({
   },
 
   allTargetData,
+
+  TmMttrSkillScoresAndLimit,
 });
 
 const SubSection = new mongoose.model("SubSections", subSectionSchema);

@@ -17,7 +17,7 @@ const LineTrend = ({
     try {
       const res = await fetch(
         // `/getLineWiseMTTRTrendData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
-        `/getLineWiseMTTRTrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        `/getLineWiseMTTRTrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}&&monthTargetKey=monthlyMTTRTarget&&yearTargetKey=yearTotalMTTRTarget`,
         {
           method: "GET",
           headers: {

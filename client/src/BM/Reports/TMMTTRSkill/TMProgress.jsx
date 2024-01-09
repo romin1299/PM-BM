@@ -75,9 +75,9 @@ export const options = {
 };
 
 const TMProgress = ({
+  timeFilter,
   selectedValue,
   flagForTogglingFilter,
-  mbdIncluded,
   selectedYear,
 }) => {
   const [data, setData] = React.useState({});
@@ -89,7 +89,8 @@ const TMProgress = ({
     const url = `/tmProgress/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}/${tmId}`;
     const params = {
       selectedYear,
-      includeMBD: mbdIncluded ? "include-mbd" : "",
+      time: timeFilter,
+      // includeMBD: timeFilter ? "include-mbd" : "",
       // allFilter: isAllTM ? "include-all" : "",
     };
 
@@ -109,7 +110,7 @@ const TMProgress = ({
 
   React.useEffect(() => {
     if (selectedValue) fetchChartData();
-  }, [selectedValue, tmId, selectedYear, mbdIncluded]);
+  }, [selectedValue, tmId, selectedYear, timeFilter]);
 
   const chartData = {
     labels: MONTH_LABELS,

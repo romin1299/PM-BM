@@ -12,6 +12,7 @@ import BDCategoryAndFactor from "./BDCategoryAndFactor";
 import MachineWiseMTTRAndMTBF from "./MachineWiseMTTRAndMTBF";
 import ReportTitleBar from "../Common/ReportTitleBar";
 import { Box } from "@mui/system";
+import BDRSTableWithDateFiltration from "../Common/BDRSTableWithDateFiltration";
 
 const TopMachineBD = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -41,32 +42,40 @@ const TopMachineBD = () => {
         </Box>
 
         {reduceState?.flagForTogglingFilter === "based-on-machine" && (
-          <Row className="mt-3 gx-3">
-            <Col xxl={6} lg={6} md={12} className="mb-2">
-              <BDCategoryAndFactor
-                selectedValue={reduceState?.selectedValue}
+          <>
+            <Row className="mt-3 gx-3">
+              <Col xxl={6} lg={6} md={12} className="mb-2">
+                <BDCategoryAndFactor
+                  selectedValue={reduceState?.selectedValue}
+                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                  selectedYear={reduceState?.selectedYear}
+                  selectedMonth={reduceState?.selectedMonth}
+                />
+              </Col>
+              <Col xxl={3} lg={6} md={12} className="mb-2">
+                <MachineWiseMTTRAndMTBF
+                  chartFor="MTTR"
+                  selectedValue={reduceState?.selectedValue}
+                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                  selectedYear={reduceState?.selectedYear}
+                />
+              </Col>
+              <Col xxl={3} lg={6} md={12} className="mb-2">
+                <MachineWiseMTTRAndMTBF
+                  chartFor="MTBF"
+                  selectedValue={reduceState?.selectedValue}
+                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                  selectedYear={reduceState?.selectedYear}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <BDRSTableWithDateFiltration
                 flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-                selectedYear={reduceState?.selectedYear}
-                selectedMonth={reduceState?.selectedMonth}
-              />
-            </Col>
-            <Col xxl={3} lg={6} md={12} className="mb-2">
-              <MachineWiseMTTRAndMTBF
-                chartFor="MTTR"
                 selectedValue={reduceState?.selectedValue}
-                flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-                selectedYear={reduceState?.selectedYear}
               />
-            </Col>
-            <Col xxl={3} lg={6} md={12} className="mb-2">
-              <MachineWiseMTTRAndMTBF
-                chartFor="MTBF"
-                selectedValue={reduceState?.selectedValue}
-                flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-                selectedYear={reduceState?.selectedYear}
-              />
-            </Col>
-          </Row>
+            </Row>
+          </>
         )}
       </Container>
     </>

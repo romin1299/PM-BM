@@ -10,28 +10,19 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
+import { Box } from "@mui/material";
 
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
-import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
-import { Box, Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import MachineStatusBox from "../SubComponents/MachineStatusBox";
 
-const list = [
-  { key: "A", value: "A" },
-  { key: "B", value: "B" },
-  { key: "C", value: "C" },
-  { key: "D", value: "D" },
-];
-
 function MyTable({ requestSheetDataOfBM }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { machine_code, generateType, requestSheetID } = useParams();
   const {
     register,
     handleSubmit,
@@ -90,55 +81,9 @@ function MyTable({ requestSheetDataOfBM }) {
     fetchShiftData();
   }, []);
 
-  const newRequestSheetRegistration = async (requestSheetData) => {
-    // const machineRef = "63b67ccea716e21c95cd471a";
-    // requestSheetData.maintenanceType = selectedMaintenanceType;
-    // requestSheetData.priorityCode = selectedPriorityCode;
-    // requestSheetData.qualityRelated = selectedQuality;
-    // requestSheetData.shiftOfBM = selectedShift;
-    const formData = new FormData();
-    const { ...otherFields } = requestSheetData;
-
-    formData.append("prdDataUpdatedByOtherUser", true);
-    formData.append("otherData", JSON.stringify(otherFields));
-
-    try {
-      const res = await fetch(
-        `/newRequestSheetRegistration/?reqId=${requestSheetID}&&machineRef=${machine_code}`,
-        {
-          method: "POST",
-          // headers: {
-          //   "Content-Type": "application/json",
-          // },
-          body: formData,
-        }
-      );
-
-      const data = await res.json();
-
-      if (res.status === 201) {
-        SuccessToast(data?.message);
-        reset();
-        if (generateType === "scanned") {
-          navigate("/", { replace: true });
-        } else if (
-          requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
-          requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
-        ) {
-          navigate("/bm/requestListDashboard", { replace: true });
-        } else {
-          navigate("/bm/approval", { replace: true });
-        }
-      } else {
-        WarningToast(data?.message);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
     if (requestSheetDataOfBM?._id) {
+      console.log("requestSheetDataOfBM:", requestSheetDataOfBM);
       setValue(
         "problemOccurredDateAndTimeOfBM",
         moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM)
@@ -191,57 +136,28 @@ function MyTable({ requestSheetDataOfBM }) {
   }, [requestSheetDataOfBM?._id, setValue]);
 
   const handleBack = () => {
-    if (
-      requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
-      requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
-    ) {
-      navigate("/bm/requestListDashboard", { replace: true });
-    } else {
-      navigate("/bm/approval", { replace: true });
-    }
+    navigate("/bm/report/productionLineWiseReport", { replace: true });
   };
 
   return (
     <>
       <ToastContainer />
-      <Row>
-        {/* <Col>
-          <button className="btn bg-button m-2" onClick={handleBack}>
-            Back
-          </button>
-        </Col> */}
-      </Row>
-      <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
-        <Table className="m-2 mt-3">
-          <thead>
-            {/* <tr>
-              <th colSpan="4">Header with 4 Columns</th>
-            </tr> */}
-          </thead>
+
+      <form className="p-2" onSubmit={() => {}}>
+        <Table className="mt-3">
           <tbody className="m-1 border p-3">
-            <tr class="row " style={{ width: "100vw" }}>
-              {/* <td width={100}>
-              <img
-                src={denso_log}
-                width="120"
-                height="30"
-                className="d-inline-block align-top"
-                alt="React Bootstrap logo"
-              />
-            </td> */}
-              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0">
+            <tr class="row m-2">
+              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
                 <Row>
-                  <Col>
+                  <Col className="col-auto">
                     <button className="btn bg-button m-2" onClick={handleBack}>
                       Back
                     </button>
                   </Col>
-                  <Col>
-                    <h4 className="d-flex align-items-center justify-content-center">
-                      MAINTENANCE WORK REQUEST/REPORT
-                    </h4>
+                  <Col className="d-flex align-items-center justify-content-center text-center">
+                    <h4>MAINTENANCE WORK REQUEST/REPORT</h4>
                   </Col>
-                  <Col>
+                  <Col className="col-sm col-lg-auto">
                     <Box
                       display="flex"
                       justifyContent="end"
@@ -260,148 +176,24 @@ function MyTable({ requestSheetDataOfBM }) {
                 </Row>
               </td>
             </tr>
-            <tr className="row m-2" style={{ width: "100vw" }}>
+
+            <tr className="row m-2">
               <td className="mb-0 pb-0 border col-lg-1 col-md-2">
                 <small>
                   <b>MAINT. TYPE</b>
                 </small>
-                <Form style={{ fontSize: "16px !important" }}>
-                  <div key={`inline-radio`}>
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="BM"
-                      name="maintenanceType"
-                      type="radio"
-                      id={`inline-radio-1`}
-                      value="BM"
-                      {...register("maintenanceType", {
-                        required: "Please select maintenance type",
-                      })}
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "BM"}
-                    />
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="PM"
-                      name="maintenanceType"
-                      type="radio"
-                      id={`inline-radio-2`}
-                      value="PM"
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "PM"}
-                      {...register("maintenanceType", {
-                        required: "Please select maintenance type",
-                      })}
-                    />
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="CM"
-                      type="radio"
-                      name="maintenanceType"
-                      id={`inline-radio-3`}
-                      value="CM"
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "CM"}
-                      {...register("maintenanceType", {
-                        required: "Please select maintenance type",
-                      })}
-                    />
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="TPM"
-                      type="radio"
-                      name="maintenanceType"
-                      id={`inline-radio-4`}
-                      value="TPM"
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "TPM"}
-                      {...register("maintenanceType", {
-                        required: "Please select maintenance type",
-                      })}
-                    />
-                  </div>
-                  {errors?.["maintenanceType"] && (
-                    <p className="text-error">
-                      {errors?.["maintenanceType"]?.message}
-                    </p>
-                  )}
-                </Form>
+                <div className="value">
+                  {requestSheetDataOfBM.maintenanceType}
+                </div>
               </td>
+
               <td className="mb-0 pb-0 border col-lg-1 col-md-2">
                 <small>
-                  {" "}
                   <b>PRIORITY CODE</b>
                 </small>
-                <Form>
-                  <div key={`inline-radio`}>
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="EMERGENCY"
-                      name="priorityCode"
-                      type="radio"
-                      id={`inline-radio-1`}
-                      value="EMERGENCY"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "EMERGENCY"}
-                      {...register("priorityCode", {
-                        required: "Please select priority code",
-                      })}
-                    />
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="IMPORTANT"
-                      name="priorityCode"
-                      type="radio"
-                      id={`inline-radio-2`}
-                      value="IMPORTANT"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "IMPORTANT"}
-                      {...register("priorityCode", {
-                        required: "Please select priority code",
-                      })}
-                    />
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="DATA NEEDED"
-                      name="priorityCode"
-                      type="radio"
-                      id={`inline-radio-3`}
-                      value="DATA NEEDED"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "DATA NEEDED"}
-                      {...register("priorityCode", {
-                        required: "Please select priority code",
-                      })}
-                    />
-                    <Form.Check
-                      flex
-                      style={{ fontSize: "12px" }}
-                      label="KAIZEN"
-                      name="priorityCode"
-                      type="radio"
-                      id={`inline-radio-4`}
-                      value="KAIZEN"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "KAIZEN"}
-                      {...register("priorityCode", {
-                        required: "Please select priority code",
-                      })}
-                    />
-                  </div>
-                  {errors?.["priorityCode"] && (
-                    <p className="text-error">
-                      {errors?.["priorityCode"]?.message}
-                    </p>
-                  )}
-                </Form>
+                <div className="value">{requestSheetDataOfBM.priorityCode}</div>
               </td>
+
               <td className="mb-0 pb-0 border col-lg-8 col-md-4">
                 <div className="mb-2 border">
                   <Row className="m-0">
@@ -436,7 +228,7 @@ function MyTable({ requestSheetDataOfBM }) {
                                 disabled={
                                   (requestSheetDataOfBM?.assignUser?._id !==
                                     loggedUserDetails?._id ||
-                                    requestSheetDataOfBM?.handOverUser?._id !== loggedUserDetails?._id) &&
+                                    requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id) &&
                                   requestSheetDataOfBM?.approvalOfMTD_TL
                                     ?._id !== loggedUserDetails?._id
                                 }
@@ -537,7 +329,10 @@ function MyTable({ requestSheetDataOfBM }) {
                     </small>
                   </Col>
                 </Row>
-                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
+                <Row
+                  className="pt-0 mb-0  col-lg-12 col-md-12 col-sm-12"
+                  style={{ marginLeft: "-8px" }}
+                >
                   <Col className="border pb-2">
                     <small className="fs-6 mb-0">
                       <b>TL [PRD]</b>
@@ -557,7 +352,8 @@ function MyTable({ requestSheetDataOfBM }) {
                 </Row>
               </td>
             </tr>
-            <tr class="row">
+
+            <tr class="row m-2">
               <td className="border p-3 col-lg-8 col-md-7 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={4} md={6}>
@@ -583,6 +379,7 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                   <Col lg={3}>
                     <input
+                      disabled={true}
                       type="text"
                       id="prob"
                       name="problemFaced"
@@ -609,6 +406,7 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                   <Col lg={3}>
                     <input
+                      disabled={true}
                       type="text"
                       id="prdobv"
                       name="prdobv"
@@ -636,6 +434,7 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                   <Col lg={7}>
                     <input
+                      disabled={true}
                       type="text"
                       id="why"
                       name="why"
@@ -658,6 +457,7 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                   <Col lg={7}>
                     <input
+                      disabled={true}
                       type="text"
                       id="where"
                       name="where"
@@ -680,6 +480,7 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                   <Col lg={7}>
                     <input
+                      disabled={true}
                       type="text"
                       id="when"
                       name="when"
@@ -702,6 +503,7 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                   <Col lg={7}>
                     <input
+                      disabled={true}
                       type="text"
                       id="who"
                       name="who"
@@ -724,6 +526,7 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                   <Col lg={7}>
                     <input
+                      disabled={true}
                       type="text"
                       id="which"
                       name="which"
@@ -746,6 +549,7 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                   <Col lg={7}>
                     <input
+                      disabled={true}
                       type="text"
                       id="how"
                       name="how"
@@ -800,36 +604,7 @@ function MyTable({ requestSheetDataOfBM }) {
                     <small className="mb-0 d-flex align-items-center justify-content-start">
                       <b>QUALITY RELATED</b>&nbsp;&nbsp;&nbsp;
                     </small>
-                  </Col>
-                  <Col className="border p-2 d-flex align-items-center">
-                    <Form>
-                      {["radio"].map((type) => (
-                        <div key={`inline-${type}`} className="d-block">
-                          <Form.Check
-                            flex
-                            label="Yes"
-                            name="group1"
-                            type={type}
-                            id={`inline-${type}-1`}
-                            value="Yes"
-                            {...register("qualityRelated", {
-                              required: "Please select quality related",
-                            })}
-                          />
-                          <Form.Check
-                            flex
-                            label="No"
-                            name="group1"
-                            type={type}
-                            id={`inline-${type}-2`}
-                            value="No"
-                            {...register("qualityRelated", {
-                              required: "Please select quality related",
-                            })}
-                          />
-                        </div>
-                      ))}
-                    </Form>
+                    <div>{requestSheetDataOfBM?.qualityRelated}</div>
                   </Col>
                 </Row>
                 <Row className="pt-0 mb-0 m-0">
@@ -848,28 +623,8 @@ function MyTable({ requestSheetDataOfBM }) {
               </td>
             </tr>
           </tbody>
-          {loggedUserDetails?.tm_department === "MTD" ||
-          ((requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
-            requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id) &&
-            (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
-              requestSheetDataOfBM?.requestSheetStatus ===
-                "Work Order Pending" ||
-              requestSheetDataOfBM?.requestSheetStatus ===
-                "Work Order Closed")) ? (
-            <Row>
-              <Col>
-                <button
-                  type="submit"
-                  className="btn bg-warning"
-                  style={{ marginTop: "1rem" }}
-                >
-                  Update Filled PRD Data
-                </button>
-              </Col>
-            </Row>
-          ) : (
-            ""
-          )}
+
+          <div style={{ width: "100%", height: "50px" }}></div>
         </Table>
       </form>
     </>

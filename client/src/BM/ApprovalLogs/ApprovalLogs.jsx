@@ -154,6 +154,11 @@ const ApprovalLogs = () => {
       dataIndex: "assignUser",
       // fixed: "left",
       width: "15%",
+      render: (text, record) => {
+        return `${record?.assignUser}, ${
+          record?.handOverUser ? record?.handOverUser : ""
+        }`;
+      },
     },
     // {
     //   title: "MTD TL",
@@ -282,8 +287,6 @@ const ApprovalLogs = () => {
     reduceState?.selectedMonth,
   ]);
 
-  console.log(reduceState?.selectedValue, reduceState?.flagForTogglingFilter);
-
   const onChange = (pagination, filters, sorter, extra) => {
     console.log("params", pagination, filters, sorter, extra);
   };
@@ -307,7 +310,7 @@ const ApprovalLogs = () => {
         dataSource={approvalLogs}
         onChange={onChange}
         // width={"100%"}
-        scroll={{ x: 3000, y: 600}}
+        scroll={{ x: 3000, y: 600 }}
         pagination={false}
       />
     </Container>

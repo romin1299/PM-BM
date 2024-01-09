@@ -69,7 +69,7 @@ exports.getUserData =
       },
     ]);
 
-    //  console.log("pmpmpmpm",pmStatus)
+    //  console.log("pmstatus",pmStatus)
 
     const bmData = await RequestSheetOfBM.aggregate([
       // {
@@ -112,8 +112,8 @@ exports.getUserData =
         },
       },
     ]);
-    // // console.log(machine?.checkSheet_data[0]?.BM)
-    // console.log("bmbmbmbm",bmData?.[0])
+    
+    // console.log("bmstatus",bmData?.[0])
 
     const section = await sectionModel.findOne({
       section_id: req?.rootUser?.section_data?.split("-")?.[0],

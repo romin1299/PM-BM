@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Col, Row } from "react-bootstrap";
-import { AddBoxIcon } from "../../../../modules/PageModules";
-import "../RequestSheet.scss";
+import { AddBoxIcon } from "../../../modules/PageModules";
+import "./RequestSheet.scss";
 
 const ProblemList = ({ problems, setProblems, clearErrors }) => {
   const [newProblemText, setNewProblemText] = useState("");
@@ -17,7 +17,7 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
         problem: newProblemText,
       };
       setProblems([...problems, newProblem]);
-      clearErrors('problemValidation')
+      clearErrors("problemValidation");
       setNewProblemText("");
       setIsAdding(false);
     }
@@ -58,15 +58,26 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
   return (
     <div className="mtd-problem-section">
       <Row className="m-0">
-        <Col lg={9} md={9} sm={9} className="border d-flex align-items-center gap-1">
-          <small><b>PROBLEM</b></small>
+        <Col
+          lg={9}
+          md={9}
+          sm={9}
+          className="border d-flex align-items-center gap-1"
+        >
+          <small>
+            <b>PROBLEM</b>
+          </small>
         </Col>
         <Col
-          lg={3} md={3} sm={3}
+          lg={3}
+          md={3}
+          sm={3}
           style={{ cursor: "pointer" }}
           className="border col-auto d-flex gap-1 p-1"
         >
-          <small><b>UPDATE</b></small>
+          <small>
+            <b>UPDATE</b>
+          </small>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
           {/* <button onClick={() => setIsAdding(true)}>Add New Entry</button> */}
         </Col>
@@ -76,11 +87,14 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
         editedProblem && editedProblem.id === problem.id ? (
           <Row key={problem.id} className="m-0">
             <Col
-              lg={9} md={9}
+              lg={9}
+              md={9}
               className="border d-flex align-items-center gap-1"
               style={{ fontSize: "14px" }}
             >
-              <small><b>{`Problem ${index + 1}: `}</b></small>
+              <small>
+                <b>{`Problem ${index + 1}: `}</b>
+              </small>
               <input
                 type="text"
                 value={editedProblem.problem}
@@ -93,22 +107,39 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
               />
             </Col>
             <Col lg={3} md={3} className="border col-auto d-block gap-1 p-1">
-              <button class="bg-info text-white border-0" onClick={updateProblem}>Update</button>
-              <br/>
-              <button class="bg-danger text-white border-0" onClick={cancelEdit}>Cancel</button>
+              <button
+                class="bg-info text-white border-0"
+                onClick={updateProblem}
+              >
+                Update
+              </button>
+              <br />
+              <button
+                class="bg-danger text-white border-0"
+                onClick={cancelEdit}
+              >
+                Cancel
+              </button>
             </Col>
           </Row>
         ) : (
           <Row key={problem.id} className="m-0">
             <Col
-              lg={9} md={9} sm={9}
+              lg={9}
+              md={9}
+              sm={9}
               className="border d-flex align-items-center gap-1"
               style={{ fontSize: "14px" }}
             >
               <b>Problem {index + 1}: </b>
               {problem.problem}
             </Col>
-            <Col lg={3} md={3} sm={3} className="d-block border col-auto gap-1 p-1">
+            <Col
+              lg={3}
+              md={3}
+              sm={3}
+              className="d-block border col-auto gap-1 p-1"
+            >
               <button
                 class="bg-warning text-white border-0"
                 onClick={(event) => {
@@ -135,7 +166,9 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
       {isAdding ? (
         <Row className="m-0">
           <Col
-            lg={9} md={12} sm={12}
+            lg={9}
+            md={12}
+            sm={12}
             className="border d-flex align-items-center gap-1"
             style={{ fontSize: "14px" }}
           >
@@ -146,15 +179,30 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
               onChange={(e) => setNewProblemText(e.target.value)}
             />
           </Col>
-          <Col lg={3} md={12} sm={12} className="border col-auto d-block gap-1 p-1">
-            <button class="bg-success text-white border-0" onClick={addProblem}>Add</button>
-            <br/><button class="bg-danger text-white border-0" onClick={cancelAdd}>Cancel</button>
+          <Col
+            lg={3}
+            md={12}
+            sm={12}
+            className="border col-auto d-block gap-1 p-1"
+          >
+            <button class="bg-success text-white border-0" onClick={addProblem}>
+              Add
+            </button>
+            <br />
+            <button class="bg-danger text-white border-0" onClick={cancelAdd}>
+              Cancel
+            </button>
           </Col>
         </Row>
       ) : (
         <Row className="m-0  p-1 border">
           <Col lg={4}>
-            <button class="bg-success text-white border-0 pt-1 pb-2 mt-1" onClick={() => setIsAdding(true)}>Add Problem</button>
+            <button
+              class="bg-success text-white border-0 pt-1 pb-2 mt-1"
+              onClick={() => setIsAdding(true)}
+            >
+              Add Problem
+            </button>
           </Col>
         </Row>
       )}

@@ -41,7 +41,7 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     try {
       const res = await fetch(
         // `/getBDHoursGraphData/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}`,
-        `/getBDHoursGraphData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
+        `/getBDHoursGraphData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&targetKey=monthlyBDHrsTarget`,
         {
           method: "GET",
           headers: {

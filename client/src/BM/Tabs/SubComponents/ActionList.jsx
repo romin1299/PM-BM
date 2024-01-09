@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import { Button, Col, Row } from "react-bootstrap";
-import { AddBoxIcon } from "../../../../modules/PageModules";
-import "../RequestSheet.scss";
+import { AddBoxIcon } from "../../../modules/PageModules";
+import "./RequestSheet.scss";
 
-const ActionList = ({ actions, setActions }) => {
+const ActionList = ({ actions, setActions, clearErrors }) => {
   const [newActionText, setNewActionText] = useState("");
   const [newActionStatus, setNewActionStatus] = useState("OK");
   const [isAdding, setIsAdding] = useState(false);
   const [editedAction, setEditedAction] = useState(null);
 
-  const addAction = () => {
+  const addAction = (event) => {
+    event.preventDefault();
+
     if (newActionText.trim() !== "") {
       const newAction = {
         id: Date.now(),
@@ -17,13 +19,16 @@ const ActionList = ({ actions, setActions }) => {
         status: newActionStatus,
       };
       setActions([...actions, newAction]);
+      clearErrors('actionValidation');
       setNewActionText("");
       setNewActionStatus("NG");
       setIsAdding(false);
     }
   };
 
-  const editAction = (actionId, newText) => {
+  const editAction = (event, actionId, newText) => {
+    event.preventDefault();
+
     const updatedActions = actions.map((action) => {
       if (action.id === actionId) {
         return { ...action, action: newText };
@@ -34,16 +39,21 @@ const ActionList = ({ actions, setActions }) => {
     setEditedAction(null);
   };
 
-  const cancelEdit = () => {
+  const cancelEdit = (event) => {
+    event.preventDefault();
     setEditedAction(null);
   };
 
-  const deleteAction = (actionId) => {
+  const deleteAction = (event, actionId) => {
+    event.preventDefault();
+
     const updatedActions = actions.filter((action) => action.id !== actionId);
     setActions(updatedActions);
   };
 
-  const cancelAdd = () => {
+  const cancelAdd = (event) => {
+    event.preventDefault();
+
     setNewActionText("");
     setNewActionStatus("NG");
     setIsAdding(false);
@@ -63,22 +73,19 @@ const ActionList = ({ actions, setActions }) => {
     <div className="mtd-actions-section">
       <Row className="m-0">
         <Col lg={8} md={7} className="border col-auto d-flex align-items-center gap-1">
-        <small><b>ACTION & COUNTERMEASURE STEPS (Dynamic)</b></small>
-
+          <small><b>ACTION & COUNTERMEASURE STEPS (Dynamic)</b></small>
         </Col>
         <Col
           lg={2} md={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-                   <small><b>STATUS</b></small>
-
+          <small><b>STATUS</b></small>
         </Col>
         <Col
           lg={2} md={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-                    <small><b>UPDATE</b></small>
-
+          <small><b>UPDATE</b></small>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
         </Col>
       </Row>
@@ -109,7 +116,7 @@ const ActionList = ({ actions, setActions }) => {
             className="border col-auto d-flex align-items-center gap-1 p-1"
           >
             <div>
-              <label>
+              <label className="text-success">
                 <input
                   type="radio"
                   name={`status-${action.id}`}
@@ -117,17 +124,18 @@ const ActionList = ({ actions, setActions }) => {
                   checked={action.status === "OK"}
                   onChange={() => handleStatusChange(action.id, "OK")}
                 />{" "}
-                OK
+                <b>OK</b>
               </label>{" "}
-              <label>
+              <label className="text-danger">
                 <input
                   type="radio"
                   name={`status-${action.id}`}
+
                   value="NG"
                   checked={action.status === "NG"}
                   onChange={() => handleStatusChange(action.id, "NG")}
                 />{" "}
-                NG
+                <b>NG</b>
               </label>
             </div>
           </Col>
@@ -138,20 +146,36 @@ const ActionList = ({ actions, setActions }) => {
             {editedAction && editedAction.id === action.id ? (
               <>
                 <button
-                  onClick={() => editAction(action.id, editedAction.action)}
+                class="bg-info text-white border-0"
+                  onClick={(event) => {
+                    editAction(event, action.id, editedAction.action);
+                  }}
                 >
                   Update
                 </button>
                 <br/>
-                <button onClick={cancelEdit}>Cancel</button>
+                <button class="bg-danger text-white border-0" onClick={cancelEdit}>Cancel</button>
               </>
             ) : (
               <>
-                <button type="button" onClick={() => setEditedAction({ ...action })}>
+                <button
+                class="bg-warning text-white border-0"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setEditedAction(action);
+                  }}
+                >
                   Edit
                 </button>
                 <br/>
-                <button onClick={() => deleteAction(action.id)}>Delete</button>
+                <button
+                class="bg-danger text-white border-0"
+                  onClick={(event) => {
+                    deleteAction(event, action.id);
+                  }}
+                >
+                  Delete
+                </button>
               </>
             )}
           </Col>
@@ -209,9 +233,12 @@ const ActionList = ({ actions, setActions }) => {
         </Row>
       ) : (
         <Row className="m-0  p-1 border">
+          <Col lg={4}>
+          <button class="bg-warning text-white border-0" onClick={() => setIsAdding(true)}>Add Action</button>
+          </Col>
           {/* <Col className="border d-flex  align-items-center gap-1 p-1"> */}
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
-          <button onClick={() => setIsAdding(true)}>Add Action</button>
+
 
           {/* </Col> */}
         </Row>

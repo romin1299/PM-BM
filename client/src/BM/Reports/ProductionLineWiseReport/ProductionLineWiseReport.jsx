@@ -1,16 +1,18 @@
 import React, { useState, useReducer, useEffect } from "react";
 import { Container, Row, Col } from "reactstrap";
-import { useForm } from "react-hook-form";
 
 import DailyBDTrendChart from "../DailyBreakdownTrend/DailyBDTrendChart";
-import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
+
 import BDHoursVsCountComponent from "./BDHoursVsCountComponent";
 import MTTRComponent from "./MTTRComponent";
 import MTBFComponent from "./MTBFComponent.jsx";
 import BDhours from "./BDhours";
-import { Box, Button, Paper, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import BDPercentageChart from "./BDPercentage.jsx";
 import CategoryPieCharts from "./CategoryPieCharts.jsx";
+
+import BDRSTableWithDateFiltration from "../Common/BDRSTableWithDateFiltration";
+import AntDesignRSTableWithFiltration from "../Common/AntDesignRSTableWithFiltration";
 
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
 import currentMonth from "../../../pages/Dashboard/DashboardComponent/currentMonth";
@@ -27,189 +29,12 @@ import {
 } from "../../Utils/ExportPPTX/exportPPTX.js";
 
 const ProductionLineWiseReport = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({});
-
-  // const initialState = {
-  //   cellData: [],
-
-  //   selectedValue: "",
-  //   flagForCellAndLineToggle: "based-on-cell",
-
-  //   requestSheetData: [],
-
-  //   message: "",
-  //   isLoading: true,
-  //   isError: false,
-  // };
-
-  // const ACTION = {
-  //   GET_CELL_INFO: "get-cell-dropdown-data",
-  //   GET_RS_DATA: "get-requestSheet-data-based-on-selected-date",
-  // };
-
-  // const reducer = (state, action) => {
-  //   switch (action?.type) {
-  //     case ACTION?.GET_CELL_INFO:
-  //       return {
-  //         ...state,
-  //         isLoading: false,
-  //         message: action?.message,
-  //         cellData: action?.cellData,
-  //         selectedValue: action?.selectedCell,
-  //       };
-
-  //     case ACTION?.GET_RS_DATA:
-  //       return {
-  //         ...state,
-  //         requestSheetData: action?.requestSheetData,
-  //       };
-
-  //     // case ACTION?.SELECT_CELL:
-  //     //   return {
-  //     //     ...state,
-  //     //     selectedCell: action?.selectedCell,
-  //     //     selectedValue: action?.selectedCell,
-  //     //     selectedLine: "",
-  //     //   };
-
-  //     // case ACTION?.SELECT_LINE:
-  //     //   return {
-  //     //     ...state,
-  //     //     selectedLine: action?.selectedLine,
-  //     //     selectedValue: action?.selectedLine,
-  //     //   };
-
-  //     // case ACTION?.SELECT_SUBSECTION:
-  //     //   return {
-  //     //     ...state,
-  //     //     selectedSubSection: action?.selectedSubSection,
-  //     //     selectedCell: "",
-  //     //     selectedLine: "",
-  //     //   };
-
-  //     // case ACTION?.SELECT_CELL:
-  //     //   return {
-  //     //     ...state,
-  //     //     selectedCell: action?.selectedCell,
-  //     //     selectedLine: "",
-  //     //   };
-
-  //     // case ACTION?.SELECT_LINE:
-  //     //   return {
-  //     //     ...state,
-  //     //     selectedLine: action?.selectedCell,
-  //     //   };
-
-  //     // case ACTION?.RESET_DROPDOWN_VALUE:
-  //     //   return {
-  //     //     ...state,
-  //     //     selectedSubSection: "",
-  //     //     selectedCell: "",
-  //     //     selectedLine: "",
-  //     //   };
-
-  //     default:
-  //       return state;
-  //   }
-  // };
-
-  // const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
-
-  // const getProductionLineWiseReportData = async () => {
-  //   try {
-  //     const res = await fetch("/getCellDropdownValueBasedOnDashboardLevel", {
-  //       method: "GET",
-  //       headers: {
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //       },
-  //       credentials: "include",
-  //     });
-
-  //     const { message, selectedCell, cellData } = await res.json();
-
-  //     if (res?.status === 201) {
-  //       reducerDispatch({
-  //         type: ACTION.GET_CELL_INFO,
-  //         cellData,
-  //         selectedCell,
-  //         message,
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   getProductionLineWiseReportData();
-  // }, []);
-
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/cell-level-filtration";
-
-  const [requestSheetData, setRequestSheetData] = useState([]);
 
   const [dailyBDSelectedMonth, setDailyBDSelectedMonth] =
     useState(currentMonth);
 
-  const getRequestSheetDataBasedOnSelectedDate = async (data) => {
-    try {
-      const res = await fetch(
-        // `/getRequestSheetDataBasedOnSelectedDate/${reduceState?.flagForTogglingFilter}/632c41261d1becfedab325f9/${data?.selectedDate}/?selectedYear=${reduceState?.selectedYear}`,
-        `/getRequestSheetDataBasedOnSelectedDate/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/${data?.selectedDate}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
-
-      const { message, requestSheetData } = await res.json();
-
-      if (res?.status === 201) {
-        setRequestSheetData(requestSheetData);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // const getLineWiseKpiStatusData = async (req, res, next) => {
-  //   try {
-  //     const res = await fetch(
-  //       `/getLineWiseKpiStatusData/${reduceState?.selectedCell}?selectedYear=${reduceState?.selectedYear}`,
-  //       {
-  //         method: "GET",
-  //         headers: {
-  //           Accept: "application/json",
-  //           "Content-Type": "application/json",
-  //         },
-  //         credentials: "include",
-  //       }
-  //     );
-
-  //     const { message, lineWisePptExportationData } = await res.json();
-
-  //     if (res?.status === 201) {
-  //       console.log(lineWisePptExportationData);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (reduceState?.selectedCell) {
-  //     getLineWiseKpiStatusData();
-  //   }
-  // }, [reduceState?.selectedCell]);
   return (
     <Container fluid>
       <Box>
@@ -248,39 +73,10 @@ const ProductionLineWiseReport = () => {
           setDailyBDSelectedMonth={setDailyBDSelectedMonth}
         />
 
-        <Paper variant="outlined" sx={{ p: 2 }} className="mt-3 g-0">
-          <form
-            onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedDate)}
-            className="pt-1 d-flex align-items-center justify-content-end"
-          >
-            <input
-              type="date"
-              {...register("selectedDate", {
-                required: "Please select date",
-              })}
-            />
-            {errors?.["selectedDate"] && (
-              <p className="text-error">{errors?.["selectedDate"]?.message}</p>
-            )}
-            <Button
-              size="small"
-              disableElevation
-              className="bg-button"
-              variant="contained"
-              type="submit"
-              sx={{
-                ml: 1,
-                minWidth: "30px",
-                height: "30px",
-                paddingInline: "10px",
-              }}
-            >
-              Go
-            </Button>
-          </form>
-
-          <BDRequestSheetTable requestSheetData={requestSheetData} downloadFileName={"Product/Line wise KPI"}/>
-        </Paper>
+        <BDRSTableWithDateFiltration
+          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+          selectedValue={reduceState?.selectedValue}
+        />
 
         <Row className="mt-3 g-2">
           <Col xxl={3} lg={6} md={6}>
@@ -331,6 +127,13 @@ const ProductionLineWiseReport = () => {
             />
           </Col>
         </Row>
+
+        <AntDesignRSTableWithFiltration
+          selectedValue={reduceState?.selectedValue}
+          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+          selectedYear={reduceState?.selectedYear}
+          downloadFileName="Product/Line wise KPI"
+        />
       </Box>
     </Container>
   );

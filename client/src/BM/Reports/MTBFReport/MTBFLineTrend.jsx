@@ -17,7 +17,7 @@ const MTBFLineTrend = ({
     try {
       const res = await fetch(
         // `/getLineWiseMTBFTrendData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
-        `/getLineWiseMTBFTrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        `/getLineWiseMTBFTrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}&&monthTargetKey=monthlyMTBFTarget&&yearTargetKey=yearTotalMTBFTarget`,
         {
           method: "GET",
           headers: {
