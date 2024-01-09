@@ -122,7 +122,8 @@ function MyTable({ requestSheetDataOfBM }) {
         if (generateType === "scanned") {
           navigate("/", { replace: true });
         } else if (
-          requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id
+          requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
+          requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
         ) {
           navigate("/bm/requestListDashboard", { replace: true });
         } else {
@@ -190,7 +191,10 @@ function MyTable({ requestSheetDataOfBM }) {
   }, [requestSheetDataOfBM?._id, setValue]);
 
   const handleBack = () => {
-    if (requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id) {
+    if (
+      requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
+      requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
+    ) {
       navigate("/bm/requestListDashboard", { replace: true });
     } else {
       navigate("/bm/approval", { replace: true });
@@ -430,8 +434,9 @@ function MyTable({ requestSheetDataOfBM }) {
                                 type="datetime-local"
                                 {...register("problemOccurredDateAndTimeOfBM")}
                                 disabled={
-                                  requestSheetDataOfBM?.assignUser?._id !==
-                                    loggedUserDetails?._id &&
+                                  (requestSheetDataOfBM?.assignUser?._id !==
+                                    loggedUserDetails?._id ||
+                                    requestSheetDataOfBM?.handOverUser?._id !== loggedUserDetails?._id) &&
                                   requestSheetDataOfBM?.approvalOfMTD_TL
                                     ?._id !== loggedUserDetails?._id
                                 }
@@ -834,6 +839,7 @@ function MyTable({ requestSheetDataOfBM }) {
                     </small>
                     <br />
                     {requestSheetDataOfBM?.assignUser?.tm_name} {", "}
+                    {requestSheetDataOfBM?.handOverUser?.tm_name} {", "}
                     {requestSheetDataOfBM?.supportingTM
                       ?.map((obj) => obj?.tm_name)
                       ?.join(", ")}
@@ -843,7 +849,8 @@ function MyTable({ requestSheetDataOfBM }) {
             </tr>
           </tbody>
           {loggedUserDetails?.tm_department === "MTD" ||
-          (requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
+          ((requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
+            requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id) &&
             (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
               requestSheetDataOfBM?.requestSheetStatus ===
                 "Work Order Pending" ||
