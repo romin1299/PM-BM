@@ -112,33 +112,39 @@ const TargetDashboard = () => {
         monthKeyArray?.map((monthName) => {
           setValue(
             `monthlyMBDCountTarget.${monthName?.key}`,
-            2
-            // data?.targetData?.allTargetData?.monthlyMBDCountTarget?.[monthName?.key] || 0
+            data?.targetData?.allTargetData?.monthlyMBDCountTarget?.[
+              monthName?.key
+            ] || 0
           );
           setValue(
             `monthlyProductionHrs.${monthName?.key}`,
-            30
-            // data?.targetData?.allTargetData?.monthlyProductionHrs?.[monthName?.key] || 0
+            data?.targetData?.allTargetData?.monthlyProductionHrs?.[
+              monthName?.key
+            ] || 0
           );
           setValue(
             `monthlyBDHrsTarget.${monthName?.key}`,
-            20
-            // data?.targetData?.allTargetData?.monthlyBDHrsTarget?.[monthName?.key] || 0
+            data?.targetData?.allTargetData?.monthlyBDHrsTarget?.[
+              monthName?.key
+            ] || 0
           );
           setValue(
             `monthlyMTTRTarget.${monthName?.key}`,
-            3
-            // data?.targetData?.allTargetData?.monthlyMTTRTarget?.[monthName?.key] || 0
+            data?.targetData?.allTargetData?.monthlyMTTRTarget?.[
+              monthName?.key
+            ] || 0
           );
           setValue(
             `monthlyMTBFTarget.${monthName?.key}`,
-            15
-            // data?.targetData?.allTargetData?.monthlyMTBFTarget?.[monthName?.key] || 0
+            data?.targetData?.allTargetData?.monthlyMTBFTarget?.[
+              monthName?.key
+            ] || 0
           );
           setValue(
             `monthlyBDPercentageTarget.${monthName?.key}`,
-            8
-            // data?.targetData?.allTargetData?.monthlyBDPercentageTarget?.[monthName?.key] || 0
+            data?.targetData?.allTargetData?.monthlyBDPercentageTarget?.[
+              monthName?.key
+            ] || 0
           );
         });
         // setApproverHeaderList(data?.mergedApprovalListArray);
