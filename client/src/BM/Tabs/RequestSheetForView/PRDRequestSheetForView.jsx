@@ -194,8 +194,8 @@ function MyTable({ requestSheetDataOfBM }) {
                 <div className="value">{requestSheetDataOfBM.priorityCode}</div>
               </td>
 
-              <td className="mb-0 pb-0 border col-lg-8 col-md-4">
-                <div className="mb-2 border">
+              <td className="mb-0 border col-lg-8 col-md-4">
+                <div className="border">
                   <Row className="m-0">
                     <Col className="border">
                       <p className="text-center p-1">
@@ -294,61 +294,39 @@ function MyTable({ requestSheetDataOfBM }) {
                 </div>
               </td>
 
-              <td className="mb-0 pb-0 pt-0 col-lg-2 col-md-4">
-                {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
-                <Col className="border border-left-0">
-                  <p className="mb-0">
-                    <b>Sr. No.</b>
-                  </p>
-                  <p className="fs-6 fw-normal">
-                    <input
-                      style={{ width: "100%" }}
-                      {...register("serialNo", {
-                        required: "Serial No. is required",
-                      })}
-                    />
-                    {errors?.["serialNo"] && (
-                      <p className="text-error">{errors?.["serialNo"]?.message}</p>
-                    )}
-                  </p>
-                </Col>
-              </Row> */}
-                <Row
-                  className="pt-0 mb-0 border col-lg-12 col-md-12 col-sm-12"
-                  style={{ marginLeft: "-8px" }}
-                >
-                  <Col className="pb-2 pt-1">
-                    <small className="mb-0">
-                      <b>DEPT./LINE</b>
-                    </small>
-                    <br />
-                    <small>
-                      {requestSheetDataOfBM?.cellRef?.cell_name}/
-                      {requestSheetDataOfBM?.lineRef?.line_name}
-                    </small>
-                  </Col>
-                </Row>
-                <Row
-                  className="pt-0 mb-0  col-lg-12 col-md-12 col-sm-12"
-                  style={{ marginLeft: "-8px" }}
-                >
-                  <Col className="border pb-2">
-                    <small className="fs-6 mb-0">
-                      <b>TL [PRD]</b>
-                    </small>
-                    <br />
-                    <small>
-                      {requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}
-                    </small>
-                    {/* <input
+              <td className="border mb-0 col-lg-2 col-md-4">
+                <div className="border">
+                  <Row className="m-0">
+                    <Col className="border pb-2 pt-1">
+                      <small className="mb-0">
+                        <b>DEPT./LINE</b>
+                      </small>
+                      <br />
+                      <small>
+                        {requestSheetDataOfBM?.cellRef?.cell_name}/
+                        {requestSheetDataOfBM?.lineRef?.line_name}
+                      </small>
+                    </Col>
+                  </Row>
+                  <Row className="m-0">
+                    <Col className="border pt-2 pb-2">
+                      <small className="fs-6 mb-0">
+                        <b>TL [PRD]</b>
+                      </small>
+                      <br />
+                      <small>
+                        {requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}
+                      </small>
+                      {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
                       required: "Team Leader Name is required",
                     })}
                   />
                   {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
-                  </Col>
-                </Row>
+                    </Col>
+                  </Row>
+                </div>
               </td>
             </tr>
 
