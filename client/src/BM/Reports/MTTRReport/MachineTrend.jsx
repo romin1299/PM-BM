@@ -33,7 +33,8 @@ const MachineTrend = ({
     },
   });
 
-  const [loading, setLoading] = React.useState(true);
+  const [chartLoading, setChartLoading] = React.useState(true);
+  const [tableLoading, setTableLoading] = React.useState(false);
 
   const initialState = {
     MachineWiseMTTRTrend: {
@@ -81,7 +82,7 @@ const MachineTrend = ({
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getMachineWiseMTTRTrendData = async () => {
-    setLoading(true);
+    setChartLoading(true);
 
     try {
       const res = await fetch(
@@ -110,7 +111,7 @@ const MachineTrend = ({
       console.log(error);
     }
 
-    setLoading(false);
+    setChartLoading(false);
   };
 
   useEffect(() => {
@@ -120,10 +121,12 @@ const MachineTrend = ({
   }, [selectedValue, selectedYear, selectedMonth]);
 
   const getRequestSheetDataBasedOnSelectedMachine = async (data) => {
-    console.log("form data:", data);
+    setTableLoading(true);
 
     try {
       if (data?.selectedMachine?._id === "") {
+        setTableLoading(false);
+
         return setError("selectedMachine", {
           type: "required",
           message: "Please select machine",
@@ -153,6 +156,8 @@ const MachineTrend = ({
     } catch (error) {
       console.log(error);
     }
+
+    setTableLoading(false);
   };
 
   const TopDataFilterInput = (
@@ -209,7 +214,7 @@ const MachineTrend = ({
       <Row>
         <LineChart
           title="Machine Trend"
-          loading={loading}
+          loading={chartLoading}
           dataset={reduceState?.MachineWiseMTTRTrend}
           setValue={setValue}
           clearErrors={clearErrors}
@@ -308,6 +313,7 @@ const MachineTrend = ({
           </form>
 
           <BDRequestSheetTable
+            loading={tableLoading}
             requestSheetData={reduceState?.requestSheetData}
             downloadFileName={"MTTR trend"}
           />
