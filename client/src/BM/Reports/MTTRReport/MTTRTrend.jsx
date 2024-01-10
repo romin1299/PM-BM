@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import LineBarChart from "../Common/LineBarChart";
 
 const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [MTTRTrendData, setMTTRTrendData] = useState({
     labels: [],
     data: [],
@@ -10,6 +12,8 @@ const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   });
 
   const getMTTRTrendData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/getTrendData/MTTR/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -33,6 +37,8 @@ const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -47,6 +53,7 @@ const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
         title="MTTR Trend"
         xAxisTitle="Months"
         y1AxisTitle="MTTR Hours"
+        loading={loading}
         dataset={MTTRTrendData}
         label={{
           lineLabel: "Target",

@@ -13,9 +13,11 @@ import { Box, Divider, Typography } from "@mui/material";
 import { Col, Row } from "react-bootstrap";
 import { chartColors } from "../../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "../../Common/ChartTitleBar";
+import Loading from "../../../../components/Loading/Loading";
 
 const BarChart = ({
   title,
+  loading = false,
   dataset,
   setValue,
   clearErrors,
@@ -102,9 +104,13 @@ const BarChart = ({
     <Box className="cell p-3">
       <ChartTitleBar title={title} Toolbar={AppendToolComponents} />
 
-      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        <Bar options={options} data={data} />
-      </Box>
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+          <Bar options={options} data={data} />
+        </Box>
+      )}
     </Box>
   );
 };

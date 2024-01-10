@@ -26,6 +26,8 @@ import TmMttrSkillScoreCrud from "./TMMttrSkillScoreCrud";
 import axios from "axios";
 
 const TMMTRMain = () => {
+  const [loading, setLoading] = React.useState(true);
+
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
@@ -129,6 +131,8 @@ const TMMTRMain = () => {
   });
 
   const fetchChartData = async () => {
+    setLoading(true);
+
     console.log("timeFilter:", timeFilter);
     const url = `/mttrTrend/tmMTTRSkill/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedSection=${reduceState?.selectedSection}&&selectedSubSection=${reduceState?.selectedSubSection}`;
 
@@ -149,6 +153,8 @@ const TMMTRMain = () => {
     } catch (error) {
       console.log("error:", error);
     }
+
+    setLoading(false);
   };
 
   React.useEffect(() => {
@@ -188,7 +194,7 @@ const TMMTRMain = () => {
 
         <Row className="mt-3">
           <Col md={12} lg={6}>
-            <MTTRTrend {...userWiseData} />
+            <MTTRTrend {...userWiseData} loading={loading} />
           </Col>
 
           <Col md={12} lg={6}>
@@ -203,6 +209,7 @@ const TMMTRMain = () => {
           <Col md={12} style={{ marginTop: "1rem" }}>
             <TmMttrSkillScore
               {...reduceState}
+              loading={loading}
               pieChartData={userWiseData?.pieChartData}
             />
           </Col>

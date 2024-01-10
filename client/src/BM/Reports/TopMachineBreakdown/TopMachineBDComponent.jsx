@@ -10,6 +10,8 @@ const TopMachineBDComponent = ({
   selectedYear,
   selectedMonth,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [topMachineBd, setTopMachineBd] = useState({
     machineId: [],
     labels: [],
@@ -17,6 +19,8 @@ const TopMachineBDComponent = ({
   });
   const [documentLimitInTheGraph, setDocumentLimitInTheGraph] = useState(10);
   const topMachineBreakdown = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         `/topMachineBreakdown/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}&&documentLimitInTheGraph=${documentLimitInTheGraph}`,
@@ -36,6 +40,8 @@ const TopMachineBDComponent = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -97,6 +103,7 @@ const TopMachineBDComponent = ({
     <>
       <BarChart
         title="Top Machine"
+        loading={loading}
         dataset={topMachineBd}
         AppendToolComponents={TopDataFilterInput}
       />

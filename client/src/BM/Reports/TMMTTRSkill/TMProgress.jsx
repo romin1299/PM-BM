@@ -16,6 +16,7 @@ import ChartTitleBar from "../Common/ChartTitleBar";
 import DataNotFound from "../Common/DataNotFound";
 import axios from "axios";
 import TeamMembersDropdown from "./TeamMembersDropdown";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -82,10 +83,14 @@ const TMProgress = ({
   tmId,
   setTmId,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [data, setData] = React.useState(undefined);
   const [isAllTM, setIsAllTM] = React.useState(false);
 
   const fetchChartData = async () => {
+    setLoading(true);
+
     // console.log("selectedValue:", selectedValue);
     const url = `/tmProgress/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}/${tmId}`;
     const params = {
@@ -113,6 +118,8 @@ const TMProgress = ({
       console.log("error:", error);
       setData(undefined);
     }
+
+    setLoading(false);
   };
 
   React.useEffect(() => {
@@ -185,13 +192,17 @@ const TMProgress = ({
         }
       />
 
-      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        {data === undefined ? (
-          <DataNotFound />
-        ) : (
-          <Chart options={options} data={chartData} />
-        )}
-      </Box>
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+          {data === undefined ? (
+            <DataNotFound />
+          ) : (
+            <Chart options={options} data={chartData} />
+          )}
+        </Box>
+      )}
     </Box>
   );
 };

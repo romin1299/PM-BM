@@ -1,16 +1,11 @@
-import React, { useEffect, useState, useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import LineChart from "../Common/LineChart";
 import { useForm } from "react-hook-form";
 import { Container, Row, Col } from "react-bootstrap";
 
 import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
 import { Box } from "@mui/system";
-import { Button, InputAdornment, TextField, Typography } from "@mui/material";
-
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { Button, InputAdornment, TextField } from "@mui/material";
 
 const MachineTrend = ({
   selectedValue,
@@ -37,6 +32,8 @@ const MachineTrend = ({
       selectedDate: "",
     },
   });
+
+  const [loading, setLoading] = React.useState(true);
 
   const initialState = {
     MachineWiseMTTRTrend: {
@@ -84,6 +81,8 @@ const MachineTrend = ({
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getMachineWiseMTTRTrendData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/getMachineWiseMTTRTrendData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -110,6 +109,8 @@ const MachineTrend = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -208,6 +209,7 @@ const MachineTrend = ({
       <Row>
         <LineChart
           title="Machine Trend"
+          loading={loading}
           dataset={reduceState?.MachineWiseMTTRTrend}
           setValue={setValue}
           clearErrors={clearErrors}

@@ -3,21 +3,26 @@ import { Skeleton, Typography } from "@mui/material";
 import PulseLoader from "react-spinners/PulseLoader";
 
 const Loading = (props) => {
+  const { sx } = props;
   return (
     <Skeleton
       variant="rectangular"
       component="div"
+      animation="false"
+      width={"100%"}
+      height={300}
+      {...props}
       sx={{
         borderRadius: "6px",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
+        "&.MuiSkeleton-root > *": {
+          visibility: "visible",
+        },
+        ...sx,
       }}
-      animation="false"
-      width={"100%"}
-      height={300}
-      {...props}
     >
       <Typography
         variant="h5"

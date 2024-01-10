@@ -13,6 +13,7 @@ import { Chart } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "./ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
 
 const LineBarChart = ({
   title,
@@ -20,6 +21,7 @@ const LineBarChart = ({
   xAxisTitle,
   y1AxisTitle,
   y2AxisTitle,
+  loading = false,
   dataset,
 }) => {
   ChartJS.register(
@@ -171,9 +173,13 @@ const LineBarChart = ({
         <Chart data={data} options={options} />
       </div> */}
 
-      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        <Chart data={data} options={options} />
-      </Box>
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+          <Chart data={data} options={options} />
+        </Box>
+      )}
     </Box>
   );
 };
