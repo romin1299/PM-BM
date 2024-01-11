@@ -11128,14 +11128,15 @@ router.get(
         },
       ]);
 
-    return res.status(201).json({
-      message: "TM Mttr Trend data get successfully",
-      data: tmLoadData?.[0],
-    });
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
+      return res.status(201).json({
+        message: "TM Mttr Trend data get successfully",
+        data: mttrTrend?.[0],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
   }
-};
+);
 
 const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
   try {
@@ -11163,12 +11164,12 @@ const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
   }
 };
 
-router.get(
-  "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
-  authenticate,
-  sectionOrSubSectionFilterMiddleware,
-  middlewareForMttrTrend
-);
+// router.get(
+//   "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
+//   authenticate,
+//   sectionOrSubSectionFilterMiddleware,
+//   middlewareForMttrTrend
+// );
 
 const filterMiddlewareForTmMTTR = async (req, res, next) => {
   try {
@@ -11561,8 +11562,26 @@ const topFilterMiddleware = async (req, res, next) => {
   }
 };
 
+router.get(
+  "/getYearGroup/machineAge",
+  sectionOrSubSectionFilterMiddleware,
+  async (req, res, next) => {
+    try {
+      const getYearGroup = await req.Model.findOne(req.findObj);
+
+      return res.status(201).json({
+        message: "Year Group get successfully",
+
+        yearGroups: getYearGroup?.yearGroup,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
 router.post(
-  "/addYearGroup",
+  "/addYearGroup/machineAge",
   sectionOrSubSectionFilterMiddleware,
   async (req, res, next) => {
     try {
@@ -11572,12 +11591,79 @@ router.post(
         req.findObj,
         {
           $push: { yearGroup: { groupName, from, to } },
+          // $push: { yearGroup: { groupName, from, to } },
         },
         { new: true }
       );
 
       return res.status(201).json({
-        message: "YearGroup added successfully",
+        message: "Year Group added successfully",
+
+        yearGroup,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.patch(
+  "/updateYearGroup/machineAge/:id",
+  sectionOrSubSectionFilterMiddleware,
+  async (req, res, next) => {
+    try {
+      const { groupName, from, to } = req.body;
+
+      const yearGroup = await req.Model.findOneAndUpdate(
+        req.findObj,
+        {
+          $set: {
+            "yearGroup.$[outer].groupName": groupName,
+            "yearGroup.$[outer].from": from,
+            "yearGroup.$[outer].to": to,
+          },
+        },
+        {
+          arrayFilters: [
+            { "outer._id": mongoose.Types.ObjectId(req.params?.id) },
+          ],
+        }
+      );
+
+      return res.status(201).json({
+        message: "Year Group updated successfully",
+
+        yearGroup,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.delete(
+  "/deleteYearGroup/machineAge/:id",
+  sectionOrSubSectionFilterMiddleware,
+  async (req, res, next) => {
+    try {
+      const yearGroup = await req.Model.findOneAndUpdate(
+        req.findObj,
+        {
+          $pull: {
+            yearGroup: {
+              _id: mongoose.Types.ObjectId(req.params.id),
+            },
+          },
+        },
+        {
+          arrayFilters: [
+            { "yearGroup._id": mongoose.Types.ObjectId(req.params?.id) },
+          ],
+        }
+      );
+
+      return res.status(201).json({
+        message: "Year Group deleted successfully",
 
         yearGroup,
       });
@@ -11588,7 +11674,7 @@ router.post(
 );
 
 router.get(
-  "/getMachinesMonthwise/:filter/:selectedId",
+  "/getMachineAgeMonthwise/:filter/:selectedId",
   authenticate,
   filterMiddleware,
   async (req, res, next) => {
@@ -11634,76 +11720,40 @@ router.get(
       {
         $addFields: {
           yearDifference: {
-            $subtract: [{ $year: currentDate }, { $year: "$installationDate" }],
+            $dateDiff: {
+              startDate: "$installationDate",
+              endDate: currentDate,
+              unit: "year",
+              timezone: timezone,
+            },
           },
         },
       },
 
       {
-        $unwind: "$section_data.yearGroup",
-      },
-
-      {
         $addFields: {
           groupName: {
-            $switch: {
-              branches: [
-                {
-                  case: {
-                    $and: [
-                      {
-                        $gte: [
-                          "$yearDifference",
-                          "$section_data.yearGroup.from",
+            $arrayElemAt: [
+              {
+                $map: {
+                  input: {
+                    $filter: {
+                      input: "$section_data.yearGroup",
+                      as: "group",
+                      cond: {
+                        $and: [
+                          { $gte: ["$yearDifference", "$$group.from"] },
+                          { $lte: ["$yearDifference", "$$group.to"] },
                         ],
                       },
-                      {
-                        $lte: ["$yearDifference", "$section_data.yearGroup.to"],
-                      },
-                    ],
+                    },
                   },
-                  then: "$section_data.yearGroup.groupName",
+                  as: "matchedGroup",
+                  in: "$$matchedGroup.groupName",
                 },
-                // {
-                //   case: {
-                //     $and: [
-                //       { $gte: ["$yearDifference", "$section_data.yearGroup.from"] },
-                //       { $lte: ["$yearDifference", "$section_data.yearGroup.to"] },
-                //       // { $lte: ["$yearDifference", 5] },
-                //     ],
-                //   },
-                //   then: "$section_data.yearGroup.groupName",
-                // },
-                // {
-                //   case: {
-                //     $and: [
-                //       { $gte: ["$yearDifference", "$section_data.yearGroup.from"] },
-                //       { $lte: ["$yearDifference", "$section_data.yearGroup.to"] },
-                //     ],
-                //   },
-                //   then: "$section_data.yearGroup.groupName",
-                // },
-                // {
-                //   case: {
-                //     $and: [
-                //       { $gte: ["$yearDifference", "$section_data.yearGroup.from"] },
-                //       { $lte: ["$yearDifference","$section_data.yearGroup.to"] },
-                //     ],
-                //   },
-                //   then: "$section_data.yearGroup.groupName",
-                // },
-                // {
-                //   case: {
-                //     $and: [
-                //       { $gte: ["$yearDifference", "$section_data.yearGroup.from"] },
-                //       { $lte: ["$yearDifference", "$section_data.yearGroup.to"] },
-                //     ],
-                //   },
-                //   then: "$section_data.yearGroup.groupName",
-                // },
-              ],
-              default: null,
-            },
+              },
+              0,
+            ],
           },
         },
       },
@@ -11754,7 +11804,7 @@ router.get(
       {
         $project: {
           _id: 1,
-          // label: 1,
+          label: 1,
           data: {
             $map: {
               input: allMonths,
@@ -11797,7 +11847,7 @@ router.get(
 );
 
 router.get(
-  "/getMachinesYearwise/:filter/:selectedId",
+  "/getMachineAgeYearwise/:filter/:selectedId",
   authenticate,
   filterMiddleware,
   async (req, res, next) => {
@@ -11843,76 +11893,40 @@ router.get(
       {
         $addFields: {
           yearDifference: {
-            $subtract: [{ $year: currentDate }, { $year: "$installationDate" }],
+            $dateDiff: {
+              startDate: "$installationDate",
+              endDate: currentDate,
+              unit: "year",
+              timezone: timezone,
+            },
           },
         },
       },
 
       {
-        $unwind: "$section_data.yearGroup",
-      },
-
-      {
         $addFields: {
           groupName: {
-            $switch: {
-              branches: [
-                {
-                  case: {
-                    $and: [
-                      {
-                        $gte: [
-                          "$yearDifference",
-                          "$section_data.yearGroup.from",
+            $arrayElemAt: [
+              {
+                $map: {
+                  input: {
+                    $filter: {
+                      input: "$section_data.yearGroup",
+                      as: "group",
+                      cond: {
+                        $and: [
+                          { $gte: ["$yearDifference", "$$group.from"] },
+                          { $lte: ["$yearDifference", "$$group.to"] },
                         ],
                       },
-                      {
-                        $lte: ["$yearDifference", "$section_data.yearGroup.to"],
-                      },
-                    ],
+                    },
                   },
-                  then: "$section_data.yearGroup.groupName",
+                  as: "matchedGroup",
+                  in: "$$matchedGroup.groupName",
                 },
-                // {
-                //   case: {
-                //     $and: [
-                //       { $gte: ["$yearDifference", "$section_data.yearGroup.from"] },
-                //       { $lte: ["$yearDifference", "$section_data.yearGroup.to"] },
-                //       // { $lte: ["$yearDifference", 5] },
-                //     ],
-                //   },
-                //   then: "$section_data.yearGroup.groupName",
-                // },
-                // {
-                //   case: {
-                //     $and: [
-                //       { $gte: ["$yearDifference", "$section_data.yearGroup.from"] },
-                //       { $lte: ["$yearDifference", "$section_data.yearGroup.to"] },
-                //     ],
-                //   },
-                //   then: "$section_data.yearGroup.groupName",
-                // },
-                // {
-                //   case: {
-                //     $and: [
-                //       { $gte: ["$yearDifference", "$section_data.yearGroup.from"] },
-                //       { $lte: ["$yearDifference","$section_data.yearGroup.to"] },
-                //     ],
-                //   },
-                //   then: "$section_data.yearGroup.groupName",
-                // },
-                // {
-                //   case: {
-                //     $and: [
-                //       { $gte: ["$yearDifference", "$section_data.yearGroup.from"] },
-                //       { $lte: ["$yearDifference", "$section_data.yearGroup.to"] },
-                //     ],
-                //   },
-                //   then: "$section_data.yearGroup.groupName",
-                // },
-              ],
-              default: null,
-            },
+              },
+              0,
+            ],
           },
         },
       },
@@ -11943,54 +11957,195 @@ router.get(
         },
       },
 
-      //               {
-      //                 $group: {
-      //                   _id: "$_id.groupName",
-      //                   label: { $first: "$_id.groupName" },
-      //                   bdHoursmachineWiseTotal: {
-      //                     $push: {
-      //                       month: "$_id.date",
-      //                       bdTimeSum: { $trunc: ["$bdHoursmachineWise", 2] },
-      //                     },
-      //                   },
-      //                 },
-      //               },
+      { $sort: { "_id.groupName": 1 } },
 
-      // {
-      //   $sort : {"_id" :1}
-      // },
+      {
+        $group: {
+          _id: null,
+          label: { $push: "$_id.groupName" },
+          data: { $push: { $trunc: ["$bdHoursmachineWise", 2] } },
+        },
+      },
+    ]);
 
-      // {
-      //   $project: {
-      //     _id: 1,
-      //     // label: 1,
-      //     data: {
-      //       $map: {
-      //         input: allMonths,
-      //         as: "month",
-      //         in: {
-      //           $cond: [
-      //             {
-      //               $in: ["$$month.monthName", "$bdHoursmachineWiseTotal.month"],
-      //             },
-      //             {
-      //               $arrayElemAt: [
-      //                 "$bdHoursmachineWiseTotal.bdTimeSum",
-      //                 {
-      //                   $indexOfArray: [
-      //                     "$bdHoursmachineWiseTotal.month",
-      //                     "$$month.monthName",
-      //                   ],
-      //                 },
-      //               ],
-      //             },
-      //             0,
-      //           ],
-      //         },
-      //       },
-      //     },
-      //   },
-      // },
+    // console.log(machineData);
+
+    return res.status(201).json({
+      message: "Top Machine Breakdown data get successfully",
+      machineData,
+    });
+  }
+);
+
+router.get(
+  "/getMachineAgePieChart/:filter/:selectedId/:groupName",
+  authenticate,
+  filterMiddleware,
+  async (req, res, next) => {
+    const currentDate = new Date();
+
+    console.log(req.queryObj);
+
+    const machineData = await RequestSheetOfBM.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          as: "machine_data",
+        },
+      },
+      {
+        $unwind: "$machine_data",
+      },
+      {
+        $lookup: {
+          from: "sections",
+          localField: "sectionRef",
+          foreignField: "_id",
+          as: "section_data",
+        },
+      },
+      {
+        $unwind: "$section_data",
+      },
+      {
+        $addFields: {
+          installationDate: {
+            $dateFromString: {
+              dateString: "$machine_data.installation_date",
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          yearDifference: {
+            $dateDiff: {
+              startDate: "$installationDate",
+              endDate: currentDate,
+              unit: "year",
+              timezone: timezone,
+            },
+          },
+        },
+      },
+
+      {
+        $addFields: {
+          groupName: {
+            $arrayElemAt: [
+              {
+                $map: {
+                  input: {
+                    $filter: {
+                      input: "$section_data.yearGroup",
+                      as: "group",
+                      cond: {
+                        $and: [
+                          { $gte: ["$yearDifference", "$$group.from"] },
+                          { $lte: ["$yearDifference", "$$group.to"] },
+                        ],
+                      },
+                    },
+                  },
+                  as: "matchedGroup",
+                  in: "$$matchedGroup.groupName",
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+
+      {
+        $match: { groupName: req.params.groupName },
+      },
+
+      {
+        $unwind: "$categoriesOfRequestSheet",
+      },
+
+      {
+        $group: {
+          _id: {
+            groupName: "$groupName",
+            // groupName: req.params.groupName,
+            category: "$categoriesOfRequestSheet.category",
+            subCategory: "$categoriesOfRequestSheet.subCategory",
+          },
+          count: { $sum: 1 },
+          bdtime: {
+            $sum: {
+              $cond: [
+                {
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
+                  ],
+                },
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+                },
+                0,
+              ],
+            },
+          },
+        },
+      },
+
+      {
+        $group: {
+          _id: {
+            category: "$_id.category",
+          },
+          subcategories: {
+            $push: "$_id.subCategory",
+            // count: "$count",
+            // bdtime: "$bdtime",
+          },
+          bdCount: {
+            $push: "$count",
+          },
+          bdTime: {
+            $push: "$bdtime",
+          },
+        },
+      },
+      {
+        $limit: 2,
+      },
+
+      {
+        $sort: {
+          "_id.category": 1,
+        },
+      },
+
+      {
+        $group: {
+          _id: null,
+          categories: {
+            $push: {
+              category: "$_id.category",
+              subcategories: "$subcategories",
+              bdCount: "$bdCount",
+              bdTime: "$bdTime",
+            },
+          },
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          categories: 1,
+        },
+      },
     ]);
 
     // console.log(machineData);
