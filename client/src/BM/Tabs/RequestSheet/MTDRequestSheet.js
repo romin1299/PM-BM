@@ -4,6 +4,7 @@ import { DropdownButton, Dropdown } from "react-bootstrap";
 
 import React, { useState, useEffect, useContext } from "react";
 import { Table } from "react-bootstrap";
+import DownloadIcon from "@mui/icons-material/Download";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import ProblemList from "../SubComponents/ProblemList";
 import ActionList from "../SubComponents/ActionList";
@@ -15,6 +16,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import Multiselect from "multiselect-react-dropdown";
+import { Button, Typography } from "@mui/material";
 const list = [
   { key: "A", value: "A" },
   { key: "B", value: "B" },
@@ -73,10 +75,6 @@ function MyTable({
 
   const newRequestSheetRegistration = async (requestSheetData) => {
     try {
-
-      console.log(requestSheetData?.attachedDataSheets)
-
-
       requestSheetData.problemsOfBM = problems;
       requestSheetData.actionAndCounterMeasureStep = actions;
       requestSheetData.breakDownTime = timeDifferenceMinutes;
@@ -133,7 +131,10 @@ function MyTable({
       const data = await res.json();
       if (res.status === 201) {
         SuccessToast(data?.message);
-        if (requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id) {
+        if (
+          requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
+          requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
+        ) {
           navigate("/bm/requestListDashboard", { replace: true });
         } else {
           navigate("/bm/approval", { replace: true });
@@ -412,7 +413,10 @@ function MyTable({
         flagCountForHandlingError++;
       }
     }
-    if (requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id) {
+    if (
+      requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id &&
+      requestSheetDataOfBM?.handOverUser?._id !== loggedUserDetails?._id
+    ) {
       if (!watch("approvalOfRequestSheet")) {
         setError("approvalOfRequestSheet", {
           message: "Please select approval value (Yes/No)",
@@ -504,8 +508,10 @@ function MyTable({
         if (res.status === 201) {
           SuccessToast(data?.message);
           if (
-            requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id
+            requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
+            requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
           ) {
+            newRequestSheetRegistration(assignApprovalList);
             navigate("/bm/requestListDashboard", { replace: true });
           } else {
             navigate("/bm/approval", { replace: true });
@@ -761,7 +767,9 @@ function MyTable({
                       errors={errors}
                       displayOrNot={
                         requestSheetDataOfBM?.assignUser?._id ===
-                        loggedUserDetails?._id
+                          loggedUserDetails?._id ||
+                        requestSheetDataOfBM?.handOverUser?._id ===
+                          loggedUserDetails?._id
                       }
                       options={approvalListOfBM?.mtdTL}
                       // required={
@@ -901,6 +909,8 @@ function MyTable({
                                 // }}
                                 disabled={
                                   requestSheetDataOfBM?.assignUser?._id !==
+                                    loggedUserDetails?._id &&
+                                  requestSheetDataOfBM?.handOverUser?._id !==
                                     loggedUserDetails?._id &&
                                   requestSheetDataOfBM?.approvalOfMTD_TL
                                     ?._id !== loggedUserDetails?._id
@@ -2063,8 +2073,24 @@ function MyTable({
                         {errors?.["dataSheetOfRequestSheet"]?.message}
                       </p>
                     )}
+
                     {requestSheetDataOfBM?.attachedDataSheets ? (
-                      <p>{requestSheetDataOfBM?.attachedDataSheets}</p>
+                      <>
+                        <Typography mt={2} variant="body2">
+                          {requestSheetDataOfBM?.attachedDataSheets}
+                        </Typography>
+                        <Button
+                          target="_blank"
+                          href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
+                          disableElevation
+                          size="small"
+                          variant="contained"
+                          color="success"
+                          startIcon={<DownloadIcon fontSize="small" />}
+                        >
+                          Download
+                        </Button>
+                      </>
                     ) : timeDifferenceMinutes > 120 ||
                       watch("dataSheetOfRequestSheet") === "Yes" ? (
                       <Form.Group controlId="formFileMultiple" className="mb-3">
@@ -2077,6 +2103,14 @@ function MyTable({
                           //   //     ? true
                           //   //     : false,
                           // })}
+                          // {...register("attachedDataSheets", {
+                          //   // required:
+                          //   //   timeDifferenceMinutes > 120 ||
+                          //   //   watch("dataSheetOfRequestSheet") === "Yes"
+                          //   //     ? true
+                          //   //     : false,
+                          // })}
+                          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
                           onChange={(e) => {
                             setValue("attachedDataSheets", e.target.files, {
                               shouldDirty: true,
@@ -2099,7 +2133,7 @@ function MyTable({
               <Row className="m-0">
                 <Col className="border p-2">
                   <small className="mb-0 d-flex align-items-center justify-content-start">
-                    <b>DRAWING ATTACHED</b>&nbsp;&nbsp;&nbsp;
+                    <b>DRAWING ATTACHED</b>
                   </small>
                 </Col>
                 <Col className="border p-2 d-flex align-items-center">
@@ -2129,9 +2163,47 @@ function MyTable({
                     </div>
 
                     {requestSheetDataOfBM?.attachedDrawings?.length > 0 ? (
-                      <p>
-                        {(requestSheetDataOfBM?.attachedDrawings).join("\r\n")}
-                      </p>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        {requestSheetDataOfBM?.attachedDrawings?.map(
+                          (image) => (
+                            <a
+                              target="_blank"
+                              href={`http://localhost:7000/${image}`}
+                              style={{
+                                width: "100%",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              <img
+                                src={`http://localhost:7000/${image}`}
+                                style={{
+                                  maxWidth: "100px",
+                                  maxHeight: "100px",
+                                }}
+                              />
+                              <span
+                                style={{
+                                  fontSize: "10px",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {image}
+                              </span>
+                            </a>
+                          )
+                        )}
+                      </div>
                     ) : watch("drawingOfRequestSheet") === "Yes" ? (
                       <Form.Group controlId="formFileMultiple" className="mb-3">
                         <Form.Control
@@ -2143,6 +2215,7 @@ function MyTable({
                           //   //     ? true
                           //   //     : false,
                           // })}
+                          accept="image/png, image/gif, image/jpeg"
                           onChange={(e) => {
                             setValue("attachedDrawings", e.target.files, {
                               shouldDirty: true,
@@ -2373,7 +2446,7 @@ function MyTable({
                                   type="radio"
                                   value={subCategoryObj?.name}
                                   name={`categories`}
-                                  className="col-lg-4 col-md-4"
+                                  className="col-auto"
                                   // onChange={handleactionTemporaryOrNot}
                                   {...register(
                                     `categories.${categoryObj?.name}`
@@ -2689,7 +2762,8 @@ function MyTable({
         </tbody>
 
         {/* for Assign user send for approval */}
-        {requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
+        {(requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
+          requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id) &&
         (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
           requestSheetDataOfBM?.requestSheetStatus === "Work Order Pending" ||
           requestSheetDataOfBM?.requestSheetStatus === "Work Order Closed" ||
@@ -2728,7 +2802,9 @@ function MyTable({
           requestSheetDataOfBM?.approvalStatusOfPRD_HOS === "Rejected" ||
           requestSheetDataOfBM?.approvalStatusOfPRD_HOD === "Rejected" ||
           requestSheetDataOfBM?.approvalStatusOfMTD_HOD === "Rejected") &&
-          requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id) ? (
+          (requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id ||
+            requestSheetDataOfBM?.handOverUser?._id !==
+              loggedUserDetails?._id)) ? (
           <>
             <Row
               className="m-1 d-flex justify-content-start"
@@ -2840,7 +2916,8 @@ function MyTable({
         requestSheetDataOfBM?.requestSheetStatus !== "Work Order Closed" &&
         requestSheetDataOfBM?.approvalOfMTD_TL?._id !==
           loggedUserDetails?._id &&
-        requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id ? (
+        requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id &&
+        requestSheetDataOfBM?.handOverUser?._id !== loggedUserDetails?._id ? (
           // &&requestSheetDataOfBM?.assignUser?._id !==
           //   requestSheetDataOfBM?.approvalOfMTD_TL?._id
           <>

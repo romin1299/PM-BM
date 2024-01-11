@@ -86,3 +86,31 @@ export function genSlideTitle(pptx, slide, title) {
     }
   );
 }
+
+export function genNoDataFoundText(
+  slide,
+  coordinates = {
+    x: 0,
+    y: 0,
+    w: 5,
+    h: 5,
+  }
+) {
+  slide.addText(
+    [
+      {
+        text: "No data Found",
+        options: { fontSize: 18, breakLine: true },
+      },
+    ],
+    {
+      color: "#212529",
+      valign: "middle",
+      align: "center",
+      fill: { color: "#e2e3e5" },
+      line: { width: "2", color: "A9A9A9" },
+      isTextBox: true,
+      ...coordinates,
+    }
+  );
+}

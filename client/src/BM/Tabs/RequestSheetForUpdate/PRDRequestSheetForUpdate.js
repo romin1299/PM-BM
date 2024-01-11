@@ -122,7 +122,8 @@ function MyTable({ requestSheetDataOfBM }) {
         if (generateType === "scanned") {
           navigate("/", { replace: true });
         } else if (
-          requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id
+          requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
+          requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
         ) {
           navigate("/bm/requestListDashboard", { replace: true });
         } else {
@@ -190,7 +191,10 @@ function MyTable({ requestSheetDataOfBM }) {
   }, [requestSheetDataOfBM?._id, setValue]);
 
   const handleBack = () => {
-    if (requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id) {
+    if (
+      requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
+      requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
+    ) {
       navigate("/bm/requestListDashboard", { replace: true });
     } else {
       navigate("/bm/approval", { replace: true });
@@ -430,8 +434,9 @@ function MyTable({ requestSheetDataOfBM }) {
                                 type="datetime-local"
                                 {...register("problemOccurredDateAndTimeOfBM")}
                                 disabled={
-                                  requestSheetDataOfBM?.assignUser?._id !==
-                                    loggedUserDetails?._id &&
+                                  (requestSheetDataOfBM?.assignUser?._id !==
+                                    loggedUserDetails?._id ||
+                                    requestSheetDataOfBM?.handOverUser?._id !== loggedUserDetails?._id) &&
                                   requestSheetDataOfBM?.approvalOfMTD_TL
                                     ?._id !== loggedUserDetails?._id
                                 }
@@ -571,12 +576,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>PROBLEM FACED: </b>
                     </p>
                   </Col>
-                  <Col lg={3}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="prob"
@@ -595,14 +600,14 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>
                         PRD OBSERVATION FOR THIS PROBLEM BASED ON (5WHY-1HOW){" "}
                       </b>
                     </p>
                   </Col>
-                  <Col lg={3}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="prdobv"
@@ -624,12 +629,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHY (5M+1E): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="why"
@@ -646,12 +651,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHERE (Process): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="where"
@@ -668,12 +673,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHEN (Frequency): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="when"
@@ -690,12 +695,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHO (Person): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="who"
@@ -712,12 +717,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHICH (Defect Location): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="which"
@@ -734,12 +739,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>HOW (Detail/ Observation): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="how"
@@ -834,6 +839,7 @@ function MyTable({ requestSheetDataOfBM }) {
                     </small>
                     <br />
                     {requestSheetDataOfBM?.assignUser?.tm_name} {", "}
+                    {requestSheetDataOfBM?.handOverUser?.tm_name} {", "}
                     {requestSheetDataOfBM?.supportingTM
                       ?.map((obj) => obj?.tm_name)
                       ?.join(", ")}
@@ -842,13 +848,13 @@ function MyTable({ requestSheetDataOfBM }) {
               </td>
             </tr>
           </tbody>
-          {loggedUserDetails?.tm_department === "MTD" ||
-          (requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
-            (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
-              requestSheetDataOfBM?.requestSheetStatus ===
-                "Work Order Pending" ||
-              requestSheetDataOfBM?.requestSheetStatus ===
-                "Work Order Closed")) ? (
+
+          {loggedUserDetails?.tm_department === "MTD" &&
+          requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
+          (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
+            requestSheetDataOfBM?.requestSheetStatus === "Work Order Pending" ||
+            requestSheetDataOfBM?.requestSheetStatus === "Work Order Closed") &&
+          requestSheetDataOfBM?.requestSheetStatus !== "Completed" ? (
             <Row>
               <Col>
                 <button

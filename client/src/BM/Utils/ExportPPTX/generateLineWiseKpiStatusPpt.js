@@ -236,6 +236,12 @@ export async function genChartMatrix(pptx, dataArray) {
 
   let chartTypeNamesArray = ["BD Hours", "BD %", "MTTR", "MTBF"];
   let chartTypeArray = ["bdHours", "bdPercentage", "mttrData", "mtbfData"];
+  let chartTypeTargetArray = [
+    "monthlyBDHrsTarget",
+    "monthlyBDPercentageTarget",
+    "monthlyMTTRTarget",
+    "monthlyMTBFTarget",
+  ];
   let chartTypeColorKeyArray = [
     "backgroundColorForBDHrs",
     "backgroundColorForBDPercentage",
@@ -294,7 +300,7 @@ export async function genChartMatrix(pptx, dataArray) {
 
       let chartData = convertResData({
         data: dataArray?.[i]?.allData?.[chartTypeArray[j]],
-        target: dataArray?.[i]?.target,
+        target: dataArray?.[i]?.[chartTypeTargetArray?.[j]] || [],
         chartColors: dataArray?.[i]?.allData?.[chartTypeColorKeyArray[j]],
       });
 

@@ -114,13 +114,13 @@ const ManHourTrend = ({
       {
         label: "BM",
         data: manHourTrendData?.BMManHourTrend,
-        backgroundColor: chartColors.green[0],
+        backgroundColor: chartColors.palettes.bmpm[0],
         pointStyle: "rect",
       },
       {
         label: "PM",
         data: manHourTrendData?.PMManHourTrend,
-        backgroundColor: chartColors.aqua[1],
+        backgroundColor: chartColors.palettes.bmpm[1],
         pointStyle: "rect",
       },
     ],

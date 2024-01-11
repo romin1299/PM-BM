@@ -1,12 +1,13 @@
-import { Row, Col, Form } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 
 import React, { useState, useEffect, useContext } from "react";
 import { Table } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import moment from "moment";
 import DropdownElem from "../../Component/DropdownElem";
-import { useNavigate, useParams } from "react-router-dom";
+import DownloadIcon from "@mui/icons-material/Download";
 import RoutingContext from "../../../context/routing/RoutingContext";
+import { Button, Typography } from "@mui/material";
 
 function MyTable({
   selectedMachineDetails,
@@ -255,7 +256,9 @@ function MyTable({
                       errors={errors}
                       displayOrNot={
                         requestSheetDataOfBM?.assignUser?._id ===
-                        loggedUserDetails?._id
+                          loggedUserDetails?._id ||
+                        requestSheetDataOfBM?.handOverUser?._id ===
+                          loggedUserDetails?._id
                       }
                       options={approvalListOfBM?.mtdTL}
                       // required={
@@ -1393,87 +1396,29 @@ function MyTable({
                     <b>DATA SHEET ATTACHED</b>&nbsp;&nbsp;&nbsp;
                   </small>
                 </Col>
-                <Col className="border p-2 d-flex align-items-center">
-                  {requestSheetDataOfBM?.dataSheetOfRequestSheet}
-                  {/* 
-                  <Form>
-                    <div className="d-flex">
-                      <Form.Check
-                        flex
-                        label="Yes"
-                        name="dataSheetOfRequestSheet"
-                        type="radio"
-                        value="Yes"
-                        id="dataSheetOfRequestSheet"
-                        checked={
-                          timeDifferenceMinutes > 120
-                            ? true
-                            : watch("dataSheetOfRequestSheet") === "Yes"
-                            ? true
-                            : false
-                        }
-                        {...register("dataSheetOfRequestSheet")}
-                        onChange={(e) => {
-                          setValue("dataSheetOfRequestSheet", e.target.value, {
-                            shouldDirty: true,
-                          });
-                          clearErrors("dataSheetOfRequestSheet");
-                        }}
-                      />
-                      &nbsp;&nbsp;
-                      <Form.Check
-                        flex
-                        label="No"
-                        name="dataSheetOfRequestSheet"
-                        type="radio"
-                        value="No"
-                        id="dataSheetOfRequestSheet"
-                        disabled={timeDifferenceMinutes > 120 && true}
-                        {...register("dataSheetOfRequestSheet")}
-                        onChange={(e) => {
-                          setValue("dataSheetOfRequestSheet", e.target.value, {
-                            shouldDirty: true,
-                          });
-                          clearErrors("dataSheetOfRequestSheet");
-                        }}
-                      />
-                    </div>
-                    {errors?.["dataSheetOfRequestSheet"] && (
-                      <p className="text-error">
-                        {errors?.["dataSheetOfRequestSheet"]?.message}
-                      </p>
-                    )}
+                <Col className="border p-2">
+                  <div>
                     {requestSheetDataOfBM?.attachedDataSheets ? (
-                      <p>{requestSheetDataOfBM?.attachedDataSheets}</p>
-                    ) : timeDifferenceMinutes > 120 ||
-                      watch("dataSheetOfRequestSheet") === "Yes" ? (
-                      <Form.Group controlId="formFileMultiple" className="mb-3">
-                        <Form.Control
-                          type="file"
-                          {...register("attachedDataSheets", {
-                            // required:
-                            //   timeDifferenceMinutes > 120 ||
-                            //   watch("dataSheetOfRequestSheet") === "Yes"
-                            //     ? true
-                            //     : false,
-                          })}
-                          onChange={(e) => {
-                            setValue("attachedDataSheets", e.target.value, {
-                              shouldDirty: true,
-                            });
-                            clearErrors("attachedDataSheets");
-                          }}
-                        />
-                        {errors?.["attachedDataSheets"] && (
-                          <p className="text-error">
-                            {"This field is required"}
-                          </p>
-                        )}
-                      </Form.Group>
+                      <>
+                        <Typography mt={2} variant="body2">
+                          {requestSheetDataOfBM?.attachedDataSheets}
+                        </Typography>
+                        <Button
+                          target="_blank"
+                          href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
+                          disableElevation
+                          size="small"
+                          variant="contained"
+                          color="success"
+                          startIcon={<DownloadIcon fontSize="small" />}
+                        >
+                          Download
+                        </Button>
+                      </>
                     ) : (
-                      ""
+                      <div>{requestSheetDataOfBM?.dataSheetOfRequestSheet}</div>
                     )}
-                  </Form> */}
+                  </div>
                 </Col>
               </Row>
               <Row className="m-0">
@@ -1482,65 +1427,54 @@ function MyTable({
                     <b>DRAWING ATTACHED</b>&nbsp;&nbsp;&nbsp;
                   </small>
                 </Col>
-                <Col className="border p-2 d-flex align-items-center">
-                  {requestSheetDataOfBM?.drawingOfRequestSheet}
-                  {/* <Form>
-                    <div className="d-flex">
-                      <Form.Check
-                        flex
-                        label="Yes"
-                        name="drawingOfRequestSheet"
-                        type="radio"
-                        value="Yes"
-                        id="drawingOfRequestSheet"
-                        // onChange={handledrawingOfRequestSheet}
-                        {...register("drawingOfRequestSheet")}
-                      />
-                      &nbsp;&nbsp;
-                      <Form.Check
-                        flex
-                        label="No"
-                        name="drawingOfRequestSheet"
-                        type="radio"
-                        value="No"
-                        id="drawingOfRequestSheet"
-                        // onChange={handledrawingOfRequestSheet}
-                        {...register("drawingOfRequestSheet")}
-                      />
-                    </div>
-
+                <Col className="border p-2">
+                  <div>
                     {requestSheetDataOfBM?.attachedDrawings?.length > 0 ? (
-                      <p>
-                        {(requestSheetDataOfBM?.attachedDrawings).join("\r\n")}
-                      </p>
-                    ) : watch("drawingOfRequestSheet") === "Yes" ? (
-                      <Form.Group controlId="formFileMultiple" className="mb-3">
-                        <Form.Control
-                          type="file"
-                          multiple
-                          {...register("attachedDrawings", {
-                            // required:
-                            //   watch("drawingOfRequestSheet") === "Yes"
-                            //     ? true
-                            //     : false,
-                          })}
-                          onChange={(e) => {
-                            setValue("attachedDrawings", e.target.value, {
-                              shouldDirty: true,
-                            });
-                            clearErrors("attachedDrawings");
-                          }}
-                        />
-                        {errors?.["attachedDrawings"] && (
-                          <p className="text-error">
-                            {"This field is required"}
-                          </p>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        {requestSheetDataOfBM?.attachedDrawings?.map(
+                          (image) => (
+                            <a
+                              target="_blank"
+                              href={`http://localhost:7000/${image}`}
+                              style={{
+                                width: "100%",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              <img
+                                src={`http://localhost:7000/${image}`}
+                                style={{
+                                  maxWidth: "100px",
+                                  maxHeight: "100px",
+                                }}
+                              />
+                              <span
+                                style={{
+                                  fontSize: "10px",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {image}
+                              </span>
+                            </a>
+                          )
                         )}
-                      </Form.Group>
+                      </div>
                     ) : (
-                      ""
+                      <div>{requestSheetDataOfBM?.drawingOfRequestSheet}</div>
                     )}
-                  </Form> */}
+                  </div>
                 </Col>
               </Row>
             </td>

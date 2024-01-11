@@ -346,7 +346,9 @@ router.post(
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
             requestSheetStatus:
               (getRequestSheetData?.assignUser?._id).toString() ===
-              (req?.rootUser?._id).toString()
+                (req?.rootUser?._id).toString() ||
+              (getRequestSheetData?.handOverUser?._id).toString() ===
+                (req?.rootUser?._id).toString()
                 ? "Fill Sheet"
                 : getRequestSheetData?.requestSheetStatus,
             actionTemporaryOrNot:
@@ -635,6 +637,14 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           from: "users",
           localField: "handOverUser",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_name: 1,
+              },
+            },
+          ],
           as: "handoverUserDetails",
         },
       },
@@ -1009,8 +1019,7 @@ router.patch(
         } else {
           requestSheetStatus = statusArray[4];
         }
-
-        if (moment(req.body?.handOverTime, moment.ISO_8601).isValid()) {
+        if (mongoose.Types.ObjectId.isValid(req.body?.handOverUser)) {
           queryObj = {
             finalActivity: req.body?.finalActivity,
             "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
@@ -1019,19 +1028,25 @@ router.patch(
             "maintenanceReportFilledByMTD.refHandOverTime": new Date(
               req.body?.handOverTime
             ),
-            handOverUser: req.body?.handOverUserId,
+            handOverUser: req.body?.handOverUser,
             requestSheetStatus,
             work_order_status: req.body?.work_order_status,
           };
         } else {
           queryObj = {
             finalActivity: req.body?.finalActivity,
-            handOverUser: req.body?.handOverUserId,
+            "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
+              req.body?.handOverTime
+            ),
+            "maintenanceReportFilledByMTD.refHandOverTime": new Date(
+              req.body?.handOverTime
+            ),
             requestSheetStatus,
             work_order_status: req.body?.work_order_status,
           };
         }
       }
+
       await RequestSheetOfBM.findOneAndUpdate(
         req.query,
         {
@@ -1139,7 +1154,6 @@ const findTLandOperatorList = async (req, res, next) => {
         });
       }
     }
-
     req.TLHOSS_and_TM_user_list = TLHOSS_and_TM_user_list;
 
     next();
@@ -1238,7 +1252,8 @@ const filterMiddleware = async (req, res, next) => {
 const targetMiddleware = async (req, res, next) => {
   try {
     let queryObj = {},
-      pipeline = [];
+      targetKey = `$allTargetData.${req.query?.targetKey}`;
+    pipeline = [];
 
     if (req.params?.filter === "based-on-line") {
       queryObj = {
@@ -1252,7 +1267,7 @@ const targetMiddleware = async (req, res, next) => {
             monthlyTarget: {
               $map: {
                 input: {
-                  $objectToArray: "$allTargetData.monthlyBDHrsTarget",
+                  $objectToArray: targetKey,
                 },
                 as: "obj",
                 in: "$$obj.v",
@@ -1267,7 +1282,7 @@ const targetMiddleware = async (req, res, next) => {
 
       for (let i = 0; i < allMonths.length; i++) {
         obj[allMonths?.[i]?.monthName] = {
-          $sum: `$allTargetData.monthlyBDHrsTarget.${allMonths?.[i]?.monthName}`,
+          $sum: `${targetKey}.${allMonths?.[i]?.monthName}`,
         };
 
         arr.push(`$${allMonths?.[i]?.monthName}`);
@@ -1409,7 +1424,14 @@ router.get(
         queryPipeline = [
           {
             $match: {
-              assignUser: req.rootUser?._id,
+              $or: [
+                {
+                  assignUser: req.rootUser?._id,
+                },
+                {
+                  handOverUser: req.rootUser?._id,
+                },
+              ],
               ...req.queryObj,
             },
           },
@@ -1438,14 +1460,26 @@ router.get(
         {
           $group: {
             _id: null,
+            total_request_sheet_count: {
+              $sum: 1,
+            },
             open_request_sheet_count: {
               $sum: {
-                $cond: [{ $ne: ["$requestSheetStatus", "Generated"] }, 1, 0],
+                $cond: [
+                  {
+                    $and: [
+                      { $ne: ["$requestSheetStatus", "Generated"] },
+                      { $ne: ["$requestSheetStatus", "Completed"] },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
               },
             },
             closed_request_sheet_count: {
               $sum: {
-                $cond: [{ $eq: ["$work_order_status", "Closed"] }, 1, 0],
+                $cond: [{ $eq: ["$requestSheetStatus", "Completed"] }, 1, 0],
               },
             },
           },
@@ -1463,7 +1497,6 @@ router.get(
         TLHOSS_and_TM_user_list: req?.TLHOSS_and_TM_user_list,
         counters: {
           ...counters?.[0],
-          total_request_sheet_count: req?.requestSheetData?.length,
         },
       });
     } catch (error) {
@@ -3469,6 +3502,14 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "handOverUser",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_name: 1,
+              },
+            },
+          ],
           as: "handoverUserDetails",
         },
       },
@@ -3708,6 +3749,7 @@ router.get(
   authenticate,
   filterMiddleware,
   getRequestSheetData,
+  dashboardLevelUserCheckMiddleware,
   findTLandOperatorList,
   async (req, res, next) => {
     try {
@@ -3844,8 +3886,10 @@ router.patch(
       } = req.body;
       if (
         !assignApprovalList?.MTD_TL?.id &&
-        requestSheetDataOfBM?.assignUser?._id ===
-          (req?.rootUser?._id).toString()
+        (requestSheetDataOfBM?.assignUser?._id ===
+          (req?.rootUser?._id).toString() ||
+          requestSheetDataOfBM?.handOverUser?._id ===
+            (req?.rootUser?._id).toString())
       ) {
         return res
           .status(400)
@@ -3854,13 +3898,22 @@ router.patch(
 
       if (
         requestSheetDataOfBM?.assignUser?._id ===
-        (req?.rootUser?._id).toString()
+          (req?.rootUser?._id).toString() ||
+        requestSheetDataOfBM?.handOverUser?._id ===
+          (req?.rootUser?._id).toString()
       ) {
         const updateAssignApprovalOfMTD_TL =
           await RequestSheetOfBM.findOneAndUpdate(
             {
               _id: mongoose.Types.ObjectId(req.params?.reqId),
-              assignUser: req?.rootUser?._id,
+              $or: [
+                {
+                  assignUser: req?.rootUser?._id,
+                },
+                {
+                  handOverUser: req?.rootUser?._id,
+                },
+              ],
             },
             {
               $set: {
@@ -4731,6 +4784,9 @@ const requestSheetMiddleware = async (req, res, next) => {
         },
       },
       {
+        $sort: { _id: -1 },
+      },
+      {
         $project: {
           sectionName: { $arrayElemAt: ["$sections.section_name", 0] },
           cell: { $arrayElemAt: ["$cells.cell_name", 0] },
@@ -5076,7 +5132,7 @@ router.get(
       const lineWisePptExportationData = await RequestSheetOfBM.aggregate([
         {
           $match: {
-            cellRef: mongoose.Types.ObjectId(req.params.selectedId),
+            // cellRef: mongoose.Types.ObjectId(req.params.selectedId),
             "preAggregationTimeStampOfRequestSheet.requestSheet_year":
               req.query?.selectedYear,
           },
@@ -5087,6 +5143,9 @@ router.get(
               lineRef: "$lineRef",
               month:
                 "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+              monthInDecimal: {
+                $subtract: [{ $month: "$problemOccurredDateAndTimeOfBM" }, 1],
+              },
             },
             count: { $sum: 1 },
             bdHours: {
@@ -5100,7 +5159,7 @@ router.get(
           $lookup: {
             from: "lines",
             localField: "_id.lineRef",
-            let: { month: "$_id.month" },
+            let: { month: "$_id.monthInDecimal" },
             foreignField: "_id",
             pipeline: [
               {
@@ -5124,39 +5183,81 @@ router.get(
                       in: "$$obj.v",
                     },
                   },
-                  eachMonthBDHrsTarget: {
-                    $arrayElemAt: [
-                      {
-                        $filter: {
-                          input: {
-                            $objectToArray: "$allTargetData.monthlyBDHrsTarget",
-                          },
-                          as: "monthlyTarget",
-                          cond: {
-                            $eq: ["$$monthlyTarget.k", "$$month"],
-                          },
-                        },
+                  monthlyMTTRTarget: {
+                    $map: {
+                      input: {
+                        $objectToArray: "$allTargetData.monthlyMTTRTarget",
                       },
-                      0,
-                    ],
+                      as: "obj",
+                      in: "$$obj.v",
+                    },
+                  },
+                  monthlyMTBFTarget: {
+                    $map: {
+                      input: {
+                        $objectToArray: "$allTargetData.monthlyMTBFTarget",
+                      },
+                      as: "obj",
+                      in: "$$obj.v",
+                    },
+                  },
+                  monthlyBDPercentageTarget: {
+                    $map: {
+                      input: {
+                        $objectToArray: "$allTargetData.monthlyBDPercentageTarget",
+                      },
+                      as: "obj",
+                      in: "$$obj.v",
+                    },
                   },
                   eachMonthProductionHrs: {
                     $arrayElemAt: [
                       {
-                        $filter: {
+                        $map: {
                           input: {
                             $objectToArray:
                               "$allTargetData.monthlyProductionHrs",
                           },
-                          as: "monthlyProduction",
-                          cond: {
-                            $eq: ["$$monthlyProduction.k", "$$month"],
-                          },
+                          as: "obj",
+                          in: "$$obj.v",
                         },
                       },
-                      0,
+                      "$$month",
                     ],
                   },
+                  // eachMonthBDHrsTarget: {
+                  //   $arrayElemAt: [
+                  //     {
+                  //       $filter: {
+                  //         input: {
+                  //           $objectToArray: "$allTargetData.monthlyBDHrsTarget",
+                  //         },
+                  //         as: "monthlyTarget",
+                  //         cond: {
+                  //           $eq: ["$$monthlyTarget.k", "$$month"],
+                  //         },
+                  //       },
+                  //     },
+                  //     0,
+                  //   ],
+                  // },
+                  // eachMonthProductionHrs: {
+                  //   $arrayElemAt: [
+                  //     {
+                  //       $filter: {
+                  //         input: {
+                  //           $objectToArray:
+                  //             "$allTargetData.monthlyProductionHrs",
+                  //         },
+                  //         as: "monthlyProduction",
+                  //         cond: {
+                  //           $eq: ["$$monthlyProduction.k", "$$month"],
+                  //         },
+                  //       },
+                  //     },
+                  //     0,
+                  //   ],
+                  // },
                 },
               },
             ],
@@ -5171,6 +5272,9 @@ router.get(
             _id: {
               lineName: "$line.line_name",
               monthlyBDHrsTarget: "$line.monthlyBDHrsTarget",
+              monthlyMTTRTarget: "$line.monthlyMTTRTarget",
+              monthlyMTBFTarget: "$line.monthlyMTBFTarget",
+              monthlyBDPercentageTarget: "$line.monthlyBDPercentageTarget",
             },
             data: {
               $push: {
@@ -5178,7 +5282,18 @@ router.get(
                 bdHours: "$bdHours",
                 backgroundColorForBDHrs: {
                   $cond: [
-                    { $gt: ["$bdHours", "$line.eachMonthBDHrsTarget.v"] },
+                    // { $gt: ["$bdHours", "$line.eachMonthBDHrsTarget.v"] },
+                    {
+                      $gt: [
+                        "$bdHours",
+                        {
+                          $arrayElemAt: [
+                            "$line.monthlyBDHrsTarget",
+                            "$_id.monthInDecimal",
+                          ],
+                        },
+                      ],
+                    },
                     "ef5350",
                     "c2c933",
                   ],
@@ -5193,7 +5308,13 @@ router.get(
                         {
                           $divide: ["$bdHours", "$count"],
                         },
-                        "$line.eachMonthBDHrsTarget.v",
+                        {
+                          $arrayElemAt: [
+                            "$line.monthlyMTTRTarget",
+                            "$_id.monthInDecimal",
+                          ],
+                        },
+                        // "$line.eachMonthBDHrsTarget.v",
                       ],
                     },
                     "c2c933",
@@ -5203,7 +5324,7 @@ router.get(
                 mtbfData: {
                   $divide: [
                     {
-                      $subtract: ["$line.eachMonthProductionHrs.v", "$bdHours"],
+                      $subtract: ["$line.eachMonthProductionHrs", "$bdHours"],
                     },
                     "$count",
                   ],
@@ -5216,14 +5337,20 @@ router.get(
                           $divide: [
                             {
                               $subtract: [
-                                "$line.eachMonthProductionHrs.v",
+                                "$line.eachMonthProductionHrs",
                                 "$bdHours",
                               ],
                             },
                             "$count",
                           ],
                         },
-                        "$line.eachMonthBDHrsTarget.v",
+                        {
+                          $arrayElemAt: [
+                            "$line.monthlyMTBFTarget",
+                            "$_id.monthInDecimal",
+                          ],
+                        },
+                        // "$line.eachMonthBDHrsTarget.v",
                       ],
                     },
                     "ef5350",
@@ -5232,7 +5359,7 @@ router.get(
                 },
                 bdPercentage: {
                   $multiply: [
-                    { $divide: ["$bdHours", "$line.eachMonthProductionHrs.v"] },
+                    { $divide: ["$bdHours", "$line.eachMonthProductionHrs"] },
                     100,
                   ],
                 },
@@ -5245,13 +5372,19 @@ router.get(
                             {
                               $divide: [
                                 "$bdHours",
-                                "$line.eachMonthProductionHrs.v",
+                                "$line.eachMonthProductionHrs",
                               ],
                             },
                             100,
                           ],
                         },
-                        "$line.eachMonthBDHrsTarget.v",
+                        {
+                          $arrayElemAt: [
+                            "$line.monthlyBDPercentageTarget",
+                            "$_id.monthInDecimal",
+                          ],
+                        },
+                        // "$line.eachMonthBDHrsTarget.v",
                       ],
                     },
                     "ef5350",
@@ -5267,6 +5400,10 @@ router.get(
             _id: 0,
             lineName: "$_id.lineName",
             target: "$_id.monthlyBDHrsTarget",
+            monthlyBDHrsTarget: "$_id.monthlyBDHrsTarget",
+            monthlyMTTRTarget: "$_id.monthlyMTTRTarget",
+            monthlyMTBFTarget: "$_id.monthlyMTBFTarget",
+            monthlyBDPercentageTarget: "$_id.monthlyBDPercentageTarget",
 
             allData: {
               $reduce: {
@@ -5990,6 +6127,14 @@ router.get(
             from: "users",
             localField: "handOverUser",
             foreignField: "_id",
+            pipeline: [
+              {
+                $project: {
+                  user_type: 1,
+                  tm_name: 1,
+                },
+              },
+            ],
             as: "handoverUserDetails",
           },
         },
@@ -10983,14 +11128,46 @@ router.get(
         },
       ]);
 
-      return res.status(201).json({
-        message: "TM Mttr Trend data get successfully",
-        data: mttrTrend?.[0],
-      });
-    } catch (error) {
-      res.status(500).json({ message: error?.message, error });
-    }
+    return res.status(201).json({
+      message: "TM Mttr Trend data get successfully",
+      data: tmLoadData?.[0],
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
   }
+};
+
+const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
+  try {
+    let Model,
+      findObj = {};
+
+    if (req.query?.selectedSubSection) {
+      Model = SubSection;
+      findObj = {
+        _id: mongoose.Types.ObjectId(req.query?.selectedSubSection),
+      };
+    } else {
+      Model = Section;
+      findObj = {
+        _id: mongoose.Types.ObjectId(req.query?.selectedSection),
+      };
+    }
+
+    req.Model = Model;
+    req.findObj = findObj;
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+router.get(
+  "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
+  authenticate,
+  sectionOrSubSectionFilterMiddleware,
+  middlewareForMttrTrend
 );
 
 const filterMiddlewareForTmMTTR = async (req, res, next) => {
@@ -11231,32 +11408,6 @@ router.get(
   // filterMiddlewareForMTTRReport,
   middlewareForFindingTmProgressData
 );
-
-const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
-  try {
-    let Model,
-      findObj = {};
-
-    if (req.query?.selectedSection) {
-      Model = Section;
-      findObj = {
-        _id: mongoose.Types.ObjectId(req.query?.selectedSection),
-      };
-    } else {
-      Model = SubSection;
-      findObj = {
-        _id: mongoose.Types.ObjectId(req.query?.selectedSubSection),
-      };
-    }
-
-    req.Model = Model;
-    req.findObj = findObj;
-
-    next();
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
 
 const middlewareForFindingMaxValue = async (req, res, next) => {
   try {
@@ -12256,10 +12407,10 @@ const middlewareForFindingTrendData = async (req, res, next) => {
 
 const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
   try {
-    let target = "$allTargetData.yearTotalBDHrsTarget";
+    let target = `$allTargetData.${req.query?.yearTargetKey}`;
 
     if (req.query?.selectedMonth) {
-      target = `$allTargetData.monthlyBDHrsTarget.${req.query?.selectedMonth}`;
+      target = `$allTargetData.${req.query?.monthTargetKey}.${req.query?.selectedMonth}`;
     }
 
     const TrendData = await RequestSheetOfBM.aggregate([
@@ -12982,6 +13133,22 @@ router.get(
               as: "namesOperators",
             },
           },
+          {
+            $lookup: {
+              from: "users",
+              localField: "handOverUser",
+              foreignField: "_id",
+              pipeline: [
+                {
+                  $project: {
+                    user_type: 1,
+                    tm_name: 1,
+                  },
+                },
+              ],
+              as: "handoverUserDetails",
+            },
+          },
           // {
           //   $lookup: {
           //     from: "users",
@@ -13035,6 +13202,7 @@ router.get(
               requestSheetNoOfBM: 1,
               problemOccurredDateAndTimeOfBM: 1,
               assignUser: 1,
+              handOverUser: 1,
 
               approvalOfMTD_TL: 1,
               approvalStatusOfMTD_TL: 1,
@@ -13085,6 +13253,9 @@ router.get(
               machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
               assignUser: {
                 $arrayElemAt: ["$namesOperators.tm_name", 0],
+              },
+              handOverUser: {
+                $arrayElemAt: ["$handoverUserDetails.tm_name", 0],
               },
 
               problemOccurredDateAndTimeOfBMForTable: {

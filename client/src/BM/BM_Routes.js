@@ -36,6 +36,7 @@ import TMMTR from "./Reports/TMMTTRSkill/TMMTRDashboard";
 import ApprovalLogs from "./ApprovalLogs/ApprovalLogs";
 import BMTitlebar from "./Component/BMTitlebar";
 import TargetDashboard from "./TargetOfBD/TargetDashboard";
+import MachineAgeReport from "./Reports/MachineAge/MachineAgeReport";
 const reportRoutes = [
   {
     path: "/bm/report/productionLineWiseReport",
@@ -77,6 +78,10 @@ const reportRoutes = [
   {
     path: "/bm/report/top-machine-breakdown",
     element: <TopMachineBD />,
+  },
+  {
+    path: "/bm/report/machine-age",
+    element: <MachineAgeReport />,
   },
 ];
 

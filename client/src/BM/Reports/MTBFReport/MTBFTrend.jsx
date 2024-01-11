@@ -12,7 +12,7 @@ const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     try {
       const res = await fetch(
         // `/getTrendData/MTBF/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
-        `/getTrendData/MTBF/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
+        `/getTrendData/MTBF/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&targetKey=monthlyMTBFTarget`,
         {
           method: "GET",
           headers: {
