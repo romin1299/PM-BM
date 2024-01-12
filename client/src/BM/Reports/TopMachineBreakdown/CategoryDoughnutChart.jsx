@@ -39,7 +39,7 @@ const ChartCard = ({ category }) => {
         label: "Hour",
         data: category?.bdTime,
         backgroundColor: category?.subcategories?.map(
-          (item, i) => chartColors.palettes.palette4[i]
+          (item, i) => chartColors.monthlyBDTrend[i]
         ),
         // borderWidth: 0,
       },

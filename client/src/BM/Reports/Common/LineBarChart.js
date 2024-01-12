@@ -92,7 +92,7 @@ const LineBarChart = ({
       //   },
       // },
       legend: {
-        display: false,
+        align: "end",
         labels: {
           usePointStyle: true,
         },
@@ -140,9 +140,11 @@ const LineBarChart = ({
         type: "line",
         label: label?.lineLabel,
         data: dataset?.target,
-        borderColor: chartColors[1],
+        borderColor: chartColors.targetBorder,
+        backgroundColor: chartColors.target,
         borderWidth: 2,
         fill: false,
+        pointStyle: "rectRot",
         yAxisID: "y1",
       },
     ];
@@ -156,7 +158,8 @@ const LineBarChart = ({
       label: label?.barLabel,
       data: dataset?.data,
       yAxisID: "y1",
-      backgroundColor: chartColors[0],
+      backgroundColor: chartColors.barLineChart,
+      borderRadius: 4,
     },
   ];
 

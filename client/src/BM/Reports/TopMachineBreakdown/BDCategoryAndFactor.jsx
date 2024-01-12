@@ -39,9 +39,10 @@ const ChartCard = ({ category }) => {
         label: "Hour",
         data: category?.bdTime,
         backgroundColor: category?.subcategories?.map(
-          (item, i) => chartColors.palettes.palette4[i]
+          (item, i) => chartColors.categoryPie[i]
         ),
-        // borderWidth: 0,
+        // borderColor: chartColors.tmSkillPie,
+        borderWidth: 0,
       },
     ],
   };

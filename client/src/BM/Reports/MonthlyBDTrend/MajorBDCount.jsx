@@ -133,7 +133,8 @@ const MajorBDCount = ({
         stack: "bar-stacked",
         label: item?.label || item?._id,
         data: item?.data,
-        backgroundColor: chartColors.palettes[0][index],
+        backgroundColor: chartColors.sections[index],
+        borderRadius: 4,
       }));
 
       const targetData = res?.data?.bdTrendDataTarget;
@@ -149,9 +150,9 @@ const MajorBDCount = ({
               label: "Target",
               data: targetData,
               borderWidth: 2,
-              borderColor: chartColors.red[2],
-              backgroundColor: chartColors.red[2],
-              pointStyle: "circ",
+              borderColor: chartColors.target2,
+              backgroundColor: chartColors.target2,
+              pointStyle: "rectRot",
             },
             ...barDatasets,
           ],
@@ -166,7 +167,6 @@ const MajorBDCount = ({
       //       stack: "bar-stacked",
       //       label: item?.label || item?._id,
       //       data: item?.data,
-      //       backgroundColor: chartColors.palettes[0][index],
       //     })),
       //   });
       // }

@@ -1,9 +1,8 @@
 import React from "react";
 import { Chart } from "react-chartjs-2";
-import { Box, Divider, Paper, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { Row, Col } from "react-bootstrap";
-import { FilterMenu } from "../ManHourReport/SubComponents/FilterMenu";
 
 import {
   Chart as ChartJS,
@@ -84,8 +83,8 @@ const TMLoad = ({ tm_names, data, loading = false }) => {
         stack: "bar-stacked",
         label: "Hours",
         data: data,
-        backgroundColor: chartColors.palettes[0][2],
-        pointStyle: "rect",
+        backgroundColor: chartColors.bmpm,
+        borderRadius: 4,
         yAxisID: "y",
       },
     ],

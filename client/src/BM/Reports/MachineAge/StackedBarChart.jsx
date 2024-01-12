@@ -106,7 +106,7 @@ const StackedBarChart = () => {
         stack: "bar-stacked",
         label: item?.label || item?._id,
         data: item?.data,
-        backgroundColor: chartColors.palettes[0][index],
+        backgroundColor: chartColors.monthlyBDTrend[index],
       }));
 
       const targetData = res?.data?.bdTrendDataTarget;
@@ -121,8 +121,8 @@ const StackedBarChart = () => {
               label: "Target",
               data: targetData,
               borderWidth: 2,
-              borderColor: chartColors.red[2],
-              backgroundColor: chartColors.red[2],
+              borderColor: chartColors.target,
+              backgroundColor: chartColors.targetBorder,
               pointStyle: "rectRot",
             },
             ...barDatasets,
@@ -149,35 +149,26 @@ const StackedBarChart = () => {
     setChartData({
       labels: MONTH_LABELS,
       datasets: [
-        // {
-        //   type: "line",
-        //   label: "Target",
-        //   data: [221, 220, 220, 220, 220, 221, 220, 220, 220, 220, 220, 218],
-        //   borderWidth: 2,
-        //   borderColor: "#9F0000",
-        //   backgroundColor: "#9F0000",
-        //   pointStyle: "rectRot",
-        // },
         {
           type: "bar",
           stack: "bar-stacked",
           label: "Grp1",
           data: [0, 0, 0, 0, 0, 0, 0, 0, 2.94, 0.48, 0, 0],
-          backgroundColor: "#c2c933",
+          backgroundColor: chartColors.monthlyBDTrend[0],
         },
         {
           type: "bar",
           stack: "bar-stacked",
           label: "Grp2",
           data: [0, 0, 0, 0, 0, 0, 0, 0, 1.53, 0, 0, 0],
-          backgroundColor: "#778899",
+          backgroundColor: chartColors.monthlyBDTrend[1],
         },
         {
           type: "bar",
           stack: "bar-stacked",
           label: "Grp3",
           data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 3.11, 0, 0],
-          backgroundColor: "#0BB4CB",
+          backgroundColor: chartColors.monthlyBDTrend[2],
         },
       ],
     });

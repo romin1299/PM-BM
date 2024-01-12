@@ -8,9 +8,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Bar, Line } from "react-chartjs-2";
-import { Box, Divider, Typography } from "@mui/material";
-import { Col, Row } from "react-bootstrap";
+import { Bar } from "react-chartjs-2";
+import { Box } from "@mui/material";
 import { chartColors } from "../../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "../../Common/ChartTitleBar";
 import Loading from "../../../../components/Loading/Loading";
@@ -89,9 +88,10 @@ const BarChart = ({
     {
       label: "Top 20",
       data: dataset?.data,
-      backgroundColor: chartColors[0],
-      borderColor: chartColors[7],
-      borderWidth: 1,
+      backgroundColor: chartColors.barChart,
+      // borderColor: "#243552",
+      // borderWidth: 1,
+      borderRadius: 4,
     },
   ];
 

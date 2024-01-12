@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import { Box, Divider, Typography } from "@mui/material";
 import axios from "axios";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
@@ -28,6 +28,8 @@ const ChartCard = ({ category }) => {
             Math.round(category?.bdCount?.[context?.dataIndex] * 100) / 100
           })`;
         },
+        font: {  size: 12 },
+        // color: chartColors.categoryPieFont,
       },
     },
   };
@@ -39,9 +41,10 @@ const ChartCard = ({ category }) => {
         label: "Hour",
         data: category?.bdTime,
         backgroundColor: category?.subcategories?.map(
-          (item, i) => chartColors.palettes.palette4[i]
+          (item, i) => chartColors.categoryPie[i]
         ),
-        // borderWidth: 0,
+        // borderColor: chartColors.tmSkillPie,
+        borderWidth: 1,
       },
     ],
   };

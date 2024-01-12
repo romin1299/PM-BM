@@ -10,11 +10,8 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import Paper from "@mui/material/Paper";
-import { Box, Divider, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { chartColors, MONTH_LABELS } from "../../Utils/ChartUtils/chartEnums";
-import { Col, Row } from "react-bootstrap";
-import { FilterMenu } from "./SubComponents/FilterMenu";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
 
@@ -121,14 +118,14 @@ const ManHourTrend = ({
       {
         label: "BM",
         data: manHourTrendData?.BMManHourTrend,
-        backgroundColor: chartColors.palettes.bmpm[0],
-        pointStyle: "rect",
+        backgroundColor: chartColors.bmpm[0],
+        borderRadius: 4,
       },
       {
         label: "PM",
         data: manHourTrendData?.PMManHourTrend,
-        backgroundColor: chartColors.palettes.bmpm[1],
-        pointStyle: "rect",
+        backgroundColor: chartColors.bmpm[1],
+        borderRadius: 4,
       },
     ],
   };

@@ -9,17 +9,15 @@ import {
   Legend,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { Box, Skeleton, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { Col } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 
 import { MonthDropdown } from "../ManHourReport/SubComponents/LineSelectionDropdown";
-import currentMonth from "../../../pages/Dashboard/DashboardComponent/currentMonth";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 
-import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
 import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
@@ -41,7 +39,10 @@ export const options = {
         usePointStyle: true,
       },
     },
-    datalabels: commonDatalabels,
+    datalabels: {
+      ...commonDatalabels,
+      // color: chartColors.dailyBDTrendFont
+    },
   },
   // elements: {
   //   bar: {
@@ -167,8 +168,8 @@ const DailyBDTrendChart = ({
       type: "line",
       label: "Total Count",
       data: dailyBreakdownTrendData?.dayWiseCount,
-      backgroundColor: "rgba(202, 31, 75)",
-      borderColor: chartColors[3],
+      backgroundColor: chartColors.count,
+      borderColor: chartColors.count,
       borderWidth: 2,
       fill: false,
       yAxisID: "y2",
@@ -177,25 +178,34 @@ const DailyBDTrendChart = ({
       type: "bar",
       stack: "bar-stacked",
       label: "< 1",
-      data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
       yAxisID: "y",
-      backgroundColor: chartColors.orange[2],
+      data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
+      backgroundColor: chartColors.dailyBDTrend[0],
+      // borderColor: chartColors.dailyBDTrendBorder[0],
+      // borderWidth: 1,
+      borderRadius: 4,
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: "< 2",
-      data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
-      backgroundColor: chartColors.green[0],
       yAxisID: "y",
+      data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
+      backgroundColor: chartColors.dailyBDTrend[1],
+      // borderColor: chartColors.dailyBDTrendBorder[1],
+      // borderWidth: 1,
+      borderRadius: 4,
     },
     {
       type: "bar",
       stack: "bar-stacked",
       label: "> 2",
-      data: dailyBreakdownTrendData?.greaterThenTwoHourData,
-      backgroundColor: chartColors.aqua[1],
       yAxisID: "y",
+      data: dailyBreakdownTrendData?.greaterThenTwoHourData,
+      backgroundColor: chartColors.dailyBDTrend[2],
+      // borderColor: chartColors.dailyBDTrendBorder[2],
+      // borderWidth: 1,
+      borderRadius: 4,
     },
   ];
 

@@ -43,7 +43,11 @@ export const options = {
       },
     },
     // datalabels: { display: false },
-    datalabels: commonDatalabels,
+    datalabels: {
+      ...commonDatalabels,
+      display: false,
+      color: chartColors.barChartText,
+    },
   },
   scales: {
     x: {
@@ -156,11 +160,10 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
         data: data?.bdHours,
         fill: false,
         borderWidth: 2,
-        borderColor: chartColors.magenta[1],
-        backgroundColor: chartColors.magenta[1],
+        borderColor: chartColors.bdHoursLine,
+        backgroundColor: chartColors.bdHoursLine,
         pointStyle: "rectRot",
-        pointRadius: 5,
-        pointBorderColor: chartColors.magenta[1],
+        pointRadius: 4,
         yAxisID: "y2",
       },
       {
@@ -168,8 +171,8 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
         stack: "bar-stacked",
         label: "% Contribution",
         data: data?.percentages,
-        backgroundColor: chartColors.palettes[0][2],
-        pointStyle: "rect",
+        backgroundColor: chartColors.barChart,
+        borderRadius: 4,
         yAxisID: "y",
       },
     ],

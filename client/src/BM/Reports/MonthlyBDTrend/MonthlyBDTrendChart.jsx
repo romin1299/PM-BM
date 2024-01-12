@@ -139,7 +139,8 @@ const MonthlyBDTrendChart = ({
         stack: "bar-stacked",
         label: item?.label || item?._id,
         data: item?.data,
-        backgroundColor: chartColors.palettes[0][index],
+        backgroundColor: chartColors.monthlyBDTrend[index],
+        borderRadius: 4,
       }));
 
       const targetData = res?.data?.bdTrendDataTarget;
@@ -154,8 +155,8 @@ const MonthlyBDTrendChart = ({
               label: "Target",
               data: targetData,
               borderWidth: 2,
-              borderColor: chartColors.red[2],
-              backgroundColor: chartColors.red[2],
+              borderColor: chartColors.target2,
+              backgroundColor: chartColors.target2,
               pointStyle: "rectRot",
             },
             ...barDatasets,
@@ -188,7 +189,7 @@ const MonthlyBDTrendChart = ({
         //   sx: { fontWeight: "500" },
         // }}
       />
-      
+
       {loading ? (
         <Loading height={200} />
       ) : (

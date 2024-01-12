@@ -118,8 +118,8 @@ const LineChart = ({
     {
       type: "line",
       data: dataset?.data,
-      backgroundColor: chartColors[3],
-      borderColor: chartColors[3],
+      backgroundColor: chartColors.target,
+      borderColor: chartColors.targetBorder,
       borderWidth: 2,
       fill: false,
       yAxisID: "y2",
