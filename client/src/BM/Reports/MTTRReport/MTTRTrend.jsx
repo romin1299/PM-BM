@@ -27,7 +27,6 @@ const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
       const { message, data } = await res.json();
 
       if (res?.status === 201) {
-        console.log(data);
         setMTTRTrendData(data);
       }
     } catch (error) {
