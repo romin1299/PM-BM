@@ -5,7 +5,9 @@ import axios from "axios";
 import FileDownload from "js-file-download";
 import { Container, Row, Col } from "react-bootstrap";
 
-import CustomHooksForBackNavigation from "../ButtonComponents/CustomHooksForBackNavigation";
+import CustomHooksForBackNavigation, {
+  MuiNavigateBack,
+} from "../ButtonComponents/CustomHooksForBackNavigation";
 import {
   YearDropdown,
   MonthDropdown,
@@ -13,6 +15,7 @@ import {
 
 import BDRequestSheetTable from "../../BM/Reports/Common/DailyBDRequestSheetTable";
 import tableIcons from "../../components/MatrialTableIcon";
+import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
 
 const PMHistory = ({ machine_code, selectedYear, selectedMonth }) => {
   let columns = [
@@ -279,24 +282,24 @@ const HistoryFormateTable = () => {
   const [selectedMonth, setSelectedMonth] = useState("");
 
   return (
-    <Container fluid className="p-2">
-      <Row>
-        <Col>
-          <CustomHooksForBackNavigation />
-          &nbsp;
-          {machine_code}
-          &nbsp;
-          <YearDropdown
-            selectedYear={selectedYear}
-            setSelectedYear={setSelectedYear}
-          />
-          &nbsp;
-          <MonthDropdown
-            selectedMonth={selectedMonth}
-            setSelectedMonth={setSelectedMonth}
-          />
-        </Col>
-      </Row>
+    <Container fluid>
+      <ReportTitleBar
+        title={machine_code}
+        PreTools={<MuiNavigateBack />}
+        Toolbar={
+          <Col className="col-auto">
+            <YearDropdown
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+            />
+            &nbsp;
+            <MonthDropdown
+              selectedMonth={selectedMonth}
+              setSelectedMonth={setSelectedMonth}
+            />
+          </Col>
+        }
+      />
 
       <Row>
         {pageInfo?.[page]({

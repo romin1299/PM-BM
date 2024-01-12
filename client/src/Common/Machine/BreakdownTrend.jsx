@@ -1,6 +1,9 @@
+import { Box } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { Row, Col, ListGroup } from "react-bootstrap";
 import { Bar } from "react-chartjs-2";
+import ChartTitleBar from "../../BM/Reports/Common/ChartTitleBar";
+import { barChartOptions } from "../../BM/Utils/ChartUtils/chartOptions";
 
 const BreakdownTrend = ({ search }) => {
   const [BdTrendAndLastFiveProblem, setBdTrendAndLastFiveProblem] = useState({
@@ -52,19 +55,27 @@ const BreakdownTrend = ({ search }) => {
   };
 
   return (
-    <Row >
+    <Row className="gx-3 gy-2 mt-3">
       <Col lg={6}>
-        <Bar
-          data={dataset}
-          options={{
-            legend: {
-              display: true,
-              position: "top",
-            },
-          }}
-        />
+        <Box className="cell p-3">
+          <ChartTitleBar title={"Breakdown Trend"} />
+
+          <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+            <Bar
+              data={dataset}
+              options={{
+                ...barChartOptions,
+                legend: {
+                  display: true,
+                  position: "top",
+                },
+              }}
+            />
+          </Box>
+        </Box>
       </Col>
-      <Col>
+
+      <Col lg={6}>
         <ListGroup as="ol" numbered>
           {BdTrendAndLastFiveProblem?.lastFiveProblem?.map((item) => (
             <ListGroup.Item as="li">{item?.problem}</ListGroup.Item>

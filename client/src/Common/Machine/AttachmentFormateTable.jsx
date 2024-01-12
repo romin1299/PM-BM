@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
-import {  useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
 
 import AddNewAttachmentModal from "./AddNewAttachmentModal";
-import CustomHooksForBackNavigation from "../ButtonComponents/CustomHooksForBackNavigation";
+import CustomHooksForBackNavigation, {
+  MuiNavigateBack,
+} from "../ButtonComponents/CustomHooksForBackNavigation";
+import { Container } from "react-bootstrap";
+import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
 
 const pageInfo = {
   // "bm-history": {
@@ -149,81 +153,86 @@ const AttachmentFormateTable = () => {
   ];
 
   return (
-    <div className="p-2">
-      <CustomHooksForBackNavigation />
-      <MaterialTable
-        localization={{
-          header: {
-            actions: "Actions",
-          },
-        }}
-        actions={actions}
-        icons={tableIcons}
-        columns={columns}
-        data={attachmentDetails}
-        editable={{
-          onRowDelete: (selectedRow) =>
-            new Promise((resolve, reject) => {
-              handleDeleteAttachment(selectedRow);
-              setTimeout(() => {
-                resolve();
-              }, 500);
-            }),
-        }}
-        options={{
-          showTitle: false,
-          paging: false,
-          sorting: true,
-          search: true,
-          filtering: false,
-          exportButton: true,
-          exportAllData: true,
-          draggable: false,
-          actionsColumnIndex: -1,
-          pageSize: 10,
-          // pageSizeOptions: false,  //commented because showing warning in console: invalid prop
-          paginationType: "stepped",
-          addRowPosition: "first",
-          headerStyle: {
-            position: "sticky",
-            top: "0",
-            fontWeight: "bold",
-            fontSize: "14px",
-          },
-          maxBodyHeight: "70vh",
-          rowStyle: {
-            // fontStyle:'bold'
+    <Container fluid>
+      <ReportTitleBar title={machine_code} PreTools={<MuiNavigateBack />} />
 
-            boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-            // color:"rgba(255,255,255,0.8)",
-            borderRadius: "5px",
-            border: "1px solid rgba(255,255,255)",
-            WebkitBackdropFilter: "blur( 2px )",
-            background: "rgba(255,255,255,0.1)",
-            backdropFilter: "blur(5px)",
-          },
-          // exportMenu: [
-          //   {
-          //     label: "Export PDF",
-          //     exportFunc: (cols, data) =>
-          //       ExportPdf(
-          //         cols,
-          //         data,
-          //         `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
-          //       ),
-          //   },
-          //   {
-          //     label: "Export CSV",
-          //     exportFunc: (cols, data) =>
-          //       ExportCsv(
-          //         cols,
-          //         data,
-          //         `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
-          //       ),
-          //   },
-          // ],
-        }}
-      />
+      {/* <CustomHooksForBackNavigation /> */}
+
+      <div className="mt-3">
+        <MaterialTable
+          localization={{
+            header: {
+              actions: "Actions",
+            },
+          }}
+          actions={actions}
+          icons={tableIcons}
+          columns={columns}
+          data={attachmentDetails}
+          editable={{
+            onRowDelete: (selectedRow) =>
+              new Promise((resolve, reject) => {
+                handleDeleteAttachment(selectedRow);
+                setTimeout(() => {
+                  resolve();
+                }, 500);
+              }),
+          }}
+          options={{
+            showTitle: false,
+            paging: false,
+            sorting: true,
+            search: true,
+            filtering: false,
+            exportButton: true,
+            exportAllData: true,
+            draggable: false,
+            actionsColumnIndex: -1,
+            pageSize: 10,
+            // pageSizeOptions: false,  //commented because showing warning in console: invalid prop
+            paginationType: "stepped",
+            addRowPosition: "first",
+            headerStyle: {
+              position: "sticky",
+              top: "0",
+              fontWeight: "bold",
+              fontSize: "14px",
+            },
+            maxBodyHeight: "70vh",
+            rowStyle: {
+              // fontStyle:'bold'
+
+              boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+              // color:"rgba(255,255,255,0.8)",
+              borderRadius: "5px",
+              border: "1px solid rgba(255,255,255)",
+              WebkitBackdropFilter: "blur( 2px )",
+              background: "rgba(255,255,255,0.1)",
+              backdropFilter: "blur(5px)",
+            },
+            // exportMenu: [
+            //   {
+            //     label: "Export PDF",
+            //     exportFunc: (cols, data) =>
+            //       ExportPdf(
+            //         cols,
+            //         data,
+            //         `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
+            //       ),
+            //   },
+            //   {
+            //     label: "Export CSV",
+            //     exportFunc: (cols, data) =>
+            //       ExportCsv(
+            //         cols,
+            //         data,
+            //         `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
+            //       ),
+            //   },
+            // ],
+          }}
+        />
+      </div>
 
       <AddNewAttachmentModal
         handleShowAddNewAttachmentModal={handleShowAddNewAttachmentModal}
@@ -232,7 +241,7 @@ const AttachmentFormateTable = () => {
         pageDetails={pageDetails}
         setAttachmentDetails={setAttachmentDetails}
       />
-    </div>
+    </Container>
   );
 };
 
