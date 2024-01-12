@@ -25,7 +25,7 @@ const subSectionSchema = new mongoose.Schema({
 
   yearGroup: [
     {
-      groupName: { type: String },
+      group: { type: String },
       from: { type: Number },
       to: { type: Number },
     },

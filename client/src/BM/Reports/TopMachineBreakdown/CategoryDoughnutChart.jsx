@@ -10,6 +10,8 @@ import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
 
+import { CommonDropdown } from "../ManHourReport/SubComponents/LineSelectionDropdown";
+
 const ChartCard = ({ category }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -75,37 +77,47 @@ const ChartCard = ({ category }) => {
   );
 };
 
-const CategoryDoughnutChart = () => {
+const CategoryDoughnutChart = ({
+  flagForTogglingFilter,
+  selectedValue,
+  selectedYear,
+  groupData,
+}) => {
   const [categories, setCategories] = React.useState([]);
 
-  //   const BDCategoryAndFactor = async () => {
-  //     try {
-  //       const res = await fetch(
-  //         `/getPieChartData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
-  //         {
-  //           method: "GET",
-  //           headers: {
-  //             Accept: "application/json",
-  //             "Content-Type": "application/json",
-  //           },
-  //           credentials: "include",
-  //         }
-  //       );
-  //       const response = await res.json();
-  //       if (res.status === 201) {
-  //         console.log(response);
-  //         setCategories(response?.categoriesPieChartData);
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
+  const [selectedGroup, setSelectedGroup] = React.useState("");
 
-  //   useEffect(() => {
-  //     if (selectedValue) {
-  //       BDCategoryAndFactor();
-  //     }
-  //   }, [selectedValue, selectedYear, selectedMonth]);
+  const getMachineAgePieChart = async () => {
+    try {
+      const res = await fetch(
+        `/getMachineAgePieChart/${flagForTogglingFilter}/${selectedValue}/${selectedGroup}/?selectedYear=${selectedYear}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      const { data } = await res.json();
+      if (res.status === 201 || data) {
+        setCategories(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedGroup) {
+      getMachineAgePieChart();
+    }
+  }, [selectedYear, selectedGroup]);
+
+  useEffect(() => {
+    setSelectedGroup(groupData?.[0]?._id);
+  }, [groupData?.[0]?._id]);
 
   useEffect(() => {
     setCategories([
@@ -126,6 +138,13 @@ const CategoryDoughnutChart = () => {
 
   return (
     <>
+      <CommonDropdown
+        selectedItem={selectedGroup}
+        setSelectedItem={setSelectedGroup}
+        arr={groupData}
+        defaultTitle="Group"
+        objKeyName="group"
+      />
       <Row className="g-3">
         {categories?.map((category, index) => (
           <Col key={index} sm={6} xs={12}>

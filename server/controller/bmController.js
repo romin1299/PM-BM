@@ -11435,6 +11435,7 @@ const middlewareForFindingMaxValue = async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
+
 router.get(
   "/tmMTTRSkill/getScore",
   authenticate,
@@ -11589,21 +11590,17 @@ router.post(
   sectionOrSubSectionFilterMiddleware,
   async (req, res, next) => {
     try {
-      const { groupName, from, to } = req.body;
-
-      const yearGroup = await req.Model.findOneAndUpdate(
+      const machine = await req.Model.findOneAndUpdate(
         req.findObj,
         {
-          $push: { yearGroup: { groupName, from, to } },
-          // $push: { yearGroup: { groupName, from, to } },
+          $push: { yearGroup: req.body },
         },
         { new: true }
       );
 
       return res.status(201).json({
         message: "Year Group added successfully",
-
-        yearGroup,
+        yearGroup: machine?.yearGroup,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -11616,13 +11613,13 @@ router.patch(
   sectionOrSubSectionFilterMiddleware,
   async (req, res, next) => {
     try {
-      const { groupName, from, to } = req.body;
+      const { group, from, to } = req.body;
 
       const yearGroup = await req.Model.findOneAndUpdate(
         req.findObj,
         {
           $set: {
-            "yearGroup.$[outer].groupName": groupName,
+            "yearGroup.$[outer].group": group,
             "yearGroup.$[outer].from": from,
             "yearGroup.$[outer].to": to,
           },
@@ -11636,7 +11633,6 @@ router.patch(
 
       return res.status(201).json({
         message: "Year Group updated successfully",
-
         yearGroup,
       });
     } catch (error) {
@@ -11650,21 +11646,13 @@ router.delete(
   sectionOrSubSectionFilterMiddleware,
   async (req, res, next) => {
     try {
-      const yearGroup = await req.Model.findOneAndUpdate(
-        req.findObj,
-        {
-          $pull: {
-            yearGroup: {
-              _id: mongoose.Types.ObjectId(req.params.id),
-            },
+      const yearGroup = await req.Model.findOneAndUpdate(req.findObj, {
+        $pull: {
+          yearGroup: {
+            _id: mongoose.Types.ObjectId(req.params.id),
           },
         },
-        {
-          arrayFilters: [
-            { "yearGroup._id": mongoose.Types.ObjectId(req.params?.id) },
-          ],
-        }
-      );
+      });
 
       return res.status(201).json({
         message: "Year Group deleted successfully",
@@ -11962,7 +11950,7 @@ router.get(
                     },
                   },
                   as: "matchedGroup",
-                  in: "$$matchedGroup.groupName",
+                  in: "$$matchedGroup.group",
                 },
               },
               0,
@@ -12106,7 +12094,7 @@ router.get(
       {
         $group: {
           _id: {
-            groupName: "$groupName.groupName",
+            groupName: "$groupName.group",
             // groupName: req.params.groupName,
             category: "$categoriesOfRequestSheet.category",
             subCategory: "$categoriesOfRequestSheet.subCategory",
@@ -12185,7 +12173,7 @@ router.get(
 
     return res.status(201).json({
       message: "Machine Age data for Piechart get successfully",
-      data: machineData?.[0].categories,
+      data: machineData?.[0]?.categories,
     });
   }
 );
@@ -12534,9 +12522,7 @@ const middlewareForFindingTrendData = async (req, res, next) => {
       {
         $project: {
           count: 1,
-          hours:truncValueUptoTwoDigit(
-            req.hourCalculationFormula,
-          ) 
+          hours: truncValueUptoTwoDigit(req.hourCalculationFormula),
         },
       },
       {
@@ -12677,12 +12663,8 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
       {
         $project: {
           lineName: "$line.line_name",
-          target:truncValueUptoTwoDigit(
-            "$line.target",
-          ) ,
-          hours: truncValueUptoTwoDigit(
-            req.hourCalculationFormula,
-          ) 
+          target: truncValueUptoTwoDigit("$line.target"),
+          hours: truncValueUptoTwoDigit(req.hourCalculationFormula),
         },
       },
       {
