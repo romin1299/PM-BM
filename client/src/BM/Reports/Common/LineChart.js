@@ -14,9 +14,11 @@ import { Box, Divider, Typography } from "@mui/material";
 import { Col, Row } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "./ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
 
 const LineChart = ({
   title,
+  loading = false,
   dataset,
   setValue,
   clearErrors,
@@ -116,8 +118,8 @@ const LineChart = ({
     {
       type: "line",
       data: dataset?.data,
-      backgroundColor: chartColors[3],
-      borderColor: chartColors[3],
+      backgroundColor: chartColors.target,
+      borderColor: chartColors.targetBorder,
       borderWidth: 2,
       fill: false,
       yAxisID: "y2",
@@ -133,9 +135,13 @@ const LineChart = ({
     <Box className="cell p-3">
       <ChartTitleBar title={title} Toolbar={AppendToolComponents} />
 
-      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        <Line options={options} data={data} />
-      </Box>
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+          <Line options={options} data={data} />
+        </Box>
+      )}
     </Box>
   );
 };

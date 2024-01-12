@@ -16,6 +16,7 @@ import {
   PointElement,
 } from "chart.js";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -84,27 +85,13 @@ export const options = {
   },
 };
 
-const machineNames = [
-  "MA5",
-  "FANW21",
-  "MFI21",
-  "OEPS21",
-  "PPLIN1",
-  "SHN1",
-  "JLD2",
-  "ABT2",
-  "MIK1",
-  "LPD2",
-  "PWL12",
-  "AWQ4",
-];
-
 const LineTrend = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
   selectedMonth,
 }) => {
+  const [loading, setLoading] = React.useState(true);
   const [labels, setLabels] = useState([]);
 
   const [lineTrendData, setLineTrendData] = useState({
@@ -115,6 +102,8 @@ const LineTrend = ({
   });
 
   const getLineTrendData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/manHourReport/lineTrend/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -137,6 +126,8 @@ const LineTrend = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -152,13 +143,13 @@ const LineTrend = ({
         type: "line",
         label: "%",
         data: lineTrendData?.percentage,
-        borderColor: chartColors.target,
+        borderColor: chartColors.percentLine,
         borderWidth: 2,
         fill: false,
-        backgroundColor: chartColors.target,
-        pointStyle: "rectRot",
-        pointRadius: 4,
-        pointBorderColor: chartColors.target,
+        backgroundColor: chartColors.percentLine,
+        // pointStyle: "rectRot",
+        pointRadius: 3,
+        pointBorderColor: chartColors.percentLine,
         yAxisID: "y1",
       },
       {
@@ -166,8 +157,8 @@ const LineTrend = ({
         stack: "bar-stacked",
         label: "BM",
         data: lineTrendData?.totalSumOf_BM,
-        backgroundColor: chartColors.palettes.bmpm[0],
-        pointStyle: "rect",
+        backgroundColor: chartColors.bmpm[0],
+        borderRadius: 4,
         yAxisID: "y2",
       },
       {
@@ -175,8 +166,8 @@ const LineTrend = ({
         stack: "bar-stacked",
         label: "PM",
         data: lineTrendData?.totalSumOf_PM,
-        backgroundColor: chartColors.palettes.bmpm[1],
-        pointStyle: "rect",
+        backgroundColor: chartColors.bmpm[1],
+        borderRadius: 4,
         yAxisID: "y2",
       },
     ],
@@ -206,8 +197,11 @@ const LineTrend = ({
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="Line Trend" />
-
-      <Chart options={options} data={data} />
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Chart options={options} data={data} />
+      )}
       {/* <button onClick={dummyAPI}>For Test</button> */}
     </Box>
     // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>

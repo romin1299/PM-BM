@@ -3,12 +3,15 @@ import React, { useEffect, useReducer } from "react";
 import SmallChartCardComponent from "./SmallChartCardComponent";
 
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
+import Loading from "../../../components/Loading/Loading";
 
 const MTBFComponent = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const initialState = {
     MTBFReportData: {
       labels: [],
@@ -44,6 +47,8 @@ const MTBFComponent = ({
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getMTBFReportData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/getMtbfData/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}`,
@@ -71,6 +76,8 @@ const MTBFComponent = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -79,10 +86,14 @@ const MTBFComponent = ({
 
   return (
     <SmallChartCardComponent title="MTBF">
-      <LineBarChartForProductionLineWise
-        MTBF={true}
-        ReportData={reduceState?.MTBFReportData}
-      />
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <LineBarChartForProductionLineWise
+          MTBF={true}
+          ReportData={reduceState?.MTBFReportData}
+        />
+      )}
     </SmallChartCardComponent>
   );
 };

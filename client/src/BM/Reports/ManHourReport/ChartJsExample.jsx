@@ -9,11 +9,10 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import { Box, Divider, Typography } from "@mui/material";
-import { Col, Row } from "react-bootstrap";
+import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
-import { FilterMenu } from "./SubComponents/FilterMenu";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -82,50 +81,21 @@ const serverResLabels = [
   "Mar",
 ];
 
-const serverResDataset = [
-  {
-    label: "BM",
-    data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-    pointStyle: "rect",
-  },
-  {
-    label: "PM",
-    data: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
-    pointStyle: "rect",
-  },
-];
-
-// for multi charts i.e. line and bar combined
-const otherDataConfigs = [
-  {
-    type: "line",
-    borderColor: chartColors.orange[1],
-    borderWidth: 2,
-    fill: false,
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-  },
-  {
-    type: "bar",
-    stack: "bar-stacked",
-  },
-];
-
-const colorPreset = [chartColors[1], chartColors[2]];
-
 const ChartToPPTExample = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [HourTrendData, setHourTrendData] = useState({
     BMHourTrend: [],
     PMHourTrend: [],
   });
 
   const getHourTrendData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/manHourReport/hourTrend/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -148,6 +118,8 @@ const ChartToPPTExample = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -162,12 +134,14 @@ const ChartToPPTExample = ({
       {
         label: "BM",
         data: HourTrendData?.BMHourTrend,
-        backgroundColor: chartColors.palettes.bmpm[0],
+        backgroundColor: chartColors.bmpm[0],
+        borderRadius: 4,
       },
       {
         label: "PM",
         data: HourTrendData?.PMHourTrend,
-        backgroundColor: chartColors.palettes.bmpm[1],
+        backgroundColor: chartColors.bmpm[1],
+        borderRadius: 4,
       },
     ],
 
@@ -180,8 +154,11 @@ const ChartToPPTExample = ({
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="Hour Trend" />
-
-      <Bar options={options} data={data} />
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Bar options={options} data={data} />
+      )}
     </Box>
   );
 };

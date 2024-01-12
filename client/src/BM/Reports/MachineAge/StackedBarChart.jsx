@@ -81,15 +81,20 @@ export const options = {
   },
 };
 
-const StackedBarChart = () => {
+const StackedBarChart = ({
+  filterState,
+  selectedYear,
+}) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [],
   });
 
+  const { flagForTogglingFilter, selectedValue } = filterState;
+
   const fetchChartData = async () => {
-    const url = ``;
-    const params = {};
+    const url = `/getMachineAgeMonthwise/${flagForTogglingFilter}/${selectedValue}`;
+    const params = { selectedYear };
 
     try {
       const res = await axios.get(url, {
@@ -100,29 +105,29 @@ const StackedBarChart = () => {
       });
       // console.log("monthly bd trend res:", res);
 
-      const data = res?.data?.bdTrendData;
-      const barDatasets = res?.data?.bdTrendData?.map((item, index) => ({
+      const data = res?.data?.machineData;
+
+      const barDatasets = res?.data?.machineData?.map((item, index) => ({
         type: "bar",
         stack: "bar-stacked",
         label: item?.label || item?._id,
         data: item?.data,
-        backgroundColor: chartColors.palettes[0][index],
+        backgroundColor: chartColors.monthlyBDTrend[index],
       }));
 
-      const targetData = res?.data?.bdTrendDataTarget;
-      // const targetData = getRandomDataArray(12, 5, 8);
+     
 
-      if (data) {
+      if (data) { 
         setChartData({
           labels: MONTH_LABELS,
           datasets: [
             {
               type: "line",
               label: "Target",
-              data: targetData,
+              // data: targetData,
               borderWidth: 2,
-              borderColor: chartColors.red[2],
-              backgroundColor: chartColors.red[2],
+              borderColor: chartColors.target,
+              backgroundColor: chartColors.targetBorder,
               pointStyle: "rectRot",
             },
             ...barDatasets,
@@ -140,53 +145,53 @@ const StackedBarChart = () => {
 
   // console.log("chartData:", chartData);
 
-  //   useEffect(() => {
-  //     if (flagForTogglingFilter && selectedValue && selectedYear && filter)
-  //       fetchChartData();
-  //   }, [flagForTogglingFilter, selectedValue, filter, selectedYear]);
+    useEffect(() => {
+      if (flagForTogglingFilter && selectedValue && selectedYear)
+        fetchChartData();
+    }, [flagForTogglingFilter, selectedValue, selectedYear]);
 
-  useEffect(() => {
-    setChartData({
-      labels: MONTH_LABELS,
-      datasets: [
-        // {
-        //   type: "line",
-        //   label: "Target",
-        //   data: [221, 220, 220, 220, 220, 221, 220, 220, 220, 220, 220, 218],
-        //   borderWidth: 2,
-        //   borderColor: "#9F0000",
-        //   backgroundColor: "#9F0000",
-        //   pointStyle: "rectRot",
-        // },
-        {
-          type: "bar",
-          stack: "bar-stacked",
-          label: "Grp1",
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 2.94, 0.48, 0, 0],
-          backgroundColor: "#c2c933",
-        },
-        {
-          type: "bar",
-          stack: "bar-stacked",
-          label: "Grp2",
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 1.53, 0, 0, 0],
-          backgroundColor: "#778899",
-        },
-        {
-          type: "bar",
-          stack: "bar-stacked",
-          label: "Grp3",
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 3.11, 0, 0],
-          backgroundColor: "#0BB4CB",
-        },
-      ],
-    });
-  }, []);
+  // useEffect(() => {
+  //   setChartData({
+  //     labels: MONTH_LABELS,
+  //     datasets: [
+  //       // {
+  //       //   type: "line",
+  //       //   label: "Target",
+  //       //   data: [221, 220, 220, 220, 220, 221, 220, 220, 220, 220, 220, 218],
+  //       //   borderWidth: 2,
+  //       //   borderColor: "#9F0000",
+  //       //   backgroundColor: "#9F0000",
+  //       //   pointStyle: "rectRot",
+  //       // },
+  //       {
+  //         type: "bar",
+  //         stack: "bar-stacked",
+  //         label: "Grp1",
+  //         data: [0, 0, 0, 0, 0, 0, 0, 0, 2.94, 0.48, 0, 0],
+  //         backgroundColor: "#c2c933",
+  //       },
+  //       {
+  //         type: "bar",
+  //         stack: "bar-stacked",
+  //         label: "Grp2",
+  //         data: [0, 0, 0, 0, 0, 0, 0, 0, 1.53, 0, 0, 0],
+  //         backgroundColor: "#778899",
+  //       },
+  //       {
+  //         type: "bar",
+  //         stack: "bar-stacked",
+  //         label: "Grp3",
+  //         data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 3.11, 0, 0],
+  //         backgroundColor: "#0BB4CB",
+  //       },
+  //     ],
+  //   });
+  // }, []);
 
   return (
     <Box className="container-fluid cell p-3">
       <ChartTitleBar
-        title="Monthly Breakdown Trend"
+        title="Machine Age"
         // titleProps={{
         //   sx: { fontWeight: "500" },
         // }}

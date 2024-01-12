@@ -1,14 +1,15 @@
 import React, { useEffect, useReducer } from "react";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
 import SmallChartCardComponent from "./SmallChartCardComponent";
-
-
+import Loading from "../../../components/Loading/Loading";
 
 const BDPercentageChart = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const initialState = {
     BDPercentageReportData: {
       labels: [],
@@ -44,6 +45,8 @@ const BDPercentageChart = ({
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getBDPercentageReportData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/getBdPercentage/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}`,
@@ -69,6 +72,8 @@ const BDPercentageChart = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -79,10 +84,14 @@ const BDPercentageChart = ({
 
   return (
     <SmallChartCardComponent title="BD %">
-      <LineBarChartForProductionLineWise
-        ReportData={reduceState?.BDPercentageReportData}
-        xAxisVerticleTicks
-      />
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <LineBarChartForProductionLineWise
+          ReportData={reduceState?.BDPercentageReportData}
+          xAxisVerticleTicks
+        />
+      )}
     </SmallChartCardComponent>
   );
 };

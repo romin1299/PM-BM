@@ -18,6 +18,7 @@ import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -88,6 +89,8 @@ const MonthlyBDTrendChart = ({
   setFilter,
   selectedYear,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [],
@@ -103,6 +106,8 @@ const MonthlyBDTrendChart = ({
   }, [currentTabViewName]);
 
   const fetchChartData = async () => {
+    setLoading(true);
+
     // console.count("Monthly BD Report");
     // console.log("filterState:", filterState.flagForTogglingFilter);
 
@@ -134,7 +139,8 @@ const MonthlyBDTrendChart = ({
         stack: "bar-stacked",
         label: item?.label || item?._id,
         data: item?.data,
-        backgroundColor: chartColors.palettes[0][index],
+        backgroundColor: chartColors.monthlyBDTrend[index],
+        borderRadius: 4,
       }));
 
       const targetData = res?.data?.bdTrendDataTarget;
@@ -149,8 +155,8 @@ const MonthlyBDTrendChart = ({
               label: "Target",
               data: targetData,
               borderWidth: 2,
-              borderColor: chartColors.red[2],
-              backgroundColor: chartColors.red[2],
+              borderColor: chartColors.target2,
+              backgroundColor: chartColors.target2,
               pointStyle: "rectRot",
             },
             ...barDatasets,
@@ -164,6 +170,8 @@ const MonthlyBDTrendChart = ({
         datasets: [],
       });
     }
+
+    setLoading(false);
   };
 
   console.log("chartData:", chartData);
@@ -182,18 +190,22 @@ const MonthlyBDTrendChart = ({
         // }}
       />
 
-      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        {chartData === undefined || chartData?.datasets?.length < 1 ? (
-          <DataNotFound />
-        ) : (
-          <Chart
-            type="bar"
-            options={options}
-            data={chartData}
-            plugins={[ChartDataLabels]}
-          />
-        )}
-      </Box>
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+          {chartData === undefined || chartData?.datasets?.length < 1 ? (
+            <DataNotFound />
+          ) : (
+            <Chart
+              type="bar"
+              options={options}
+              data={chartData}
+              plugins={[ChartDataLabels]}
+            />
+          )}
+        </Box>
+      )}
     </Box>
   );
 };

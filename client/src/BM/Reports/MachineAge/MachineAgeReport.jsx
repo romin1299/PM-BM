@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import ReportTitleBar from "../Common/ReportTitleBar";
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
@@ -15,6 +15,8 @@ import CategoryDoughnutChart from "../TopMachineBreakdown/CategoryDoughnutChart"
 const MachineAgeReport = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+
+  const [filterState, setFilterState] = useState(initialState);
 
   return (
     <>
@@ -39,7 +41,7 @@ const MachineAgeReport = () => {
             <YearlyContributionBarChart />
           </Col>
           <Col xxl={6} lg={6} md={12} className="mb-2">
-            <StackedBarChart />
+            <StackedBarChart filterState={filterState} />
           </Col>
           <Col xxl={6} lg={6} md={12} className="mb-2">
             <CategoryDoughnutChart />

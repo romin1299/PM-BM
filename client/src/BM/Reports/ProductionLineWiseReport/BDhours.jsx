@@ -2,8 +2,10 @@ import React, { useEffect, useReducer } from "react";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
 
 import SmallChartCardComponent from "./SmallChartCardComponent";
+import Loading from "../../../components/Loading/Loading";
 
 const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
+  const [loading, setLoading] = React.useState(true);
   const initialState = {
     BDHours: {
       labels: [],
@@ -38,6 +40,8 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getBDHours = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/getBDHoursGraphData/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}`,
@@ -64,6 +68,8 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -74,7 +80,11 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
 
   return (
     <SmallChartCardComponent title="BD Hours">
-      <LineBarChartForProductionLineWise ReportData={reduceState?.BDHours} />
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <LineBarChartForProductionLineWise ReportData={reduceState?.BDHours} />
+      )}
     </SmallChartCardComponent>
   );
 };

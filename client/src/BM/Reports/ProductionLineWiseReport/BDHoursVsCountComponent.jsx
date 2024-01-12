@@ -10,6 +10,7 @@ import { MonthDropdown } from "../ManHourReport/SubComponents/LineSelectionDropd
 import { FilterMenu } from "../MTTRReport/SubComponents/FilterMenu";
 import { DynamicFiltersMenu } from "./DynamicFiltersMenu";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
 
 const BDHoursVsCountComponent = ({
   selectedValue,
@@ -17,6 +18,7 @@ const BDHoursVsCountComponent = ({
   selectedYear,
   // selectedMonth,
 }) => {
+  const [loading, setLoading] = React.useState(true);
   const [selectedMonth, setSelectedMonth] = useState();
 
   const initialState = {
@@ -92,6 +94,8 @@ const BDHoursVsCountComponent = ({
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getBDhoursVsCountReportData = async ({ purpose, data }) => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/getBDhoursVsCountDataFunction/${purpose}/${flagForTogglingFilter}/63317dbe1d1becfedab337e4/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
@@ -121,6 +125,8 @@ const BDHoursVsCountComponent = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   // console.log(reduceState);
@@ -154,19 +160,24 @@ const BDHoursVsCountComponent = ({
         }
       />
 
-      <FilterComponent
-        getBDhoursVsCountReportData={getBDhoursVsCountReportData}
-        selectedValue={selectedValue}
-        selectedYear={selectedYear}
-        selectedMonth={selectedMonth}
-      />
-
-      <BDHoursVsCountChart
-        totalBDCount={reduceState?.totalBDCount}
-        BDCount={reduceState?.BDCount}
-        BDhours={reduceState?.BDhours}
-        labels={reduceState?.labels}
-      />
+      {loading ? (
+        <Loading height={300} />
+      ) : (
+        <>
+          <FilterComponent
+            getBDhoursVsCountReportData={getBDhoursVsCountReportData}
+            selectedValue={selectedValue}
+            selectedYear={selectedYear}
+            selectedMonth={selectedMonth}
+          />
+          <BDHoursVsCountChart
+            totalBDCount={reduceState?.totalBDCount}
+            BDCount={reduceState?.BDCount}
+            BDhours={reduceState?.BDhours}
+            labels={reduceState?.labels}
+          />
+        </>
+      )}
     </Box>
   );
 };

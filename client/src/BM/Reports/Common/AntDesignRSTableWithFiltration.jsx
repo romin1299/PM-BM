@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
 import BDRequestSheetAntDesignTable from "./DailyBDRequestSheetAntDesignTable";
 import { useForm } from "react-hook-form";
-import { Button, Paper } from "@mui/material";
+import { Box, Button, Paper } from "@mui/material";
 import { Row } from "reactstrap";
+import Loading from "../../../components/Loading/Loading";
 
 const AntDesignRSTableWithFiltration = ({
   flagForTogglingFilter,
   selectedValue,
   selectedYear,
-  downloadFileName
+  downloadFileName,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const {
     register,
     handleSubmit,
@@ -23,6 +26,8 @@ const AntDesignRSTableWithFiltration = ({
   ] = useState([]);
 
   const getRequestSheetDataBasedOnFromAndToDateSelection = async (data) => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         `/getRequestSheetDataBasedOnFromAndToDateSelection/${flagForTogglingFilter}/${selectedValue}/${data?.selectedToDate}/${data?.selectedFromDate}/?selectedYear=${selectedYear}`,
@@ -44,6 +49,8 @@ const AntDesignRSTableWithFiltration = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -132,10 +139,17 @@ const AntDesignRSTableWithFiltration = ({
         >
           Reset
         </Button>
-        <BDRequestSheetAntDesignTable
-          requestSheetData={requestSheetDataForProductAndLineWise}
-          downloadFileName={downloadFileName}
-        />
+
+        {loading ? (
+          <Box mt={2}>
+            <Loading height={200} />
+          </Box>
+        ) : (
+          <BDRequestSheetAntDesignTable
+            requestSheetData={requestSheetDataForProductAndLineWise}
+            downloadFileName={downloadFileName}
+          />
+        )}
       </Paper>
     </>
   );

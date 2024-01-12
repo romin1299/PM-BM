@@ -56,8 +56,6 @@ function MyTable({
 
   useEffect(() => {
     if (requestSheetDataOfBM?._id) {
-      console.log("requestSheetDataOfBM:", requestSheetDataOfBM);
-
       setValue(
         "workStartedDateOfBM",
         moment(
@@ -209,7 +207,7 @@ function MyTable({
       <Table className="mb-5">
         <tbody className="m-1 border p-3">
           <tr className="row m-0 mb-0">
-            <td class="col-lg-8 col-md-6 col-sm-12">
+            <td className="col-lg-8 col-md-6 col-sm-12">
               <h4 className="mt-0 d-flex align-items-center justify-content-center">
                 MAINTENANCE REPORT ( To be filled by MTD)
               </h4>
@@ -721,7 +719,7 @@ function MyTable({
                           <input
                                 disabled
                             type="text"
-                            class="mb-2"
+                            className="mb-2"
                             id="feedbackMTD_HOS"
                             name="feedbackMTD_HOS"
                             style={{ width: "60%" }}
@@ -745,8 +743,8 @@ function MyTable({
             </td> */}
           </tr>
 
-          <tr class="row m-0">
-            <td class="col-lg-4 col-md-6 col-sm-12 border-bottom">
+          <tr className="row m-0">
+            <td className="col-lg-4 col-md-6 col-sm-12 border-bottom">
               <div className="mtd-problem-section">
                 <small
                   className="border d-flex align-items-center"
@@ -774,7 +772,7 @@ function MyTable({
                 {...register("problemValidation", {
                   // required: "This field is required",
                 })}
-                class="visually-hidden"
+                className="visually-hidden"
               ></input>
               {errors?.["problemValidation"] && (
                 <p className="text-error">
@@ -1011,7 +1009,7 @@ function MyTable({
                 {...register("totalTimeValidation", {
                   // required: "This field is required",
                 })}
-                class="visually-hidden"
+                className="visually-hidden"
               ></input>
               {errors?.["totalTimeValidation"] && (
                 <p className="text-error">
@@ -1226,7 +1224,7 @@ function MyTable({
 
               {/* <ActionList actions={actions} setActions={setActions} /> */}
             </td>
-            <td class="col-lg-3 col-md-6 col-sm-12 border-bottom">
+            <td className="col-lg-3 col-md-6 col-sm-12 border-bottom">
               <Row className="m-0">
                 <Col className="border">
                   <small className="mb-0">
@@ -1336,7 +1334,7 @@ function MyTable({
               </Row>
             </td>
 
-            <td class="col-lg-4 col-md-12 col-sm-12  border-bottom">
+            <td className="col-lg-4 col-md-12 col-sm-12  border-bottom">
               <Row className="m-0">
                 <Col className="border p-2">
                   <small className="mb-0 d-flex align-items-center justify-content-start">
@@ -1480,8 +1478,8 @@ function MyTable({
             </td>
           </tr>
 
-          <tr class="row m-0">
-            <td class="col-lg-6 col-md-12 col-sm-12">
+          <tr className="row m-0">
+            <td className="col-lg-6 col-md-12 col-sm-12">
               <div className="mtd-actions-section">
                 <Row className="m-0">
                   <Col
@@ -1523,7 +1521,7 @@ function MyTable({
                 ))}
               </div>
             </td>
-            <td class="col-lg-6 col-md-12 col-sm-12">
+            <td className="col-lg-6 col-md-12 col-sm-12">
               <Row className="m-0">
                 <Col className="border col-lg-12 col-md-12 col-sm-12">
                   <small>
@@ -1650,11 +1648,6 @@ function MyTable({
               </Row>
             </td>
             <td className="col-lg-6 col-md-6">
-              {console.log(
-                "requestSheetDataOfBM?.categoriesOfRequestSheet:",
-                requestSheetDataOfBM?.categoriesOfRequestSheet
-              )}
-
               {requestSheetDataOfBM?.categoriesOfRequestSheet?.map(
                 (item, index) => (
                   <>
@@ -1759,8 +1752,6 @@ function MyTable({
                 </Col>
                 <Col lg={11} md={11}>
                   <Row className="">
-                    {console.log("parts:", parts)}
-
                     <div className="mtd-parts-section">
                       <Row className="m-0 d-flex">
                         <Col sm={2} className="border">
