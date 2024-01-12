@@ -28,7 +28,7 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable({ requestSheetDataOfBM }) {
+function MyTable({ requestSheetDataOfBM, machineId }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { machine_code, generateType, requestSheetID } = useParams();
@@ -230,6 +230,14 @@ function MyTable({ requestSheetDataOfBM }) {
                   <Col>
                     <button className="btn bg-button m-2" onClick={handleBack}>
                       Back
+                    </button>
+                    <button
+                      className="btn bg-button m-2"
+                      onClick={() => {
+                        navigate(`/machine-history/${machine_code}/?machineId=${machineId}`);
+                      }}
+                    >
+                      Machine History
                     </button>
                   </Col>
                   <Col>

@@ -80,11 +80,14 @@ function MyTable() {
     getRequestSheetDetails();
   }, [requestSheetID]);
 
+  console.log(selectedMachineDetails);
+
   return (
     <>
-      <div style={{overflow: "scroll"}}>
+      <div style={{ overflow: "scroll" }}>
         <PRDRequestSheetForUpdate
           // selectedMachineDetails={selectedMachineDetails}
+          machineId={selectedMachineDetails?._id}
           requestSheetDataOfBM={requestSheetDataOfBM}
           // approvalListOfBM={approvalListOfBM}
         />

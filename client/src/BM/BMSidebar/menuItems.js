@@ -160,7 +160,7 @@ export const menuItems = [
   {
     title: "Profile",
     icon: <AccountCircleIcon className="text-white" />,
-    route: "/bm/profile",
+    route: "/profile",
     allowedRoles: allusers,
   },
 

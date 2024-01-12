@@ -19,6 +19,9 @@ require(path.join(__dirname, "./model/machineSchema"));
 
 app.use(express.json());
 
+// const { dummyCron } = require(path.join(__dirname, "./controller/dummyCron"));
+// dummyCron();
+
 app.use(require(path.join(__dirname, "./controller/auth")));
 app.use(require(path.join(__dirname, "./controller/bmController")));
 
@@ -38,7 +41,7 @@ require(path.join(__dirname, "./controller/financialYearController"));
 // require(path.join(__dirname, './controller/everyDayAutoBackup'));
 
 //for logos and other image
-app.use("/bm", express.static(path.join(__dirname, "images")));
+app.use(express.static(path.join(__dirname, "images")));
 // build folder path
 app.use(express.static(path.join(__dirname, "build")));
 //for PM images

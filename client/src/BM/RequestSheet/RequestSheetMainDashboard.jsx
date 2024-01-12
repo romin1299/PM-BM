@@ -522,12 +522,12 @@ const RequestSheetMainDashboard = () => {
       icon: () => <DescriptionIcon className="text-primary" />,
       tooltip: "Update Action",
       position: "row",
-      disabled:
-        row?.assignUserId === context?._id &&
-        (row?.work_order_status === "Pending" ||
-          row?.work_order_status === "Closed")
-          ? false
-          : true,
+      // disabled:
+      //   row?.assignUserId === context?._id &&
+      //   (row?.work_order_status === "Pending" ||
+      //     row?.work_order_status === "Closed")
+      //     ? false
+      //     : true,
       onClick: (event, selectedRow) => {
         navigate(
           `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
