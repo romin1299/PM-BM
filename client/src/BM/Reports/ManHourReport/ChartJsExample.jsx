@@ -160,14 +160,14 @@ const ChartToPPTExample = ({
     labels: serverResLabels,
     datasets: [
       {
-        backgroundColor: "rgba(202, 31, 75)",
         label: "BM",
         data: HourTrendData?.BMHourTrend,
+        backgroundColor: chartColors.palettes.bmpm[0],
       },
       {
-        backgroundColor: chartColors[0],
         label: "PM",
         data: HourTrendData?.PMHourTrend,
+        backgroundColor: chartColors.palettes.bmpm[1],
       },
     ],
 

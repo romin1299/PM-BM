@@ -75,42 +75,54 @@ const ChartCard = ({ category }) => {
   );
 };
 
-const BDCategoryAndFactor = ({
-  selectedValue,
-  flagForTogglingFilter,
-  selectedYear,
-  selectedMonth,
-}) => {
+const CategoryDoughnutChart = () => {
   const [categories, setCategories] = React.useState([]);
 
-  const BDCategoryAndFactor = async () => {
-    try {
-      const res = await fetch(
-        `/getPieChartData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
-      const response = await res.json();
-      if (res.status === 201) {
-        console.log(response);
-        setCategories(response?.categoriesPieChartData);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //   const BDCategoryAndFactor = async () => {
+  //     try {
+  //       const res = await fetch(
+  //         `/getPieChartData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+  //         {
+  //           method: "GET",
+  //           headers: {
+  //             Accept: "application/json",
+  //             "Content-Type": "application/json",
+  //           },
+  //           credentials: "include",
+  //         }
+  //       );
+  //       const response = await res.json();
+  //       if (res.status === 201) {
+  //         console.log(response);
+  //         setCategories(response?.categoriesPieChartData);
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+
+  //   useEffect(() => {
+  //     if (selectedValue) {
+  //       BDCategoryAndFactor();
+  //     }
+  //   }, [selectedValue, selectedYear, selectedMonth]);
 
   useEffect(() => {
-    if (selectedValue) {
-      BDCategoryAndFactor();
-    }
-  }, [selectedValue, selectedYear, selectedMonth]);
+    setCategories([
+      {
+        category: "BD",
+        subcategories: ["Minor"],
+        bdCount: [1],
+        bdTime: [1.5333333333333334],
+      },
+      {
+        category: "Problem",
+        subcategories: ["Electronics"],
+        bdCount: [1],
+        bdTime: [1.5333333333333334],
+      },
+    ]);
+  }, []);
 
   return (
     <>
@@ -121,17 +133,8 @@ const BDCategoryAndFactor = ({
           </Col>
         ))}
       </Row>
-
-      {/* <Row className="gx-3">
-        <Col xxl={6} lg={6} md={6}>
-          <DoughnutChart title="Breakdown Category" />
-        </Col>
-        <Col xxl={6} lg={6} md={6}>
-          <DoughnutChart title="Breakdown Factor" />
-        </Col>
-      </Row> */}
     </>
   );
 };
 
-export default BDCategoryAndFactor;
+export default CategoryDoughnutChart;

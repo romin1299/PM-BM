@@ -348,7 +348,9 @@ router.post(
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
             requestSheetStatus:
               (getRequestSheetData?.assignUser?._id).toString() ===
-              (req?.rootUser?._id).toString()
+                (req?.rootUser?._id).toString() ||
+              (getRequestSheetData?.handOverUser?._id).toString() ===
+                (req?.rootUser?._id).toString()
                 ? "Fill Sheet"
                 : getRequestSheetData?.requestSheetStatus,
             actionTemporaryOrNot:
@@ -637,6 +639,14 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           from: "users",
           localField: "handOverUser",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_name: 1,
+              },
+            },
+          ],
           as: "handoverUserDetails",
         },
       },
@@ -1011,8 +1021,7 @@ router.patch(
         } else {
           requestSheetStatus = statusArray[4];
         }
-
-        if (moment(req.body?.handOverTime, moment.ISO_8601).isValid()) {
+        if (mongoose.Types.ObjectId.isValid(req.body?.handOverUser)) {
           queryObj = {
             finalActivity: req.body?.finalActivity,
             "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
@@ -1021,19 +1030,25 @@ router.patch(
             "maintenanceReportFilledByMTD.refHandOverTime": new Date(
               req.body?.handOverTime
             ),
-            handOverUser: req.body?.handOverUserId,
+            handOverUser: req.body?.handOverUser,
             requestSheetStatus,
             work_order_status: req.body?.work_order_status,
           };
         } else {
           queryObj = {
             finalActivity: req.body?.finalActivity,
-            handOverUser: req.body?.handOverUserId,
+            "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
+              req.body?.handOverTime
+            ),
+            "maintenanceReportFilledByMTD.refHandOverTime": new Date(
+              req.body?.handOverTime
+            ),
             requestSheetStatus,
             work_order_status: req.body?.work_order_status,
           };
         }
       }
+
       await RequestSheetOfBM.findOneAndUpdate(
         req.query,
         {
@@ -1141,7 +1156,6 @@ const findTLandOperatorList = async (req, res, next) => {
         });
       }
     }
-
     req.TLHOSS_and_TM_user_list = TLHOSS_and_TM_user_list;
 
     next();
@@ -1412,7 +1426,14 @@ router.get(
         queryPipeline = [
           {
             $match: {
-              assignUser: req.rootUser?._id,
+              $or: [
+                {
+                  assignUser: req.rootUser?._id,
+                },
+                {
+                  handOverUser: req.rootUser?._id,
+                },
+              ],
               ...req.queryObj,
             },
           },
@@ -1441,14 +1462,26 @@ router.get(
         {
           $group: {
             _id: null,
+            total_request_sheet_count: {
+              $sum: 1,
+            },
             open_request_sheet_count: {
               $sum: {
-                $cond: [{ $ne: ["$requestSheetStatus", "Generated"] }, 1, 0],
+                $cond: [
+                  {
+                    $and: [
+                      { $ne: ["$requestSheetStatus", "Generated"] },
+                      { $ne: ["$requestSheetStatus", "Completed"] },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
               },
             },
             closed_request_sheet_count: {
               $sum: {
-                $cond: [{ $eq: ["$work_order_status", "Closed"] }, 1, 0],
+                $cond: [{ $eq: ["$requestSheetStatus", "Completed"] }, 1, 0],
               },
             },
           },
@@ -1466,7 +1499,6 @@ router.get(
         TLHOSS_and_TM_user_list: req?.TLHOSS_and_TM_user_list,
         counters: {
           ...counters?.[0],
-          total_request_sheet_count: req?.requestSheetData?.length,
         },
       });
     } catch (error) {
@@ -3488,6 +3520,14 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "handOverUser",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_name: 1,
+              },
+            },
+          ],
           as: "handoverUserDetails",
         },
       },
@@ -3727,6 +3767,7 @@ router.get(
   authenticate,
   filterMiddleware,
   getRequestSheetData,
+  dashboardLevelUserCheckMiddleware,
   findTLandOperatorList,
   async (req, res, next) => {
     try {
@@ -3863,8 +3904,10 @@ router.patch(
       } = req.body;
       if (
         !assignApprovalList?.MTD_TL?.id &&
-        requestSheetDataOfBM?.assignUser?._id ===
-          (req?.rootUser?._id).toString()
+        (requestSheetDataOfBM?.assignUser?._id ===
+          (req?.rootUser?._id).toString() ||
+          requestSheetDataOfBM?.handOverUser?._id ===
+            (req?.rootUser?._id).toString())
       ) {
         return res
           .status(400)
@@ -3873,13 +3916,22 @@ router.patch(
 
       if (
         requestSheetDataOfBM?.assignUser?._id ===
-        (req?.rootUser?._id).toString()
+          (req?.rootUser?._id).toString() ||
+        requestSheetDataOfBM?.handOverUser?._id ===
+          (req?.rootUser?._id).toString()
       ) {
         const updateAssignApprovalOfMTD_TL =
           await RequestSheetOfBM.findOneAndUpdate(
             {
               _id: mongoose.Types.ObjectId(req.params?.reqId),
-              assignUser: req?.rootUser?._id,
+              $or: [
+                {
+                  assignUser: req?.rootUser?._id,
+                },
+                {
+                  handOverUser: req?.rootUser?._id,
+                },
+              ],
             },
             {
               $set: {
@@ -4748,6 +4800,9 @@ const requestSheetMiddleware = async (req, res, next) => {
           ],
           as: "machines",
         },
+      },
+      {
+        $sort: { _id: -1 },
       },
       {
         $project: {
@@ -6100,6 +6155,14 @@ router.get(
             from: "users",
             localField: "handOverUser",
             foreignField: "_id",
+            pipeline: [
+              {
+                $project: {
+                  user_type: 1,
+                  tm_name: 1,
+                },
+              },
+            ],
             as: "handoverUserDetails",
           },
         },
@@ -8325,8 +8388,6 @@ const targetMiddlewareForMBD = async (req, res, next) => {
 
       ...pipelineCount,
     ]);
-
-    // console.log("target?.[0]?.monthlyTarget",target?.[0]?.monthlyTarget)
 
     req.target = target?.[0]?.monthlyTarget || [];
     // req.yearlyTarget = target?.[0]?.yearlyTarget || [];
@@ -12892,6 +12953,22 @@ router.get(
               as: "namesOperators",
             },
           },
+          {
+            $lookup: {
+              from: "users",
+              localField: "handOverUser",
+              foreignField: "_id",
+              pipeline: [
+                {
+                  $project: {
+                    user_type: 1,
+                    tm_name: 1,
+                  },
+                },
+              ],
+              as: "handoverUserDetails",
+            },
+          },
           // {
           //   $lookup: {
           //     from: "users",
@@ -12945,6 +13022,7 @@ router.get(
               requestSheetNoOfBM: 1,
               problemOccurredDateAndTimeOfBM: 1,
               assignUser: 1,
+              handOverUser: 1,
 
               approvalOfMTD_TL: 1,
               approvalStatusOfMTD_TL: 1,
@@ -12995,6 +13073,9 @@ router.get(
               machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
               assignUser: {
                 $arrayElemAt: ["$namesOperators.tm_name", 0],
+              },
+              handOverUser: {
+                $arrayElemAt: ["$handoverUserDetails.tm_name", 0],
               },
 
               problemOccurredDateAndTimeOfBMForTable: {

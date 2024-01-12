@@ -30,7 +30,7 @@ const TmMttrSkillScore = (prop) => {
 
   const context = useContext(RoutingContext);
 
-  console.log(prop?.pieChartData);
+  // console.log(prop?.pieChartData);
 
   return (
     <Box className="cell p-3">

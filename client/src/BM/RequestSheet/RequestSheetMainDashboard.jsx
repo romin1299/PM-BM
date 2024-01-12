@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useReducer, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import { RadioGroup } from "@mui/material";
+import { IconButton, RadioGroup } from "@mui/material";
 import TextField from "@material-ui/core/TextField";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import DescriptionIcon from "@mui/icons-material/Description";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DateTimePicker } from "@mui/x-date-pickers";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
@@ -228,9 +230,9 @@ const RequestSheetMainDashboard = () => {
   const conditionalBasedEditableFunctionForMTD = (col, row) => {
     if (
       (context?.tm_department === "MTD" ||
-        row?.assignUser?._id === context?._id) &&
-      (row?.requestSheetStatus !== statusArray[0] ||
-        row?.requestSheetStatus === statusArray[1] ||
+        row?.assignUser?._id === context?._id ||
+        row?.handOverUser?._id === context?._id) &&
+      (row?.requestSheetStatus === statusArray[1] ||
         row?.requestSheetStatus === statusArray[2] ||
         row?.requestSheetStatus === statusArray[3] ||
         row?.requestSheetStatus === statusArray[4])
@@ -351,20 +353,21 @@ const RequestSheetMainDashboard = () => {
       // editable: context?.tm_department === "MTD" ? "always" : "never",
       editable: (col, row) =>
         context?.tm_department === "MTD" &&
-        (row?.requestSheetStatus !== statusArray[0] ||
-          row?.requestSheetStatus === statusArray[1] ||
+        (row?.requestSheetStatus === statusArray[1] ||
           row?.requestSheetStatus === statusArray[2] ||
-          row?.requestSheetStatus === statusArray[3])
+          row?.requestSheetStatus === statusArray[3] ||
+          row?.requestSheetStatus === statusArray[4])
           ? true
           : false,
-      editComponent: ({ value, onChange, rowData }) =>
-        dropDownComponent({
-          value,
+      editComponent: ({ value, onChange, rowData }) => {
+        return dropDownComponent({
+          value: value,
           onChange,
           defaultValue: rowData?.handOverUserId,
           dropDownArray:
             reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
-        }),
+        });
+      },
     },
     {
       title: "Final Action",
@@ -400,28 +403,30 @@ const RequestSheetMainDashboard = () => {
       title: "H/O Time Work End", //hand-over time
       field: "handOverTime",
       editable: conditionalBasedEditableFunctionForMTD,
-      editComponent: ({ value, onChange, rowData }) => (
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <MobileDateTimePicker
-            renderInput={(props) => (
-              <input className="text-field mt-0" value={value} {...props} />
-            )}
-            value={
-              value
-                ? value
-                : moment(
-                    rowData?.handOverTimeForDefault,
-                    "MM/DD/YYYY hh:mm:ss a"
-                  )
-            }
-            sx={{ width: "11rem" }}
-            onChange={(handOverTime) => {
-              onChange(handOverTime);
-              // onChange(handOverTime.toString());
-            }}
-          />
-        </LocalizationProvider>
-      ),
+      editComponent: ({ value, onChange, rowData }) => {
+        return (
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <MobileDateTimePicker
+              renderInput={(props) => (
+                <input className="text-field mt-0" value={value} {...props} />
+              )}
+              value={
+                value
+                  ? typeof value === "object"
+                    ? new Date(value)
+                    : new Date(rowData?.handOverTimeForDefault)
+                  : new Date()
+              }
+              format="dd/MM/yyyy hh:mm"
+              sx={{ width: "11rem" }}
+              onChange={(handOverTime) => {
+                onChange(handOverTime || new Date());
+                // onChange(handOverTime.toString());
+              }}
+            />
+          </LocalizationProvider>
+        );
+      },
       validate: (rowData) => rowData.handOverTime !== "",
       width: "20%",
     },
@@ -519,18 +524,47 @@ const RequestSheetMainDashboard = () => {
       },
     },
     (row) => ({
-      icon: () => <DescriptionIcon className="text-primary" />,
-      tooltip: "Update Action",
+      icon: () => (
+        <DescriptionIcon
+          className={
+            row?.work_order_status === "Open"
+              ? "text-secondary"
+              : "text-primary"
+          }
+        />
+      ),
+      tooltip: "Update",
       position: "row",
-      // disabled:
-      //   row?.assignUserId === context?._id &&
-      //   (row?.work_order_status === "Pending" ||
-      //     row?.work_order_status === "Closed")
-      //     ? false
-      //     : true,
+      disabled:
+        (row?.assignUserId === context?._id ||
+          row?.handOverUserId === context?._id) &&
+        (row?.work_order_status === "Pending" ||
+          row?.work_order_status === "Closed")
+          ? false
+          : true,
+      hidden: row?.assignUserId === context?._id ? false : true,
       onClick: (event, selectedRow) => {
+        console.log("selectedRow:", selectedRow);
+
         navigate(
           `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
+          {
+            state: {
+              supportingTM:
+                reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
+            },
+          }
+        );
+      },
+    }),
+
+    (row) => ({
+      icon: () => <VisibilityIcon className="text-primary" />,
+      tooltip: "View",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        navigate(
+          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
           {
             state: {
               supportingTM:
@@ -552,7 +586,6 @@ const RequestSheetMainDashboard = () => {
       />
     </Box>,
   ];
-  // console.log(reduceStateForRequestSheetData?.errorCode)
   return (
     <>
       <Container fluid>
@@ -654,7 +687,7 @@ const RequestSheetMainDashboard = () => {
                 //   : "d-none"
               }
             >
-              Summery
+              Summary
             </button>
           </Col>
         </Row>
@@ -706,6 +739,7 @@ const RequestSheetMainDashboard = () => {
               }}
               options={{
                 ...MaterialTableOptions,
+                maxBodyHeight: "auto",
                 showTitle: true,
                 exportMenu: [
                   {

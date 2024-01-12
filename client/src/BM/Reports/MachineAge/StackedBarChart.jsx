@@ -81,43 +81,15 @@ export const options = {
   },
 };
 
-const MonthlyBDTrendChart = ({
-  filterState,
-  currentTabViewName,
-  filter,
-  setFilter,
-  selectedYear,
-}) => {
+const StackedBarChart = () => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [],
   });
 
-  const { flagForTogglingFilter, selectedValue } = filterState;
-
-  useEffect(() => {
-    if (currentTabViewName === "Plant" && filter === "cell")
-      setFilter("section");
-    else if (currentTabViewName === "Section" && filter === "section")
-      setFilter("cell");
-  }, [currentTabViewName]);
-
   const fetchChartData = async () => {
-    // console.count("Monthly BD Report");
-    // console.log("filterState:", filterState.flagForTogglingFilter);
-
-    // let basedON = currentTabViewName === "Plant" ? "plantId" : "subSection";
-    // const selectedId = currentTabViewName === "Plant" ? "undefined" : sectionId;
-
-    // const url =
-    //   currentTabViewName === "Plant"
-    //     ? `/${filter}MonthlyBdTrend/based-on-plant/${sectionId}`
-    //     : `/${filter}MonthlyBdTrend/based-on-subSection/${sectionId}`;
-
-    const url = `/${filter}MonthlyBdTrend/${flagForTogglingFilter}/${selectedValue}`;
-    console.log("url:", url);
-
-    const params = { selectedYear };
+    const url = ``;
+    const params = {};
 
     try {
       const res = await axios.get(url, {
@@ -166,12 +138,50 @@ const MonthlyBDTrendChart = ({
     }
   };
 
-  console.log("chartData:", chartData);
+  // console.log("chartData:", chartData);
+
+  //   useEffect(() => {
+  //     if (flagForTogglingFilter && selectedValue && selectedYear && filter)
+  //       fetchChartData();
+  //   }, [flagForTogglingFilter, selectedValue, filter, selectedYear]);
 
   useEffect(() => {
-    if (flagForTogglingFilter && selectedValue && selectedYear && filter)
-      fetchChartData();
-  }, [flagForTogglingFilter, selectedValue, filter, selectedYear]);
+    setChartData({
+      labels: MONTH_LABELS,
+      datasets: [
+        // {
+        //   type: "line",
+        //   label: "Target",
+        //   data: [221, 220, 220, 220, 220, 221, 220, 220, 220, 220, 220, 218],
+        //   borderWidth: 2,
+        //   borderColor: "#9F0000",
+        //   backgroundColor: "#9F0000",
+        //   pointStyle: "rectRot",
+        // },
+        {
+          type: "bar",
+          stack: "bar-stacked",
+          label: "Grp1",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 2.94, 0.48, 0, 0],
+          backgroundColor: "#c2c933",
+        },
+        {
+          type: "bar",
+          stack: "bar-stacked",
+          label: "Grp2",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 1.53, 0, 0, 0],
+          backgroundColor: "#778899",
+        },
+        {
+          type: "bar",
+          stack: "bar-stacked",
+          label: "Grp3",
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 3.11, 0, 0],
+          backgroundColor: "#0BB4CB",
+        },
+      ],
+    });
+  }, []);
 
   return (
     <Box className="container-fluid cell p-3">
@@ -198,4 +208,4 @@ const MonthlyBDTrendChart = ({
   );
 };
 
-export default MonthlyBDTrendChart;
+export default StackedBarChart;

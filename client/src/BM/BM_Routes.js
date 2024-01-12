@@ -28,6 +28,7 @@ import MTBFReportDashboard from "./Reports/MTBFReport/MTBFReportDashboard";
 import MTTRDashboard from "./Reports/MTTRReport/MTTRDashboard";
 import MTBFDashboard from "./Reports/MTBFReport/MTBFDashboard";
 import TopMachineBD from "./Reports/TopMachineBreakdown/TopMachineBD";
+import MachineAgeReport from "./Reports/MachineAge/MachineAgeReport";
 
 import ApprovalDashboardOfRequestSheet from "./ApprovalDashboards/ApprovalDashboardOfRequestSheet";
 import LineContributionBD from "./Reports/LineContributionBreakdown/LineContributionMain";
@@ -36,7 +37,6 @@ import TMMTR from "./Reports/TMMTTRSkill/TMMTRDashboard";
 import ApprovalLogs from "./ApprovalLogs/ApprovalLogs";
 import BMTitlebar from "./Component/BMTitlebar";
 import TargetDashboard from "./TargetOfBD/TargetDashboard";
-
 import MachineSummaryComponent from "../Common/Machine/MachineHistoryComponent";
 
 function BM_Routes({ commonRoutes }) {
@@ -82,6 +82,10 @@ function BM_Routes({ commonRoutes }) {
     {
       path: "/bm/report/top-machine-breakdown",
       element: <TopMachineBD />,
+    },
+    {
+      path: "/bm/report/machine-age",
+      element: <MachineAgeReport />,
     },
   ];
 
