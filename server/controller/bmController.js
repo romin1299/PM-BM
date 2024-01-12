@@ -5204,7 +5204,8 @@ router.get(
                   monthlyBDPercentageTarget: {
                     $map: {
                       input: {
-                        $objectToArray: "$allTargetData.monthlyBDPercentageTarget",
+                        $objectToArray:
+                          "$allTargetData.monthlyBDPercentageTarget",
                       },
                       as: "obj",
                       in: "$$obj.v",
@@ -10991,7 +10992,6 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
 
     return res.status(201).json({
       message: "Tm progress Data get successsully!",
-
       data: tmProgress?.[0],
     });
   } catch (error) {
@@ -11352,10 +11352,12 @@ const altfindTLandOperatorList = async (req, res, next) => {
               },
             ],
           },
+
           // {
           //   $and: [
           //     {
           //       user_type: "TL/HOSS",
+          //
           //     },
           //     {
           //       tm_department: "MTD",
@@ -11673,14 +11675,57 @@ router.delete(
   }
 );
 
+const middlewareForMachineAgeLookup = async (req, res, next) => {
+  try {
+    let queryObjPipeline = [];
+
+    if (req.params?.filter === "based-on-section") {
+      queryObjPipeline = [
+        {
+          $lookup: {
+            from: "sections",
+            localField: "sectionRef",
+            foreignField: "_id",
+            as: "section_data",
+          },
+        },
+        {
+          $unwind: "$section_data",
+        },
+      ];
+    }
+    if (req.params?.filter === "based-on-subSection") {
+      queryObjPipeline = [
+        {
+          $lookup: {
+            from: "subsections",
+            localField: "subSectionRef",
+            foreignField: "_id",
+            as: "section_data",
+          },
+        },
+        {
+          $unwind: "$section_data",
+        },
+      ];
+    }
+
+    req.queryObjPipeline = queryObjPipeline;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 router.get(
   "/getMachineAgeMonthwise/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  middlewareForMachineAgeLookup,
   async (req, res, next) => {
     const currentDate = new Date();
 
-    console.log("currentDate", currentDate);
+    // console.log("currentDate", currentDate);
 
     const machineData = await RequestSheetOfBM.aggregate([
       {
@@ -11697,17 +11742,19 @@ router.get(
       {
         $unwind: "$machine_data",
       },
-      {
-        $lookup: {
-          from: "sections",
-          localField: "sectionRef",
-          foreignField: "_id",
-          as: "section_data",
-        },
-      },
-      {
-        $unwind: "$section_data",
-      },
+
+      ...req.queryObjPipeline,
+      // {
+      //   $lookup: {
+      //     from: "sections",
+      //     localField: "sectionRef",
+      //     foreignField: "_id",
+      //     as: "section_data",
+      //   },
+      // },
+      // {
+      //   $unwind: "$section_data",
+      // },
       {
         $addFields: {
           installationDate: {
@@ -11840,7 +11887,7 @@ router.get(
     // console.log(machineData);
 
     return res.status(201).json({
-      message: "Top Machine Breakdown data get successfully",
+      message: "Monthwise Machine Age data get successfully",
       machineData,
     });
   }
@@ -11850,10 +11897,9 @@ router.get(
   "/getMachineAgeYearwise/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  middlewareForMachineAgeLookup,
   async (req, res, next) => {
     const currentDate = new Date();
-
-    console.log(req.queryObj);
 
     const machineData = await RequestSheetOfBM.aggregate([
       {
@@ -11870,17 +11916,9 @@ router.get(
       {
         $unwind: "$machine_data",
       },
-      {
-        $lookup: {
-          from: "sections",
-          localField: "sectionRef",
-          foreignField: "_id",
-          as: "section_data",
-        },
-      },
-      {
-        $unwind: "$section_data",
-      },
+
+      ...req.queryObjPipeline,
+
       {
         $addFields: {
           installationDate: {
@@ -11971,20 +12009,19 @@ router.get(
     // console.log(machineData);
 
     return res.status(201).json({
-      message: "Top Machine Breakdown data get successfully",
+      message: "Yearwise Machine Age data get successfully",
       machineData,
     });
   }
 );
 
 router.get(
-  "/getMachineAgePieChart/:filter/:selectedId/:groupName",
+  "/getMachineAgePieChart/:filter/:selectedId/:groupId",
   authenticate,
   filterMiddleware,
+  middlewareForMachineAgeLookup,
   async (req, res, next) => {
     const currentDate = new Date();
-
-    console.log(req.queryObj);
 
     const machineData = await RequestSheetOfBM.aggregate([
       {
@@ -12001,17 +12038,9 @@ router.get(
       {
         $unwind: "$machine_data",
       },
-      {
-        $lookup: {
-          from: "sections",
-          localField: "sectionRef",
-          foreignField: "_id",
-          as: "section_data",
-        },
-      },
-      {
-        $unwind: "$section_data",
-      },
+
+      ...req.queryObjPipeline,
+
       {
         $addFields: {
           installationDate: {
@@ -12053,7 +12082,7 @@ router.get(
                     },
                   },
                   as: "matchedGroup",
-                  in: "$$matchedGroup.groupName",
+                  in: "$$matchedGroup",
                 },
               },
               0,
@@ -12063,7 +12092,9 @@ router.get(
       },
 
       {
-        $match: { groupName: req.params.groupName },
+        $match: {
+          "groupName._id": mongoose.Types.ObjectId(req?.params?.groupId),
+        },
       },
 
       {
@@ -12073,7 +12104,7 @@ router.get(
       {
         $group: {
           _id: {
-            groupName: "$groupName",
+            groupName: "$groupName.groupName",
             // groupName: req.params.groupName,
             category: "$categoriesOfRequestSheet.category",
             subCategory: "$categoriesOfRequestSheet.subCategory",
@@ -12151,9 +12182,28 @@ router.get(
     // console.log(machineData);
 
     return res.status(201).json({
-      message: "Top Machine Breakdown data get successfully",
-      machineData,
+      message: "Machine Age data for Piechart get successfully",
+      data: machineData?.[0].categories,
     });
+  }
+);
+
+router.get(
+  "/getYearGroupsDropdown",
+  authenticate,
+  sectionOrSubSectionFilterMiddleware,
+  async (req, res, next) => {
+    try {
+      const yearDropdown = await req.Model.findOne(req.findObj);
+
+      // console.log(yearDropdown)
+      return res.status(201).json({
+        message: "YearGroup Dropdown data get successfully",
+        data: yearDropdown?.yearGroup,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
   }
 );
 
