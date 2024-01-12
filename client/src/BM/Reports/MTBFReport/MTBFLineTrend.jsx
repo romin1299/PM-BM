@@ -7,6 +7,8 @@ const MTBFLineTrend = ({
   selectedYear,
   selectedMonth,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [lineWiseMTBFTrend, setLineWiseMTBFTrend] = useState({
     labels: [],
     data: [],
@@ -14,6 +16,8 @@ const MTBFLineTrend = ({
   });
 
   const getLineWiseMTBFTrendData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/getLineWiseMTBFTrendData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -36,6 +40,8 @@ const MTBFLineTrend = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -48,6 +54,7 @@ const MTBFLineTrend = ({
     <>
       <LineBarChart
         title="Line Trend"
+        loading={loading}
         dataset={lineWiseMTBFTrend}
         xAxisTitle="Lines"
         y1AxisTitle="MTBF Hours"

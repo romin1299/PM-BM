@@ -11,6 +11,8 @@ const Section = require("../model/sectionSchema");
 const SubSection = require("../model/subSectionSchema");
 const Cell = require("../model/cellSchema");
 const Line = require("../model/lineSchema");
+const LogHistory = require("../model/logHistorySchema");
+
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
@@ -3257,6 +3259,22 @@ router.patch(
   }
 );
 
+router.get("/getMachineDetails", async (req, res, next) => {
+  try {
+    const machine = await Machine.findOne(req.query, {
+      machine_code: 1,
+      machine_name: 1,
+    }).populate("cell_names", "cell_name");
+
+    return res.status(201).json({
+      message: "Machine details get successfully!",
+      machine,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error: new Error(error) });
+  }
+});
+
 router.get(
   "/getMachineDetailsOnScanningRequest/:generateType",
   authenticate,
@@ -5002,98 +5020,107 @@ router.get(
   }
 );
 
+const yearlyBdHourMiddleware = async (req, res, next) => {
+  try {
+    const BDHours = await RequestSheetOfBM.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%m",
+              date: "$problemOccurredDateAndTimeOfBM",
+              timezone: timezone,
+            },
+          },
+          hours: {
+            $sum: {
+              $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          array: { $push: "$$ROOT" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          array: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  { $in: ["$$month.monthInDecimal", "$array._id"] },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      $arrayElemAt: [
+                        "$array",
+                        {
+                          $indexOfArray: [
+                            "$array._id",
+                            "$$month.monthInDecimal",
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      _id: "$$month.monthInDecimal",
+                      hours: 0,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      { $unwind: "$array" },
+      {
+        $replaceRoot: { newRoot: "$array" },
+      },
+      {
+        $group: {
+          _id: null,
+          labels: { $push: "$month" },
+          data: {
+            $push: "$value.hours",
+          },
+        },
+      },
+    ]);
+
+    req.BDHours = BDHours;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
 router.get(
   "/getBDHoursGraphData/:filter/:selectedId",
   authenticate,
   filterMiddleware,
   targetMiddleware,
+  yearlyBdHourMiddleware,
   async (req, res, next) => {
     try {
-      const BDHours = await RequestSheetOfBM.aggregate([
-        {
-          $match: req.queryObj,
-        },
-        {
-          $group: {
-            _id: {
-              $dateToString: {
-                format: "%m",
-                date: "$problemOccurredDateAndTimeOfBM",
-                timezone: timezone,
-              },
-            },
-            hours: {
-              $sum: {
-                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              },
-            },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            array: { $push: "$$ROOT" },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            array: {
-              $map: {
-                input: allMonths,
-                as: "month",
-                in: {
-                  $cond: [
-                    { $in: ["$$month.monthInDecimal", "$array._id"] },
-                    {
-                      month: "$$month.monthName",
-                      value: {
-                        $arrayElemAt: [
-                          "$array",
-                          {
-                            $indexOfArray: [
-                              "$array._id",
-                              "$$month.monthInDecimal",
-                            ],
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      month: "$$month.monthName",
-                      value: {
-                        _id: "$$month.monthInDecimal",
-                        hours: 0,
-                      },
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        },
-        { $unwind: "$array" },
-        {
-          $replaceRoot: { newRoot: "$array" },
-        },
-        {
-          $group: {
-            _id: null,
-            labels: { $push: "$month" },
-            data: {
-              $push: "$value.hours",
-            },
-          },
-        },
-      ]);
-
       return res.status(201).json({
         message: "BDHours graph data get successfully",
         BDHours: {
-          ...BDHours?.[0],
+          ...req.BDHours?.[0],
           target: req.target,
           backgroundColor: req.target?.map((item, index) =>
-            item > BDHours?.[0]?.data?.[index] ? "green" : "red"
+            item > req.BDHours?.[0]?.data?.[index] ? "green" : "red"
           ),
         },
       });
@@ -6575,8 +6602,6 @@ const productionHourFiltration = async (req, res, next) => {
         },
       },
     ]);
-
-    console.log(data);
 
     req.productionHrs = data?.[0];
 
@@ -12774,7 +12799,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
       {
         $group: {
           _id: null,
-          machineId: { $push: "$machine.machine" },
+          machineId: { $push: "$machine._id" },
           labels: { $push: "$machine.machine_code" },
           data: { $push: "$hours" },
         },
@@ -16156,6 +16181,260 @@ router.get(
       return res.status(201).json({
         message: "Target data get successfully",
         targetData: req?.allTargetData?.[0],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+const storageForDataAttachmentFile = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, `./attachments/${req.params?.docVariable}`);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "_" + file.originalname);
+  },
+});
+
+// const filterOptions = (req, file, cb) => {
+//   if (!file.originalname.match(/\.(xls|xlsx|csv)$/)) {
+//     return cb(new Error("Only .xls, .xlsx, .csv format allowed!"));
+//   } else {
+//     cb(null, true);
+//   }
+// };
+
+const uploadAttachments = multer({
+  storage: storageForDataAttachmentFile,
+  limits: {
+    fileSize: 1024 * 1024 * 1024,
+  },
+  // fileFilter: filterOptions,
+});
+
+router.post(
+  "/addNewAttachment/:docVariable",
+  authenticate,
+  uploadAttachments.array("attached_files"),
+  async (req, res, next) => {
+    try {
+      const attachmentDetails = await Machine.findOneAndUpdate(
+        req.query,
+        {
+          $push: {
+            [req.params?.docVariable]: req.files?.map((item) => ({
+              attached_file: item?.filename,
+            })),
+          },
+        },
+        {
+          new: true,
+        }
+      );
+
+      return res.status(201).json({
+        message: "Attachment added successfully",
+        attachmentDetails: attachmentDetails?.[req.params?.docVariable],
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  }
+);
+
+router.get(
+  "/getAttachmentDetails/:docVariable",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      const machine = await Machine.findOne(req.query, {
+        [req.params?.docVariable]: 1,
+      });
+
+      return res.status(201).json({
+        message: "Attachment details get successfully!",
+        attachmentDetails: machine?.[req.params?.docVariable],
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  }
+);
+
+router.delete(
+  "/deleteAttachment/:docVariable/:id",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      let keyForMatchingDoc = `${req.params?.docVariable}._id`;
+
+      const machine = await Machine.aggregate([
+        {
+          $match: req.query,
+        },
+        {
+          $unwind: `$${req.params?.docVariable}`,
+        },
+        {
+          $match: {
+            [keyForMatchingDoc]: mongoose.Types.ObjectId(req.params?.id),
+          },
+        },
+      ]);
+
+      fs.unlink(
+        path.join(
+          __dirname,
+          `../attachments/${req.params?.docVariable}/${
+            machine?.[0]?.[req.params?.docVariable]?.attached_file
+          }`
+        ),
+
+        function (err) {
+          if (err) {
+            console.error(err);
+          }
+        }
+      );
+
+      const attachmentDetails = await Machine.findOneAndUpdate(
+        req.query,
+        {
+          $pull: {
+            [req.params?.docVariable]: {
+              _id: mongoose.Types.ObjectId(req.params?.id),
+            },
+          },
+        },
+        {
+          new: true,
+        }
+      );
+
+      return res.status(201).json({
+        message: "Attachment deleted successfully",
+        attachmentDetails: attachmentDetails?.[req.params?.docVariable],
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  }
+);
+
+router.get(
+  "/getRequestSheetHistoryBasedOnMachine",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      let queryObj = {
+        machineRef: mongoose.Types.ObjectId(req.query?.machineId),
+      };
+
+      if (req.query?.selectedYear) {
+        queryObj = {
+          ...queryObj,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            req.query?.selectedYear,
+        };
+      }
+
+      if (req.query?.selectedMonth) {
+        queryObj = {
+          ...queryObj,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+            req.query?.selectedMonth,
+        };
+      }
+
+      req.queryObj = queryObj;
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  requestSheetMiddleware
+);
+
+router.get("/getMachineHistory", authenticate, async (req, res, next) => {
+  try {
+    pmHistory = await LogHistory.aggregate([
+      {
+        $match: req.query,
+      },
+      {
+        $addFields: {
+          cell_name: "$cellInfo.cell_name",
+          line_name: "$lineInfo.line_name",
+          machine_name: "$machineInfo.machine_name",
+          machine_Id: "$machineInfo.machine_Id",
+          abnormality: {
+            $cond: [{ $gt: ["$abnormality_remarks", null] }, "Yes", "No"],
+          },
+        },
+      },
+    ]);
+
+    return res.status(201).json({
+      message: "PmHistory get successfully",
+      pmHistory,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+});
+
+router.get(
+  "/getBreakdownTrendData",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      let queryObj = {
+        machineRef: mongoose.Types.ObjectId(req.query?.machineId),
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+      };
+      req.queryObj = queryObj;
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  yearlyBdHourMiddleware,
+  async (req, res, next) => {
+    try {
+      const lastFiveProblem = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+        {
+          $project: {
+            problem: "$breakDownBasicDataFilledByPRD.problemFaced",
+          },
+        },
+        {
+          $limit: 5,
+        },
+      ]);
+
+      return res.status(201).json({
+        message: "Breakdown trend graph data get successfully",
+        BdTrendAndLastFiveProblem: {
+          breakdownTrendData: req.BDHours?.[0],
+          lastFiveProblem,
+        },
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });

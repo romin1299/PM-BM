@@ -118,21 +118,21 @@ const BDHoursTrendChart = ({
         stack: "bar-stacked",
         label: "<1",
         data: bdHourTrend?.lessThanOne,
-        backgroundColor: chartColors.palettes[0][0],
+        backgroundColor: chartColors.monthlyBDTrend[0],
       },
       {
         type: "bar",
         stack: "bar-stacked",
         label: "<2",
         data: bdHourTrend?.lessThanTwo,
-        backgroundColor: chartColors.palettes[0][1],
+        backgroundColor: chartColors.monthlyBDTrend[1],
       },
       {
         type: "bar",
         stack: "bar-stacked",
         label: ">2",
         data: bdHourTrend?.greaterThanTwo,
-        backgroundColor: chartColors.palettes[0][2],
+        backgroundColor: chartColors.monthlyBDTrend[2],
       },
     ],
 
@@ -141,8 +141,6 @@ const BDHoursTrendChart = ({
     //   stack: "bar-stacked",
     //   label: item?.label,
     //   data: item?.data,
-    //   backgroundColor: chartColors.palettes[0][index],
-    //   // backgroundColor: chartColors.palettes[0][index],
     // })),
   };
 

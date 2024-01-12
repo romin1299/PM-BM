@@ -4,7 +4,7 @@ const userOptions = {
   textColor: chartColors.text,
   textSize: 10,
   titleSize: 18,
-  chartColors: chartColors.palettes.palette5,
+  chartColors: chartColors.exportPpt,
 };
 
 export const commonPptOptions = {

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import LineBarChart from "../Common/LineBarChart";
 
 const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [MTBFTrendData, setMTBFTrendData] = useState({
     labels: [],
     data: [],
@@ -9,6 +11,8 @@ const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   });
 
   const getMTBFTrendData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/getTrendData/MTBF/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -32,6 +36,8 @@ const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -46,6 +52,7 @@ const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
         title="MTBF Trend"
         xAxisTitle="Months"
         y1AxisTitle="MTBF Hours"
+        loading={loading}
         dataset={MTBFTrendData}
         label={{
           lineLabel: "Target",

@@ -15,6 +15,7 @@ import { Chart } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { barDatalabels } from "../../../Utils/ChartUtils/chartOptions";
+import { chartColors } from "../../../Utils/ChartUtils/chartEnums";
 
 const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
   ChartJS.register(
@@ -41,7 +42,11 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
         display: false,
         text: "",
       },
-      datalabels: { ...barDatalabels, font: { weight: "bold", size: 12 } },
+      datalabels: {
+        ...barDatalabels,
+        // font: { weight: "500", size: 12 },
+        // color: chartColors.machineBarLabels,
+      },
     },
     interaction: {
       mode: "index",
@@ -84,9 +89,6 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
     },
   };
 
-  // const labels = ["M-EN-O2-WSA-030-2", "EFMO-01"];
-
-  let colorArray = ["rgb(75, 192, 192)", "rgb(53, 162, 235)"];
   let colorArray1 = ["red", "green"];
 
   const data = {
@@ -95,7 +97,8 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
       ...totalBDCount?.map((item, index) => ({
         type: "line",
         label: `Count ${item?.groupId}`,
-        backgroundColor: "gray",
+        backgroundColor: chartColors.count,
+        borderColor: chartColors.count,
         borderWidth: 2,
         fill: false,
         data: item?.count,
@@ -114,13 +117,14 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
 
       ...BDhours?.map((item, index) => ({
         type: "bar",
-        backgroundColor: colorArray?.[index],
+        backgroundColor: chartColors.machineBarChart,
         stack: "same-bar-stack",
         label: `Hours ${item?.groupId}`,
         data: item?.sumOfBDhours,
         borderColor: "white",
         borderWidth: 2,
         yAxisID: "y2",
+        borderRadius: 4,
       })),
     ],
   };

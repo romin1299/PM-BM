@@ -10,12 +10,10 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import Paper from "@mui/material/Paper";
-import { Box, Divider, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { chartColors, MONTH_LABELS } from "../../Utils/ChartUtils/chartEnums";
-import { Col, Row } from "react-bootstrap";
-import { FilterMenu } from "./SubComponents/FilterMenu";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -72,12 +70,16 @@ const ManHourTrend = ({
   flagForTogglingFilter,
   selectedYear,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [manHourTrendData, setManHourTrendData] = useState({
     BMManHourTrend: [],
     PMManHourTrend: [],
   });
 
   const getManHourTrendData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/manHourReport/manHourTrend/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -100,6 +102,8 @@ const ManHourTrend = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -114,14 +118,14 @@ const ManHourTrend = ({
       {
         label: "BM",
         data: manHourTrendData?.BMManHourTrend,
-        backgroundColor: chartColors.palettes.bmpm[0],
-        pointStyle: "rect",
+        backgroundColor: chartColors.bmpm[0],
+        borderRadius: 4,
       },
       {
         label: "PM",
         data: manHourTrendData?.PMManHourTrend,
-        backgroundColor: chartColors.palettes.bmpm[1],
-        pointStyle: "rect",
+        backgroundColor: chartColors.bmpm[1],
+        borderRadius: 4,
       },
     ],
   };
@@ -129,8 +133,11 @@ const ManHourTrend = ({
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="Man-Hour Trend" />
-
-      <Bar options={options} data={data} />
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Bar options={options} data={data} />
+      )}
     </Box>
   );
 };

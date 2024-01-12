@@ -18,6 +18,12 @@ export const barDatalabels = {
     return null;
   },
   font: { weight: "bold", size: 10 },
+  // color: (context) => {
+  //   context.dataset.data.map((value, index) => {
+  //     if (context.dataIndex === 0) console.log("value:", value);
+  //     return "black";
+  //   });
+  // },
 };
 
 // export const roundedNoDatalabels = {

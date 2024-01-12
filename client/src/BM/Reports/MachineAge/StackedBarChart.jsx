@@ -112,7 +112,7 @@ const StackedBarChart = ({
         stack: "bar-stacked",
         label: item?.label || item?._id,
         data: item?.data,
-        backgroundColor: chartColors.palettes[0][index],
+        backgroundColor: chartColors.monthlyBDTrend[index],
       }));
 
      
@@ -126,8 +126,8 @@ const StackedBarChart = ({
               label: "Target",
               // data: targetData,
               borderWidth: 2,
-              borderColor: chartColors.red[2],
-              backgroundColor: chartColors.red[2],
+              borderColor: chartColors.target,
+              backgroundColor: chartColors.targetBorder,
               pointStyle: "rectRot",
             },
             ...barDatasets,
@@ -191,7 +191,7 @@ const StackedBarChart = ({
   return (
     <Box className="container-fluid cell p-3">
       <ChartTitleBar
-        title="Monthly Breakdown Trend"
+        title="Machine Age"
         // titleProps={{
         //   sx: { fontWeight: "500" },
         // }}

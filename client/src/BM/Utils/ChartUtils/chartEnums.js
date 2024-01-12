@@ -25,7 +25,74 @@ export const chartColors = {
   8: "#eedd22",
   9: "#334455",
   10: "#667788",
-  target: "#EE7A0A",
+  11: "#4A78A8",
+
+  minor: ["#c2c933"],
+  major: ["#DE6152"],
+
+  target: "#ca1f4b",
+  target2: "#9F0000",
+  targetBorder: "#ca1f4b",
+
+  count: "#4A78A8",
+  bdHoursLine: "#ca1f4b",
+  percentLine: "#074e66",
+
+  barChart: "#4A6EA8",
+  barChartText: "#f0f0f0",
+  barLineChart: ["#0aa3d2", "#65cc97"],
+  barLineChartText: ["#f0f0f0"],
+
+  machineBarChart: "#65cc97",
+  machineBarLabels: "#424242",
+
+  dailyBDTrendFont: ["#667788", "#667788", "#f0f0f0", "#667788"],
+  dailyBDTrend: ["#c2c933", "#FFDA7C", "#fd6a94", "#40aeb6"],
+  // dailyBDTrendDarker: ["#c2c933", "##fecd47", "#fd6a94", "#40aeb6"],
+  dailyBDTrendBorder: ["#837618", "#fc8400", "#f82f65", "#40aeb6"],
+
+  monthlyBDTrend: ["#c2c933", "#0BB4CB", "#ffcd38", "#778899"],
+
+  bmpm: ["#c2c933", "#40aeb6"],
+
+  tmSkillPie: ["#354657", "#e8effa"],
+  tmSkillborder: "#44586d",
+
+  categoryPieFont: ["#616161", "#616161", "#616161", "#f0f0f0", "#616161"],
+  categoryPie: [
+    "#bae59e",
+    "#0aa3d2",
+    "#DE5274",
+    "#646089",
+    "#bbd0e5",
+    "#DE6152",
+    "#606F70",
+    "#DECA52",
+    "#608789",
+  ],
+  categoryPie: [
+    "#d7e057",
+    "#5cd2e8",
+    "#FF80AB",
+    "#E1BEE7",
+    "#bbd0e5",
+    "#EF9A9A",
+    "#9FA8DA",
+    "#FFE082",
+    "#E0E0E0",
+  ],
+  sections: [
+    "#0aa3d2",
+    "#65cc97",
+    "#DE5274",
+    "#646089",
+    "#bbd0e5",
+    "#DE6152",
+    "#606F70",
+    "#DECA52",
+    "#608789",
+  ],
+
   magenta: ["#cc2960", "#ca1f4b", "#EC5084"],
   yellow: ["#D49902", "#FFDA7C"],
   orange: ["#EE7A0A", "#fe5c28", "#fdb515"],
@@ -33,8 +100,9 @@ export const chartColors = {
   aqua: ["#017c7e", "#40aeb6", "#0BB4CB", "#6CBFC5"],
   blue: ["#2f79bf", "#074e66", "#0D335C", "#B7DCFF"],
   purple: ["#56409d", "#7300A9", "#9156AC", "#C679EA", "#DFA2FC"],
-  red: ["#FF8383", "#DA2020", "#9F0000"],
+  red: ["#FF8383", "#DA2020", "#9F0000", "#E03238", "#fd4015"],
   brown: ["#DF953C", "#BA6D11", "#824702"],
+
   palettes: {
     0: ["#c2c933", "#778899", "#0BB4CB", "#ffcd38"],
     palette1: ["#bfaeff", "#cbffbe", "#ffcd38", "#6ea5ff", "#ff7b64"],
@@ -47,34 +115,6 @@ export const chartColors = {
   },
   gray: "#bbd0e5",
   text: "#23313f",
+
+  exportPpt: ["#2f79bf", "#bbd0e5", "#2693ff", "#ffcd38", "#ff7b64"],
 };
-
-/*
-red
-
-magenta
-cc2960 ca1f4b
-
-yellow
-
-orange
-ff9228 fe5c28 fdb515
-
-green
-c2c933
-
-aqua
-017c7e 40aeb6
-
-blue
-2f79bf 074e66
-
-purple
-56409d
-
-pallates
-bfaeff cbffbe ffcd38 6ea5ff ff7b64
-0aa3d2 65cc97
-2693ff bbd0e5 23313f
-
-*/

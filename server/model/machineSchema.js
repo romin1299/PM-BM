@@ -19,6 +19,14 @@ let KeyFor6MonthApproval = {
   Mar: { type: [String] },
 };
 
+let typeArrayOfObjects = [
+  {
+    attached_file: {
+      type: String,
+    },
+  },
+];
+
 const machineSchema = mongoose.Schema({
   machine_code: {
     type: String,
@@ -72,6 +80,26 @@ const machineSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Lines",
   },
+
+  product_drawings: typeArrayOfObjects,
+
+  jigs_mcs: typeArrayOfObjects,
+
+  machine_manuals: typeArrayOfObjects,
+
+  jigs_dws: typeArrayOfObjects,
+
+  mechanical_drawings: typeArrayOfObjects,
+
+  electrical_drawings: typeArrayOfObjects,
+
+  machine_poka_yoke: typeArrayOfObjects,
+
+  spare: typeArrayOfObjects,
+
+  oms: typeArrayOfObjects,
+
+  other_documents: typeArrayOfObjects,
 
   checkSheet_data: [
     {

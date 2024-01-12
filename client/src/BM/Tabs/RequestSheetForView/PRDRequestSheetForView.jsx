@@ -23,6 +23,9 @@ import MachineStatusBox from "../SubComponents/MachineStatusBox";
 function MyTable({ requestSheetDataOfBM }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  console.log("location.state.prevPath:", location?.state?.prevPath);
+
   const {
     register,
     handleSubmit,
@@ -83,7 +86,6 @@ function MyTable({ requestSheetDataOfBM }) {
 
   useEffect(() => {
     if (requestSheetDataOfBM?._id) {
-      console.log("requestSheetDataOfBM:", requestSheetDataOfBM);
       setValue(
         "problemOccurredDateAndTimeOfBM",
         moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM)
@@ -136,7 +138,7 @@ function MyTable({ requestSheetDataOfBM }) {
   }, [requestSheetDataOfBM?._id, setValue]);
 
   const handleBack = () => {
-    navigate("/bm/report/productionLineWiseReport", { replace: true });
+    navigate(location?.state?.prevPath || "/bm", { replace: true });
   };
 
   return (
@@ -146,8 +148,8 @@ function MyTable({ requestSheetDataOfBM }) {
       <form className="p-2" onSubmit={() => {}}>
         <Table className="mt-3">
           <tbody className="m-1 border p-3">
-            <tr class="row m-2">
-              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
+            <tr className="row m-2">
+              <td className="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
                 <Row>
                   <Col className="col-auto">
                     <button className="btn bg-button m-2" onClick={handleBack}>
@@ -228,7 +230,8 @@ function MyTable({ requestSheetDataOfBM }) {
                                 disabled={
                                   (requestSheetDataOfBM?.assignUser?._id !==
                                     loggedUserDetails?._id ||
-                                    requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id) &&
+                                    requestSheetDataOfBM?.handOverUser?._id ===
+                                      loggedUserDetails?._id) &&
                                   requestSheetDataOfBM?.approvalOfMTD_TL
                                     ?._id !== loggedUserDetails?._id
                                 }
@@ -331,7 +334,7 @@ function MyTable({ requestSheetDataOfBM }) {
               </td>
             </tr>
 
-            <tr class="row m-2">
+            <tr className="row m-2">
               <td className="border p-3 col-lg-8 col-md-7 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={4} md={6}>

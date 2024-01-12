@@ -7,6 +7,8 @@ const LineTrend = ({
   selectedYear,
   selectedMonth,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [lineWiseMTTRTrend, setLineWiseMTTRTrend] = useState({
     labels: [],
     data: [],
@@ -14,6 +16,8 @@ const LineTrend = ({
   });
 
   const getLineWiseMTTRTrendData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/getLineWiseMTTRTrendData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -36,6 +40,8 @@ const LineTrend = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -50,6 +56,7 @@ const LineTrend = ({
         title="Line Trend"
         xAxisTitle="Lines"
         y1AxisTitle="MTTR Hours"
+        loading={loading}
         dataset={lineWiseMTTRTrend}
         label={{
           lineLabel: "Target",

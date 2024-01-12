@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useReducer, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import { IconButton, RadioGroup } from "@mui/material";
 import TextField from "@material-ui/core/TextField";
@@ -44,7 +44,10 @@ import {
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
 
 const RequestSheetMainDashboard = () => {
+  const [loading, setLoading] = React.useState(true);
+
   const navigate = useNavigate();
+  const location = useLocation();
 
   const context = useContext(RoutingContext);
 
@@ -136,6 +139,8 @@ const RequestSheetMainDashboard = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const getAllRequestSheetData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         `/getRequestSheetData/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`,
@@ -175,6 +180,8 @@ const RequestSheetMainDashboard = () => {
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   const updateRequestSheet = async (updatedRow) => {
@@ -567,6 +574,7 @@ const RequestSheetMainDashboard = () => {
           `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
           {
             state: {
+              prevPath: location.pathname,
               supportingTM:
                 reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
             },
@@ -708,6 +716,7 @@ const RequestSheetMainDashboard = () => {
                 //   exportPDFName: "Export as pdf!!"
                 // }
               }}
+              isLoading={loading}
               actions={requestSheetActions}
               icons={tableIcons}
               columns={requestSheetHeader}
