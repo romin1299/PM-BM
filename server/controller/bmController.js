@@ -11831,6 +11831,12 @@ router.get(
       },
 
       {
+        $match: {
+          groupName: { $exists: true, $ne: null },
+        },
+      },
+
+      {
         $group: {
           _id: {
             groupName: "$groupName",
@@ -11993,22 +11999,22 @@ router.get(
           },
         },
       },
-
+      {
+        $match: {
+          groupName: { $exists: true, $ne: null },
+        },
+      },
       {
         $group: {
           _id: {
             groupName: "$groupName",
             date: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
           },
-
           bdHoursmachineWise: {
             $sum: {
               $cond: [
                 {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ],
+                  $gt: ["$maintenanceReportFilledByMTD.workEndedDateOfBM", null],
                 },
                 {
                   $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
@@ -12019,6 +12025,8 @@ router.get(
           },
         },
       },
+      
+      
 
       { $sort: { "_id.groupName": 1 } },
 
@@ -12130,7 +12138,7 @@ router.get(
         $group: {
           _id: {
             groupName: "$groupName.groupName",
-            // groupName: req.params.groupName,
+            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
             category: "$categoriesOfRequestSheet.category",
             subCategory: "$categoriesOfRequestSheet.subCategory",
           },
