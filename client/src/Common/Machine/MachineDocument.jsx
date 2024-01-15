@@ -8,12 +8,17 @@ import CustomHooksForBackNavigation, {
 import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
 import { Box, Typography } from "@mui/material";
 
+import HistoryIcon from "@mui/icons-material/History";
+import ArchitectureIcon from "@mui/icons-material/Architecture";
+import DescriptionIcon from "@mui/icons-material/Description";
+
 const allEvents = [
   [
     {
       url: "bm-history",
       formate: "history-formate",
       name: "BM History",
+      icon: <HistoryIcon fontSize="large" />,
     },
     {
       url: "product-drawing",
@@ -24,6 +29,7 @@ const allEvents = [
       url: "jigs-mcs",
       formate: "attachment-formate",
       name: "Jigs MCS",
+      icon: <ArchitectureIcon fontSize="large" />,
     },
   ],
   [
@@ -31,16 +37,19 @@ const allEvents = [
       url: "pm-history",
       formate: "history-formate",
       name: "PM History",
+      icon: <HistoryIcon fontSize="large" />,
     },
     {
       url: "machine-manuals",
       formate: "attachment-formate",
       name: "Machine Manuals",
+      icon: <DescriptionIcon fontSize="large" />,
     },
     {
       url: "jigs-dws",
       formate: "attachment-formate",
       name: "Jigs Dws(Mech/Elec)",
+      icon: <ArchitectureIcon fontSize="large" />,
     },
   ],
   [
@@ -79,7 +88,6 @@ const allEvents = [
   ],
 ];
 
-console.log("allEvents:", allEvents);
 const MachineDocument = () => {
   const { machine_code } = useParams();
 
@@ -126,7 +134,7 @@ const MachineDocument = () => {
           justifyContent="center"
           alignItems="center"
         >
-          {icon}
+          {icon && icon}
         </Box>
         <Typography
           variant="body1"
@@ -140,11 +148,37 @@ const MachineDocument = () => {
     );
   };
 
+  const MachineName = ({ machineCode }) => {
+    return (
+      <Col className="col-auto">
+        <Typography
+          noWrap
+          variant="h4"
+          component="h4"
+          fontSize={22}
+          fontWeight={600}
+        >
+          <Typography
+            noWrap
+            variant="body2"
+            component="div"
+            mb={"-8px"}
+            ml={"1px"}
+          >
+            Machine Code
+          </Typography>
+          {machineCode}
+        </Typography>
+      </Col>
+    );
+  };
+
   return (
     <Container fluid>
       <ReportTitleBar
         title={"Machine Documents"}
         PreTools={<MuiNavigateBack />}
+        Toolbar={<MachineName machineCode={machine_code} />}
       />
       {/* <CustomHooksForBackNavigation /> */}
 
@@ -159,6 +193,7 @@ const MachineDocument = () => {
                     `/machine-history/${event?.formate}/${event?.url}/${machine_code}/${search}`
                   );
                 }}
+                icon={event?.icon || null}
               />
             </Col>
           ))}

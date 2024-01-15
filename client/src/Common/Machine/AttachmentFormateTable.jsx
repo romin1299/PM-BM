@@ -8,8 +8,9 @@ import AddNewAttachmentModal from "./AddNewAttachmentModal";
 import CustomHooksForBackNavigation, {
   MuiNavigateBack,
 } from "../ButtonComponents/CustomHooksForBackNavigation";
-import { Container } from "react-bootstrap";
+import { Col, Container } from "react-bootstrap";
 import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
+import { Box, Typography } from "@mui/material";
 
 const pageInfo = {
   // "bm-history": {
@@ -136,10 +137,57 @@ const AttachmentFormateTable = () => {
     {
       title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
+      width: 100,
     },
     {
       title: "Attachment",
       field: "attached_file",
+    },
+    {
+      title: "Preview",
+      field: "attached_file",
+      render: (rowData) => {
+        const image = rowData.attached_file;
+        const path = `/${pageDetails?.schemaVar}/`;
+
+        return (
+          <Box
+            display="flex"
+            justifyContent={"center"}
+            alignItems={"center"}
+            width={"100px"}
+            minHeight={"50px"}
+            overflow={"hidden"}
+            boxShadow={
+              "-2px -2px 4px 0px rgba(0, 0, 0, 0.06), 2px 2px 4px 0px rgba(0, 0, 0, 0.06), -2px -2px 4px 0px rgba(0, 0, 0, 0.06) inset"
+            }
+            mt={1}
+            mb={1}
+          >
+            <a
+              target="_blank"
+              href={`http://localhost:7000/${pageDetails?.schemaVar}/${image}`}
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <img
+                style={{
+                  maxWidth: "100px",
+                  maxHeight: "100px",
+                  borderRadius: "3px",
+                }}
+                src={path + rowData.attached_file}
+                alt=""
+              />
+            </a>
+          </Box>
+        );
+      },
     },
   ];
 
@@ -152,9 +200,38 @@ const AttachmentFormateTable = () => {
     },
   ];
 
+  const MachineName = ({ machineCode }) => {
+    return (
+      <Col className="col-auto">
+        <Typography
+          noWrap
+          variant="h4"
+          component="h4"
+          fontSize={22}
+          fontWeight={600}
+        >
+          <Typography
+            noWrap
+            variant="body2"
+            component="div"
+            mb={"-8px"}
+            ml={"1px"}
+          >
+            Machine Code
+          </Typography>
+          {machineCode}
+        </Typography>
+      </Col>
+    );
+  };
+
   return (
     <Container fluid>
-      <ReportTitleBar title={machine_code} PreTools={<MuiNavigateBack />} />
+      <ReportTitleBar
+        title={pageDetails?.name}
+        PreTools={<MuiNavigateBack />}
+        Toolbar={<MachineName machineCode={machine_code} />}
+      />
 
       {/* <CustomHooksForBackNavigation /> */}
 

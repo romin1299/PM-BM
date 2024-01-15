@@ -10,6 +10,7 @@ import BreakdownTrend from "./BreakdownTrend";
 import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Button, IconButton } from "@mui/material";
+import LaunchIcon from "@mui/icons-material/Launch";
 
 const MachineHistoryComponent = () => {
   const { machine_code } = useParams();
@@ -32,6 +33,7 @@ const MachineHistoryComponent = () => {
                   `/machine-history/machine-document/${machine_code}/${search}`
                 );
               }}
+              endIcon={<LaunchIcon sx={{ pb: "2px" }} />}
             >
               Machine Documents
             </Button>

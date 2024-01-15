@@ -24,7 +24,7 @@ function MyTable({ requestSheetDataOfBM }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
-  console.log("location.state.prevPath:", location?.state?.prevPath);
+  // console.log("location.state.prevPath:", location?.state?.prevPath);
 
   const {
     register,
