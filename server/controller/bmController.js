@@ -17,7 +17,7 @@ const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
 const factory = require("./handleFactory");
-
+const sendMailForBD = require("../sendMailForBM/sendMailForBDRequestSheet");
 const moment = require("moment-timezone");
 const timezone = "Asia/Kolkata";
 
@@ -181,9 +181,42 @@ const uploadDataSheetsOfBD = multer({
   // fileFilter: fileFilterOfDataSheetOfBD,
 });
 
+const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
+  try {
+    const section = await Section.findOne({
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    });
+
+    let queryObj = {
+      plant_data: req?.rootUser?.plant_data,
+    };
+
+    if (req?.rootUser?.tm_grade !== "HOD") {
+      if (section.dashboardLevel === "Yes") {
+        queryObj = {
+          ...queryObj,
+          section_data: req?.rootUser?.section_data,
+        };
+      } else {
+        queryObj = {
+          ...queryObj,
+          section_data: req?.rootUser?.section_data,
+          subSection_data: { $in: req?.rootUser?.subSection_data },
+        };
+      }
+    }
+
+    req.queryObj = queryObj;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 router.post(
   "/newRequestSheetRegistration",
   authenticate,
+  dashboardLevelUserCheckMiddleware,
   uploadDataSheetsOfBD.fields([
     { name: "attachedDataSheets", maxCount: 1 },
     { name: "attachedDrawings", maxCount: 10 },
@@ -278,7 +311,7 @@ router.post(
 
             if (requestSheet) {
               return res.status(201).json({
-                message: "Request-sheet updated successfully",
+                message: `Request-sheet updated successfully ${requestSheet?.requestSheetNoOfBM}`,
                 requestSheet,
               });
             }
@@ -300,9 +333,10 @@ router.post(
               requestSheetDataFilledByMTDUser?.workStartedDateOfBM,
             "maintenanceReportFilledByMTD.workEndedDateOfBM":
               requestSheetDataFilledByMTDUser?.workEndedDateOfBM,
+            "maintenanceReportFilledByMTD.refHandOverTime":
+              requestSheetDataFilledByMTDUser?.workEndedDateOfBM,
             "maintenanceReportFilledByMTD.actionAndCounterMeasureStep":
               requestSheetDataFilledByMTDUser?.actionAndCounterMeasureStep,
-
             "maintenanceReportFilledByMTD.problemsOfBM":
               requestSheetDataFilledByMTDUser?.problemsOfBM,
             "maintenanceReportFilledByMTD.whyAnalysis.why1":
@@ -347,12 +381,13 @@ router.post(
             partQualityCheckedByPRD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
             requestSheetStatus:
-              (getRequestSheetData?.assignUser?._id).toString() ===
+              ((getRequestSheetData?.assignUser?._id).toString() ===
                 (req?.rootUser?._id).toString() ||
-              (getRequestSheetData?.handOverUser?._id).toString() ===
-                (req?.rootUser?._id).toString()
-                ? "Fill Sheet"
-                : getRequestSheetData?.requestSheetStatus,
+                (getRequestSheetData?.handOverUser?._id).toString() ===
+                  (req?.rootUser?._id).toString()) &&
+              getRequestSheetData?.requestSheetStatus
+                ? getRequestSheetData?.requestSheetStatus
+                : "Fill Sheet",
             actionTemporaryOrNot:
               requestSheetDataFilledByMTDUser?.actionTemporaryOrNot,
             dataSheetOfRequestSheet:
@@ -439,7 +474,7 @@ router.post(
             }
           );
           res.status(201).json({
-            message: "Request-sheet updated successfully",
+            message: `Request-sheet updated successfully ${requestSheet?.requestSheetNoOfBM}`,
             requestSheet,
           });
         } else {
@@ -518,11 +553,81 @@ router.post(
             },
           });
 
-          await requestSheet.save();
-          res.status(201).json({
-            message: "Request-sheet generated successfully",
-            requestSheet,
-          });
+          const newBDRequestSheetGenerate = await requestSheet.save();
+
+          if (newBDRequestSheetGenerate) {
+            //get MTD TL of the assign section for sending mail when request-sheet is generated.
+            const getMTDTL = await User.find(
+              {
+                ...req?.queryObj,
+                tm_department: "MTD",
+                user_type: "TL/HOSS",
+              },
+              { tm_no: 1, tm_name: 1, email: 1 }
+            );
+
+            let bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+
+            <tr>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.line_names?.cell_names?.cell_name}</td>
+            </tr>
+
+            <tr style="background-color: #dddddd;">
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.line_names?.line_name}</td>
+            </tr>
+
+            <tr>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.machine_name}</td>
+            </tr>
+
+            <tr style="background-color: #dddddd;">
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.machine_code}</td>
+            </tr>
+
+            <tr>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.requestSheetNoOfBM}</td>
+            </tr>   
+
+            <tr style="background-color: #dddddd;">
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Problem Occurred Date and Time</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.problemOccurredDateAndTimeOfBM}</td>
+            </tr>
+
+            <tr>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Problem</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.breakDownBasicDataFilledByPRD?.problemFaced}</td>
+            </tr>
+
+            <tr style="background-color: #dddddd;">
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.requestSheetStatus}</td>
+            </tr>
+
+            <tr>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.work_order_status}</td>
+            </tr>
+
+        </table>`;
+
+            sendMailForBD({
+              subject: `Request Sheet is generated (${machine?.line_names?.cell_names?.cell_name}/${machine?.line_names?.line_name}/${machine?.machine_name}/${newBDRequestSheetGenerate?.requestSheetNoOfBM})`,
+              title: `Request sheet is generated`,
+              greetings: `Sir\\Ma'am`,
+              toEmailIds: getMTDTL?.map((obj) => obj?.email),
+              bodyTable,
+            });
+
+            res.status(201).json({
+              message: "Request-sheet generated successfully",
+              requestSheet,
+            });
+          }
         }
       } else {
         res.status(404).json({ message: "Request-sheet not generated" });
@@ -628,6 +733,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
               $project: {
                 user_type: 1,
                 tm_name: 1,
+                email: 1,
               },
             },
           ],
@@ -644,10 +750,28 @@ const findRequestSheetMiddleware = async (req, res, next) => {
               $project: {
                 user_type: 1,
                 tm_name: 1,
+                email: 1,
               },
             },
           ],
           as: "handoverUserDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "approvalOfMTD_SL",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "approvalOfMTD_SL",
         },
       },
       {
@@ -666,11 +790,20 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           assignUserId: {
             $arrayElemAt: ["$namesOperators._id", 0],
           },
+          assignUserEmail: {
+            $arrayElemAt: ["$namesOperators.email", 0],
+          },
           handOverUser: {
             $arrayElemAt: ["$handoverUserDetails.tm_name", 0],
           },
           handOverUserId: {
             $arrayElemAt: ["$handoverUserDetails._id", 0],
+          },
+          handOverUserEmail: {
+            $arrayElemAt: ["$handoverUserDetails.email", 0],
+          },
+          approvalOfMTD_SL: {
+            $arrayElemAt: ["$approvalOfMTD_SL", 0],
           },
           handOverTimeForDefault:
             "$maintenanceReportFilledByMTD.refHandOverTime",
@@ -973,11 +1106,11 @@ router.patch(
 
       let queryObj = {};
 
-      if (req.rootUser?.tm_department !== "MTD") {
-        return res.status(401).json({
-          message: "You are not valid user",
-        });
-      }
+      // if (req.rootUser?.tm_department !== "MTD") {
+      //   return res.status(401).json({
+      //     message: "You are not valid user",
+      //   });
+      // }
 
       const isRequestSheetExist = await RequestSheetOfBM.findOne(req.query);
 
@@ -1021,15 +1154,18 @@ router.patch(
         } else {
           requestSheetStatus = statusArray[4];
         }
+        console.log(req.body?.handOverTime, new Date());
         if (mongoose.Types.ObjectId.isValid(req.body?.handOverUser)) {
           queryObj = {
             finalActivity: req.body?.finalActivity,
-            "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
-              req.body?.handOverTime
-            ),
-            "maintenanceReportFilledByMTD.refHandOverTime": new Date(
-              req.body?.handOverTime
-            ),
+            "maintenanceReportFilledByMTD.workEndedDateOfBM":
+              req.body?.handOverTime !== null
+                ? new Date(req.body?.handOverTime)
+                : new Date(),
+            "maintenanceReportFilledByMTD.refHandOverTime":
+              req.body?.handOverTime !== null
+                ? new Date(req.body?.handOverTime)
+                : new Date(),
             handOverUser: req.body?.handOverUser,
             requestSheetStatus,
             work_order_status: req.body?.work_order_status,
@@ -1037,19 +1173,21 @@ router.patch(
         } else {
           queryObj = {
             finalActivity: req.body?.finalActivity,
-            "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
-              req.body?.handOverTime
-            ),
-            "maintenanceReportFilledByMTD.refHandOverTime": new Date(
-              req.body?.handOverTime
-            ),
+            "maintenanceReportFilledByMTD.workEndedDateOfBM":
+              req.body?.handOverTime !== null
+                ? new Date(req.body?.handOverTime)
+                : new Date(),
+            "maintenanceReportFilledByMTD.refHandOverTime":
+              req.body?.handOverTime !== null
+                ? new Date(req.body?.handOverTime)
+                : new Date(),
             requestSheetStatus,
             work_order_status: req.body?.work_order_status,
           };
         }
       }
 
-      await RequestSheetOfBM.findOneAndUpdate(
+      const updateRequestSheetData = await RequestSheetOfBM.findOneAndUpdate(
         req.query,
         {
           $set: queryObj,
@@ -1058,6 +1196,9 @@ router.patch(
           new: true,
         }
       );
+
+      req.updateRequestSheetData = updateRequestSheetData;
+      req.queryObj = queryObj;
 
       req.queryPipeline = [
         {
@@ -1076,44 +1217,103 @@ router.patch(
   },
   findRequestSheetMiddleware,
   (req, res, next) => {
+    if (req.updateRequestSheetData) {
+      const bodyContent = ({ key, value }) => {
+        return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+  
+        <tr>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.cell}</td>
+        </tr>
+  
+        <tr style="background-color: #dddddd;">
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.line}</td>
+        </tr>
+  
+        <tr>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.machineName}</td>
+        </tr>
+  
+        <tr style="background-color: #dddddd;">
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.machineNo}</td>
+        </tr>
+  
+        <tr>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.requestSheetNoOfBM}</td>
+        </tr>   
+  
+        <tr style="background-color: #dddddd;">
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${key}</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${value}</td>
+        </tr>
+  
+        <tr>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.requestSheetStatus}</td>
+        </tr>
+  
+        <tr style="background-color: #dddddd;">
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.work_order_status}</td>
+        </tr>
+  
+    </table>`;
+      };
+      if (
+        req?.queryObj?.hasOwnProperty("assignUser") &&
+        req.requestSheetData?.[0]?.assignUserEmail
+      ) {
+        let bodyTable = bodyContent({
+          key: "Assign User",
+          value: req.requestSheetData?.[0]?.assignUser,
+        });
+        sendMailForBD({
+          subject: `Request Sheet is assign (${req.requestSheetData?.[0]?.cell}/${req.requestSheetData?.[0]?.line}/${req.requestSheetData?.[0]?.machineName}/${req.requestSheetData?.[0]?.requestSheetNoOfBM})`,
+          title: `Request sheet is assign`,
+          greetings: `Sir\\Ma'am`,
+          toEmailIds: req.requestSheetData?.[0]?.assignUserEmail,
+          bodyTable: bodyTable,
+        });
+      } else if (
+        req?.queryObj?.hasOwnProperty("handOverUser") &&
+        req.requestSheetData?.[0]?.handOverUserEmail
+      ) {
+        let bodyTable = bodyContent({
+          key: "Handover User",
+          value: req.requestSheetData?.[0]?.handOverUser,
+        });
+        sendMailForBD({
+          subject: `Request Sheet is handover (${req.requestSheetData?.[0]?.cell}/${req.requestSheetData?.[0]?.line}/${req.requestSheetData?.[0]?.machineName}/${req.requestSheetData?.[0]?.requestSheetNoOfBM})`,
+          title: `Request sheet is handover`,
+          greetings: `Sir\\Ma'am`,
+          toEmailIds: req.requestSheetData?.[0]?.handOverUserEmail,
+          bodyTable: bodyTable,
+        });
+      } else if (req.body?.work_order_status === "Closed") {
+        let bodyTable = bodyContent({
+          key: "MTD S.L.",
+          value: req.requestSheetData?.[0]?.approvalOfMTD_SL?.tm_name,
+        });
+        sendMailForBD({
+          subject: `Request Sheet Work Order Closed (${req.requestSheetData?.[0]?.cell}/${req.requestSheetData?.[0]?.line}/${req.requestSheetData?.[0]?.machineName}/${req.requestSheetData?.[0]?.requestSheetNoOfBM})`,
+          title: `Request Sheet work order is closed`,
+          greetings: `Sir\\Ma'am`,
+          toEmailIds: req.requestSheetData?.[0]?.approvalOfMTD_SL?.email,
+          bodyTable: bodyTable,
+        });
+      }
+    }
+
     res.status(201).json({
-      message: "Request-sheet updated successfully",
+      message: `Request-sheet updated successfully ${req.requestSheetData?.[0]?.requestSheetNoOfBM}`,
       requestSheet: req.requestSheetData?.[0],
     });
   }
 );
-
-const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
-  try {
-    const section = await Section.findOne({
-      section_id: req?.rootUser?.section_data?.split("-")?.[0],
-    });
-
-    let queryObj = {
-      plant_data: req?.rootUser?.plant_data,
-    };
-
-    if (req?.rootUser?.tm_grade !== "HOD") {
-      if (section.dashboardLevel === "Yes") {
-        queryObj = {
-          ...queryObj,
-          section_data: req?.rootUser?.section_data,
-        };
-      } else {
-        queryObj = {
-          ...queryObj,
-          section_data: req?.rootUser?.section_data,
-          subSection_data: { $in: req?.rootUser?.subSection_data },
-        };
-      }
-    }
-
-    req.queryObj = queryObj;
-    next();
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
 
 const findTLandOperatorList = async (req, res, next) => {
   try {
@@ -3365,6 +3565,13 @@ const getRequestSheetData = async (req, res, next) => {
       };
     }
 
+    //get data for sending email for higher authority
+    if (req?.params?.reqId) {
+      queryObjForGetRequestSheetData = {
+        _id: mongoose.Types.ObjectId(req.params?.reqId),
+      };
+    }
+
     if (req.query?.getDataForApprovalDashboardId) {
       queryObjForGetRequestSheetData = {
         "getDataForApprovalDashboard.Id": mongoose.Types.ObjectId(
@@ -3470,6 +3677,8 @@ const getRequestSheetData = async (req, res, next) => {
             {
               $project: {
                 tm_name: 1,
+                tm_no: 1,
+                email: 1,
               },
             },
           ],
@@ -3485,6 +3694,8 @@ const getRequestSheetData = async (req, res, next) => {
             {
               $project: {
                 tm_name: 1,
+                tm_no: 1,
+                email: 1,
               },
             },
           ],
@@ -3500,7 +3711,9 @@ const getRequestSheetData = async (req, res, next) => {
             {
               $project: {
                 user_type: 1,
+                tm_no: 1,
                 tm_name: 1,
+                email: 1,
               },
             },
           ],
@@ -3512,6 +3725,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "requestSheetCreatedBy",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "requestSheetCreatedBy",
         },
       },
@@ -3524,7 +3747,9 @@ const getRequestSheetData = async (req, res, next) => {
             {
               $project: {
                 user_type: 1,
+                tm_no: 1,
                 tm_name: 1,
+                email: 1,
               },
             },
           ],
@@ -3536,6 +3761,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfMTD_SL",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfMTD_SL",
         },
       },
@@ -3544,6 +3779,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfMTD_TL",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfMTD_TL",
         },
       },
@@ -3552,6 +3797,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfMTD_HOSS",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfMTD_HOSS",
         },
       },
@@ -3560,6 +3815,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfMTD_HOS",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfMTD_HOS",
         },
       },
@@ -3568,6 +3833,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfPRD_TL",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfPRD_TL",
         },
       },
@@ -3576,6 +3851,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfPRD_HOS",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfPRD_HOS",
         },
       },
@@ -3584,6 +3869,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfPRD_HOD",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfPRD_HOD",
         },
       },
@@ -3592,6 +3887,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfMTD_HOD",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfMTD_HOD",
         },
       },
@@ -3600,6 +3905,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "supportingTM",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "supportingTM",
         },
       },
@@ -3924,14 +4239,6 @@ router.patch(
           await RequestSheetOfBM.findOneAndUpdate(
             {
               _id: mongoose.Types.ObjectId(req.params?.reqId),
-              $or: [
-                {
-                  assignUser: req?.rootUser?._id,
-                },
-                {
-                  handOverUser: req?.rootUser?._id,
-                },
-              ],
             },
             {
               $set: {
@@ -3949,8 +4256,64 @@ router.patch(
             },
             { new: true }
           ).exec();
-
         if (updateAssignApprovalOfMTD_TL) {
+          const bodyContent = ({ key, value }) => {
+            return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+       
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+             </tr>
+       
+             <tr style="background-color: #dddddd;">
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+             </tr>
+       
+             <tr>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+             </tr>
+       
+             <tr style="background-color: #dddddd;">
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+             </tr>
+       
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+             </tr>   
+       
+             <tr style="background-color: #dddddd;">
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${key}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${value}</td>
+             </tr>
+       
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateAssignApprovalOfMTD_TL?.requestSheetStatus}</td>
+             </tr>
+       
+             <tr style="background-color: #dddddd;">
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateAssignApprovalOfMTD_TL?.work_order_status}</td>
+             </tr>
+       
+         </table>`;
+          };
+          let bodyTable = bodyContent({
+            key: "Submitted By",
+            value: req?.rootUser?.tm_name,
+          });
+          sendMailForBD({
+            subject: `Request Sheet Approval (${requestSheetDataOfBM?.cell}/${requestSheetDataOfBM?.line}/${requestSheetDataOfBM?.machineName}/${requestSheetDataOfBM?.requestSheetNoOfBM})`,
+            title: `Kindly Approve Request-sheet`,
+            greetings: `Sir\\Ma'am`,
+            toEmailIds: assignApprovalList?.MTD_TL?.email,
+            bodyTable: bodyTable,
+          });
+
           return res.status(201).json({
             message: "Successfully send approval to MTD TL!",
             updateAssignApprovalOfMTD_TL,
@@ -4036,6 +4399,7 @@ router.patch(
         requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
           ?.majorApprovalList;
 
+      let listOfHigherApproverAuthorityForSendingMail = [];
       Object.keys(assignApprovalList).forEach((key) => {
         if (
           [
@@ -4046,6 +4410,10 @@ router.patch(
           ]?.includes(key.replace("_", " "))
         ) {
           updateTheStatusOfBMSheetApprover(key, assignApprovalList[key]);
+          if (assignApprovalList?.[key]?.id)
+            listOfHigherApproverAuthorityForSendingMail.push(
+              assignApprovalList[key]
+            );
         }
       });
 
@@ -4083,10 +4451,86 @@ router.patch(
           },
           { new: true }
         );
-        if (updateRequestSheetStatus)
+        if (updateRequestSheetStatus) {
+          const bodyContent = ({ key, value, approvedDateAndTime }) => {
+            return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+       
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+             </tr>
+       
+             <tr style="background-color: #dddddd;">
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+             </tr>
+       
+             <tr>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+             </tr>
+       
+             <tr style="background-color: #dddddd;">
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+             </tr>
+       
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+             </tr>   
+       
+             <tr style="background-color: #dddddd;">
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${key}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${value}</td>
+             </tr>
+
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${approvedDateAndTime}</td>
+             </tr>
+       
+             <tr style="background-color: #dddddd;">
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateRequestSheetStatus?.requestSheetStatus}</td>
+             </tr>
+       
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateRequestSheetStatus?.work_order_status}</td>
+             </tr>
+       
+         </table>`;
+          };
+          let bodyTable = bodyContent({
+            key: "Approved By",
+            value: req?.rootUser?.tm_name,
+            approvedDateAndTime:
+              updateRequestSheetStatus?.approvalDateAndTimeOfMTD_TL?.[
+                updateRequestSheetStatus?.approvalDateAndTimeOfMTD_TL?.length -
+                  1 || 0
+              ],
+          });
+          sendMailForBD({
+            subject: `Request Sheet Approval (${requestSheetDataOfBM?.cell}/${requestSheetDataOfBM?.line}/${requestSheetDataOfBM?.machineName}/${requestSheetDataOfBM?.requestSheetNoOfBM})`,
+            title: `Kindly Approve Request-sheet`,
+            greetings: `Sir\\Ma'am`,
+            toEmailIds:
+              assignApprovalList?.[
+                (requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+                  minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
+                ]?.[1]).replace(" ", "_")
+              ]?.email,
+            ccEmailIds: listOfHigherApproverAuthorityForSendingMail
+              ?.map((obj) => obj?.email)
+              ?.slice(1),
+            bodyTable: bodyTable,
+          });
+
           return res.status(201).json({
             message: `${requestSheetDataOfBM?.requestSheetNoOfBM} Request-sheet approval send !!`,
           });
+        }
       } else {
         //request-sheet is rejected
         let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
@@ -11831,6 +12275,12 @@ router.get(
       },
 
       {
+        $match: {
+          groupName: { $exists: true, $ne: null },
+        },
+      },
+
+      {
         $group: {
           _id: {
             groupName: "$groupName",
@@ -11993,22 +12443,22 @@ router.get(
           },
         },
       },
-
+      {
+        $match: {
+          groupName: { $exists: true, $ne: null },
+        },
+      },
       {
         $group: {
           _id: {
             groupName: "$groupName",
             date: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
           },
-
           bdHoursmachineWise: {
             $sum: {
               $cond: [
                 {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ],
+                  $gt: ["$maintenanceReportFilledByMTD.workEndedDateOfBM", null],
                 },
                 {
                   $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
@@ -12019,6 +12469,8 @@ router.get(
           },
         },
       },
+      
+      
 
       { $sort: { "_id.groupName": 1 } },
 
@@ -12130,7 +12582,7 @@ router.get(
         $group: {
           _id: {
             groupName: "$groupName.groupName",
-            // groupName: req.params.groupName,
+            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
             category: "$categoriesOfRequestSheet.category",
             subCategory: "$categoriesOfRequestSheet.subCategory",
           },
@@ -13049,6 +13501,7 @@ router.get(
 router.patch(
   "/approveRequestSheetFromHigherAuthority/:reqId/:machineRef",
   authenticate,
+  getRequestSheetData,
   async (req, res, next) => {
     try {
       const {
@@ -13069,10 +13522,10 @@ router.patch(
         "_"
       )}`;
 
-      let keyOfUpdateApprovalStatusAsAcceptedOrRejected = `approvalStatusOf${(requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser).replace(
+      let keyOfSendingEmailToNextHigherAuthority = `approvalOf${(requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser).replace(
         " ",
         "_"
-      )}.$`;
+      )}`;
 
       let keyOfApprovalDateAndTimeOfAcceptedOrRejected = `approvalDateAndTimeOf${(requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser).replace(
         " ",
@@ -13099,6 +13552,8 @@ router.patch(
       //Approver approve the request-sheet
       if (approvalOfRequestSheet === "Yes") {
         let getNextApproverDepartmentAndGradeOfUser;
+        let ListOfCCEmailOfOtherHigherAuthority;
+
         //For under Minor Request-sheet
         if (
           requestSheetDataOfBM?.maintenanceReportFilledByMTD?.minorBD === "Yes"
@@ -13111,6 +13566,21 @@ router.patch(
                   ?.departmentAndGradeOfUser
               ) + 1
             ];
+
+          ListOfCCEmailOfOtherHigherAuthority = minorListForTheApprovalOfPlant
+            .filter((value) => {
+              if (
+                value !==
+                req?.requestSheetData?.[0]?.getDataForApprovalDashboard
+                  ?.departmentAndGradeOfUser
+              )
+                return value;
+            })
+            .map((obj) => {
+              return req?.requestSheetData?.[0]?.[
+                `approvalOf${obj?.replace(" ", "_")}`
+              ]?.email;
+            });
         }
         //For under Major Request-sheet
         else {
@@ -13121,8 +13591,20 @@ router.patch(
                   ?.departmentAndGradeOfUser
               ) + 1
             ];
-        }
 
+          ListOfCCEmailOfOtherHigherAuthority =
+            majorListForTheApprovalOfPlant.map((value) => {
+              if (
+                value !==
+                req?.requestSheetData?.[0]?.getDataForApprovalDashboard
+                  ?.departmentAndGradeOfUse
+              ) {
+                req?.requestSheetData?.[0]?.[
+                  `approvalOf${value?.replace(" ", "_")}`
+                ]?.email;
+              }
+            });
+        }
         getRequestSheetData[
           keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition
         ][lengthOfTheApprovalStatus - 1] = "Accepted";
@@ -13164,11 +13646,81 @@ router.patch(
               },
               { new: true }
             );
-          if (updateApprovalStatusOfRequestSheet)
+          if (updateApprovalStatusOfRequestSheet) {
+            const bodyContent = ({ key, value, approvedDateAndTime }) => {
+              return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+               </tr>
+
+               <tr>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+               </tr>
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${key}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${value}</td>
+               </tr>
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${approvedDateAndTime}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.requestSheetStatus}</td>
+               </tr>
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.work_order_status}</td>
+               </tr>
+
+           </table>`;
+            };
+            let bodyTable = bodyContent({
+              key: "Approved By",
+              value: req?.rootUser?.tm_name,
+              approvedDateAndTime:
+                getRequestSheetData[
+                  keyOfApprovalDateAndTimeOfAcceptedOrRejected
+                ],
+            });
+            sendMailForBD({
+              subject: `Request Sheet Approval (${requestSheetDataOfBM?.cell}/${requestSheetDataOfBM?.line}/${requestSheetDataOfBM?.machineName}/${requestSheetDataOfBM?.requestSheetNoOfBM})`,
+              title: `Kindly Approve Request-sheet`,
+              greetings: `Sir\\Ma'am`,
+              toEmailIds:
+                requestSheetDataOfBM?.[keyOfSendingEmailToNextHigherAuthority]
+                  ?.email,
+              ccEmailIds: ListOfCCEmailOfOtherHigherAuthority,
+              bodyTable: bodyTable,
+            });
+
             return res.status(201).json({
               message: `${getRequestSheetData?.requestSheetNoOfBM} Request-sheet is approve !!`,
               errorType: "Approve",
             });
+          }
         } else {
           //No further approver is required
           let updateApprovalStatusOfRequestSheet =
@@ -13197,11 +13749,80 @@ router.patch(
               { new: true }
             );
 
-          if (updateApprovalStatusOfRequestSheet)
+          if (updateApprovalStatusOfRequestSheet) {
+            const bodyContent = ({ key, value, approvedDateAndTime }) => {
+              return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+               </tr>
+
+               <tr>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+               </tr>
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${key}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${value}</td>
+               </tr>
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${approvedDateAndTime}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.requestSheetStatus}</td>
+               </tr>
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.work_order_status}</td>
+               </tr>
+
+           </table>`;
+            };
+            let bodyTable = bodyContent({
+              key: "Approved By",
+              value: req?.rootUser?.tm_name,
+              approvedDateAndTime:
+                getRequestSheetData[
+                  keyOfApprovalDateAndTimeOfAcceptedOrRejected
+                ],
+            });
+            sendMailForBD({
+              subject: `Request Sheet Approval (${requestSheetDataOfBM?.cell}/${requestSheetDataOfBM?.line}/${requestSheetDataOfBM?.machineName}/${requestSheetDataOfBM?.requestSheetNoOfBM})`,
+              title: `Kindly Approve Request-sheet`,
+              greetings: `Sir\\Ma'am`,
+              toEmailIds:
+                requestSheetDataOfBM?.[keyOfSendingEmailToNextHigherAuthority]
+                  ?.email,
+              ccEmailIds: ListOfCCEmailOfOtherHigherAuthority,
+              bodyTable: bodyTable,
+            });
             return res.status(201).json({
               message: `${getRequestSheetData?.requestSheetNoOfBM} Request-sheet is approve !!`,
               errorType: "Approve",
             });
+          }
         }
       }
       //Approver reject the request-sheet
@@ -15211,8 +15832,21 @@ const lineFiltrationMiddleware = async (req, res, next) => {
     const lines = await Line.find({
       cell_names: mongoose.Types.ObjectId(req.cellID),
     });
-
+    req.lineID = lines?.[0]?._id;
     req.lines = lines;
+    return next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const machineFiltrationMiddleware = async (req, res, next) => {
+  try {
+    const machines = await Machine.find({
+      line_names: mongoose.Types.ObjectId(req?.lineID),
+    });
+    req.machineID = machines?.[0]?._id;
+    req.machines = machines;
     return next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -15426,6 +16060,272 @@ router.get(
       return res.status(201).json({
         message: "Line dropdown value get successfully",
         lines: req.lines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+//default Cell - Line - Machine selection
+router.get(
+  "/getFiltrationValue/machine-level-filtration/byDefault",
+  authenticate,
+  plantFiltrationMiddleware,
+  conditionMiddlewareForSectionQuery,
+  sectionFiltrationMiddleware,
+  (req, res, next) => {
+    try {
+      let subSectionQuery = {
+        section_names: req.section?._id,
+      };
+      if (
+        req.section.dashboardLevel === "No" &&
+        req.rootUser?.tm_grade !== "HOD"
+      ) {
+        subSectionQuery = {
+          subSection_id: {
+            $in: req.rootUser?.subSection_data?.map(
+              (item) => item?.split("-")?.[0]
+            ),
+          },
+        };
+      }
+      req.subSectionQuery = subSectionQuery;
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  subSectionFiltrationMiddleware,
+  cellFilterMiddleware,
+  lineFiltrationMiddleware,
+  machineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.rootUser?.tm_grade === "HOD") {
+        if (req.section.dashboardLevel === "No") {
+          return res.status(201).json({
+            message: "Data get successfully",
+
+            flagForTogglingFilter: "based-on-machine",
+            selectedValue: req.machineID,
+
+            selectedSection: req.section?._id,
+            sections: req.sections,
+            selectedSubSection: req.subSection?._id,
+            subSections: req.subSections,
+            selectedCell: req.cellID,
+            cells: req.cells,
+            selectedLine: req.lineID,
+            lines: req.lines,
+            selectedMachine: req.machineID,
+            machines: req.machines,
+          });
+        }
+
+        return res.status(201).json({
+          message: "Data get successfully",
+
+          flagForTogglingFilter: "based-on-machine",
+          selectedValue: req.machineID,
+
+          selectedSection: req.section?._id,
+          sections: req.sections,
+          selectedSubSection: "",
+          subSections: [],
+          selectedCell: req.cellID,
+          cells: req.cells,
+          selectedLine: req.lineID,
+          lines: req.lines,
+          selectedMachine: req.machineID,
+          machines: req.machines,
+        });
+      }
+
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "Data get successfully",
+
+          flagForTogglingFilter: "based-on-machine",
+          selectedValue: req.machineID,
+
+          selectedSection: "",
+          sections: [],
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: req.cellID,
+          cells: req.cells,
+          selectedLine: req.lineID,
+          lines: req.lines,
+          selectedMachine: req.machineID,
+          machines: req.machines,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Data get successfully",
+
+        flagForTogglingFilter: "based-on-machine",
+        selectedValue: req.machineID,
+
+        selectedSection: "",
+        sections: [],
+        selectedSubSection: "",
+        subSections: [],
+        selectedCell: req.cellID,
+        cells: req.cells,
+        selectedLine: req.lineID,
+        lines: req.lines,
+        selectedMachine: req.machineID,
+        machines: req.machines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/machine-level-filtration/sectionBased/:id",
+  authenticate,
+  sectionQueryMiddlewareForParamsId,
+  sectionFiltrationMiddleware,
+  subSectionQueryMiddleware,
+  subSectionFiltrationMiddleware,
+  cellFilterMiddleware,
+  lineFiltrationMiddleware,
+  machineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "Data get successfully",
+
+          flagForTogglingFilter: "based-on-machine",
+          selectedValue: req.machineID,
+
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: req.cellID,
+          cells: req.cells,
+          selectedLine: "",
+          lines: req.lines,
+          selectedMachine: "",
+          machines: req.machines,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Data get successfully",
+
+        flagForTogglingFilter: "based-on-machine",
+        selectedValue: req.machineID,
+
+        selectedSubSection: "",
+        subSections: [],
+        selectedCell: req.cellID,
+        cells: req.cells,
+        selectedLine: "",
+        lines: req.lines,
+        selectedMachine: "",
+        machines: req.machines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/machine-level-filtration/subSectionBased/:id",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      req.cellQuery = {
+        subSection_names: mongoose.Types.ObjectId(req.params?.id),
+      };
+      return next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  cellFilterMiddleware,
+  lineFiltrationMiddleware,
+  machineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      return res.status(201).json({
+        message: "Data get successfully",
+
+        flagForTogglingFilter: "based-on-machine",
+        selectedValue: req.machineID,
+
+        selectedCell: req.cellID,
+        cells: req.cells,
+        selectedLine: "",
+        lines: req.lines,
+        selectedMachine: "",
+        machines: req.machines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/machine-level-filtration/cellBased/:id",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      req.cellID = mongoose.Types.ObjectId(req.params?.id);
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  lineFiltrationMiddleware,
+  machineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      return res.status(201).json({
+        message: "Line dropdown value get successfully",
+        flagForTogglingFilter: "based-on-machine",
+        selectedValue: req.machineID,
+        selectedLine: req.lineID,
+        lines: req.lines,
+        selectedMachine: req.machineID,
+        machines: req.machines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/machine-level-filtration/lineBased/:id",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      req.lineID = mongoose.Types.ObjectId(req.params?.id);
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  machineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      return res.status(201).json({
+        message: "Machine dropdown value get successfully",
+        flagForTogglingFilter: "based-on-machine",
+        selectedValue: req?.machineID,
+        selectedMachine: req?.machineID,
+        machines: req?.machines,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });

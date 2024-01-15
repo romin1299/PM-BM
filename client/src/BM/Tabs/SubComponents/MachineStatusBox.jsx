@@ -1,6 +1,6 @@
 import { Box, Divider, Paper, Typography } from "@mui/material";
 
-const MachineStatusBox = ({ title, bodyText1 = " ", bodyText2 = " " }) => (
+const MachineStatusBox = ({ title, bodyText1, bodyText2 }) => (
   <Paper
     variant="outlined"
     sx={{
