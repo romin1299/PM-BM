@@ -27,6 +27,9 @@ const ApprovalDashboardOfRequestSheet = () => {
   const [approvalRequestSheetDataOfBM, setApprovalRequestSheetDataOfBM] =
     useState([]);
 
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+
   const approvalDashboardHeader = [
     {
       title: "Sr. No.",
@@ -118,14 +121,11 @@ const ApprovalDashboardOfRequestSheet = () => {
       //     : true,
       onClick: (event, selectedRow) => {
         navigate(
-          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`
         );
       },
     }),
   ];
-
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
-  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const allMonths = [
     "Apr",

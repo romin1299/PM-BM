@@ -157,6 +157,8 @@ export default function LineSelectionDropdown({
         cells,
         selectedLine,
         lines,
+        selectedMachine,
+        machines,
       } = data;
 
       if (res?.status === 201) {
@@ -168,6 +170,8 @@ export default function LineSelectionDropdown({
           cells,
           selectedLine,
           lines,
+          selectedMachine,
+          machines,
           message,
         });
       }
@@ -181,13 +185,17 @@ export default function LineSelectionDropdown({
       const { res, data } = await getFiltrationValue({
         url: `${baseUrlForFiltering}/cellBased/${cell}`,
       });
-      const { message, lines } = data;
+      const { message,selectedLine, lines, selectedMachine, machines, flagForTogglingFilter, selectedValue } = data;
 
       if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_CELL,
-
+          flagForTogglingFilter,
+          selectedValue,
+          selectedLine,
           lines,
+          selectedMachine,
+          machines,
           message,
         });
       }
@@ -201,12 +209,14 @@ export default function LineSelectionDropdown({
       const { res, data } = await getFiltrationValue({
         url: `${baseUrlForFiltering}/lineBased/${line}`,
       });
-      const { message, machines } = data;
+      const { message, machines, selectedMachine, flagForTogglingFilter, selectedValue } = data;
 
       if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_LINE,
-
+          flagForTogglingFilter,
+          selectedValue,
+          selectedMachine,
           machines,
           message,
         });
@@ -318,7 +328,6 @@ export default function LineSelectionDropdown({
             displayEmpty
             value={selectedSubSection}
             onChange={(e) => {
-              console.count("onchange .......");
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_SUBSECTION,
                 flagForTogglingFilter: "based-on-subSection",

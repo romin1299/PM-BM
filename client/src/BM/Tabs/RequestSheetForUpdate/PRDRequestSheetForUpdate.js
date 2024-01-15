@@ -28,7 +28,7 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable({ requestSheetDataOfBM, machineId }) {
+function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { machine_code, generateType, requestSheetID } = useParams();
@@ -258,10 +258,16 @@ function MyTable({ requestSheetDataOfBM, machineId }) {
                     >
                       <MachineStatusBox
                         title="PM Status"
-                        bodyText1="Completed"
-                        bodyText2="(13/10/2023)"
+                        bodyText1={machineStatus?.pmStatusData?.PMStatus}
+                        bodyText2={machineStatus?.pmStatusData?.PMdate}
                       />
-                      <MachineStatusBox title="BM" bodyText1="170 hrs/5 Nos" />
+                      <MachineStatusBox
+                        title="BM"
+                        bodyText1={
+                          machineStatus?.bmStatusData?.count &&
+                          `${machineStatus?.bmStatusData?.totalHours} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                        }
+                      />
                       <MachineStatusBox title="CM" />
                     </Box>
                   </Col>
@@ -444,7 +450,8 @@ function MyTable({ requestSheetDataOfBM, machineId }) {
                                 disabled={
                                   (requestSheetDataOfBM?.assignUser?._id !==
                                     loggedUserDetails?._id ||
-                                    requestSheetDataOfBM?.handOverUser?._id !== loggedUserDetails?._id) &&
+                                    requestSheetDataOfBM?.handOverUser?._id !==
+                                      loggedUserDetails?._id) &&
                                   requestSheetDataOfBM?.approvalOfMTD_TL
                                     ?._id !== loggedUserDetails?._id
                                 }

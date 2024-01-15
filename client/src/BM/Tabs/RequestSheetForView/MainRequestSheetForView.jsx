@@ -8,7 +8,7 @@ function MyTable() {
   const navigate = useNavigate();
   const context = useContext(RoutingContext);
 
-  const { machine_code, requestSheetID, generateType } = useParams();
+  const { machine_code, requestSheetID, generateType, selectedYear } = useParams();
   const [selectedMachineDetails, setMachineDetails] = useState("");
   const [requestSheetDataOfBM, setRequestSheetDataOfBM] = useState("");
 
@@ -17,7 +17,7 @@ function MyTable() {
   const getMachineDetails = async () => {
     try {
       const res = await fetch(
-        `/getMachineDetailsOnScanningRequest/${generateType}/?machine_code=${machine_code}`,
+        `/getMachineDetailsOnScanningRequest/${generateType}/?machine_code=${machine_code}&&current_year=${selectedYear}`,
         {
           method: "GET",
           headers: {
