@@ -82,15 +82,19 @@ export const options = {
 };
 
 const StackedBarChart = ({
-  filterState,
+  flagForTogglingFilter,
+  selectedValue,
   selectedYear,
 }) => {
   const [chartData, setChartData] = useState({
     labels: [],
-    datasets: [],
+    datasets: [
+      {
+        label: "",
+        data: [],
+      },
+    ],
   });
-
-  const { flagForTogglingFilter, selectedValue } = filterState;
 
   const fetchChartData = async () => {
     const url = `/getMachineAgeMonthwise/${flagForTogglingFilter}/${selectedValue}`;
@@ -103,52 +107,31 @@ const StackedBarChart = ({
         credentials: "include",
         headers: { "content-type": "application/json" },
       });
-      // console.log("monthly bd trend res:", res);
 
-      const data = res?.data?.machineData;
+      if (res.status === 201) {
+        const barDatasets = res?.data?.machineData?.map((item, index) => ({
+          type: "bar",
+          stack: "bar-stacked",
+          label: item?.label || item?._id,
+          data: item?.data,
+          backgroundColor: chartColors.monthlyBDTrend[index],
+        }));
 
-      const barDatasets = res?.data?.machineData?.map((item, index) => ({
-        type: "bar",
-        stack: "bar-stacked",
-        label: item?.label || item?._id,
-        data: item?.data,
-        backgroundColor: chartColors.monthlyBDTrend[index],
-      }));
-
-     
-
-      if (data) { 
         setChartData({
           labels: MONTH_LABELS,
-          datasets: [
-            {
-              type: "line",
-              label: "Target",
-              // data: targetData,
-              borderWidth: 2,
-              borderColor: chartColors.target,
-              backgroundColor: chartColors.targetBorder,
-              pointStyle: "rectRot",
-            },
-            ...barDatasets,
-          ],
+          datasets: barDatasets,
         });
       }
     } catch (error) {
       console.log("error:", error);
-      setChartData({
-        labels: [],
-        datasets: [],
-      });
     }
   };
 
   // console.log("chartData:", chartData);
 
-    useEffect(() => {
-      if (flagForTogglingFilter && selectedValue && selectedYear)
-        fetchChartData();
-    }, [flagForTogglingFilter, selectedValue, selectedYear]);
+  useEffect(() => {
+    if (selectedValue) fetchChartData();
+  }, [selectedValue, selectedYear]);
 
   // useEffect(() => {
   //   setChartData({

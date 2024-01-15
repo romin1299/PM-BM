@@ -16,7 +16,9 @@ const MachineAgeReport = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
-  const [filterState, setFilterState] = useState(initialState);
+  const [groupData, setGroupData] = useState([
+    { _id: "", group: 0, from: 0, to: 0 },
+  ]);
 
   return (
     <>
@@ -28,23 +30,26 @@ const MachineAgeReport = () => {
               baseUrlForFiltering={baseUrlForFiltering}
               reduceState={reduceState}
               reducerDispatch={reducerDispatch}
-              machineFiltration
             />
           }
         />
 
         <Row className="mt-3 gx-3">
           <Col xxl={6} lg={6} md={12} className="mb-2">
-            <MachineAgeGroupTable />
+            <MachineAgeGroupTable
+              {...reduceState}
+              groupData={groupData}
+              setGroupData={setGroupData}
+            />
           </Col>
           <Col xxl={6} lg={6} md={12} className="mb-2">
-            <YearlyContributionBarChart />
+            <YearlyContributionBarChart {...reduceState} />
           </Col>
           <Col xxl={6} lg={6} md={12} className="mb-2">
-            <StackedBarChart filterState={filterState} />
+            <StackedBarChart {...reduceState} />
           </Col>
           <Col xxl={6} lg={6} md={12} className="mb-2">
-            <CategoryDoughnutChart />
+            <CategoryDoughnutChart {...reduceState} groupData={groupData} />
           </Col>
         </Row>
       </Container>

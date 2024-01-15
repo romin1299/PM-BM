@@ -721,6 +721,62 @@ export const MonthDropdown = ({ selectedMonth, setSelectedMonth }) => {
     </>
   );
 };
+
+export const CommonDropdown = ({
+  selectedItem,
+  setSelectedItem,
+  arr,
+  defaultTitle,
+  objKeyName,
+}) => {
+  const theme = useTheme();
+
+  const getStyleForSelectedValue = async (item, selectedItem) => {
+    return {
+      fontWeight:
+        item?._id === selectedItem
+          ? theme.typography.fontWeightMedium
+          : theme.typography.fontWeightRegular,
+    };
+  };
+
+  return (
+    <>
+      <Select
+        displayEmpty
+        value={selectedItem}
+        onChange={(e) => {
+          setSelectedItem(e.target.value);
+        }}
+        input={<OutlinedInput />}
+        sx={{
+          width: 130,
+          "& .MuiSelect-select": {
+            paddingTop: "5px",
+            paddingBottom: "5px",
+          },
+        }}
+        MenuProps={MenuProps}
+        inputProps={{ "aria-label": "Without label" }}
+      >
+        <MenuItem disabled value="">
+          <em style={{ fontSize: "14px", color: "#9f9f9f" }}>{defaultTitle}</em>
+        </MenuItem>
+
+        {arr.map((item) => (
+          <MenuItem
+            key={item?._id}
+            value={item?._id}
+            style={getStyleForSelectedValue(item, selectedItem)}
+          >
+            {item?.[objKeyName]}
+          </MenuItem>
+        ))}
+      </Select>
+    </>
+  );
+};
+
 {
   /* <Select
 displayEmpty

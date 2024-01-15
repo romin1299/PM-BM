@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,7 +13,11 @@ import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "../Common/ChartTitleBar";
 
-const YearlyContributionBarChart = () => {
+const YearlyContributionBarChart = ({
+  selectedValue,
+  selectedYear,
+  flagForTogglingFilter,
+}) => {
   ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -23,12 +27,47 @@ const YearlyContributionBarChart = () => {
     Legend
   );
 
-  const dataset = {
-    _id: null,
-    machineId: [],
-    labels: ["Group 1", "Group 2", "Group 3", "Group 4", "Group 5"],
-    data: [100, 80, 65, 20, 200],
+  const [yearlyContributionData, setYearlyContributionData] = useState({
+    label: [],
+    data: [],
+  })
+
+  const getYearContributionChartData = async () => {
+    try {
+      const res = await fetch(
+        `/getMachineAgeYearwise/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, machineData } = await res.json();
+
+      if (res?.status === 201) {
+        setYearlyContributionData(machineData?.[0]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  useEffect(() => {
+    if (selectedValue) {
+      getYearContributionChartData();
+    }
+  }, [selectedValue, selectedYear]);
+
+  // const dataset = {
+  //   _id: null,
+  //   machineId: [],
+  //   labels: ["Group 1", "Group 2", "Group 3", "Group 4", "Group 5"],
+  //   data: [100, 80, 65, 20, 200],
+  // };
 
   const options = {
     responsive: true,
@@ -74,7 +113,7 @@ const YearlyContributionBarChart = () => {
   const datasets = [
     {
       label: "Top 20",
-      data: dataset?.data,
+      data: yearlyContributionData?.data,
       backgroundColor: chartColors[0],
       borderColor: chartColors[7],
       borderWidth: 1,
@@ -82,7 +121,7 @@ const YearlyContributionBarChart = () => {
   ];
 
   const data = {
-    labels: dataset?.labels,
+    labels: yearlyContributionData?.label,
     datasets,
   };
 
