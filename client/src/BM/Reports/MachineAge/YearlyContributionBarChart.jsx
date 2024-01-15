@@ -28,7 +28,7 @@ const YearlyContributionBarChart = ({
   );
 
   const [yearlyContributionData, setYearlyContributionData] = useState({
-    labels: [],
+    label: [],
     data: [],
   })
 

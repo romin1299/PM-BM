@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Chart } from "react-chartjs-2";
 import { Box, Divider, Paper, Typography } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
@@ -169,28 +169,43 @@ export const initialData = {
   ],
 };
 
-const MTTRChart = () => {
-  const [data, setData] = useState(initialData);
+const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
+  const [mttrData, setMttrData] = useState([]);
 
-  const [filterOptions, setFilterOptions] = useState({
-    lessThan60: false,
-    lessThan120: false,
-    greaterThan120: false,
-  });
+  const getMTTRData = async () => {
+    try {
+      const res = await fetch(
+        `/kpiFromDatabase/MTTR/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
 
-  const handleCheckboxChange = (option) => {
-    setFilterOptions((prevOptions) => ({
-      ...prevOptions,
-      [option]: !prevOptions[option],
-    }));
+      const { message, mttrData } = await res.json();
+
+      if (res?.status === 201) {
+        console.log(mttrData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  useEffect(() => {
+    if (selectedValue) getMTTRData();
+  }, [selectedValue, selectedYear]);
 
   return (
     <Box className="cell p-3 mb-3">
       <ChartTitleBar title="Mean Time to Repair (MTTR)" />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        <Chart data={data} options={options} />
+        <Chart data={initialData} options={options} />
       </Box>
     </Box>
   );

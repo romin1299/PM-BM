@@ -88,7 +88,12 @@ const StackedBarChart = ({
 }) => {
   const [chartData, setChartData] = useState({
     labels: [],
-    datasets: [],
+    datasets: [
+      {
+        label: "",
+        data: [],
+      },
+    ],
   });
 
   const fetchChartData = async () => {
@@ -104,25 +109,17 @@ const StackedBarChart = ({
       });
 
       if (res.status === 201) {
-        // const barDatasets = res?.data?.machineData?.map((item, index) => ({
-        //   type: "bar",
-        //   stack: "bar-stacked",
-        //   label: item?.label || item?._id,
-        //   data: item?.data,
-        //   backgroundColor: chartColors.monthlyBDTrend[index],
-        // }));
+        const barDatasets = res?.data?.machineData?.map((item, index) => ({
+          type: "bar",
+          stack: "bar-stacked",
+          label: item?.label || item?._id,
+          data: item?.data,
+          backgroundColor: chartColors.monthlyBDTrend[index],
+        }));
 
         setChartData({
           labels: MONTH_LABELS,
-          datasets: [
-            {
-              type: "bar",
-              stack: "bar-stacked",
-              // label: item?.label || item?._id,
-              data: res?.data?.machineData?.[0]?.data,
-              backgroundColor: chartColors.monthlyBDTrend[0],
-            }
-          ],
+          datasets: barDatasets,
         });
       }
     } catch (error) {
