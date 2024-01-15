@@ -16,7 +16,17 @@ import BDRSTableWithDateFiltration from "../Common/BDRSTableWithDateFiltration";
 
 const TopMachineBD = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+
+  const [
+    reduceStateForDefaultCellLineMachineFilter,
+    reducerDispatchForDefaultCellLineMachineFilter,
+  ] = useReducer(reducer, initialState);
+
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+
+  const baseUrlForFilteringUsingDefaultValue =
+    "/getFiltrationValue/machine-level-filtration";
+
   return (
     <>
       <Container fluid>
@@ -41,42 +51,78 @@ const TopMachineBD = () => {
           />
         </Box>
 
-        {reduceState?.flagForTogglingFilter === "based-on-machine" && (
-          <>
-            <Row className="mt-3 gx-3">
-              <Col xxl={6} lg={6} md={12} className="mb-2">
-                <BDCategoryAndFactor
-                  selectedValue={reduceState?.selectedValue}
-                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-                  selectedYear={reduceState?.selectedYear}
-                  selectedMonth={reduceState?.selectedMonth}
-                />
-              </Col>
-              <Col xxl={3} lg={6} md={12} className="mb-2">
-                <MachineWiseMTTRAndMTBF
-                  chartFor="MTTR"
-                  selectedValue={reduceState?.selectedValue}
-                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-                  selectedYear={reduceState?.selectedYear}
-                />
-              </Col>
-              <Col xxl={3} lg={6} md={12} className="mb-2">
-                <MachineWiseMTTRAndMTBF
-                  chartFor="MTBF"
-                  selectedValue={reduceState?.selectedValue}
-                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-                  selectedYear={reduceState?.selectedYear}
-                />
-              </Col>
-            </Row>
-            <Row>
-              <BDRSTableWithDateFiltration
-                flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-                selectedValue={reduceState?.selectedValue}
+        {/* {reduceState?.flagForTogglingFilter === "based-on-machine" && ( */}
+        <ReportTitleBar
+          title=""
+          Toolbar={
+            <ChartsToolbar
+              baseUrlForFiltering={baseUrlForFilteringUsingDefaultValue}
+              reduceState={reduceStateForDefaultCellLineMachineFilter}
+              reducerDispatch={reducerDispatchForDefaultCellLineMachineFilter}
+              machineFiltration={"machineFiltration"}
+            />
+          }
+        />
+
+        <>
+          <Row className="mt-3 gx-3">
+            <Col xxl={6} lg={6} md={12} className="mb-2">
+              <BDCategoryAndFactor
+                selectedValue={
+                  reduceStateForDefaultCellLineMachineFilter?.selectedValue
+                }
+                flagForTogglingFilter={
+                  reduceStateForDefaultCellLineMachineFilter?.flagForTogglingFilter
+                }
+                selectedYear={
+                  reduceStateForDefaultCellLineMachineFilter?.selectedYear
+                }
+                selectedMonth={
+                  reduceStateForDefaultCellLineMachineFilter?.selectedMonth
+                }
               />
-            </Row>
-          </>
-        )}
+            </Col>
+            <Col xxl={3} lg={6} md={12} className="mb-2">
+              <MachineWiseMTTRAndMTBF
+                chartFor="MTTR"
+                selectedValue={
+                  reduceStateForDefaultCellLineMachineFilter?.selectedValue
+                }
+                flagForTogglingFilter={
+                  reduceStateForDefaultCellLineMachineFilter?.flagForTogglingFilter
+                }
+                selectedYear={
+                  reduceStateForDefaultCellLineMachineFilter?.selectedYear
+                }
+              />
+            </Col>
+            <Col xxl={3} lg={6} md={12} className="mb-2">
+              <MachineWiseMTTRAndMTBF
+                chartFor="MTBF"
+                selectedValue={
+                  reduceStateForDefaultCellLineMachineFilter?.selectedValue
+                }
+                flagForTogglingFilter={
+                  reduceStateForDefaultCellLineMachineFilter?.flagForTogglingFilter
+                }
+                selectedYear={
+                  reduceStateForDefaultCellLineMachineFilter?.selectedYear
+                }
+              />
+            </Col>
+          </Row>
+          <Row>
+            <BDRSTableWithDateFiltration
+              flagForTogglingFilter={
+                reduceStateForDefaultCellLineMachineFilter?.flagForTogglingFilter
+              }
+              selectedValue={
+                reduceStateForDefaultCellLineMachineFilter?.selectedValue
+              }
+            />
+          </Row>
+        </>
+        {/* )} */}
       </Container>
     </>
   );

@@ -454,42 +454,63 @@ function MyTable({
                     ?._id,
                   name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]
+                      ?.email,
                 },
                 MTD_HOSS: {
                   id: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
                     ?._id,
                   name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
+                      ?.email,
                 },
                 PRD_TL: {
                   id: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
                     ?._id,
                   name: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
+                      ?.email,
                 },
                 PRD_HOS: {
                   id: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
                     ?._id,
                   name: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
+                      ?.email,
                 },
                 MTD_HOS: {
                   id: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
                     ?._id,
                   name: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
+                      ?.email,
                 },
                 PRD_HOD: {
                   id: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
                     ?._id,
                   name: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
+                      ?.email,
                 },
                 MTD_HOD: {
                   id: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
                     ?._id,
                   name: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
+                      ?.email,
                 },
               },
               requestSheetDataOfBM,

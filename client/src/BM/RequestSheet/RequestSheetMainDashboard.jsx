@@ -229,8 +229,8 @@ const RequestSheetMainDashboard = () => {
   const conditionalBasedEditableFunctionForMTD = (col, row) => {
     if (
       (context?.tm_department === "MTD" ||
-        row?.assignUser?._id === context?._id ||
-        row?.handOverUser?._id === context?._id) &&
+        row?.assignUserId === context?._id ||
+        row?.handOverUserId === context?._id) &&
       (row?.requestSheetStatus === statusArray[1] ||
         row?.requestSheetStatus === statusArray[2] ||
         row?.requestSheetStatus === statusArray[3] ||
@@ -535,7 +535,7 @@ const RequestSheetMainDashboard = () => {
           : true,
       onClick: (event, selectedRow) => {
         navigate(
-          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`,
           {
             state: {
               supportingTM:

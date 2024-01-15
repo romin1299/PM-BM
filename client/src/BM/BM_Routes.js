@@ -155,7 +155,7 @@ const userRoutes = [
         element: <RequestSheetMainDashboard />,
       },
       {
-        path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetID/:selectedYear",
         element: <RequestSheetUpdate />,
       },
       {
@@ -218,7 +218,7 @@ const userRoutes = [
         element: <ApprovalDashboardOfRequestSheet />,
       },
       {
-        path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetID/:selectedYear",
         element: <RequestSheetUpdate />,
       },
       {
@@ -282,7 +282,7 @@ const userRoutes = [
         element: <RequestSheet />,
       },
       {
-        path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetID/:selectedYear",
         element: <RequestSheetUpdate />,
       },
       {
@@ -341,7 +341,7 @@ const userRoutes = [
         element: <RequestSheet />,
       },
       {
-        path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
+        path: "/bm/update/request-sheet/:machine_code/:requestSheetID/:selectedYear",
         element: <RequestSheetUpdate />,
       },
       {

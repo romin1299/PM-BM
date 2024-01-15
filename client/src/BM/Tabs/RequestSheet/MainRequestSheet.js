@@ -12,6 +12,11 @@ function MyTable() {
   const [selectedMachineDetails, setMachineDetails] = useState("");
   const [approvalListOfBM, setApprovalListOfBM] = useState([]);
 
+  const [machineStatus, setMachineStatus] = useState({
+    pmStatusData: "",
+    bmStatusData: ""
+  });
+
   const getMachineDetails = async () => {
     try {
       const res = await fetch(
@@ -32,13 +37,14 @@ function MyTable() {
           navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
         }
       } else {
-        const { machine, requestSheetApprovalList } = await res.json();
-        // setMachine(machine);
-        console.log(machine);
+        const { machine, requestSheetApprovalList, pmStatusData, bmStatusData } = await res.json();
 
         setMachineDetails(machine);
         setApprovalListOfBM(requestSheetApprovalList);
-        // setSelectedAttendee(breakDownAttendedBy);
+        setMachineStatus(
+          pmStatusData,
+          bmStatusData
+        )
       }
     } catch (error) {
       console.log(error);
