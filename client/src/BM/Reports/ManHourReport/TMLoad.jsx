@@ -16,6 +16,7 @@ import {
   PointElement,
 } from "chart.js";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -82,21 +83,6 @@ export const options = {
   },
 };
 
-const TM_Names = [
-  "Jatindar",
-  "Mangal",
-  "Ujjawal",
-  "NeeraK",
-  "Dalip",
-  "Gagandeep",
-  "Inderjeet",
-  "Shubhash",
-  "Ashish",
-  "Sandeep",
-  "Anshul",
-  "Shreekant",
-];
-
 // export const data = {
 //   labels: TM_Names,
 //   datasets: [
@@ -104,11 +90,11 @@ const TM_Names = [
 //       type: "line",
 //       label: "Dataset 1",
 //       data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-//       borderColor: chartColors.blue[1],
+//       borderColor: chartColors.percentLine,
 //       borderWidth: 2,
 //       fill: false,
-//       backgroundColor: chartColors.blue[1],
-//       pointBorderColor: chartColors.blue[1],
+//       backgroundColor: chartColors.percentLine,
+//       pointBorderColor: chartColors.percentLine,
 //     },
 //     {
 //       type: "bar",
@@ -139,6 +125,8 @@ const TMLoad = ({
   selectedYear,
   selectedMonth,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [tmLoadData, setTmLoadData] = useState({
     tm_names: [],
     totalSumOf_PM: [],
@@ -147,6 +135,8 @@ const TMLoad = ({
   });
 
   const getTmLoadData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         // `/manHourReport/tmLoad/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -169,6 +159,8 @@ const TMLoad = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -184,11 +176,12 @@ const TMLoad = ({
         type: "line",
         label: "%",
         data: tmLoadData?.percentage,
-        borderColor: chartColors.blue[1],
+        borderColor: chartColors.percentLine,
         borderWidth: 2,
+        pointRadius: 3,
         fill: false,
-        backgroundColor: chartColors.blue[1],
-        pointBorderColor: chartColors.blue[1],
+        backgroundColor: chartColors.percentLine,
+        pointBorderColor: chartColors.percentLine,
         yAxisID: "y1",
       },
       {
@@ -196,10 +189,8 @@ const TMLoad = ({
         stack: "bar-stacked",
         label: "BM",
         data: tmLoadData?.totalSumOf_BM,
-        backgroundColor: chartColors.brown[0],
-        borderColor: chartColors.brown[0],
-        borderWidth: 0,
-        pointStyle: "rect",
+        backgroundColor: chartColors.bmpm[0],
+        borderRadius: 4,
         yAxisID: "y2",
       },
       {
@@ -207,10 +198,8 @@ const TMLoad = ({
         stack: "bar-stacked",
         label: "PM",
         data: tmLoadData?.totalSumOf_PM,
-        backgroundColor: chartColors.red[0],
-        borderColor: chartColors.red[0],
-        borderWidth: 0,
-        pointStyle: "rect",
+        backgroundColor: chartColors.bmpm[1],
+        borderRadius: 4,
         yAxisID: "y2",
       },
     ],
@@ -218,9 +207,12 @@ const TMLoad = ({
 
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="Hour Trend" />
-
-      <Chart options={options} data={data} />
+      <ChartTitleBar title="TM Load" />
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Chart options={options} data={data} />
+      )}
     </Box>
     // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>
     //   <Typography variant="h5" component="h4">

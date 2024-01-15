@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useReducer, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import { RadioGroup } from "@mui/material";
+import { IconButton, RadioGroup } from "@mui/material";
 import TextField from "@material-ui/core/TextField";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import DescriptionIcon from "@mui/icons-material/Description";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -43,7 +44,10 @@ import {
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
 
 const RequestSheetMainDashboard = () => {
+  const [loading, setLoading] = React.useState(true);
+
   const navigate = useNavigate();
+  const location = useLocation();
 
   const context = useContext(RoutingContext);
 
@@ -135,6 +139,8 @@ const RequestSheetMainDashboard = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const getAllRequestSheetData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         `/getRequestSheetData/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`,
@@ -174,6 +180,8 @@ const RequestSheetMainDashboard = () => {
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   const updateRequestSheet = async (updatedRow) => {
@@ -523,8 +531,16 @@ const RequestSheetMainDashboard = () => {
       },
     },
     (row) => ({
-      icon: () => <DescriptionIcon className="text-primary" />,
-      tooltip: "Update Action",
+      icon: () => (
+        <DescriptionIcon
+          className={
+            row?.work_order_status === "Open"
+              ? "text-secondary"
+              : "text-primary"
+          }
+        />
+      ),
+      tooltip: "Update",
       position: "row",
       disabled:
         (row?.assignUserId === context?._id ||
@@ -533,11 +549,32 @@ const RequestSheetMainDashboard = () => {
           row?.work_order_status === "Closed")
           ? false
           : true,
+      hidden: row?.assignUserId === context?._id ? false : true,
       onClick: (event, selectedRow) => {
+        console.log("selectedRow:", selectedRow);
+
         navigate(
           `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`,
           {
             state: {
+              supportingTM:
+                reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
+            },
+          }
+        );
+      },
+    }),
+
+    (row) => ({
+      icon: () => <VisibilityIcon className="text-primary" />,
+      tooltip: "View",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        navigate(
+          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
+          {
+            state: {
+              prevPath: location.pathname,
               supportingTM:
                 reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
             },
@@ -679,6 +716,7 @@ const RequestSheetMainDashboard = () => {
                 //   exportPDFName: "Export as pdf!!"
                 // }
               }}
+              isLoading={loading}
               actions={requestSheetActions}
               icons={tableIcons}
               columns={requestSheetHeader}

@@ -112,27 +112,39 @@ const TargetDashboard = () => {
         monthKeyArray?.map((monthName) => {
           setValue(
             `monthlyMBDCountTarget.${monthName?.key}`,
-            data?.targetData?.allTargetData?.monthlyMBDCountTarget?.[monthName?.key] || 0
+            data?.targetData?.allTargetData?.monthlyMBDCountTarget?.[
+              monthName?.key
+            ] || 0
           );
           setValue(
             `monthlyProductionHrs.${monthName?.key}`,
-            data?.targetData?.allTargetData?.monthlyProductionHrs?.[monthName?.key] || 0
+            data?.targetData?.allTargetData?.monthlyProductionHrs?.[
+              monthName?.key
+            ] || 0
           );
           setValue(
             `monthlyBDHrsTarget.${monthName?.key}`,
-            data?.targetData?.allTargetData?.monthlyBDHrsTarget?.[monthName?.key] || 0
+            data?.targetData?.allTargetData?.monthlyBDHrsTarget?.[
+              monthName?.key
+            ] || 0
           );
           setValue(
             `monthlyMTTRTarget.${monthName?.key}`,
-            data?.targetData?.allTargetData?.monthlyMTTRTarget?.[monthName?.key] || 0
+            data?.targetData?.allTargetData?.monthlyMTTRTarget?.[
+              monthName?.key
+            ] || 0
           );
           setValue(
             `monthlyMTBFTarget.${monthName?.key}`,
-            data?.targetData?.allTargetData?.monthlyMTBFTarget?.[monthName?.key] || 0
+            data?.targetData?.allTargetData?.monthlyMTBFTarget?.[
+              monthName?.key
+            ] || 0
           );
           setValue(
             `monthlyBDPercentageTarget.${monthName?.key}`,
-            data?.targetData?.allTargetData?.monthlyBDPercentageTarget?.[monthName?.key] || 0
+            data?.targetData?.allTargetData?.monthlyBDPercentageTarget?.[
+              monthName?.key
+            ] || 0
           );
         });
         // setApproverHeaderList(data?.mergedApprovalListArray);
@@ -189,7 +201,7 @@ const TargetDashboard = () => {
                             name={`${monthName?.key}`}
                             defaultValue={0}
                             {...register(
-                              `monthlyMBDCountTarget.${monthName?.key}`,
+                              `monthlyMBDCountTarget.${monthName?.key}`
                             )}
                           />
                         </Col>

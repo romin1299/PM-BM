@@ -4,14 +4,17 @@ import { Box, Divider, Paper, Typography } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { Col, Row } from "react-bootstrap";
 import { CountFilters } from "./DailyBDTrendChart";
-
+import ChartTitleBar from "../Common/ChartTitleBar";
 
 export const options = {
+  maintainAspectRatio: false,
+  responsive: true,
   plugins: {
     legend: {
       align: "end",
       labels: {
         usePointStyle: true,
+        // padding: 50,
       },
     },
     datalabels: {
@@ -32,7 +35,6 @@ export const options = {
       borderWidth: 1,
     },
   },
-  responsive: true,
   scales: {
     x: {
       stacked: true,
@@ -47,7 +49,7 @@ export const options = {
         // maxRotation: 90,
         // minRotation: 90,
         // padding: 10,
-        color:'black',
+        color: "black",
       },
     },
     y: {
@@ -57,8 +59,8 @@ export const options = {
         text: "Total Hours",
       },
       ticks: {
-        color: 'black',
-    },
+        color: "black",
+      },
     },
     y1: {
       position: "right", // Align the y-axis to the right
@@ -67,8 +69,8 @@ export const options = {
         text: "Cummulative Avg Hrs",
       },
       ticks: {
-        color: 'black',
-    },
+        color: "black",
+      },
     },
   },
 };
@@ -98,7 +100,7 @@ export const initialData = {
       borderColor: chartColors.blue[1],
       borderWidth: 2,
       backgroundColor: chartColors.blue[1],
-      pointStyle: 'rectRot',
+      pointStyle: "rectRot",
       yAxisID: "y1",
     },
     {
@@ -108,7 +110,7 @@ export const initialData = {
       data: [3, 15, 10, 8, 12, 18, 20, 25, 30, 5, 15, 10],
       backgroundColor: chartColors.yellow[1],
       borderColor: chartColors.yellow[1],
-      pointStyle:'rect',
+      pointStyle: "rect",
     },
     {
       type: "bar",
@@ -117,7 +119,7 @@ export const initialData = {
       data: [20, 8, 15, 10, 5, 18, 12, 25, 30, 3, 10, 15],
       backgroundColor: chartColors.aqua[3],
       borderColor: chartColors.aqua[3],
-      pointStyle:'rect',
+      pointStyle: "rect",
     },
     {
       type: "bar",
@@ -126,7 +128,7 @@ export const initialData = {
       data: [10, 15, 20, 8, 5, 25, 18, 30, 12, 3, 15, 10],
       backgroundColor: chartColors.purple[4],
       borderColor: chartColors.purple[4],
-      pointStyle:'rect',
+      pointStyle: "rect",
     },
     {
       type: "bar",
@@ -135,7 +137,7 @@ export const initialData = {
       data: [15, 10, 8, 20, 18, 5, 12, 25, 30, 3, 15, 10],
       backgroundColor: chartColors.green[3],
       borderColor: chartColors.green[3],
-      pointStyle:'rect',
+      pointStyle: "rect",
     },
     {
       type: "bar",
@@ -144,7 +146,7 @@ export const initialData = {
       data: [8, 15, 10, 5, 18, 20, 25, 30, 12, 3, 15, 10],
       backgroundColor: chartColors.magenta[2],
       borderColor: chartColors.magenta[2],
-      pointStyle:'rect',
+      pointStyle: "rect",
     },
     {
       type: "bar",
@@ -153,7 +155,7 @@ export const initialData = {
       data: [10, 5, 20, 8, 12, 15, 18, 30, 3, 25, 15, 10],
       backgroundColor: chartColors.blue[3],
       borderColor: chartColors.blue[3],
-      pointStyle:'rect',
+      pointStyle: "rect",
     },
     {
       type: "bar",
@@ -162,7 +164,7 @@ export const initialData = {
       data: [5, 15, 10, 8, 12, 18, 20, 25, 30, 3, 15, 10],
       backgroundColor: chartColors.brown[1],
       borderColor: chartColors.brown[1],
-      pointStyle:'rect',
+      pointStyle: "rect",
     },
   ],
 };
@@ -185,19 +187,11 @@ const MTTRChart = () => {
 
   return (
     <Box className="cell p-3 mb-3">
-      <Row style={{ marginBottom: "1rem" }}>
-        <Typography
-          className="col"
-          variant="h6"
-          component="h6"
-          sx={{ fontWeight: "500" }}
-        >
-          Mean Time to Repair (MTTR)
-        </Typography>
-        
-      </Row>
+      <ChartTitleBar title="Mean Time to Repair (MTTR)" />
 
-      <Chart data={data} options={options} />
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        <Chart data={data} options={options} />
+      </Box>
     </Box>
   );
 };

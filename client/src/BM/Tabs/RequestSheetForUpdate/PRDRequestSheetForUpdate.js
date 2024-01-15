@@ -28,7 +28,7 @@ const list = [
   { key: "D", value: "D" },
 ];
 
-function MyTable({ requestSheetDataOfBM, machineStatus }) {
+function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { machine_code, generateType, requestSheetID } = useParams();
@@ -234,6 +234,14 @@ function MyTable({ requestSheetDataOfBM, machineStatus }) {
                   <Col>
                     <button className="btn bg-button m-2" onClick={handleBack}>
                       Back
+                    </button>
+                    <button
+                      className="btn bg-button m-2"
+                      onClick={() => {
+                        navigate(`/machine-history/${machine_code}/?machineId=${machineId}`);
+                      }}
+                    >
+                      Machine History
                     </button>
                   </Col>
                   <Col>
@@ -583,12 +591,12 @@ function MyTable({ requestSheetDataOfBM, machineStatus }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>PROBLEM FACED: </b>
                     </p>
                   </Col>
-                  <Col lg={3}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="prob"
@@ -607,14 +615,14 @@ function MyTable({ requestSheetDataOfBM, machineStatus }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>
                         PRD OBSERVATION FOR THIS PROBLEM BASED ON (5WHY-1HOW){" "}
                       </b>
                     </p>
                   </Col>
-                  <Col lg={3}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="prdobv"
@@ -636,12 +644,12 @@ function MyTable({ requestSheetDataOfBM, machineStatus }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHY (5M+1E): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="why"
@@ -658,12 +666,12 @@ function MyTable({ requestSheetDataOfBM, machineStatus }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHERE (Process): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="where"
@@ -680,12 +688,12 @@ function MyTable({ requestSheetDataOfBM, machineStatus }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHEN (Frequency): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="when"
@@ -702,12 +710,12 @@ function MyTable({ requestSheetDataOfBM, machineStatus }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHO (Person): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="who"
@@ -724,12 +732,12 @@ function MyTable({ requestSheetDataOfBM, machineStatus }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHICH (Defect Location): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="which"
@@ -746,12 +754,12 @@ function MyTable({ requestSheetDataOfBM, machineStatus }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>HOW (Detail/ Observation): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       type="text"
                       id="how"
@@ -855,15 +863,13 @@ function MyTable({ requestSheetDataOfBM, machineStatus }) {
               </td>
             </tr>
           </tbody>
-          {loggedUserDetails?.tm_department === "MTD" ||
-          ((requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
-            requestSheetDataOfBM?.handOverUser?._id ===
-              loggedUserDetails?._id) &&
-            (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
-              requestSheetDataOfBM?.requestSheetStatus ===
-                "Work Order Pending" ||
-              requestSheetDataOfBM?.requestSheetStatus ===
-                "Work Order Closed")) ? (
+
+          {loggedUserDetails?.tm_department === "MTD" &&
+          requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
+          (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
+            requestSheetDataOfBM?.requestSheetStatus === "Work Order Pending" ||
+            requestSheetDataOfBM?.requestSheetStatus === "Work Order Closed") &&
+          requestSheetDataOfBM?.requestSheetStatus !== "Completed" ? (
             <Row>
               <Col>
                 <button

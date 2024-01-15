@@ -14,9 +14,12 @@ const BDRSTableWithDateFiltration = ({
     formState: { errors },
   } = useForm({});
 
+  const [loading, setLoading] = React.useState(false);
   const [requestSheetData, setRequestSheetData] = React.useState([]);
 
   const getRequestSheetDataBasedOnSelectedDate = async (data) => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         `/getRequestSheetDataBasedOnSelectedDate/${flagForTogglingFilter}/${selectedValue}/${data?.selectedDate}`,
@@ -38,6 +41,8 @@ const BDRSTableWithDateFiltration = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -74,6 +79,7 @@ const BDRSTableWithDateFiltration = ({
         </form>
 
         <BDRequestSheetTable
+          loading={loading}
           requestSheetData={requestSheetData}
           downloadFileName={"Daily breakdown trend"}
         />

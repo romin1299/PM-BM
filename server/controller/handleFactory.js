@@ -59,11 +59,13 @@ exports.getUserData =
         $project: {
           _id: 0,
           PMStatus: `$checkSheet_data.PMStatus.${currentMonth}`,
+          PMdate: { $arrayElemAt: [`$checkSheet_data.implemetation_completed_date.${currentMonth}`, 0] }
+
         },
       },
     ]);
 
-    //  console.log("pmstatus",pmStatus)
+    //  console.log("pmstatus",pmStatus?.[0])
 
     const bmData = await RequestSheetOfBM.aggregate([
       // {

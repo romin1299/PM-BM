@@ -2,6 +2,7 @@ import React from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Chart } from "react-chartjs-2";
 import { Box } from "@mui/material";
+import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 
 export const CircularSkillChart = ({ score = 1, highestScore }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
@@ -29,8 +30,9 @@ export const CircularSkillChart = ({ score = 1, highestScore }) => {
       {
         label: "Score",
         data: data,
-        backgroundColor: ["#23313f", "#cfd8dc"],
-        // borderWidth: 0,
+        backgroundColor: chartColors.tmSkillPie,
+        borderColor: chartColors.tmSkillborder,
+        borderWidth: 1,
       },
     ],
   };

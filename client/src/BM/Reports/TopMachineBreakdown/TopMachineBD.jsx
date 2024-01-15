@@ -13,6 +13,8 @@ import MachineWiseMTTRAndMTBF from "./MachineWiseMTTRAndMTBF";
 import ReportTitleBar from "../Common/ReportTitleBar";
 import { Box } from "@mui/system";
 import BDRSTableWithDateFiltration from "../Common/BDRSTableWithDateFiltration";
+import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu";
+import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
 
 const TopMachineBD = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -33,12 +35,24 @@ const TopMachineBD = () => {
         <ReportTitleBar
           title="Top Machine Breakdown"
           Toolbar={
-            <ChartsToolbar
-              baseUrlForFiltering={baseUrlForFiltering}
-              reduceState={reduceState}
-              reducerDispatch={reducerDispatch}
-              machineFiltration
-            />
+            <>
+              <ChartsToolbar
+                baseUrlForFiltering={baseUrlForFiltering}
+                reduceState={reduceState}
+                reducerDispatch={reducerDispatch}
+                machineFiltration
+              />
+              <Col className="col-auto">
+                <DownloadMenu
+                  handleDownloadPPTX={() => {
+                    exportPPTX(
+                      EXPORT_REPORT.TOP_MACHINE_BREAKDOWN,
+                      reduceState
+                    );
+                  }}
+                />
+              </Col>
+            </>
           }
         />
 

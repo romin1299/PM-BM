@@ -1,16 +1,11 @@
-import React, { useEffect, useState, useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import LineChart from "../Common/LineChart";
 import { useForm } from "react-hook-form";
 import { Container, Row, Col } from "react-bootstrap";
 
 import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
 import { Box } from "@mui/system";
-import { Button, InputAdornment, TextField, Typography } from "@mui/material";
-
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { Button, InputAdornment, TextField } from "@mui/material";
 
 const MachineTrend = ({
   selectedValue,
@@ -37,6 +32,9 @@ const MachineTrend = ({
       selectedDate: "",
     },
   });
+
+  const [chartLoading, setChartLoading] = React.useState(true);
+  const [tableLoading, setTableLoading] = React.useState(false);
 
   const initialState = {
     MachineWiseMTTRTrend: {
@@ -84,6 +82,8 @@ const MachineTrend = ({
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getMachineWiseMTTRTrendData = async () => {
+    setChartLoading(true);
+
     try {
       const res = await fetch(
         // `/getMachineWiseMTTRTrendData/${flagForTogglingFilter}/632c41261d1becfedab325f9`,
@@ -110,6 +110,8 @@ const MachineTrend = ({
     } catch (error) {
       console.log(error);
     }
+
+    setChartLoading(false);
   };
 
   useEffect(() => {
@@ -119,10 +121,12 @@ const MachineTrend = ({
   }, [selectedValue, selectedYear, selectedMonth]);
 
   const getRequestSheetDataBasedOnSelectedMachine = async (data) => {
-    console.log("form data:", data);
+    setTableLoading(true);
 
     try {
       if (data?.selectedMachine?._id === "") {
+        setTableLoading(false);
+
         return setError("selectedMachine", {
           type: "required",
           message: "Please select machine",
@@ -152,6 +156,8 @@ const MachineTrend = ({
     } catch (error) {
       console.log(error);
     }
+
+    setTableLoading(false);
   };
 
   const TopDataFilterInput = (
@@ -208,6 +214,7 @@ const MachineTrend = ({
       <Row>
         <LineChart
           title="Machine Trend"
+          loading={chartLoading}
           dataset={reduceState?.MachineWiseMTTRTrend}
           setValue={setValue}
           clearErrors={clearErrors}
@@ -306,6 +313,7 @@ const MachineTrend = ({
           </form>
 
           <BDRequestSheetTable
+            loading={tableLoading}
             requestSheetData={reduceState?.requestSheetData}
             downloadFileName={"MTTR trend"}
           />

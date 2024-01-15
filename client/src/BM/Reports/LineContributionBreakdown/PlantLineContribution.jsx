@@ -18,6 +18,7 @@ import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -42,7 +43,11 @@ export const options = {
       },
     },
     // datalabels: { display: false },
-    datalabels: commonDatalabels,
+    datalabels: {
+      ...commonDatalabels,
+      display: false,
+      color: chartColors.barChartText,
+    },
   },
   scales: {
     x: {
@@ -94,6 +99,7 @@ export const options = {
 };
 
 const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
+  const [loading, setLoading] = React.useState(true);
   const [data, setData] = React.useState({});
 
   const fetchPlantId = async ({ url }) => {
@@ -112,6 +118,8 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
   };
 
   const fetchChartData = async () => {
+    setLoading(true);
+
     const plantId = await fetchPlantId({
       url: `/getFiltrationValue/monthly-breakdown-filter/byDefault`,
     });
@@ -135,6 +143,8 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
       setData(undefined);
       console.log("error:", error);
     }
+
+    setLoading(false);
   };
 
   React.useEffect(() => {
@@ -150,11 +160,10 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
         data: data?.bdHours,
         fill: false,
         borderWidth: 2,
-        borderColor: chartColors.magenta[1],
-        backgroundColor: chartColors.magenta[1],
+        borderColor: chartColors.bdHoursLine,
+        backgroundColor: chartColors.bdHoursLine,
         pointStyle: "rectRot",
-        pointRadius: 5,
-        pointBorderColor: chartColors.magenta[1],
+        pointRadius: 4,
         yAxisID: "y2",
       },
       {
@@ -162,8 +171,8 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
         stack: "bar-stacked",
         label: "% Contribution",
         data: data?.percentages,
-        backgroundColor: chartColors.palettes[0][2],
-        pointStyle: "rect",
+        backgroundColor: chartColors.barChart,
+        borderRadius: 4,
         yAxisID: "y",
       },
     ],
@@ -177,17 +186,21 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
     <Box className="cell p-3">
       <ChartTitleBar title="Plant Contribution" />
 
-      <Box sx={{ height: { xs: "300px", md: "400px" } }}>
-        {data === undefined ? (
-          <DataNotFound />
-        ) : (
-          <Chart
-            options={options}
-            data={chartData}
-            plugins={[ChartDataLabels]}
-          />
-        )}
-      </Box>
+      {loading ? (
+        <Loading height={300} />
+      ) : (
+        <Box sx={{ height: { xs: "300px", md: "400px" } }}>
+          {data === undefined ? (
+            <DataNotFound />
+          ) : (
+            <Chart
+              options={options}
+              data={chartData}
+              plugins={[ChartDataLabels]}
+            />
+          )}
+        </Box>
+      )}
     </Box>
   );
 };

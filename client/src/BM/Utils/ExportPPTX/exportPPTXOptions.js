@@ -4,7 +4,7 @@ const userOptions = {
   textColor: chartColors.text,
   textSize: 10,
   titleSize: 18,
-  chartColors: chartColors.palettes.palette5,
+  chartColors: chartColors.exportPpt,
 };
 
 export const commonPptOptions = {
@@ -83,6 +83,34 @@ export function genSlideTitle(pptx, slide, title) {
       valign: "middle",
       align: "center",
       isTextBox: true,
+    }
+  );
+}
+
+export function genNoDataFoundText(
+  slide,
+  coordinates = {
+    x: 0,
+    y: 0,
+    w: 5,
+    h: 5,
+  }
+) {
+  slide.addText(
+    [
+      {
+        text: "No data Found",
+        options: { fontSize: 18, breakLine: true },
+      },
+    ],
+    {
+      color: "#212529",
+      valign: "middle",
+      align: "center",
+      fill: { color: "#e2e3e5" },
+      line: { width: "2", color: "A9A9A9" },
+      isTextBox: true,
+      ...coordinates,
     }
   );
 }

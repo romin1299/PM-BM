@@ -155,12 +155,16 @@ export const menuItems = [
         title: "Top Machine Breakdown",
         route: "/bm/report/top-machine-breakdown",
       },
+      {
+        title: "Machine Age",
+        route: "/bm/report/machine-age",
+      },
     ],
   },
   {
     title: "Profile",
     icon: <AccountCircleIcon className="text-white" />,
-    route: "/bm/profile",
+    route: "/profile",
     allowedRoles: allusers,
   },
 

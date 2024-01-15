@@ -1,5 +1,9 @@
 import { MONTH_LABELS, chartColors } from "../ChartUtils/chartEnums";
-import { commonPptOptions, genSlideTitle } from "./exportPPTXOptions";
+import {
+  commonPptOptions,
+  genNoDataFoundText,
+  genSlideTitle,
+} from "./exportPPTXOptions";
 import axios from "axios";
 
 export async function generateTMMTTRSkillPpt(pptx, urlOptions) {
@@ -7,10 +11,24 @@ export async function generateTMMTTRSkillPpt(pptx, urlOptions) {
 }
 
 const fetchMTTRTrendData = async (urlOptions) => {
-  const { selectedValue, selectedYear, mbdIncluded } = urlOptions;
+  const {
+    flagForTogglingFilter,
+    timeFilter,
+    selectedValue,
+    selectedYear,
+    selectedSection,
+    selectedSubSection,
+  } = urlOptions;
 
-  const url = `/mttrTrend/tmMTTRSkill/based-on-subSection/${selectedValue}`;
-  const params = { selectedYear, includeMBD: mbdIncluded ? "include-mbd" : "" };
+  console.log("urlOptions:", urlOptions);
+  const url = `/mttrTrend/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}/?selectedSection=${selectedSection}&&selectedSubSection=${selectedSubSection}`;
+  // console.log("url:", url);
+  const params = {
+    // selectedSection,
+    // selectedSubSection,
+    selectedYear: selectedYear,
+    time: timeFilter,
+  };
 
   try {
     const res = await axios.get(url, {
@@ -18,9 +36,10 @@ const fetchMTTRTrendData = async (urlOptions) => {
       withCredentials: true,
       credentials: "include",
     });
+    // console.log("res:", res);
 
-    const data = res?.data?.tmLoadData[0];
-    console.log("data:", data);
+    const data = res?.data?.data;
+    // console.log("data:", data);
     if (data) {
       return [
         {
@@ -38,13 +57,60 @@ const fetchMTTRTrendData = async (urlOptions) => {
   }
 };
 
+const fetchTMProgressData = async (urlOptions) => {
+  const {
+    flagForTogglingFilter,
+    timeFilter,
+    selectedValue,
+    selectedYear,
+    selectedSection,
+    selectedSubSection,
+    tmId,
+  } = urlOptions;
+
+  console.log("urlOptions:", urlOptions);
+  const url = `/tmProgress/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}/${tmId}`;
+
+  const params = {
+    // selectedSection,
+    // selectedSubSection,
+    selectedYear,
+    time: timeFilter,
+  };
+
+  try {
+    const res = await axios.get(url, {
+      params,
+      withCredentials: true,
+      credentials: "include",
+    });
+
+    const data = res?.data?.data;
+    // console.log("data:", data);
+    if (data) {
+      return [
+        {
+          name: "MTTR Hour",
+          labels: data?.labels,
+          values: data?.data,
+        },
+      ];
+    }
+
+    return [];
+  } catch (error) {
+    console.log("error:", error);
+    return [];
+  }
+};
+
 async function genSlide01(pptx, urlOptions) {
   let slide = pptx.addSlide();
 
   genSlideTitle(pptx, slide, "TM MTTR Skill Report");
 
-  /*
-   * @add first chart
+  /**
+   * @first chart
    *
    */
   let mttrTrendData = await fetchMTTRTrendData(urlOptions);
@@ -62,20 +128,43 @@ async function genSlide01(pptx, urlOptions) {
     //
     chartColors: ["2f79bf"],
   };
-  console.log("mttrTrendOptions:", mttrTrendOptions);
+  // console.log("mttrTrendOptions:", mttrTrendOptions);
   // Add chart to the slide with specified options
-  slide.addChart(pptx.ChartType.bar, mttrTrendData, mttrTrendOptions);
-  slide.addChart(pptx.ChartType.bar, mttrTrendData, {
-    ...commonPptOptions,
-    x: 6.95,
-    y: 1.15,
-    w: 5.95,
-    h: 5.9,
-    //
-    title: "TM Progress",
-    catAxisTitle: "Months",
-    valAxisTitle: "Hours",
-    //
-    chartColors: ["2f79bf"],
-  });
+  if (mttrTrendData.length > 0) {
+    slide.addChart(pptx.ChartType.bar, mttrTrendData, mttrTrendOptions);
+  } else {
+    genNoDataFoundText(slide, { x: 0.5, y: 1.15, w: 5.95, h: 5.9 });
+  }
+
+  /**
+   * @Second chart
+   *
+   */
+
+  let tmProgressData = await fetchTMProgressData(urlOptions);
+
+  if (urlOptions.tmId && tmProgressData.length > 0) {
+    console.log("tmProgressData:", tmProgressData);
+
+    slide.addChart(pptx.ChartType.line, tmProgressData, {
+      ...commonPptOptions,
+      x: 6.95,
+      y: 1.15,
+      w: 5.95,
+      h: 5.9,
+      //
+      title: "TM Progress",
+      catAxisTitle: "Months",
+      valAxisTitle: "Hours",
+      //
+      chartColors: ["2f79bf"],
+    });
+  } else {
+    genNoDataFoundText(slide, {
+      x: 6.95,
+      y: 1.15,
+      w: 5.95,
+      h: 5.9,
+    });
+  }
 }

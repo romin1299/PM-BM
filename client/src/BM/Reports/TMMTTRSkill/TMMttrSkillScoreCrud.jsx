@@ -13,6 +13,7 @@ import { blueGrey } from "@mui/material/colors";
 
 import MuiDeleteDialog from "../../Customized/CustomizedShifts/MuiDeleteButtonAndDialog";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import "./TmMttrScoreCrudTable.scss";
 
 const initialState = {
   score: "",
@@ -182,7 +183,7 @@ const TmMttrSkillScoreCrud = ({
       </Box>
 
       <form onSubmit={(e) => e.preventDefault()}>
-        <table className="shifts-table" style={{ width: "100%" }}>
+        <table className="tm-mttr-score-table" style={{ width: "100%" }}>
           <thead>
             {skillMeasuresFields?.map((score, index) => (
               <th key={index} style={{ maxWidth: "100px" }}>
@@ -332,7 +333,7 @@ const TmSkillScoreTable = ({
 
   return (
     <Paper variant="outlined" sx={{ mt: 2 }}>
-      <table className="shifts-table" style={{ width: "100%" }}>
+      <table className="tm-mttr-score-table" style={{ width: "100%" }}>
         <thead>
           {skillMeasuresFields?.map((shift, index) => (
             <th key={index} style={{ maxWidth: "100px" }}>
@@ -345,7 +346,12 @@ const TmSkillScoreTable = ({
           {skillScore?.map((score, index) => (
             <tr>
               {skillMeasuresFields?.map((field, index) => (
-                <td key={index}>{score[field.key]}</td>
+                <td
+                  key={index}
+                  style={field.key === "score" ? { fontWeight: "600" } : null}
+                >
+                  {score[field.key]}
+                </td>
               ))}
             </tr>
           ))}

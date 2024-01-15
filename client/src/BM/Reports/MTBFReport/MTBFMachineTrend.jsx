@@ -15,6 +15,7 @@ const MTBFMachineTrend = ({
   documentLimitInTheGraph,
   setDocumentLimitInTheGraph,
 }) => {
+  const [loading, setLoading] = React.useState(true);
   const {
     register,
     handleSubmit,
@@ -79,6 +80,8 @@ const MTBFMachineTrend = ({
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getMachineWiseMTBFTrendDataData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         `/getMachineWiseMTBFTrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}&&documentLimitInTheGraph=${documentLimitInTheGraph}`,
@@ -104,6 +107,8 @@ const MTBFMachineTrend = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -220,6 +225,7 @@ const MTBFMachineTrend = ({
         </Col> */}
         <BarChart
           title="Machine Trend"
+          loading={loading}
           dataset={reduceState?.MachineWiseMTBFTrendData}
           setValue={setValue}
           clearErrors={clearErrors}

@@ -19,6 +19,8 @@ import {
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 
 const ApprovalDashboardOfRequestSheet = () => {
+  const [loading, setLoading] = React.useState(true);
+
   const loggedUserDetails = useContext(RoutingContext);
   const navigate = useNavigate();
 
@@ -141,6 +143,8 @@ const ApprovalDashboardOfRequestSheet = () => {
   ];
 
   const getApprovalRequestSheetData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         `/getMachineRequestSheetDetailsForApproval/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&getDataForApprovalDashboardId=${loggedUserDetails?._id}`,
@@ -162,6 +166,8 @@ const ApprovalDashboardOfRequestSheet = () => {
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -206,6 +212,7 @@ const ApprovalDashboardOfRequestSheet = () => {
                 //   exportPDFName: "Export as pdf!!"
                 // }
               }}
+              isLoading={loading}
               actions={requestSheetApprovalAction}
               icons={tableIcons}
               columns={approvalDashboardHeader}

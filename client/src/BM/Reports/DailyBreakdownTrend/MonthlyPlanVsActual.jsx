@@ -78,8 +78,8 @@ export const initialData = {
       label: "Target",
       data: [120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120],
       borderWidth: 2,
-      borderColor: chartColors.red[2],
-      backgroundColor: chartColors.red[2],
+      borderColor: chartColors.targetBorder,
+      backgroundColor: chartColors.target,
       pointStyle: 'rectRot',
     },
     {

@@ -18,6 +18,7 @@ import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -73,6 +74,8 @@ const YearlyTrendChart = ({
   setFilter,
   selectedYear,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [],
@@ -88,6 +91,8 @@ const YearlyTrendChart = ({
   }, [currentTabViewName]);
 
   const fetchChartData = async () => {
+    setLoading(true);
+
     // console.log("filterState:", filterState.flagForTogglingFilter);
 
     // const basedON = currentTabViewName === "Plant" ? "plantId" : "subSection";
@@ -119,7 +124,8 @@ const YearlyTrendChart = ({
         stack: "bar-stacked",
         label: item?.label || item?._id,
         data: item?.data,
-        backgroundColor: chartColors.palettes[0][index],
+        backgroundColor: chartColors.monthlyBDTrend[index],
+        borderRadius: 4,
       }));
       const targetData = res?.data?.bdTrendDataTarget;
       // const targetData = getRandomDataArray(2, 5, 8);
@@ -133,8 +139,8 @@ const YearlyTrendChart = ({
               label: "Target",
               data: targetData,
               borderWidth: 2,
-              borderColor: chartColors.red[2],
-              backgroundColor: chartColors.red[2],
+              borderColor: chartColors.target2,
+              backgroundColor: chartColors.target2,
               pointStyle: "rectRot",
             },
             ...barDatasets,
@@ -148,6 +154,8 @@ const YearlyTrendChart = ({
         datasets: [],
       });
     }
+
+    setLoading(false);
   };
 
   React.useEffect(() => {
@@ -166,18 +174,22 @@ const YearlyTrendChart = ({
         // }}
       />
 
-      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        {chartData === undefined || chartData?.datasets?.length < 1 ? (
-          <DataNotFound />
-        ) : (
-          <Chart
-            type="bar"
-            options={options}
-            data={chartData}
-            plugins={[ChartDataLabels]}
-          />
-        )}
-      </Box>
+      {loading ? (
+        <Loading g height={200} />
+      ) : (
+        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+          {chartData === undefined || chartData?.datasets?.length < 1 ? (
+            <DataNotFound />
+          ) : (
+            <Chart
+              type="bar"
+              options={options}
+              data={chartData}
+              plugins={[ChartDataLabels]}
+            />
+          )}
+        </Box>
+      )}
     </Box>
   );
 };
