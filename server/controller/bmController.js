@@ -6728,6 +6728,13 @@ router.get(
           $unwind: "$categoriesOfRequestSheet",
         },
 
+        
+        {
+          $match: {
+            "categoriesOfRequestSheet.subCategory": { $exists: true, $ne: null },
+          },
+        },
+
         {
           $group: {
             _id: {
@@ -6764,6 +6771,7 @@ router.get(
             },
             subcategories: {
               $push: "$_id.subCategory",
+            
               // count: "$count",
               // bdtime: "$bdtime",
             },
@@ -6779,11 +6787,15 @@ router.get(
           $limit: 2,
         },
 
+  
+
         {
           $sort: {
             "_id.category": 1,
-          },
+            // "subcategories": 1,
+          }
         },
+
 
         {
           $group: {
@@ -6798,11 +6810,13 @@ router.get(
             },
           },
         },
+        
 
         {
           $project: {
             _id: 0,
             categories: 1,
+         
           },
         },
       ]);
@@ -6810,6 +6824,7 @@ router.get(
       return res.status(201).json({
         message: "Categories data in PieChart get successfully",
         categoriesPieChartData: pieChartData?.[0].categories,
+        // pieChartData
       });
     } catch (error) {
       res.status(500).json({ message: "error?.message, error" });
@@ -8012,6 +8027,8 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
 
+                count :  {$sum : 1},
+
                 sumBM: {
                   $sum: {
                     $cond: [
@@ -8032,25 +8049,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                   },
                 },
 
-                // target: {
-                //   $sum: {
-                //     $cond: [
-                //       {
-                //         $gt: [
-                //           "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                //           null,
-                //         ],
-                //       },
-                //       {
-                //         $divide: [
-                //           "$maintenanceReportFilledByMTD.breakDownTime",
-                //           60,
-                //         ],
-                //       },
-                //       0,
-                //     ],
-                //   },
-                // },
+                
               },
             },
 
@@ -8151,6 +8150,8 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
 
+                count :  {$sum : 1},
+
                 sumBM: {
                   $sum: {
                     $cond: [
@@ -8250,6 +8251,8 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
 const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
   try {
+
+    
     const bdTrendData = await Cell.aggregate([
       {
         $match: {
@@ -8262,11 +8265,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
         },
       },
 
-      // {
-      //   $group : {
-      //     _id : "$section_name"
-      //   }
-      // },
+     
 
       {
         $lookup: {
@@ -8286,6 +8285,8 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 _id: {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
+
+                count :  {$sum : 1},
 
                 sumBM: {
                   $sum: {
@@ -8316,7 +8317,8 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 cellWiseTotal: {
                   $push: {
                     month: "$_id.date",
-                    bdTimeSum: { $trunc: ["$sumBM", 2] },
+                    bdTimeSum: { $trunc: [req.mttrOrSumFormula,1]},
+                    // avgData: {$avg : "$sumBM" } 
                   },
                 },
               },
@@ -8325,7 +8327,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
             {
               $project: {
                 _id: 0,
-                // label: 1,
+              
                 data: {
                   $map: {
                     input: allMonths,
@@ -8351,12 +8353,19 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                     },
                   },
                 },
+
+             
+           
+  
               },
             },
 
             {
               $unwind: "$data",
             },
+            // {
+            //   $unwind: "$averageData",
+            // },
           ],
           as: "cell_data",
         },
@@ -8370,14 +8379,30 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
           _id: 0,
           label: "$cell_name",
           data: "$cell_data.data",
-        },
-      },
+         },
+          },
+       
     ]);
+
+    
+const dataArrays = bdTrendData.map(entry => entry.data);
+
+
+const averageData = dataArrays[0].map((_, i) => {
+  const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+  return sum / (dataArrays.length - dataArrays.filter(array => array[i] === undefined).length) || 0;
+});
+
+console.log("Average Data:", averageData);
+
+    
+   
 
     return res.status(200).json({
       message: "Cell Wise Monthly BD trend data for Section get successfully",
       bdTrendData,
       bdTrendDataTarget: req.target,
+      // averageData,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -8417,7 +8442,7 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 _id: {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
-
+                count :  {$sum : 1},
                 sumBM: {
                   $sum: {
                     $cond: [
@@ -8925,7 +8950,7 @@ const middlewareForMTTRKPIReport = async (req, res, next) => {
 };
 const middlewareForMonthlyBdReport = async (req, res, next) => {
   try {
-    req.mttrOrSumFormula = { $trunc: ["$sumBM", 2] };
+    req.mttrOrSumFormula = { $trunc: ["$sumBM", 1] };
 
     next();
   } catch (error) {
@@ -11311,6 +11336,8 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
   try {
     const hourToMin = req?.query?.time * 60;
 
+    // console.log("TMPROGRESSqueryObj", req.queryObj);
+
     const tmProgress = await RequestSheetOfBM.aggregate([
       {
         $match: {
@@ -11320,17 +11347,17 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
             { supportingTM: mongoose.Types.ObjectId(req?.params?.tmId) },
             { handOverUser: mongoose.Types.ObjectId(req?.params?.tmId) },
           ],
-
-          $and: [
-            // {
-            //   "maintenanceReportFilledByMTD.workEndedDateOfBM": { $gt: null },
-            // },
-            {
-              "maintenanceReportFilledByMTD.breakDownTime": {
-                $lt: hourToMin || 120,
-              },
-            },
-          ],
+       
+          // $and: [
+          //   // {
+          //   //   "maintenanceReportFilledByMTD.workEndedDateOfBM": { $gt: null },
+          //   // },
+          //   {
+          //     "maintenanceReportFilledByMTD.breakDownTime": {
+          //       $lt: hourToMin || 120,
+          //     },
+          //   },  
+          // ],
         },
       },
       {
@@ -11439,6 +11466,7 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
 
     return res.status(201).json({
       message: "Tm progress Data get successsully!",
+      dataLength: tmProgress.length,
       data: tmProgress?.[0],
     });
   } catch (error) {
@@ -11481,7 +11509,8 @@ router.get(
       //   ],
       // };
 
-      // console.log(" queryObj", req.queryObj);
+      // console.log("TRENDqueryObj", req.queryObj);
+
 
       const mttrTrend = await RequestSheetOfBM.aggregate([
         // ...pipelineForUser,
@@ -11747,6 +11776,17 @@ const altfindTLandOperatorList = async (req, res, next) => {
 
     let altTmUsers = [];
 
+    if (req.params?.filter === "based-on-section") {
+      const section = await Section.findOne(findId);
+
+      altTmUsers = [
+        {
+          // $match: {
+            section_data: `${section?.section_id}-${section?.section_name}`,
+          // },
+        },
+      ];
+    }
     if (req.params?.filter === "based-on-subSection") {
       const section = await SubSection.findOne(findId);
 
@@ -11770,7 +11810,7 @@ const altfindTLandOperatorList = async (req, res, next) => {
       ];
     }
 
-    // console.log(altTmUsers);
+    // console.log("altTmUsers",altTmUsers);
 
     let TLHOSS_and_TM_user_list = await User.find(
       {
@@ -11787,6 +11827,11 @@ const altfindTLandOperatorList = async (req, res, next) => {
           //       },
           {
             $or: [
+              {
+                section_data: {
+                  $in: altTmUsers.map((tm) => tm.section_data),
+                },
+              },
               {
                 subSection_data: {
                   $in: altTmUsers.map((tm) => tm.subSection_data),
