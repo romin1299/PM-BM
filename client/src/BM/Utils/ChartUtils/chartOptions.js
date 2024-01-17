@@ -33,3 +33,41 @@ export const barDatalabels = {
 //     })`;
 //   },
 // };
+
+export const barChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  maxBarThickness: 100,
+  plugins: {
+    legend: {
+      display: false,
+      labels: {
+        usePointStyle: true,
+      },
+    },
+    datalabels: {
+      font: { weight: "bold", size: 12 },
+      // anchor: "end",
+      // align: "top",
+      // offset: 1,
+    },
+  },
+  scales: {
+    x: {
+      stacked: true,
+      grid: {
+        display: false,
+      },
+      title: {
+        display: false,
+        text: "X-Axis",
+      },
+    },
+    y: {
+      title: {
+        display: false,
+        text: "Y-Axis",
+      },
+    },
+  },
+};
