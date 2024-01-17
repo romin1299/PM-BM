@@ -23,7 +23,7 @@ const initialState = {
 const machineGroupFields = [
   { key: "from", name: "From", type: "number" },
   { key: "to", name: "To", type: "number" },
-  { key: "group", name: "Group", type: "number" },
+  { key: "group", name: "Group", type: "text" },
 ];
 
 const actionStyle = {
@@ -35,11 +35,12 @@ const actionStyle = {
 const MachineAgeGroupTable = ({
   selectedSection,
   selectedSubSection,
-  setHighestScore,
+  groupData,
+  setGroupData
 }) => {
-  const [data, setData] = React.useState([
-    { _id: "", group: 4, from: 0, to: 0 },
-  ]);
+  // const [data, setData] = React.useState([
+  //   { _id: "", group: 0, from: 0, to: 0 },
+  // ]);
   const [isAdding, setIsAdding] = useState(false);
   const [editedData, setEditedData] = useState(null);
   const [newData, setNewData] = useState({});
@@ -53,7 +54,7 @@ const MachineAgeGroupTable = ({
   }, [selectedSection, selectedSubSection]);
 
   const fetchData = async () => {
-    const url = `/tmMTTRSkill/getScore/${baseQuery}`;
+    const url = `/getYearGroup/machineAge/${baseQuery}`;
 
     try {
       const res = await axios.get(url, {
@@ -62,8 +63,7 @@ const MachineAgeGroupTable = ({
       });
 
       if (res.status === 201) {
-        setData(res?.data?.allScore);
-        setHighestScore(res?.data?.maxScore);
+        setGroupData(res?.data?.yearGroups);
       }
     } catch (error) {
       console.log("error:", error);
@@ -71,14 +71,13 @@ const MachineAgeGroupTable = ({
   };
 
   const addAPI = async (payload) => {
-    const url = `/tmMTTRSkill/addNewScore/${baseQuery}`;
+    const url = `/addYearGroup/machineAge/${baseQuery}`;
 
     try {
       const res = await axios.post(url, payload);
 
       if (res.status === 201) {
-        setData([...data, payload]);
-        setHighestScore(res?.data?.maxScore);
+        setGroupData([...groupData, payload]);
       }
       setNewData(initialState);
       setIsAdding(false);
@@ -88,18 +87,17 @@ const MachineAgeGroupTable = ({
   };
 
   const updateAPI = async () => {
-    const url = `/tmMTTRSkill/updateScore/${editedData._id}/${baseQuery}`;
+    const url = `/updateYearGroup/machineAge/${editedData._id}/${baseQuery}`;
 
     try {
       const res = await axios.patch(url, editedData);
 
-      const updatedScores = data?.map((group) =>
-        group._id === editedData._id ? editedData : group
-      );
-
-      setHighestScore(res?.data?.maxScore);
-
-      setData(updatedScores);
+      if (res?.status === 201) {
+        const updatedScores = groupData?.map((group) =>
+          group._id === editedData._id ? editedData : group
+        );
+        setGroupData(updatedScores);
+      }
 
       setEditedData(null);
     } catch (error) {
@@ -108,14 +106,15 @@ const MachineAgeGroupTable = ({
   };
 
   const deleteAPI = async (id) => {
-    const url = `/tmMTTRSkill/deleteScore/${id}/${baseQuery}`;
+    const url = `/deleteYearGroup/machineAge/${id}/${baseQuery}`;
 
     try {
-      await axios.delete(url);
+      const res = await axios.delete(url);
 
-      const updatedScores = data?.filter((group) => group._id !== id);
-
-      setData(updatedScores);
+      if (res.status === 201) {        
+        const updatedScores = groupData?.filter((group) => group._id !== id);
+        setGroupData(updatedScores);
+      }
     } catch (error) {
       console.log("error:", error);
     }
@@ -194,7 +193,7 @@ const MachineAgeGroupTable = ({
             </thead>
 
             <tbody>
-              {data?.map((group, index) =>
+              {groupData?.map((group, index) =>
                 editedData && editedData._id === group._id ? (
                   <tr key={index}>
                     {machineGroupFields?.map((field) =>
@@ -276,7 +275,7 @@ const MachineAgeGroupTable = ({
           </table>
         </form>
 
-        {data?.length <= 0 && !isAdding && (
+        {groupData?.length <= 0 && !isAdding && (
           <Box
             className=" h-100"
             display="flex"
@@ -299,16 +298,15 @@ const MachineAgeGroupTable = ({
 const TmSkillScoreTable = ({
   selectedSection,
   selectedSubSection,
-  setHighestScore,
 }) => {
   const [data, setData] = React.useState([
-    { _id: "", group: 4, from: 0, to: 0 },
+    { _id: "", group: 0, from: 0, to: 0 },
   ]);
 
   let baseQuery = `?selectedSection=${selectedSection}&&selectedSubSection=${selectedSubSection}`;
 
   const fetchData = async () => {
-    const url = `/tmMTTRSkill/getScore/${baseQuery}`;
+    const url = `/getYearGroup/machineAge/${baseQuery}`;
 
     try {
       const res = await axios.get(url, {
@@ -318,7 +316,6 @@ const TmSkillScoreTable = ({
 
       if (res.status === 201) {
         setData(res?.data?.allScore);
-        setHighestScore(res?.data?.maxScore);
       }
     } catch (error) {
       console.log("error:", error);

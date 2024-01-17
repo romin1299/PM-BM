@@ -147,7 +147,7 @@ const DailyBTDashboard = () => {
             />
           </Col>
           <Col md={12} lg={6}>
-            <MTTRChart />
+            <MTTRChart {...reduceState} />
           </Col>
         </Row>
       </Box>

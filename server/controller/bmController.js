@@ -113,6 +113,8 @@ let currentYear =
     ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
     : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
+const truncValueUptoTwoDigit = (prop) => ({ $trunc: [prop, 2] });
+
 router.get(
   "/getDataBasedOnScanningRequest/:sheetType/:machineCode",
   authenticate,
@@ -4781,7 +4783,7 @@ const functionForFindingBDHourOrCountStatus = async ({
         $group: {
           _id: null,
           annualSum: {
-            $sum: SumString,
+            $sum: truncValueUptoTwoDigit(SumString),
           },
         },
       },
@@ -4886,9 +4888,9 @@ router.get(
           $group: {
             _id: null,
             BDhour: {
-              $sum: {
+              $sum: truncValueUptoTwoDigit({
                 $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              },
+              }),
             },
           },
         },
@@ -4970,9 +4972,9 @@ router.get(
           },
           {
             $addFields: {
-              BDhour: {
+              BDhour: truncValueUptoTwoDigit({
                 $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              },
+              }),
             },
           },
           {
@@ -5031,37 +5033,8 @@ router.get(
                   "$array",
                 ],
               },
-
-              // {
-              //   $map: {
-              //     input: allDatesInMonth,
-              //     as: "date",
-              //     in: {
-              //       $cond: [
-              //         { $in: ["$$date", "$array._id"] },
-              //         {
-              //           $arrayElemAt: [
-              //             "$array",
-              //             {
-              //               $indexOfArray: ["$array._id", "$$date"],
-              //             },
-              //           ],
-              //         },
-              //         {
-              //           _id: "$$date",
-              //           count: 0,
-              //           hours: 0,
-              //         },
-              //       ],
-              //     },
-              //   },
-              // },
             },
           },
-          // { $unwind: "$array" },
-          // {
-          //   $replaceRoot: { newRoot: "$array" },
-          // },
         ]);
 
       const dayWiseCount = await RequestSheetOfBM.aggregate([
@@ -5577,7 +5550,7 @@ router.get(
             _id: null,
             labels: { $push: "$month" },
             data: {
-              $push: "$value.hours",
+              $push: truncValueUptoTwoDigit("$value.hours"),
             },
           },
         },
@@ -5673,7 +5646,7 @@ const yearlyBdHourMiddleware = async (req, res, next) => {
           _id: null,
           labels: { $push: "$month" },
           data: {
-            $push: "$value.hours",
+            $push: truncValueUptoTwoDigit("$value.hours"),
           },
         },
       },
@@ -6208,7 +6181,9 @@ router.post(
         },
         groupingObj: {
           count: { $push: "$requestSheets.count" },
-          sumOfBDhours: { $push: "$requestSheets.sumOfBDhours" },
+          sumOfBDhours: {
+            $push: truncValueUptoTwoDigit("$requestSheets.sumOfBDhours"),
+          },
         },
         // outerMachineLevelProjection: {
         //   count: 1,
@@ -6275,7 +6250,9 @@ router.post(
             sumOfBDhours: "$sumOfBDhours",
           },
           groupingObj: {
-            sumOfBDhours: { $push: "$requestSheets.sumOfBDhours" },
+            sumOfBDhours: {
+              $push: truncValueUptoTwoDigit("$requestSheets.sumOfBDhours"),
+            },
           },
           // outerMachineLevelProjection: {
           //   sumOfBDhours: 1,
@@ -8976,7 +8953,7 @@ const targetMiddlewareForMBD = async (req, res, next) => {
 
     req.target = target?.[0]?.monthlyTarget || [];
     // req.yearlyTarget = target?.[0]?.yearlyTarget || [];
-    req.targetForCount = targetForCount?.[0].monthlyTarget || [];
+    req.targetForCount = targetForCount?.[0]?.monthlyTarget || [];
     // req.yearlyTargetForCount = targetForCount?.[0].yearlyTarget || [];
 
     next();
@@ -9132,6 +9109,7 @@ router.get(
   middlewareForMonthlyBdReport,
   lineMonthlyBdTrendForSectionMiddleware
 );
+
 
 router.get(
   "/mttrForPlant/kpiFromDatabase/:filter/:selectedId",
@@ -12037,6 +12015,7 @@ const middlewareForFindingMaxValue = async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
+
 router.get(
   "/tmMTTRSkill/getScore",
   authenticate,
@@ -12191,21 +12170,17 @@ router.post(
   sectionOrSubSectionFilterMiddleware,
   async (req, res, next) => {
     try {
-      const { groupName, from, to } = req.body;
-
-      const yearGroup = await req.Model.findOneAndUpdate(
+      const machine = await req.Model.findOneAndUpdate(
         req.findObj,
         {
-          $push: { yearGroup: { groupName, from, to } },
-          // $push: { yearGroup: { groupName, from, to } },
+          $push: { yearGroup: req.body },
         },
         { new: true }
       );
 
       return res.status(201).json({
         message: "Year Group added successfully",
-
-        yearGroup,
+        yearGroup: machine?.yearGroup,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -12218,13 +12193,13 @@ router.patch(
   sectionOrSubSectionFilterMiddleware,
   async (req, res, next) => {
     try {
-      const { groupName, from, to } = req.body;
+      const { group, from, to } = req.body;
 
       const yearGroup = await req.Model.findOneAndUpdate(
         req.findObj,
         {
           $set: {
-            "yearGroup.$[outer].groupName": groupName,
+            "yearGroup.$[outer].group": group,
             "yearGroup.$[outer].from": from,
             "yearGroup.$[outer].to": to,
           },
@@ -12238,7 +12213,6 @@ router.patch(
 
       return res.status(201).json({
         message: "Year Group updated successfully",
-
         yearGroup,
       });
     } catch (error) {
@@ -12252,21 +12226,13 @@ router.delete(
   sectionOrSubSectionFilterMiddleware,
   async (req, res, next) => {
     try {
-      const yearGroup = await req.Model.findOneAndUpdate(
-        req.findObj,
-        {
-          $pull: {
-            yearGroup: {
-              _id: mongoose.Types.ObjectId(req.params.id),
-            },
+      const yearGroup = await req.Model.findOneAndUpdate(req.findObj, {
+        $pull: {
+          yearGroup: {
+            _id: mongoose.Types.ObjectId(req.params.id),
           },
         },
-        {
-          arrayFilters: [
-            { "yearGroup._id": mongoose.Types.ObjectId(req.params?.id) },
-          ],
-        }
-      );
+      });
 
       return res.status(201).json({
         message: "Year Group deleted successfully",
@@ -12400,7 +12366,7 @@ router.get(
                     },
                   },
                   as: "matchedGroup",
-                  in: "$$matchedGroup.groupName",
+                  in: "$$matchedGroup.group",
                 },
               },
               0,
@@ -12570,7 +12536,7 @@ router.get(
                     },
                   },
                   as: "matchedGroup",
-                  in: "$$matchedGroup.groupName",
+                  in: "$$matchedGroup.group",
                 },
               },
               0,
@@ -12717,7 +12683,7 @@ router.get(
       {
         $group: {
           _id: {
-            groupName: "$groupName.groupName",
+            groupName: "$groupName.group",
             date: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
             category: "$categoriesOfRequestSheet.category",
             subCategory: "$categoriesOfRequestSheet.subCategory",
@@ -12796,7 +12762,7 @@ router.get(
 
     return res.status(201).json({
       message: "Machine Age data for Piechart get successfully",
-      data: machineData?.[0].categories,
+      data: machineData?.[0]?.categories,
     });
   }
 );
@@ -13145,7 +13111,7 @@ const middlewareForFindingTrendData = async (req, res, next) => {
       {
         $project: {
           count: 1,
-          hours: req.hourCalculationFormula,
+          hours: truncValueUptoTwoDigit(req.hourCalculationFormula),
         },
       },
       {
@@ -13286,8 +13252,8 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
       {
         $project: {
           lineName: "$line.line_name",
-          target: "$line.target",
-          hours: req.hourCalculationFormula,
+          target: truncValueUptoTwoDigit("$line.target"),
+          hours: truncValueUptoTwoDigit(req.hourCalculationFormula),
         },
       },
       {
@@ -13373,7 +13339,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
       {
         $project: {
           machine: 1,
-          hours: req.hourCalculationFormula,
+          hours: truncValueUptoTwoDigit(req.hourCalculationFormula),
         },
       },
       {
@@ -14362,12 +14328,12 @@ router.get(
                       null,
                     ],
                   },
-                  {
+                  truncValueUptoTwoDigit({
                     $divide: [
                       "$maintenanceReportFilledByMTD.breakDownTime",
                       60,
                     ],
-                  },
+                  }),
                   0,
                 ],
               },
@@ -14449,9 +14415,9 @@ router.get(
           $group: {
             _id: "$totalPMTime.k",
             totalSumOf_PM: {
-              $sum: {
+              $sum: truncValueUptoTwoDigit({
                 $divide: ["$totalPMTime.v.totalWorkedPMTime", 60],
-              },
+              }),
             },
           },
         },
@@ -14520,7 +14486,7 @@ router.get(
               },
             },
             hours: {
-              $sum: {
+              $sum: truncValueUptoTwoDigit({
                 $multiply: [
                   {
                     $divide: [
@@ -14550,7 +14516,7 @@ router.get(
                     ],
                   },
                 ],
-              },
+              }),
             },
           },
         },
@@ -14664,9 +14630,9 @@ router.get(
           $group: {
             _id: "$totalPMTime.k",
             totalSumOf_PM: {
-              $sum: {
+              $sum: truncValueUptoTwoDigit({
                 $divide: ["$totalPMTime.v.supportingTMData.workedTime", 60],
-              },
+              }),
             },
           },
         },
@@ -15153,17 +15119,24 @@ router.get(
           },
         },
         {
+          $match: {
+            percentage: {
+              $gt: 0,
+            },
+          },
+        },
+        {
           $group: {
             _id: null,
             lines: { $push: "$line_name" },
             totalSumOf_PM: {
-              $push: "$sumOfPM",
+              $push: truncValueUptoTwoDigit("$sumOfPM"),
             },
             totalSumOf_BM: {
-              $push: "$sumOfBM",
+              $push: truncValueUptoTwoDigit("$sumOfBM"),
             },
             percentage: {
-              $push: "$percentage",
+              $push: truncValueUptoTwoDigit("$percentage"),
             },
           },
         },
@@ -15600,19 +15573,26 @@ router.get(
           },
         },
         {
+          $match: {
+            percentage: {
+              $gt: 0,
+            },
+          },
+        },
+        {
           $group: {
             _id: null,
             tm_names: {
               $push: "$tm_name",
             },
             totalSumOf_PM: {
-              $push: "$sumOfPM",
+              $push: truncValueUptoTwoDigit("$sumOfPM"),
             },
             totalSumOf_BM: {
-              $push: "$sumOfBM",
+              $push: truncValueUptoTwoDigit("$sumOfBM"),
             },
             percentage: {
-              $push: "$percentage",
+              $push: truncValueUptoTwoDigit("$percentage"),
             },
           },
         },
