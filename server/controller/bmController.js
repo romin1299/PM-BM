@@ -12,7 +12,7 @@ const SubSection = require("../model/subSectionSchema");
 const Cell = require("../model/cellSchema");
 const Line = require("../model/lineSchema");
 const LogHistory = require("../model/logHistorySchema");
-const NoLossBD = require("../model/noLossBDSheetData")
+const NoLossBD = require("../model/noLossBDSheetData");
 
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
@@ -3454,7 +3454,7 @@ router.patch(
             },
           },
         },
-      
+
         {
           arrayFilters: [
             { "shiftOfBM._id": mongoose.Types.ObjectId(req.params.shiftId) },
@@ -6864,10 +6864,12 @@ router.get(
           $unwind: "$categoriesOfRequestSheet",
         },
 
-        
         {
           $match: {
-            "categoriesOfRequestSheet.subCategory": { $exists: true, $ne: null },
+            "categoriesOfRequestSheet.subCategory": {
+              $exists: true,
+              $ne: null,
+            },
           },
         },
 
@@ -6907,7 +6909,7 @@ router.get(
             },
             subcategories: {
               $push: "$_id.subCategory",
-            
+
               // count: "$count",
               // bdtime: "$bdtime",
             },
@@ -6923,15 +6925,12 @@ router.get(
           $limit: 2,
         },
 
-  
-
         {
           $sort: {
             "_id.category": 1,
             // "subcategories": 1,
-          }
+          },
         },
-
 
         {
           $group: {
@@ -6946,13 +6945,11 @@ router.get(
             },
           },
         },
-        
 
         {
           $project: {
             _id: 0,
             categories: 1,
-         
           },
         },
       ]);
@@ -8163,7 +8160,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
 
-                count :  {$sum : 1},
+                count: { $sum: 1 },
 
                 sumBM: {
                   $sum: {
@@ -8184,8 +8181,6 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                     ],
                   },
                 },
-
-                
               },
             },
 
@@ -8286,7 +8281,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
 
-                count :  {$sum : 1},
+                count: { $sum: 1 },
 
                 sumBM: {
                   $sum: {
@@ -8374,15 +8369,12 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
     const bdTrendData = [...subSectionQuery, ...sectionQuery];
 
+    //     const dataArrays = bdTrendData.map(entry => entry.data);
 
-//     const dataArrays = bdTrendData.map(entry => entry.data);
-
-
-// const averageData = dataArrays[0].map((_, i) => {
-//   const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
-//   return sum / (dataArrays.length - dataArrays.filter(array => array[i] === undefined).length) || 0;
-// });
-
+    // const averageData = dataArrays[0].map((_, i) => {
+    //   const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+    //   return sum / (dataArrays.length - dataArrays.filter(array => array[i] === undefined).length) || 0;
+    // });
 
     return res.status(200).json({
       message: "PlantWise Monthly BD trend data for Section get successfully",
@@ -8397,8 +8389,6 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
 const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
   try {
-
-    
     const bdTrendData = await Cell.aggregate([
       {
         $match: {
@@ -8410,8 +8400,6 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
           ],
         },
       },
-
-     
 
       {
         $lookup: {
@@ -8432,7 +8420,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
 
-                count :  {$sum : 1},
+                count: { $sum: 1 },
 
                 sumBM: {
                   $sum: {
@@ -8463,8 +8451,8 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 cellWiseTotal: {
                   $push: {
                     month: "$_id.date",
-                    bdTimeSum: { $trunc: [req.mttrOrSumFormula,1]},
-                    // avgData: {$avg : "$sumBM" } 
+                    bdTimeSum: { $trunc: [req.mttrOrSumFormula, 1] },
+                    // avgData: {$avg : "$sumBM" }
                   },
                 },
               },
@@ -8473,7 +8461,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
             {
               $project: {
                 _id: 0,
-              
+
                 data: {
                   $map: {
                     input: allMonths,
@@ -8499,10 +8487,6 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                     },
                   },
                 },
-
-             
-           
-  
               },
             },
 
@@ -8525,24 +8509,20 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
           _id: 0,
           label: "$cell_name",
           data: "$cell_data.data",
-         },
-          },
-       
+        },
+      },
     ]);
 
-    
-const dataArrays = bdTrendData.map(entry => entry.data);
+    const dataArrays = bdTrendData.map((entry) => entry.data);
 
-
-const averageData = dataArrays[0].map((_, i) => {
-  const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
-  return sum / (dataArrays.length - dataArrays.filter(array => array[i] === undefined).length) || 0;
-});
-
-
-
-    
-   
+    const averageData = dataArrays[0].map((_, i) => {
+      const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+      return (
+        sum /
+          (dataArrays.length -
+            dataArrays.filter((array) => array[i] === undefined).length) || 0
+      );
+    });
 
     return res.status(200).json({
       message: "Cell Wise Monthly BD trend data for Section get successfully",
@@ -8588,7 +8568,7 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 _id: {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
-                count :  {$sum : 1},
+                count: { $sum: 1 },
                 sumBM: {
                   $sum: {
                     $cond: [
@@ -8676,15 +8656,16 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       },
     ]);
 
-    const dataArrays = bdTrendData.map(entry => entry.data);
+    const dataArrays = bdTrendData.map((entry) => entry.data);
 
-
-const averageData = dataArrays[0].map((_, i) => {
-  const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
-  return sum / (dataArrays.length - dataArrays.filter(array => array[i] === undefined).length) || 0;
-});
-
-
+    const averageData = dataArrays[0].map((_, i) => {
+      const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+      return (
+        sum /
+          (dataArrays.length -
+            dataArrays.filter((array) => array[i] === undefined).length) || 0
+      );
+    });
 
     return res.status(200).json({
       message: "Line Wise Monthly BD trend data for line get successfully",
@@ -8730,7 +8711,7 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 _id: {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
-                count :  {$sum : 1},
+                count: { $sum: 1 },
                 sumBM: {
                   $sum: {
                     $cond: [
@@ -8760,7 +8741,7 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 machineWiseTotal: {
                   $push: {
                     month: "$_id.date",
-                    bdTimeSum: { $trunc: [req.mttrOrSumFormula,1]},
+                    bdTimeSum: { $trunc: [req.mttrOrSumFormula, 1] },
                   },
                 },
               },
@@ -8818,14 +8799,16 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       },
     ]);
 
-    const dataArrays = bdTrendData.map(entry => entry.data);
-
+    const dataArrays = bdTrendData.map((entry) => entry.data);
 
     const averageData = dataArrays[0].map((_, i) => {
       const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
-      return sum / (dataArrays.length - dataArrays.filter(array => array[i] === undefined).length) || 0;
+      return (
+        sum /
+          (dataArrays.length -
+            dataArrays.filter((array) => array[i] === undefined).length) || 0
+      );
     });
-    
 
     return res.status(200).json({
       message: "Machine Wise Monthly BD trend data for line get successfully",
@@ -9297,7 +9280,6 @@ router.get(
   middlewareForMonthlyBdReport,
   lineMonthlyBdTrendForSectionMiddleware
 );
-
 
 router.get(
   "/mttrForPlant/kpiFromDatabase/:filter/:selectedId",
@@ -11655,7 +11637,7 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
             { supportingTM: mongoose.Types.ObjectId(req?.params?.tmId) },
             { handOverUser: mongoose.Types.ObjectId(req?.params?.tmId) },
           ],
-       
+
           // $and: [
           //   // {
           //   //   "maintenanceReportFilledByMTD.workEndedDateOfBM": { $gt: null },
@@ -11664,7 +11646,7 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
           //     "maintenanceReportFilledByMTD.breakDownTime": {
           //       $lt: hourToMin || 120,
           //     },
-          //   },  
+          //   },
           // ],
         },
       },
@@ -11818,7 +11800,6 @@ router.get(
       // };
 
       // console.log("TRENDqueryObj", req.queryObj);
-
 
       const mttrTrend = await RequestSheetOfBM.aggregate([
         // ...pipelineForUser,
@@ -12090,7 +12071,7 @@ const altfindTLandOperatorList = async (req, res, next) => {
       altTmUsers = [
         {
           // $match: {
-            section_data: `${section?.section_id}-${section?.section_name}`,
+          section_data: `${section?.section_id}-${section?.section_name}`,
           // },
         },
       ];
@@ -12212,25 +12193,20 @@ router.get(
   middlewareForFindingTmProgressData
 );
 
-
-
-router.delete("/deleteRequestSheet/:id",async (req, res, next) => {
+router.delete("/deleteRequestSheet/:id", async (req, res, next) => {
   try {
-  
-  const deletedReqSheet = await RequestSheetOfBM.findByIdAndDelete(req.params.id);
-  
-  
-  return res.status(201).json({
-    message: "RequestSheet Deleted successfully",
-    deletedReqSheet,
-  });
-}
-catch (error) {
-  res.status(500).json({ message: error?.message, error });
-}
-} )
+    const deletedReqSheet = await RequestSheetOfBM.findByIdAndDelete(
+      req.params.id
+    );
 
-
+    return res.status(201).json({
+      message: "RequestSheet Deleted successfully",
+      deletedReqSheet,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+});
 
 const middlewareForFindingMaxValue = async (req, res, next) => {
   try {
@@ -17714,24 +17690,23 @@ router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
       ...noLossData,
       problemsOfBM,
       actionAndCounterMeasureStep,
-      supportingTM: selectedSupportedTM?.map(obj => obj?._id),
+      supportingTM: selectedSupportedTM?.map((obj) => obj?._id),
       sectionRef: selectedSection || null,
       subSectionRef: selectedSubSection || null,
       cellRef: selectedCell || null,
-      lineRef: selectedLine || null
-    })
+      lineRef: selectedLine || null,
+    });
 
-    const resultOfSaveNoLossBD = await addNewNoLossBD.save()
+    const resultOfSaveNoLossBD = await addNewNoLossBD.save();
 
-    if(resultOfSaveNoLossBD){
+    if (resultOfSaveNoLossBD) {
       res.status(201).json({
         message: "No Loss data added successfully",
         resultOfSaveNoLossBD,
       });
     }
-
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({ message: error?.message, error: new Error(error) });
   }
 });
