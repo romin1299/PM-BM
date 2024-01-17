@@ -24,6 +24,7 @@ app.use(express.json());
 
 app.use(require(path.join(__dirname, "./controller/auth")));
 app.use(require(path.join(__dirname, "./controller/bmController")));
+app.use("/common",require(path.join(__dirname, "./controller/commonController")));
 
 require(path.join(
   __dirname,

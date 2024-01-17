@@ -172,6 +172,12 @@ const TMMTRMain = () => {
                 baseUrlForFiltering={baseUrlForFiltering}
                 reduceState={reduceState}
                 reducerDispatch={reducerDispatch}
+                yearFiltration
+                sectionFiltration
+                subSectionFiltration
+                cellFiltration
+                lineFiltration
+                resetButtonFiltration
               />
 
               <Col className="col-auto">

@@ -93,8 +93,6 @@ function MyTable() {
     getRequestSheetDetails();
   }, [requestSheetID]);
 
-  console.log(selectedMachineDetails);
-
   return (
     <>
       <div style={{ overflow: "scroll" }}>

@@ -73,7 +73,7 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
     <div className="mtd-actions-section">
       <Row className="m-0">
         <Col lg={8} md={7} className="border col-auto d-flex align-items-center gap-1">
-          <small><b>ACTION & COUNTERMEASURE STEPS (Dynamic)</b></small>
+          <small><b>ACTION & COUNTERMEASURE STEPS</b></small>
         </Col>
         <Col
           lg={2} md={2}
