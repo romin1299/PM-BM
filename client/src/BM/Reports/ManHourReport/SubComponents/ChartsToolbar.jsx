@@ -14,7 +14,15 @@ const ChartsToolbar = ({
   reducerDispatch,
   ACTION,
   monthFiltration,
+  yearFiltration,
+
+  sectionFiltration,
+  subSectionFiltration,
+  cellFiltration,
+  lineFiltration,
   machineFiltration,
+
+  resetButtonFiltration
 }) => {
   const generatePPT = () => {
     const pptx = new pptxgen();
@@ -94,6 +102,14 @@ const ChartsToolbar = ({
           ACTION={ACTION}
           monthFiltration={monthFiltration}
           machineFiltration={machineFiltration}
+          yearFiltration = {yearFiltration}
+
+          sectionFiltration = {sectionFiltration}
+          subSectionFiltration = {subSectionFiltration}
+          cellFiltration = {cellFiltration}
+          lineFiltration = {lineFiltration}
+        
+          resetButtonFiltration = {resetButtonFiltration}
         />
       </Box>
 

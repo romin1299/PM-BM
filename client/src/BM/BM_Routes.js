@@ -39,6 +39,8 @@ import BMTitlebar from "./Component/BMTitlebar";
 import TargetDashboard from "./TargetOfBD/TargetDashboard";
 import MachineSummaryComponent from "../Common/Machine/MachineHistoryComponent";
 
+import NoLossBDEntryForm from "./NoLossBDDataEntry/NoLossBDEntryForm";
+
 function BM_Routes({ commonRoutes }) {
   const reportRoutes = [
     ...commonRoutes,
@@ -164,7 +166,7 @@ function BM_Routes({ commonRoutes }) {
           element: <RequestSheetMainDashboard />,
         },
         {
-          path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
+          path: "/bm/update/request-sheet/:machine_code/:requestSheetID/:selectedYear",
           element: <RequestSheetUpdate />,
         },
         {
@@ -227,7 +229,7 @@ function BM_Routes({ commonRoutes }) {
           element: <ApprovalDashboardOfRequestSheet />,
         },
         {
-          path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
+          path: "/bm/update/request-sheet/:machine_code/:requestSheetID/:selectedYear",
           element: <RequestSheetUpdate />,
         },
         {
@@ -291,7 +293,7 @@ function BM_Routes({ commonRoutes }) {
           element: <RequestSheet />,
         },
         {
-          path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
+          path: "/bm/update/request-sheet/:machine_code/:requestSheetID/:selectedYear",
           element: <RequestSheetUpdate />,
         },
         {
@@ -305,6 +307,10 @@ function BM_Routes({ commonRoutes }) {
         {
           path: "/bm/approvalLogs",
           element: <ApprovalLogs />,
+        },
+        {
+          path: "/bm/noLossDataOfBD",
+          element: <NoLossBDEntryForm />,
         },
         // {
         //   path: "/bm/profile",
@@ -350,7 +356,7 @@ function BM_Routes({ commonRoutes }) {
           element: <RequestSheet />,
         },
         {
-          path: "/bm/update/request-sheet/:machine_code/:requestSheetID",
+          path: "/bm/update/request-sheet/:machine_code/:requestSheetID/:selectedYear",
           element: <RequestSheetUpdate />,
         },
         {

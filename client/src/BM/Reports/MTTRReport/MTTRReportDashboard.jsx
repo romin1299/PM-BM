@@ -34,6 +34,12 @@ const MTTRReportDashboard = () => {
                 reduceState={reduceState}
                 reducerDispatch={reducerDispatch}
                 monthFiltration
+                yearFiltration
+                sectionFiltration
+                subSectionFiltration
+                cellFiltration
+                lineFiltration
+                resetButtonFiltration
               />
 
               <Col className="col-auto">
@@ -42,7 +48,7 @@ const MTTRReportDashboard = () => {
                     exportPPTX(EXPORT_REPORT.COMMON_TEMPLATE_REPORT, {
                       ...reduceState,
                       name: "MTTR",
-                      targetKey:"monthlyMTTRTarget",
+                      targetKey: "monthlyMTTRTarget",
                       documentLimitInTheGraph,
                     });
                   }}
