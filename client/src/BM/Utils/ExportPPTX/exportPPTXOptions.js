@@ -39,6 +39,8 @@ export const commonPptOptions = {
   catAxisLabelColor: userOptions.textColor,
   catAxisTitleColor: userOptions.textColor,
   catAxisTitleFontSize: userOptions.textSize + 1,
+  catGridLine: { style: "none" },
+  valGridLine: { style: "none" },
   //
   showValAxisTitle: true,
   valAxisTitle: "y-axis Labels",
