@@ -3378,6 +3378,7 @@ router.patch(
             },
           },
         },
+      
         {
           arrayFilters: [
             { "shiftOfBM._id": mongoose.Types.ObjectId(req.params.shiftId) },
@@ -7196,7 +7197,7 @@ const middlewareForFindingPercentageData = async (req, res, next) => {
           labels: { $push: "$month" },
 
           data: {
-            $push: { $trunc: ["$value.hours", 2] },
+            $push: { $trunc: ["$value.hours", 1] },
           },
         },
       },
@@ -7530,7 +7531,7 @@ const middlewareForFindingMTBFData = async (req, res, next) => {
           labels: { $push: "$month" },
 
           data: {
-            $push: { $trunc: ["$value.hours", 2] },
+            $push: { $trunc: ["$value.hours", 1] },
           },
         },
       },
@@ -7843,10 +7844,10 @@ const bdHourTrendMiddleware = async (req, res, next) => {
         $group: {
           _id: null,
 
-          lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 2] } },
+          lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
 
-          lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 2] } },
-          greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 2] } },
+          lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
+          greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
         },
       },
       {
@@ -7956,10 +7957,10 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
           _id: null,
           labels: { $push: "$month" },
 
-          lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 2] } },
+          lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
 
-          lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 2] } },
-          greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 2] } },
+          lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
+          greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
         },
       },
     ]);
@@ -8238,6 +8239,16 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
     const bdTrendData = [...subSectionQuery, ...sectionQuery];
 
+
+//     const dataArrays = bdTrendData.map(entry => entry.data);
+
+
+// const averageData = dataArrays[0].map((_, i) => {
+//   const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+//   return sum / (dataArrays.length - dataArrays.filter(array => array[i] === undefined).length) || 0;
+// });
+
+
     return res.status(200).json({
       message: "PlantWise Monthly BD trend data for Section get successfully",
 
@@ -8393,7 +8404,7 @@ const averageData = dataArrays[0].map((_, i) => {
   return sum / (dataArrays.length - dataArrays.filter(array => array[i] === undefined).length) || 0;
 });
 
-console.log("Average Data:", averageData);
+
 
     
    
@@ -8402,7 +8413,7 @@ console.log("Average Data:", averageData);
       message: "Cell Wise Monthly BD trend data for Section get successfully",
       bdTrendData,
       bdTrendDataTarget: req.target,
-      // averageData,
+      averageData,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -8530,11 +8541,163 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       },
     ]);
 
+    const dataArrays = bdTrendData.map(entry => entry.data);
+
+
+const averageData = dataArrays[0].map((_, i) => {
+  const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+  return sum / (dataArrays.length - dataArrays.filter(array => array[i] === undefined).length) || 0;
+});
+
+
+
     return res.status(200).json({
       message: "Line Wise Monthly BD trend data for line get successfully",
 
       bdTrendData,
       bdTrendDataTarget: req.target,
+      averageData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
+  try {
+    const bdTrendData = await Machine.aggregate([
+      {
+        $match: {
+          line_names: mongoose.Types.ObjectId(req.params.selectedId),
+        },
+      },
+
+      // {
+      //   $group : {
+      //     _id : "$section_name"
+      //   }
+      // },
+
+      {
+        $lookup: {
+          from: "requestsheetofbms",
+          let: { machine: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$$machine", "$machineRef"],
+                },
+              },
+            },
+
+            {
+              $group: {
+                _id: {
+                  date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+                },
+                count :  {$sum : 1},
+                sumBM: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $gt: [
+                          "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                          null,
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          60,
+                        ],
+                      },
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+
+            {
+              $group: {
+                _id: "$machine_name",
+                label: { $first: "$machine_name" },
+                machineWiseTotal: {
+                  $push: {
+                    month: "$_id.date",
+                    bdTimeSum: { $trunc: [req.mttrOrSumFormula,1]},
+                  },
+                },
+              },
+            },
+
+            {
+              $project: {
+                _id: 0,
+                // label: 1,
+                data: {
+                  $map: {
+                    input: allMonths,
+                    as: "month",
+                    in: {
+                      $cond: [
+                        {
+                          $in: ["$$month.monthName", "$machineWiseTotal.month"],
+                        },
+                        {
+                          $arrayElemAt: [
+                            "$machineWiseTotal.bdTimeSum",
+                            {
+                              $indexOfArray: [
+                                "$machineWiseTotal.month",
+                                "$$month.monthName",
+                              ],
+                            },
+                          ],
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+
+            {
+              $unwind: "$data",
+            },
+          ],
+          as: "machine_data",
+        },
+      },
+      // {
+      //   $unwind: "$line_data",
+      // },
+
+      {
+        $project: {
+          _id: 0,
+          label: "$machine_name",
+          data: "$machine_data.data",
+        },
+      },
+    ]);
+
+    const dataArrays = bdTrendData.map(entry => entry.data);
+
+
+    const averageData = dataArrays[0].map((_, i) => {
+      const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+      return sum / (dataArrays.length - dataArrays.filter(array => array[i] === undefined).length) || 0;
+    });
+    
+
+    return res.status(200).json({
+      message: "Machine Wise Monthly BD trend data for line get successfully",
+
+      bdTrendData,
+      bdTrendDataTarget: req.target,
+      averageData,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -9030,6 +9193,16 @@ router.get(
   lineMonthlyBdTrendForSectionMiddleware
 );
 
+router.get(
+  "/mttrForLine/kpiFromDatabase/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  // targetMiddlewareForMBD,
+  // filterForMonthlyData,
+  middlewareForMTTRKPIReport,
+  machineMonthlyBdTrendForSectionMiddleware
+);
+
 // ---------------- Yearly BD Trend Chart -------------------
 
 const filterForYearlyData = async (req, res, next) => {
@@ -9156,10 +9329,10 @@ router.get(
           $group: {
             _id: null,
 
-            lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 2] } },
+            lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
 
-            lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 2] } },
-            greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 2] } },
+            lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
+            greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
           },
         },
       ]);
@@ -9271,7 +9444,7 @@ router.get(
                     $push: {
                       year: "$_id.date",
 
-                      bdTimeSum: { $trunc: ["$sumBM", 2] },
+                      bdTimeSum: { $trunc: ["$sumBM", 1] },
                     },
                   },
                 },
@@ -9647,7 +9820,7 @@ router.get(
                   cellWiseTotal: {
                     $push: {
                       year: "$_id.date",
-                      bdTimeSum: { $trunc: ["$sumBM", 2] },
+                      bdTimeSum: { $trunc: ["$sumBM", 1] },
                     },
                   },
                 },
@@ -10311,8 +10484,8 @@ router.get(
             _id: null,
 
             lineNames: { $push: "$_id" },
-            bdHours: { $push: { $trunc: ["$bdHours", 2] } },
-            percentages: { $push: { $trunc: ["$percentage", 2] } },
+            bdHours: { $push: { $trunc: ["$bdHours", 1] } },
+            percentages: { $push: { $trunc: ["$percentage", 1] } },
           },
         },
       ]);
@@ -11182,14 +11355,14 @@ router.get(
               _id: "$_id",
               month: { $push: "$array.month" },
               lessThanOne: {
-                $push: { $trunc: ["$array.value.lessThanOne", 2] },
+                $push: { $trunc: ["$array.value.lessThanOne", 1] },
               },
 
               lessThanTwo: {
-                $push: { $trunc: ["$array.value.lessThanTwo", 2] },
+                $push: { $trunc: ["$array.value.lessThanTwo", 1] },
               },
               greaterThanTwo: {
-                $push: { $trunc: ["$array.value.greaterThanTwo", 2] },
+                $push: { $trunc: ["$array.value.greaterThanTwo", 1] },
               },
             },
           },
@@ -11458,7 +11631,7 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
           labels: { $push: "$month" },
 
           data: {
-            $push: { $trunc: ["$value.hours", 2] },
+            $push: { $trunc: ["$value.hours", 1] },
           },
         },
       },
@@ -11466,7 +11639,7 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
 
     return res.status(201).json({
       message: "Tm progress Data get successsully!",
-      dataLength: tmProgress.length,
+      // dataLength: tmProgress.length,
       data: tmProgress?.[0],
     });
   } catch (error) {
@@ -11596,7 +11769,7 @@ router.get(
             },
 
             data: {
-              $push: { $trunc: ["$hours", 2] },
+              $push: { $trunc: ["$hours", 1] },
             },
 
             pieChartData: { $push: "$$ROOT" },
@@ -11903,6 +12076,26 @@ router.get(
   // filterMiddlewareForMTTRReport,
   middlewareForFindingTmProgressData
 );
+
+
+
+router.delete("/deleteRequestSheet/:id",async (req, res, next) => {
+  try {
+  
+  const deletedReqSheet = await RequestSheetOfBM.findByIdAndDelete(req.params.id);
+  
+  
+  return res.status(201).json({
+    message: "RequestSheet Deleted successfully",
+    deletedReqSheet,
+  });
+}
+catch (error) {
+  res.status(500).json({ message: error?.message, error });
+}
+} )
+
+
 
 const middlewareForFindingMaxValue = async (req, res, next) => {
   try {
@@ -12324,7 +12517,7 @@ router.get(
           bdHoursmachineWiseTotal: {
             $push: {
               month: "$_id.date",
-              bdTimeSum: { $trunc: ["$bdHoursmachineWise", 2] },
+              bdTimeSum: { $trunc: ["$bdHoursmachineWise", 1] },
             },
           },
         },
@@ -12490,7 +12683,7 @@ router.get(
         $group: {
           _id: null,
           label: { $push: "$_id.groupName" },
-          data: { $push: { $trunc: ["$bdHoursmachineWise", 2] } },
+          data: { $push: { $trunc: ["$bdHoursmachineWise", 1] } },
         },
       },
     ]);
