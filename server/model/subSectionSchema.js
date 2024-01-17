@@ -22,6 +22,14 @@ const subSectionSchema = new mongoose.Schema({
   allTargetData,
 
   TmMttrSkillScoresAndLimit,
+
+  yearGroup: [
+    {
+      group: { type: String },
+      from: { type: Number },
+      to: { type: Number },
+    },
+  ],
 });
 
 const SubSection = new mongoose.model("SubSections", subSectionSchema);

@@ -64,27 +64,79 @@ import BM_Routes from "./BM/BM_Routes";
 import { BsWrench, BsHammer } from "react-icons/bs";
 import { denso_logo } from "./modules/LoginModules";
 
+import MachineHistoryComponent from "./Common/Machine/MachineHistoryComponent";
+import MachineDocument from "./Common/Machine/MachineDocument";
+import AttachmentFormateTable from "./Common/Machine/AttachmentFormateTable";
+import HistoryFormateTable from "./Common/Machine/HistoryFormateTable";
+
+import MasterLogMainDashboard from "./Common/MasterLog/MasterLogMainDashboard";
+import Profile from "./pages/Profile";
+
 import "./App.css";
 import RightNavbar from "./components/RightNavbar/RightNavbar";
+
+const commonRoutes = [
+  {
+    path: "/profile",
+    element: <Profile />,
+  },
+  {
+    path: "/master-log",
+    element: <MasterLogMainDashboard />,
+  },
+  {
+    path: "/machine-history",
+    element: <MachineHistoryComponent />,
+    subRoutes: [
+      {
+        path: ":machine_code",
+        element: <MachineHistoryComponent />,
+      },
+      {
+        path: "machine-document/:machine_code",
+        element: <MachineDocument />,
+      },
+      {
+        path: "attachment-formate/:page/:machine_code",
+        element: <AttachmentFormateTable />,
+      },
+      {
+        path: "history-formate/:page/:machine_code",
+        element: <HistoryFormateTable />,
+      },
+    ],
+  },
+];
 
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeKey, setActiveKey] = useState("");
+  const [activeKey, setActiveKey] = useState(localStorage.getItem("activeKey"));
 
   const handleTabSelect = (k) => {
     navigate(k);
+    localStorage.setItem("activeKey", k);
+    setActiveKey(k);
   };
 
   useEffect(() => {
     // Extract the part of the path you want as the active key
     const pathParts = location.pathname.split("/");
 
-    if (pathParts[1].trim().length === 0) {
-      navigate("pm");
-    } else {
+    if (pathParts?.includes("pm") || pathParts?.includes("bm")) {
+      localStorage.setItem("activeKey", pathParts[1]);
       setActiveKey(pathParts[1]);
+    } else if (!localStorage.getItem("activeKey")) {
+      localStorage.setItem("activeKey", "pm");
+      navigate("pm");
+      setActiveKey("pm");
     }
+
+    // if (pathParts[1].trim().length === 0) {
+    //   navigate("pm");
+    // } else {
+    //   setActiveKey(pathParts[1]);
+    // }
   }, [location.pathname]);
 
   return (
@@ -141,8 +193,10 @@ function App() {
       <Row>
         {/* Content of both tabs */}
         <div className="scrollable-content">
-          {activeKey === "pm" && <PMTabdashboard />}
-          {activeKey === "bm" && <BM_Routes />}
+          {activeKey === "pm" && <PMTabdashboard commonRoutes={commonRoutes} />}
+          {activeKey === "bm" && <BM_Routes commonRoutes={commonRoutes} />}
+
+          {/* <BM_Routes /> */}
         </div>
       </Row>
     </div>

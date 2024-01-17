@@ -5,7 +5,7 @@ const timezone = "Asia/Kolkata";
 exports.getUserData =
   (machineModel, sectionModel, userModel) => async (req, res) => {
     const machine = await machineModel
-      .findOne(req.query)
+      .findOne({ machine_code: req.query?.machine_code })
       .populate({
         path: "line_names",
         populate: {
@@ -31,20 +31,15 @@ exports.getUserData =
     // console.log(startDate);
     // console.log(endDate);
 
-
     // const currentMonth = moment().format("MMMM");
     let currentMonth;
-    if(moment().format("MMM") === "Jun"){
+    if (moment().format("MMM") === "Jun") {
       currentMonth = "June";
-    }
-    else if(moment().format("MMM") === "Jul"){
+    } else if (moment().format("MMM") === "Jul") {
       currentMonth = "July";
-    }
-    else{
+    } else {
       currentMonth = moment().format("MMM");
     }
-    
-
 
     const pmStatus = await machineModel.aggregate([
       {
@@ -55,7 +50,8 @@ exports.getUserData =
       },
       {
         $match: {
-          "checkSheet_data.current_year": `${startDate}-${endDate}`,
+          "checkSheet_data.current_year":
+            req?.query?.current_year || `${startDate}-${endDate}`,
           // [`checkSheet_data.PMStatus.${currentMonth}`]: currentMonth,
         },
       },
@@ -63,13 +59,13 @@ exports.getUserData =
         $project: {
           _id: 0,
           PMStatus: `$checkSheet_data.PMStatus.${currentMonth}`,
-         
+          PMdate: { $arrayElemAt: [`$checkSheet_data.implemetation_completed_date.${currentMonth}`, 0] }
 
         },
       },
     ]);
 
-    //  console.log("pmstatus",pmStatus)
+    //  console.log("pmstatus",pmStatus?.[0])
 
     const bmData = await RequestSheetOfBM.aggregate([
       // {
@@ -112,7 +108,7 @@ exports.getUserData =
         },
       },
     ]);
-    
+
     // console.log("bmstatus",bmData?.[0])
 
     const section = await sectionModel.findOne({
@@ -145,7 +141,7 @@ exports.getUserData =
         tm_department: "MTD",
         tm_grade: "HOS",
       },
-      { tm_name: 1, line_names: 1 }
+      { tm_name: 1, line_names: 1, email: 1 }
     );
     const mtdTL = await userModel.find(
       {
@@ -153,7 +149,7 @@ exports.getUserData =
         tm_department: "MTD",
         user_type: "TL/HOSS",
       },
-      { tm_name: 1, line_names: 1 }
+      { tm_name: 1, line_names: 1, email: 1 }
     );
     const mtdHOD = await userModel.find(
       {
@@ -162,7 +158,7 @@ exports.getUserData =
         tm_department: "MTD",
         tm_grade: "HOD",
       },
-      { tm_name: 1, line_names: 1 }
+      { tm_name: 1, line_names: 1, email: 1 }
     );
     const prdHOD = await userModel.find(
       {
@@ -171,7 +167,7 @@ exports.getUserData =
         tm_department: "PRD",
         tm_grade: "HOD",
       },
-      { tm_name: 1, line_names: 1 }
+      { tm_name: 1, line_names: 1, email: 1 }
     );
     const prdHOS = await userModel.find(
       {
@@ -179,7 +175,7 @@ exports.getUserData =
         tm_department: "PRD",
         tm_grade: "HOS",
       },
-      { tm_name: 1, line_names: 1 }
+      { tm_name: 1, line_names: 1, email: 1 }
     );
     const prdTL = await userModel.find(
       {
@@ -187,7 +183,7 @@ exports.getUserData =
         tm_department: "PRD",
         user_type: "TL/HOSS",
       },
-      { tm_name: 1, line_names: 1 }
+      { tm_name: 1, line_names: 1, email: 1 }
     );
 
     const requestSheetApprovalList = {
@@ -204,8 +200,8 @@ exports.getUserData =
         message: "Sheet data get successfully",
         machine,
         requestSheetApprovalList,
-        pmStatus: pmStatus?.[0],
-        bmData: bmData?.[0],
+        pmStatusData: pmStatus?.[0],
+        bmStatusData: bmData?.[0],
       });
     } else {
       res.status(404).json({ message: "Machine not found" });

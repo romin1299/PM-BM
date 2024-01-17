@@ -45,6 +45,12 @@ const DailyBTDashboard = () => {
                 baseUrlForFiltering={baseUrlForFiltering}
                 reduceState={reduceState}
                 reducerDispatch={reducerDispatch}
+                yearFiltration
+                sectionFiltration
+                subSectionFiltration
+                cellFiltration
+                lineFiltration
+                resetButtonFiltration
               />
 
               <Col className="col-auto">
@@ -141,7 +147,7 @@ const DailyBTDashboard = () => {
             />
           </Col>
           <Col md={12} lg={6}>
-            <MTTRChart />
+            <MTTRChart {...reduceState} />
           </Col>
         </Row>
       </Box>

@@ -73,7 +73,15 @@ export default function LineSelectionDropdown({
   reducerDispatch,
   baseUrlForFiltering,
   monthFiltration,
+  yearFiltration,
+
+  sectionFiltration,
+  subSectionFiltration,
+  cellFiltration,
+  lineFiltration,
   machineFiltration,
+
+  resetButtonFiltration,
 }) {
   const context = useContext(RoutingContext);
 
@@ -157,6 +165,8 @@ export default function LineSelectionDropdown({
         cells,
         selectedLine,
         lines,
+        selectedMachine,
+        machines,
       } = data;
 
       if (res?.status === 201) {
@@ -168,6 +178,8 @@ export default function LineSelectionDropdown({
           cells,
           selectedLine,
           lines,
+          selectedMachine,
+          machines,
           message,
         });
       }
@@ -181,13 +193,25 @@ export default function LineSelectionDropdown({
       const { res, data } = await getFiltrationValue({
         url: `${baseUrlForFiltering}/cellBased/${cell}`,
       });
-      const { message, lines } = data;
+      const {
+        message,
+        selectedLine,
+        lines,
+        selectedMachine,
+        machines,
+        flagForTogglingFilter,
+        selectedValue,
+      } = data;
 
       if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_CELL,
-
+          flagForTogglingFilter,
+          selectedValue,
+          selectedLine,
           lines,
+          selectedMachine,
+          machines,
           message,
         });
       }
@@ -201,12 +225,20 @@ export default function LineSelectionDropdown({
       const { res, data } = await getFiltrationValue({
         url: `${baseUrlForFiltering}/lineBased/${line}`,
       });
-      const { message, machines } = data;
+      const {
+        message,
+        machines,
+        selectedMachine,
+        flagForTogglingFilter,
+        selectedValue,
+      } = data;
 
       if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_LINE,
-
+          flagForTogglingFilter,
+          selectedValue,
+          selectedMachine,
           machines,
           message,
         });
@@ -270,6 +302,7 @@ export default function LineSelectionDropdown({
       {(baseUrlForFiltering === "/getFiltrationValue/plant-level-filtration"
         ? true
         : context?.tm_grade === "HOD") &&
+        sectionFiltration &&
         sections?.length > 0 && (
           <FormControl size="small">
             <Select
@@ -312,13 +345,12 @@ export default function LineSelectionDropdown({
           </FormControl>
         )}
 
-      {subSections?.length > 0 && (
+      {subSectionFiltration && subSections?.length > 0 && (
         <FormControl size="small">
           <Select
             displayEmpty
             value={selectedSubSection}
             onChange={(e) => {
-              console.count("onchange .......");
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_SUBSECTION,
                 flagForTogglingFilter: "based-on-subSection",
@@ -360,7 +392,7 @@ export default function LineSelectionDropdown({
         </FormControl>
       )}
 
-      {cells?.length > 0 && (
+      {cellFiltration && cells?.length > 0 && (
         <FormControl size="small">
           <Select
             displayEmpty
@@ -403,7 +435,7 @@ export default function LineSelectionDropdown({
         </FormControl>
       )}
 
-      {lines?.length > 0 && (
+      {lineFiltration && lines?.length > 0 && (
         <FormControl size="small">
           <Select
             displayEmpty
@@ -488,46 +520,48 @@ export default function LineSelectionDropdown({
         </FormControl>
       )}
 
-      <FormControl size="small">
-        <Select
-          displayEmpty
-          value={selectedYear}
-          onChange={(e) => {
-            reducerDispatch({
-              type: ACTION.HANDLE_SELECT_YEAR,
-              selectedYear: e.target.value,
-            });
-          }}
-          input={<OutlinedInput />}
-          sx={{
-            width: 130,
-            "& .MuiSelect-select": {
-              paddingTop: "5px",
-              paddingBottom: "5px",
-            },
-          }}
-          renderValue={(value) => {
-            if (value) return value;
-            return "Year";
-          }}
-          MenuProps={MenuProps}
-          inputProps={{ "aria-label": "Without label" }}
-        >
-          {financialYears.map((item) => (
-            <MenuItem
-              key={item}
-              value={item}
-              style={getStyleForSelectedValue(
-                item,
-                selectedYear,
-                "for-array-value"
-              )}
-            >
-              {item}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      {yearFiltration && (
+        <FormControl size="small">
+          <Select
+            displayEmpty
+            value={selectedYear}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_YEAR,
+                selectedYear: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 130,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) return value;
+              return "Year";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {financialYears.map((item) => (
+              <MenuItem
+                key={item}
+                value={item}
+                style={getStyleForSelectedValue(
+                  item,
+                  selectedYear,
+                  "for-array-value"
+                )}
+              >
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
 
       <FormControl size="small">
         {monthFiltration && (
@@ -574,31 +608,96 @@ export default function LineSelectionDropdown({
         )}
       </FormControl>
 
-      <Button
-        // className="btn bg-button"
-        variant="contained"
-        size="small"
-        disableElevation
-        className="bg-button"
-        onClick={async () => {
-          let selectedYear =
-            new Date().getMonth() < 3
-              ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
-              : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+      {resetButtonFiltration && (
+        <Button
+          // className="btn bg-button"
+          variant="contained"
+          size="small"
+          disableElevation
+          className="bg-button"
+          onClick={async () => {
+            let selectedYear =
+              new Date().getMonth() < 3
+                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
-          await reducerDispatch({
-            type: ACTION.HANDLE_SELECT_YEAR,
-            selectedYear,
-          });
+            await reducerDispatch({
+              type: ACTION.HANDLE_SELECT_YEAR,
+              selectedYear,
+            });
 
-          getFiltrationValueByDefault(selectedYear);
-        }}
-      >
-        Reset
-      </Button>
+            getFiltrationValueByDefault(selectedYear);
+          }}
+        >
+          Reset
+        </Button>
+      )}
     </Box>
   );
 }
+
+export const YearDropdown = ({ selectedYear, setSelectedYear }) => {
+  const theme = useTheme();
+
+  const getStyleForSelectedValue = async (item, selectedItem) => {
+    return {
+      fontWeight:
+        item === selectedItem
+          ? theme.typography.fontWeightMedium
+          : theme.typography.fontWeightRegular,
+    };
+  };
+
+  const [financialYears, setFinancialYears] = useState([selectedYear]);
+
+  const fetchFYYearData = async () => {
+    const { financialYears } = await fetchFinancialYears();
+    setFinancialYears(financialYears);
+  };
+
+  useEffect(() => {
+    fetchFYYearData();
+  }, []);
+
+  return (
+    <>
+      <Select
+        displayEmpty
+        value={selectedYear}
+        onChange={(e) => {
+          setSelectedYear(e.target.value);
+        }}
+        input={<OutlinedInput />}
+        sx={{
+          width: 130,
+          "& .MuiSelect-select": {
+            paddingTop: "5px",
+            paddingBottom: "5px",
+          },
+        }}
+        renderValue={(value) => {
+          if (value) {
+            return value;
+          }
+          return "Year";
+        }}
+        MenuProps={MenuProps}
+        inputProps={{ "aria-label": "Without label" }}
+      >
+        {financialYears.map((item) => (
+          <MenuItem
+            key={item}
+            value={item}
+            style={getStyleForSelectedValue(item, selectedYear)}
+          >
+            {item}
+          </MenuItem>
+        ))}
+      </Select>
+    </>
+  );
+};
+
 export const MonthDropdown = ({ selectedMonth, setSelectedMonth }) => {
   const theme = useTheme();
 
@@ -649,6 +748,62 @@ export const MonthDropdown = ({ selectedMonth, setSelectedMonth }) => {
     </>
   );
 };
+
+export const CommonDropdown = ({
+  selectedItem,
+  setSelectedItem,
+  arr,
+  defaultTitle,
+  objKeyName,
+}) => {
+  const theme = useTheme();
+
+  const getStyleForSelectedValue = async (item, selectedItem) => {
+    return {
+      fontWeight:
+        item?._id === selectedItem
+          ? theme.typography.fontWeightMedium
+          : theme.typography.fontWeightRegular,
+    };
+  };
+
+  return (
+    <>
+      <Select
+        displayEmpty
+        value={selectedItem}
+        onChange={(e) => {
+          setSelectedItem(e.target.value);
+        }}
+        input={<OutlinedInput />}
+        sx={{
+          width: 130,
+          "& .MuiSelect-select": {
+            paddingTop: "5px",
+            paddingBottom: "5px",
+          },
+        }}
+        MenuProps={MenuProps}
+        inputProps={{ "aria-label": "Without label" }}
+      >
+        <MenuItem disabled value="">
+          <em style={{ fontSize: "14px", color: "#9f9f9f" }}>{defaultTitle}</em>
+        </MenuItem>
+
+        {arr.map((item) => (
+          <MenuItem
+            key={item?._id}
+            value={item?._id}
+            style={getStyleForSelectedValue(item, selectedItem)}
+          >
+            {item?.[objKeyName]}
+          </MenuItem>
+        ))}
+      </Select>
+    </>
+  );
+};
+
 {
   /* <Select
 displayEmpty

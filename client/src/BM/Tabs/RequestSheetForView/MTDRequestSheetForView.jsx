@@ -1,12 +1,13 @@
-import { Row, Col, Form } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 
 import React, { useState, useEffect, useContext } from "react";
 import { Table } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import moment from "moment";
 import DropdownElem from "../../Component/DropdownElem";
-import { useNavigate, useParams } from "react-router-dom";
+import DownloadIcon from "@mui/icons-material/Download";
 import RoutingContext from "../../../context/routing/RoutingContext";
+import { Button, Typography } from "@mui/material";
 
 function MyTable({
   selectedMachineDetails,
@@ -55,8 +56,6 @@ function MyTable({
 
   useEffect(() => {
     if (requestSheetDataOfBM?._id) {
-      console.log("requestSheetDataOfBM:", requestSheetDataOfBM);
-
       setValue(
         "workStartedDateOfBM",
         moment(
@@ -208,7 +207,7 @@ function MyTable({
       <Table className="mb-5">
         <tbody className="m-1 border p-3">
           <tr className="row m-0 mb-0">
-            <td class="col-lg-8 col-md-6 col-sm-12">
+            <td className="col-lg-8 col-md-6 col-sm-12">
               <h4 className="mt-0 d-flex align-items-center justify-content-center">
                 MAINTENANCE REPORT ( To be filled by MTD)
               </h4>
@@ -720,7 +719,7 @@ function MyTable({
                           <input
                                 disabled
                             type="text"
-                            class="mb-2"
+                            className="mb-2"
                             id="feedbackMTD_HOS"
                             name="feedbackMTD_HOS"
                             style={{ width: "60%" }}
@@ -744,8 +743,8 @@ function MyTable({
             </td> */}
           </tr>
 
-          <tr class="row m-0">
-            <td class="col-lg-4 col-md-6 col-sm-12 border-bottom">
+          <tr className="row m-0">
+            <td className="col-lg-4 col-md-6 col-sm-12 border-bottom">
               <div className="mtd-problem-section">
                 <small
                   className="border d-flex align-items-center"
@@ -773,7 +772,7 @@ function MyTable({
                 {...register("problemValidation", {
                   // required: "This field is required",
                 })}
-                class="visually-hidden"
+                className="visually-hidden"
               ></input>
               {errors?.["problemValidation"] && (
                 <p className="text-error">
@@ -1010,7 +1009,7 @@ function MyTable({
                 {...register("totalTimeValidation", {
                   // required: "This field is required",
                 })}
-                class="visually-hidden"
+                className="visually-hidden"
               ></input>
               {errors?.["totalTimeValidation"] && (
                 <p className="text-error">
@@ -1225,7 +1224,7 @@ function MyTable({
 
               {/* <ActionList actions={actions} setActions={setActions} /> */}
             </td>
-            <td class="col-lg-3 col-md-6 col-sm-12 border-bottom">
+            <td className="col-lg-3 col-md-6 col-sm-12 border-bottom">
               <Row className="m-0">
                 <Col className="border">
                   <small className="mb-0">
@@ -1335,7 +1334,7 @@ function MyTable({
               </Row>
             </td>
 
-            <td class="col-lg-4 col-md-12 col-sm-12  border-bottom">
+            <td className="col-lg-4 col-md-12 col-sm-12  border-bottom">
               <Row className="m-0">
                 <Col className="border p-2">
                   <small className="mb-0 d-flex align-items-center justify-content-start">
@@ -1395,87 +1394,29 @@ function MyTable({
                     <b>DATA SHEET ATTACHED</b>&nbsp;&nbsp;&nbsp;
                   </small>
                 </Col>
-                <Col className="border p-2 d-flex align-items-center">
-                  {requestSheetDataOfBM?.dataSheetOfRequestSheet}
-                  {/* 
-                  <Form>
-                    <div className="d-flex">
-                      <Form.Check
-                        flex
-                        label="Yes"
-                        name="dataSheetOfRequestSheet"
-                        type="radio"
-                        value="Yes"
-                        id="dataSheetOfRequestSheet"
-                        checked={
-                          timeDifferenceMinutes > 120
-                            ? true
-                            : watch("dataSheetOfRequestSheet") === "Yes"
-                            ? true
-                            : false
-                        }
-                        {...register("dataSheetOfRequestSheet")}
-                        onChange={(e) => {
-                          setValue("dataSheetOfRequestSheet", e.target.value, {
-                            shouldDirty: true,
-                          });
-                          clearErrors("dataSheetOfRequestSheet");
-                        }}
-                      />
-                      &nbsp;&nbsp;
-                      <Form.Check
-                        flex
-                        label="No"
-                        name="dataSheetOfRequestSheet"
-                        type="radio"
-                        value="No"
-                        id="dataSheetOfRequestSheet"
-                        disabled={timeDifferenceMinutes > 120 && true}
-                        {...register("dataSheetOfRequestSheet")}
-                        onChange={(e) => {
-                          setValue("dataSheetOfRequestSheet", e.target.value, {
-                            shouldDirty: true,
-                          });
-                          clearErrors("dataSheetOfRequestSheet");
-                        }}
-                      />
-                    </div>
-                    {errors?.["dataSheetOfRequestSheet"] && (
-                      <p className="text-error">
-                        {errors?.["dataSheetOfRequestSheet"]?.message}
-                      </p>
-                    )}
+                <Col className="border p-2">
+                  <div>
                     {requestSheetDataOfBM?.attachedDataSheets ? (
-                      <p>{requestSheetDataOfBM?.attachedDataSheets}</p>
-                    ) : timeDifferenceMinutes > 120 ||
-                      watch("dataSheetOfRequestSheet") === "Yes" ? (
-                      <Form.Group controlId="formFileMultiple" className="mb-3">
-                        <Form.Control
-                          type="file"
-                          {...register("attachedDataSheets", {
-                            // required:
-                            //   timeDifferenceMinutes > 120 ||
-                            //   watch("dataSheetOfRequestSheet") === "Yes"
-                            //     ? true
-                            //     : false,
-                          })}
-                          onChange={(e) => {
-                            setValue("attachedDataSheets", e.target.value, {
-                              shouldDirty: true,
-                            });
-                            clearErrors("attachedDataSheets");
-                          }}
-                        />
-                        {errors?.["attachedDataSheets"] && (
-                          <p className="text-error">
-                            {"This field is required"}
-                          </p>
-                        )}
-                      </Form.Group>
+                      <>
+                        <Typography mt={2} variant="body2">
+                          {requestSheetDataOfBM?.attachedDataSheets}
+                        </Typography>
+                        <Button
+                          target="_blank"
+                          href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
+                          disableElevation
+                          size="small"
+                          variant="contained"
+                          color="success"
+                          startIcon={<DownloadIcon fontSize="small" />}
+                        >
+                          Download
+                        </Button>
+                      </>
                     ) : (
-                      ""
+                      <div>{requestSheetDataOfBM?.dataSheetOfRequestSheet}</div>
                     )}
-                  </Form> */}
+                  </div>
                 </Col>
               </Row>
               <Row className="m-0">
@@ -1484,72 +1425,61 @@ function MyTable({
                     <b>DRAWING ATTACHED</b>&nbsp;&nbsp;&nbsp;
                   </small>
                 </Col>
-                <Col className="border p-2 d-flex align-items-center">
-                  {requestSheetDataOfBM?.drawingOfRequestSheet}
-                  {/* <Form>
-                    <div className="d-flex">
-                      <Form.Check
-                        flex
-                        label="Yes"
-                        name="drawingOfRequestSheet"
-                        type="radio"
-                        value="Yes"
-                        id="drawingOfRequestSheet"
-                        // onChange={handledrawingOfRequestSheet}
-                        {...register("drawingOfRequestSheet")}
-                      />
-                      &nbsp;&nbsp;
-                      <Form.Check
-                        flex
-                        label="No"
-                        name="drawingOfRequestSheet"
-                        type="radio"
-                        value="No"
-                        id="drawingOfRequestSheet"
-                        // onChange={handledrawingOfRequestSheet}
-                        {...register("drawingOfRequestSheet")}
-                      />
-                    </div>
-
+                <Col className="border p-2">
+                  <div>
                     {requestSheetDataOfBM?.attachedDrawings?.length > 0 ? (
-                      <p>
-                        {(requestSheetDataOfBM?.attachedDrawings).join("\r\n")}
-                      </p>
-                    ) : watch("drawingOfRequestSheet") === "Yes" ? (
-                      <Form.Group controlId="formFileMultiple" className="mb-3">
-                        <Form.Control
-                          type="file"
-                          multiple
-                          {...register("attachedDrawings", {
-                            // required:
-                            //   watch("drawingOfRequestSheet") === "Yes"
-                            //     ? true
-                            //     : false,
-                          })}
-                          onChange={(e) => {
-                            setValue("attachedDrawings", e.target.value, {
-                              shouldDirty: true,
-                            });
-                            clearErrors("attachedDrawings");
-                          }}
-                        />
-                        {errors?.["attachedDrawings"] && (
-                          <p className="text-error">
-                            {"This field is required"}
-                          </p>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        {requestSheetDataOfBM?.attachedDrawings?.map(
+                          (image) => (
+                            <a
+                              target="_blank"
+                              href={`http://localhost:7000/${image}`}
+                              style={{
+                                width: "100%",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              <img
+                                src={`http://localhost:7000/${image}`}
+                                style={{
+                                  maxWidth: "100px",
+                                  maxHeight: "100px",
+                                }}
+                              />
+                              <span
+                                style={{
+                                  fontSize: "10px",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {image}
+                              </span>
+                            </a>
+                          )
                         )}
-                      </Form.Group>
+                      </div>
                     ) : (
-                      ""
+                      <div>{requestSheetDataOfBM?.drawingOfRequestSheet}</div>
                     )}
-                  </Form> */}
+                  </div>
                 </Col>
               </Row>
             </td>
           </tr>
 
-          <tr class="row m-0">
-            <td class="col-lg-6 col-md-12 col-sm-12">
+          <tr className="row m-0">
+            <td className="col-lg-6 col-md-12 col-sm-12">
               <div className="mtd-actions-section">
                 <Row className="m-0">
                   <Col
@@ -1557,7 +1487,7 @@ function MyTable({
                     className="border col-auto d-flex align-items-center gap-1"
                   >
                     <small>
-                      <b>ACTION & COUNTERMEASURE STEPS (Dynamic)</b>
+                      <b>ACTION & COUNTERMEASURE STEPS</b>
                     </small>
                   </Col>
                   <Col
@@ -1591,7 +1521,7 @@ function MyTable({
                 ))}
               </div>
             </td>
-            <td class="col-lg-6 col-md-12 col-sm-12">
+            <td className="col-lg-6 col-md-12 col-sm-12">
               <Row className="m-0">
                 <Col className="border col-lg-12 col-md-12 col-sm-12">
                   <small>
@@ -1718,11 +1648,6 @@ function MyTable({
               </Row>
             </td>
             <td className="col-lg-6 col-md-6">
-              {console.log(
-                "requestSheetDataOfBM?.categoriesOfRequestSheet:",
-                requestSheetDataOfBM?.categoriesOfRequestSheet
-              )}
-
               {requestSheetDataOfBM?.categoriesOfRequestSheet?.map(
                 (item, index) => (
                   <>
@@ -1827,8 +1752,6 @@ function MyTable({
                 </Col>
                 <Col lg={11} md={11}>
                   <Row className="">
-                    {console.log("parts:", parts)}
-
                     <div className="mtd-parts-section">
                       <Row className="m-0 d-flex">
                         <Col sm={2} className="border">

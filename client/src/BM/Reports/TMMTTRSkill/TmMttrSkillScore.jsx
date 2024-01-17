@@ -6,6 +6,7 @@ import TmMttrSkillScoreCrud, {
   TmSkillScoreTable,
 } from "./TMMttrSkillScoreCrud";
 import RoutingContext from "../../../context/routing/RoutingContext";
+import Loading from "../../../components/Loading/Loading";
 
 const initialData = [
   {
@@ -27,10 +28,19 @@ const initialData = [
 
 const TmMttrSkillScore = (prop) => {
   const [highestScore, setHighestScore] = useState(0);
+  const { loading } = prop;
 
   const context = useContext(RoutingContext);
 
-  console.log(prop?.pieChartData);
+  // console.log(prop?.pieChartData);
+
+  if (loading) {
+    return (
+      <Box className="cell p-3">
+        <Loading height={200} />
+      </Box>
+    );
+  }
 
   return (
     <Box className="cell p-3">

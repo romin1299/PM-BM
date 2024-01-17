@@ -19,11 +19,16 @@ import {
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 
 const ApprovalDashboardOfRequestSheet = () => {
+  const [loading, setLoading] = React.useState(true);
+
   const loggedUserDetails = useContext(RoutingContext);
   const navigate = useNavigate();
 
   const [approvalRequestSheetDataOfBM, setApprovalRequestSheetDataOfBM] =
     useState([]);
+
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const approvalDashboardHeader = [
     {
@@ -116,14 +121,11 @@ const ApprovalDashboardOfRequestSheet = () => {
       //     : true,
       onClick: (event, selectedRow) => {
         navigate(
-          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`
         );
       },
     }),
   ];
-
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
-  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const allMonths = [
     "Apr",
@@ -141,6 +143,8 @@ const ApprovalDashboardOfRequestSheet = () => {
   ];
 
   const getApprovalRequestSheetData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         `/getMachineRequestSheetDetailsForApproval/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&getDataForApprovalDashboardId=${loggedUserDetails?._id}`,
@@ -162,6 +166,8 @@ const ApprovalDashboardOfRequestSheet = () => {
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -183,6 +189,12 @@ const ApprovalDashboardOfRequestSheet = () => {
               reduceState={reduceState}
               reducerDispatch={reducerDispatch}
               monthFiltration
+              yearFiltration
+              sectionFiltration
+              subSectionFiltration
+              cellFiltration
+              lineFiltration
+              resetButtonFiltration
             />
           }
         />
@@ -206,6 +218,7 @@ const ApprovalDashboardOfRequestSheet = () => {
                 //   exportPDFName: "Export as pdf!!"
                 // }
               }}
+              isLoading={loading}
               actions={requestSheetApprovalAction}
               icons={tableIcons}
               columns={approvalDashboardHeader}

@@ -11,11 +11,14 @@ const Section = require("../model/sectionSchema");
 const SubSection = require("../model/subSectionSchema");
 const Cell = require("../model/cellSchema");
 const Line = require("../model/lineSchema");
+const LogHistory = require("../model/logHistorySchema");
+const NoLossBD = require("../model/noLossBDSheetData");
+
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
 const factory = require("./handleFactory");
-
+const sendMailForBD = require("../sendMailForBM/sendMailForBDRequestSheet");
 const moment = require("moment-timezone");
 const timezone = "Asia/Kolkata";
 
@@ -110,6 +113,8 @@ let currentYear =
     ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
     : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
+const truncValue = (prop) => ({ $trunc: [prop, 1] });
+
 router.get(
   "/getDataBasedOnScanningRequest/:sheetType/:machineCode",
   authenticate,
@@ -179,9 +184,42 @@ const uploadDataSheetsOfBD = multer({
   // fileFilter: fileFilterOfDataSheetOfBD,
 });
 
+const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
+  try {
+    const section = await Section.findOne({
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    });
+
+    let queryObj = {
+      plant_data: req?.rootUser?.plant_data,
+    };
+
+    if (req?.rootUser?.tm_grade !== "HOD") {
+      if (section.dashboardLevel === "Yes") {
+        queryObj = {
+          ...queryObj,
+          section_data: req?.rootUser?.section_data,
+        };
+      } else {
+        queryObj = {
+          ...queryObj,
+          section_data: req?.rootUser?.section_data,
+          subSection_data: { $in: req?.rootUser?.subSection_data },
+        };
+      }
+    }
+
+    req.queryObj = queryObj;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 router.post(
   "/newRequestSheetRegistration",
   authenticate,
+  dashboardLevelUserCheckMiddleware,
   uploadDataSheetsOfBD.fields([
     { name: "attachedDataSheets", maxCount: 1 },
     { name: "attachedDrawings", maxCount: 10 },
@@ -276,7 +314,7 @@ router.post(
 
             if (requestSheet) {
               return res.status(201).json({
-                message: "Request-sheet updated successfully",
+                message: `Request-sheet updated successfully ${requestSheet?.requestSheetNoOfBM}`,
                 requestSheet,
               });
             }
@@ -298,9 +336,10 @@ router.post(
               requestSheetDataFilledByMTDUser?.workStartedDateOfBM,
             "maintenanceReportFilledByMTD.workEndedDateOfBM":
               requestSheetDataFilledByMTDUser?.workEndedDateOfBM,
+            "maintenanceReportFilledByMTD.refHandOverTime":
+              requestSheetDataFilledByMTDUser?.workEndedDateOfBM,
             "maintenanceReportFilledByMTD.actionAndCounterMeasureStep":
               requestSheetDataFilledByMTDUser?.actionAndCounterMeasureStep,
-
             "maintenanceReportFilledByMTD.problemsOfBM":
               requestSheetDataFilledByMTDUser?.problemsOfBM,
             "maintenanceReportFilledByMTD.whyAnalysis.why1":
@@ -345,12 +384,13 @@ router.post(
             partQualityCheckedByPRD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
             requestSheetStatus:
-              (getRequestSheetData?.assignUser?._id).toString() ===
+              ((getRequestSheetData?.assignUser?._id).toString() ===
                 (req?.rootUser?._id).toString() ||
-              (getRequestSheetData?.handOverUser?._id).toString() ===
-                (req?.rootUser?._id).toString()
-                ? "Fill Sheet"
-                : getRequestSheetData?.requestSheetStatus,
+                (getRequestSheetData?.handOverUser?._id).toString() ===
+                  (req?.rootUser?._id).toString()) &&
+              getRequestSheetData?.requestSheetStatus
+                ? getRequestSheetData?.requestSheetStatus
+                : "Fill Sheet",
             actionTemporaryOrNot:
               requestSheetDataFilledByMTDUser?.actionTemporaryOrNot,
             dataSheetOfRequestSheet:
@@ -437,7 +477,7 @@ router.post(
             }
           );
           res.status(201).json({
-            message: "Request-sheet updated successfully",
+            message: `Request-sheet updated successfully ${requestSheet?.requestSheetNoOfBM}`,
             requestSheet,
           });
         } else {
@@ -516,11 +556,91 @@ router.post(
             },
           });
 
-          await requestSheet.save();
-          res.status(201).json({
-            message: "Request-sheet generated successfully",
-            requestSheet,
-          });
+          const newBDRequestSheetGenerate = await requestSheet.save();
+
+          if (newBDRequestSheetGenerate) {
+            //get MTD TL and MTD HOS of the assign section for sending mail when request-sheet is generated.
+            const getMTDTL = await User.find(
+              {
+                ...req?.queryObj,
+                tm_department: "MTD",
+                user_type: "TL/HOSS",
+              },
+              { tm_no: 1, tm_name: 1, email: 1 }
+            );
+
+            const getMTDHOS = await User.find(
+              {
+                ...req?.queryObj,
+                tm_department: "MTD",
+                tm_grade: "HOS",
+              },
+              { tm_name: 1, line_names: 1, email: 1 }
+            );
+
+            let bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+
+            <tr>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.line_names?.cell_names?.cell_name}</td>
+            </tr>
+
+            <tr style="background-color: #dddddd;">
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.line_names?.line_name}</td>
+            </tr>
+
+            <tr>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.machine_name}</td>
+            </tr>
+
+            <tr style="background-color: #dddddd;">
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.machine_code}</td>
+            </tr>
+
+            <tr>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.requestSheetNoOfBM}</td>
+            </tr>   
+
+            <tr style="background-color: #dddddd;">
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Problem Occurred Date and Time</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.problemOccurredDateAndTimeOfBM}</td>
+            </tr>
+
+            <tr>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Problem</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.breakDownBasicDataFilledByPRD?.problemFaced}</td>
+            </tr>
+
+            <tr style="background-color: #dddddd;">
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.requestSheetStatus}</td>
+            </tr>
+
+            <tr>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.work_order_status}</td>
+            </tr>
+
+        </table>`;
+
+            sendMailForBD({
+              subject: `Request Sheet is generated (${machine?.line_names?.cell_names?.cell_name}/${machine?.line_names?.line_name}/${machine?.machine_name}/${newBDRequestSheetGenerate?.requestSheetNoOfBM})`,
+              title: `Request sheet is generated`,
+              greetings: `Sir\\Ma'am`,
+              toEmailIds: getMTDTL?.map((obj) => obj?.email),
+              ccEmailIds: getMTDHOS?.map((obj) => obj?.email),
+              bodyTable,
+            });
+
+            res.status(201).json({
+              message: "Request-sheet generated successfully",
+              requestSheet,
+            });
+          }
         }
       } else {
         res.status(404).json({ message: "Request-sheet not generated" });
@@ -626,6 +746,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
               $project: {
                 user_type: 1,
                 tm_name: 1,
+                email: 1,
               },
             },
           ],
@@ -642,10 +763,45 @@ const findRequestSheetMiddleware = async (req, res, next) => {
               $project: {
                 user_type: 1,
                 tm_name: 1,
+                email: 1,
               },
             },
           ],
           as: "handoverUserDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "approvalOfMTD_SL",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "approvalOfMTD_SL",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "requestSheetCreatedBy",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "requestSheetCreatedBy",
         },
       },
       {
@@ -664,11 +820,23 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           assignUserId: {
             $arrayElemAt: ["$namesOperators._id", 0],
           },
+          assignUserEmail: {
+            $arrayElemAt: ["$namesOperators.email", 0],
+          },
           handOverUser: {
             $arrayElemAt: ["$handoverUserDetails.tm_name", 0],
           },
           handOverUserId: {
             $arrayElemAt: ["$handoverUserDetails._id", 0],
+          },
+          handOverUserEmail: {
+            $arrayElemAt: ["$handoverUserDetails.email", 0],
+          },
+          approvalOfMTD_SL: {
+            $arrayElemAt: ["$approvalOfMTD_SL", 0],
+          },
+          requestSheetCreatedByForSendingEmail: {
+            $arrayElemAt: ["$requestSheetCreatedBy", 0],
           },
           handOverTimeForDefault:
             "$maintenanceReportFilledByMTD.refHandOverTime",
@@ -971,11 +1139,11 @@ router.patch(
 
       let queryObj = {};
 
-      if (req.rootUser?.tm_department !== "MTD") {
-        return res.status(401).json({
-          message: "You are not valid user",
-        });
-      }
+      // if (req.rootUser?.tm_department !== "MTD") {
+      //   return res.status(401).json({
+      //     message: "You are not valid user",
+      //   });
+      // }
 
       const isRequestSheetExist = await RequestSheetOfBM.findOne(req.query);
 
@@ -1019,15 +1187,18 @@ router.patch(
         } else {
           requestSheetStatus = statusArray[4];
         }
+        console.log(req.body?.handOverTime, new Date());
         if (mongoose.Types.ObjectId.isValid(req.body?.handOverUser)) {
           queryObj = {
             finalActivity: req.body?.finalActivity,
-            "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
-              req.body?.handOverTime
-            ),
-            "maintenanceReportFilledByMTD.refHandOverTime": new Date(
-              req.body?.handOverTime
-            ),
+            "maintenanceReportFilledByMTD.workEndedDateOfBM":
+              req.body?.handOverTime !== null
+                ? new Date(req.body?.handOverTime)
+                : new Date(),
+            "maintenanceReportFilledByMTD.refHandOverTime":
+              req.body?.handOverTime !== null
+                ? new Date(req.body?.handOverTime)
+                : new Date(),
             handOverUser: req.body?.handOverUser,
             requestSheetStatus,
             work_order_status: req.body?.work_order_status,
@@ -1035,19 +1206,21 @@ router.patch(
         } else {
           queryObj = {
             finalActivity: req.body?.finalActivity,
-            "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
-              req.body?.handOverTime
-            ),
-            "maintenanceReportFilledByMTD.refHandOverTime": new Date(
-              req.body?.handOverTime
-            ),
+            "maintenanceReportFilledByMTD.workEndedDateOfBM":
+              req.body?.handOverTime !== null
+                ? new Date(req.body?.handOverTime)
+                : new Date(),
+            "maintenanceReportFilledByMTD.refHandOverTime":
+              req.body?.handOverTime !== null
+                ? new Date(req.body?.handOverTime)
+                : new Date(),
             requestSheetStatus,
             work_order_status: req.body?.work_order_status,
           };
         }
       }
 
-      await RequestSheetOfBM.findOneAndUpdate(
+      const updateRequestSheetData = await RequestSheetOfBM.findOneAndUpdate(
         req.query,
         {
           $set: queryObj,
@@ -1056,6 +1229,9 @@ router.patch(
           new: true,
         }
       );
+
+      req.updateRequestSheetData = updateRequestSheetData;
+      req.queryObjForSendingEmailValidation = queryObj;
 
       req.queryPipeline = [
         {
@@ -1073,45 +1249,146 @@ router.patch(
     }
   },
   findRequestSheetMiddleware,
-  (req, res, next) => {
+  dashboardLevelUserCheckMiddleware,
+  async (req, res, next) => {
+    if (req.updateRequestSheetData) {
+      const bodyContent = ({ key, value }) => {
+        return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+  
+        <tr>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.cell}</td>
+        </tr>
+  
+        <tr style="background-color: #dddddd;">
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.line}</td>
+        </tr>
+  
+        <tr>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.machineName}</td>
+        </tr>
+  
+        <tr style="background-color: #dddddd;">
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.machineNo}</td>
+        </tr>
+  
+        <tr>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.requestSheetNoOfBM}</td>
+        </tr>   
+  
+        <tr style="background-color: #dddddd;">
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${key}</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${value}</td>
+        </tr>
+  
+        <tr>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.requestSheetStatus}</td>
+        </tr>
+  
+        <tr style="background-color: #dddddd;">
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${req.requestSheetData?.[0]?.work_order_status}</td>
+        </tr>
+  
+    </table>`;
+      };
+
+      //get MTD TL of the assign section for sending mail when request-sheet is generated.
+      const getMTDTL = await User.find(
+        {
+          ...req?.queryObj,
+          tm_department: "MTD",
+          user_type: "TL/HOSS",
+        },
+        { tm_no: 1, tm_name: 1, email: 1 }
+      );
+
+      const getMTDHOS = await User.find(
+        {
+          ...req?.queryObj,
+          tm_department: "MTD",
+          tm_grade: "HOS",
+        },
+        { tm_name: 1, line_names: 1, email: 1 }
+      );
+
+      if (
+        req?.queryObjForSendingEmailValidation?.hasOwnProperty("assignUser") &&
+        req.requestSheetData?.[0]?.assignUserEmail
+      ) {
+        let bodyTable = bodyContent({
+          key: "Assign User",
+          value: req.requestSheetData?.[0]?.assignUser,
+        });
+        sendMailForBD({
+          subject: `Request Sheet is assign (${req.requestSheetData?.[0]?.cell}/${req.requestSheetData?.[0]?.line}/${req.requestSheetData?.[0]?.machineName}/${req.requestSheetData?.[0]?.requestSheetNoOfBM})`,
+          title: `Request sheet is assign`,
+          greetings: `Sir\\Ma'am`,
+          toEmailIds: [
+            req.requestSheetData?.[0]?.assignUserEmail,
+            req.requestSheetData?.[0]?.requestSheetCreatedByForSendingEmail
+              ?.email,
+          ],
+          ccEmailIds: getMTDTL
+            ?.map((obj) => obj?.email)
+            .concat(getMTDHOS?.map((obj) => obj?.email)),
+          bodyTable: bodyTable,
+        });
+      } else if (
+        req?.queryObjForSendingEmailValidation?.hasOwnProperty(
+          "handOverUser"
+        ) &&
+        req.requestSheetData?.[0]?.handOverUserEmail
+      ) {
+        let bodyTable = bodyContent({
+          key: "Handover User",
+          value: req.requestSheetData?.[0]?.handOverUser,
+        });
+        sendMailForBD({
+          subject: `Request Sheet is handover (${req.requestSheetData?.[0]?.cell}/${req.requestSheetData?.[0]?.line}/${req.requestSheetData?.[0]?.machineName}/${req.requestSheetData?.[0]?.requestSheetNoOfBM})`,
+          title: `Request sheet is handover`,
+          greetings: `Sir\\Ma'am`,
+          toEmailIds: [
+            req.requestSheetData?.[0]?.handOverUserEmail,
+            req.requestSheetData?.[0]?.requestSheetCreatedByForSendingEmail
+              ?.email,
+          ],
+          ccEmailIds: getMTDTL
+            ?.map((obj) => obj?.email)
+            .concat(getMTDHOS?.map((obj) => obj?.email)),
+          bodyTable: bodyTable,
+        });
+      } else if (req.body?.work_order_status === "Closed") {
+        let bodyTable = bodyContent({
+          key: "MTD S.L.",
+          value: req.requestSheetData?.[0]?.approvalOfMTD_SL?.tm_name,
+        });
+        sendMailForBD({
+          subject: `Request Sheet Work Order Closed (${req.requestSheetData?.[0]?.cell}/${req.requestSheetData?.[0]?.line}/${req.requestSheetData?.[0]?.machineName}/${req.requestSheetData?.[0]?.requestSheetNoOfBM})`,
+          title: `Request Sheet work order is closed`,
+          greetings: `Sir\\Ma'am`,
+          toEmailIds:
+            req.requestSheetData?.[0]?.requestSheetCreatedByForSendingEmail
+              ?.email,
+          ccEmailIds: getMTDTL
+            ?.map((obj) => obj?.email)
+            .concat(getMTDHOS?.map((obj) => obj?.email)),
+          bodyTable: bodyTable,
+        });
+      }
+    }
+
     res.status(201).json({
-      message: "Request-sheet updated successfully",
+      message: `Request-sheet updated successfully ${req.requestSheetData?.[0]?.requestSheetNoOfBM}`,
       requestSheet: req.requestSheetData?.[0],
     });
   }
 );
-
-const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
-  try {
-    const section = await Section.findOne({
-      section_id: req?.rootUser?.section_data?.split("-")?.[0],
-    });
-
-    let queryObj = {
-      plant_data: req?.rootUser?.plant_data,
-    };
-
-    if (req?.rootUser?.tm_grade !== "HOD") {
-      if (section.dashboardLevel === "Yes") {
-        queryObj = {
-          ...queryObj,
-          section_data: req?.rootUser?.section_data,
-        };
-      } else {
-        queryObj = {
-          ...queryObj,
-          section_data: req?.rootUser?.section_data,
-          subSection_data: { $in: req?.rootUser?.subSection_data },
-        };
-      }
-    }
-
-    req.queryObj = queryObj;
-    next();
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
 
 const findTLandOperatorList = async (req, res, next) => {
   try {
@@ -1464,17 +1741,20 @@ router.get(
               $sum: 1,
             },
             open_request_sheet_count: {
+              // $sum: {
+              //   $cond: [
+              //     {
+              //       $and: [
+              //         { $ne: ["$requestSheetStatus", "Generated"] },
+              //         { $ne: ["$requestSheetStatus", "Completed"] },
+              //       ],
+              //     },
+              //     1,
+              //     0,
+              //   ],
+              // },
               $sum: {
-                $cond: [
-                  {
-                    $and: [
-                      { $ne: ["$requestSheetStatus", "Generated"] },
-                      { $ne: ["$requestSheetStatus", "Completed"] },
-                    ],
-                  },
-                  1,
-                  0,
-                ],
+                $cond: [{ $ne: ["$requestSheetStatus", "Completed"] }, 1, 0],
               },
             },
             closed_request_sheet_count: {
@@ -3174,6 +3454,7 @@ router.patch(
             },
           },
         },
+
         {
           arrayFilters: [
             { "shiftOfBM._id": mongoose.Types.ObjectId(req.params.shiftId) },
@@ -3256,6 +3537,22 @@ router.patch(
     });
   }
 );
+
+router.get("/getMachineDetails", async (req, res, next) => {
+  try {
+    const machine = await Machine.findOne(req.query, {
+      machine_code: 1,
+      machine_name: 1,
+    }).populate("cell_names", "cell_name");
+
+    return res.status(201).json({
+      message: "Machine details get successfully!",
+      machine,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error: new Error(error) });
+  }
+});
 
 router.get(
   "/getMachineDetailsOnScanningRequest/:generateType",
@@ -3344,6 +3641,13 @@ const getRequestSheetData = async (req, res, next) => {
     if (req.query?._id) {
       queryObjForGetRequestSheetData = {
         _id: mongoose.Types.ObjectId(req.query?._id),
+      };
+    }
+
+    //get data for sending email for higher authority
+    if (req?.params?.reqId) {
+      queryObjForGetRequestSheetData = {
+        _id: mongoose.Types.ObjectId(req.params?.reqId),
       };
     }
 
@@ -3452,6 +3756,8 @@ const getRequestSheetData = async (req, res, next) => {
             {
               $project: {
                 tm_name: 1,
+                tm_no: 1,
+                email: 1,
               },
             },
           ],
@@ -3467,6 +3773,8 @@ const getRequestSheetData = async (req, res, next) => {
             {
               $project: {
                 tm_name: 1,
+                tm_no: 1,
+                email: 1,
               },
             },
           ],
@@ -3482,7 +3790,9 @@ const getRequestSheetData = async (req, res, next) => {
             {
               $project: {
                 user_type: 1,
+                tm_no: 1,
                 tm_name: 1,
+                email: 1,
               },
             },
           ],
@@ -3494,6 +3804,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "requestSheetCreatedBy",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "requestSheetCreatedBy",
         },
       },
@@ -3506,7 +3826,9 @@ const getRequestSheetData = async (req, res, next) => {
             {
               $project: {
                 user_type: 1,
+                tm_no: 1,
                 tm_name: 1,
+                email: 1,
               },
             },
           ],
@@ -3518,6 +3840,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfMTD_SL",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfMTD_SL",
         },
       },
@@ -3526,6 +3858,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfMTD_TL",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfMTD_TL",
         },
       },
@@ -3534,6 +3876,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfMTD_HOSS",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfMTD_HOSS",
         },
       },
@@ -3542,6 +3894,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfMTD_HOS",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfMTD_HOS",
         },
       },
@@ -3550,6 +3912,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfPRD_TL",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfPRD_TL",
         },
       },
@@ -3558,6 +3930,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfPRD_HOS",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfPRD_HOS",
         },
       },
@@ -3566,6 +3948,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfPRD_HOD",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfPRD_HOD",
         },
       },
@@ -3574,6 +3966,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "approvalOfMTD_HOD",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "approvalOfMTD_HOD",
         },
       },
@@ -3582,6 +3984,16 @@ const getRequestSheetData = async (req, res, next) => {
           from: "users",
           localField: "supportingTM",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
           as: "supportingTM",
         },
       },
@@ -3768,6 +4180,52 @@ router.get(
 );
 
 router.get(
+  "/getListOfTheTLAndOperatorForNoLossBDEntryForm",
+  authenticate,
+  dashboardLevelUserCheckMiddleware,
+  async (req, res, next) => {
+    try {
+      let TLHOSS_and_TM_user_list = await User.find(
+        {
+          ...req.queryObj,
+          $or: [
+            {
+              user_type: "Operator",
+            },
+            {
+              $and: [
+                {
+                  user_type: "TL/HOSS",
+                },
+                {
+                  tm_department: "MTD",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          tm_name: 1,
+          tm_department: 1,
+          tm_grade: 1,
+          user_type: 1,
+        }
+      );
+
+      res.status(201).json({
+        message: "TL and Operator data get successfully",
+        TLHOSS_and_TM_user_list,
+      });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  }
+);
+
+router.get(
   "/getMachineRequestSheetDetailsForApproval/:filter/:selectedId",
   authenticate,
   filterMiddleware,
@@ -3874,6 +4332,7 @@ router.get(
 router.patch(
   "/sendApprovalForRequestSheetOfBM/:reqId/:machineRef",
   authenticate,
+  dashboardLevelUserCheckMiddleware,
   async (req, res, next) => {
     try {
       let {
@@ -3906,14 +4365,6 @@ router.patch(
           await RequestSheetOfBM.findOneAndUpdate(
             {
               _id: mongoose.Types.ObjectId(req.params?.reqId),
-              $or: [
-                {
-                  assignUser: req?.rootUser?._id,
-                },
-                {
-                  handOverUser: req?.rootUser?._id,
-                },
-              ],
             },
             {
               $set: {
@@ -3931,8 +4382,76 @@ router.patch(
             },
             { new: true }
           ).exec();
-
         if (updateAssignApprovalOfMTD_TL) {
+          const bodyContent = ({ key, value }) => {
+            return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+       
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+             </tr>
+       
+             <tr style="background-color: #dddddd;">
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+             </tr>
+       
+             <tr>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+             </tr>
+       
+             <tr style="background-color: #dddddd;">
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+             </tr>
+       
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+             </tr>   
+       
+             <tr style="background-color: #dddddd;">
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${key}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${value}</td>
+             </tr>
+       
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateAssignApprovalOfMTD_TL?.requestSheetStatus}</td>
+             </tr>
+       
+             <tr style="background-color: #dddddd;">
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateAssignApprovalOfMTD_TL?.work_order_status}</td>
+             </tr>
+       
+         </table>`;
+          };
+          let bodyTable = bodyContent({
+            key: "Submitted By",
+            value: req?.rootUser?.tm_name,
+          });
+
+          //get MTD HOS of the assign section for sending mail when request-sheet is send for approval.
+          const getMTDHOS = await User.find(
+            {
+              ...req?.queryObj,
+              tm_department: "MTD",
+              tm_grade: "HOS",
+            },
+            { tm_name: 1, line_names: 1, email: 1 }
+          );
+
+          sendMailForBD({
+            subject: `Request Sheet Approval (${requestSheetDataOfBM?.cell}/${requestSheetDataOfBM?.line}/${requestSheetDataOfBM?.machineName}/${requestSheetDataOfBM?.requestSheetNoOfBM})`,
+            title: `Kindly Approve Request-sheet`,
+            greetings: `Sir\\Ma'am`,
+            toEmailIds: assignApprovalList?.MTD_TL?.email,
+            ccEmailIds: getMTDHOS?.map((obj) => obj?.email),
+            bodyTable: bodyTable,
+          });
+
           return res.status(201).json({
             message: "Successfully send approval to MTD TL!",
             updateAssignApprovalOfMTD_TL,
@@ -4018,6 +4537,7 @@ router.patch(
         requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
           ?.majorApprovalList;
 
+      let listOfHigherApproverAuthorityForSendingMail = [];
       Object.keys(assignApprovalList).forEach((key) => {
         if (
           [
@@ -4028,6 +4548,10 @@ router.patch(
           ]?.includes(key.replace("_", " "))
         ) {
           updateTheStatusOfBMSheetApprover(key, assignApprovalList[key]);
+          if (assignApprovalList?.[key]?.id)
+            listOfHigherApproverAuthorityForSendingMail.push(
+              assignApprovalList[key]
+            );
         }
       });
 
@@ -4065,10 +4589,86 @@ router.patch(
           },
           { new: true }
         );
-        if (updateRequestSheetStatus)
+        if (updateRequestSheetStatus) {
+          const bodyContent = ({ key, value, approvedDateAndTime }) => {
+            return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+       
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+             </tr>
+       
+             <tr style="background-color: #dddddd;">
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+             </tr>
+       
+             <tr>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+             </tr>
+       
+             <tr style="background-color: #dddddd;">
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+             </tr>
+       
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+             </tr>   
+       
+             <tr style="background-color: #dddddd;">
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${key}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${value}</td>
+             </tr>
+
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${approvedDateAndTime}</td>
+             </tr>
+       
+             <tr style="background-color: #dddddd;">
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateRequestSheetStatus?.requestSheetStatus}</td>
+             </tr>
+       
+             <tr>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateRequestSheetStatus?.work_order_status}</td>
+             </tr>
+       
+         </table>`;
+          };
+          let bodyTable = bodyContent({
+            key: "Approved By",
+            value: req?.rootUser?.tm_name,
+            approvedDateAndTime:
+              updateRequestSheetStatus?.approvalDateAndTimeOfMTD_TL?.[
+                updateRequestSheetStatus?.approvalDateAndTimeOfMTD_TL?.length -
+                  1 || 0
+              ],
+          });
+          sendMailForBD({
+            subject: `Request Sheet Approval (${requestSheetDataOfBM?.cell}/${requestSheetDataOfBM?.line}/${requestSheetDataOfBM?.machineName}/${requestSheetDataOfBM?.requestSheetNoOfBM})`,
+            title: `Kindly Approve Request-sheet`,
+            greetings: `Sir\\Ma'am`,
+            toEmailIds:
+              assignApprovalList?.[
+                (requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+                  minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
+                ]?.[1]).replace(" ", "_")
+              ]?.email,
+            ccEmailIds: listOfHigherApproverAuthorityForSendingMail
+              ?.map((obj) => obj?.email)
+              ?.slice(1),
+            bodyTable: bodyTable,
+          });
+
           return res.status(201).json({
             message: `${requestSheetDataOfBM?.requestSheetNoOfBM} Request-sheet approval send !!`,
           });
+        }
       } else {
         //request-sheet is rejected
         let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
@@ -4184,7 +4784,7 @@ const functionForFindingBDHourOrCountStatus = async ({
         $group: {
           _id: null,
           annualSum: {
-            $sum: SumString,
+            $sum: truncValue(SumString),
           },
         },
       },
@@ -4295,10 +4895,17 @@ router.get(
             },
           },
         },
+        {
+          $project: {
+            _id: null,
+            BDhour: truncValue("$BDhour"),
+          },
+        },
       ]);
 
       return res.status(201).json({
         message: "Bd hours status get successfully",
+        BDActual,
         BDHoursStatus: {
           annualBDTarget: annualBDTarget?.[0]?.annualSum,
           BDActual: BDActual?.[0]?.BDhour,
@@ -4373,9 +4980,9 @@ router.get(
           },
           {
             $addFields: {
-              BDhour: {
+              BDhour: truncValue({
                 $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              },
+              }),
             },
           },
           {
@@ -4434,37 +5041,8 @@ router.get(
                   "$array",
                 ],
               },
-
-              // {
-              //   $map: {
-              //     input: allDatesInMonth,
-              //     as: "date",
-              //     in: {
-              //       $cond: [
-              //         { $in: ["$$date", "$array._id"] },
-              //         {
-              //           $arrayElemAt: [
-              //             "$array",
-              //             {
-              //               $indexOfArray: ["$array._id", "$$date"],
-              //             },
-              //           ],
-              //         },
-              //         {
-              //           _id: "$$date",
-              //           count: 0,
-              //           hours: 0,
-              //         },
-              //       ],
-              //     },
-              //   },
-              // },
             },
           },
-          // { $unwind: "$array" },
-          // {
-          //   $replaceRoot: { newRoot: "$array" },
-          // },
         ]);
 
       const dayWiseCount = await RequestSheetOfBM.aggregate([
@@ -4980,7 +5558,7 @@ router.get(
             _id: null,
             labels: { $push: "$month" },
             data: {
-              $push: "$value.hours",
+              $push: truncValue("$value.hours"),
             },
           },
         },
@@ -5002,98 +5580,107 @@ router.get(
   }
 );
 
+const yearlyBdHourMiddleware = async (req, res, next) => {
+  try {
+    const BDHours = await RequestSheetOfBM.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%m",
+              date: "$problemOccurredDateAndTimeOfBM",
+              timezone: timezone,
+            },
+          },
+          hours: {
+            $sum: {
+              $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          array: { $push: "$$ROOT" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          array: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  { $in: ["$$month.monthInDecimal", "$array._id"] },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      $arrayElemAt: [
+                        "$array",
+                        {
+                          $indexOfArray: [
+                            "$array._id",
+                            "$$month.monthInDecimal",
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    month: "$$month.monthName",
+                    value: {
+                      _id: "$$month.monthInDecimal",
+                      hours: 0,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      { $unwind: "$array" },
+      {
+        $replaceRoot: { newRoot: "$array" },
+      },
+      {
+        $group: {
+          _id: null,
+          labels: { $push: "$month" },
+          data: {
+            $push: truncValue("$value.hours"),
+          },
+        },
+      },
+    ]);
+
+    req.BDHours = BDHours;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
 router.get(
   "/getBDHoursGraphData/:filter/:selectedId",
   authenticate,
   filterMiddleware,
   targetMiddleware,
+  yearlyBdHourMiddleware,
   async (req, res, next) => {
     try {
-      const BDHours = await RequestSheetOfBM.aggregate([
-        {
-          $match: req.queryObj,
-        },
-        {
-          $group: {
-            _id: {
-              $dateToString: {
-                format: "%m",
-                date: "$problemOccurredDateAndTimeOfBM",
-                timezone: timezone,
-              },
-            },
-            hours: {
-              $sum: {
-                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              },
-            },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            array: { $push: "$$ROOT" },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            array: {
-              $map: {
-                input: allMonths,
-                as: "month",
-                in: {
-                  $cond: [
-                    { $in: ["$$month.monthInDecimal", "$array._id"] },
-                    {
-                      month: "$$month.monthName",
-                      value: {
-                        $arrayElemAt: [
-                          "$array",
-                          {
-                            $indexOfArray: [
-                              "$array._id",
-                              "$$month.monthInDecimal",
-                            ],
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      month: "$$month.monthName",
-                      value: {
-                        _id: "$$month.monthInDecimal",
-                        hours: 0,
-                      },
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        },
-        { $unwind: "$array" },
-        {
-          $replaceRoot: { newRoot: "$array" },
-        },
-        {
-          $group: {
-            _id: null,
-            labels: { $push: "$month" },
-            data: {
-              $push: "$value.hours",
-            },
-          },
-        },
-      ]);
-
       return res.status(201).json({
         message: "BDHours graph data get successfully",
         BDHours: {
-          ...BDHours?.[0],
+          ...req.BDHours?.[0],
           target: req.target,
           backgroundColor: req.target?.map((item, index) =>
-            item > BDHours?.[0]?.data?.[index] ? "green" : "red"
+            item > req.BDHours?.[0]?.data?.[index] ? "green" : "red"
           ),
         },
       });
@@ -5204,7 +5791,8 @@ router.get(
                   monthlyBDPercentageTarget: {
                     $map: {
                       input: {
-                        $objectToArray: "$allTargetData.monthlyBDPercentageTarget",
+                        $objectToArray:
+                          "$allTargetData.monthlyBDPercentageTarget",
                       },
                       as: "obj",
                       in: "$$obj.v",
@@ -5601,7 +6189,9 @@ router.post(
         },
         groupingObj: {
           count: { $push: "$requestSheets.count" },
-          sumOfBDhours: { $push: "$requestSheets.sumOfBDhours" },
+          sumOfBDhours: {
+            $push: truncValue("$requestSheets.sumOfBDhours"),
+          },
         },
         // outerMachineLevelProjection: {
         //   count: 1,
@@ -5668,7 +6258,9 @@ router.post(
             sumOfBDhours: "$sumOfBDhours",
           },
           groupingObj: {
-            sumOfBDhours: { $push: "$requestSheets.sumOfBDhours" },
+            sumOfBDhours: {
+              $push: truncValue("$requestSheets.sumOfBDhours"),
+            },
           },
           // outerMachineLevelProjection: {
           //   sumOfBDhours: 1,
@@ -6278,6 +6870,16 @@ router.get(
         {
           $unwind: "$categoriesOfRequestSheet",
         },
+
+        {
+          $match: {
+            "categoriesOfRequestSheet.subCategory": {
+              $exists: true,
+              $ne: null,
+            },
+          },
+        },
+
         {
           $group: {
             _id: {
@@ -6306,6 +6908,7 @@ router.get(
             },
           },
         },
+
         {
           $group: {
             _id: {
@@ -6313,6 +6916,7 @@ router.get(
             },
             subcategories: {
               $push: "$_id.subCategory",
+
               // count: "$count",
               // bdtime: "$bdtime",
             },
@@ -6324,10 +6928,14 @@ router.get(
             },
           },
         },
+        {
+          $limit: 2,
+        },
 
         {
           $sort: {
             "_id.category": 1,
+            // "subcategories": 1,
           },
         },
 
@@ -6344,6 +6952,7 @@ router.get(
             },
           },
         },
+
         {
           $project: {
             _id: 0,
@@ -6355,6 +6964,7 @@ router.get(
       return res.status(201).json({
         message: "Categories data in PieChart get successfully",
         categoriesPieChartData: pieChartData?.[0].categories,
+        // pieChartData
       });
     } catch (error) {
       res.status(500).json({ message: "error?.message, error" });
@@ -6569,8 +7179,6 @@ const productionHourFiltration = async (req, res, next) => {
       },
     ]);
 
-    console.log(data);
-
     req.productionHrs = data?.[0];
 
     next();
@@ -6728,7 +7336,7 @@ const middlewareForFindingPercentageData = async (req, res, next) => {
           labels: { $push: "$month" },
 
           data: {
-            $push: { $trunc: ["$value.hours", 2] },
+            $push: { $trunc: ["$value.hours", 1] },
           },
         },
       },
@@ -6736,10 +7344,13 @@ const middlewareForFindingPercentageData = async (req, res, next) => {
 
     return res.status(201).json({
       message: "BD Percentage data for Product/Line Wise KPI get successfully",
-      data: { ...getBdPercentage?.[0], target: req.targetForBdPercentage,
-         backgroundColor: req.targetForBdPercentage?.map((item, index) =>
-         getBdPercentage?.[0]?.data?.[index] <= item ? "green" : "red"
-      ), },
+      data: {
+        ...getBdPercentage?.[0],
+        target: req.targetForBdPercentage,
+        backgroundColor: req.targetForBdPercentage?.map((item, index) =>
+          getBdPercentage?.[0]?.data?.[index] <= item ? "green" : "red"
+        ),
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -6978,8 +7589,6 @@ const middlewareForFindingMTBFData = async (req, res, next) => {
       },
       {
         $group: {
-         
-
           _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
 
           count: { $sum: 1 },
@@ -7061,24 +7670,20 @@ const middlewareForFindingMTBFData = async (req, res, next) => {
           labels: { $push: "$month" },
 
           data: {
-            $push: { $trunc: ["$value.hours", 2] },
+            $push: { $trunc: ["$value.hours", 1] },
           },
-     
         },
       },
     ]);
 
-
-
     return res.status(201).json({
       message: "MTBF data in Product/Line Report get successfully",
-     
 
       data: {
         ...mtbfData?.[0],
         target: req.targetForMtbf,
         backgroundColor: req.targetForMtbf?.map((item, index) =>
-        mtbfData?.[0]?.data?.[index] >= item ? "green" : "red"
+          mtbfData?.[0]?.data?.[index] >= item ? "green" : "red"
         ),
       },
     });
@@ -7378,10 +7983,10 @@ const bdHourTrendMiddleware = async (req, res, next) => {
         $group: {
           _id: null,
 
-          lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 2] } },
+          lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
 
-          lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 2] } },
-          greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 2] } },
+          lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
+          greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
         },
       },
       {
@@ -7491,10 +8096,10 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
           _id: null,
           labels: { $push: "$month" },
 
-          lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 2] } },
+          lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
 
-          lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 2] } },
-          greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 2] } },
+          lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
+          greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
         },
       },
     ]);
@@ -7518,7 +8123,6 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
     let sectionIds;
     let sectionIdsYes;
 
-   
     if (req.params.selectedId) {
       const sections = await Section.find({
         plant_names: mongoose.Types.ObjectId(req.params.selectedId),
@@ -7563,6 +8167,8 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
 
+                count: { $sum: 1 },
+
                 sumBM: {
                   $sum: {
                     $cond: [
@@ -7582,26 +8188,6 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                     ],
                   },
                 },
-
-                // target: {
-                //   $sum: {
-                //     $cond: [
-                //       {
-                //         $gt: [
-                //           "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                //           null,
-                //         ],
-                //       },
-                //       {
-                //         $divide: [
-                //           "$maintenanceReportFilledByMTD.breakDownTime",
-                //           60,
-                //         ],
-                //       },
-                //       0,
-                //     ],
-                //   },
-                // },
               },
             },
 
@@ -7613,7 +8199,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                   $push: {
                     month: "$_id.date",
 
-                    bdTimeSum: { $trunc: ["$sumBM", 2] },
+                    bdTimeSum: req.mttrOrSumFormula,
                   },
                 },
               },
@@ -7702,6 +8288,8 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
 
+                count: { $sum: 1 },
+
                 sumBM: {
                   $sum: {
                     $cond: [
@@ -7732,7 +8320,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                   $push: {
                     month: "$_id.date",
 
-                    bdTimeSum: { $trunc: ["$sumBM", 2] },
+                    bdTimeSum: req.mttrOrSumFormula,
                   },
                 },
               },
@@ -7788,6 +8376,13 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
     const bdTrendData = [...subSectionQuery, ...sectionQuery];
 
+    //     const dataArrays = bdTrendData.map(entry => entry.data);
+
+    // const averageData = dataArrays[0].map((_, i) => {
+    //   const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+    //   return sum / (dataArrays.length - dataArrays.filter(array => array[i] === undefined).length) || 0;
+    // });
+
     return res.status(200).json({
       message: "PlantWise Monthly BD trend data for Section get successfully",
 
@@ -7813,12 +8408,6 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
         },
       },
 
-      // {
-      //   $group : {
-      //     _id : "$section_name"
-      //   }
-      // },
-
       {
         $lookup: {
           from: "requestsheetofbms",
@@ -7837,6 +8426,8 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 _id: {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
+
+                count: { $sum: 1 },
 
                 sumBM: {
                   $sum: {
@@ -7867,7 +8458,8 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 cellWiseTotal: {
                   $push: {
                     month: "$_id.date",
-                    bdTimeSum: { $trunc: ["$sumBM", 2] },
+                    bdTimeSum: { $trunc: [req.mttrOrSumFormula, 1] },
+                    // avgData: {$avg : "$sumBM" }
                   },
                 },
               },
@@ -7876,7 +8468,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
             {
               $project: {
                 _id: 0,
-                // label: 1,
+
                 data: {
                   $map: {
                     input: allMonths,
@@ -7908,6 +8500,9 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
             {
               $unwind: "$data",
             },
+            // {
+            //   $unwind: "$averageData",
+            // },
           ],
           as: "cell_data",
         },
@@ -7925,11 +8520,22 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       },
     ]);
 
+    const dataArrays = bdTrendData.map((entry) => entry.data);
+
+    const averageData = dataArrays[0].map((_, i) => {
+      const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+      return (
+        sum /
+          (dataArrays.length -
+            dataArrays.filter((array) => array[i] === undefined).length) || 0
+      );
+    });
+
     return res.status(200).json({
       message: "Cell Wise Monthly BD trend data for Section get successfully",
-
       bdTrendData,
       bdTrendDataTarget: req.target,
+      averageData,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -7969,7 +8575,7 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 _id: {
                   date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
                 },
-
+                count: { $sum: 1 },
                 sumBM: {
                   $sum: {
                     $cond: [
@@ -7999,7 +8605,7 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 lineWiseTotal: {
                   $push: {
                     month: "$_id.date",
-                    bdTimeSum: { $trunc: ["$sumBM", 2] },
+                    bdTimeSum: req.mttrOrSumFormula,
                   },
                 },
               },
@@ -8057,11 +8663,166 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       },
     ]);
 
+    const dataArrays = bdTrendData.map((entry) => entry.data);
+
+    const averageData = dataArrays[0].map((_, i) => {
+      const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+      return (
+        sum /
+          (dataArrays.length -
+            dataArrays.filter((array) => array[i] === undefined).length) || 0
+      );
+    });
+
     return res.status(200).json({
       message: "Line Wise Monthly BD trend data for line get successfully",
 
       bdTrendData,
       bdTrendDataTarget: req.target,
+      averageData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
+  try {
+    const bdTrendData = await Machine.aggregate([
+      {
+        $match: {
+          line_names: mongoose.Types.ObjectId(req.params.selectedId),
+        },
+      },
+
+      // {
+      //   $group : {
+      //     _id : "$section_name"
+      //   }
+      // },
+
+      {
+        $lookup: {
+          from: "requestsheetofbms",
+          let: { machine: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$$machine", "$machineRef"],
+                },
+              },
+            },
+
+            {
+              $group: {
+                _id: {
+                  date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+                },
+                count: { $sum: 1 },
+                sumBM: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $gt: [
+                          "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                          null,
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          60,
+                        ],
+                      },
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+
+            {
+              $group: {
+                _id: "$machine_name",
+                label: { $first: "$machine_name" },
+                machineWiseTotal: {
+                  $push: {
+                    month: "$_id.date",
+                    bdTimeSum: { $trunc: [req.mttrOrSumFormula, 1] },
+                  },
+                },
+              },
+            },
+
+            {
+              $project: {
+                _id: 0,
+                // label: 1,
+                data: {
+                  $map: {
+                    input: allMonths,
+                    as: "month",
+                    in: {
+                      $cond: [
+                        {
+                          $in: ["$$month.monthName", "$machineWiseTotal.month"],
+                        },
+                        {
+                          $arrayElemAt: [
+                            "$machineWiseTotal.bdTimeSum",
+                            {
+                              $indexOfArray: [
+                                "$machineWiseTotal.month",
+                                "$$month.monthName",
+                              ],
+                            },
+                          ],
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+
+            {
+              $unwind: "$data",
+            },
+          ],
+          as: "machine_data",
+        },
+      },
+      // {
+      //   $unwind: "$line_data",
+      // },
+
+      {
+        $project: {
+          _id: 0,
+          label: "$machine_name",
+          data: "$machine_data.data",
+        },
+      },
+    ]);
+
+    const dataArrays = bdTrendData.map((entry) => entry.data);
+
+    const averageData = dataArrays[0].map((_, i) => {
+      const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+      return (
+        sum /
+          (dataArrays.length -
+            dataArrays.filter((array) => array[i] === undefined).length) || 0
+      );
+    });
+
+    return res.status(200).json({
+      message: "Machine Wise Monthly BD trend data for line get successfully",
+
+      bdTrendData,
+      bdTrendDataTarget: req.target,
+      averageData,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -8200,10 +8961,10 @@ const targetMiddlewareForMBD = async (req, res, next) => {
       pipeline = [],
       pipelineCount = [];
 
-    if (req.params?.filter === "based-on-cell") {
+    if (req.params?.filter === "based-on-line") {
       queryObj = {
         _id: mongoose.Types.ObjectId(req.params.selectedId),
-       };
+      };
 
       pipeline = [
         {
@@ -8214,14 +8975,13 @@ const targetMiddlewareForMBD = async (req, res, next) => {
                 input: {
                   $objectToArray: "$allTargetData.monthlyBDHrsTarget",
                 },
-                as: "obj",    
+                as: "obj",
                 in: "$$obj.v",
               },
             },
           },
         },
       ];
-
     } else {
       let objCount = {
         yearTotalMBDCountTarget: {
@@ -8299,12 +9059,11 @@ const targetMiddlewareForMBD = async (req, res, next) => {
         queryObj = {
           subSection_names: mongoose.Types.ObjectId(req.params.selectedId),
         };
+      } else if (req.params?.filter === "based-on-cell") {
+        queryObj = {
+          cell_names: mongoose.Types.ObjectId(req.params.selectedId),
+        };
       }
-      // else if (req.params?.filter === "based-on-cell") {
-      //   queryObj = {
-      //     cell_names: mongoose.Types.ObjectId(req.params.selectedId),
-      //   };
-      // }
     }
 
     const target = await Line.aggregate([
@@ -8368,9 +9127,11 @@ const targetMiddlewareForMBD = async (req, res, next) => {
       ...pipelineCount,
     ]);
 
+    // console.log("target?.[0]?.monthlyTarget",target?.[0]?.monthlyTarget)
+
     req.target = target?.[0]?.monthlyTarget || [];
     // req.yearlyTarget = target?.[0]?.yearlyTarget || [];
-    req.targetForCount = targetForCount?.[0].monthlyTarget || [];
+    req.targetForCount = targetForCount?.[0]?.monthlyTarget || [];
     // req.yearlyTargetForCount = targetForCount?.[0].yearlyTarget || [];
 
     next();
@@ -8385,26 +9146,24 @@ const yearlyTargetMiddlewareForMBD = async (req, res, next) => {
 
     let queryObj = {};
 
-
-      if (req.params?.filter === "based-on-plant") {
-        queryObj = {
-          plant_names: mongoose.Types.ObjectId(req.params.selectedId),
-        };
-      } else if (req.params?.filter === "based-on-section") {
-        queryObj = {
-          section_names: mongoose.Types.ObjectId(req.params.selectedId),
-        };
-      } else if (req.params?.filter === "based-on-subSection") {
-        queryObj = {
-          subSection_names: mongoose.Types.ObjectId(req.params.selectedId),
-        };
-      }
-      // else if (req.params?.filter === "based-on-cell") {
-      //   queryObj = {
-      //     cell_names: mongoose.Types.ObjectId(req.params.selectedId),
-      //   };
-      // }
-    
+    if (req.params?.filter === "based-on-plant") {
+      queryObj = {
+        plant_names: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-section") {
+      queryObj = {
+        section_names: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-subSection") {
+      queryObj = {
+        subSection_names: mongoose.Types.ObjectId(req.params.selectedId),
+      };
+    }
+    // else if (req.params?.filter === "based-on-cell") {
+    //   queryObj = {
+    //     cell_names: mongoose.Types.ObjectId(req.params.selectedId),
+    //   };
+    // }
 
     const targetForYearlyChart = await Line.aggregate([
       {
@@ -8455,12 +9214,31 @@ const yearlyTargetMiddlewareForMBD = async (req, res, next) => {
       },
     ]);
 
-    
-
     req.currentYearlyTarget =
       targetForYearlyChart?.[0]?.yearTotalBDHrsTarget || 0;
     req.previousYearlyTarget =
       targetForYearlyChart?.[0]?.previousYearTotalBDHrsTarget || 0;
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const middlewareForMTTRKPIReport = async (req, res, next) => {
+  try {
+    req.mttrOrSumFormula = {
+      $divide: ["$sumBM", "$count"],
+    };
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+const middlewareForMonthlyBdReport = async (req, res, next) => {
+  try {
+    req.mttrOrSumFormula = { $trunc: ["$sumBM", 1] };
 
     next();
   } catch (error) {
@@ -8475,6 +9253,7 @@ router.get(
   targetMiddlewareForMBD,
   // middlewareForPlant,
   filterForMonthlyData,
+  middlewareForMonthlyBdReport,
   hourlyMonthlyBdTrendMiddleware
 );
 
@@ -8485,6 +9264,7 @@ router.get(
   targetMiddlewareForMBD,
   // middlewareForPlant,
   filterForMonthlyData,
+  middlewareForMonthlyBdReport,
   sectionMonthlyBdTrendForPlantMiddleware
 );
 
@@ -8494,6 +9274,7 @@ router.get(
   filterMiddleware,
   targetMiddlewareForMBD,
   filterForMonthlyData,
+  middlewareForMonthlyBdReport,
   cellMonthlyBdTrendForSectionMiddleware
 );
 
@@ -8503,7 +9284,47 @@ router.get(
   filterMiddleware,
   targetMiddlewareForMBD,
   filterForMonthlyData,
+  middlewareForMonthlyBdReport,
   lineMonthlyBdTrendForSectionMiddleware
+);
+
+router.get(
+  "/mttrForPlant/kpiFromDatabase/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  // targetMiddlewareForMBD,
+  // filterForMonthlyData,
+  middlewareForMTTRKPIReport,
+  sectionMonthlyBdTrendForPlantMiddleware
+);
+router.get(
+  "/mttrForSection/kpiFromDatabase/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  // targetMiddlewareForMBD,
+  // filterForMonthlyData,
+  middlewareForMTTRKPIReport,
+  cellMonthlyBdTrendForSectionMiddleware
+);
+
+router.get(
+  "/mttrForCell/kpiFromDatabase/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  // targetMiddlewareForMBD,
+  // filterForMonthlyData,
+  middlewareForMTTRKPIReport,
+  lineMonthlyBdTrendForSectionMiddleware
+);
+
+router.get(
+  "/mttrForLine/kpiFromDatabase/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  // targetMiddlewareForMBD,
+  // filterForMonthlyData,
+  middlewareForMTTRKPIReport,
+  machineMonthlyBdTrendForSectionMiddleware
 );
 
 // ---------------- Yearly BD Trend Chart -------------------
@@ -8632,10 +9453,10 @@ router.get(
           $group: {
             _id: null,
 
-            lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 2] } },
+            lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
 
-            lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 2] } },
-            greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 2] } },
+            lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
+            greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
           },
         },
       ]);
@@ -8747,7 +9568,7 @@ router.get(
                     $push: {
                       year: "$_id.date",
 
-                      bdTimeSum: { $trunc: ["$sumBM", 2] },
+                      bdTimeSum: { $trunc: ["$sumBM", 1] },
                     },
                   },
                 },
@@ -9123,7 +9944,7 @@ router.get(
                   cellWiseTotal: {
                     $push: {
                       year: "$_id.date",
-                      bdTimeSum: { $trunc: ["$sumBM", 2] },
+                      bdTimeSum: { $trunc: ["$sumBM", 1] },
                     },
                   },
                 },
@@ -9702,23 +10523,30 @@ const middlewareForLineWiseContribution = async (req, res, next) => {
 router.get(
   "/lineWiseBdContribution/:filter/:selectedId",
   authenticate,
-  middlewareForLineWiseContribution,
-  // filterMiddleware,
+  filterMiddleware,
   // BdTrendFilterMiddleware,
   async (req, res, next) => {
     try {
-      // console.log("queryObj",queryFilter)
-
-      const linewiseTotalSum = await RequestSheetOfBM.aggregate([
+      const lineWiseBDData = await RequestSheetOfBM.aggregate([
         {
           $match: req.queryObj,
         },
-
+        {
+          $lookup: {
+            from: "lines",
+            localField: "lineRef",
+            foreignField: "_id",
+            as: "line_data",
+          },
+        },
+        {
+          $unwind: "$line_data",
+        },
         {
           $group: {
-            _id: null,
-
-            totalOfLine: {
+            _id: "$line_data.line_name",
+            // totalBdTime: { $sum: "$bdTime" },
+            bdHoursLineWise: {
               $sum: {
                 $cond: [
                   {
@@ -9739,120 +10567,54 @@ router.get(
             },
           },
         },
-      ]);
-
-      const totalSumOfLines = linewiseTotalSum?.[0]?.totalOfLine;
-
-      const lineWiseBDData = await Line.aggregate([
         {
-          $match: req.queryFilter,
-        },
-        {
-          $lookup: {
-            from: "requestsheetofbms",
-            let: { line: "$_id" },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $eq: ["$$line", "$lineRef"],
-                  },
-                },
+          $group: {
+            _id: null,
+            totalBdTime: { $sum: "$bdHoursLineWise" },
+            lineData: {
+              $push: {
+                line_name: "$_id",
+                bdHoursLineWise: "$bdHoursLineWise",
               },
-              {
-                $group: {
-                  _id: null,
-
-                  bdHoursLineWise: {
-                    $sum: {
-                      $cond: [
-                        {
-                          $gt: [
-                            "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                            null,
-                          ],
-                        },
-                        {
-                          $divide: [
-                            "$maintenanceReportFilledByMTD.breakDownTime",
-                            60,
-                          ],
-                        },
-                        0,
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-            as: "line_data",
+            },
           },
         },
-
+        {
+          $unwind: "$lineData",
+        },
         {
           $project: {
-            line_name: 1,
-            sumOfLine: {
-              $cond: [
-                {
-                  $gt: [
-                    {
-                      $arrayElemAt: ["$line_data.bdHoursLineWise", 0],
-                    },
-                    null,
-                  ],
-                },
-                { $arrayElemAt: ["$line_data.bdHoursLineWise", 0] },
-                0,
-              ],
-            },
+            _id: "$lineData.line_name",
+            totalBdTime: 1,
+            bdHours: "$lineData.bdHoursLineWise",
             percentage: {
-              $divide: [
+              $multiply: [
                 {
-                  $multiply: [
-                    {
-                      $cond: [
-                        {
-                          $gt: [
-                            {
-                              $arrayElemAt: ["$line_data.bdHoursLineWise", 0],
-                            },
-                            null,
-                          ],
-                        },
-                        {
-                          $arrayElemAt: ["$line_data.bdHoursLineWise", 0],
-                        },
-                        0,
-                      ],
-                    },
-                    100,
-                  ],
+                  $divide: ["$lineData.bdHoursLineWise", "$totalBdTime"],
                 },
-                totalSumOfLines,
+                100,
               ],
             },
           },
         },
-
         {
           $sort: {
             percentage: -1,
           },
         },
+
         {
           $group: {
             _id: null,
-            lineNames: { $push: "$line_name" },
-            bdHours: { $push: "$sumOfLine" },
-            percentages: { $push: "$percentage" },
+
+            lineNames: { $push: "$_id" },
+            bdHours: { $push: { $trunc: ["$bdHours", 1] } },
+            percentages: { $push: { $trunc: ["$percentage", 1] } },
           },
         },
       ]);
-
       return res.status(200).json({
         message: "LineWise Bd contribution for Plant get successfully",
-        total: lineWiseBDData.length,
         lineWiseBDData,
       });
     } catch (error) {
@@ -9860,135 +10622,6 @@ router.get(
     }
   }
 );
-
-// router.get(
-//   "/lineWiseBdContributionForPlant",
-//   authenticate,
-//   // BdTrendFilterMiddleware,
-//   async (req, res, next) => {
-//     try {
-//       let queryObj;
-//       if (req.query?.selectedYear) {
-//         queryObj = {
-//           "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-//             req.query?.selectedYear,
-//         };
-//       }
-
-//       if (req.query?.selectedMonth) {
-//         queryObj = {
-//           ...queryObj,
-//           "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-//             req.query?.selectedMonth,
-//         };
-//       }
-
-//       const plant = await Plant.findOne({
-//         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-//       });
-
-//       queryObj = {
-//         ...queryObj,
-//         plantRef: mongoose.Types.ObjectId(plant._id),
-//       };
-
-//       // console.log(queryObj)
-
-//       const lineWiseBDData = await RequestSheetOfBM.aggregate([
-//         {
-//           $match: queryObj,
-//         },
-//         {
-//           $lookup: {
-//             from: "lines",
-//             localField: "lineRef",
-//             foreignField: "_id",
-//             as: "line_data",
-//           },
-//         },
-//         {
-//           $unwind: "$line_data",
-//         },
-//         {
-//           $group: {
-//             _id: "$line_data.line_name",
-//             // totalBdTime: { $sum: "$bdTime" },
-//             bdHoursLineWise: {
-//               $sum: {
-//                 $cond: [
-//                   {
-//                     $gt: [
-//                       "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-//                       null,
-//                     ],
-//                   },
-//                   {
-//                     $divide: [
-//                       "$maintenanceReportFilledByMTD.breakDownTime",
-//                       60,
-//                     ],
-//                   },
-//                   0,
-//                 ],
-//               },
-//             },
-//           },
-//         },
-//         {
-//           $group: {
-//             _id: null,
-//             totalBdTime: { $sum: "$bdHoursLineWise" },
-//             lineData: {
-//               $push: {
-//                 line_name: "$_id",
-//                 bdHoursLineWise: "$bdHoursLineWise",
-//               },
-//             },
-//           },
-//         },
-//         {
-//           $unwind: "$lineData",
-//         },
-//         {
-//           $project: {
-//             _id: "$lineData.line_name",
-//             totalBdTime: 1,
-//             bdHours: "$lineData.bdHoursLineWise",
-//             percentage: {
-//               $multiply: [
-//                 {
-//                   $divide: ["$lineData.bdHoursLineWise", "$totalBdTime"],
-//                 },
-//                 100,
-//               ],
-//             },
-//           },
-//         },
-//         {
-//           $sort: {
-//             percentage: -1,
-//           },
-//         },
-
-//         {
-//           $group: {
-//             _id: null,
-
-//             lineNames: { $push: "$_id" },
-//             bdHours: { $push: { $trunc: ["$bdHours", 1] } },
-//             percentages: { $push: { $trunc: ["$percentage", 1] } },
-//           },
-//         },
-//       ]);
-//       return res.status(200).json({
-//         message: "LineWise Bd contribution for Plant get successfully",
-//         lineWiseBDData,
-//       });
-//     } catch (error) {
-//       res.status(500).json({ message: error?.message, error });
-//     }
-//   }
-// );
 
 // router.get(
 //   "/lineWiseBdContributionForSection/:filter/:selectedId",
@@ -10211,24 +10844,22 @@ router.get(
   bdHourTrendMiddleware,
   async (req, res, next) => {
     try {
-
-     
       let MTBF_monthlyFilterQueryPipeline = [],
         mtbfCalculation = {
           $divide: [
             {
-          $divide: [
-            {
-              $subtract: [
-                req.productionHrs?.yearTotalProductionHrs,
-                "$bdHours",
+              $divide: [
+                {
+                  $subtract: [
+                    req.productionHrs?.yearTotalProductionHrs,
+                    "$bdHours",
+                  ],
+                },
+                "$count",
               ],
             },
-            "$count",
+            24,
           ],
-        },
-        24,
-      ],
         },
         groupingObj = {
           groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
@@ -10268,43 +10899,43 @@ router.get(
         mtbfCalculation = {
           $divide: [
             {
-$divide: [
-            {
-              $subtract: [
+              $divide: [
                 {
-                  $getField: {
-                    field: "v",
-                    input: {
-                      $arrayElemAt: [
-                        {
-                          $filter: {
-                            input: {
-                              $objectToArray: req.productionHrs,
+                  $subtract: [
+                    {
+                      $getField: {
+                        field: "v",
+                        input: {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input: {
+                                  $objectToArray: req.productionHrs,
+                                },
+                                as: "monthlyProduction",
+                                cond: {
+                                  $eq: [
+                                    "$$monthlyProduction.k",
+                                    "$_id.groupId",
+                                  ],
+                                },
+                              },
                             },
-                            as: "monthlyProduction",
-                            cond: {
-                              $eq: ["$$monthlyProduction.k", "$_id.groupId"],
-                            },
-                          },
+                            0,
+                          ],
                         },
-                        0,
-                      ],
+                      },
                     },
-                  },
+                    "$bdHours",
+                  ],
                 },
-                "$bdHours",
+                "$count",
               ],
             },
-            "$count",
+            24,
           ],
-        },
-        24,
-      ],
-
         };
       }
-
-   
 
       const machineHistoryCardData = await RequestSheetOfBM.aggregate([
         { $match: queryObj },
@@ -10325,7 +10956,7 @@ $divide: [
                     $divide: [
                       "$maintenanceReportFilledByMTD.breakDownTime",
                       60,
-                    ],    
+                    ],
                   },
                   0,
                 ],
@@ -10466,7 +11097,7 @@ $divide: [
         //               branches: [
         //                 {
         //                   case: { $eq: ["$$label", "<1"] },
-        //                   then: "$lessThanOne",            
+        //                   then: "$lessThanOne",
         //                 },
         //                 {
         //                   case: { $eq: ["$$label", "<2"] },
@@ -10583,9 +11214,6 @@ router.get(
 
     // console.log(MTBF_monthlyFilterQueryPipeline);
     try {
-      
-
-      
       let cells,
         bdHoursFormula = {
           $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
@@ -10594,18 +11222,18 @@ router.get(
         mtbfCalculation = {
           $divide: [
             {
-          $divide: [
-            {
-              $subtract: [
-                req.productionHrs?.yearTotalProductionHrs,
-                "$bdHours",
+              $divide: [
+                {
+                  $subtract: [
+                    req.productionHrs?.yearTotalProductionHrs,
+                    "$bdHours",
+                  ],
+                },
+                "$count",
               ],
             },
-            "$count",
+            24,
           ],
-        },
-        24,
-      ],
         },
         groupingObj = {
           groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
@@ -10658,38 +11286,41 @@ router.get(
         mtbfCalculation = {
           $divide: [
             {
-          $divide: [
-            {
-              $subtract: [
+              $divide: [
                 {
-                  $getField: {
-                    field: "v",
-                    input: {
-                      $arrayElemAt: [
-                        {
-                          $filter: {
-                            input: {
-                              $objectToArray: req.productionHrs,
+                  $subtract: [
+                    {
+                      $getField: {
+                        field: "v",
+                        input: {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input: {
+                                  $objectToArray: req.productionHrs,
+                                },
+                                as: "monthlyProduction",
+                                cond: {
+                                  $eq: [
+                                    "$$monthlyProduction.k",
+                                    "$_id.groupId",
+                                  ],
+                                },
+                              },
                             },
-                            as: "monthlyProduction",
-                            cond: {
-                              $eq: ["$$monthlyProduction.k", "$_id.groupId"],
-                            },
-                          },
+                            0,
+                          ],
                         },
-                        0,
-                      ],
+                      },
                     },
-                  },
+                    "$bdHours",
+                  ],
                 },
-                "$bdHours",
+                "$count",
               ],
             },
-            "$count",
+            24,
           ],
-        },
-        24,
-      ],
         };
       }
 
@@ -10848,14 +11479,14 @@ router.get(
               _id: "$_id",
               month: { $push: "$array.month" },
               lessThanOne: {
-                $push: { $trunc: ["$array.value.lessThanOne", 2] },
+                $push: { $trunc: ["$array.value.lessThanOne", 1] },
               },
 
               lessThanTwo: {
-                $push: { $trunc: ["$array.value.lessThanTwo", 2] },
+                $push: { $trunc: ["$array.value.lessThanTwo", 1] },
               },
               greaterThanTwo: {
-                $push: { $trunc: ["$array.value.greaterThanTwo", 2] },
+                $push: { $trunc: ["$array.value.greaterThanTwo", 1] },
               },
             },
           },
@@ -11002,6 +11633,8 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
   try {
     const hourToMin = req?.query?.time * 60;
 
+    // console.log("TMPROGRESSqueryObj", req.queryObj);
+
     const tmProgress = await RequestSheetOfBM.aggregate([
       {
         $match: {
@@ -11012,16 +11645,16 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
             { handOverUser: mongoose.Types.ObjectId(req?.params?.tmId) },
           ],
 
-          $and: [
-            // {
-            //   "maintenanceReportFilledByMTD.workEndedDateOfBM": { $gt: null },
-            // },
-            {
-              "maintenanceReportFilledByMTD.breakDownTime": {
-                $lt: hourToMin || 120,
-              },
-            },
-          ],
+          // $and: [
+          //   // {
+          //   //   "maintenanceReportFilledByMTD.workEndedDateOfBM": { $gt: null },
+          //   // },
+          //   {
+          //     "maintenanceReportFilledByMTD.breakDownTime": {
+          //       $lt: hourToMin || 120,
+          //     },
+          //   },
+          // ],
         },
       },
       {
@@ -11122,7 +11755,7 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
           labels: { $push: "$month" },
 
           data: {
-            $push: { $trunc: ["$value.hours", 2] },
+            $push: { $trunc: ["$value.hours", 1] },
           },
         },
       },
@@ -11130,7 +11763,7 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
 
     return res.status(201).json({
       message: "Tm progress Data get successsully!",
-
+      // dataLength: tmProgress.length,
       data: tmProgress?.[0],
     });
   } catch (error) {
@@ -11149,295 +11782,133 @@ const responseMiddlewareForMTTRSkillReport = async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
-const middlewareForMttrTrend = async (req, res, next) => {
-  try {
-    let selectedId = {
-      _id: mongoose.Types.ObjectId(req.params?.selectedId),
-    };
+// const middlewareForMttrTrend = async (req, res, next) => ;
 
-    let pipelineForUser = [],
-      queryObj = {
-        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-          req.query?.selectedYear,
-      };
+router.get(
+  "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      const hourToMin = req?.query?.time * 60;
+      // queryObj = {
+      //   ...queryObj,
 
-    if (req.query?.selectedMonth) {
-      queryObj = {
-        ...queryObj,
-        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-          req.query?.selectedMonth,
-      };
-    }
+      //   $and: [
+      //     // {
+      //     //   "maintenanceReportFilledByMTD.workEndedDateOfBM": { $gt: null },
+      //     // },
+      //     {
+      //       "maintenanceReportFilledByMTD.breakDownTime": {
+      //         $lt: hourToMin || 120,
+      //       },
+      //     },
+      //   ],
+      // };
 
-    if (req.params?.filter === "based-on-section") {
-      const section = await Section.findOne(selectedId);
+      // console.log("TRENDqueryObj", req.queryObj);
 
-      pipelineForUser = [
+      const mttrTrend = await RequestSheetOfBM.aggregate([
+        // ...pipelineForUser,
+
         {
-          $match: {
-            section_data: `${section?.section_id}-${section?.section_name}`,
-          },
+          $match: req.queryObj,
         },
-      ];
 
-      queryObj = {
-        ...queryObj,
-        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
-      };
-    } else if (req.params?.filter === "based-on-subSection") {
-      const subSection = await SubSection.findOne(selectedId);
-
-      pipelineForUser = [
         {
-          $match: {
-            subSection_data: `${subSection?.subSection_id}-${subSection?.subSection_name}`,
-          },
-        },
-      ];
-
-      queryObj = {
-        ...queryObj,
-        subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
-      };
-    } else if (req.params?.filter === "based-on-cell") {
-      const cell = await Cell.findOne(selectedId);
-
-      pipelineForUser = [
-        {
-          $match: {
-            cell_data: `${cell?.cell_id}-${cell?.cell_name}`,
-          },
-        },
-      ];
-
-      queryObj = {
-        ...queryObj,
-        cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
-      };
-    }
-
-    const hourToMin = req?.query?.time * 60;
-    queryObj = {
-      ...queryObj,
-
-      $and: [
-        // {
-        //   "maintenanceReportFilledByMTD.workEndedDateOfBM": { $gt: null },
-        // },
-        {
-          "maintenanceReportFilledByMTD.breakDownTime": {
-            $lt: hourToMin || 120,
-          },
-        },
-      ],
-    };
-
-    // console.log(" matchQuery", matchQuery);
-
-    const result = await req.Model.findOne(req.findObj);
-
-    const tmLoadData = await User.aggregate([
-      ...pipelineForUser,
-
-      {
-        $lookup: {
-          from: "requestsheetofbms",
-          let: { userNo: "$_id" },
-          pipeline: [
-            {
-              $match: queryObj,
+          $addFields: {
+            allUserVarForGrouping: {
+              $setUnion: [["$assignUser"], ["$handOverUser"], "$supportingTM"],
             },
+          },
+        },
+        { $unwind: "$allUserVarForGrouping" },
 
-            {
-              $addFields: {
-                allUserVarForGrouping: {
-                  $setUnion: [
-                    ["$assignUser"],
-                    ["$handOverUser"],
-                    "$supportingTM",
-                  ],
-                },
-              },
-            },
-            { $unwind: "$allUserVarForGrouping" },
-            {
-              $match: {
-                $expr: {
-                  $eq: ["$$userNo", "$allUserVarForGrouping"],
-                },
-              },
-            },
-            {
-              $group: {
-                _id: null,
-                count: { $sum: 1 },
-                // machines: { $push: "$machineRef" },
-                sumOfBM: {
-                  $sum: {
-                    $cond: [
+        {
+          $lookup: {
+            from: "users",
+            localField: "allUserVarForGrouping",
+            foreignField: "_id",
+            as: "user_data",
+          },
+        },
+
+        {
+          $unwind: "$user_data",
+        },
+
+        {
+          $group: {
+            _id: "$user_data.tm_name",
+            count: { $sum: 1 },
+            // machines: { $push: "$machineRef" },
+            sumOfBM: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
                       {
-                        $and: [
-                          {
-                            $gt: [
-                              "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                              null,
-                            ],
-                          },
-                          {
-                            $lt: [
-                              "$maintenanceReportFilledByMTD.breakDownTime",
-                              hourToMin || 120,
-                            ],
-                          },
+                        $gt: [
+                          "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                          null,
                         ],
                       },
                       {
-                        $divide: [
+                        $lt: [
                           "$maintenanceReportFilledByMTD.breakDownTime",
-                          60,
+                          hourToMin || 120,
                         ],
                       },
-                      0,
                     ],
                   },
-                },
-              },
-            },
-          ],
-          as: "requestSheet",
-        },
-      },
-
-      {
-        $unwind: "$requestSheet",
-      },
-      {
-        $project: {
-          tm_name: 1,
-          tm_no: 1,
-          score: {
-            $getField: {
-              field: "score",
-              input: {
-                $arrayElemAt: [
                   {
-                    $filter: {
-                      input: result?.TmMttrSkillScoresAndLimit,
-                      as: "item",
-                      cond: {
-                        $and: [
-                          {
-                            $gte: [
-                              {
-                                $divide: [
-                                  "$requestSheet.sumOfBM",
-                                  "$requestSheet.count",
-                                ],
-                              },
-                              "$$item.from",
-                            ],
-                          },
-                          {
-                            $lt: [
-                              {
-                                $divide: [
-                                  "$requestSheet.sumOfBM",
-                                  "$requestSheet.count",
-                                ],
-                              },
-                              "$$item.to",
-                            ],
-                          },
-                        ],
-                      },
-                      limit: 1,
-                    },
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
                   },
                   0,
                 ],
               },
             },
           },
+        },
 
-          "requestSheet.count": 1,
-          hours: {
-            $divide: ["$requestSheet.sumOfBM", "$requestSheet.count"],
+        {
+          $project: {
+            _id: 1,
+
+            hours: {
+              $divide: ["$sumOfBM", "$count"],
+            },
           },
         },
-      },
-      // {
-      //   $group: {
-      //     _id: null,
-      //     array: { $push: "$$ROOT" },
-      //   },
-      // },
-      // {
-      //   $project: {
-      //     _id: 0,
-      //     array: {
-      //       $map: {
-      //         input: allMonths,
-      //         as: "month",
-      //         in: {
-      //           $cond: [
-      //             { $in: ["$$month.monthInDecimal", "$array._id"] },
-      //             {
-      //               month: "$$month.monthName",
-      //               value: {
-      //                 $arrayElemAt: [
-      //                   "$array",
-      //                   {
-      //                     $indexOfArray: [
-      //                       "$array._id",
-      //                       "$$month.monthInDecimal",
-      //                     ],
-      //                   },
-      //                 ],
-      //               },
-      //             },
-      //             {
-      //               month: "$$month.monthName",
-      //               value: {
-      //                 _id: "$$month.monthInDecimal",
-      //                 count: 0,
-      //                 hours: 0,
-      //                 target: 0,
-      //               },
-      //             },
-      //           ],
-      //         },
-      //       },
-      //     },
-      //   },
-      // },
-      // { $unwind: "$array" },
-      // {
-      //   $replaceRoot: { newRoot: "$array" },
-      // },
-      {
-        $group: {
-          _id: null,
-          tm_names: {
-            $push: "$tm_name",
-          },
 
-          data: {
-            $push: { $trunc: ["$hours", 2] },
-          },
+        {
+          $group: {
+            _id: null,
+            tm_names: {
+              $push: "$_id",
+            },
 
-          pieChartData: { $push: "$$ROOT" },
+            data: {
+              $push: { $trunc: ["$hours", 1] },
+            },
+
+            pieChartData: { $push: "$$ROOT" },
+          },
         },
-      },
-    ]);
+      ]);
 
-    return res.status(201).json({
-      message: "TM Mttr Trend data get successfully",
-      data: tmLoadData?.[0],
-    });
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
+      return res.status(201).json({
+        message: "TM Mttr Trend data get successfully",
+        data: mttrTrend?.[0],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
   }
-};
+);
 
 const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
   try {
@@ -11465,12 +11936,12 @@ const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
   }
 };
 
-router.get(
-  "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
-  authenticate,
-  sectionOrSubSectionFilterMiddleware,
-  middlewareForMttrTrend
-);
+// router.get(
+//   "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
+//   authenticate,
+//   sectionOrSubSectionFilterMiddleware,
+//   middlewareForMttrTrend
+// );
 
 const filterMiddlewareForTmMTTR = async (req, res, next) => {
   try {
@@ -11601,6 +12072,17 @@ const altfindTLandOperatorList = async (req, res, next) => {
 
     let altTmUsers = [];
 
+    if (req.params?.filter === "based-on-section") {
+      const section = await Section.findOne(findId);
+
+      altTmUsers = [
+        {
+          // $match: {
+          section_data: `${section?.section_id}-${section?.section_name}`,
+          // },
+        },
+      ];
+    }
     if (req.params?.filter === "based-on-subSection") {
       const section = await SubSection.findOne(findId);
 
@@ -11624,7 +12106,7 @@ const altfindTLandOperatorList = async (req, res, next) => {
       ];
     }
 
-    // console.log(altTmUsers);
+    // console.log("altTmUsers",altTmUsers);
 
     let TLHOSS_and_TM_user_list = await User.find(
       {
@@ -11642,6 +12124,11 @@ const altfindTLandOperatorList = async (req, res, next) => {
           {
             $or: [
               {
+                section_data: {
+                  $in: altTmUsers.map((tm) => tm.section_data),
+                },
+              },
+              {
                 subSection_data: {
                   $in: altTmUsers.map((tm) => tm.subSection_data),
                 },
@@ -11653,10 +12140,12 @@ const altfindTLandOperatorList = async (req, res, next) => {
               },
             ],
           },
+
           // {
           //   $and: [
           //     {
           //       user_type: "TL/HOSS",
+          //
           //     },
           //     {
           //       tm_department: "MTD",
@@ -11711,6 +12200,21 @@ router.get(
   middlewareForFindingTmProgressData
 );
 
+router.delete("/deleteRequestSheet/:id", async (req, res, next) => {
+  try {
+    const deletedReqSheet = await RequestSheetOfBM.findByIdAndDelete(
+      req.params.id
+    );
+
+    return res.status(201).json({
+      message: "RequestSheet Deleted successfully",
+      deletedReqSheet,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+});
+
 const middlewareForFindingMaxValue = async (req, res, next) => {
   try {
     const maxScore = await req.Model.aggregate([
@@ -11732,6 +12236,7 @@ const middlewareForFindingMaxValue = async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
+
 router.get(
   "/tmMTTRSkill/getScore",
   authenticate,
@@ -11864,91 +12369,693 @@ const topFilterMiddleware = async (req, res, next) => {
 };
 
 router.get(
-  "/topMachineBreakdown/:filter/:selectedId",
-  authenticate,
-  filterMiddleware,
+  "/getYearGroup/machineAge",
+  sectionOrSubSectionFilterMiddleware,
   async (req, res, next) => {
     try {
-      const topMachineBd = await Machine.aggregate([
+      const getYearGroup = await req.Model.findOne(req.findObj);
+
+      return res.status(201).json({
+        message: "Year Group get successfully",
+
+        yearGroups: getYearGroup?.yearGroup,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.post(
+  "/addYearGroup/machineAge",
+  sectionOrSubSectionFilterMiddleware,
+  async (req, res, next) => {
+    try {
+      const machine = await req.Model.findOneAndUpdate(
+        req.findObj,
         {
-          $match: {
-            $or: [
-              {
-                subSection_names: mongoose.Types.ObjectId(req.params.selectedId),
-              },
-              { section_names: mongoose.Types.ObjectId(req.params.selectedId) },
-              { cell_names: mongoose.Types.ObjectId(req.params.selectedId) },
-              { subSection_names: mongoose.Types.ObjectId(req.params.selectedId) },
-              { line_names: mongoose.Types.ObjectId(req.params.selectedId) },
-            ],
-            
+          $push: { yearGroup: req.body },
+        },
+        { new: true }
+      );
+
+      return res.status(201).json({
+        message: "Year Group added successfully",
+        yearGroup: machine?.yearGroup,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.patch(
+  "/updateYearGroup/machineAge/:id",
+  sectionOrSubSectionFilterMiddleware,
+  async (req, res, next) => {
+    try {
+      const { group, from, to } = req.body;
+
+      const yearGroup = await req.Model.findOneAndUpdate(
+        req.findObj,
+        {
+          $set: {
+            "yearGroup.$[outer].group": group,
+            "yearGroup.$[outer].from": from,
+            "yearGroup.$[outer].to": to,
           },
         },
+        {
+          arrayFilters: [
+            { "outer._id": mongoose.Types.ObjectId(req.params?.id) },
+          ],
+        }
+      );
 
+      return res.status(201).json({
+        message: "Year Group updated successfully",
+        yearGroup,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.delete(
+  "/deleteYearGroup/machineAge/:id",
+  sectionOrSubSectionFilterMiddleware,
+  async (req, res, next) => {
+    try {
+      const yearGroup = await req.Model.findOneAndUpdate(req.findObj, {
+        $pull: {
+          yearGroup: {
+            _id: mongoose.Types.ObjectId(req.params.id),
+          },
+        },
+      });
+
+      return res.status(201).json({
+        message: "Year Group deleted successfully",
+
+        yearGroup,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+const middlewareForMachineAgeLookup = async (req, res, next) => {
+  try {
+    let queryObjPipeline = [];
+
+    if (req.params?.filter === "based-on-section") {
+      queryObjPipeline = [
         {
           $lookup: {
-            from: "requestsheetofbms",
-            let: { machine: "$_id" },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $eq: ["$$machine", "$machineRef"],
-                  },
-                },
-              },
-              {
-                $group: {
-                  _id: null,
-
-                  bdHoursmachineWise: {
-                    $sum: {
-                      $cond: [
-                        {
-                          $gt: [
-                            "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                            null,
-                          ],
-                        },
-                        {
-                          $divide: [
-                            "$maintenanceReportFilledByMTD.breakDownTime",
-                            60,
-                          ],
-                        },
-                        0,
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-            as: "machine_data",
+            from: "sections",
+            localField: "sectionRef",
+            foreignField: "_id",
+            as: "section_data",
           },
         },
-
         {
-          $project: {
-            machine_code: 1,
-            sumOfmachine: {
+          $unwind: "$section_data",
+        },
+      ];
+    }
+    if (req.params?.filter === "based-on-subSection") {
+      queryObjPipeline = [
+        {
+          $lookup: {
+            from: "subsections",
+            localField: "subSectionRef",
+            foreignField: "_id",
+            as: "section_data",
+          },
+        },
+        {
+          $unwind: "$section_data",
+        },
+      ];
+    }
+
+    req.queryObjPipeline = queryObjPipeline;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+router.get(
+  "/getMachineAgeMonthwise/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  middlewareForMachineAgeLookup,
+  async (req, res, next) => {
+    const currentDate = new Date();
+
+    // console.log("currentDate", currentDate);
+
+    const machineData = await RequestSheetOfBM.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          as: "machine_data",
+        },
+      },
+      {
+        $unwind: "$machine_data",
+      },
+
+      ...req.queryObjPipeline,
+      // {
+      //   $lookup: {
+      //     from: "sections",
+      //     localField: "sectionRef",
+      //     foreignField: "_id",
+      //     as: "section_data",
+      //   },
+      // },
+      // {
+      //   $unwind: "$section_data",
+      // },
+      {
+        $addFields: {
+          installationDate: {
+            $dateFromString: {
+              dateString: "$machine_data.installation_date",
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          yearDifference: {
+            $dateDiff: {
+              startDate: "$installationDate",
+              endDate: currentDate,
+              unit: "year",
+              timezone: timezone,
+            },
+          },
+        },
+      },
+
+      {
+        $addFields: {
+          groupName: {
+            $arrayElemAt: [
+              {
+                $map: {
+                  input: {
+                    $filter: {
+                      input: "$section_data.yearGroup",
+                      as: "group",
+                      cond: {
+                        $and: [
+                          { $gte: ["$yearDifference", "$$group.from"] },
+                          { $lte: ["$yearDifference", "$$group.to"] },
+                        ],
+                      },
+                    },
+                  },
+                  as: "matchedGroup",
+                  in: "$$matchedGroup.group",
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+
+      {
+        $match: {
+          groupName: { $exists: true, $ne: null },
+        },
+      },
+
+      {
+        $group: {
+          _id: {
+            groupName: "$groupName",
+            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+          },
+
+          bdHoursmachineWise: {
+            $sum: {
               $cond: [
                 {
                   $gt: [
-                    {
-                      $arrayElemAt: ["$machine_data.bdHoursmachineWise", 0],
-                    },
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
                     null,
                   ],
                 },
-                { $arrayElemAt: ["$machine_data.bdHoursmachineWise", 0] },
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+                },
                 0,
               ],
             },
           },
         },
+      },
+
+      {
+        $group: {
+          _id: "$_id.groupName",
+          label: { $first: "$_id.groupName" },
+          bdHoursmachineWiseTotal: {
+            $push: {
+              month: "$_id.date",
+              bdTimeSum: { $trunc: ["$bdHoursmachineWise", 1] },
+            },
+          },
+        },
+      },
+
+      {
+        $sort: { _id: 1 },
+      },
+
+      {
+        $project: {
+          _id: 1,
+          label: 1,
+          data: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  {
+                    $in: [
+                      "$$month.monthName",
+                      "$bdHoursmachineWiseTotal.month",
+                    ],
+                  },
+                  {
+                    $arrayElemAt: [
+                      "$bdHoursmachineWiseTotal.bdTimeSum",
+                      {
+                        $indexOfArray: [
+                          "$bdHoursmachineWiseTotal.month",
+                          "$$month.monthName",
+                        ],
+                      },
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      },
+    ]);
+
+    // console.log(machineData);
+
+    return res.status(201).json({
+      message: "Monthwise Machine Age data get successfully",
+      machineData,
+    });
+  }
+);
+
+router.get(
+  "/getMachineAgeYearwise/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  middlewareForMachineAgeLookup,
+  async (req, res, next) => {
+    const currentDate = new Date();
+
+    const machineData = await RequestSheetOfBM.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          as: "machine_data",
+        },
+      },
+      {
+        $unwind: "$machine_data",
+      },
+
+      ...req.queryObjPipeline,
+
+      {
+        $addFields: {
+          installationDate: {
+            $dateFromString: {
+              dateString: "$machine_data.installation_date",
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          yearDifference: {
+            $dateDiff: {
+              startDate: "$installationDate",
+              endDate: currentDate,
+              unit: "year",
+              timezone: timezone,
+            },
+          },
+        },
+      },
+
+      {
+        $addFields: {
+          groupName: {
+            $arrayElemAt: [
+              {
+                $map: {
+                  input: {
+                    $filter: {
+                      input: "$section_data.yearGroup",
+                      as: "group",
+                      cond: {
+                        $and: [
+                          { $gte: ["$yearDifference", "$$group.from"] },
+                          { $lte: ["$yearDifference", "$$group.to"] },
+                        ],
+                      },
+                    },
+                  },
+                  as: "matchedGroup",
+                  in: "$$matchedGroup.group",
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $match: {
+          groupName: { $exists: true, $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            groupName: "$groupName",
+            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
+          },
+          bdHoursmachineWise: {
+            $sum: {
+              $cond: [
+                {
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
+                  ],
+                },
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+                },
+                0,
+              ],
+            },
+          },
+        },
+      },
+
+      { $sort: { "_id.groupName": 1 } },
+
+      {
+        $group: {
+          _id: null,
+          label: { $push: "$_id.groupName" },
+          data: { $push: { $trunc: ["$bdHoursmachineWise", 1] } },
+        },
+      },
+    ]);
+
+    // console.log(machineData);
+
+    return res.status(201).json({
+      message: "Yearwise Machine Age data get successfully",
+      machineData,
+    });
+  }
+);
+
+router.get(
+  "/getMachineAgePieChart/:filter/:selectedId/:groupId",
+  authenticate,
+  filterMiddleware,
+  middlewareForMachineAgeLookup,
+  async (req, res, next) => {
+    const currentDate = new Date();
+
+    const machineData = await RequestSheetOfBM.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          as: "machine_data",
+        },
+      },
+      {
+        $unwind: "$machine_data",
+      },
+
+      ...req.queryObjPipeline,
+
+      {
+        $addFields: {
+          installationDate: {
+            $dateFromString: {
+              dateString: "$machine_data.installation_date",
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          yearDifference: {
+            $dateDiff: {
+              startDate: "$installationDate",
+              endDate: currentDate,
+              unit: "year",
+              timezone: timezone,
+            },
+          },
+        },
+      },
+
+      {
+        $addFields: {
+          groupName: {
+            $arrayElemAt: [
+              {
+                $map: {
+                  input: {
+                    $filter: {
+                      input: "$section_data.yearGroup",
+                      as: "group",
+                      cond: {
+                        $and: [
+                          { $gte: ["$yearDifference", "$$group.from"] },
+                          { $lte: ["$yearDifference", "$$group.to"] },
+                        ],
+                      },
+                    },
+                  },
+                  as: "matchedGroup",
+                  in: "$$matchedGroup",
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+
+      {
+        $match: {
+          "groupName._id": mongoose.Types.ObjectId(req?.params?.groupId),
+        },
+      },
+
+      {
+        $unwind: "$categoriesOfRequestSheet",
+      },
+
+      {
+        $group: {
+          _id: {
+            groupName: "$groupName.group",
+            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
+            category: "$categoriesOfRequestSheet.category",
+            subCategory: "$categoriesOfRequestSheet.subCategory",
+          },
+          count: { $sum: 1 },
+          bdtime: {
+            $sum: {
+              $cond: [
+                {
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
+                  ],
+                },
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+                },
+                0,
+              ],
+            },
+          },
+        },
+      },
+
+      {
+        $group: {
+          _id: {
+            category: "$_id.category",
+          },
+          subcategories: {
+            $push: "$_id.subCategory",
+            // count: "$count",
+            // bdtime: "$bdtime",
+          },
+          bdCount: {
+            $push: "$count",
+          },
+          bdTime: {
+            $push: "$bdtime",
+          },
+        },
+      },
+      {
+        $limit: 2,
+      },
+
+      {
+        $sort: {
+          "_id.category": 1,
+        },
+      },
+
+      {
+        $group: {
+          _id: null,
+          categories: {
+            $push: {
+              category: "$_id.category",
+              subcategories: "$subcategories",
+              bdCount: "$bdCount",
+              bdTime: "$bdTime",
+            },
+          },
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          categories: 1,
+        },
+      },
+    ]);
+
+    // console.log(machineData);
+
+    return res.status(201).json({
+      message: "Machine Age data for Piechart get successfully",
+      data: machineData?.[0]?.categories,
+    });
+  }
+);
+
+router.get(
+  "/getYearGroupsDropdown",
+  authenticate,
+  sectionOrSubSectionFilterMiddleware,
+  async (req, res, next) => {
+    try {
+      const yearDropdown = await req.Model.findOne(req.findObj);
+
+      // console.log(yearDropdown)
+      return res.status(201).json({
+        message: "YearGroup Dropdown data get successfully",
+        data: yearDropdown?.yearGroup,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/topMachineBreakdown/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      const topMachineBd = await RequestSheetOfBM.aggregate([
+        { $match: req.queryObj },
 
         {
-          $sort: { sumOfmachine: -1 },
+          $lookup: {
+            from: "machinesalldatas",
+            localField: "machineRef",
+            foreignField: "_id",
+            as: "machine_data",
+          },
+        },
+
+        {
+          $unwind: "$machine_data",
+        },
+
+        {
+          $group: {
+            _id: "$machine_data.machine_name",
+            count: { $sum: 1 },
+            machine_hours: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+        {
+          $sort: { machine_hours: -1 },
         },
         {
           $limit: req.query?.documentLimitInTheGraph * 1,
@@ -11956,11 +13063,109 @@ router.get(
         {
           $group: {
             _id: null,
-            labels: { $push: "$machine_code" },
-            data: { $push: "$sumOfmachine" },
+            labels: { $push: "$_id" },
+            data: { $push: "$machine_hours" },
           },
         },
       ]);
+
+      // const topMachineBd = await Machine.aggregate([
+      //   {
+      //     $match: {
+      //       $or: [
+      //         {
+      //           subSection_names: mongoose.Types.ObjectId(
+      //             req.params.selectedId
+      //           ),
+      //         },
+      //         { section_names: mongoose.Types.ObjectId(req.params.selectedId) },
+      //         { cell_names: mongoose.Types.ObjectId(req.params.selectedId) },
+      //         {
+      //           subSection_names: mongoose.Types.ObjectId(
+      //             req.params.selectedId
+      //           ),
+      //         },
+      //         { line_names: mongoose.Types.ObjectId(req.params.selectedId) },
+      //       ],
+      //     },
+      //   },
+
+      //   {
+      //     $lookup: {
+      //       from: "requestsheetofbms",
+      //       let: { machine: "$_id" },
+      //       pipeline: [
+      //         {
+      //           $match: {
+      //             $expr: {
+      //               $eq: ["$$machine", "$machineRef"],
+      //             },
+      //           },
+      //         },
+      //         {
+      //           $group: {
+      //             _id: null,
+
+      //             bdHoursmachineWise: {
+      //               $sum: {
+      //                 $cond: [
+      //                   {
+      //                     $gt: [
+      //                       "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+      //                       null,
+      //                     ],
+      //                   },
+      //                   {
+      //                     $divide: [
+      //                       "$maintenanceReportFilledByMTD.breakDownTime",
+      //                       60,
+      //                     ],
+      //                   },
+      //                   0,
+      //                 ],
+      //               },
+      //             },
+      //           },
+      //         },
+      //       ],
+      //       as: "machine_data",
+      //     },
+      //   },
+
+      //   {
+      //     $project: {
+      //       machine_code: 1,
+      //       sumOfmachine: {
+      //         $cond: [
+      //           {
+      //             $gt: [
+      //               {
+      //                 $arrayElemAt: ["$machine_data.bdHoursmachineWise", 0],
+      //               },
+      //               null,
+      //             ],
+      //           },
+      //           { $arrayElemAt: ["$machine_data.bdHoursmachineWise", 0] },
+      //           0,
+      //         ],
+      //       },
+      //     },
+      //   },
+
+      //   {
+      //     $sort: { sumOfmachine: -1 },
+      //   },
+      //   {
+      //     $limit: req.query?.documentLimitInTheGraph * 1,
+      //   },
+      //   {
+      //     $group: {
+      //       _id: null,
+      //       labels: { $push: "$machine_code" },
+      //       data: { $push: "$sumOfmachine" },
+      //     },
+      //   },
+      // ]);
       return res.status(201).json({
         message: "Top Machine Breakdown data get successfully",
         topMachineBd: topMachineBd?.[0],
@@ -12127,7 +13332,7 @@ const middlewareForFindingTrendData = async (req, res, next) => {
       {
         $project: {
           count: 1,
-          hours: req.hourCalculationFormula,
+          hours: truncValue(req.hourCalculationFormula),
         },
       },
       {
@@ -12268,8 +13473,8 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
       {
         $project: {
           lineName: "$line.line_name",
-          target: "$line.target",
-          hours: req.hourCalculationFormula,
+          target: truncValue("$line.target"),
+          hours: truncValue(req.hourCalculationFormula),
         },
       },
       {
@@ -12355,7 +13560,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
       {
         $project: {
           machine: 1,
-          hours: req.hourCalculationFormula,
+          hours: truncValue(req.hourCalculationFormula),
         },
       },
       {
@@ -12369,7 +13574,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
       {
         $group: {
           _id: null,
-          machineId: { $push: "$machine.machine" },
+          machineId: { $push: "$machine._id" },
           labels: { $push: "$machine.machine_code" },
           data: { $push: "$hours" },
         },
@@ -12427,6 +13632,8 @@ const responseMiddlewareForReport = async (req, res, next) => {
   try {
     return res.status(201).json({
       message: req.message,
+      total: req?.TrendData?.length,
+      another: req?.TrendData,
       data: req?.TrendData?.[0],
     });
   } catch (error) {
@@ -12619,6 +13826,7 @@ router.get(
 router.patch(
   "/approveRequestSheetFromHigherAuthority/:reqId/:machineRef",
   authenticate,
+  getRequestSheetData,
   async (req, res, next) => {
     try {
       const {
@@ -12639,10 +13847,10 @@ router.patch(
         "_"
       )}`;
 
-      let keyOfUpdateApprovalStatusAsAcceptedOrRejected = `approvalStatusOf${(requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser).replace(
+      let keyOfSendingEmailToNextHigherAuthority = `approvalOf${(requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser).replace(
         " ",
         "_"
-      )}.$`;
+      )}`;
 
       let keyOfApprovalDateAndTimeOfAcceptedOrRejected = `approvalDateAndTimeOf${(requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser).replace(
         " ",
@@ -12669,6 +13877,8 @@ router.patch(
       //Approver approve the request-sheet
       if (approvalOfRequestSheet === "Yes") {
         let getNextApproverDepartmentAndGradeOfUser;
+        let ListOfCCEmailOfOtherHigherAuthority;
+
         //For under Minor Request-sheet
         if (
           requestSheetDataOfBM?.maintenanceReportFilledByMTD?.minorBD === "Yes"
@@ -12681,6 +13891,21 @@ router.patch(
                   ?.departmentAndGradeOfUser
               ) + 1
             ];
+
+          ListOfCCEmailOfOtherHigherAuthority = minorListForTheApprovalOfPlant
+            .filter((value) => {
+              if (
+                value !==
+                req?.requestSheetData?.[0]?.getDataForApprovalDashboard
+                  ?.departmentAndGradeOfUser
+              )
+                return value;
+            })
+            .map((obj) => {
+              return req?.requestSheetData?.[0]?.[
+                `approvalOf${obj?.replace(" ", "_")}`
+              ]?.email;
+            });
         }
         //For under Major Request-sheet
         else {
@@ -12691,8 +13916,20 @@ router.patch(
                   ?.departmentAndGradeOfUser
               ) + 1
             ];
-        }
 
+          ListOfCCEmailOfOtherHigherAuthority =
+            majorListForTheApprovalOfPlant.map((value) => {
+              if (
+                value !==
+                req?.requestSheetData?.[0]?.getDataForApprovalDashboard
+                  ?.departmentAndGradeOfUse
+              ) {
+                req?.requestSheetData?.[0]?.[
+                  `approvalOf${value?.replace(" ", "_")}`
+                ]?.email;
+              }
+            });
+        }
         getRequestSheetData[
           keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition
         ][lengthOfTheApprovalStatus - 1] = "Accepted";
@@ -12734,11 +13971,81 @@ router.patch(
               },
               { new: true }
             );
-          if (updateApprovalStatusOfRequestSheet)
+          if (updateApprovalStatusOfRequestSheet) {
+            const bodyContent = ({ key, value, approvedDateAndTime }) => {
+              return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+               </tr>
+
+               <tr>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+               </tr>
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${key}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${value}</td>
+               </tr>
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${approvedDateAndTime}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.requestSheetStatus}</td>
+               </tr>
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.work_order_status}</td>
+               </tr>
+
+           </table>`;
+            };
+            let bodyTable = bodyContent({
+              key: "Approved By",
+              value: req?.rootUser?.tm_name,
+              approvedDateAndTime:
+                getRequestSheetData[
+                  keyOfApprovalDateAndTimeOfAcceptedOrRejected
+                ],
+            });
+            sendMailForBD({
+              subject: `Request Sheet Approval (${requestSheetDataOfBM?.cell}/${requestSheetDataOfBM?.line}/${requestSheetDataOfBM?.machineName}/${requestSheetDataOfBM?.requestSheetNoOfBM})`,
+              title: `Kindly Approve Request-sheet`,
+              greetings: `Sir\\Ma'am`,
+              toEmailIds:
+                requestSheetDataOfBM?.[keyOfSendingEmailToNextHigherAuthority]
+                  ?.email,
+              ccEmailIds: ListOfCCEmailOfOtherHigherAuthority,
+              bodyTable: bodyTable,
+            });
+
             return res.status(201).json({
               message: `${getRequestSheetData?.requestSheetNoOfBM} Request-sheet is approve !!`,
               errorType: "Approve",
             });
+          }
         } else {
           //No further approver is required
           let updateApprovalStatusOfRequestSheet =
@@ -12767,11 +14074,80 @@ router.patch(
               { new: true }
             );
 
-          if (updateApprovalStatusOfRequestSheet)
+          if (updateApprovalStatusOfRequestSheet) {
+            const bodyContent = ({ key, value, approvedDateAndTime }) => {
+              return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+               </tr>
+
+               <tr>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+               </tr>
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${key}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${value}</td>
+               </tr>
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${approvedDateAndTime}</td>
+               </tr>
+
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.requestSheetStatus}</td>
+               </tr>
+
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.work_order_status}</td>
+               </tr>
+
+           </table>`;
+            };
+            let bodyTable = bodyContent({
+              key: "Approved By",
+              value: req?.rootUser?.tm_name,
+              approvedDateAndTime:
+                getRequestSheetData[
+                  keyOfApprovalDateAndTimeOfAcceptedOrRejected
+                ],
+            });
+            sendMailForBD({
+              subject: `Request Sheet Approval (${requestSheetDataOfBM?.cell}/${requestSheetDataOfBM?.line}/${requestSheetDataOfBM?.machineName}/${requestSheetDataOfBM?.requestSheetNoOfBM})`,
+              title: `Kindly Approve Request-sheet`,
+              greetings: `Sir\\Ma'am`,
+              toEmailIds:
+                requestSheetDataOfBM?.[keyOfSendingEmailToNextHigherAuthority]
+                  ?.email,
+              ccEmailIds: ListOfCCEmailOfOtherHigherAuthority,
+              bodyTable: bodyTable,
+            });
             return res.status(201).json({
               message: `${getRequestSheetData?.requestSheetNoOfBM} Request-sheet is approve !!`,
               errorType: "Approve",
             });
+          }
         }
       }
       //Approver reject the request-sheet
@@ -13175,12 +14551,12 @@ router.get(
                       null,
                     ],
                   },
-                  {
+                  truncValue({
                     $divide: [
                       "$maintenanceReportFilledByMTD.breakDownTime",
                       60,
                     ],
-                  },
+                  }),
                   0,
                 ],
               },
@@ -13262,9 +14638,9 @@ router.get(
           $group: {
             _id: "$totalPMTime.k",
             totalSumOf_PM: {
-              $sum: {
+              $sum: truncValue({
                 $divide: ["$totalPMTime.v.totalWorkedPMTime", 60],
-              },
+              }),
             },
           },
         },
@@ -13333,7 +14709,7 @@ router.get(
               },
             },
             hours: {
-              $sum: {
+              $sum: truncValue({
                 $multiply: [
                   {
                     $divide: [
@@ -13363,7 +14739,7 @@ router.get(
                     ],
                   },
                 ],
-              },
+              }),
             },
           },
         },
@@ -13477,9 +14853,9 @@ router.get(
           $group: {
             _id: "$totalPMTime.k",
             totalSumOf_PM: {
-              $sum: {
+              $sum: truncValue({
                 $divide: ["$totalPMTime.v.supportingTMData.workedTime", 60],
-              },
+              }),
             },
           },
         },
@@ -13966,17 +15342,24 @@ router.get(
           },
         },
         {
+          $match: {
+            percentage: {
+              $gt: 0,
+            },
+          },
+        },
+        {
           $group: {
             _id: null,
             lines: { $push: "$line_name" },
             totalSumOf_PM: {
-              $push: "$sumOfPM",
+              $push: truncValue("$sumOfPM"),
             },
             totalSumOf_BM: {
-              $push: "$sumOfBM",
+              $push: truncValue("$sumOfBM"),
             },
             percentage: {
-              $push: "$percentage",
+              $push: truncValue("$percentage"),
             },
           },
         },
@@ -14413,19 +15796,26 @@ router.get(
           },
         },
         {
+          $match: {
+            percentage: {
+              $gt: 0,
+            },
+          },
+        },
+        {
           $group: {
             _id: null,
             tm_names: {
               $push: "$tm_name",
             },
             totalSumOf_PM: {
-              $push: "$sumOfPM",
+              $push: truncValue("$sumOfPM"),
             },
             totalSumOf_BM: {
-              $push: "$sumOfBM",
+              $push: truncValue("$sumOfBM"),
             },
             percentage: {
-              $push: "$percentage",
+              $push: truncValue("$percentage"),
             },
           },
         },
@@ -14781,8 +16171,21 @@ const lineFiltrationMiddleware = async (req, res, next) => {
     const lines = await Line.find({
       cell_names: mongoose.Types.ObjectId(req.cellID),
     });
-
+    req.lineID = lines?.[0]?._id;
     req.lines = lines;
+    return next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const machineFiltrationMiddleware = async (req, res, next) => {
+  try {
+    const machines = await Machine.find({
+      line_names: mongoose.Types.ObjectId(req?.lineID),
+    });
+    req.machineID = machines?.[0]?._id;
+    req.machines = machines;
     return next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -14996,6 +16399,272 @@ router.get(
       return res.status(201).json({
         message: "Line dropdown value get successfully",
         lines: req.lines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+//default Cell - Line - Machine selection
+router.get(
+  "/getFiltrationValue/machine-level-filtration/byDefault",
+  authenticate,
+  plantFiltrationMiddleware,
+  conditionMiddlewareForSectionQuery,
+  sectionFiltrationMiddleware,
+  (req, res, next) => {
+    try {
+      let subSectionQuery = {
+        section_names: req.section?._id,
+      };
+      if (
+        req.section.dashboardLevel === "No" &&
+        req.rootUser?.tm_grade !== "HOD"
+      ) {
+        subSectionQuery = {
+          subSection_id: {
+            $in: req.rootUser?.subSection_data?.map(
+              (item) => item?.split("-")?.[0]
+            ),
+          },
+        };
+      }
+      req.subSectionQuery = subSectionQuery;
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  subSectionFiltrationMiddleware,
+  cellFilterMiddleware,
+  lineFiltrationMiddleware,
+  machineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.rootUser?.tm_grade === "HOD") {
+        if (req.section.dashboardLevel === "No") {
+          return res.status(201).json({
+            message: "Data get successfully",
+
+            flagForTogglingFilter: "based-on-machine",
+            selectedValue: req.machineID,
+
+            selectedSection: req.section?._id,
+            sections: req.sections,
+            selectedSubSection: req.subSection?._id,
+            subSections: req.subSections,
+            selectedCell: req.cellID,
+            cells: req.cells,
+            selectedLine: req.lineID,
+            lines: req.lines,
+            selectedMachine: req.machineID,
+            machines: req.machines,
+          });
+        }
+
+        return res.status(201).json({
+          message: "Data get successfully",
+
+          flagForTogglingFilter: "based-on-machine",
+          selectedValue: req.machineID,
+
+          selectedSection: req.section?._id,
+          sections: req.sections,
+          selectedSubSection: "",
+          subSections: [],
+          selectedCell: req.cellID,
+          cells: req.cells,
+          selectedLine: req.lineID,
+          lines: req.lines,
+          selectedMachine: req.machineID,
+          machines: req.machines,
+        });
+      }
+
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "Data get successfully",
+
+          flagForTogglingFilter: "based-on-machine",
+          selectedValue: req.machineID,
+
+          selectedSection: "",
+          sections: [],
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: req.cellID,
+          cells: req.cells,
+          selectedLine: req.lineID,
+          lines: req.lines,
+          selectedMachine: req.machineID,
+          machines: req.machines,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Data get successfully",
+
+        flagForTogglingFilter: "based-on-machine",
+        selectedValue: req.machineID,
+
+        selectedSection: "",
+        sections: [],
+        selectedSubSection: "",
+        subSections: [],
+        selectedCell: req.cellID,
+        cells: req.cells,
+        selectedLine: req.lineID,
+        lines: req.lines,
+        selectedMachine: req.machineID,
+        machines: req.machines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/machine-level-filtration/sectionBased/:id",
+  authenticate,
+  sectionQueryMiddlewareForParamsId,
+  sectionFiltrationMiddleware,
+  subSectionQueryMiddleware,
+  subSectionFiltrationMiddleware,
+  cellFilterMiddleware,
+  lineFiltrationMiddleware,
+  machineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "Data get successfully",
+
+          flagForTogglingFilter: "based-on-machine",
+          selectedValue: req.machineID,
+
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: req.cellID,
+          cells: req.cells,
+          selectedLine: "",
+          lines: req.lines,
+          selectedMachine: "",
+          machines: req.machines,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Data get successfully",
+
+        flagForTogglingFilter: "based-on-machine",
+        selectedValue: req.machineID,
+
+        selectedSubSection: "",
+        subSections: [],
+        selectedCell: req.cellID,
+        cells: req.cells,
+        selectedLine: "",
+        lines: req.lines,
+        selectedMachine: "",
+        machines: req.machines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/machine-level-filtration/subSectionBased/:id",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      req.cellQuery = {
+        subSection_names: mongoose.Types.ObjectId(req.params?.id),
+      };
+      return next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  cellFilterMiddleware,
+  lineFiltrationMiddleware,
+  machineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      return res.status(201).json({
+        message: "Data get successfully",
+
+        flagForTogglingFilter: "based-on-machine",
+        selectedValue: req.machineID,
+
+        selectedCell: req.cellID,
+        cells: req.cells,
+        selectedLine: "",
+        lines: req.lines,
+        selectedMachine: "",
+        machines: req.machines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/machine-level-filtration/cellBased/:id",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      req.cellID = mongoose.Types.ObjectId(req.params?.id);
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  lineFiltrationMiddleware,
+  machineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      return res.status(201).json({
+        message: "Line dropdown value get successfully",
+        flagForTogglingFilter: "based-on-machine",
+        selectedValue: req.machineID,
+        selectedLine: req.lineID,
+        lines: req.lines,
+        selectedMachine: req.machineID,
+        machines: req.machines,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getFiltrationValue/machine-level-filtration/lineBased/:id",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      req.lineID = mongoose.Types.ObjectId(req.params?.id);
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  machineFiltrationMiddleware,
+  async (req, res, next) => {
+    try {
+      return res.status(201).json({
+        message: "Machine dropdown value get successfully",
+        flagForTogglingFilter: "based-on-machine",
+        selectedValue: req?.machineID,
+        selectedMachine: req?.machineID,
+        machines: req?.machines,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -15483,7 +17152,6 @@ router.get("/dummyAPI", authenticate, async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 });
-module.exports = router;
 
 // labels: [
 //   `${bdTrendData?.[0].financialYear[0].labels}`,
@@ -15757,3 +17425,298 @@ router.get(
     }
   }
 );
+
+const storageForDataAttachmentFile = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, `./attachments/${req.params?.docVariable}`);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "_" + file.originalname);
+  },
+});
+
+// const filterOptions = (req, file, cb) => {
+//   if (!file.originalname.match(/\.(xls|xlsx|csv)$/)) {
+//     return cb(new Error("Only .xls, .xlsx, .csv format allowed!"));
+//   } else {
+//     cb(null, true);
+//   }
+// };
+
+const uploadAttachments = multer({
+  storage: storageForDataAttachmentFile,
+  limits: {
+    fileSize: 1024 * 1024 * 1024,
+  },
+  // fileFilter: filterOptions,
+});
+
+router.post(
+  "/addNewAttachment/:docVariable",
+  authenticate,
+  uploadAttachments.array("attached_files"),
+  async (req, res, next) => {
+    try {
+      const attachmentDetails = await Machine.findOneAndUpdate(
+        req.query,
+        {
+          $push: {
+            [req.params?.docVariable]: req.files?.map((item) => ({
+              attached_file: item?.filename,
+            })),
+          },
+        },
+        {
+          new: true,
+        }
+      );
+
+      return res.status(201).json({
+        message: "Attachment added successfully",
+        attachmentDetails: attachmentDetails?.[req.params?.docVariable],
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  }
+);
+
+router.get(
+  "/getAttachmentDetails/:docVariable",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      const machine = await Machine.findOne(req.query, {
+        [req.params?.docVariable]: 1,
+      });
+
+      return res.status(201).json({
+        message: "Attachment details get successfully!",
+        attachmentDetails: machine?.[req.params?.docVariable],
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  }
+);
+
+router.delete(
+  "/deleteAttachment/:docVariable/:id",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      let keyForMatchingDoc = `${req.params?.docVariable}._id`;
+
+      const machine = await Machine.aggregate([
+        {
+          $match: req.query,
+        },
+        {
+          $unwind: `$${req.params?.docVariable}`,
+        },
+        {
+          $match: {
+            [keyForMatchingDoc]: mongoose.Types.ObjectId(req.params?.id),
+          },
+        },
+      ]);
+
+      fs.unlink(
+        path.join(
+          __dirname,
+          `../attachments/${req.params?.docVariable}/${
+            machine?.[0]?.[req.params?.docVariable]?.attached_file
+          }`
+        ),
+
+        function (err) {
+          if (err) {
+            console.error(err);
+          }
+        }
+      );
+
+      const attachmentDetails = await Machine.findOneAndUpdate(
+        req.query,
+        {
+          $pull: {
+            [req.params?.docVariable]: {
+              _id: mongoose.Types.ObjectId(req.params?.id),
+            },
+          },
+        },
+        {
+          new: true,
+        }
+      );
+
+      return res.status(201).json({
+        message: "Attachment deleted successfully",
+        attachmentDetails: attachmentDetails?.[req.params?.docVariable],
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  }
+);
+
+router.get(
+  "/getRequestSheetHistoryBasedOnMachine",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      let queryObj = {
+        machineRef: mongoose.Types.ObjectId(req.query?.machineId),
+      };
+
+      if (req.query?.selectedYear) {
+        queryObj = {
+          ...queryObj,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            req.query?.selectedYear,
+        };
+      }
+
+      if (req.query?.selectedMonth) {
+        queryObj = {
+          ...queryObj,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+            req.query?.selectedMonth,
+        };
+      }
+
+      req.queryObj = queryObj;
+
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  requestSheetMiddleware
+);
+
+router.get("/getMachineHistory", authenticate, async (req, res, next) => {
+  try {
+    pmHistory = await LogHistory.aggregate([
+      {
+        $match: req.query,
+      },
+      {
+        $addFields: {
+          cell_name: "$cellInfo.cell_name",
+          line_name: "$lineInfo.line_name",
+          machine_name: "$machineInfo.machine_name",
+          machine_Id: "$machineInfo.machine_Id",
+          abnormality: {
+            $cond: [{ $gt: ["$abnormality_remarks", null] }, "Yes", "No"],
+          },
+        },
+      },
+    ]);
+
+    return res.status(201).json({
+      message: "PmHistory get successfully",
+      pmHistory,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+});
+
+router.get(
+  "/getBreakdownTrendData",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      let queryObj = {
+        machineRef: mongoose.Types.ObjectId(req.query?.machineId),
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+      };
+      req.queryObj = queryObj;
+      next();
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  },
+  yearlyBdHourMiddleware,
+  async (req, res, next) => {
+    try {
+      const lastFiveProblem = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+        {
+          $project: {
+            problem: "$breakDownBasicDataFilledByPRD.problemFaced",
+          },
+        },
+        {
+          $limit: 5,
+        },
+      ]);
+
+      return res.status(201).json({
+        message: "Breakdown trend graph data get successfully",
+        BdTrendAndLastFiveProblem: {
+          breakdownTrendData: req.BDHours?.[0],
+          lastFiveProblem,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
+  try {
+    const {
+      noLossData,
+      problemsOfBM,
+      actionAndCounterMeasureStep,
+      selectedSupportedTM,
+      selectedSection,
+      selectedSubSection,
+      selectedCell,
+      selectedLine,
+      selectedMachine,
+    } = req.body;
+
+    const addNewNoLossBD = new NoLossBD({
+      ...noLossData,
+      problemsOfBM,
+      actionAndCounterMeasureStep,
+      supportingTM: selectedSupportedTM?.map((obj) => obj?._id),
+      sectionRef: selectedSection || null,
+      subSectionRef: selectedSubSection || null,
+      cellRef: selectedCell || null,
+      lineRef: selectedLine || null,
+    });
+
+    const resultOfSaveNoLossBD = await addNewNoLossBD.save();
+
+    if (resultOfSaveNoLossBD) {
+      res.status(201).json({
+        message: "No Loss data added successfully",
+        resultOfSaveNoLossBD,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error?.message, error: new Error(error) });
+  }
+});
+
+module.exports = router;

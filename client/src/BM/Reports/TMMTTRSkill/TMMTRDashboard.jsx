@@ -26,15 +26,19 @@ import TmMttrSkillScoreCrud from "./TMMttrSkillScoreCrud";
 import axios from "axios";
 
 const TMMTRMain = () => {
+  const [loading, setLoading] = React.useState(true);
+
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
-  const [mbdIncluded, setMbdIncluded] = React.useState(false);
+  // const [mbdIncluded, setMbdIncluded] = React.useState(false);
+  const [tmId, setTmId] = React.useState("");
   const [timeFilter, setTimeFilter] = React.useState(2);
   const timeFilterRef = React.useRef(null);
-  const handleChange = (event) => {
-    setMbdIncluded(event.target.checked);
-  };
+
+  // const handleChange = (event) => {
+  //   setMbdIncluded(event.target.checked);
+  // };
 
   // const MBDCheckBox = (
   //   <Col className="col-auto justify-content-center align-items-center d-flex">
@@ -127,6 +131,8 @@ const TMMTRMain = () => {
   });
 
   const fetchChartData = async () => {
+    setLoading(true);
+
     console.log("timeFilter:", timeFilter);
     const url = `/mttrTrend/tmMTTRSkill/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedSection=${reduceState?.selectedSection}&&selectedSubSection=${reduceState?.selectedSubSection}`;
 
@@ -147,6 +153,8 @@ const TMMTRMain = () => {
     } catch (error) {
       console.log("error:", error);
     }
+
+    setLoading(false);
   };
 
   React.useEffect(() => {
@@ -164,6 +172,12 @@ const TMMTRMain = () => {
                 baseUrlForFiltering={baseUrlForFiltering}
                 reduceState={reduceState}
                 reducerDispatch={reducerDispatch}
+                yearFiltration
+                sectionFiltration
+                subSectionFiltration
+                cellFiltration
+                lineFiltration
+                resetButtonFiltration
               />
 
               <Col className="col-auto">
@@ -171,7 +185,8 @@ const TMMTRMain = () => {
                   handleDownloadPPTX={() => {
                     exportPPTX(EXPORT_REPORT.TM_MTTR_SKILL, {
                       ...reduceState,
-                      mbdIncluded,
+                      timeFilter,
+                      tmId,
                     });
                   }}
                 />
@@ -185,16 +200,22 @@ const TMMTRMain = () => {
 
         <Row className="mt-3">
           <Col md={12} lg={6}>
-            <MTTRTrend {...userWiseData} />
+            <MTTRTrend {...userWiseData} loading={loading} />
           </Col>
 
           <Col md={12} lg={6}>
-            <TMProgress {...reduceState} timeFilter={timeFilter} />
+            <TMProgress
+              {...reduceState}
+              timeFilter={timeFilter}
+              tmId={tmId}
+              setTmId={setTmId}
+            />
           </Col>
 
           <Col md={12} style={{ marginTop: "1rem" }}>
             <TmMttrSkillScore
               {...reduceState}
+              loading={loading}
               pieChartData={userWiseData?.pieChartData}
             />
           </Col>

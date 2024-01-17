@@ -35,6 +35,12 @@ const MTBFReportDashboard = () => {
                 reduceState={reduceState}
                 reducerDispatch={reducerDispatch}
                 monthFiltration
+                yearFiltration
+                sectionFiltration
+                subSectionFiltration
+                cellFiltration
+                lineFiltration
+                resetButtonFiltration
               />
 
               <Col className="col-auto">
@@ -43,7 +49,7 @@ const MTBFReportDashboard = () => {
                     exportPPTX(EXPORT_REPORT.COMMON_TEMPLATE_REPORT, {
                       ...reduceState,
                       name: "MTBF",
-                      targetKey:"monthlyMTBFTarget",
+                      targetKey: "monthlyMTBFTarget",
                       documentLimitInTheGraph,
                     });
                   }}

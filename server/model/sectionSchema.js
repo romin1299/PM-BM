@@ -21,6 +21,14 @@ const sectionSchema = new mongoose.Schema({
   },
 
   TmMttrSkillScoresAndLimit,
+
+  yearGroup: [
+    {
+      group: { type: String },
+      from: { type: Number },
+      to: { type: Number },
+    },
+  ],
 });
 
 const Section = new mongoose.model("Sections", sectionSchema);

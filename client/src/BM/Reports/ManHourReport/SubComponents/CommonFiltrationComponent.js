@@ -109,6 +109,8 @@ export const reducer = (state, action) => {
         cells: action?.cells,
         selectedLine: action?.selectedLine,
         lines: action?.lines,
+        selectedMachine : action?.selectedMachine || "",
+        machines: action?.machines || []
       };
 
     case ACTION?.GET_DATA_BASED_ON_SUBSECTION:
@@ -129,6 +131,9 @@ export const reducer = (state, action) => {
         cells: action?.cells,
         selectedLine: action?.selectedLine || "",
         lines: action?.lines,
+        selectedMachine : action?.selectedMachine || "",
+        machines: action?.machines || [],
+        flagForTogglingFilter: action?.flagForTogglingFilter,
       };
 
     case ACTION?.GET_DATA_BASED_ON_CELL:
@@ -136,8 +141,12 @@ export const reducer = (state, action) => {
         ...state,
         isLoading: false,
         message: action?.message,
-
-        lines: action?.lines,
+        selectedValue: action?.selectedValue,
+        selectedLine: action?.selectedLine || "",
+        lines: action?.lines || [],
+        selectedMachine : action?.selectedMachine || "",
+        machines: action?.machines || [],
+        flagForTogglingFilter: action?.flagForTogglingFilter,
       };
 
     case ACTION?.GET_DATA_BASED_ON_LINE:
@@ -145,8 +154,10 @@ export const reducer = (state, action) => {
         ...state,
         isLoading: false,
         message: action?.message,
-
-        machines: action?.machines,
+        selectedValue: action?.selectedValue,
+        selectedMachine : action?.selectedMachine || "",
+        machines: action?.machines || [],
+        flagForTogglingFilter: action?.flagForTogglingFilter,
       };
 
     case ACTION?.HANDLE_SELECT_SECTION:
@@ -166,6 +177,8 @@ export const reducer = (state, action) => {
         cells: [],
         selectedLine: "",
         lines: [],
+        selectedMachine: "",
+        machines: [],
       };
 
     case ACTION?.HANDLE_SELECT_SUBSECTION:
@@ -198,10 +211,10 @@ export const reducer = (state, action) => {
         togglingFilterFlagForLineAnTMLoadGraph: action?.flagForTogglingFilter,
 
         selectedCell: action?.selectedCell,
-        selectedLine: "",
-        lines: [],
-        selectedMachine: "",
-        machines: [],
+        lines: action?.lines || [],
+        selectedLine: action?.selectedLine || "",
+        selectedMachine : action?.selectedMachine || "",
+        machines: action?.machines || []
       };
 
     case ACTION?.HANDLE_SELECT_LINE:
@@ -211,9 +224,9 @@ export const reducer = (state, action) => {
         flagForTogglingFilter: action?.flagForTogglingFilter,
         selectedValue: action?.selectedLine,
 
-        selectedLine: action?.selectedLine,
-        selectedMachine: "",
-        machines: [],
+        selectedLine: action?.selectedLine || "",
+        selectedMachine : action?.selectedMachine || "",
+        machines: action?.machines || []
       };
 
     case ACTION?.HANDLE_SELECT_MACHINE:

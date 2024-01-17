@@ -4,6 +4,7 @@ import { DropdownButton, Dropdown } from "react-bootstrap";
 
 import React, { useState, useEffect, useContext } from "react";
 import { Table } from "react-bootstrap";
+import DownloadIcon from "@mui/icons-material/Download";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import ProblemList from "../SubComponents/ProblemList";
 import ActionList from "../SubComponents/ActionList";
@@ -15,6 +16,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import Multiselect from "multiselect-react-dropdown";
+import { Button, Typography } from "@mui/material";
 const list = [
   { key: "A", value: "A" },
   { key: "B", value: "B" },
@@ -454,42 +456,63 @@ function MyTable({
                     ?._id,
                   name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_TL]
+                      ?.email,
                 },
                 MTD_HOSS: {
                   id: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
                     ?._id,
                   name: approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.mtdTL?.[assignApprovalList?.MTD_HOSS]
+                      ?.email,
                 },
                 PRD_TL: {
                   id: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
                     ?._id,
                   name: approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.prdTL?.[assignApprovalList?.PRD_TL]
+                      ?.email,
                 },
                 PRD_HOS: {
                   id: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
                     ?._id,
                   name: approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.prdHOS?.[assignApprovalList?.PRD_HOS]
+                      ?.email,
                 },
                 MTD_HOS: {
                   id: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
                     ?._id,
                   name: approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.mtdHOS?.[assignApprovalList?.MTD_HOS]
+                      ?.email,
                 },
                 PRD_HOD: {
                   id: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
                     ?._id,
                   name: approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.prdHOD?.[assignApprovalList?.PRD_HOD]
+                      ?.email,
                 },
                 MTD_HOD: {
                   id: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
                     ?._id,
                   name: approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
                     ?.tm_name,
+                  email:
+                    approvalListOfBM?.mtdHOD?.[assignApprovalList?.MTD_HOD]
+                      ?.email,
                 },
               },
               requestSheetDataOfBM,
@@ -2071,8 +2094,24 @@ function MyTable({
                         {errors?.["dataSheetOfRequestSheet"]?.message}
                       </p>
                     )}
+
                     {requestSheetDataOfBM?.attachedDataSheets ? (
-                      <p>{requestSheetDataOfBM?.attachedDataSheets}</p>
+                      <>
+                        <Typography mt={2} variant="body2">
+                          {requestSheetDataOfBM?.attachedDataSheets}
+                        </Typography>
+                        <Button
+                          target="_blank"
+                          href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
+                          disableElevation
+                          size="small"
+                          variant="contained"
+                          color="success"
+                          startIcon={<DownloadIcon fontSize="small" />}
+                        >
+                          Download
+                        </Button>
+                      </>
                     ) : timeDifferenceMinutes > 120 ||
                       watch("dataSheetOfRequestSheet") === "Yes" ? (
                       <Form.Group controlId="formFileMultiple" className="mb-3">
@@ -2085,6 +2124,14 @@ function MyTable({
                           //   //     ? true
                           //   //     : false,
                           // })}
+                          // {...register("attachedDataSheets", {
+                          //   // required:
+                          //   //   timeDifferenceMinutes > 120 ||
+                          //   //   watch("dataSheetOfRequestSheet") === "Yes"
+                          //   //     ? true
+                          //   //     : false,
+                          // })}
+                          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
                           onChange={(e) => {
                             setValue("attachedDataSheets", e.target.files, {
                               shouldDirty: true,
@@ -2107,7 +2154,7 @@ function MyTable({
               <Row className="m-0">
                 <Col className="border p-2">
                   <small className="mb-0 d-flex align-items-center justify-content-start">
-                    <b>DRAWING ATTACHED</b>&nbsp;&nbsp;&nbsp;
+                    <b>DRAWING ATTACHED</b>
                   </small>
                 </Col>
                 <Col className="border p-2 d-flex align-items-center">
@@ -2137,9 +2184,47 @@ function MyTable({
                     </div>
 
                     {requestSheetDataOfBM?.attachedDrawings?.length > 0 ? (
-                      <p>
-                        {(requestSheetDataOfBM?.attachedDrawings).join("\r\n")}
-                      </p>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        {requestSheetDataOfBM?.attachedDrawings?.map(
+                          (image) => (
+                            <a
+                              target="_blank"
+                              href={`http://localhost:7000/${image}`}
+                              style={{
+                                width: "100%",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              <img
+                                src={`http://localhost:7000/${image}`}
+                                style={{
+                                  maxWidth: "100px",
+                                  maxHeight: "100px",
+                                }}
+                              />
+                              <span
+                                style={{
+                                  fontSize: "10px",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {image}
+                              </span>
+                            </a>
+                          )
+                        )}
+                      </div>
                     ) : watch("drawingOfRequestSheet") === "Yes" ? (
                       <Form.Group controlId="formFileMultiple" className="mb-3">
                         <Form.Control
@@ -2151,6 +2236,7 @@ function MyTable({
                           //   //     ? true
                           //   //     : false,
                           // })}
+                          accept="image/png, image/gif, image/jpeg"
                           onChange={(e) => {
                             setValue("attachedDrawings", e.target.files, {
                               shouldDirty: true,
@@ -2381,7 +2467,7 @@ function MyTable({
                                   type="radio"
                                   value={subCategoryObj?.name}
                                   name={`categories`}
-                                  className="col-lg-4 col-md-4"
+                                  className="col-auto"
                                   // onChange={handleactionTemporaryOrNot}
                                   {...register(
                                     `categories.${categoryObj?.name}`

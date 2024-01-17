@@ -23,6 +23,9 @@ import MachineStatusBox from "../SubComponents/MachineStatusBox";
 function MyTable({ requestSheetDataOfBM }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  console.log("location.state.prevPath:", location?.state?.prevPath);
+
   const {
     register,
     handleSubmit,
@@ -83,7 +86,6 @@ function MyTable({ requestSheetDataOfBM }) {
 
   useEffect(() => {
     if (requestSheetDataOfBM?._id) {
-      console.log("requestSheetDataOfBM:", requestSheetDataOfBM);
       setValue(
         "problemOccurredDateAndTimeOfBM",
         moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM)
@@ -136,7 +138,7 @@ function MyTable({ requestSheetDataOfBM }) {
   }, [requestSheetDataOfBM?._id, setValue]);
 
   const handleBack = () => {
-    navigate("/bm/report/productionLineWiseReport", { replace: true });
+    navigate(location?.state?.prevPath || "/bm", { replace: true });
   };
 
   return (
@@ -146,8 +148,8 @@ function MyTable({ requestSheetDataOfBM }) {
       <form className="p-2" onSubmit={() => {}}>
         <Table className="mt-3">
           <tbody className="m-1 border p-3">
-            <tr class="row m-2">
-              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
+            <tr className="row m-2">
+              <td className="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
                 <Row>
                   <Col className="col-auto">
                     <button className="btn bg-button m-2" onClick={handleBack}>
@@ -194,8 +196,8 @@ function MyTable({ requestSheetDataOfBM }) {
                 <div className="value">{requestSheetDataOfBM.priorityCode}</div>
               </td>
 
-              <td className="mb-0 pb-0 border col-lg-8 col-md-4">
-                <div className="mb-2 border">
+              <td className="mb-0 border col-lg-8 col-md-4">
+                <div className="border">
                   <Row className="m-0">
                     <Col className="border">
                       <p className="text-center p-1">
@@ -228,7 +230,8 @@ function MyTable({ requestSheetDataOfBM }) {
                                 disabled={
                                   (requestSheetDataOfBM?.assignUser?._id !==
                                     loggedUserDetails?._id ||
-                                    requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id) &&
+                                    requestSheetDataOfBM?.handOverUser?._id ===
+                                      loggedUserDetails?._id) &&
                                   requestSheetDataOfBM?.approvalOfMTD_TL
                                     ?._id !== loggedUserDetails?._id
                                 }
@@ -295,65 +298,43 @@ function MyTable({ requestSheetDataOfBM }) {
                 </div>
               </td>
 
-              <td className="mb-0 pb-0 pt-0 col-lg-2 col-md-4">
-                {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
-                <Col className="border border-left-0">
-                  <p className="mb-0">
-                    <b>Sr. No.</b>
-                  </p>
-                  <p className="fs-6 fw-normal">
-                    <input
-                      style={{ width: "100%" }}
-                      {...register("serialNo", {
-                        required: "Serial No. is required",
-                      })}
-                    />
-                    {errors?.["serialNo"] && (
-                      <p className="text-error">{errors?.["serialNo"]?.message}</p>
-                    )}
-                  </p>
-                </Col>
-              </Row> */}
-                <Row
-                  className="pt-0 mb-0 border col-lg-12 col-md-12 col-sm-12"
-                  style={{ marginLeft: "-8px" }}
-                >
-                  <Col className="pb-2 pt-1">
-                    <small className="mb-0">
-                      <b>DEPT./LINE</b>
-                    </small>
-                    <br />
-                    <small>
-                      {requestSheetDataOfBM?.cellRef?.cell_name}/
-                      {requestSheetDataOfBM?.lineRef?.line_name}
-                    </small>
-                  </Col>
-                </Row>
-                <Row
-                  className="pt-0 mb-0  col-lg-12 col-md-12 col-sm-12"
-                  style={{ marginLeft: "-8px" }}
-                >
-                  <Col className="border pb-2">
-                    <small className="fs-6 mb-0">
-                      <b>TL [PRD]</b>
-                    </small>
-                    <br />
-                    <small>
-                      {requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}
-                    </small>
-                    {/* <input
+              <td className="border mb-0 col-lg-2 col-md-4">
+                <div className="border">
+                  <Row className="m-0">
+                    <Col className="border pb-2 pt-1">
+                      <small className="mb-0">
+                        <b>DEPT./LINE</b>
+                      </small>
+                      <br />
+                      <small>
+                        {requestSheetDataOfBM?.cellRef?.cell_name}/
+                        {requestSheetDataOfBM?.lineRef?.line_name}
+                      </small>
+                    </Col>
+                  </Row>
+                  <Row className="m-0">
+                    <Col className="border pt-2 pb-2">
+                      <small className="fs-6 mb-0">
+                        <b>TL [PRD]</b>
+                      </small>
+                      <br />
+                      <small>
+                        {requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}
+                      </small>
+                      {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
                       required: "Team Leader Name is required",
                     })}
                   />
                   {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
-                  </Col>
-                </Row>
+                    </Col>
+                  </Row>
+                </div>
               </td>
             </tr>
 
-            <tr class="row m-2">
+            <tr className="row m-2">
               <td className="border p-3 col-lg-8 col-md-7 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={4} md={6}>
@@ -372,12 +353,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>PROBLEM FACED: </b>
                     </p>
                   </Col>
-                  <Col lg={3}>
+                  <Col lg={5}>
                     <input
                       disabled={true}
                       type="text"
@@ -397,14 +378,14 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>
                         PRD OBSERVATION FOR THIS PROBLEM BASED ON (5WHY-1HOW){" "}
                       </b>
                     </p>
                   </Col>
-                  <Col lg={3}>
+                  <Col lg={5}>
                     <input
                       disabled={true}
                       type="text"
@@ -427,12 +408,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHY (5M+1E): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       disabled={true}
                       type="text"
@@ -450,12 +431,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHERE (Process): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       disabled={true}
                       type="text"
@@ -473,12 +454,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHEN (Frequency): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       disabled={true}
                       type="text"
@@ -496,12 +477,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHO (Person): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       disabled={true}
                       type="text"
@@ -519,12 +500,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>WHICH (Defect Location): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       disabled={true}
                       type="text"
@@ -542,12 +523,12 @@ function MyTable({ requestSheetDataOfBM }) {
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
+                  <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>HOW (Detail/ Observation): </b>
                     </p>
                   </Col>
-                  <Col lg={7}>
+                  <Col lg={5}>
                     <input
                       disabled={true}
                       type="text"

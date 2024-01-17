@@ -46,6 +46,12 @@ const ProductionLineWiseReport = () => {
                 baseUrlForFiltering={baseUrlForFiltering}
                 reduceState={reduceState}
                 reducerDispatch={reducerDispatch}
+                yearFiltration
+                sectionFiltration
+                subSectionFiltration
+                cellFiltration
+                lineFiltration
+                resetButtonFiltration
               />
 
               <Col className="col-auto">
@@ -110,7 +116,7 @@ const ProductionLineWiseReport = () => {
         </Row>
 
         <Row className="mt-1 g-2">
-          <Col lg={6} md={6}>
+          <Col lg={6} md={12}>
             <BDHoursVsCountComponent
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
@@ -118,7 +124,7 @@ const ProductionLineWiseReport = () => {
               selectedMonth={reduceState?.selectedMonth}
             />
           </Col>
-          <Col lg={6} md={6}>
+          <Col lg={6} md={12}>
             <CategoryPieCharts
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}

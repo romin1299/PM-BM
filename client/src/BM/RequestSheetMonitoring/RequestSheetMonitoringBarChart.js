@@ -12,6 +12,7 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { Box } from "@mui/material";
+import Loading from "../../components/Loading/Loading";
 
 const RequestSheetMonitoringBarChart = ({
   selectedValue,
@@ -19,6 +20,8 @@ const RequestSheetMonitoringBarChart = ({
   selectedYear,
   selectedMonth,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -54,6 +57,8 @@ const RequestSheetMonitoringBarChart = ({
   ]);
 
   const getRequestSheetMonitoringData = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         `/getRequestSheetMonitoringData/status-chart-data/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
@@ -75,6 +80,8 @@ const RequestSheetMonitoringBarChart = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -159,9 +166,13 @@ const RequestSheetMonitoringBarChart = ({
 
   return (
     <Box className="cell p-3">
-      <Box sx={{ height: { xs: "400px", md: "500px" } }}>
-        <Bar options={options} height={75} data={data} />
-      </Box>
+      {loading ? (
+        <Loading height={400}/>
+      ) : (
+        <Box sx={{ height: { xs: "400px", md: "500px" } }}>
+          <Bar options={options} height={75} data={data} />
+        </Box>
+      )}
     </Box>
   );
 };

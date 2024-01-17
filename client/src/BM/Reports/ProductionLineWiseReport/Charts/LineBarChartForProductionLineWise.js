@@ -69,7 +69,7 @@ const LineBarChartForProductionLineWise = ({
       },
       {
         type: "bar",
-        label: "BD Hours",
+        label: "Hours",
         backgroundColor: ReportData?.backgroundColor,
         data: ReportData?.data,
         borderColor: "white",

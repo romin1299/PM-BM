@@ -16,6 +16,7 @@ import ChartTitleBar from "../Common/ChartTitleBar";
 import DataNotFound from "../Common/DataNotFound";
 import axios from "axios";
 import TeamMembersDropdown from "./TeamMembersDropdown";
+import Loading from "../../../components/Loading/Loading";
 
 ChartJS.register(
   CategoryScale,
@@ -79,12 +80,17 @@ const TMProgress = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
+  tmId,
+  setTmId,
 }) => {
-  const [data, setData] = React.useState({});
-  const [tmId, setTmId] = React.useState("");
+  const [loading, setLoading] = React.useState(true);
+
+  const [data, setData] = React.useState(undefined);
   const [isAllTM, setIsAllTM] = React.useState(false);
 
   const fetchChartData = async () => {
+    setLoading(true);
+
     // console.log("selectedValue:", selectedValue);
     const url = `/tmProgress/tmMTTRSkill/${flagForTogglingFilter}/${selectedValue}/${tmId}`;
     const params = {
@@ -102,10 +108,18 @@ const TMProgress = ({
       });
       // console.log("MTTR Trend res:", res.data.data);
 
-      setData(res?.data?.data);
+      const data = res?.data?.data;
+      if (data) {
+        setData(data);
+      } else {
+        setData(undefined);
+      }
     } catch (error) {
       console.log("error:", error);
+      setData(undefined);
     }
+
+    setLoading(false);
   };
 
   React.useEffect(() => {
@@ -120,8 +134,8 @@ const TMProgress = ({
         stack: "bar-stacked",
         label: "Hours",
         data: data?.data,
-        backgroundColor: chartColors[3],
-        borderColor: chartColors[3],
+        backgroundColor: chartColors.count,
+        borderColor: chartColors.count,
         borderWidth: 2,
         pointStyle: "circle",
         yAxisID: "y",
@@ -129,34 +143,34 @@ const TMProgress = ({
     ],
   };
 
-  React.useEffect(() => {
-    console.log("TM progress data:", data);
-  }, [data]);
+  // React.useEffect(() => {
+  //   console.log("TM progress data:", data);
+  // }, [data]);
 
-  const handleChange = (event) => {
-    setIsAllTM(event.target.checked);
-  };
+  // const handleChange = (event) => {
+  //   setIsAllTM(event.target.checked);
+  // };
 
-  const AllTMCheckBox = (
-    <Col className="col-auto">
-      <FormControlLabel
-        control={
-          <Checkbox
-            // size="small"
-            sx={{
-              color: "#004b5b",
-              "&.MuiCheckbox-root": { p: "0px", mr: "10px" },
-              "&.Mui-checked": { color: "#004b5b" },
-            }}
-            checked={isAllTM}
-            onChange={handleChange}
-            inputProps={{ size: "10px" }}
-          />
-        }
-        label="All"
-      />
-    </Col>
-  );
+  // const AllTMCheckBox = (
+  //   <Col className="col-auto">
+  //     <FormControlLabel
+  //       control={
+  //         <Checkbox
+  //           // size="small"
+  //           sx={{
+  //             color: "#004b5b",
+  //             "&.MuiCheckbox-root": { p: "0px", mr: "10px" },
+  //             "&.Mui-checked": { color: "#004b5b" },
+  //           }}
+  //           checked={isAllTM}
+  //           onChange={handleChange}
+  //           inputProps={{ size: "10px" }}
+  //         />
+  //       }
+  //       label="All"
+  //     />
+  //   </Col>
+  // );
 
   return (
     <Box className="cell p-3">
@@ -178,13 +192,17 @@ const TMProgress = ({
         }
       />
 
-      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        {data === undefined ? (
-          <DataNotFound />
-        ) : (
-          <Chart options={options} data={chartData} />
-        )}
-      </Box>
+      {loading ? (
+        <Loading height={200} />
+      ) : (
+        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+          {data === undefined ? (
+            <DataNotFound />
+          ) : (
+            <Chart options={options} data={chartData} />
+          )}
+        </Box>
+      )}
     </Box>
   );
 };
