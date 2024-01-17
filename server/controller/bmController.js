@@ -112,7 +112,7 @@ let currentYear =
     ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
     : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
-const truncValueUptoTwoDigit = (prop) => ({ $trunc: [prop, 2] });
+const truncValue = (prop) => ({ $trunc: [prop, 1] });
 
 router.get(
   "/getDataBasedOnScanningRequest/:sheetType/:machineCode",
@@ -4648,7 +4648,7 @@ const functionForFindingBDHourOrCountStatus = async ({
         $group: {
           _id: null,
           annualSum: {
-            $sum: truncValueUptoTwoDigit(SumString),
+            $sum: truncValue(SumString),
           },
         },
       },
@@ -4753,16 +4753,23 @@ router.get(
           $group: {
             _id: null,
             BDhour: {
-              $sum: truncValueUptoTwoDigit({
+              $sum: {
                 $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-              }),
+              },
             },
+          },
+        },
+        {
+          $project: {
+            _id: null,
+            BDhour: truncValue("$BDhour"),
           },
         },
       ]);
 
       return res.status(201).json({
         message: "Bd hours status get successfully",
+        BDActual,
         BDHoursStatus: {
           annualBDTarget: annualBDTarget?.[0]?.annualSum,
           BDActual: BDActual?.[0]?.BDhour,
@@ -4837,7 +4844,7 @@ router.get(
           },
           {
             $addFields: {
-              BDhour: truncValueUptoTwoDigit({
+              BDhour: truncValue({
                 $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
               }),
             },
@@ -5415,7 +5422,7 @@ router.get(
             _id: null,
             labels: { $push: "$month" },
             data: {
-              $push: truncValueUptoTwoDigit("$value.hours"),
+              $push: truncValue("$value.hours"),
             },
           },
         },
@@ -5511,7 +5518,7 @@ const yearlyBdHourMiddleware = async (req, res, next) => {
           _id: null,
           labels: { $push: "$month" },
           data: {
-            $push: truncValueUptoTwoDigit("$value.hours"),
+            $push: truncValue("$value.hours"),
           },
         },
       },
@@ -6047,7 +6054,7 @@ router.post(
         groupingObj: {
           count: { $push: "$requestSheets.count" },
           sumOfBDhours: {
-            $push: truncValueUptoTwoDigit("$requestSheets.sumOfBDhours"),
+            $push: truncValue("$requestSheets.sumOfBDhours"),
           },
         },
         // outerMachineLevelProjection: {
@@ -6116,7 +6123,7 @@ router.post(
           },
           groupingObj: {
             sumOfBDhours: {
-              $push: truncValueUptoTwoDigit("$requestSheets.sumOfBDhours"),
+              $push: truncValue("$requestSheets.sumOfBDhours"),
             },
           },
           // outerMachineLevelProjection: {
@@ -8974,7 +8981,6 @@ router.get(
   middlewareForMonthlyBdReport,
   lineMonthlyBdTrendForSectionMiddleware
 );
-
 
 router.get(
   "/mttrForPlant/kpiFromDatabase/:filter/:selectedId",
@@ -12976,7 +12982,7 @@ const middlewareForFindingTrendData = async (req, res, next) => {
       {
         $project: {
           count: 1,
-          hours: truncValueUptoTwoDigit(req.hourCalculationFormula),
+          hours: truncValue(req.hourCalculationFormula),
         },
       },
       {
@@ -13117,8 +13123,8 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
       {
         $project: {
           lineName: "$line.line_name",
-          target: truncValueUptoTwoDigit("$line.target"),
-          hours: truncValueUptoTwoDigit(req.hourCalculationFormula),
+          target: truncValue("$line.target"),
+          hours: truncValue(req.hourCalculationFormula),
         },
       },
       {
@@ -13204,7 +13210,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
       {
         $project: {
           machine: 1,
-          hours: truncValueUptoTwoDigit(req.hourCalculationFormula),
+          hours: truncValue(req.hourCalculationFormula),
         },
       },
       {
@@ -13276,6 +13282,8 @@ const responseMiddlewareForReport = async (req, res, next) => {
   try {
     return res.status(201).json({
       message: req.message,
+      total: req?.TrendData?.length,
+      another: req?.TrendData,
       data: req?.TrendData?.[0],
     });
   } catch (error) {
@@ -14193,7 +14201,7 @@ router.get(
                       null,
                     ],
                   },
-                  truncValueUptoTwoDigit({
+                  truncValue({
                     $divide: [
                       "$maintenanceReportFilledByMTD.breakDownTime",
                       60,
@@ -14280,7 +14288,7 @@ router.get(
           $group: {
             _id: "$totalPMTime.k",
             totalSumOf_PM: {
-              $sum: truncValueUptoTwoDigit({
+              $sum: truncValue({
                 $divide: ["$totalPMTime.v.totalWorkedPMTime", 60],
               }),
             },
@@ -14351,7 +14359,7 @@ router.get(
               },
             },
             hours: {
-              $sum: truncValueUptoTwoDigit({
+              $sum: truncValue({
                 $multiply: [
                   {
                     $divide: [
@@ -14495,7 +14503,7 @@ router.get(
           $group: {
             _id: "$totalPMTime.k",
             totalSumOf_PM: {
-              $sum: truncValueUptoTwoDigit({
+              $sum: truncValue({
                 $divide: ["$totalPMTime.v.supportingTMData.workedTime", 60],
               }),
             },
@@ -14995,13 +15003,13 @@ router.get(
             _id: null,
             lines: { $push: "$line_name" },
             totalSumOf_PM: {
-              $push: truncValueUptoTwoDigit("$sumOfPM"),
+              $push: truncValue("$sumOfPM"),
             },
             totalSumOf_BM: {
-              $push: truncValueUptoTwoDigit("$sumOfBM"),
+              $push: truncValue("$sumOfBM"),
             },
             percentage: {
-              $push: truncValueUptoTwoDigit("$percentage"),
+              $push: truncValue("$percentage"),
             },
           },
         },
@@ -15451,13 +15459,13 @@ router.get(
               $push: "$tm_name",
             },
             totalSumOf_PM: {
-              $push: truncValueUptoTwoDigit("$sumOfPM"),
+              $push: truncValue("$sumOfPM"),
             },
             totalSumOf_BM: {
-              $push: truncValueUptoTwoDigit("$sumOfBM"),
+              $push: truncValue("$sumOfBM"),
             },
             percentage: {
-              $push: truncValueUptoTwoDigit("$percentage"),
+              $push: truncValue("$percentage"),
             },
           },
         },
@@ -16794,7 +16802,6 @@ router.get("/dummyAPI", authenticate, async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 });
-module.exports = router;
 
 // labels: [
 //   `${bdTrendData?.[0].financialYear[0].labels}`,
@@ -17322,3 +17329,5 @@ router.get(
     }
   }
 );
+
+module.exports = router;
