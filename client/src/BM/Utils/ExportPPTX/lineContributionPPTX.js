@@ -1,5 +1,10 @@
 import { MONTH_LABELS, chartColors } from "../ChartUtils/chartEnums";
-import { commonPptOptions } from "./exportPPTXOptions";
+import {
+  commonPptOptions,
+  genSlideTitle,
+  genSlideTitleFilterNames,
+  genSlideTitleYearFilters,
+} from "./exportPPTXOptions";
 import axios from "axios";
 
 export async function generateLineContributionPpt(pptx, urlOptions) {
@@ -92,33 +97,13 @@ async function genSlide01(pptx, urlOptions) {
   let slide = pptx.addSlide();
   let comboProps;
 
-  /*
-   * @add Title
-   *
-   */
-  slide.addText(
-    [
-      {
-        text: "Line Contribution",
-        options: { fontSize: 32, breakLine: true },
-      },
-      {
-        text: "Plant",
-        options: { fontSize: 14, charSpacing: 4, breakLine: true },
-      },
-    ],
-    {
-      x: 0,
-      y: 0,
-      w: 13.33,
-      h: 1,
-      color: "FFFFFF",
-      fill: { color: pptx.colors.ACCENT1, transparency: 5 },
-      valign: "middle",
-      align: "center",
-      isTextBox: true,
-    }
-  );
+  genSlideTitle(pptx, slide, "Line Contribution");
+  genSlideTitleYearFilters(pptx, slide, urlOptions, {
+    x: 8.85,
+    y: 0,
+    w: 4,
+    h: 0.75,
+  });
 
   /*
    * @add first chart
@@ -160,9 +145,9 @@ async function genSlide01(pptx, urlOptions) {
   comboProps = {
     ...commonPptOptions,
     x: 0.5,
-    y: 1.6,
+    y: 1.25,
     w: 12.3,
-    h: 5.0,
+    h: 5.5,
     //
     catAxisLabelFontSize: 10,
     catAxisOrientation: "minMax",
@@ -193,33 +178,19 @@ async function genSlide02(pptx, urlOptions) {
   let slide = pptx.addSlide();
   let comboProps;
 
-  /*
-   * @add Title
-   *
-   */
-  slide.addText(
-    [
-      {
-        text: "Line Contribution",
-        options: { fontSize: 32, breakLine: true },
-      },
-      {
-        text: "Section",
-        options: { fontSize: 14, charSpacing: 4, breakLine: true },
-      },
-    ],
-    {
-      x: 0,
-      y: 0,
-      w: 13.33,
-      h: 1,
-      color: "FFFFFF",
-      fill: { color: pptx.colors.ACCENT1, transparency: 5 },
-      valign: "middle",
-      align: "center",
-      isTextBox: true,
-    }
-  );
+  genSlideTitle(pptx, slide, "");
+  genSlideTitleYearFilters(pptx, slide, urlOptions, {
+    x: 8.85,
+    y: 0,
+    w: 4,
+    h: 0.75,
+  });
+  genSlideTitleFilterNames(pptx, slide, urlOptions, {
+    x: 0.5,
+    y: 0,
+    w: 4,
+    h: 0.75,
+  });
 
   /*
    * @add first chart
@@ -268,9 +239,9 @@ async function genSlide02(pptx, urlOptions) {
   comboProps = {
     ...commonPptOptions,
     x: 0.5,
-    y: 1.6,
+    y: 1.25,
     w: 12.3,
-    h: 5.0,
+    h: 5.5,
     //
     catAxisLabelFontSize: 10,
     catAxisOrientation: "minMax",

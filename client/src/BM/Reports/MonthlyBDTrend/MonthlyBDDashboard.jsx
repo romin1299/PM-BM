@@ -79,6 +79,7 @@ const MonthlyBDTDashboard = () => {
     ...filterState,
     filter,
     selectedYear,
+    currentTabViewName,
   };
 
   const baseUrlForFiltering = "/getFiltrationValue/monthly-breakdown-filter";

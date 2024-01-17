@@ -1,5 +1,9 @@
 import { MONTH_LABELS } from "../ChartUtils/chartEnums";
-import { commonPptOptions } from "./exportPPTXOptions";
+import {
+  commonPptOptions,
+  genSlideTitleFilterNames,
+  genSlideTitleYearFilters,
+} from "./exportPPTXOptions";
 import axios from "axios";
 
 import { monthlyBdChart } from "./monthlyBdChart";
@@ -40,6 +44,18 @@ async function genSlide01(pptx, urlOptions) {
       isTextBox: true,
     }
   );
+  genSlideTitleFilterNames(pptx, slide, urlOptions, {
+    x: 0.5,
+    y: 0,
+    w: 4,
+    h: 1,
+  });
+  genSlideTitleYearFilters(pptx, slide, urlOptions, {
+    x: 8.85,
+    y: 0,
+    w: 4,
+    h: 1,
+  });
 
   /**
    *
@@ -253,9 +269,11 @@ const fetchSectionNosData = async (urlOptions) => {
     "Mar-24",
   ];
 
+  console.log('currentTabViewName:', currentTabViewName)
   const url = `/majorBDCount${
     currentTabViewName === "Section" ? "ForSection" : ""
   }/${flagForTogglingFilter}/${selectedValue}`;
+  console.log("url:", url);
 
   const params = { selectedYear };
 

@@ -1,4 +1,3 @@
-import { MONTH_LABELS, chartColors } from "../ChartUtils/chartEnums";
 import { genSlideDailyBDTrend } from "./dailyBdTrendSlide";
 import { commonPptOptions } from "./exportPPTXOptions";
 import axios from "axios";
@@ -17,7 +16,7 @@ const fetchBdHoursData = async (urlOptions) => {
 
   const url = `/getBDHoursGraphData/${flagForTogglingFilter}/${selectedValue}`;
 
-  const params = { selectedYear,targetKey:"monthlyBDHrsTarget" };
+  const params = { selectedYear, targetKey: "monthlyBDHrsTarget" };
 
   try {
     const res = await axios.get(url, {
@@ -43,7 +42,7 @@ const fetchMTTRData = async (urlOptions) => {
 
   const url = `/getMTTRGraphData/${flagForTogglingFilter}/${selectedValue}`;
 
-  const params = { selectedYear,targetKey:"monthlyMTTRTarget" };
+  const params = { selectedYear, targetKey: "monthlyMTTRTarget" };
 
   try {
     const res = await axios.get(url, {
@@ -377,7 +376,7 @@ async function genSlide03(pptx, urlOptions) {
     showCatAxisTitle: true,
     catAxisTitle: "Days",
     //
-    title: "Daily Breakdown Trend",
+    title: "BD Hours Vs Count",
     //
     valAxes: [
       {
@@ -432,7 +431,7 @@ async function genSlide03(pptx, urlOptions) {
     y: 0.5,
     w: 3,
     h: 3,
-    title: `${pieData[0].category} Category`,
+    title: `${pieData[0].category}`,
   });
 
   slide.addChart(pptx.charts.PIE, convertData(pieData[1]), {
@@ -441,6 +440,6 @@ async function genSlide03(pptx, urlOptions) {
     y: 4,
     w: 3,
     h: 3,
-    title: `${pieData[1].category} Category`,
+    title: `${pieData[1].category}`,
   });
 }

@@ -185,7 +185,7 @@ const MajorBDCount = ({
   React.useEffect(() => {
     if (flagForTogglingFilter && selectedValue && selectedYear)
       fetchChartData();
-  }, [currentTabViewName, flagForTogglingFilter, selectedValue, selectedYear]);
+  }, [flagForTogglingFilter, selectedValue, selectedYear]);
 
   function sumOfArray(array) {
     return array?.reduce((accumulator, currentValue) => {
