@@ -6902,6 +6902,13 @@ router.get(
           },
         },
 
+   {
+            $sort: {
+              "_id.subCategory": 1,
+            
+            },
+          },
+     
         {
           $group: {
             _id: {
@@ -6921,16 +6928,19 @@ router.get(
             },
           },
         },
-        {
+
+          {
           $limit: 2,
         },
 
-        {
-          $sort: {
-            "_id.category": 1,
-            // "subcategories": 1,
+          {
+            $sort: {
+              "_id.category": 1,
+             
+            },
           },
-        },
+  
+       
 
         {
           $group: {
@@ -8389,6 +8399,17 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
 const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
   try {
+
+    // console.log("dscfdfcswd", req.queryObj)
+
+
+    const keyToDelete =
+    "sectionRef";
+  const newQueryObj = { ...req.queryObj };
+  delete newQueryObj[keyToDelete];
+
+  console.log("newQueryObj",newQueryObj)
+
     const bdTrendData = await Cell.aggregate([
       {
         $match: {
@@ -8411,6 +8432,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 $expr: {
                   $eq: ["$$cell", "$cellRef"],
                 },
+                ...newQueryObj,
               },
             },
 
@@ -8457,11 +8479,11 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 },
               },
             },
-
+                                                                            
             {
               $project: {
                 _id: 0,
-
+                // months : "$cellWiseTotal.month",
                 data: {
                   $map: {
                     input: allMonths,
@@ -8493,42 +8515,183 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
             {
               $unwind: "$data",
             },
-            // {
-            //   $unwind: "$averageData",
-            // },
+            
+         
           ],
           as: "cell_data",
         },
       },
-      // {
-      //   $unwind: "$cell_data",
-      // },
-
+     
       {
         $project: {
           _id: 0,
+          // months : "$cell_data.months",
           label: "$cell_name",
           data: "$cell_data.data",
         },
       },
+
+    //   {
+    //     $group: {
+    //       _id: "$cell_name",
+    //       // label: { $first: "$label" },
+    //       data: { $push: "$cell_data.data" },
+    //     },
+    //   },
+    
+    //   {
+    //     $project: {
+    //       _id: 0,
+    //       label: "$_id",
+    //       data: {
+    //         $map: {
+    //           input: "$data",
+    //           as: "monthData",
+    //           in: {
+    //             $avg: "$$monthData",
+    //           },
+    //         },
+    //       },
+    //     },
+    //   },
+    
+    //   {
+    //     $group: {
+    //       _id: null,
+    //       // averageData: {
+    //       //   $push: {
+    //       //     $map: {
+    //       //       input: { $arrayElemAt: ["$data", 0] }, 
+    //       //       as: "labelData",
+    //       //       in: {
+    //       //         $avg: "$$labelData",
+    //       //       },
+    //       //     },
+    //       //   },
+    //       // },
+    //       bdTrendData: { $push: "$$ROOT" },
+    //     },
+    //   },
+    
+    // //   {
+    // //     $unwind: "$averageData",
+    // //   },
+    
+    //   {
+    //     $project: {
+    //       _id: 0,
+    //       bdTrendData: 1,
+    //       averageData: "$averageData",
+    //     },
+    //   },
+    ]);
+// console.log("req.params.selectedId",req.params.selectedId)
+    const averageOfData = await RequestSheetOfBM.aggregate([
+
+      {
+        $match : {
+          sectionRef : mongoose.Types.ObjectId(req.params.selectedId),
+          ...newQueryObj,
+        }
+      },
+      {
+        $group: {
+          _id: {
+            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            cell : "$cellRef"
+          },
+
+    
+
+          sumBM: {
+            $sum: {
+              $cond: [
+                {
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
+                  ],
+                },
+                {
+                  $divide: [
+                    "$maintenanceReportFilledByMTD.breakDownTime",
+                    60,
+                  ],
+                },
+                0,
+              ],
+            },
+          },
+        },
+      },
+
+      {
+        $group: {
+          _id: "$_id.cell",
+          // label: { $first: "$cell_name" },
+          cellWiseTotal: {
+            $push: {
+              month: "$_id.date",
+              // bdTimeSum: { $trunc: [req.mttrOrSumFormula, 1] },
+              avgData: {$avg : "$sumBM" }
+            },
+          },
+        },
+      },
+
+      // {
+      //   $project: {
+      //     _id: 0,
+      //     // months : "$cellWiseTotal.month",
+      //     data: {
+      //       $map: {
+      //         input: allMonths,
+      //         as: "month",
+      //         in: {
+      //           $cond: [
+      //             {
+      //               $in: ["$$month.monthName", "$cellWiseTotal.month"],
+      //             },
+      //             {
+      //               $arrayElemAt: [
+      //                 "$cellWiseTotal.avgData",
+      //                 {
+      //                   $indexOfArray: [
+      //                     "$cellWiseTotal.month",
+      //                     "$$month.monthName",
+      //                   ],
+      //                 },
+      //               ],
+      //             },
+      //             0,
+      //           ],
+      //         },
+      //       },
+      //     },
+      //   },
+      // },
     ]);
 
-    const dataArrays = bdTrendData.map((entry) => entry.data);
+    // console.log("averageOfData",averageOfData)
+    
 
-    const averageData = dataArrays[0].map((_, i) => {
-      const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
-      return (
-        sum /
-          (dataArrays.length -
-            dataArrays.filter((array) => array[i] === undefined).length) || 0
-      );
-    });
+    // const dataArrays = bdTrendData.map((entry) => entry.data);
+
+    // const averageData = dataArrays[0].map((_, i) => {
+    //   const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+    //   return (
+    //     sum /
+    //       (dataArrays.length -
+    //         dataArrays.filter((array) => array[i] === undefined).length) || 0
+    //   );
+    // });
 
     return res.status(200).json({
       message: "Cell Wise Monthly BD trend data for Section get successfully",
       bdTrendData,
-      bdTrendDataTarget: req.target,
-      averageData,
+      // bdTrendDataTarget: req.target,
+      // averageData,
+      averageOfData,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -9120,12 +9283,11 @@ const targetMiddlewareForMBD = async (req, res, next) => {
       ...pipelineCount,
     ]);
 
-    // console.log("target?.[0]?.monthlyTarget",target?.[0]?.monthlyTarget)
+    // console.log("target?.[0]?.monthlyTarget",targetForCount?.[0]?.yearlyTarget)
 
     req.target = target?.[0]?.monthlyTarget || [];
-    // req.yearlyTarget = target?.[0]?.yearlyTarget || [];
     req.targetForCount = targetForCount?.[0]?.monthlyTarget || [];
-    // req.yearlyTargetForCount = targetForCount?.[0].yearlyTarget || [];
+    req.targetForCountTotal = targetForCount?.[0]?.yearlyTarget || [];
 
     next();
   } catch (error) {
@@ -9290,6 +9452,7 @@ router.get(
   middlewareForMTTRKPIReport,
   sectionMonthlyBdTrendForPlantMiddleware
 );
+
 router.get(
   "/mttrForSection/kpiFromDatabase/:filter/:selectedId",
   authenticate,
@@ -10303,6 +10466,7 @@ router.get(
 
         bdTrendData,
         bdTrendDataTarget: req.targetForCount,
+        targetTotal: req.targetForCountTotal,
         // sectionQuery,
         // subSectionQuery,
       });
@@ -10453,9 +10617,9 @@ router.get(
 
       return res.status(200).json({
         message: "Mbd Count data get successfully",
-
         bdTrendData,
         bdTrendDataTarget: req.targetForCount,
+        targetTotal: req.targetForCountTotal,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -13024,7 +13188,7 @@ router.get(
 
         {
           $group: {
-            _id: "$machine_data.machine_name",
+            _id: "$machine_data.machine_nickname",
             count: { $sum: 1 },
             machine_hours: {
               $sum: {
