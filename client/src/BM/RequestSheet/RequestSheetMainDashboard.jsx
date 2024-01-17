@@ -574,7 +574,8 @@ const RequestSheetMainDashboard = () => {
           `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
           {
             state: {
-              prevPath: location.pathname,
+              prevPath: location?.pathname,
+              prevPathSearch: location?.search,
               supportingTM:
                 reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
             },

@@ -10,7 +10,7 @@ import { Box } from "@mui/material";
 import MachineAgeGroupTable from "./MachineAgeGroupTable";
 import YearlyContributionBarChart from "./YearlyContributionBarChart";
 import StackedBarChart from "./StackedBarChart";
-import CategoryDoughnutChart from "../TopMachineBreakdown/CategoryDoughnutChart";
+import CategoryDoughnutChart from "./CategoryDoughnutChart";
 
 const MachineAgeReport = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);

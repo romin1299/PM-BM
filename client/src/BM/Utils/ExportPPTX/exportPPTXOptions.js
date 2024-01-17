@@ -57,8 +57,9 @@ export const commonPptOptions = {
   dataLabelColor: "000000",
   dataLabelFontFace: "Arial",
   dataLabelFontSize: 10,
-  dataLabelPosition: "inEnd",
-  // showValue: true,
+  // dataLabelFormatCode: "#.#",
+  // dataLabelPosition: "inEnd",
+  showValue: true,
 
   //
   legendFontSize: userOptions.textSize + 2,

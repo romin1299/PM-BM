@@ -17,6 +17,7 @@ const BDRequestSheetTable = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  // console.log("location:", location);
 
   const requestSheetHeader = [
     {
@@ -74,7 +75,10 @@ const BDRequestSheetTable = ({
         navigate(
           `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
           {
-            state: { prevPath: location.pathname },
+            state: {
+              prevPath: location?.pathname,
+              prevPathSearch: location?.search,
+            },
           }
         );
       },
