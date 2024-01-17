@@ -198,7 +198,7 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
         <Row className="m-0  p-1 border">
           <Col lg={4}>
             <button
-              class="bg-success text-white border-0 pt-1 pb-2 mt-1"
+              class="bg-success text-white border-0 pt-1 pb-2"
               onClick={() => setIsAdding(true)}
             >
               Add Problem

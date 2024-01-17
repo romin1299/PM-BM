@@ -69,6 +69,7 @@ import MachineDocument from "./Common/Machine/MachineDocument";
 import AttachmentFormateTable from "./Common/Machine/AttachmentFormateTable";
 import HistoryFormateTable from "./Common/Machine/HistoryFormateTable";
 
+import MasterLogMainDashboard from "./Common/MasterLog/MasterLogMainDashboard";
 import Profile from "./pages/Profile";
 
 import "./App.css";
@@ -78,6 +79,10 @@ const commonRoutes = [
   {
     path: "/profile",
     element: <Profile />,
+  },
+  {
+    path: "/master-log",
+    element: <MasterLogMainDashboard />,
   },
   {
     path: "/machine-history",

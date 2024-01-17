@@ -24,6 +24,7 @@ app.use(express.json());
 
 app.use(require(path.join(__dirname, "./controller/auth")));
 app.use(require(path.join(__dirname, "./controller/bmController")));
+app.use("/common",require(path.join(__dirname, "./controller/commonController")));
 
 require(path.join(
   __dirname,
@@ -53,6 +54,8 @@ app.use(express.static(path.join(__dirname, "data_sheets")));
 app.use(express.static(path.join(__dirname, "DataSheetOfBD")));
 //for BM drawings
 app.use(express.static(path.join(__dirname, "DrawingsOfBD")));
+//for attachments
+app.use(express.static(path.join(__dirname, "attachments")));
 
 // index file path
 app.get("/*", (req, res) => {
