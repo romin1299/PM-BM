@@ -1,14 +1,16 @@
 import React, { useReducer, useEffect } from "react";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   initialState,
   reducer,
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 import BMTitlebar from "../Component/BMTitlebar";
-import { Col, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { SuccessToast, WarningToast } from "../Component/ShowTostify";
+import "./TargetDashboard.scss";
+import ReportTitleBar from "../Reports/Common/ReportTitleBar";
 
 const TargetDashboard = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -21,48 +23,61 @@ const TargetDashboard = () => {
     watch,
     reset,
     setValue,
+    setFocus,
   } = useForm({
     defaultValues: {},
   });
 
   const monthKeyArray = [
-    {
-      key: "Apr",
-    },
-    {
-      key: "May",
-    },
-    {
-      key: "June",
-    },
-    {
-      key: "July",
-    },
-    {
-      key: "Aug",
-    },
-    {
-      key: "Sep",
-    },
-    {
-      key: "Oct",
-    },
-    {
-      key: "Nov",
-    },
-    {
-      key: "Dec",
-    },
-    {
-      key: "Jan",
-    },
-    {
-      key: "Feb",
-    },
-    {
-      key: "Mar",
-    },
+    { key: "Apr" },
+    { key: "May" },
+    { key: "June" },
+    { key: "July" },
+    { key: "Aug" },
+    { key: "Sep" },
+    { key: "Oct" },
+    { key: "Nov" },
+    { key: "Dec" },
+    { key: "Jan" },
+    { key: "Feb" },
+    { key: "Mar" },
   ];
+
+  // let columns = !reduceState?.selectedLine
+  //   ? [
+  //       {
+  //         key: "monthlyMBDCountTarget",
+  //         name: "Major BD Hours",
+  //         type: "number",
+  //       },
+  //     ]
+  //   : [
+  //       {
+  //         key: "monthlyProductionHrs",
+  //         name: "Production Hours",
+  //         type: "number",
+  //       },
+  //       { key: "monthlyBDHrsTarget", name: "BD Hours", type: "number" },
+  //       { key: "monthlyMTTRTarget", name: "MTTR", type: "number" },
+  //       { key: "monthlyMTBFTarget", name: "MTBF", type: "number" },
+  //       { key: "monthlyBDPercentageTarget", name: "BD %", type: "number" },
+  //     ];
+
+  let columns;
+
+  if (reduceState?.selectedLine) {
+    columns = [
+      { key: "monthlyProductionHrs", name: "Production Hours", type: "number" },
+      { key: "monthlyBDHrsTarget", name: "BD Hours", type: "number" },
+      { key: "monthlyMTTRTarget", name: "MTTR", type: "number" },
+      { key: "monthlyMTBFTarget", name: "MTBF", type: "number" },
+      { key: "monthlyBDPercentageTarget", name: "BD %", type: "number" },
+    ];
+  } else {
+    columns = [
+      { key: "monthlyMBDCountTarget", name: "Major BD Hours", type: "number" },
+    ];
+  }
 
   const setTargetOfBD = async (targetValue) => {
     try {
@@ -157,6 +172,7 @@ const TargetDashboard = () => {
   useEffect(() => {
     if (reduceState?.selectedValue) {
       getTargetDetails();
+      setFocus("monthlyProductionHrs.Apr");
     }
   }, [
     reduceState?.selectedYear,
@@ -165,8 +181,8 @@ const TargetDashboard = () => {
   ]);
 
   return (
-    <>
-      <BMTitlebar
+    <Container fluid>
+      <ReportTitleBar
         title="Set Target (MBD Count, PRD Hrs., BD Hrs.)"
         Toolbar={
           <ChartsToolbar
@@ -177,7 +193,83 @@ const TargetDashboard = () => {
         }
       />
 
-      <div className="cell p-4">
+      <Row className="mt-3">
+        <Col>
+          <div className="cell p-3">
+            <form
+              onSubmit={handleSubmit(setTargetOfBD)}
+              // style={{
+              //   width: "100%",
+              //   overflowX: "scroll",
+              // }}
+            >
+              <div
+                style={{
+                  width: "100%",
+                  overflowX: "auto",
+                  border: "1px solid lightgray",
+                  borderRadius: "4px",
+                }}
+              >
+                <table className="target-table" style={{ width: "100%" }}>
+                  <thead>
+                    <tr>
+                      <th style={{ maxWidth: "100px" }}></th>
+                      {monthKeyArray.map((month, index) => (
+                        <th key={index} style={{ maxWidth: "100px" }}>
+                          {month.key}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {columns?.map((col, colIndex) => (
+                      <tr key={colIndex}>
+                        <td className="month-td">{col.name}</td>
+                        {monthKeyArray.map((month, monthIndex) => (
+                          <td
+                            key={monthIndex}
+                            style={{ padding: "0px", width: "100px" }}
+                          >
+                            <input
+                              type="number"
+                              className="target-table-input"
+                              style={{ width: "100%", minWidth: "50px" }}
+                              id={`${month?.key}`}
+                              defaultValue={0}
+                              name={`${month?.key}`}
+                              {...register(`${col.key}.${month?.key}`, {
+                                // required: "This field is required",
+                              })}
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* <button type="submit" className="btn btn-warning mt-3">
+                Submit Target
+              </button> */}
+
+              <Button
+                // size="small"
+                type="submit"
+                variant="contained"
+                disableElevation
+                className="bg-button mt-3"
+              >
+                Submit Target
+              </Button>
+            </form>
+          </div>
+        </Col>
+      </Row>
+
+      {/* <div className="cell p-4">
         <form onSubmit={handleSubmit(setTargetOfBD)}>
           <Row lg={4} md={4} sm={12}>
             {monthKeyArray?.map((monthName) => (
@@ -319,8 +411,8 @@ const TargetDashboard = () => {
             </Col>
           </Row>
         </form>
-      </div>
-    </>
+      </div> */}
+    </Container>
   );
 };
 
