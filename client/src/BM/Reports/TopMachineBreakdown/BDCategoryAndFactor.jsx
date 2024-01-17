@@ -49,8 +49,10 @@ const ChartCard = ({ category }) => {
   };
 
   return (
-    <Box className="cell p-3">
-      <ChartTitleBar title={`${category?.category} Category`} />
+    <Box variant="outlined" className="cell">
+      <div className="p-3 pb-0">
+        <ChartTitleBar title={`${category?.category} Category`} />
+      </div>
       {/* <ChartTitleBar title="BD Hours Vs Count" /> */}
       {/* <Typography variant="body1" style={{ fontSize: "1rem" }}>
         {category?.category} Category
@@ -148,7 +150,7 @@ const BDCategoryAndFactor = ({
             ) : categories?.[key] ? (
               <ChartCard category={categories?.[key]} />
             ) : (
-              <Box className="cell p-3">
+              <Box className="cell p-3" sx={{ height: 250 }}>
                 <DataNotFound sx={{ mb: 0 }} />
               </Box>
             )}
