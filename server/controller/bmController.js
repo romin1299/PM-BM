@@ -12,6 +12,7 @@ const SubSection = require("../model/subSectionSchema");
 const Cell = require("../model/cellSchema");
 const Line = require("../model/lineSchema");
 const LogHistory = require("../model/logHistorySchema");
+const NoLossBD = require("../model/noLossBDSheetData")
 
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
@@ -558,7 +559,7 @@ router.post(
           const newBDRequestSheetGenerate = await requestSheet.save();
 
           if (newBDRequestSheetGenerate) {
-            //get MTD TL of the assign section for sending mail when request-sheet is generated.
+            //get MTD TL and MTD HOS of the assign section for sending mail when request-sheet is generated.
             const getMTDTL = await User.find(
               {
                 ...req?.queryObj,
@@ -566,6 +567,15 @@ router.post(
                 user_type: "TL/HOSS",
               },
               { tm_no: 1, tm_name: 1, email: 1 }
+            );
+
+            const getMTDHOS = await User.find(
+              {
+                ...req?.queryObj,
+                tm_department: "MTD",
+                tm_grade: "HOS",
+              },
+              { tm_name: 1, line_names: 1, email: 1 }
             );
 
             let bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
@@ -622,6 +632,7 @@ router.post(
               title: `Request sheet is generated`,
               greetings: `Sir\\Ma'am`,
               toEmailIds: getMTDTL?.map((obj) => obj?.email),
+              ccEmailIds: getMTDHOS?.map((obj) => obj?.email),
               bodyTable,
             });
 
@@ -777,6 +788,23 @@ const findRequestSheetMiddleware = async (req, res, next) => {
         },
       },
       {
+        $lookup: {
+          from: "users",
+          localField: "requestSheetCreatedBy",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "requestSheetCreatedBy",
+        },
+      },
+      {
         $project: {
           machines: 1,
           requestSheetCreatedBy: 1,
@@ -806,6 +834,9 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           },
           approvalOfMTD_SL: {
             $arrayElemAt: ["$approvalOfMTD_SL", 0],
+          },
+          requestSheetCreatedByForSendingEmail: {
+            $arrayElemAt: ["$requestSheetCreatedBy", 0],
           },
           handOverTimeForDefault:
             "$maintenanceReportFilledByMTD.refHandOverTime",
@@ -1200,7 +1231,7 @@ router.patch(
       );
 
       req.updateRequestSheetData = updateRequestSheetData;
-      req.queryObj = queryObj;
+      req.queryObjForSendingEmailValidation = queryObj;
 
       req.queryPipeline = [
         {
@@ -1218,7 +1249,8 @@ router.patch(
     }
   },
   findRequestSheetMiddleware,
-  (req, res, next) => {
+  dashboardLevelUserCheckMiddleware,
+  async (req, res, next) => {
     if (req.updateRequestSheetData) {
       const bodyContent = ({ key, value }) => {
         return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
@@ -1265,8 +1297,28 @@ router.patch(
   
     </table>`;
       };
+
+      //get MTD TL of the assign section for sending mail when request-sheet is generated.
+      const getMTDTL = await User.find(
+        {
+          ...req?.queryObj,
+          tm_department: "MTD",
+          user_type: "TL/HOSS",
+        },
+        { tm_no: 1, tm_name: 1, email: 1 }
+      );
+
+      const getMTDHOS = await User.find(
+        {
+          ...req?.queryObj,
+          tm_department: "MTD",
+          tm_grade: "HOS",
+        },
+        { tm_name: 1, line_names: 1, email: 1 }
+      );
+
       if (
-        req?.queryObj?.hasOwnProperty("assignUser") &&
+        req?.queryObjForSendingEmailValidation?.hasOwnProperty("assignUser") &&
         req.requestSheetData?.[0]?.assignUserEmail
       ) {
         let bodyTable = bodyContent({
@@ -1277,11 +1329,20 @@ router.patch(
           subject: `Request Sheet is assign (${req.requestSheetData?.[0]?.cell}/${req.requestSheetData?.[0]?.line}/${req.requestSheetData?.[0]?.machineName}/${req.requestSheetData?.[0]?.requestSheetNoOfBM})`,
           title: `Request sheet is assign`,
           greetings: `Sir\\Ma'am`,
-          toEmailIds: req.requestSheetData?.[0]?.assignUserEmail,
+          toEmailIds: [
+            req.requestSheetData?.[0]?.assignUserEmail,
+            req.requestSheetData?.[0]?.requestSheetCreatedByForSendingEmail
+              ?.email,
+          ],
+          ccEmailIds: getMTDTL
+            ?.map((obj) => obj?.email)
+            .concat(getMTDHOS?.map((obj) => obj?.email)),
           bodyTable: bodyTable,
         });
       } else if (
-        req?.queryObj?.hasOwnProperty("handOverUser") &&
+        req?.queryObjForSendingEmailValidation?.hasOwnProperty(
+          "handOverUser"
+        ) &&
         req.requestSheetData?.[0]?.handOverUserEmail
       ) {
         let bodyTable = bodyContent({
@@ -1292,7 +1353,14 @@ router.patch(
           subject: `Request Sheet is handover (${req.requestSheetData?.[0]?.cell}/${req.requestSheetData?.[0]?.line}/${req.requestSheetData?.[0]?.machineName}/${req.requestSheetData?.[0]?.requestSheetNoOfBM})`,
           title: `Request sheet is handover`,
           greetings: `Sir\\Ma'am`,
-          toEmailIds: req.requestSheetData?.[0]?.handOverUserEmail,
+          toEmailIds: [
+            req.requestSheetData?.[0]?.handOverUserEmail,
+            req.requestSheetData?.[0]?.requestSheetCreatedByForSendingEmail
+              ?.email,
+          ],
+          ccEmailIds: getMTDTL
+            ?.map((obj) => obj?.email)
+            .concat(getMTDHOS?.map((obj) => obj?.email)),
           bodyTable: bodyTable,
         });
       } else if (req.body?.work_order_status === "Closed") {
@@ -1304,7 +1372,12 @@ router.patch(
           subject: `Request Sheet Work Order Closed (${req.requestSheetData?.[0]?.cell}/${req.requestSheetData?.[0]?.line}/${req.requestSheetData?.[0]?.machineName}/${req.requestSheetData?.[0]?.requestSheetNoOfBM})`,
           title: `Request Sheet work order is closed`,
           greetings: `Sir\\Ma'am`,
-          toEmailIds: req.requestSheetData?.[0]?.approvalOfMTD_SL?.email,
+          toEmailIds:
+            req.requestSheetData?.[0]?.requestSheetCreatedByForSendingEmail
+              ?.email,
+          ccEmailIds: getMTDTL
+            ?.map((obj) => obj?.email)
+            .concat(getMTDHOS?.map((obj) => obj?.email)),
           bodyTable: bodyTable,
         });
       }
@@ -1668,17 +1741,20 @@ router.get(
               $sum: 1,
             },
             open_request_sheet_count: {
+              // $sum: {
+              //   $cond: [
+              //     {
+              //       $and: [
+              //         { $ne: ["$requestSheetStatus", "Generated"] },
+              //         { $ne: ["$requestSheetStatus", "Completed"] },
+              //       ],
+              //     },
+              //     1,
+              //     0,
+              //   ],
+              // },
               $sum: {
-                $cond: [
-                  {
-                    $and: [
-                      { $ne: ["$requestSheetStatus", "Generated"] },
-                      { $ne: ["$requestSheetStatus", "Completed"] },
-                    ],
-                  },
-                  1,
-                  0,
-                ],
+                $cond: [{ $ne: ["$requestSheetStatus", "Completed"] }, 1, 0],
               },
             },
             closed_request_sheet_count: {
@@ -4104,6 +4180,52 @@ router.get(
 );
 
 router.get(
+  "/getListOfTheTLAndOperatorForNoLossBDEntryForm",
+  authenticate,
+  dashboardLevelUserCheckMiddleware,
+  async (req, res, next) => {
+    try {
+      let TLHOSS_and_TM_user_list = await User.find(
+        {
+          ...req.queryObj,
+          $or: [
+            {
+              user_type: "Operator",
+            },
+            {
+              $and: [
+                {
+                  user_type: "TL/HOSS",
+                },
+                {
+                  tm_department: "MTD",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          tm_name: 1,
+          tm_department: 1,
+          tm_grade: 1,
+          user_type: 1,
+        }
+      );
+
+      res.status(201).json({
+        message: "TL and Operator data get successfully",
+        TLHOSS_and_TM_user_list,
+      });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  }
+);
+
+router.get(
   "/getMachineRequestSheetDetailsForApproval/:filter/:selectedId",
   authenticate,
   filterMiddleware,
@@ -4210,6 +4332,7 @@ router.get(
 router.patch(
   "/sendApprovalForRequestSheetOfBM/:reqId/:machineRef",
   authenticate,
+  dashboardLevelUserCheckMiddleware,
   async (req, res, next) => {
     try {
       let {
@@ -4309,11 +4432,23 @@ router.patch(
             key: "Submitted By",
             value: req?.rootUser?.tm_name,
           });
+
+          //get MTD HOS of the assign section for sending mail when request-sheet is send for approval.
+          const getMTDHOS = await User.find(
+            {
+              ...req?.queryObj,
+              tm_department: "MTD",
+              tm_grade: "HOS",
+            },
+            { tm_name: 1, line_names: 1, email: 1 }
+          );
+
           sendMailForBD({
             subject: `Request Sheet Approval (${requestSheetDataOfBM?.cell}/${requestSheetDataOfBM?.line}/${requestSheetDataOfBM?.machineName}/${requestSheetDataOfBM?.requestSheetNoOfBM})`,
             title: `Kindly Approve Request-sheet`,
             greetings: `Sir\\Ma'am`,
             toEmailIds: assignApprovalList?.MTD_TL?.email,
+            ccEmailIds: getMTDHOS?.map((obj) => obj?.email),
             bodyTable: bodyTable,
           });
 
@@ -17560,3 +17695,43 @@ router.get(
     }
   }
 );
+
+router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
+  try {
+    const {
+      noLossData,
+      problemsOfBM,
+      actionAndCounterMeasureStep,
+      selectedSupportedTM,
+      selectedSection,
+      selectedSubSection,
+      selectedCell,
+      selectedLine,
+      selectedMachine,
+    } = req.body;
+
+    const addNewNoLossBD = new NoLossBD({
+      ...noLossData,
+      problemsOfBM,
+      actionAndCounterMeasureStep,
+      supportingTM: selectedSupportedTM?.map(obj => obj?._id),
+      sectionRef: selectedSection || null,
+      subSectionRef: selectedSubSection || null,
+      cellRef: selectedCell || null,
+      lineRef: selectedLine || null
+    })
+
+    const resultOfSaveNoLossBD = await addNewNoLossBD.save()
+
+    if(resultOfSaveNoLossBD){
+      res.status(201).json({
+        message: "No Loss data added successfully",
+        resultOfSaveNoLossBD,
+      });
+    }
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: error?.message, error: new Error(error) });
+  }
+});
