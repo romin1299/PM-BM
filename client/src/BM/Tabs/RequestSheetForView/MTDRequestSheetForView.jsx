@@ -1487,7 +1487,7 @@ function MyTable({
                     className="border col-auto d-flex align-items-center gap-1"
                   >
                     <small>
-                      <b>ACTION & COUNTERMEASURE STEPS (Dynamic)</b>
+                      <b>ACTION & COUNTERMEASURE STEPS</b>
                     </small>
                   </Col>
                   <Col

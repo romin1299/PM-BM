@@ -40,7 +40,13 @@ const TopMachineBD = () => {
                 baseUrlForFiltering={baseUrlForFiltering}
                 reduceState={reduceState}
                 reducerDispatch={reducerDispatch}
+                yearFiltration
+                sectionFiltration
+                subSectionFiltration
+                cellFiltration
+                lineFiltration
                 machineFiltration
+                resetButtonFiltration
               />
               <Col className="col-auto">
                 <DownloadMenu
@@ -73,7 +79,13 @@ const TopMachineBD = () => {
               baseUrlForFiltering={baseUrlForFilteringUsingDefaultValue}
               reduceState={reduceStateForDefaultCellLineMachineFilter}
               reducerDispatch={reducerDispatchForDefaultCellLineMachineFilter}
-              machineFiltration={"machineFiltration"}
+              yearFiltration
+              sectionFiltration
+              subSectionFiltration
+              cellFiltration
+              lineFiltration
+              machineFiltration
+              resetButtonFiltration
             />
           }
         />

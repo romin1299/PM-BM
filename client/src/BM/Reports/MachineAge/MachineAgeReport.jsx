@@ -28,7 +28,13 @@ const MachineAgeReport = () => {
               baseUrlForFiltering={baseUrlForFiltering}
               reduceState={reduceState}
               reducerDispatch={reducerDispatch}
+              yearFiltration
+              sectionFiltration
+              subSectionFiltration
+              cellFiltration
+              lineFiltration
               machineFiltration
+              resetButtonFiltration
             />
           }
         />

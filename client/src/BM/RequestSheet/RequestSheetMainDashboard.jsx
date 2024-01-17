@@ -591,6 +591,12 @@ const RequestSheetMainDashboard = () => {
         reduceState={reduceState}
         reducerDispatch={reducerDispatch}
         monthFiltration
+        yearFiltration
+        sectionFiltration
+        subSectionFiltration
+        cellFiltration
+        lineFiltration
+        resetButtonFiltration
       />
     </Box>,
   ];

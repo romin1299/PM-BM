@@ -301,6 +301,12 @@ const ApprovalLogs = () => {
             reduceState={reduceState}
             reducerDispatch={reducerDispatch}
             monthFiltration
+              yearFiltration
+              sectionFiltration
+              subSectionFiltration
+              cellFiltration
+              lineFiltration
+              resetButtonFiltration
           />
         }
       />
