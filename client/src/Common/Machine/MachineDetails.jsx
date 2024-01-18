@@ -48,15 +48,23 @@ const MachineDetails = ({ machine_code, search }) => {
           <Table bordered className="m-0">
             <tbody className="rounded-3">
               <tr>
-                <td>Machine No.</td>
+                <td>
+                  {" "}
+                  <b>Machine No.</b>
+                </td>
                 <td>{selectedMachineDetails?.machine_code}</td>
               </tr>
               <tr>
-                <td>Machine Name</td>
+                <td>
+                  {" "}
+                  <b>Machine Name</b>
+                </td>
                 <td>{selectedMachineDetails?.machine_name}</td>
               </tr>
               <tr>
-                <td>Cell Name</td>
+                <td>
+                  <b>Cell Name</b>
+                </td>
                 <td>{selectedMachineDetails?.cell_names?.cell_name}</td>
               </tr>
             </tbody>

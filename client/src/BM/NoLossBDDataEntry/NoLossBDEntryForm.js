@@ -35,6 +35,7 @@ const NoLossBDEntryForm = () => {
   } = useForm({
     defaultValues: {
       doneByNoLossBD: loggedUserDetails?._id,
+      DateOfNoLossBD: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
     },
   });
   const [problems, setProblems] = useState([]);
@@ -42,6 +43,7 @@ const NoLossBDEntryForm = () => {
   const [selectedSupportedTM, setSelectedSupportedTM] = useState([]);
   const [supportingTMList, setSupportingTMList] = useState([]);
   const [plantShiftsData, setPlantShiftsData] = useState([]);
+  const [plantCategories, setPlantCategories] = useState([]);
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
@@ -114,6 +116,7 @@ const NoLossBDEntryForm = () => {
 
         // console.log("fetch shifts res:", res);
         setPlantShiftsData(res?.data?.getShifts);
+        setPlantCategories(res?.data?.categories);
       } catch (error) {
         console.log("error:", error);
       }
@@ -134,6 +137,13 @@ const NoLossBDEntryForm = () => {
           problemsOfBM: problems,
           actionAndCounterMeasureStep: actions,
           selectedSupportedTM,
+          breakDownTime:
+            moment(watch("workEndedDateOfBM"))
+              .tz("Asia/Kolkata")
+              .diff(
+                moment(watch("workStartedDateOfBM")).tz("Asia/Kolkata"),
+                "minutes"
+              ) || 0,
           selectedSection: reduceState?.selectedSection,
           selectedSubSection: reduceState?.selectedSubSection,
           selectedCell: reduceState?.selectedCell,
@@ -169,7 +179,7 @@ const NoLossBDEntryForm = () => {
         <Row className="mb-3">
           <Col className="col-auto">
             <small>
-              <b>Select Cell/product, Line and Machine :</b>
+              <b>SELECT CELL/PRODUCT, LINE AND MACHINE :</b>
             </small>
             <ChartsToolbar
               baseUrlForFiltering={baseUrlForFiltering}
@@ -185,17 +195,27 @@ const NoLossBDEntryForm = () => {
         </Row>
 
         <Row className="gx-0">
-          <Col className="border p-2" sm={12} md={12} lg={4}>
+          <Col className="border p-2" sm={12} md={12} lg={2}>
             <small>
-              <b>No-Loss BD No: </b>
+              <b>NO-LOSS BD NO: </b>
             </small>
+            <br />
             <input
               type="text"
               name=""
               id=""
-              className="w-25"
+              className="w-50"
               {...register("noLossBDNo", {})}
             />
+            <br />
+            <small className="mb-0 d-block">
+              <b>DATE & TIME: </b>
+              <br />
+              <input
+                type="datetime-local"
+                {...register("DateOfNoLossBD", {})}
+              />
+            </small>
             <br />
             <small>
               <b>MAINT. TYPE</b>
@@ -314,38 +334,9 @@ const NoLossBDEntryForm = () => {
                 </FormControl>
               </Col>
 
-              {/* <Col className="col-auto">
-                <FormControl>
-                  <small>
-                    <b>IS ACTION TEMPORARY?</b>
-                  </small>
-
-                  <RadioGroup
-                    row
-                    value={watch("actionTemporaryOrNot")}
-                    // value={"B"}
-                    aria-labelledby="demo-radio-buttons-group-label"
-                    name="radio-buttons-group"
-                  >
-                    <FormControlLabel
-                      value={"Yes"}
-                      control={<Radio color="default" size="small" />}
-                      label={"Yes"}
-                      {...register("actionTemporaryOrNot")}
-                    />
-                    <FormControlLabel
-                      value={"No"}
-                      control={<Radio color="default" size="small" />}
-                      label={"No"}
-                      {...register("actionTemporaryOrNot")}
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </Col> */}
-
               <Col className="col-auto">
                 <small className="mb-0 d-flex align-items-center justify-content-start">
-                  <b>Is Action Temporary?</b>&nbsp;&nbsp;&nbsp;
+                  <b>IS ACTION TEMPORARY?</b>&nbsp;&nbsp;&nbsp;
                 </small>
                 <Form>
                   <div className="d-flex">
@@ -409,36 +400,84 @@ const NoLossBDEntryForm = () => {
 
             <Row>
               <small className="mb-0 d-block">
-                <b>Total Time: </b>
+                <b>TOTAL TIME: </b>
                 <br />
-                <input type="number" {...register("breakDownTime", {})} />
+                <p>
+                  {moment(watch("workEndedDateOfBM"))
+                    .tz("Asia/Kolkata")
+                    .diff(
+                      moment(watch("workStartedDateOfBM")).tz("Asia/Kolkata"),
+                      "minutes"
+                    ) || 0}
+                </p>
               </small>
             </Row>
           </Col>
-          <Col className="border p-2" sm={12} md={6} lg={4}>
+          <Col className="border p-2" sm={12} md={6} lg={3}>
+            <td className="col-lg-6 col-md-6">
+              {plantCategories?.map((categoryObj, idxOfCategory) => (
+                <>
+                  <Row className="m-0">
+                    <Col lg={4} className=" p-2">
+                      <p className="mb-0 d-flex align-items-center justify-content-start">
+                        <b>{categoryObj?.name}</b>&nbsp;&nbsp;&nbsp;
+                      </p>
+                    </Col>
+
+                    <Col
+                      lg={6}
+                      md={12}
+                      className=" p-2 d-flex align-items-center"
+                    >
+                      <Form>
+                        <div className="d-flex row p-2">
+                          {categoryObj?.subCategories?.map(
+                            (subCategoryObj, idxOfSubCategory) => (
+                              <Form.Check
+                                flex
+                                label={subCategoryObj?.name}
+                                type="radio"
+                                value={subCategoryObj?.name}
+                                name={`categories`}
+                                className="col-auto"
+                                // onChange={handleactionTemporaryOrNot}
+                                {...register(
+                                  `categories.${categoryObj?.name}`
+                                  // {
+                                  //   required: "This field is required",
+                                  // }
+                                )}
+                                onChange={(e) => {
+                                  setValue(
+                                    `categories.${categoryObj?.name}`,
+                                    e.target.value,
+                                    { shouldDirty: true }
+                                  );
+                                }}
+                              />
+                            )
+                          )}
+                        </div>
+                        {errors?.[`categories`]?.[`${categoryObj?.name}`] && (
+                          <p className="text-error">
+                            {
+                              errors?.[`categories`]?.[`${categoryObj?.name}`]
+                                ?.message
+                            }
+                          </p>
+                        )}
+                      </Form>
+                    </Col>
+                  </Row>
+                </>
+              ))}
+            </td>
+          </Col>
+          <Col className="border p-2" sm={12} md={6} lg={3}>
             <Row className="mb-2">
               <Col>
                 <small>
-                  <b>Category</b>
-                  <br />
-                  <select
-                    name="categoriesOfNoLossDBData"
-                    id="categoriesOfNoLossDBData"
-                    {...register("categoriesOfNoLossDBData", {})}
-                    value={watch("categoriesOfNoLossDBData")}
-                  >
-                    <option value="" disabled>
-                      Please Select
-                    </option>
-                    <option value="Q">Q</option>
-                    <option value="S">S</option>
-                    <option value="D">D</option>
-                  </select>
-                </small>
-              </Col>
-              <Col>
-                <small>
-                  <b>Machine Status</b>&nbsp;&nbsp;&nbsp;
+                  <b>MACHINE STATUS</b>&nbsp;&nbsp;&nbsp;
                   <Form>
                     <div className="d-flex">
                       <Form.Check
@@ -464,11 +503,9 @@ const NoLossBDEntryForm = () => {
                   </Form>
                 </small>
               </Col>
-            </Row>
-            <Row>
               <Col>
                 <small>
-                  <b>Done By</b>
+                  <b>DONE BY</b>
                   <br />
                   <select
                     name="doneByNoLossBD"
@@ -487,7 +524,7 @@ const NoLossBDEntryForm = () => {
               </Col>
               <Col>
                 <small>
-                  <b>Supporting TM</b>
+                  <b>SUPPORTING TM</b>
                   <Controller
                     name="supportingTM"
                     control={control}
@@ -529,7 +566,7 @@ const NoLossBDEntryForm = () => {
           <Col sm={12} md={6} xxl={4}>
             <div className="d-block align-items-center border p-2">
               <p>
-                <b>Cause</b>
+                <b>CAUSE</b>
               </p>
               <div style={{ paddingInline: "6px" }}>
                 <textarea
@@ -539,6 +576,22 @@ const NoLossBDEntryForm = () => {
                   name="causeOfNoLoss"
                   className="mt-2 w-100"
                   {...register("causeOfNoLoss", {
+                    // required: "This field is required",
+                  })}
+                />
+              </div>
+              <br />
+              <p>
+                <b>COUNTER MEASURE STEP</b>
+              </p>
+              <div style={{ paddingInline: "6px" }}>
+                <textarea
+                  rows={2}
+                  type="text"
+                  id="counterMeasureStep"
+                  name="counterMeasureStep"
+                  className="mt-2 w-100"
+                  {...register("counterMeasureStep", {
                     // required: "This field is required",
                   })}
                 />
