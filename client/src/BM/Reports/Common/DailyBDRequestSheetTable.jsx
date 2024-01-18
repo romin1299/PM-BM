@@ -23,6 +23,7 @@ const BDRequestSheetTable = ({
     {
       title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
+      width: "5%"
     },
     {
       title: "Section",
@@ -53,8 +54,12 @@ const BDRequestSheetTable = ({
       field: "problem",
     },
     {
-      title: "Date-time",
+      title: "Date-Time",
       field: "problemOccurredDateAndTimeOfBM",
+    },
+    {
+      title: "Loss Time",
+      field: "loss_time"
     },
     {
       title: "Work Order Status",

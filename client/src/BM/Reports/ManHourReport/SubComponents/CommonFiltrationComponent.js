@@ -103,37 +103,43 @@ export const reducer = (state, action) => {
         selectedValueForLineAnTMLoadGraph: action?.selectedValue,
         togglingFilterFlagForLineAnTMLoadGraph: action?.flagForTogglingFilter,
 
+        selectedSection: action?.selectedSection,
+
         selectedSubSection: action?.selectedSubSection,
         subSections: action?.subSections,
         selectedCell: action?.selectedCell,
         cells: action?.cells,
         selectedLine: action?.selectedLine,
         lines: action?.lines,
-        selectedMachine : action?.selectedMachine || "",
-        machines: action?.machines || []
+        selectedMachine: action?.selectedMachine,
+        machines: action?.machines,
       };
 
     case ACTION?.GET_DATA_BASED_ON_SUBSECTION:
-      let obj = {};
-      if (action?.selectedCell) {
-        obj = {
-          selectedCell: action?.selectedCell,
-          selectedValue: action?.selectedCell,
-          flagForTogglingFilter: action?.flagForTogglingFilter,
-        };
-      }
+      // let obj = {};
+      // if (action?.selectedCell) {
+      //   obj = {
+      //     selectedCell: action?.selectedCell,
+      //     selectedValue: action?.selectedCell,
+      //     flagForTogglingFilter: action?.flagForTogglingFilter,
+      //   };
+      // }
       return {
         ...state,
         isLoading: false,
         message: action?.message,
 
-        ...obj,
-        cells: action?.cells,
-        selectedLine: action?.selectedLine || "",
-        lines: action?.lines,
-        selectedMachine : action?.selectedMachine || "",
-        machines: action?.machines || [],
+        selectedValue: action?.selectedValue,
         flagForTogglingFilter: action?.flagForTogglingFilter,
+
+        selectedSubSection: action?.selectedSubSection,
+
+        selectedCell: action?.selectedCell,
+        cells: action?.cells,
+        selectedLine: action?.selectedLine,
+        lines: action?.lines,
+        selectedMachine: action?.selectedMachine,
+        machines: action?.machines,
       };
 
     case ACTION?.GET_DATA_BASED_ON_CELL:
@@ -141,12 +147,16 @@ export const reducer = (state, action) => {
         ...state,
         isLoading: false,
         message: action?.message,
+
         selectedValue: action?.selectedValue,
-        selectedLine: action?.selectedLine || "",
-        lines: action?.lines || [],
-        selectedMachine : action?.selectedMachine || "",
-        machines: action?.machines || [],
         flagForTogglingFilter: action?.flagForTogglingFilter,
+
+        selectedCell: action?.selectedCell,
+
+        selectedLine: action?.selectedLine,
+        lines: action?.lines,
+        selectedMachine: action?.selectedMachine,
+        machines: action?.machines,
       };
 
     case ACTION?.GET_DATA_BASED_ON_LINE:
@@ -154,10 +164,14 @@ export const reducer = (state, action) => {
         ...state,
         isLoading: false,
         message: action?.message,
+
         selectedValue: action?.selectedValue,
-        selectedMachine : action?.selectedMachine || "",
-        machines: action?.machines || [],
         flagForTogglingFilter: action?.flagForTogglingFilter,
+
+        selectedLine: action?.selectedLine,
+
+        selectedMachine: action?.selectedMachine,
+        machines: action?.machines,
       };
 
     case ACTION?.HANDLE_SELECT_SECTION:
@@ -213,8 +227,8 @@ export const reducer = (state, action) => {
         selectedCell: action?.selectedCell,
         lines: action?.lines || [],
         selectedLine: action?.selectedLine || "",
-        selectedMachine : action?.selectedMachine || "",
-        machines: action?.machines || []
+        selectedMachine: action?.selectedMachine || "",
+        machines: action?.machines || [],
       };
 
     case ACTION?.HANDLE_SELECT_LINE:
@@ -225,8 +239,8 @@ export const reducer = (state, action) => {
         selectedValue: action?.selectedLine,
 
         selectedLine: action?.selectedLine || "",
-        selectedMachine : action?.selectedMachine || "",
-        machines: action?.machines || []
+        selectedMachine: action?.selectedMachine || "",
+        machines: action?.machines || [],
       };
 
     case ACTION?.HANDLE_SELECT_MACHINE:

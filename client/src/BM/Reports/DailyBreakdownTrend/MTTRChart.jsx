@@ -93,7 +93,7 @@ const labels = [
 const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
   const [mttrData, setMttrData] = useState({
     bdTrendData: [{ label: "", data: [] }],
-    avgData: [],
+    averageData: [],
   });
 
   const getMTTRData = async () => {
@@ -123,9 +123,13 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
         }
       );
 
-      const { message, bdTrendData, bdTrendDataTarget } = await res.json();
+      const { message, bdTrendData, averageData } = await res.json();
 
-      if (res?.status === 201) {
+      if (res?.status === 200) {
+        setMttrData({
+          bdTrendData,
+          averageData
+        })
       }
     } catch (error) {
       console.log(error);
@@ -143,58 +147,58 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
       {
         type: "line",
         label: "Average",
-        data: [3, 15, 10, 8, 12, 18, 20, 25, 30, 5, 15, 10],
+        data: mttrData?.averageData,
         borderColor: chartColors.blue[1],
         borderWidth: 2,
         backgroundColor: chartColors.blue[1],
         pointStyle: "rectRot",
         yAxisID: "y1",
       },
-      // ...mttrData?.cellWiseGroupData?.map((item) => ({
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: item?.label,
-      //   data: item?.data,
-      //   backgroundColor: chartColors.yellow[1],
-      //   borderColor: chartColors.yellow[1],
-      //   pointStyle: "rect",
-      // })),
-      {
+      ...mttrData?.bdTrendData?.map((item) => ({
         type: "bar",
         stack: "bar-stacked",
-        label: "FP",
-        data: [3, 15, 10, 8, 12, 18, 20, 25, 30, 5, 15, 10],
+        label: item?.label,
+        data: item?.data,
         backgroundColor: chartColors.yellow[1],
         borderColor: chartColors.yellow[1],
         pointStyle: "rect",
-      },
-      {
-        type: "bar",
-        stack: "bar-stacked",
-        label: "INJ",
-        data: [20, 8, 15, 10, 5, 18, 12, 25, 30, 3, 10, 15],
-        backgroundColor: chartColors.aqua[3],
-        borderColor: chartColors.aqua[3],
-        pointStyle: "rect",
-      },
-      {
-        type: "bar",
-        stack: "bar-stacked",
-        label: "VCT",
-        data: [10, 15, 20, 8, 5, 25, 18, 30, 12, 3, 15, 10],
-        backgroundColor: chartColors.purple[4],
-        borderColor: chartColors.purple[4],
-        pointStyle: "rect",
-      },
-      {
-        type: "bar",
-        stack: "bar-stacked",
-        label: "O2",
-        data: [15, 10, 8, 20, 18, 5, 12, 25, 30, 3, 15, 10],
-        backgroundColor: chartColors.green[3],
-        borderColor: chartColors.green[3],
-        pointStyle: "rect",
-      },
+      })),
+      // {
+      //   type: "bar",
+      //   stack: "bar-stacked",
+      //   label: "FP",
+      //   data: [3, 15, 10, 8, 12, 18, 20, 25, 30, 5, 15, 10],
+      //   backgroundColor: chartColors.yellow[1],
+      //   borderColor: chartColors.yellow[1],
+      //   pointStyle: "rect",
+      // },
+      // {
+      //   type: "bar",
+      //   stack: "bar-stacked",
+      //   label: "INJ",
+      //   data: [20, 8, 15, 10, 5, 18, 12, 25, 30, 3, 10, 15],
+      //   backgroundColor: chartColors.aqua[3],
+      //   borderColor: chartColors.aqua[3],
+      //   pointStyle: "rect",
+      // },
+      // {
+      //   type: "bar",
+      //   stack: "bar-stacked",
+      //   label: "VCT",
+      //   data: [10, 15, 20, 8, 5, 25, 18, 30, 12, 3, 15, 10],
+      //   backgroundColor: chartColors.purple[4],
+      //   borderColor: chartColors.purple[4],
+      //   pointStyle: "rect",
+      // },
+      // {
+      //   type: "bar",
+      //   stack: "bar-stacked",
+      //   label: "O2",
+      //   data: [15, 10, 8, 20, 18, 5, 12, 25, 30, 3, 15, 10],
+      //   backgroundColor: chartColors.green[3],
+      //   borderColor: chartColors.green[3],
+      //   pointStyle: "rect",
+      // },
       // {
       //   type: "bar",
       //   stack: "bar-stacked",

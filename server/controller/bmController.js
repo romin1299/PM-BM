@@ -842,7 +842,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
             "$maintenanceReportFilledByMTD.refHandOverTime",
           handOverTime: {
             $dateToString: {
-              format: "%d-%m-%Y %H:%M",
+              format: "%d-%m-%Y T%H:%M",
               date: "$maintenanceReportFilledByMTD.refHandOverTime",
               timezone: "Asia/Kolkata",
             },
@@ -855,7 +855,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           // problemOccurredDateAndTimeOfBM:
           problemOccurredDateAndTimeOfBM: {
             $dateToString: {
-              format: "%d-%m-%Y %H:%M",
+              format: "%d-%m-%Y T%H:%M",
               date: "$problemOccurredDateAndTimeOfBM",
               timezone: "Asia/Kolkata",
             },
@@ -2972,106 +2972,112 @@ router.get(
           $project: {
             preAggregationTimeStampOfRequestSheet: 1,
             userWithStatusInfo: {
-              $filter: {
-                input: [
-                  {
-                    userType: "MTD TL",
-                    userId: { $arrayElemAt: ["$approvalOfMTD_TL", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfMTD_TL", -1],
+              $arrayElemAt: [
+                {
+
+                  $filter: {
+                    input: [
+                      {
+                        userType: "MTD TL",
+                        userId: { $arrayElemAt: ["$approvalOfMTD_TL", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfMTD_TL", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
+                        },
+                      },
+                      {
+                        userType: "MTD HOSS",
+                        userId: { $arrayElemAt: ["$approvalOfMTD_HOSS", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfMTD_HOSS", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
+                        },
+                      },
+                      {
+                        userType: "MTD HOS",
+                        userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfMTD_HOS", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
+                        },
+                      },
+                      {
+                        userType: "PRD TL",
+                        userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfPRD_TL", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
+                        },
+                      },
+                      {
+                        userType: "PRD HOS",
+                        userId: { $arrayElemAt: ["$approvalOfPRD_HOS", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfPRD_HOS", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
+                        },
+                      },
+                      {
+                        userType: "PRD HOD",
+                        userId: { $arrayElemAt: ["$approvalOfPRD_HOD", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfPRD_HOD", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
+                        },
+                      },
+                      {
+                        userType: "MTD HOD",
+                        userId: { $arrayElemAt: ["$approvalOfMTD_HOD", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfMTD_HOD", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
+                        },
+                      },
+                    ],
+                    as: "user",
+                    cond: {
+                      $eq: ["$$user.status", "Pending"],
                     },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
-                    },
-                  },
-                  {
-                    userType: "MTD HOSS",
-                    userId: { $arrayElemAt: ["$approvalOfMTD_HOSS", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfMTD_HOSS", -1],
-                    },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
-                    },
-                  },
-                  {
-                    userType: "MTD HOS",
-                    userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfMTD_HOS", -1],
-                    },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
-                    },
-                  },
-                  {
-                    userType: "PRD TL",
-                    userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfPRD_TL", -1],
-                    },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
-                    },
-                  },
-                  {
-                    userType: "PRD HOS",
-                    userId: { $arrayElemAt: ["$approvalOfPRD_HOS", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfPRD_HOS", -1],
-                    },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
-                    },
-                  },
-                  {
-                    userType: "PRD HOD",
-                    userId: { $arrayElemAt: ["$approvalOfPRD_HOD", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfPRD_HOD", -1],
-                    },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
-                    },
-                  },
-                  {
-                    userType: "MTD HOD",
-                    userId: { $arrayElemAt: ["$approvalOfMTD_HOD", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfMTD_HOD", -1],
-                    },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
-                    },
-                  },
-                ],
-                as: "user",
-                cond: {
-                  $eq: ["$$user.status", "Pending"],
-                },
-                limit: 1,
-              },
+                    // limit: 1,
+                  }
+                  
+                },0
+              ]
             },
           },
         },
@@ -3360,6 +3366,7 @@ router.get(
     return res.status(201).json({
       message: "Shifts get successfully",
       getShifts,
+      categories: shifts?.[0]?.categories,
     });
   }
 );
@@ -4022,7 +4029,7 @@ const getRequestSheetData = async (req, res, next) => {
           lossTime: "$maintenanceReportFilledByMTD.breakDownTime",
           problemOccurredDateAndTimeOfBMForTable: {
             $dateToString: {
-              format: "%Y-%m-%d %H:%M",
+              format: "%d-%m-%Y T%H:%M",
               date: "$problemOccurredDateAndTimeOfBM",
               timezone: "Asia/Kolkata",
             },
@@ -5372,7 +5379,14 @@ const requestSheetMiddleware = async (req, res, next) => {
           machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
           machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
           problem: "$breakDownBasicDataFilledByPRD.problemFaced",
-          problemOccurredDateAndTimeOfBM: 1,
+          problemOccurredDateAndTimeOfBM: {
+            $dateToString: {
+              format: "%d-%m-%Y T%H:%M",
+              date: "$problemOccurredDateAndTimeOfBM",
+              timezone: "Asia/Kolkata",
+            },
+          },
+          loss_time: "$maintenanceReportFilledByMTD.breakDownTime",
           work_order_status: 1,
           requestSheetStatus: 1,
           requestSheetNoOfBM: 1,
@@ -8489,6 +8503,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
       bdTrendData,
       bdTrendDataTarget: req.target,
+      averageData,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -11235,6 +11250,9 @@ router.get(
           machineRef: mongoose.Types.ObjectId(req.params.machineId),
           "preAggregationTimeStampOfRequestSheet.requestSheet_year":
             req.query?.selectedYear,
+          "maintenanceReportFilledByMTD.breakDownTime": {
+            $gt: 0,
+          },
         };
 
       if (req.query?.selectedMonth) {
@@ -11817,7 +11835,7 @@ router.get(
                             {
                               $indexOfArray: [
                                 "$array._id.date",
-                                "$$month.monthInDecimal",
+                                "$$month.monthName",
                               ],
                             },
                           ],
@@ -16447,7 +16465,18 @@ const functionForFindingCellBasedOnSelectedSubSection = async (
 
     return res.status(201).json({
       message: "Cell dropdown value get successfully",
+
+      selectedValue: req.params?.id,
+      flagForTogglingFilter: "based-on-subSection",
+
+      selectedSubSection: req.params?.id,
+
+      selectedCell: "",
       cells,
+      selectedLine: "",
+      lines: [],
+      selectedMachine: "",
+      machines: [],
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -16462,7 +16491,16 @@ const functionForFindingLineBasedOnSelectedCell = async (req, res, next) => {
 
     return res.status(201).json({
       message: "Line dropdown value get successfully",
+
+      selectedValue: req.params?.id,
+      flagForTogglingFilter: "based-on-cell",
+
+      selectedCell: req.params?.id,
+
+      selectedLine: "",
       lines,
+      selectedMachine: "",
+      machines: [],
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -16477,7 +16515,91 @@ router.get(
   sectionFiltrationMiddleware,
   conditionMiddlewareForSubSectionQuery,
   subSectionFiltrationMiddleware,
-  cellFiltrationMiddleware
+  async (req, res, next) => {
+    try {
+      const cells = await Cell.find(req.cellQuery);
+
+      if (req.rootUser?.tm_grade === "HOD") {
+        if (req.section.dashboardLevel === "No") {
+          return res.status(201).json({
+            message: "SubSections get successfully",
+
+            flagForTogglingFilter: "based-on-subSection",
+            selectedValue: req.subSection?._id,
+
+            selectedSection: req.section?._id,
+            sections: req.sections,
+            selectedSubSection: req.subSection?._id,
+            subSections: req.subSections,
+            selectedCell: "",
+            cells,
+            selectedLine: "",
+            lines: [],
+            selectedMachine: "",
+            machines: [],
+          });
+        } else {
+          return res.status(201).json({
+            message: "Sections get successfully",
+
+            flagForTogglingFilter: "based-on-section",
+            selectedValue: req.section?._id,
+
+            selectedSection: req.section?._id,
+            sections: req.sections,
+            selectedSubSection: "",
+            subSections: [],
+            selectedCell: "",
+            cells,
+            selectedLine: "",
+            lines: [],
+            selectedMachine: "",
+            machines: [],
+          });
+        }
+      }
+
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "SubSections get successfully",
+
+          flagForTogglingFilter: "based-on-subSection",
+          selectedValue: req.subSection?._id,
+
+          selectedSection: "",
+          sections: [],
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: "",
+          cells,
+          selectedLine: "",
+          lines: [],
+          selectedMachine: "",
+          machines: [],
+        });
+      }
+
+      return res.status(201).json({
+        message: "Cell dropdown value get successfully",
+
+        flagForTogglingFilter: "based-on-section",
+        selectedValue: req.section?._id,
+
+        selectedSection: req.section?._id,
+        sections: [],
+        selectedSubSection: "",
+        subSections: [],
+        selectedCell: "",
+        cells,
+        selectedLine: "",
+        lines: [],
+        selectedMachine: "",
+        machines: [],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
 );
 
 router.get(
@@ -16487,7 +16609,91 @@ router.get(
   sectionFiltrationMiddleware,
   subSectionQueryMiddleware,
   subSectionFiltrationMiddleware,
-  cellFiltrationMiddleware
+  async (req, res, next) => {
+    try {
+      const cells = await Cell.find(req.cellQuery);
+
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "SubSections get successfully",
+
+          flagForTogglingFilter: "based-on-subSection",
+          selectedValue: req.subSection?._id,
+
+          selectedSection: req.section?._id,
+
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: "",
+          cells,
+          selectedLine: "",
+          lines: [],
+          selectedMachine: "",
+          machines: [],
+        });
+      } else {
+        return res.status(201).json({
+          message: "Sections get successfully",
+
+          flagForTogglingFilter: "based-on-section",
+          selectedValue: req.section?._id,
+
+          selectedSection: req.section?._id,
+
+          selectedSubSection: "",
+          subSections: [],
+          selectedCell: "",
+          cells,
+          selectedLine: "",
+          lines: [],
+          selectedMachine: "",
+          machines: [],
+        });
+      }
+      // if (req.rootUser?.tm_grade === "HOD") {
+      // }
+
+      // if (req.section.dashboardLevel === "No") {
+      //   return res.status(201).json({
+      //     message: "SubSections get successfully",
+
+      //     flagForTogglingFilter: "based-on-subSection",
+      //     selectedValue: req.subSection?._id,
+
+      //     selectedSection: "",
+      //     sections: [],
+      //     selectedSubSection: req.subSection?._id,
+      //     subSections: req.subSections,
+      //     selectedCell: "",
+      //     cells,
+      //     selectedLine: "",
+      //     lines: [],
+      //     selectedMachine: "",
+      //     machines: [],
+      //   });
+      // }
+
+      // return res.status(201).json({
+      //   message: "Cell dropdown value get successfully",
+
+      //   flagForTogglingFilter: "based-on-section",
+      //   selectedValue: req.section?._id,
+
+      //   selectedSection: req.section?._id,
+      //   sections: [],
+      //   selectedSubSection: "",
+      //   subSections: [],
+      //   selectedCell: "",
+      //   cells,
+      //   selectedLine: "",
+      //   lines: [],
+      //   selectedMachine: "",
+      //   machines: [],
+      // });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
 );
 
 router.get(
@@ -16513,6 +16719,13 @@ router.get(
 
       return res.status(201).json({
         message: "Machine dropdown value get successfully",
+
+        selectedValue: req.params?.id,
+        flagForTogglingFilter: "based-on-line",
+
+        selectedLine: req.params?.id,
+
+        selectedMachine: "",
         machines,
       });
     } catch (error) {
@@ -16691,12 +16904,17 @@ router.get(
           flagForTogglingFilter: "based-on-cell",
           selectedValue: req.cellID,
 
+          selectedSection: req.section?._id,
+
           selectedSubSection: req.subSection?._id,
           subSections: req.subSections,
           selectedCell: req.cellID,
           cells: req.cells,
           selectedLine: "",
           lines: req.lines,
+
+          selectedMachine: "",
+          machines: [],
         });
       }
 
@@ -16706,12 +16924,17 @@ router.get(
         flagForTogglingFilter: "based-on-cell",
         selectedValue: req.cellID,
 
+        selectedSection: req.section?._id,
+
         selectedSubSection: "",
         subSections: [],
         selectedCell: req.cellID,
         cells: req.cells,
         selectedLine: "",
         lines: req.lines,
+
+        selectedMachine: "",
+        machines: [],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -16742,10 +16965,14 @@ router.get(
         flagForTogglingFilter: "based-on-cell",
         selectedValue: req.cellID,
 
+        selectedSubSection: req.params?.id,
+
         selectedCell: req.cellID,
         cells: req.cells,
         selectedLine: "",
         lines: req.lines,
+        selectedMachine: "",
+        machines: [],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -16770,7 +16997,16 @@ router.get(
     try {
       return res.status(201).json({
         message: "Line dropdown value get successfully",
+
+        selectedValue: req.params?.id,
+        flagForTogglingFilter: "based-on-cell",
+
+        selectedCell: req.params?.id,
+
+        selectedLine: "",
         lines: req.lines,
+        selectedMachine: "",
+        machines: [],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -16916,13 +17152,15 @@ router.get(
           flagForTogglingFilter: "based-on-machine",
           selectedValue: req.machineID,
 
+          selectedSection: req.section?._id,
+
           selectedSubSection: req.subSection?._id,
           subSections: req.subSections,
           selectedCell: req.cellID,
           cells: req.cells,
-          selectedLine: "",
+          selectedLine: req.lineID,
           lines: req.lines,
-          selectedMachine: "",
+          selectedMachine: req.machineID,
           machines: req.machines,
         });
       }
@@ -16933,13 +17171,15 @@ router.get(
         flagForTogglingFilter: "based-on-machine",
         selectedValue: req.machineID,
 
+        selectedSection: req.section?._id,
+
         selectedSubSection: "",
         subSections: [],
         selectedCell: req.cellID,
         cells: req.cells,
-        selectedLine: "",
+        selectedLine: req.lineID,
         lines: req.lines,
-        selectedMachine: "",
+        selectedMachine: req.machineID,
         machines: req.machines,
       });
     } catch (error) {
@@ -16972,11 +17212,13 @@ router.get(
         flagForTogglingFilter: "based-on-machine",
         selectedValue: req.machineID,
 
+        selectedSubSection: req.params?.id,
+
         selectedCell: req.cellID,
         cells: req.cells,
-        selectedLine: "",
+        selectedLine: req.lineID,
         lines: req.lines,
-        selectedMachine: "",
+        selectedMachine: req.machineID,
         machines: req.machines,
       });
     } catch (error) {
@@ -17003,8 +17245,12 @@ router.get(
     try {
       return res.status(201).json({
         message: "Line dropdown value get successfully",
+
         flagForTogglingFilter: "based-on-machine",
         selectedValue: req.machineID,
+
+        selectedCell: req.params?.id,
+
         selectedLine: req.lineID,
         lines: req.lines,
         selectedMachine: req.machineID,
@@ -17033,8 +17279,12 @@ router.get(
     try {
       return res.status(201).json({
         message: "Machine dropdown value get successfully",
+
         flagForTogglingFilter: "based-on-machine",
         selectedValue: req?.machineID,
+
+        selectedLine: req.params?.id,
+
         selectedMachine: req?.machineID,
         machines: req?.machines,
       });
@@ -17100,14 +17350,16 @@ router.get(
           flagForTogglingFilter: "based-on-subSection",
           selectedValue: req.subSection?._id,
 
-          selectedSection: "",
-          sections: [],
+          selectedSection: req.section?._id,
+
           selectedSubSection: req.subSection?._id,
           subSections: req.subSections,
           selectedCell: "",
           cells,
           selectedLine: "",
           lines: [],
+          selectedMachine: "",
+          machines: [],
         });
       }
 
@@ -17117,14 +17369,16 @@ router.get(
         flagForTogglingFilter: "based-on-section",
         selectedValue: req.section?._id,
 
-        selectedSection: "",
-        sections: [],
+        selectedSection: req.section?._id,
+
         selectedSubSection: "",
         subSections: [],
         selectedCell: "",
         cells,
         selectedLine: "",
         lines: [],
+        selectedMachine: "",
+        machines: [],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -17262,6 +17516,12 @@ router.get(
 
         selectedSubSection,
         subSections,
+        selectedCell: "",
+        cells: [],
+        selectedLine: "",
+        lines: [],
+        selectedMachine: "",
+        machines: [],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -18059,6 +18319,7 @@ router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
       problemsOfBM,
       actionAndCounterMeasureStep,
       selectedSupportedTM,
+      breakDownTime,
       selectedSection,
       selectedSubSection,
       selectedCell,
@@ -18066,15 +18327,34 @@ router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
       selectedMachine,
     } = req.body;
 
+    const convertedData =
+      noLossData?.categories &&
+      Object.keys(noLossData?.categories)?.map((key) => ({
+        category: key,
+        subCategory: noLossData?.categories?.[key],
+      }));
+
+      const getPlantIdForNoLossBDEntry= await Plant.findOne({
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+      });
+
     const addNewNoLossBD = new NoLossBD({
       ...noLossData,
       problemsOfBM,
       actionAndCounterMeasureStep,
       supportingTM: selectedSupportedTM?.map((obj) => obj?._id),
+      breakDownTime,
+      categoriesOfRequestSheet: convertedData,
+      plantRef: getPlantIdForNoLossBDEntry?._id || null,
       sectionRef: selectedSection || null,
       subSectionRef: selectedSubSection || null,
       cellRef: selectedCell || null,
       lineRef: selectedLine || null,
+      machineRef: selectedMachine || null,
+      preAggregationTimeStampOfRequestSheet: {
+        requestSheet_year: currentYear,
+        requestSheet_month: currentMonth,
+      },
     });
 
     const resultOfSaveNoLossBD = await addNewNoLossBD.save();
