@@ -842,7 +842,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
             "$maintenanceReportFilledByMTD.refHandOverTime",
           handOverTime: {
             $dateToString: {
-              format: "%d-%m-%Y %H:%M",
+              format: "%d-%m-%Y T%H:%M",
               date: "$maintenanceReportFilledByMTD.refHandOverTime",
               timezone: "Asia/Kolkata",
             },
@@ -855,7 +855,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           // problemOccurredDateAndTimeOfBM:
           problemOccurredDateAndTimeOfBM: {
             $dateToString: {
-              format: "%d-%m-%Y %H:%M",
+              format: "%d-%m-%Y T%H:%M",
               date: "$problemOccurredDateAndTimeOfBM",
               timezone: "Asia/Kolkata",
             },
@@ -2972,106 +2972,112 @@ router.get(
           $project: {
             preAggregationTimeStampOfRequestSheet: 1,
             userWithStatusInfo: {
-              $filter: {
-                input: [
-                  {
-                    userType: "MTD TL",
-                    userId: { $arrayElemAt: ["$approvalOfMTD_TL", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfMTD_TL", -1],
+              $arrayElemAt: [
+                {
+
+                  $filter: {
+                    input: [
+                      {
+                        userType: "MTD TL",
+                        userId: { $arrayElemAt: ["$approvalOfMTD_TL", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfMTD_TL", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
+                        },
+                      },
+                      {
+                        userType: "MTD HOSS",
+                        userId: { $arrayElemAt: ["$approvalOfMTD_HOSS", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfMTD_HOSS", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
+                        },
+                      },
+                      {
+                        userType: "MTD HOS",
+                        userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfMTD_HOS", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
+                        },
+                      },
+                      {
+                        userType: "PRD TL",
+                        userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfPRD_TL", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
+                        },
+                      },
+                      {
+                        userType: "PRD HOS",
+                        userId: { $arrayElemAt: ["$approvalOfPRD_HOS", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfPRD_HOS", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
+                        },
+                      },
+                      {
+                        userType: "PRD HOD",
+                        userId: { $arrayElemAt: ["$approvalOfPRD_HOD", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfPRD_HOD", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
+                        },
+                      },
+                      {
+                        userType: "MTD HOD",
+                        userId: { $arrayElemAt: ["$approvalOfMTD_HOD", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfMTD_HOD", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
+                        },
+                      },
+                    ],
+                    as: "user",
+                    cond: {
+                      $eq: ["$$user.status", "Pending"],
                     },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
-                    },
-                  },
-                  {
-                    userType: "MTD HOSS",
-                    userId: { $arrayElemAt: ["$approvalOfMTD_HOSS", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfMTD_HOSS", -1],
-                    },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
-                    },
-                  },
-                  {
-                    userType: "MTD HOS",
-                    userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfMTD_HOS", -1],
-                    },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
-                    },
-                  },
-                  {
-                    userType: "PRD TL",
-                    userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfPRD_TL", -1],
-                    },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
-                    },
-                  },
-                  {
-                    userType: "PRD HOS",
-                    userId: { $arrayElemAt: ["$approvalOfPRD_HOS", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfPRD_HOS", -1],
-                    },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
-                    },
-                  },
-                  {
-                    userType: "PRD HOD",
-                    userId: { $arrayElemAt: ["$approvalOfPRD_HOD", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfPRD_HOD", -1],
-                    },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
-                    },
-                  },
-                  {
-                    userType: "MTD HOD",
-                    userId: { $arrayElemAt: ["$approvalOfMTD_HOD", -1] },
-                    userName: {
-                      $arrayElemAt: ["$approverNameLogOfMTD_HOD", -1],
-                    },
-                    timeStamp: {
-                      $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
-                    },
-                    status: {
-                      $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
-                    },
-                  },
-                ],
-                as: "user",
-                cond: {
-                  $eq: ["$$user.status", "Pending"],
-                },
-                limit: 1,
-              },
+                    // limit: 1,
+                  }
+                  
+                },0
+              ]
             },
           },
         },
@@ -3360,6 +3366,7 @@ router.get(
     return res.status(201).json({
       message: "Shifts get successfully",
       getShifts,
+      categories: shifts?.[0]?.categories,
     });
   }
 );
@@ -4022,7 +4029,7 @@ const getRequestSheetData = async (req, res, next) => {
           lossTime: "$maintenanceReportFilledByMTD.breakDownTime",
           problemOccurredDateAndTimeOfBMForTable: {
             $dateToString: {
-              format: "%Y-%m-%d %H:%M",
+              format: "%d-%m-%Y T%H:%M",
               date: "$problemOccurredDateAndTimeOfBM",
               timezone: "Asia/Kolkata",
             },
@@ -5372,7 +5379,14 @@ const requestSheetMiddleware = async (req, res, next) => {
           machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
           machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
           problem: "$breakDownBasicDataFilledByPRD.problemFaced",
-          problemOccurredDateAndTimeOfBM: 1,
+          problemOccurredDateAndTimeOfBM: {
+            $dateToString: {
+              format: "%d-%m-%Y T%H:%M",
+              date: "$problemOccurredDateAndTimeOfBM",
+              timezone: "Asia/Kolkata",
+            },
+          },
+          loss_time: "$maintenanceReportFilledByMTD.breakDownTime",
           work_order_status: 1,
           requestSheetStatus: 1,
           requestSheetNoOfBM: 1,
@@ -17687,6 +17701,7 @@ router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
       problemsOfBM,
       actionAndCounterMeasureStep,
       selectedSupportedTM,
+      breakDownTime,
       selectedSection,
       selectedSubSection,
       selectedCell,
@@ -17694,15 +17709,34 @@ router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
       selectedMachine,
     } = req.body;
 
+    const convertedData =
+      noLossData?.categories &&
+      Object.keys(noLossData?.categories)?.map((key) => ({
+        category: key,
+        subCategory: noLossData?.categories?.[key],
+      }));
+
+      const getPlantIdForNoLossBDEntry= await Plant.findOne({
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+      });
+
     const addNewNoLossBD = new NoLossBD({
       ...noLossData,
       problemsOfBM,
       actionAndCounterMeasureStep,
       supportingTM: selectedSupportedTM?.map((obj) => obj?._id),
+      breakDownTime,
+      categoriesOfRequestSheet: convertedData,
+      plantRef: getPlantIdForNoLossBDEntry?._id || null,
       sectionRef: selectedSection || null,
       subSectionRef: selectedSubSection || null,
       cellRef: selectedCell || null,
       lineRef: selectedLine || null,
+      machineRef: selectedMachine || null,
+      preAggregationTimeStampOfRequestSheet: {
+        requestSheet_year: currentYear,
+        requestSheet_month: currentMonth,
+      },
     });
 
     const resultOfSaveNoLossBD = await addNewNoLossBD.save();
