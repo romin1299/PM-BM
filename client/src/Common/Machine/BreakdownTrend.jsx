@@ -4,6 +4,7 @@ import { Row, Col, ListGroup } from "react-bootstrap";
 import { Bar } from "react-chartjs-2";
 import ChartTitleBar from "../../BM/Reports/Common/ChartTitleBar";
 import { barChartOptions } from "../../BM/Utils/ChartUtils/chartOptions";
+import { chartColors } from "../../BM/Utils/ChartUtils/chartEnums";
 
 const BreakdownTrend = ({ search }) => {
   const [BdTrendAndLastFiveProblem, setBdTrendAndLastFiveProblem] = useState({
@@ -50,12 +51,16 @@ const BreakdownTrend = ({ search }) => {
       {
         label: "Breakdown Trend",
         data: BdTrendAndLastFiveProblem?.breakdownTrendData?.data,
+        backgroundColor: chartColors.dailyBDTrend[2],
+        // borderColor: chartColors.dailyBDTrendBorder[2],
+        // borderWidth: 1,
+        borderRadius: 4,
       },
     ],
   };
 
   return (
-    <Row className="gx-3 gy-2 mt-3">
+    <Row className="mt-1 gy-2 gx-3">
       <Col lg={6}>
         <Box className="cell p-3">
           <ChartTitleBar title={"Breakdown Trend"} />

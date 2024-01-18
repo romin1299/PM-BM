@@ -58,30 +58,44 @@ const UserWisePendingCount = ({
 
   return (
     <Box className="cell p-3 mt-3 rounded-2">
-      <Table striped bordered hover className="m-0">
-        <tr>
-          <th>User Type</th>
-          <th>TM Name</th>
-          {allMonths?.map((item) => (
-            <th>{item}</th>
-          ))}
-        </tr>
-        {UserWisePendingApprovalCount?.map((item) => (
-          <>
+      <Box
+        sx={{
+          width: "100%",
+          overflowX: "auto",
+        }}
+      >
+        <Table bordered hover className="m-0">
+          <thead>
             <tr>
-              <td rowSpan={item?.data?.length + 1}>{item?._id}</td>
+              <th>User Type</th>
+              <th>TM Name</th>
+              {allMonths?.map((item, index) => (
+                <th key={index}>{item}</th>
+              ))}
             </tr>
-            {item?.data?.map((item1) => (
-              <tr>
-                <td>{item1?.userName}</td>
-                {item1?.array?.map((item2) => (
-                  <td>{item2?.count}</td>
+          </thead>
+
+          <tbody>
+            {UserWisePendingApprovalCount?.map((item, index) => (
+              <>
+                <tr>
+                  <td rowSpan={item?.data?.length + 1}>{item?._id}</td>
+                </tr>
+
+                {item?.data?.map((item1, index) => (
+                  <tr key={index}>
+                    <td>{item1?.userName}</td>
+
+                    {item1?.array?.map((item2, index) => (
+                      <td key={index}>{item2?.count}</td>
+                    ))}
+                  </tr>
                 ))}
-              </tr>
+              </>
             ))}
-          </>
-        ))}
-      </Table>
+          </tbody>
+        </Table>
+      </Box>
     </Box>
   );
 };

@@ -1,3 +1,5 @@
+import { red } from "@mui/material/colors";
+
 export const MONTH_LABELS = [
   "Apr",
   "May",
@@ -47,7 +49,7 @@ export const chartColors = {
   machineBarLabels: "#424242",
 
   dailyBDTrendFont: ["#667788", "#667788", "#f0f0f0", "#667788"],
-  dailyBDTrend: ["#c2c933", "#FFDA7C", "#fd6a94", "#40aeb6"],
+  dailyBDTrend: ["#c2c933", "#FFDA7C", red["A100"], "#40aeb6"],
   // dailyBDTrendDarker: ["#c2c933", "##fecd47", "#fd6a94", "#40aeb6"],
   dailyBDTrendBorder: ["#837618", "#fc8400", "#f82f65", "#40aeb6"],
 
