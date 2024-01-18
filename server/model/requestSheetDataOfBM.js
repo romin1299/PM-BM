@@ -67,7 +67,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     minorBD: { type: String },
     majorBD: { type: String },
 
-    firstTimeOrRepeat: {type: String},
+    firstTimeOrRepeat: { type: String },
 
     firstTime: { type: String }, // need to change if new func. occurred for this
     repeat: { type: String }, // need to change if new func. occurred for this

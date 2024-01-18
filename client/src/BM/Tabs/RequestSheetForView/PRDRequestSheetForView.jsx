@@ -594,11 +594,14 @@ function MyTable({ requestSheetDataOfBM }) {
                       <b>BREAKDOWN ATTENDED BY</b>
                     </small>
                     <br />
-                    {requestSheetDataOfBM?.assignUser?.tm_name} {", "}
-                    {requestSheetDataOfBM?.handOverUser?.tm_name} {", "}
-                    {requestSheetDataOfBM?.supportingTM
-                      ?.map((obj) => obj?.tm_name)
-                      ?.join(", ")}
+                    {requestSheetDataOfBM?.assignUser?.tm_name}{" "}
+                    {requestSheetDataOfBM?.handOverUser?.tm_name
+                      ? `, ${requestSheetDataOfBM?.handOverUser?.tm_name}`
+                      : ""}
+                    {requestSheetDataOfBM?.supportingTM?.length > 0 &&
+                      `, ${requestSheetDataOfBM?.supportingTM
+                        ?.map((obj) => obj?.tm_name)
+                        ?.join(", ")}`}
                   </Col>
                 </Row>
               </td>

@@ -8376,18 +8376,23 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
     const bdTrendData = [...subSectionQuery, ...sectionQuery];
 
-    //     const dataArrays = bdTrendData.map(entry => entry.data);
+    const dataArrays = bdTrendData.map((entry) => entry.data);
 
-    // const averageData = dataArrays[0].map((_, i) => {
-    //   const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
-    //   return sum / (dataArrays.length - dataArrays.filter(array => array[i] === undefined).length) || 0;
-    // });
+    const averageData = dataArrays[0].map((_, i) => {
+      const sum = dataArrays.reduce((acc, array) => acc + (array[i] || 0), 0);
+      return (
+        sum /
+          (dataArrays.length -
+            dataArrays.filter((array) => array[i] === undefined).length) || 0
+      );
+    });
 
     return res.status(200).json({
       message: "PlantWise Monthly BD trend data for Section get successfully",
 
       bdTrendData,
       bdTrendDataTarget: req.target,
+      averageData,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -10868,6 +10873,9 @@ router.get(
           machineRef: mongoose.Types.ObjectId(req.params.machineId),
           "preAggregationTimeStampOfRequestSheet.requestSheet_year":
             req.query?.selectedYear,
+          "maintenanceReportFilledByMTD.breakDownTime": {
+            $gt: 0,
+          },
         };
 
       if (req.query?.selectedMonth) {
@@ -11450,7 +11458,7 @@ router.get(
                             {
                               $indexOfArray: [
                                 "$array._id.date",
-                                "$$month.monthInDecimal",
+                                "$$month.monthName",
                               ],
                             },
                           ],
@@ -16075,7 +16083,18 @@ const functionForFindingCellBasedOnSelectedSubSection = async (
 
     return res.status(201).json({
       message: "Cell dropdown value get successfully",
+
+      selectedValue: req.params?.id,
+      flagForTogglingFilter: "based-on-subSection",
+
+      selectedSubSection: req.params?.id,
+
+      selectedCell: "",
       cells,
+      selectedLine: "",
+      lines: [],
+      selectedMachine: "",
+      machines: [],
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -16090,7 +16109,16 @@ const functionForFindingLineBasedOnSelectedCell = async (req, res, next) => {
 
     return res.status(201).json({
       message: "Line dropdown value get successfully",
+
+      selectedValue: req.params?.id,
+      flagForTogglingFilter: "based-on-cell",
+
+      selectedCell: req.params?.id,
+
+      selectedLine: "",
       lines,
+      selectedMachine: "",
+      machines: [],
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -16105,7 +16133,91 @@ router.get(
   sectionFiltrationMiddleware,
   conditionMiddlewareForSubSectionQuery,
   subSectionFiltrationMiddleware,
-  cellFiltrationMiddleware
+  async (req, res, next) => {
+    try {
+      const cells = await Cell.find(req.cellQuery);
+
+      if (req.rootUser?.tm_grade === "HOD") {
+        if (req.section.dashboardLevel === "No") {
+          return res.status(201).json({
+            message: "SubSections get successfully",
+
+            flagForTogglingFilter: "based-on-subSection",
+            selectedValue: req.subSection?._id,
+
+            selectedSection: req.section?._id,
+            sections: req.sections,
+            selectedSubSection: req.subSection?._id,
+            subSections: req.subSections,
+            selectedCell: "",
+            cells,
+            selectedLine: "",
+            lines: [],
+            selectedMachine: "",
+            machines: [],
+          });
+        } else {
+          return res.status(201).json({
+            message: "Sections get successfully",
+
+            flagForTogglingFilter: "based-on-section",
+            selectedValue: req.section?._id,
+
+            selectedSection: req.section?._id,
+            sections: req.sections,
+            selectedSubSection: "",
+            subSections: [],
+            selectedCell: "",
+            cells,
+            selectedLine: "",
+            lines: [],
+            selectedMachine: "",
+            machines: [],
+          });
+        }
+      }
+
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "SubSections get successfully",
+
+          flagForTogglingFilter: "based-on-subSection",
+          selectedValue: req.subSection?._id,
+
+          selectedSection: "",
+          sections: [],
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: "",
+          cells,
+          selectedLine: "",
+          lines: [],
+          selectedMachine: "",
+          machines: [],
+        });
+      }
+
+      return res.status(201).json({
+        message: "Cell dropdown value get successfully",
+
+        flagForTogglingFilter: "based-on-section",
+        selectedValue: req.section?._id,
+
+        selectedSection: req.section?._id,
+        sections: [],
+        selectedSubSection: "",
+        subSections: [],
+        selectedCell: "",
+        cells,
+        selectedLine: "",
+        lines: [],
+        selectedMachine: "",
+        machines: [],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
 );
 
 router.get(
@@ -16115,7 +16227,91 @@ router.get(
   sectionFiltrationMiddleware,
   subSectionQueryMiddleware,
   subSectionFiltrationMiddleware,
-  cellFiltrationMiddleware
+  async (req, res, next) => {
+    try {
+      const cells = await Cell.find(req.cellQuery);
+
+      if (req.section.dashboardLevel === "No") {
+        return res.status(201).json({
+          message: "SubSections get successfully",
+
+          flagForTogglingFilter: "based-on-subSection",
+          selectedValue: req.subSection?._id,
+
+          selectedSection: req.section?._id,
+
+          selectedSubSection: req.subSection?._id,
+          subSections: req.subSections,
+          selectedCell: "",
+          cells,
+          selectedLine: "",
+          lines: [],
+          selectedMachine: "",
+          machines: [],
+        });
+      } else {
+        return res.status(201).json({
+          message: "Sections get successfully",
+
+          flagForTogglingFilter: "based-on-section",
+          selectedValue: req.section?._id,
+
+          selectedSection: req.section?._id,
+
+          selectedSubSection: "",
+          subSections: [],
+          selectedCell: "",
+          cells,
+          selectedLine: "",
+          lines: [],
+          selectedMachine: "",
+          machines: [],
+        });
+      }
+      // if (req.rootUser?.tm_grade === "HOD") {
+      // }
+
+      // if (req.section.dashboardLevel === "No") {
+      //   return res.status(201).json({
+      //     message: "SubSections get successfully",
+
+      //     flagForTogglingFilter: "based-on-subSection",
+      //     selectedValue: req.subSection?._id,
+
+      //     selectedSection: "",
+      //     sections: [],
+      //     selectedSubSection: req.subSection?._id,
+      //     subSections: req.subSections,
+      //     selectedCell: "",
+      //     cells,
+      //     selectedLine: "",
+      //     lines: [],
+      //     selectedMachine: "",
+      //     machines: [],
+      //   });
+      // }
+
+      // return res.status(201).json({
+      //   message: "Cell dropdown value get successfully",
+
+      //   flagForTogglingFilter: "based-on-section",
+      //   selectedValue: req.section?._id,
+
+      //   selectedSection: req.section?._id,
+      //   sections: [],
+      //   selectedSubSection: "",
+      //   subSections: [],
+      //   selectedCell: "",
+      //   cells,
+      //   selectedLine: "",
+      //   lines: [],
+      //   selectedMachine: "",
+      //   machines: [],
+      // });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
 );
 
 router.get(
@@ -16141,6 +16337,13 @@ router.get(
 
       return res.status(201).json({
         message: "Machine dropdown value get successfully",
+
+        selectedValue: req.params?.id,
+        flagForTogglingFilter: "based-on-line",
+
+        selectedLine: req.params?.id,
+
+        selectedMachine: "",
         machines,
       });
     } catch (error) {
@@ -16319,12 +16522,17 @@ router.get(
           flagForTogglingFilter: "based-on-cell",
           selectedValue: req.cellID,
 
+          selectedSection: req.section?._id,
+
           selectedSubSection: req.subSection?._id,
           subSections: req.subSections,
           selectedCell: req.cellID,
           cells: req.cells,
           selectedLine: "",
           lines: req.lines,
+
+          selectedMachine: "",
+          machines: [],
         });
       }
 
@@ -16334,12 +16542,17 @@ router.get(
         flagForTogglingFilter: "based-on-cell",
         selectedValue: req.cellID,
 
+        selectedSection: req.section?._id,
+
         selectedSubSection: "",
         subSections: [],
         selectedCell: req.cellID,
         cells: req.cells,
         selectedLine: "",
         lines: req.lines,
+
+        selectedMachine: "",
+        machines: [],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -16370,10 +16583,14 @@ router.get(
         flagForTogglingFilter: "based-on-cell",
         selectedValue: req.cellID,
 
+        selectedSubSection: req.params?.id,
+
         selectedCell: req.cellID,
         cells: req.cells,
         selectedLine: "",
         lines: req.lines,
+        selectedMachine: "",
+        machines: [],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -16398,7 +16615,16 @@ router.get(
     try {
       return res.status(201).json({
         message: "Line dropdown value get successfully",
+
+        selectedValue: req.params?.id,
+        flagForTogglingFilter: "based-on-cell",
+
+        selectedCell: req.params?.id,
+
+        selectedLine: "",
         lines: req.lines,
+        selectedMachine: "",
+        machines: [],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -16544,13 +16770,15 @@ router.get(
           flagForTogglingFilter: "based-on-machine",
           selectedValue: req.machineID,
 
+          selectedSection: req.section?._id,
+
           selectedSubSection: req.subSection?._id,
           subSections: req.subSections,
           selectedCell: req.cellID,
           cells: req.cells,
-          selectedLine: "",
+          selectedLine: req.lineID,
           lines: req.lines,
-          selectedMachine: "",
+          selectedMachine: req.machineID,
           machines: req.machines,
         });
       }
@@ -16561,13 +16789,15 @@ router.get(
         flagForTogglingFilter: "based-on-machine",
         selectedValue: req.machineID,
 
+        selectedSection: req.section?._id,
+
         selectedSubSection: "",
         subSections: [],
         selectedCell: req.cellID,
         cells: req.cells,
-        selectedLine: "",
+        selectedLine: req.lineID,
         lines: req.lines,
-        selectedMachine: "",
+        selectedMachine: req.machineID,
         machines: req.machines,
       });
     } catch (error) {
@@ -16600,11 +16830,13 @@ router.get(
         flagForTogglingFilter: "based-on-machine",
         selectedValue: req.machineID,
 
+        selectedSubSection: req.params?.id,
+
         selectedCell: req.cellID,
         cells: req.cells,
-        selectedLine: "",
+        selectedLine: req.lineID,
         lines: req.lines,
-        selectedMachine: "",
+        selectedMachine: req.machineID,
         machines: req.machines,
       });
     } catch (error) {
@@ -16631,8 +16863,12 @@ router.get(
     try {
       return res.status(201).json({
         message: "Line dropdown value get successfully",
+
         flagForTogglingFilter: "based-on-machine",
         selectedValue: req.machineID,
+
+        selectedCell: req.params?.id,
+
         selectedLine: req.lineID,
         lines: req.lines,
         selectedMachine: req.machineID,
@@ -16661,8 +16897,12 @@ router.get(
     try {
       return res.status(201).json({
         message: "Machine dropdown value get successfully",
+
         flagForTogglingFilter: "based-on-machine",
         selectedValue: req?.machineID,
+
+        selectedLine: req.params?.id,
+
         selectedMachine: req?.machineID,
         machines: req?.machines,
       });
@@ -16728,14 +16968,16 @@ router.get(
           flagForTogglingFilter: "based-on-subSection",
           selectedValue: req.subSection?._id,
 
-          selectedSection: "",
-          sections: [],
+          selectedSection: req.section?._id,
+
           selectedSubSection: req.subSection?._id,
           subSections: req.subSections,
           selectedCell: "",
           cells,
           selectedLine: "",
           lines: [],
+          selectedMachine: "",
+          machines: [],
         });
       }
 
@@ -16745,14 +16987,16 @@ router.get(
         flagForTogglingFilter: "based-on-section",
         selectedValue: req.section?._id,
 
-        selectedSection: "",
-        sections: [],
+        selectedSection: req.section?._id,
+
         selectedSubSection: "",
         subSections: [],
         selectedCell: "",
         cells,
         selectedLine: "",
         lines: [],
+        selectedMachine: "",
+        machines: [],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -16890,6 +17134,12 @@ router.get(
 
         selectedSubSection,
         subSections,
+        selectedCell: "",
+        cells: [],
+        selectedLine: "",
+        lines: [],
+        selectedMachine: "",
+        machines: [],
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
