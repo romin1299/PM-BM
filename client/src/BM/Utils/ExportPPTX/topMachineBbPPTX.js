@@ -1,5 +1,5 @@
 import { MONTH_LABELS, chartColors } from "../ChartUtils/chartEnums";
-import { commonPptOptions, genSlideTitle } from "./exportPPTXOptions";
+import { commonPptOptions, genSlideTitle, genSlideTitleFilterNames, genSlideTitleYearFilters } from "./exportPPTXOptions";
 import axios from "axios";
 
 export async function generateTopMachineBdPpt(pptx, urlOptions) {
@@ -43,7 +43,18 @@ async function genSlide01(pptx, urlOptions) {
   let slide = pptx.addSlide();
 
   genSlideTitle(pptx, slide, "Man Hour Report");
-
+  genSlideTitleFilterNames(pptx, slide, urlOptions, {
+    x: 0.5,
+    y: 0,
+    w: 4,
+    h: 0.75,
+  });
+  genSlideTitleYearFilters(pptx, slide, urlOptions, {
+    x: 8.85,
+    y: 0,
+    w: 4,
+    h: 0.75,
+  });
   /**
    *
    * @add first chart

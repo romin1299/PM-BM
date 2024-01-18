@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
-import {  useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
 
 import AddNewAttachmentModal from "./AddNewAttachmentModal";
-import CustomHooksForBackNavigation from "../ButtonComponents/CustomHooksForBackNavigation";
+import CustomHooksForBackNavigation, {
+  MuiNavigateBack,
+} from "../ButtonComponents/CustomHooksForBackNavigation";
+import { Col, Container } from "react-bootstrap";
+import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
+import { Box, Typography } from "@mui/material";
 
 const pageInfo = {
   // "bm-history": {
@@ -132,10 +137,57 @@ const AttachmentFormateTable = () => {
     {
       title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
+      width: 100,
     },
     {
       title: "Attachment",
       field: "attached_file",
+    },
+    {
+      title: "Preview",
+      field: "attached_file",
+      render: (rowData) => {
+        const image = rowData.attached_file;
+        const path = `/${pageDetails?.schemaVar}/`;
+
+        return (
+          <Box
+            display="flex"
+            justifyContent={"center"}
+            alignItems={"center"}
+            width={"100px"}
+            minHeight={"50px"}
+            overflow={"hidden"}
+            boxShadow={
+              "-2px -2px 4px 0px rgba(0, 0, 0, 0.06), 2px 2px 4px 0px rgba(0, 0, 0, 0.06), -2px -2px 4px 0px rgba(0, 0, 0, 0.06) inset"
+            }
+            mt={1}
+            mb={1}
+          >
+            <a
+              target="_blank"
+              href={`http://localhost:7000/${pageDetails?.schemaVar}/${image}`}
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <img
+                style={{
+                  maxWidth: "100px",
+                  maxHeight: "100px",
+                  borderRadius: "3px",
+                }}
+                src={path + rowData.attached_file}
+                alt=""
+              />
+            </a>
+          </Box>
+        );
+      },
     },
   ];
 
@@ -148,82 +200,116 @@ const AttachmentFormateTable = () => {
     },
   ];
 
-  return (
-    <div className="p-2">
-      <CustomHooksForBackNavigation />
-      <MaterialTable
-        localization={{
-          header: {
-            actions: "Actions",
-          },
-        }}
-        actions={actions}
-        icons={tableIcons}
-        columns={columns}
-        data={attachmentDetails}
-        editable={{
-          onRowDelete: (selectedRow) =>
-            new Promise((resolve, reject) => {
-              handleDeleteAttachment(selectedRow);
-              setTimeout(() => {
-                resolve();
-              }, 500);
-            }),
-        }}
-        options={{
-          showTitle: false,
-          paging: false,
-          sorting: true,
-          search: true,
-          filtering: false,
-          exportButton: true,
-          exportAllData: true,
-          draggable: false,
-          actionsColumnIndex: -1,
-          pageSize: 10,
-          // pageSizeOptions: false,  //commented because showing warning in console: invalid prop
-          paginationType: "stepped",
-          addRowPosition: "first",
-          headerStyle: {
-            position: "sticky",
-            top: "0",
-            fontWeight: "bold",
-            fontSize: "14px",
-          },
-          maxBodyHeight: "70vh",
-          rowStyle: {
-            // fontStyle:'bold'
+  const MachineName = ({ machineCode }) => {
+    return (
+      <Col className="col-auto">
+        <Typography
+          noWrap
+          variant="h4"
+          component="h4"
+          fontSize={22}
+          fontWeight={600}
+        >
+          <Typography
+            noWrap
+            variant="body2"
+            component="div"
+            mb={"-8px"}
+            ml={"1px"}
+          >
+            Machine Code
+          </Typography>
+          {machineCode}
+        </Typography>
+      </Col>
+    );
+  };
 
-            boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-            // color:"rgba(255,255,255,0.8)",
-            borderRadius: "5px",
-            border: "1px solid rgba(255,255,255)",
-            WebkitBackdropFilter: "blur( 2px )",
-            background: "rgba(255,255,255,0.1)",
-            backdropFilter: "blur(5px)",
-          },
-          // exportMenu: [
-          //   {
-          //     label: "Export PDF",
-          //     exportFunc: (cols, data) =>
-          //       ExportPdf(
-          //         cols,
-          //         data,
-          //         `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
-          //       ),
-          //   },
-          //   {
-          //     label: "Export CSV",
-          //     exportFunc: (cols, data) =>
-          //       ExportCsv(
-          //         cols,
-          //         data,
-          //         `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
-          //       ),
-          //   },
-          // ],
-        }}
+  return (
+    <Container fluid>
+      <ReportTitleBar
+        title={pageDetails?.name}
+        PreTools={<MuiNavigateBack />}
+        Toolbar={<MachineName machineCode={machine_code} />}
       />
+
+      {/* <CustomHooksForBackNavigation /> */}
+
+      <div className="mt-3">
+        <MaterialTable
+          localization={{
+            header: {
+              actions: "Actions",
+            },
+          }}
+          actions={actions}
+          icons={tableIcons}
+          columns={columns}
+          data={attachmentDetails}
+          editable={{
+            onRowDelete: (selectedRow) =>
+              new Promise((resolve, reject) => {
+                handleDeleteAttachment(selectedRow);
+                setTimeout(() => {
+                  resolve();
+                }, 500);
+              }),
+          }}
+          options={{
+            showTitle: false,
+            paging: false,
+            sorting: true,
+            search: true,
+            filtering: false,
+            exportButton: true,
+            exportAllData: true,
+            draggable: false,
+            actionsColumnIndex: -1,
+            pageSize: 10,
+            // pageSizeOptions: false,  //commented because showing warning in console: invalid prop
+            paginationType: "stepped",
+            addRowPosition: "first",
+            headerStyle: {
+              position: "sticky",
+              top: "0",
+              fontWeight: "bold",
+              fontSize: "14px",
+            },
+            maxBodyHeight: "70vh",
+            rowStyle: {
+              // fontStyle:'bold'
+
+              boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+              // color:"rgba(255,255,255,0.8)",
+              borderRadius: "5px",
+              border: "1px solid rgba(255,255,255)",
+              WebkitBackdropFilter: "blur( 2px )",
+              background: "rgba(255,255,255,0.1)",
+              backdropFilter: "blur(5px)",
+            },
+            // exportMenu: [
+            //   {
+            //     label: "Export PDF",
+            //     exportFunc: (cols, data) =>
+            //       ExportPdf(
+            //         cols,
+            //         data,
+            //         `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
+            //       ),
+            //   },
+            //   {
+            //     label: "Export CSV",
+            //     exportFunc: (cols, data) =>
+            //       ExportCsv(
+            //         cols,
+            //         data,
+            //         `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
+            //       ),
+            //   },
+            // ],
+          }}
+        />
+      </div>
 
       <AddNewAttachmentModal
         handleShowAddNewAttachmentModal={handleShowAddNewAttachmentModal}
@@ -232,7 +318,7 @@ const AttachmentFormateTable = () => {
         pageDetails={pageDetails}
         setAttachmentDetails={setAttachmentDetails}
       />
-    </div>
+    </Container>
   );
 };
 

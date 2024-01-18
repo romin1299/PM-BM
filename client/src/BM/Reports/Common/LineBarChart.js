@@ -14,6 +14,7 @@ import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "./ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "./DataNotFound";
 
 const LineBarChart = ({
   title,
@@ -180,7 +181,11 @@ const LineBarChart = ({
         <Loading height={200} />
       ) : (
         <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-          <Chart data={data} options={options} />
+          {datasets?.[0].data === undefined ? (
+            <DataNotFound />
+          ) : (
+            <Chart data={data} options={options} />
+          )}
         </Box>
       )}
     </Box>

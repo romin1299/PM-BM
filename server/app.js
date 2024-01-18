@@ -54,6 +54,8 @@ app.use(express.static(path.join(__dirname, "data_sheets")));
 app.use(express.static(path.join(__dirname, "DataSheetOfBD")));
 //for BM drawings
 app.use(express.static(path.join(__dirname, "DrawingsOfBD")));
+//for attachments
+app.use(express.static(path.join(__dirname, "attachments")));
 
 // index file path
 app.get("/*", (req, res) => {
