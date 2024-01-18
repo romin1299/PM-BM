@@ -119,6 +119,8 @@ export default function LineSelectionDropdown({
         flagForTogglingFilter,
         selectedValue,
 
+        selectedSection,
+
         selectedSubSection,
         subSections,
         selectedCell,
@@ -135,6 +137,8 @@ export default function LineSelectionDropdown({
 
           flagForTogglingFilter,
           selectedValue,
+
+          selectedSection,
 
           selectedSubSection,
           subSections,
@@ -160,7 +164,12 @@ export default function LineSelectionDropdown({
 
       const {
         message,
+
+        selectedValue,
         flagForTogglingFilter,
+
+        selectedSubSection,
+
         selectedCell,
         cells,
         selectedLine,
@@ -173,7 +182,11 @@ export default function LineSelectionDropdown({
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_SUBSECTION,
 
+          selectedValue,
           flagForTogglingFilter,
+
+          selectedSubSection,
+
           selectedCell,
           cells,
           selectedLine,
@@ -195,12 +208,15 @@ export default function LineSelectionDropdown({
       });
       const {
         message,
+        flagForTogglingFilter,
+        selectedValue,
+
+        selectedCell,
+
         selectedLine,
         lines,
         selectedMachine,
         machines,
-        flagForTogglingFilter,
-        selectedValue,
       } = data;
 
       if (res?.status === 201) {
@@ -208,6 +224,9 @@ export default function LineSelectionDropdown({
           type: ACTION.GET_DATA_BASED_ON_CELL,
           flagForTogglingFilter,
           selectedValue,
+
+          selectedCell,
+
           selectedLine,
           lines,
           selectedMachine,
@@ -227,10 +246,14 @@ export default function LineSelectionDropdown({
       });
       const {
         message,
-        machines,
-        selectedMachine,
+
         flagForTogglingFilter,
         selectedValue,
+
+        selectedLine,
+
+        machines,
+        selectedMachine,
       } = data;
 
       if (res?.status === 201) {
@@ -238,6 +261,9 @@ export default function LineSelectionDropdown({
           type: ACTION.GET_DATA_BASED_ON_LINE,
           flagForTogglingFilter,
           selectedValue,
+
+          selectedLine,
+
           selectedMachine,
           machines,
           message,
