@@ -91,6 +91,7 @@ const MajorBDCount = ({
 }) => {
   const [loading, setLoading] = React.useState(true);
   const [data, setData] = React.useState([]);
+  const [targetTotal, setTargetTotal] = React.useState([]);
   const [chartData, setChartData] = React.useState({
     labels: [],
     datasets: [],
@@ -138,6 +139,7 @@ const MajorBDCount = ({
       }));
 
       const targetData = res?.data?.bdTrendDataTarget;
+      const targetDataTotal = setTargetTotal(res?.data?.targetTotal);
       // const targetData = getRandomDataArray(12, 5, 8);
 
       if (data) {
@@ -206,11 +208,11 @@ const MajorBDCount = ({
           </Typography>
 
           <Typography variant="h6" component="h6" className="mt-3">
-            FY 23:
+            FY : {selectedYear}
           </Typography>
 
           <Typography variant="h6" component="h6" className="mt-3">
-            <b>Target →</b> 12 Nos/Year
+            <b>Target →</b> {targetTotal}/year
           </Typography>
 
           <Box className="row cell" sx={{ m: 0, mt: 3, display: "flex" }}>
