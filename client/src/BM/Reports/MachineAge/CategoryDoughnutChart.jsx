@@ -52,7 +52,7 @@ const ChartCard = ({ category }) => {
   return (
     <Paper variant="outlined">
       <div className="p-3 pb-0">
-        <ChartTitleBar title={`${category?.category} Category`} />
+        <ChartTitleBar title={`${category?.category}`} />
       </div>
 
       <Box
@@ -113,6 +113,7 @@ const CategoryDoughnutChart = ({
   };
 
   useEffect(() => {
+    setLoading(false);
     if (selectedGroup) {
       getMachineAgePieChart();
     }
@@ -121,23 +122,6 @@ const CategoryDoughnutChart = ({
   useEffect(() => {
     setSelectedGroup(groupData?.[0]?._id);
   }, [groupData?.[0]?._id]);
-
-  useEffect(() => {
-    setCategories([
-      {
-        category: "BD",
-        subcategories: ["Minor"],
-        bdCount: [1],
-        bdTime: [1.5333333333333334],
-      },
-      {
-        category: "Problem",
-        subcategories: ["Electronics"],
-        bdCount: [1],
-        bdTime: [1.5333333333333334],
-      },
-    ]);
-  }, []);
 
   return (
     <Box className="cell p-3">
@@ -154,9 +138,9 @@ const CategoryDoughnutChart = ({
         </Col>
       </Row>
 
-      <Row className="g-3 mt-1">
+      <Row className="g-3 mt-0">
         {[0, 1]?.map((key) => (
-          <Col key={key}sm={6} xs={12}>
+          <Col key={key} sm={6} xs={12}>
             {loading ? (
               <Loading height={200} />
             ) : categories?.[key] ? (

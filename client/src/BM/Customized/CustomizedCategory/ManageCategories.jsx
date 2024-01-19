@@ -92,8 +92,8 @@ const ManageCategories = () => {
         withCredentials: true,
         credentials: "include",
       });
-      console.log("res:", res);
-      console.log("getCategory:", res.data.getCategory);
+      // console.log("res:", res);
+      // console.log("getCategory:", res.data.getCategory);
       setCategories(res.data.getCategory);
     } catch (error) {
       console.log("error:", error);

@@ -51,7 +51,7 @@ const ChartCard = ({ category }) => {
   return (
     <Box variant="outlined" className="cell">
       <div className="p-3 pb-0">
-        <ChartTitleBar title={`${category?.category} Category`} />
+        <ChartTitleBar title={`${category?.category}`} />
       </div>
       {/* <ChartTitleBar title="BD Hours Vs Count" /> */}
       {/* <Typography variant="body1" style={{ fontSize: "1rem" }}>

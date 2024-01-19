@@ -77,7 +77,7 @@ const UserWisePendingCount = ({
 
           <tbody>
             {UserWisePendingApprovalCount?.map((item, index) => (
-              <>
+              <React.Fragment key={index}>
                 <tr>
                   <td rowSpan={item?.data?.length + 1}>{item?._id}</td>
                 </tr>
@@ -91,7 +91,7 @@ const UserWisePendingCount = ({
                     ))}
                   </tr>
                 ))}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </Table>

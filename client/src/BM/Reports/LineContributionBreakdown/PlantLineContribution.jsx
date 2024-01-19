@@ -134,13 +134,13 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
         credentials: "include",
       });
 
-      console.log("plant contri res:", res.data);
+      // console.log("plant contri res:", res.data);
       setData(res?.data?.lineWiseBDData[0]);
 
       // delete this piece of code after successful server response
       // setData(undefined); //keep undefined till api is stable
     } catch (error) {
-      setData(undefined);
+      setData({});
       console.log("error:", error);
     }
 
@@ -190,7 +190,7 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
         <Loading height={300} />
       ) : (
         <Box sx={{ height: { xs: "300px", md: "400px" } }}>
-          {data === undefined ? (
+          {data === undefined || Object.keys(data).length === 0 ? (
             <DataNotFound />
           ) : (
             <Chart

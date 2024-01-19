@@ -284,7 +284,7 @@ const TmMttrSkillScoreCrud = ({
           justifyContent="center"
           alignItems="center"
           minHeight={100}
-          bgcolor={blueGrey[100]}
+          bgcolor={"#e2e3e5"}
         >
           <Typography variant="h5" component="h5" textAlign="center">
             No Data Found

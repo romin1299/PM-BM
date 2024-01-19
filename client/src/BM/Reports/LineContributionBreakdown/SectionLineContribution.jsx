@@ -21,6 +21,7 @@ import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import Loading from "../../../components/Loading/Loading";
+import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
 
 ChartJS.register(
   CategoryScale,
@@ -120,6 +121,7 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
       setData(res?.data?.lineWiseBDData[0]);
     } catch (error) {
       console.log("error:", error);
+      setData({});
     }
 
     setLoading(false);
@@ -159,15 +161,21 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
       },
     ],
   };
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="Section Contribution" Toolbar={null} />
 
       <Row>
-        <SectionCellSelectionDropdown
-          {...reduceState}
+        <ChartsToolbar
+          baseUrlForFiltering={baseUrlForFiltering}
+          reduceState={reduceState}
           reducerDispatch={reducerDispatch}
+          sectionFiltration
+          subSectionFiltration
+          cellFiltration
+          resetButtonFiltration
         />
       </Row>
 
@@ -175,7 +183,7 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
         <Loading height={200} sx={{ mt: 2 }} />
       ) : (
         <Box sx={{ height: { xs: "300px", md: "400px" } }}>
-          {data === undefined ? (
+          {data === undefined || Object.keys(data).length === 0 ? (
             <DataNotFound sx={{ mt: 2 }} />
           ) : (
             <Chart

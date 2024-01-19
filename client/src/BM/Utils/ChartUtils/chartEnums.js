@@ -45,25 +45,20 @@ export const chartColors = {
   barLineChart: ["#0aa3d2", "#65cc97"],
   barLineChartText: ["#f0f0f0"],
 
-  machineBarChart: "#65cc97",
-  machineBarLabels: "#424242",
-
-  dailyBDTrendFont: ["#667788", "#667788", "#f0f0f0", "#667788"],
-  dailyBDTrend: ["#c2c933", "#FFDA7C", red["A100"], "#40aeb6"],
-  // dailyBDTrendDarker: ["#c2c933", "##fecd47", "#fd6a94", "#40aeb6"],
-  dailyBDTrendBorder: ["#837618", "#fc8400", "#f82f65", "#40aeb6"],
-
-  monthlyBDTrend: ["#c2c933", "#0BB4CB", "#ffcd38", "#778899"],
-
-  bmpm: ["#c2c933", "#40aeb6"],
-
-  tmSkillPie: ["#354657", "#e8effa"],
-  tmSkillborder: "#44586d",
-
-  categoryPieFont: ["#616161", "#616161", "#616161", "#f0f0f0", "#616161"],
-  categoryPie: [
-    "#bae59e",
+  machineChartCounts: [
+    "#334455",
     "#0aa3d2",
+    "#9F0000",
+    "#646089",
+    "#DE6152",
+    "#837618",
+    "#606F70",
+    "#DECA52",
+    "#608789",
+  ],
+  machineBarChart: [
+    "#0aa3d2",
+    "#65cc97",
     "#DE5274",
     "#646089",
     "#bbd0e5",
@@ -72,6 +67,29 @@ export const chartColors = {
     "#DECA52",
     "#608789",
   ],
+  machineBarLabels: "#424242",
+
+  dailyBDTrendFont: ["#667788", "#667788", "#f0f0f0", "#667788"],
+  dailyBDTrend: ["#c2c933", "#FFDA7C", red["A100"], "#40aeb6"],
+  // dailyBDTrendDarker: ["#c2c933", "##fecd47", "#fd6a94", "#40aeb6"],
+  dailyBDTrendBorder: ["#837618", "#fc8400", "#f82f65", "#40aeb6"],
+
+  monthlyBDTrend: [
+    "#c2c933",
+    "#0BB4CB",
+    "#ffcd38",
+    "#778899",
+    "#fd6a94",
+    "#65cc97",
+  ],
+
+  bmpm: ["#c2c933", "#40aeb6"],
+
+  tmSkillPie: ["#354657", "#e8effa"],
+  tmSkillborder: "#44586d",
+
+  categoryPieFont: ["#616161", "#616161", "#616161", "#f0f0f0", "#616161"],
+
   categoryPie: [
     "#d7e057",
     "#5cd2e8",

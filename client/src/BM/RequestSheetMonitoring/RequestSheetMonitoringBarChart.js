@@ -84,7 +84,6 @@ const RequestSheetMonitoringBarChart = ({
       const { message, allStatusCounterForGraph } = await res.json();
 
       if (res?.status === 201) {
-        console.log("allStatusCounterForGraph:", allStatusCounterForGraph);
         setAllStatusCounterForGraph(allStatusCounterForGraph);
       }
     } catch (error) {
