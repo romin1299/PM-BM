@@ -12,6 +12,7 @@ const SubSection = require("../model/subSectionSchema");
 const Cell = require("../model/cellSchema");
 const Line = require("../model/lineSchema");
 const LogHistory = require("../model/logHistorySchema");
+const NoLossBD = require("../model/noLossBDSheetData");
 
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
@@ -176,6 +177,70 @@ router.get(
       },
     ];
 
+    const commonLookupPipeline = [
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+          as: "lines",
+        },
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cellRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                cell_name: 1,
+              },
+            },
+          ],
+          as: "cells",
+        },
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                machine_code: 1,
+                machine_name: 1,
+              },
+            },
+          ],
+          as: "machines",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "users",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+              },
+            },
+          ],
+          as: "doneBy",
+        },
+      },
+    ];
+
     if (req.query?.selectedMonth) {
       queryPipelineForPm = [
         {
@@ -247,7 +312,7 @@ router.get(
           cell: { $arrayElemAt: ["$cells.cell_name", 0] },
           line: { $arrayElemAt: ["$lines.line_name", 0] },
           // shiftOfBM: 1,
-          moduleCategory: "PM",
+          maintenanceType: "PM",
           time: "$data.time",
           // firstTimeOrRepeat: 1,
           doneBy: {
@@ -299,52 +364,7 @@ router.get(
       {
         $match: req.queryObj,
       },
-      {
-        $lookup: {
-          from: "lines",
-          localField: "lineRef",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                line_name: 1,
-              },
-            },
-          ],
-          as: "lines",
-        },
-      },
-      {
-        $lookup: {
-          from: "cells",
-          localField: "cellRef",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                cell_name: 1,
-              },
-            },
-          ],
-          as: "cells",
-        },
-      },
-      {
-        $lookup: {
-          from: "machinesalldatas",
-          localField: "machineRef",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                machine_code: 1,
-                machine_name: 1,
-              },
-            },
-          ],
-          as: "machines",
-        },
-      },
+
       {
         $addFields: {
           users: {
@@ -352,21 +372,9 @@ router.get(
           },
         },
       },
-      {
-        $lookup: {
-          from: "users",
-          localField: "users",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-              },
-            },
-          ],
-          as: "doneBy",
-        },
-      },
+
+      ...commonLookupPipeline,
+
       {
         $project: {
           month: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
@@ -375,8 +383,8 @@ router.get(
           line: { $arrayElemAt: ["$lines.line_name", 0] },
           machine_name: { $arrayElemAt: ["$machines.machine_name", 0] },
           machine_code: { $arrayElemAt: ["$machines.machine_code", 0] },
-          shiftOfBM: 1,
-          moduleCategory: "BM",
+          shift: "$shiftOfBM",
+          maintenanceType: "BM",
           time: "$maintenanceReportFilledByMTD.breakDownTime",
 
           problem: "$maintenanceReportFilledByMTD.problemsOfBM",
@@ -392,8 +400,47 @@ router.get(
       },
     ]);
 
+    const noLossLog = await NoLossBD.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $addFields: {
+          users: {
+            $setUnion: [["$doneByNoLossBD"], "$supportingTM"],
+          },
+        },
+      },
+      ...commonLookupPipeline,
+      {
+        $project: {
+          month: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+          date: "$DateOfNoLossBD",
+          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
+          line: { $arrayElemAt: ["$lines.line_name", 0] },
+          machine_name: { $arrayElemAt: ["$machines.machine_name", 0] },
+          machine_code: { $arrayElemAt: ["$machines.machine_code", 0] },
+          shift: "$shiftOfBM",
+          maintenanceType: "$maintenanceType",
+          time: "$breakDownTime",
+
+          problem: "$problemsOfBM",
+          cause: {
+            why: "$causeOfNoLoss",
+          },
+          action: "$actionAndCounterMeasureStep",
+          counterMeasure: "$counterMeasureStep",
+          category: "$categoriesOfRequestSheet",
+
+          actionTemporaryOrNot: 1,
+          doneBy: 1,
+          status: "$machineStatus",
+        },
+      },
+    ]);
+
     successResponse(res, "Master log get successfully", {
-      masterLogData: [...bmLog, ...pmLog],
+      masterLogData: [...bmLog, ...pmLog, ...noLossLog],
     });
   })
 );

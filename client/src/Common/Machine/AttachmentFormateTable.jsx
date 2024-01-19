@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
+import FileDownload from "js-file-download";
 
 import MaterialTable from "@material-table/core";
+import DownloadIcon from "@mui/icons-material/Download";
 import tableIcons from "../../components/MatrialTableIcon";
 
 import AddNewAttachmentModal from "./AddNewAttachmentModal";
@@ -86,6 +89,17 @@ const AttachmentFormateTable = () => {
     setHandleShowAddNewAttachmentModal(
       (handleShowAddNewAttachmentModal) => !handleShowAddNewAttachmentModal
     );
+  };
+
+  const handleDownloadDocument = async (_, selectedRow) => {
+    const res = await axios({
+      url: `/downloadAttachment/${pageDetails?.schemaVar}/${selectedRow?.attached_file}`,
+      method: "GET",
+      responseType: "blob",
+    });
+    if (res.status === 201) {
+      FileDownload(res.data, selectedRow?.attached_file);
+    }
   };
 
   const getAttachmentDetails = async () => {
@@ -197,6 +211,12 @@ const AttachmentFormateTable = () => {
       tooltip: "Upload document",
       isFreeAction: true,
       onClick: handleEventsForAttachmentModal,
+    },
+    {
+      icon: () => <DownloadIcon />,
+      tooltip: "Download document",
+      position: "row",
+      onClick: handleDownloadDocument,
     },
   ];
 

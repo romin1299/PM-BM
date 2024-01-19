@@ -226,6 +226,41 @@ const RequestSheetMainDashboard = () => {
     }
   };
 
+  const deleteRequestSheet = async (selectedRow) => {
+    try {
+      const res = await fetch(`/deleteRequestSheet/${selectedRow?._id}`, {
+        method: "DELETE",
+        // headers: {
+        //   "Content-Type": "application/json",
+        // },
+        // body: JSON.stringify(updatedRow),
+      });
+
+      const { deletedRequestSheet, message } = await res.json();
+
+      const updatedRequestSheetData =
+        reduceStateForRequestSheetData.requestSheetData.filter(
+          (row) => row._id !== selectedRow._id
+        );
+
+      if (res.status === 201) {
+        reducerDispatchForRequestSheetData({
+          type: ACTION.GET,
+          requestSheetData: updatedRequestSheetData,
+          TLHOSS_and_TM_user_list:
+            reduceStateForRequestSheetData.TLHOSS_and_TM_user_list,
+          counters: reduceStateForRequestSheetData.counters,
+          message,
+        });
+        // return updatedRequestSheetData;
+      } else {
+        console.log("error");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (reduceState?.selectedValue) getAllRequestSheetData();
   }, [
@@ -756,10 +791,11 @@ const RequestSheetMainDashboard = () => {
                 //   }),
 
                 onRowDelete: (selectedRow) =>
-                  new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                      resolve();
-                    }, 500);
+                  new Promise(async (resolve, reject) => {
+                    // setTimeout(() => {
+                    await deleteRequestSheet(selectedRow);
+                    resolve();
+                    // }, 500);
                   }),
 
                 onRowUpdate: (updatedRow, oldRow) =>
