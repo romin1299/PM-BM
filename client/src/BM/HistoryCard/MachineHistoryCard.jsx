@@ -5,12 +5,20 @@ import BDHoursTrendChart from "./BDHoursTrendChart";
 import { Box, Button, Divider, Paper, Typography } from "@mui/material";
 import { roundValue } from "../Utils/math/roundValue";
 
+import MachineHistoryMasterLog from "../../Common/MasterLog/MachineHistoryMasterLog";
+
 const MachineHistoryCard = ({
   selectedYear,
   selectedMonth,
   selectedRow,
   modelProp,
 }) => {
+  const [masterLogModal, setMasterLogModal] = useState(false);
+
+  const handleMasterLogModal = () => {
+    setMasterLogModal((masterLogModal) => !masterLogModal);
+  };
+
   const [historyCardData, setHistoryCardData] = useState({
     bdTime: 0,
     bdCount: 0,
@@ -134,6 +142,18 @@ const MachineHistoryCard = ({
         </Row>
 
         <BDHoursTrendChart bdHourTrend={historyCardData?.bdHourTrend} />
+
+        {masterLogModal && (
+          <MachineHistoryMasterLog
+            selectedYear={selectedYear}
+            selectedMonth={selectedMonth}
+            selectedRow={selectedRow}
+            modelProp={{
+              show: masterLogModal,
+              onHide: () => handleMasterLogModal(),
+            }}
+          />
+        )}
       </Modal.Body>
       <Modal.Footer className="gap-2">
         <Button
@@ -149,6 +169,7 @@ const MachineHistoryCard = ({
           variant="contained"
           disableElevation
           className="bg-button"
+          onClick={handleMasterLogModal}
         >
           History
         </Button>
