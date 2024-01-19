@@ -8490,7 +8490,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
       bdTrendData,
       bdTrendDataTarget: req.target,
-      averageData,
+      averageData: averageData?.[0].data,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -8789,7 +8789,8 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 lineWiseTotal: {
                   $push: {
                     month: "$_id.date",
-                    bdTimeSum: req.mttrOrSumFormula,
+                    // bdTimeSum: req.mttrOrSumFormula,
+                    bdTimeSum: { $trunc: [req.mttrOrSumFormula, 1] },
                   },
                 },
               },
@@ -12518,7 +12519,13 @@ const altfindTLandOperatorList = async (req, res, next) => {
         tm_no: { $ne: req?.rootUser?.tm_no },
         $and: [
           {
-            user_type: "Operator",
+            $or: [
+              {
+                $and: [{ user_type: "TL/HOSS" }, { tm_department: "MTD" }],
+              },
+
+              { user_type: "Operator" },
+            ],
           },
           // {
           //         tm_department: "MTD",
@@ -12542,18 +12549,6 @@ const altfindTLandOperatorList = async (req, res, next) => {
               },
             ],
           },
-
-          // {
-          //   $and: [
-          //     {
-          //       user_type: "TL/HOSS",
-          //
-          //     },
-          //     {
-          //       tm_department: "MTD",
-          //     },
-          //   ],
-          // },
         ],
       },
       // ],
@@ -12974,116 +12969,122 @@ router.get(
       },
 
       {
-        $addFields: {
-          groupName: {
-            $arrayElemAt: [
-              {
-                $map: {
-                  input: {
-                    $filter: {
-                      input: "$section_data.yearGroup",
-                      as: "group",
-                      cond: {
-                        $and: [
-                          { $gte: ["$yearDifference", "$$group.from"] },
-                          { $lte: ["$yearDifference", "$$group.to"] },
-                        ],
-                      },
+  $addFields: {
+    groupName: {
+      $arrayElemAt: [
+        {
+          $map: {
+            input: {
+              $filter: {
+                input: { $reverseArray: "$section_data.yearGroup" },
+                as: "group",
+                cond: {
+                  $and: [
+                    { $gte: ["$yearDifference", "$$group.from"] },
+                    {
+                      $or: [
+                        { $eq: ["$$group.to", 1.7976931348623157e+308] },
+                        { $lte: ["$yearDifference", "$$group.to"] },
+                      ],
                     },
-                  },
-                  as: "matchedGroup",
-                  in: "$$matchedGroup.group",
+                  ],
                 },
               },
-              0,
-            ],
+            },
+            as: "matchedGroup",
+            in: "$$matchedGroup.group",
+          },
+        },
+        0,
+      ],
+    },
+  },
+},
+
+
+      {
+        $match: {
+          groupName: { $exists: true, $ne: null },
+        },
+      },
+
+      {
+        $group: {
+          _id: {
+            groupName: "$groupName",
+            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+          },
+
+          bdHoursmachineWise: {
+            $sum: {
+              $cond: [
+                {
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
+                  ],
+                },
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+                },
+                0,
+              ],
+            },
           },
         },
       },
 
-      // {
-      //   $match: {
-      //     groupName: { $exists: true, $ne: null },
-      //   },
-      // },
+      {
+        $group: {
+          _id: "$_id.groupName",
+          label: { $first: "$_id.groupName" },
+          bdHoursmachineWiseTotal: {
+            $push: {
+              month: "$_id.date",
+              bdTimeSum: { $trunc: ["$bdHoursmachineWise", 1] },
+            },
+          },
+        },
+      },
 
-      // {
-      //   $group: {
-      //     _id: {
-      //       groupName: "$groupName",
-      //       date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-      //     },
+      {
+        $sort: { _id: 1 },
+      },
 
-      //     bdHoursmachineWise: {
-      //       $sum: {
-      //         $cond: [
-      //           {
-      //             $gt: [
-      //               "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-      //               null,
-      //             ],
-      //           },
-      //           {
-      //             $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-      //           },
-      //           0,
-      //         ],
-      //       },
-      //     },
-      //   },
-      // },
-
-      // {
-      //   $group: {
-      //     _id: "$_id.groupName",
-      //     label: { $first: "$_id.groupName" },
-      //     bdHoursmachineWiseTotal: {
-      //       $push: {
-      //         month: "$_id.date",
-      //         bdTimeSum: { $trunc: ["$bdHoursmachineWise", 1] },
-      //       },
-      //     },
-      //   },
-      // },
-
-      // {
-      //   $sort: { _id: 1 },
-      // },
-
-      // {
-      //   $project: {
-      //     _id: 1,
-      //     label: 1,
-      //     data: {
-      //       $map: {
-      //         input: allMonths,
-      //         as: "month",
-      //         in: {
-      //           $cond: [
-      //             {
-      //               $in: [
-      //                 "$$month.monthName",
-      //                 "$bdHoursmachineWiseTotal.month",
-      //               ],
-      //             },
-      //             {
-      //               $arrayElemAt: [
-      //                 "$bdHoursmachineWiseTotal.bdTimeSum",
-      //                 {
-      //                   $indexOfArray: [
-      //                     "$bdHoursmachineWiseTotal.month",
-      //                     "$$month.monthName",
-      //                   ],
-      //                 },
-      //               ],
-      //             },
-      //             0,
-      //           ],
-      //         },
-      //       },
-      //     },
-      //   },
-      // },
+      {
+        $project: {
+          _id: 1,
+          label: 1,
+          data: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  {
+                    $in: [
+                      "$$month.monthName",
+                      "$bdHoursmachineWiseTotal.month",
+                    ],
+                  },
+                  {
+                    $arrayElemAt: [
+                      "$bdHoursmachineWiseTotal.bdTimeSum",
+                      {
+                        $indexOfArray: [
+                          "$bdHoursmachineWiseTotal.month",
+                          "$$month.monthName",
+                        ],
+                      },
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      },
     ]);
 
     // console.log(machineData);
@@ -13143,33 +13144,38 @@ router.get(
         },
       },
 
-      {
-        $addFields: {
-          groupName: {
-            $arrayElemAt: [
-              {
-                $map: {
-                  input: {
-                    $filter: {
-                      input: "$section_data.yearGroup",
-                      as: "group",
-                      cond: {
-                        $and: [
-                          { $gte: ["$yearDifference", "$$group.from"] },
-                          { $lte: ["$yearDifference", "$$group.to"] },
-                        ],
-                      },
+        {
+  $addFields: {
+    groupName: {
+      $arrayElemAt: [
+        {
+          $map: {
+            input: {
+              $filter: {
+                input: { $reverseArray: "$section_data.yearGroup" },
+                as: "group",
+                cond: {
+                  $and: [
+                    { $gte: ["$yearDifference", "$$group.from"] },
+                    {
+                      $or: [
+                        { $eq: ["$$group.to", 1.7976931348623157e+308] },
+                        { $lte: ["$yearDifference", "$$group.to"] },
+                      ],
                     },
-                  },
-                  as: "matchedGroup",
-                  in: "$$matchedGroup.group",
+                  ],
                 },
               },
-              0,
-            ],
+            },
+            as: "matchedGroup",
+            in: "$$matchedGroup.group",
           },
         },
-      },
+        0,
+      ],
+    },
+  },
+},
       {
         $match: {
           groupName: { $exists: true, $ne: null },
@@ -13276,12 +13282,17 @@ router.get(
                 $map: {
                   input: {
                     $filter: {
-                      input: "$section_data.yearGroup",
+                      input: { $reverseArray: "$section_data.yearGroup" },
                       as: "group",
                       cond: {
                         $and: [
                           { $gte: ["$yearDifference", "$$group.from"] },
-                          { $lte: ["$yearDifference", "$$group.to"] },
+                          {
+                            $or: [
+                              { $eq: ["$$group.to", 1.7976931348623157e+308] },
+                              { $lte: ["$yearDifference", "$$group.to"] },
+                            ],
+                          },
                         ],
                       },
                     },
