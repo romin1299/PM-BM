@@ -13,6 +13,8 @@ import { Box } from "@mui/material";
 import { chartColors } from "../../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "../../Common/ChartTitleBar";
 import Loading from "../../../../components/Loading/Loading";
+import DataNotFound from "../../Common/DataNotFound";
+import { isChartDataExist } from "../../../Utils/functions/isChartDataExist";
 
 const BarChart = ({
   title,
@@ -101,17 +103,29 @@ const BarChart = ({
     datasets,
   };
 
+  const isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
       <ChartTitleBar title={title} Toolbar={AppendToolComponents} />
 
-      {loading ? (
+      {/* {loading ? (
         <Loading height={200} />
       ) : (
         <Box sx={{ height: { xs: "300px", md: "350px" } }}>
           <Bar options={options} data={data} />
         </Box>
-      )}
+      )} */}
+
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Bar options={options} data={data} />
+        )}
+      </Box>
     </Box>
   );
 };

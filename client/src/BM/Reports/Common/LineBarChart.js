@@ -15,6 +15,7 @@ import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "./ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "./DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 
 const LineBarChart = ({
   title,
@@ -169,6 +170,8 @@ const LineBarChart = ({
     datasets,
   };
 
+  const isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
       <ChartTitleBar title={title} />
@@ -177,17 +180,15 @@ const LineBarChart = ({
         <Chart data={data} options={options} />
       </div> */}
 
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-          {datasets?.[0].data === undefined ? (
-            <DataNotFound />
-          ) : (
-            <Chart data={data} options={options} />
-          )}
-        </Box>
-      )}
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart data={data} options={options} />
+        )}
+      </Box>
     </Box>
   );
 };

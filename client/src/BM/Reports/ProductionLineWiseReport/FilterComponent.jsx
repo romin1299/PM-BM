@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { Container, Row, Col } from "reactstrap";
 
 import AddHourlyFilter from "./AddHourlyFilter";
-import { Button } from "react-bootstrap";
+import { Button } from "@mui/material";
 
 const FilterFormComponent = ({
   getBDhoursVsCountReportData,
@@ -77,9 +77,16 @@ const FilterFormComponent = ({
                 &nbsp;
                 <label>{`${FilterArray?.greaterThan}+`}</label> <br />
               </Col>
-              <Col>
-                <Button type="submit" className="bg-button btn-sm">
-                  submit
+              <Col className="col-auto">
+                <Button
+                  type="submit"
+                  size="small"
+                  variant="contained"
+                  disableElevation
+                  className="bg-button"
+                  sx={{ pt: "2px", pb: "1px", minWidth: "auto" }}
+                >
+                  go
                 </Button>
               </Col>
             </Row>

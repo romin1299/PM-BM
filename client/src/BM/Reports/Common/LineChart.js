@@ -15,6 +15,8 @@ import { Col, Row } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "./ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "./DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 
 const LineChart = ({
   title,
@@ -131,17 +133,21 @@ const LineChart = ({
     datasets,
   };
 
+  const isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
       <ChartTitleBar title={title} Toolbar={AppendToolComponents} />
 
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
           <Line options={options} data={data} />
-        </Box>
-      )}
+        )}
+      </Box>
     </Box>
   );
 };

@@ -9,6 +9,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
 import Loading from "../../../components/Loading/Loading";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 
 const sectionBoxStyle = {
   p: 1,
@@ -145,7 +146,7 @@ const MajorBDCount = ({
       if (data) {
         setData(data);
         setChartData({
-          labels:  res?.data?.labels,
+          labels: res?.data?.labels,
           datasets: [
             {
               type: "line",
@@ -194,6 +195,10 @@ const MajorBDCount = ({
       return accumulator + currentValue;
     }, 0);
   }
+
+  console.log("chartData:", chartData);
+
+  const isDataExists = isChartDataExist(chartData);
 
   return (
     <Box className="cell p-3 mt-3">
@@ -256,21 +261,19 @@ const MajorBDCount = ({
               Sections
             </Typography>
 
-            {loading ? (
-              <Loading height={200} />
-            ) : (
-              <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-                {chartData === undefined || chartData?.datasets?.length < 1 ? (
-                  <DataNotFound />
-                ) : (
-                  <Bar
-                    options={options}
-                    data={chartData}
-                    plugins={[ChartDataLabels]}
-                  />
-                )}
-              </Box>
-            )}
+            <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+              {loading ? (
+                <Loading height={"100%"} />
+              ) : !isDataExists ? (
+                <DataNotFound />
+              ) : (
+                <Bar
+                  options={options}
+                  data={chartData}
+                  plugins={[ChartDataLabels]}
+                />
+              )}
+            </Box>
           </Paper>
         </Col>
       </Row>

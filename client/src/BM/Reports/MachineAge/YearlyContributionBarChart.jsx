@@ -12,6 +12,9 @@ import { Bar } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import DataNotFound from "../Common/DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import Loading from "../../../components/Loading/Loading";
 
 const YearlyContributionBarChart = ({
   selectedValue,
@@ -26,13 +29,15 @@ const YearlyContributionBarChart = ({
     Tooltip,
     Legend
   );
+  const [loading, setLoading] = React.useState(true);
 
   const [yearlyContributionData, setYearlyContributionData] = useState({
     label: [],
     data: [],
-  })
+  });
 
   const getYearContributionChartData = async () => {
+    setLoading(true);
     try {
       const res = await fetch(
         `/getMachineAgeYearwise/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
@@ -54,9 +59,12 @@ const YearlyContributionBarChart = ({
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
+    setLoading(false);
     if (selectedValue) {
       getYearContributionChartData();
     }
@@ -125,12 +133,20 @@ const YearlyContributionBarChart = ({
     datasets,
   };
 
+  const isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
       <ChartTitleBar title={"Yearly Contribution"} />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        <Bar options={options} data={data} />
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Bar options={options} data={data} />
+        )}
       </Box>
     </Box>
   );

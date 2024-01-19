@@ -182,25 +182,21 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
   //   console.log("plant data:", data);
   // }, [data]);
 
+  const noData = data === undefined || Object.keys(data).length === 0;
+
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="Plant Contribution" />
 
-      {loading ? (
-        <Loading height={300} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "400px" } }}>
-          {data === undefined || Object.keys(data).length === 0 ? (
-            <DataNotFound />
-          ) : (
-            <Chart
-              options={options}
-              data={chartData}
-              plugins={[ChartDataLabels]}
-            />
-          )}
-        </Box>
-      )}
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : noData ? (
+          <DataNotFound />
+        ) : (
+          <Chart data={chartData} options={options} />
+        )}
+      </Box>
     </Box>
   );
 };

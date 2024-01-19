@@ -20,6 +20,7 @@ import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
 import Loading from "../../../components/Loading/Loading";
 import FilterSwitchButtons from "./FilterSwitchButtons";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 
 ChartJS.register(
   CategoryScale,
@@ -176,12 +177,16 @@ const MonthlyBDTrendChart = ({
     setLoading(false);
   };
 
-  // console.log("chartData:", chartData);
+  console.log("chartData:", chartData);
 
   useEffect(() => {
     if (flagForTogglingFilter && selectedValue && selectedYear && filter)
       fetchChartData();
   }, [flagForTogglingFilter, selectedValue, filter, selectedYear]);
+
+  const isDataExists = isChartDataExist(chartData);
+
+  // console.count("render");
 
   return (
     <Box className="container-fluid cell p-3">
@@ -203,22 +208,20 @@ const MonthlyBDTrendChart = ({
         }
       />
 
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-          {chartData === undefined || chartData?.datasets?.length < 1 ? (
-            <DataNotFound />
-          ) : (
-            <Chart
-              type="bar"
-              options={options}
-              data={chartData}
-              plugins={[ChartDataLabels]}
-            />
-          )}
-        </Box>
-      )}
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart
+            type="bar"
+            options={options}
+            data={chartData}
+            plugins={[ChartDataLabels]}
+          />
+        )}
+      </Box>
     </Box>
   );
 };

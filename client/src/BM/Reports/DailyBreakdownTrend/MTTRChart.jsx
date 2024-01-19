@@ -5,6 +5,9 @@ import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { Col, Row } from "react-bootstrap";
 import { CountFilters } from "./DailyBDTrendChart";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "../Common/DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 
 export const options = {
   maintainAspectRatio: false,
@@ -91,6 +94,7 @@ const labels = [
 ];
 
 const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
+  const [loading, setLoading] = React.useState(true);
   const [mttrData, setMttrData] = useState({
     bdTrendData: [{ label: "", data: [] }],
     averageData: [],
@@ -105,6 +109,7 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
   };
 
   const getMTTRData = async () => {
+    setLoading(true);
     let [, , currFilterState] = flagForTogglingFilter?.split("-");
     let filterFlag = filterMaker[currFilterState];
 
@@ -131,10 +136,17 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
       }
     } catch (error) {
       console.log(error);
+      setMttrData({
+        bdTrendData: [{ label: "", data: [] }],
+        averageData: [],
+      });
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
+    setLoading(false);
     if (selectedValue) getMTTRData();
   }, [selectedValue, selectedYear]);
 
@@ -161,78 +173,23 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
         borderRadius: 4,
         pointStyle: "rect",
       })),
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "FP",
-      //   data: [3, 15, 10, 8, 12, 18, 20, 25, 30, 5, 15, 10],
-      //   backgroundColor: chartColors.yellow[1],
-      //   borderColor: chartColors.yellow[1],
-      //   pointStyle: "rect",
-      // },
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "INJ",
-      //   data: [20, 8, 15, 10, 5, 18, 12, 25, 30, 3, 10, 15],
-      //   backgroundColor: chartColors.aqua[3],
-      //   borderColor: chartColors.aqua[3],
-      //   pointStyle: "rect",
-      // },
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "VCT",
-      //   data: [10, 15, 20, 8, 5, 25, 18, 30, 12, 3, 15, 10],
-      //   backgroundColor: chartColors.purple[4],
-      //   borderColor: chartColors.purple[4],
-      //   pointStyle: "rect",
-      // },
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "O2",
-      //   data: [15, 10, 8, 20, 18, 5, 12, 25, 30, 3, 15, 10],
-      //   backgroundColor: chartColors.green[3],
-      //   borderColor: chartColors.green[3],
-      //   pointStyle: "rect",
-      // },
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "ETB",
-      //   data: [8, 15, 10, 5, 18, 20, 25, 30, 12, 3, 15, 10],
-      //   backgroundColor: chartColors.magenta[2],
-      //   borderColor: chartColors.magenta[2],
-      //   pointStyle: "rect",
-      // },
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "VCT PARTS",
-      //   data: [10, 5, 20, 8, 12, 15, 18, 30, 3, 25, 15, 10],
-      //   backgroundColor: chartColors.blue[3],
-      //   borderColor: chartColors.blue[3],
-      //   pointStyle: "rect",
-      // },
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "FP PARTS",
-      //   data: [5, 15, 10, 8, 12, 18, 20, 25, 30, 3, 15, 10],
-      //   backgroundColor: chartColors.brown[1],
-      //   borderColor: chartColors.brown[1],
-      //   pointStyle: "rect",
-      // },
     ],
   };
+
+  const isDataExists = isChartDataExist(data);
 
   return (
     <Box className="cell p-3 mb-3">
       <ChartTitleBar title="Mean Time to Repair (MTTR)" />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        <Chart data={data} options={options} />
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart data={data} options={options} />
+        )}
       </Box>
     </Box>
   );

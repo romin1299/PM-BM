@@ -2,6 +2,8 @@ import React, { useEffect, useReducer } from "react";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
 import SmallChartCardComponent from "./SmallChartCardComponent";
 import Loading from "../../../components/Loading/Loading";
+import { Box } from "@mui/material";
+import DataNotFound from "../Common/DataNotFound";
 
 const BDPercentageChart = ({
   selectedValue,
@@ -82,16 +84,23 @@ const BDPercentageChart = ({
     }
   }, [selectedValue, selectedYear]);
 
+  let isDataExists =
+    reduceState?.BDPercentageReportData?.data?.length > 0 || false;
+
   return (
     <SmallChartCardComponent title="BD %">
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <LineBarChartForProductionLineWise
-          ReportData={reduceState?.BDPercentageReportData}
-          xAxisVerticleTicks
-        />
-      )}
+      <Box sx={{ height: { xs: "200px" } }}>
+        {loading ? (
+          <Loading height={200} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <LineBarChartForProductionLineWise
+            ReportData={reduceState?.BDPercentageReportData}
+            xAxisVerticleTicks
+          />
+        )}
+      </Box>
     </SmallChartCardComponent>
   );
 };

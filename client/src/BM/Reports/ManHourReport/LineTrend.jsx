@@ -17,6 +17,8 @@ import {
 } from "chart.js";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "../Common/DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 
 ChartJS.register(
   CategoryScale,
@@ -30,6 +32,8 @@ ChartJS.register(
 );
 
 export const options = {
+  responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
       align: "end",
@@ -41,7 +45,6 @@ export const options = {
       display: false,
     },
   },
-  responsive: true,
   scales: {
     x: {
       stacked: true,
@@ -57,6 +60,9 @@ export const options = {
         minRotation: 90,
         // padding: 10,
         color: "black",
+        // font: {
+        //   size: 11,
+        // },
       },
     },
 
@@ -194,16 +200,30 @@ const LineTrend = ({
     }
   };
 
+  let isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="Line Trend" />
-      {loading ? (
+      {/* {loading ? (
         <Loading height={200} />
       ) : (
         <Chart options={options} data={data} />
-      )}
-      {/* <button onClick={dummyAPI}>For Test</button> */}
+      )} */}
+
+      <Box sx={{ height: { xs: "350px", md: "400px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart options={options} data={data} />
+        )}
+      </Box>
     </Box>
+
+    // <button onClick={dummyAPI}>For Test</button>
+
     // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>
     //   <Typography variant="h5" component="h4">
     //     Line Trend

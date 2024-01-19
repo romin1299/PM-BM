@@ -4,6 +4,8 @@ import SmallChartCardComponent from "./SmallChartCardComponent";
 
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
 import Loading from "../../../components/Loading/Loading";
+import { Box } from "@mui/material";
+import DataNotFound from "../Common/DataNotFound";
 
 const MTBFComponent = ({
   selectedValue,
@@ -84,16 +86,24 @@ const MTBFComponent = ({
     if (selectedValue) getMTBFReportData();
   }, [selectedValue, selectedYear]);
 
+
+  
+  let isDataExists = reduceState?.MTBFReportData?.data?.length > 0 || false;
+
   return (
     <SmallChartCardComponent title="MTBF">
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <LineBarChartForProductionLineWise
-          MTBF={true}
-          ReportData={reduceState?.MTBFReportData}
-        />
-      )}
+      <Box sx={{ height: { xs: "200px" } }}>
+        {loading ? (
+          <Loading height={200} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        )  : (
+          <LineBarChartForProductionLineWise
+            MTBF={true}
+            ReportData={reduceState?.MTBFReportData}
+          />
+        )}
+      </Box>
     </SmallChartCardComponent>
   );
 };
