@@ -96,26 +96,21 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
     averageData: [],
   });
 
-  const getMTTRData = async () => {
-    let urlString = "";
+  let filterMaker = {
+    plant: "Plant",
+    section: "Section",
+    subSection: "Section",
+    cell: "Cell",
+    line: "Line",
+  };
 
-    if (flagForTogglingFilter === "based-on-plant") {
-      urlString = "mttrForPlant";
-    } else if (
-      flagForTogglingFilter === "based-on-section" ||
-      flagForTogglingFilter === "based-on-subSection"
-    ) {
-      urlString = "mttrForSection";
-    } else if (flagForTogglingFilter === "based-on-cell") {
-      urlString = "mttrForCell";
-    }
-     else if (flagForTogglingFilter === "based-on-line") {
-      urlString = "mttrForLine";
-    }
+  const getMTTRData = async () => {
+    let [, , currFilterState] = flagForTogglingFilter?.split("-");
+    let filterFlag = filterMaker[currFilterState];
 
     try {
       const res = await fetch(
-        `/${urlString}/kpiFromDatabase/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
+        `/mttrFor${filterFlag}/kpiFromDatabase/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
         {
           method: "GET",
           headers: {

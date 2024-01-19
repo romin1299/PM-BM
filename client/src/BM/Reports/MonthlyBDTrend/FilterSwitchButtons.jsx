@@ -10,8 +10,7 @@ const FilterSwitchButtons = ({ filter, setFilter, filterState }) => {
     line: "machine",
   };
 
-  let slicedString = filterState?.flagForTogglingFilter?.split("-");
-  let currFilterState = slicedString?.[2];
+  let [, , currFilterState] = filterState?.flagForTogglingFilter?.split("-");
   const filterOptions = ["hourly", filterMaker?.[currFilterState] || ""];
 
   // console.log("currFilterState:", currFilterState);
