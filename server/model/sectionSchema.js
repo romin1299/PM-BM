@@ -26,7 +26,7 @@ const sectionSchema = new mongoose.Schema({
     {
       group: { type: String },
       from: { type: Number },
-      to: { type: Number },
+      to: { type: Number, default: Infinity },
     },
   ],
 });
