@@ -2974,7 +2974,6 @@ router.get(
             userWithStatusInfo: {
               $arrayElemAt: [
                 {
-
                   $filter: {
                     input: [
                       {
@@ -3074,10 +3073,10 @@ router.get(
                       $eq: ["$$user.status", "Pending"],
                     },
                     // limit: 1,
-                  }
-                  
-                },0
-              ]
+                  },
+                },
+                0,
+              ],
             },
           },
         },
@@ -6923,13 +6922,12 @@ router.get(
           },
         },
 
-   {
-            $sort: {
-              "_id.subCategory": 1,
-            
-            },
+        {
+          $sort: {
+            "_id.subCategory": 1,
           },
-     
+        },
+
         {
           $group: {
             _id: {
@@ -6950,18 +6948,15 @@ router.get(
           },
         },
 
-          {
+        {
           $limit: 2,
         },
 
-          {
-            $sort: {
-              "_id.category": 1,
-             
-            },
+        {
+          $sort: {
+            "_id.category": 1,
           },
-  
-       
+        },
 
         {
           $group: {
@@ -8183,7 +8178,8 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                 $expr: {
                   $eq: ["$$subsection", "$subSectionRef"],
                 },
-                'preAggregationTimeStampOfRequestSheet.requestSheet_year': req.query.selectedYear,
+                "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                  req.query.selectedYear,
               },
             },
             {
@@ -8426,13 +8422,12 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
 const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
   try {
+    //   const keyToDelete =
+    //   "sectionRef";
+    // const newQueryObj = { ...req.queryObj };
+    // delete newQueryObj[keyToDelete];
 
-  //   const keyToDelete =
-  //   "sectionRef";
-  // const newQueryObj = { ...req.queryObj };
-  // delete newQueryObj[keyToDelete];
-
-  // console.log("newQueryObj",newQueryObj)
+    // console.log("newQueryObj",newQueryObj)
 
     const bdTrendData = await Cell.aggregate([
       {
@@ -8456,7 +8451,8 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 $expr: {
                   $eq: ["$$cell", "$cellRef"],
                 },
-                'preAggregationTimeStampOfRequestSheet.requestSheet_year': req.query.selectedYear,
+                "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                  req.query.selectedYear,
               },
             },
 
@@ -8503,7 +8499,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 },
               },
             },
-                                                                            
+
             {
               $project: {
                 _id: 0,
@@ -8539,13 +8535,11 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
             {
               $unwind: "$data",
             },
-            
-         
           ],
           as: "cell_data",
         },
       },
-     
+
       {
         $project: {
           _id: 0,
@@ -8555,61 +8549,61 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
         },
       },
 
-    //   {
-    //     $group: {
-    //       _id: "$cell_name",
-    //       // label: { $first: "$label" },
-    //       data: { $push: "$cell_data.data" },
-    //     },
-    //   },
-    
-    //   {
-    //     $project: {
-    //       _id: 0,
-    //       label: "$_id",
-    //       data: {
-    //         $map: {
-    //           input: "$data",
-    //           as: "monthData",
-    //           in: {
-    //             $avg: "$$monthData",
-    //           },
-    //         },
-    //       },
-    //     },
-    //   },
-    
-    //   {
-    //     $group: {
-    //       _id: null,
-    //       // averageData: {
-    //       //   $push: {
-    //       //     $map: {
-    //       //       input: { $arrayElemAt: ["$data", 0] }, 
-    //       //       as: "labelData",
-    //       //       in: {
-    //       //         $avg: "$$labelData",
-    //       //       },
-    //       //     },
-    //       //   },
-    //       // },
-    //       bdTrendData: { $push: "$$ROOT" },
-    //     },
-    //   },
-    
-    // //   {
-    // //     $unwind: "$averageData",
-    // //   },
-    
-    //   {
-    //     $project: {
-    //       _id: 0,
-    //       bdTrendData: 1,
-    //       averageData: "$averageData",
-    //     },
-    //   },
+      //   {
+      //     $group: {
+      //       _id: "$cell_name",
+      //       // label: { $first: "$label" },
+      //       data: { $push: "$cell_data.data" },
+      //     },
+      //   },
+
+      //   {
+      //     $project: {
+      //       _id: 0,
+      //       label: "$_id",
+      //       data: {
+      //         $map: {
+      //           input: "$data",
+      //           as: "monthData",
+      //           in: {
+      //             $avg: "$$monthData",
+      //           },
+      //         },
+      //       },
+      //     },
+      //   },
+
+      //   {
+      //     $group: {
+      //       _id: null,
+      //       // averageData: {
+      //       //   $push: {
+      //       //     $map: {
+      //       //       input: { $arrayElemAt: ["$data", 0] },
+      //       //       as: "labelData",
+      //       //       in: {
+      //       //         $avg: "$$labelData",
+      //       //       },
+      //       //     },
+      //       //   },
+      //       // },
+      //       bdTrendData: { $push: "$$ROOT" },
+      //     },
+      //   },
+
+      // //   {
+      // //     $unwind: "$averageData",
+      // //   },
+
+      //   {
+      //     $project: {
+      //       _id: 0,
+      //       bdTrendData: 1,
+      //       averageData: "$averageData",
+      //     },
+      //   },
     ]);
-// console.log("req.params.selectedId",req.params.selectedId)
+    // console.log("req.params.selectedId",req.params.selectedId)
     // const averageOfData = await RequestSheetOfBM.aggregate([
 
     //   {
@@ -8624,8 +8618,6 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
     //         date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
     //         cell : "$cellRef"
     //       },
-
-    
 
     //       sumBM: {
     //         $sum: {
@@ -8697,7 +8689,6 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
     // ]);
 
     // console.log("averageOfData",averageOfData)
-    
 
     // const dataArrays = bdTrendData.map((entry) => entry.data);
 
@@ -8748,7 +8739,8 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                   $eq: ["$$line", "$lineRef"],
                 },
               },
-              'preAggregationTimeStampOfRequestSheet.requestSheet_year': req.query.selectedYear,
+              "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                req.query.selectedYear,
             },
 
             {
@@ -8893,7 +8885,8 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                   $eq: ["$$machine", "$machineRef"],
                 },
               },
-              'preAggregationTimeStampOfRequestSheet.requestSheet_year': req.query.selectedYear,
+              "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                req.query.selectedYear,
             },
 
             {
@@ -11970,11 +11963,37 @@ const responseMiddlewareForMTTRSkillReport = async (req, res, next) => {
   }
 };
 // const middlewareForMttrTrend = async (req, res, next) => ;
+const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
+  try {
+    let Model,
+      findObj = {};
+
+    if (req.query?.selectedSubSection) {
+      Model = SubSection;
+      findObj = {
+        _id: mongoose.Types.ObjectId(req.query?.selectedSubSection),
+      };
+    } else {
+      Model = Section;
+      findObj = {
+        _id: mongoose.Types.ObjectId(req.query?.selectedSection),
+      };
+    }
+
+    req.Model = Model;
+    req.findObj = findObj;
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
 
 router.get(
   "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  sectionOrSubSectionFilterMiddleware,
   async (req, res, next) => {
     try {
       const hourToMin = req?.query?.time * 60;
@@ -11994,6 +12013,8 @@ router.get(
       // };
 
       // console.log("TRENDqueryObj", req.queryObj);
+
+      const result = await req.Model.findOne(req.findObj);
 
       const mttrTrend = await RequestSheetOfBM.aggregate([
         // ...pipelineForUser,
@@ -12023,10 +12044,12 @@ router.get(
         {
           $unwind: "$user_data",
         },
-
         {
           $group: {
-            _id: "$user_data.tm_name",
+            _id: {
+              tm_name: "$user_data.tm_name",
+              tm_no: "$user_data.tm_no",
+            },
             count: { $sum: 1 },
             // machines: { $push: "$machineRef" },
             sumOfBM: {
@@ -12063,8 +12086,45 @@ router.get(
 
         {
           $project: {
-            _id: 1,
-
+            tm_name: "$_id.tm_name",
+            tm_no: "$_id.tm_no",
+            score: {
+              $getField: {
+                field: "score",
+                input: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: result?.TmMttrSkillScoresAndLimit,
+                        as: "item",
+                        cond: {
+                          $and: [
+                            {
+                              $gte: [
+                                {
+                                  $divide: ["$sumOfBM", "$count"],
+                                },
+                                "$$item.from",
+                              ],
+                            },
+                            {
+                              $lt: [
+                                {
+                                  $divide: ["$sumOfBM", "$count"],
+                                },
+                                "$$item.to",
+                              ],
+                            },
+                          ],
+                        },
+                        limit: 1,
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
             hours: {
               $divide: ["$sumOfBM", "$count"],
             },
@@ -12075,7 +12135,7 @@ router.get(
           $group: {
             _id: null,
             tm_names: {
-              $push: "$_id",
+              $push: "$tm_name",
             },
 
             data: {
@@ -12096,32 +12156,6 @@ router.get(
     }
   }
 );
-
-const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
-  try {
-    let Model,
-      findObj = {};
-
-    if (req.query?.selectedSubSection) {
-      Model = SubSection;
-      findObj = {
-        _id: mongoose.Types.ObjectId(req.query?.selectedSubSection),
-      };
-    } else {
-      Model = Section;
-      findObj = {
-        _id: mongoose.Types.ObjectId(req.query?.selectedSection),
-      };
-    }
-
-    req.Model = Model;
-    req.findObj = findObj;
-
-    next();
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
 
 // router.get(
 //   "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
@@ -17933,6 +17967,27 @@ router.get(
   }
 );
 
+router.get(
+  "/downloadAttachment/:folderName/:filePath",
+  authenticate,
+  async (req, res) => {
+    try {
+      res
+        .status(201)
+        .download(
+          path.join(
+            __dirname,
+            `../attachments/${req.params?.folderName}/${req.params?.filePath}`
+          )
+        );
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  }
+);
+
 router.delete(
   "/deleteAttachment/:docVariable/:id",
   authenticate,
@@ -18131,9 +18186,9 @@ router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
         subCategory: noLossData?.categories?.[key],
       }));
 
-      const getPlantIdForNoLossBDEntry= await Plant.findOne({
-        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-      });
+    const getPlantIdForNoLossBDEntry = await Plant.findOne({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
 
     const addNewNoLossBD = new NoLossBD({
       ...noLossData,
