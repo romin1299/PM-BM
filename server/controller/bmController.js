@@ -383,14 +383,19 @@ router.post(
               requestSheetDataFilledByMTDUser?.partQualityCheckedByMTD,
             partQualityCheckedByPRD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
-            requestSheetStatus:
-              ((getRequestSheetData?.assignUser?._id).toString() ===
-                (req?.rootUser?._id).toString() ||
-                (getRequestSheetData?.handOverUser?._id).toString() ===
-                  (req?.rootUser?._id).toString()) &&
-              getRequestSheetData?.requestSheetStatus
-                ? getRequestSheetData?.requestSheetStatus
-                : "Fill Sheet",
+            requestSheetStatus: 
+            requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
+                ? getRequestSheetData?.requestSheetStatus : "Fill Sheet",
+            // (
+            //   requestSheetDataFilledByMTDUser?.validateValueForSubmitDataWhileSendingApproval
+            //     ? getRequestSheetData?.requestSheetStatus
+            //     : (getRequestSheetData?.assignUser?._id).toString() ===
+            //         (req?.rootUser?._id).toString() ||
+            //       (getRequestSheetData?.handOverUser?._id).toString() ===
+            //         (req?.rootUser?._id).toString()
+            // )
+            //   ? "Fill Sheet"
+            //   : getRequestSheetData?.requestSheetStatus,
             actionTemporaryOrNot:
               requestSheetDataFilledByMTDUser?.actionTemporaryOrNot,
             dataSheetOfRequestSheet:
@@ -2974,7 +2979,6 @@ router.get(
             userWithStatusInfo: {
               $arrayElemAt: [
                 {
-
                   $filter: {
                     input: [
                       {
@@ -3074,10 +3078,10 @@ router.get(
                       $eq: ["$$user.status", "Pending"],
                     },
                     // limit: 1,
-                  }
-                  
-                },0
-              ]
+                  },
+                },
+                0,
+              ],
             },
           },
         },
@@ -6923,13 +6927,12 @@ router.get(
           },
         },
 
-   {
-            $sort: {
-              "_id.subCategory": 1,
-            
-            },
+        {
+          $sort: {
+            "_id.subCategory": 1,
           },
-     
+        },
+
         {
           $group: {
             _id: {
@@ -6950,18 +6953,15 @@ router.get(
           },
         },
 
-          {
+        {
           $limit: 2,
         },
 
-          {
-            $sort: {
-              "_id.category": 1,
-             
-            },
+        {
+          $sort: {
+            "_id.category": 1,
           },
-  
-       
+        },
 
         {
           $group: {
@@ -8183,7 +8183,8 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                 $expr: {
                   $eq: ["$$subsection", "$subSectionRef"],
                 },
-                'preAggregationTimeStampOfRequestSheet.requestSheet_year': req.query.selectedYear,
+                "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                  req.query.selectedYear,
               },
             },
             {
@@ -8421,13 +8422,12 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
 const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
   try {
+    //   const keyToDelete =
+    //   "sectionRef";
+    // const newQueryObj = { ...req.queryObj };
+    // delete newQueryObj[keyToDelete];
 
-  //   const keyToDelete =
-  //   "sectionRef";
-  // const newQueryObj = { ...req.queryObj };
-  // delete newQueryObj[keyToDelete];
-
-  // console.log("newQueryObj",newQueryObj)
+    // console.log("newQueryObj",newQueryObj)
 
     const bdTrendData = await Cell.aggregate([
       {
@@ -8451,7 +8451,8 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 $expr: {
                   $eq: ["$$cell", "$cellRef"],
                 },
-                'preAggregationTimeStampOfRequestSheet.requestSheet_year': req.query.selectedYear,
+                "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                  req.query.selectedYear,
               },
             },
 
@@ -8498,7 +8499,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 },
               },
             },
-                                                                            
+
             {
               $project: {
                 _id: 0,
@@ -8534,13 +8535,11 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
             {
               $unwind: "$data",
             },
-            
-         
           ],
           as: "cell_data",
         },
       },
-     
+
       {
         $project: {
           _id: 0,
@@ -8550,61 +8549,61 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
         },
       },
 
-    //   {
-    //     $group: {
-    //       _id: "$cell_name",
-    //       // label: { $first: "$label" },
-    //       data: { $push: "$cell_data.data" },
-    //     },
-    //   },
-    
-    //   {
-    //     $project: {
-    //       _id: 0,
-    //       label: "$_id",
-    //       data: {
-    //         $map: {
-    //           input: "$data",
-    //           as: "monthData",
-    //           in: {
-    //             $avg: "$$monthData",
-    //           },
-    //         },
-    //       },
-    //     },
-    //   },
-    
-    //   {
-    //     $group: {
-    //       _id: null,
-    //       // averageData: {
-    //       //   $push: {
-    //       //     $map: {
-    //       //       input: { $arrayElemAt: ["$data", 0] }, 
-    //       //       as: "labelData",
-    //       //       in: {
-    //       //         $avg: "$$labelData",
-    //       //       },
-    //       //     },
-    //       //   },
-    //       // },
-    //       bdTrendData: { $push: "$$ROOT" },
-    //     },
-    //   },
-    
-    // //   {
-    // //     $unwind: "$averageData",
-    // //   },
-    
-    //   {
-    //     $project: {
-    //       _id: 0,
-    //       bdTrendData: 1,
-    //       averageData: "$averageData",
-    //     },
-    //   },
+      //   {
+      //     $group: {
+      //       _id: "$cell_name",
+      //       // label: { $first: "$label" },
+      //       data: { $push: "$cell_data.data" },
+      //     },
+      //   },
+
+      //   {
+      //     $project: {
+      //       _id: 0,
+      //       label: "$_id",
+      //       data: {
+      //         $map: {
+      //           input: "$data",
+      //           as: "monthData",
+      //           in: {
+      //             $avg: "$$monthData",
+      //           },
+      //         },
+      //       },
+      //     },
+      //   },
+
+      //   {
+      //     $group: {
+      //       _id: null,
+      //       // averageData: {
+      //       //   $push: {
+      //       //     $map: {
+      //       //       input: { $arrayElemAt: ["$data", 0] },
+      //       //       as: "labelData",
+      //       //       in: {
+      //       //         $avg: "$$labelData",
+      //       //       },
+      //       //     },
+      //       //   },
+      //       // },
+      //       bdTrendData: { $push: "$$ROOT" },
+      //     },
+      //   },
+
+      // //   {
+      // //     $unwind: "$averageData",
+      // //   },
+
+      //   {
+      //     $project: {
+      //       _id: 0,
+      //       bdTrendData: 1,
+      //       averageData: "$averageData",
+      //     },
+      //   },
     ]);
-// console.log("req.params.selectedId",req.params.selectedId)
+    // console.log("req.params.selectedId",req.params.selectedId)
     // const averageOfData = await RequestSheetOfBM.aggregate([
 
     //   {
@@ -8619,8 +8618,6 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
     //         date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
     //         cell : "$cellRef"
     //       },
-
-    
 
     //       sumBM: {
     //         $sum: {
@@ -8692,7 +8689,6 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
     // ]);
 
     // console.log("averageOfData",averageOfData)
-    
 
     // const dataArrays = bdTrendData.map((entry) => entry.data);
 
@@ -8743,7 +8739,8 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                   $eq: ["$$line", "$lineRef"],
                 },
               },
-              'preAggregationTimeStampOfRequestSheet.requestSheet_year': req.query.selectedYear,
+              "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                req.query.selectedYear,
             },
 
             {
@@ -8888,7 +8885,8 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                   $eq: ["$$machine", "$machineRef"],
                 },
               },
-              'preAggregationTimeStampOfRequestSheet.requestSheet_year': req.query.selectedYear,
+              "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                req.query.selectedYear,
             },
 
             {
@@ -14095,18 +14093,19 @@ router.patch(
                   ?.departmentAndGradeOfUser
               ) + 1
             ];
-
-          ListOfCCEmailOfOtherHigherAuthority =
-            majorListForTheApprovalOfPlant.map((value) => {
+            ListOfCCEmailOfOtherHigherAuthority = majorListForTheApprovalOfPlant
+            .filter((value) => {
               if (
                 value !==
                 req?.requestSheetData?.[0]?.getDataForApprovalDashboard
-                  ?.departmentAndGradeOfUse
-              ) {
-                req?.requestSheetData?.[0]?.[
-                  `approvalOf${value?.replace(" ", "_")}`
-                ]?.email;
-              }
+                  ?.departmentAndGradeOfUser
+              )
+                return value;
+            })
+            .map((obj) => {
+              return req?.requestSheetData?.[0]?.[
+                `approvalOf${obj?.replace(" ", "_")}`
+              ]?.email;
             });
         }
         getRequestSheetData[
@@ -17881,9 +17880,9 @@ router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
         subCategory: noLossData?.categories?.[key],
       }));
 
-      const getPlantIdForNoLossBDEntry= await Plant.findOne({
-        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-      });
+    const getPlantIdForNoLossBDEntry = await Plant.findOne({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
 
     const addNewNoLossBD = new NoLossBD({
       ...noLossData,
