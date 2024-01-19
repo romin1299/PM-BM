@@ -20,11 +20,13 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import MachineStatusBox from "../SubComponents/MachineStatusBox";
 
-function MyTable({ requestSheetDataOfBM }) {
+function MyTable({ requestSheetDataOfBM, machineId }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
   // console.log("location.state.prevPath:", location?.state);
+
+  const { machine_code } = useParams();
 
   const {
     register,
@@ -159,6 +161,16 @@ function MyTable({ requestSheetDataOfBM }) {
                   <Col className="col-auto">
                     <button className="btn bg-button m-2" onClick={handleBack}>
                       Back
+                    </button>
+                    <button
+                      className="btn bg-button m-2"
+                      onClick={() => {
+                        navigate(
+                          `/machine-history/${machine_code}/?machineId=${machineId}`
+                        );
+                      }}
+                    >
+                      Machine History
                     </button>
                   </Col>
                   <Col className="d-flex align-items-center justify-content-center text-center">
@@ -599,11 +611,14 @@ function MyTable({ requestSheetDataOfBM }) {
                       <b>BREAKDOWN ATTENDED BY</b>
                     </small>
                     <br />
-                    {requestSheetDataOfBM?.assignUser?.tm_name} {", "}
-                    {requestSheetDataOfBM?.handOverUser?.tm_name} {", "}
-                    {requestSheetDataOfBM?.supportingTM
-                      ?.map((obj) => obj?.tm_name)
-                      ?.join(", ")}
+                    {requestSheetDataOfBM?.assignUser?.tm_name}{" "}
+                    {requestSheetDataOfBM?.handOverUser?.tm_name
+                      ? `, ${requestSheetDataOfBM?.handOverUser?.tm_name}`
+                      : ""}
+                    {requestSheetDataOfBM?.supportingTM?.length > 0 &&
+                      `, ${requestSheetDataOfBM?.supportingTM
+                        ?.map((obj) => obj?.tm_name)
+                        ?.join(", ")}`}
                   </Col>
                 </Row>
               </td>

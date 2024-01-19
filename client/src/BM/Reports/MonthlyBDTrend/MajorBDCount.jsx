@@ -145,7 +145,7 @@ const MajorBDCount = ({
       if (data) {
         setData(data);
         setChartData({
-          labels: labels,
+          labels:  res?.data?.labels,
           datasets: [
             {
               type: "line",

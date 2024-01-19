@@ -95,6 +95,10 @@ const noLossBDSheetDataSchema = new mongoose.Schema({
     type: String,
   },
 
+  actionTemporaryOrNot: {
+    type: String,
+  },
+
   machineRef: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "MachinesAllData",

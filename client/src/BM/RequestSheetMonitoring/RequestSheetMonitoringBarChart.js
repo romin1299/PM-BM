@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { cyan, deepPurple, green, indigo } from "@mui/material/colors";
+import { lightBlue, lightGreen, orange, red, teal } from "@mui/material/colors";
 
 import {
   Chart as ChartJS,
@@ -33,20 +35,27 @@ const RequestSheetMonitoringBarChart = ({
   );
 
   const statusColorMap = {
-    Generated: "#9bcbdb",
-    Assigned: "#ffe031",
-    "Work Order Open": "#ca2626",
-    "Work Order Pending": "#F59F00",
-    "Work Order Closed": "#70b332",
-    "Fill Sheet": "#89e9eb",
-    "Under MTD TL Approval": "#c196d4",
-    "Under MTD HOSS Approval": "#c196d4",
-    "Under PRD TL Approval": "#c196d4",
-    "Under PRD HOS Approval": "#c196d4",
-    "Under MTD HOS Approval": "#c196d4",
-    "Under MTD HOD Approval": "#c196d4",
-    "Under PRD HOD Approval": "#c196d4",
-    Completed: "#3fad3f",
+    Generated: lightBlue["A700"],
+    Assigned: cyan["A400"],
+    "Work Order Open": red["A400"],
+    "Work Order Pending": orange["A200"],
+    "Work Order Closed": lightGreen["A700"],
+    "Fill Sheet": lightBlue["A100"],
+    "Under MTD TL Approval": deepPurple[300],
+    "Under MTD HOSS Approval": indigo[300],
+    "Under PRD TL Approval": indigo[500],
+    "Under PRD HOS Approval": cyan[300],
+    "Under MTD HOS Approval": cyan[500],
+    "Under MTD HOD Approval": teal[300],
+    "Under PRD HOD Approval": teal[500],
+    Completed: green["A700"],
+    // "Under MTD TL Approval": cyan[100],
+    // "Under MTD HOSS Approval": cyan[200],
+    // "Under PRD TL Approval": cyan[300],
+    // "Under PRD HOS Approval": cyan[400],
+    // "Under MTD HOS Approval": cyan[500],
+    // "Under MTD HOD Approval": cyan[700],
+    // "Under PRD HOD Approval": cyan[900],
   };
 
   const [allStatusCounterForGraph, setAllStatusCounterForGraph] = useState([
@@ -161,13 +170,14 @@ const RequestSheetMonitoringBarChart = ({
     datasets: allStatusCounterForGraph?.map((item) => ({
       ...item,
       backgroundColor: statusColorMap?.[item?.label],
+      borderRadius: 4,
     })),
   };
 
   return (
     <Box className="cell p-3">
       {loading ? (
-        <Loading height={400}/>
+        <Loading height={400} />
       ) : (
         <Box sx={{ height: { xs: "400px", md: "500px" } }}>
           <Bar options={options} height={75} data={data} />

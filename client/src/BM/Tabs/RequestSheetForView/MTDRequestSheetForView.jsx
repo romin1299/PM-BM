@@ -744,7 +744,7 @@ function MyTable({
           </tr>
 
           <tr className="row m-0">
-            <td className="col-lg-4 col-md-6 col-sm-12 border-bottom">
+            <td className="col-lg-5 col-md-6 col-sm-12 border-bottom">
               <div className="mtd-problem-section">
                 <small
                   className="border d-flex align-items-center"
@@ -1028,12 +1028,23 @@ function MyTable({
                       </p>
                       <div>{timeDifferenceMinutes > 120 ? "Yes" : "No"}</div>
                     </Col>
-                    <Col sm={6} className="border d-flex align-items-center">
-                      {
-                        requestSheetDataOfBM?.maintenanceReportFilledByMTD
-                          ?.firstTimeOrRepeat
-                      }
+
+                    <Col sm={6} className="border d-flex align-items-center gap-3">
+                      {["First Time", "Repeat"].map((text) => (
+                        <span
+                          style={{
+                            textDecoration:
+                              requestSheetDataOfBM?.maintenanceReportFilledByMTD
+                                ?.firstTimeOrRepeat !== text
+                                ? "line-through"
+                                : "",
+                          }}
+                        >
+                          {text}
+                        </span>
+                      ))}
                     </Col>
+
                     <Col
                       sm={6}
                       className="border d-flex align-items-center gap-3"
@@ -1224,6 +1235,7 @@ function MyTable({
 
               {/* <ActionList actions={actions} setActions={setActions} /> */}
             </td>
+
             <td className="col-lg-3 col-md-6 col-sm-12 border-bottom">
               <Row className="m-0">
                 <Col className="border">

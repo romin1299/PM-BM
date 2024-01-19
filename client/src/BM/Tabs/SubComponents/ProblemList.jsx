@@ -17,7 +17,7 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
         problem: newProblemText,
       };
       setProblems([...problems, newProblem]);
-      clearErrors("problemValidation");
+      clearErrors && clearErrors("problemValidation");
       setNewProblemText("");
       setIsAdding(false);
     }

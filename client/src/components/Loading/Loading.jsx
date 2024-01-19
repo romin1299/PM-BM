@@ -8,7 +8,7 @@ const Loading = (props) => {
     <Skeleton
       variant="rectangular"
       component="div"
-      animation="false"
+      animation={false}
       width={"100%"}
       height={300}
       {...props}

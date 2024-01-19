@@ -65,6 +65,7 @@ const BarChart = ({
           display: true,
           text: "Total Hours",
         },
+        // beginAtZero: false,
       },
     },
 
