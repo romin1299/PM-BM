@@ -111,6 +111,17 @@ const MachineDocument = () => {
           boxShadow: "-2px -2px 4px 0px rgba(0, 0, 0, 0.03) inset",
           filter:
             "drop-shadow(-2px -2px 4px rgba(0, 0, 0, 0.03)) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.03))",
+
+          // "& .icon-circle": {
+          //   border: "2px dotted #616161",
+          //   transition: "border 0.5s",
+          // },
+
+          // ":hover": {
+          //   "& .icon-circle": {
+          //     border: "2px solid #616161",
+          //   },
+          // },
         }}
         role="button"
         display="flex"
@@ -121,6 +132,7 @@ const MachineDocument = () => {
         onClick={onClick}
       >
         <Box
+          className="icon-circle"
           sx={{
             height: "6rem",
             width: "6rem",

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useReducer, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import { IconButton, RadioGroup } from "@mui/material";
-import TextField from "@material-ui/core/TextField";
+import { cyan, deepPurple, green, indigo } from "@mui/material/colors";
+import { lightBlue, lightGreen, orange, red, teal } from "@mui/material/colors";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
@@ -56,21 +56,36 @@ const RequestSheetMainDashboard = () => {
   const [summeryCardModal, setSummeryCardModal] = useState(false);
 
   const statusColorMap = {
-    Generated: "#9bcbdb",
-    Assigned: "#ffe031",
-    "Work Order Open": "#ca2626",
-    "Work Order Pending": "#F59F00",
-    "Work Order Closed": "#70b332",
-    "Fill Sheet": "#89e9eb",
-    "Under MTD TL Approval": "#c196d4",
-    "Under MTD HOSS Approval": "#c196d4",
-    "Under PRD TL Approval": "#c196d4",
-    "Under PRD HOS Approval": "#c196d4",
-    "Under MTD HOS Approval": "#c196d4",
-    "Under MTD HOD Approval": "#c196d4",
-    "Under PRD HOD Approval": "#c196d4",
-    Completed: "#3fad3f",
-    Rejected: "#ff3232",
+    // Generated: "#9bcbdb",
+    // Assigned: "#ffe031",
+    // "Work Order Open": "#ca2626",
+    // "Work Order Pending": "#F59F00",
+    // "Work Order Closed": "#70b332",
+    // "Fill Sheet": "#89e9eb",
+    // "Under MTD TL Approval": "#c196d4",
+    // "Under MTD HOSS Approval": "#c196d4",
+    // "Under PRD TL Approval": "#c196d4",
+    // "Under PRD HOS Approval": "#c196d4",
+    // "Under MTD HOS Approval": "#c196d4",
+    // "Under MTD HOD Approval": "#c196d4",
+    // "Under PRD HOD Approval": "#c196d4",
+    // Completed: "#3fad3f",
+    // Rejected: "#ff3232",
+
+    Generated: lightBlue["A700"],
+    Assigned: cyan["A400"],
+    "Work Order Open": red["A400"],
+    "Work Order Pending": orange["A200"],
+    "Work Order Closed": lightGreen["A700"],
+    "Fill Sheet": lightBlue["A100"],
+    "Under MTD TL Approval": deepPurple[300],
+    "Under MTD HOSS Approval": indigo[300],
+    "Under PRD TL Approval": indigo[500],
+    "Under PRD HOS Approval": cyan[300],
+    "Under MTD HOS Approval": cyan[500],
+    "Under MTD HOD Approval": teal[300],
+    "Under PRD HOD Approval": teal[500],
+    Completed: green["A700"],
   };
 
   const statusArray = [
@@ -203,6 +218,41 @@ const RequestSheetMainDashboard = () => {
           message,
         });
         return requestSheet;
+      } else {
+        console.log("error");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteRequestSheet = async (selectedRow) => {
+    try {
+      const res = await fetch(`/deleteRequestSheet/${selectedRow?._id}`, {
+        method: "DELETE",
+        // headers: {
+        //   "Content-Type": "application/json",
+        // },
+        // body: JSON.stringify(updatedRow),
+      });
+
+      const { deletedRequestSheet, message } = await res.json();
+
+      const updatedRequestSheetData =
+        reduceStateForRequestSheetData.requestSheetData.filter(
+          (row) => row._id !== selectedRow._id
+        );
+
+      if (res.status === 201) {
+        reducerDispatchForRequestSheetData({
+          type: ACTION.GET,
+          requestSheetData: updatedRequestSheetData,
+          TLHOSS_and_TM_user_list:
+            reduceStateForRequestSheetData.TLHOSS_and_TM_user_list,
+          counters: reduceStateForRequestSheetData.counters,
+          message,
+        });
+        // return updatedRequestSheetData;
       } else {
         console.log("error");
       }
@@ -741,10 +791,11 @@ const RequestSheetMainDashboard = () => {
                 //   }),
 
                 onRowDelete: (selectedRow) =>
-                  new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                      resolve();
-                    }, 500);
+                  new Promise(async (resolve, reject) => {
+                    // setTimeout(() => {
+                    await deleteRequestSheet(selectedRow);
+                    resolve();
+                    // }, 500);
                   }),
 
                 onRowUpdate: (updatedRow, oldRow) =>

@@ -29,12 +29,12 @@ export const options = {
       offset: -2,
     },
   },
-  elements: {
-    bar: {
-      borderColor: "000",
-      borderWidth: 1,
-    },
-  },
+  // elements: {
+  //   bar: {
+  //     borderColor: "000",
+  //     borderWidth: 1,
+  //   },
+  // },
   scales: {
     x: {
       stacked: true,
@@ -109,6 +109,9 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
     } else if (flagForTogglingFilter === "based-on-cell") {
       urlString = "mttrForCell";
     }
+     else if (flagForTogglingFilter === "based-on-line") {
+      urlString = "mttrForLine";
+    }
 
     try {
       const res = await fetch(
@@ -128,8 +131,8 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
       if (res?.status === 200) {
         setMttrData({
           bdTrendData,
-          averageData
-        })
+          averageData,
+        });
       }
     } catch (error) {
       console.log(error);
@@ -139,7 +142,6 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
   useEffect(() => {
     if (selectedValue) getMTTRData();
   }, [selectedValue, selectedYear]);
-
 
   const data = {
     labels,
@@ -154,13 +156,14 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
         pointStyle: "rectRot",
         yAxisID: "y1",
       },
-      ...mttrData?.bdTrendData?.map((item) => ({
+      ...mttrData?.bdTrendData?.map((item, index) => ({
         type: "bar",
         stack: "bar-stacked",
         label: item?.label,
         data: item?.data,
-        backgroundColor: chartColors.yellow[1],
-        borderColor: chartColors.yellow[1],
+        backgroundColor: chartColors.monthlyBDTrend[index],
+        borderColor: chartColors.monthlyBDTrend[index],
+        borderRadius: 4,
         pointStyle: "rect",
       })),
       // {

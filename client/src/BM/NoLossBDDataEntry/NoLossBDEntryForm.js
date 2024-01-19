@@ -195,7 +195,7 @@ const NoLossBDEntryForm = () => {
         </Row>
 
         <Row className="gx-0">
-          <Col className="border p-2" sm={12} md={12} lg={2}>
+          <Col className="border p-2" sm={12} md={6} xl={3}>
             <small>
               <b>NO-LOSS BD NO: </b>
             </small>
@@ -204,7 +204,8 @@ const NoLossBDEntryForm = () => {
               type="text"
               name=""
               id=""
-              className="w-50"
+              className="w-100"
+              style={{ maxWidth: "300px" }}
               {...register("noLossBDNo", {})}
             />
             <br />
@@ -300,11 +301,12 @@ const NoLossBDEntryForm = () => {
               )}
             </Form>
           </Col>
+
           <Col
             className="border p-2 d-flex flex-column gap-3"
             sm={12}
             md={6}
-            lg={4}
+            xl={3}
           >
             <Row className="gx-3 gy-2">
               <Col className="col-auto">
@@ -413,7 +415,8 @@ const NoLossBDEntryForm = () => {
               </small>
             </Row>
           </Col>
-          <Col className="border p-2" sm={12} md={6} lg={3}>
+
+          <Col className="border p-2" sm={12} md={6} xl={3}>
             <td className="col-lg-6 col-md-6">
               {plantCategories?.map((categoryObj, idxOfCategory) => (
                 <>
@@ -473,7 +476,8 @@ const NoLossBDEntryForm = () => {
               ))}
             </td>
           </Col>
-          <Col className="border p-2" sm={12} md={6} lg={3}>
+
+          <Col className="border p-2" sm={12} md={6} xl={3}>
             <Row className="mb-2">
               <Col>
                 <small>
@@ -557,13 +561,13 @@ const NoLossBDEntryForm = () => {
         </Row>
 
         <Row className="mt-0 g-3">
-          <Col sm={12} md={6} xxl={4}>
+          <Col sm={12} md={12} lg={6} xxl={4}>
             <ProblemList problems={problems} setProblems={setProblems} />
           </Col>
-          <Col sm={12} md={6} xxl={4}>
+          <Col sm={12} md={12} lg={6} xxl={4}>
             <ActionList actions={actions} setActions={setActions} />
           </Col>
-          <Col sm={12} md={6} xxl={4}>
+          <Col sm={12} md={12} lg={6} xxl={4}>
             <div className="d-block align-items-center border p-2">
               <p>
                 <b>CAUSE</b>

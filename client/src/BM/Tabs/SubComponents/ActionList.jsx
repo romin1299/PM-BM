@@ -19,7 +19,8 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
         status: newActionStatus,
       };
       setActions([...actions, newAction]);
-      clearErrors('actionValidation');
+
+      clearErrors && clearErrors("problemValidation");
       setNewActionText("");
       setNewActionStatus("NG");
       setIsAdding(false);
@@ -72,20 +73,32 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
   return (
     <div className="mtd-actions-section">
       <Row className="m-0">
-        <Col lg={8} md={7} className="border col-auto d-flex align-items-center gap-1">
-          <small><b>ACTION & COUNTERMEASURE STEPS</b></small>
+        <Col
+          lg={8}
+          md={8}
+          className="border col-auto d-flex align-items-center gap-1"
+        >
+          <small>
+            <b>ACTION & COUNTERMEASURE STEPS</b>
+          </small>
         </Col>
         <Col
-          lg={2} md={2}
+          lg={2}
+          md={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <small><b>STATUS</b></small>
+          <small>
+            <b>STATUS</b>
+          </small>
         </Col>
         <Col
-          lg={2} md={2}
+          lg={2}
+          md={2}
           className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <small><b>UPDATE</b></small>
+          <small>
+            <b>UPDATE</b>
+          </small>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
         </Col>
       </Row>
@@ -93,12 +106,15 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
       {actions.map((action, index) => (
         <Row key={action.id} className="m-0">
           <Col
-            lg={8} md={7}
+            lg={8}
+            md={8}
             className={`border col-auto d-flex align-items-center gap-1 ${
               editedAction && editedAction.id === action.id ? "editable" : ""
             }`}
           >
-            <small><b>Action {index + 1}: </b></small>
+            <small>
+              <b>Action {index + 1}: </b>
+            </small>
             {editedAction && editedAction.id === action.id ? (
               <input
                 type="text"
@@ -112,7 +128,8 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
             )}
           </Col>
           <Col
-            lg={2} md={2}
+            lg={2}
+            md={2}
             className="border col-auto d-flex align-items-center gap-1 p-1"
           >
             <div>
@@ -130,7 +147,6 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
                 <input
                   type="radio"
                   name={`status-${action.id}`}
-
                   value="NG"
                   checked={action.status === "NG"}
                   onChange={() => handleStatusChange(action.id, "NG")}
@@ -140,26 +156,32 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
             </div>
           </Col>
           <Col
-            lg={2} md={2}
+            lg={2}
+            md={2}
             className="border col-auto d-block align-items-center gap-1 p-1"
           >
             {editedAction && editedAction.id === action.id ? (
               <>
                 <button
-                class="bg-info text-white border-0"
+                  class="bg-info text-white border-0"
                   onClick={(event) => {
                     editAction(event, action.id, editedAction.action);
                   }}
                 >
                   Update
                 </button>
-                <br/>
-                <button class="bg-danger text-white border-0" onClick={cancelEdit}>Cancel</button>
+                <br />
+                <button
+                  class="bg-danger text-white border-0"
+                  onClick={cancelEdit}
+                >
+                  Cancel
+                </button>
               </>
             ) : (
               <>
                 <button
-                class="bg-warning text-white border-0"
+                  class="bg-warning text-white border-0"
                   onClick={(event) => {
                     event.preventDefault();
                     setEditedAction(action);
@@ -167,9 +189,9 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
                 >
                   Edit
                 </button>
-                <br/>
+                <br />
                 <button
-                class="bg-danger text-white border-0"
+                  class="bg-danger text-white border-0"
                   onClick={(event) => {
                     deleteAction(event, action.id);
                   }}
@@ -185,7 +207,8 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
       {isAdding ? (
         <Row className="m-0">
           <Col
-            lg={8} md={7}
+            lg={8}
+            md={7}
             className="border col-auto d-flex align-items-center gap-1"
           >
             <b>Action {actions.length + 1}: </b>
@@ -196,7 +219,8 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
             />
           </Col>
           <Col
-            lg={2} md={2}
+            lg={2}
+            md={2}
             className="border col-auto d-flex align-items-center gap-1 p-1"
           >
             {/* <div>
@@ -223,22 +247,31 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
             </div> */}
           </Col>
           <Col
-            lg={2} md={2}
+            lg={2}
+            md={2}
             className="border col-auto d-block align-items-center gap-1 p-1"
           >
-            <button class="bg-success text-white border-0" onClick={addAction}>Add</button>
-            <br/>
-            <button class="bg-danger text-white border-0" onClick={cancelAdd}>Cancel</button>
+            <button class="bg-success text-white border-0" onClick={addAction}>
+              Add
+            </button>
+            <br />
+            <button class="bg-danger text-white border-0" onClick={cancelAdd}>
+              Cancel
+            </button>
           </Col>
         </Row>
       ) : (
         <Row className="m-0  p-1 border">
           <Col lg={4}>
-          <button class="bg-warning text-white border-0" onClick={() => setIsAdding(true)}>Add Action</button>
+            <button
+              class="bg-warning text-white border-0"
+              onClick={() => setIsAdding(true)}
+            >
+              Add Action
+            </button>
           </Col>
           {/* <Col className="border d-flex  align-items-center gap-1 p-1"> */}
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
-
 
           {/* </Col> */}
         </Row>
