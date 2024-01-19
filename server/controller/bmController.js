@@ -12144,11 +12144,37 @@ const responseMiddlewareForMTTRSkillReport = async (req, res, next) => {
   }
 };
 // const middlewareForMttrTrend = async (req, res, next) => ;
+const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
+  try {
+    let Model,
+      findObj = {};
+
+    if (req.query?.selectedSubSection) {
+      Model = SubSection;
+      findObj = {
+        _id: mongoose.Types.ObjectId(req.query?.selectedSubSection),
+      };
+    } else {
+      Model = Section;
+      findObj = {
+        _id: mongoose.Types.ObjectId(req.query?.selectedSection),
+      };
+    }
+
+    req.Model = Model;
+    req.findObj = findObj;
+
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
 
 router.get(
   "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  sectionOrSubSectionFilterMiddleware,
   async (req, res, next) => {
     try {
       const hourToMin = req?.query?.time * 60;
@@ -12168,6 +12194,8 @@ router.get(
       // };
 
       // console.log("TRENDqueryObj", req.queryObj);
+
+      const result = await req.Model.findOne(req.findObj);
 
       const mttrTrend = await RequestSheetOfBM.aggregate([
         // ...pipelineForUser,
@@ -12197,10 +12225,12 @@ router.get(
         {
           $unwind: "$user_data",
         },
-
         {
           $group: {
-            _id: "$user_data.tm_name",
+            _id: {
+              tm_name: "$user_data.tm_name",
+              tm_no: "$user_data.tm_no",
+            },
             count: { $sum: 1 },
             // machines: { $push: "$machineRef" },
             sumOfBM: {
@@ -12237,8 +12267,45 @@ router.get(
 
         {
           $project: {
-            _id: 1,
-
+            tm_name: "$_id.tm_name",
+            tm_no: "$_id.tm_no",
+            score: {
+              $getField: {
+                field: "score",
+                input: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: result?.TmMttrSkillScoresAndLimit,
+                        as: "item",
+                        cond: {
+                          $and: [
+                            {
+                              $gte: [
+                                {
+                                  $divide: ["$sumOfBM", "$count"],
+                                },
+                                "$$item.from",
+                              ],
+                            },
+                            {
+                              $lt: [
+                                {
+                                  $divide: ["$sumOfBM", "$count"],
+                                },
+                                "$$item.to",
+                              ],
+                            },
+                          ],
+                        },
+                        limit: 1,
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
             hours: {
               $divide: ["$sumOfBM", "$count"],
             },
@@ -12249,7 +12316,7 @@ router.get(
           $group: {
             _id: null,
             tm_names: {
-              $push: "$_id",
+              $push: "$tm_name",
             },
 
             data: {
@@ -12270,32 +12337,6 @@ router.get(
     }
   }
 );
-
-const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
-  try {
-    let Model,
-      findObj = {};
-
-    if (req.query?.selectedSubSection) {
-      Model = SubSection;
-      findObj = {
-        _id: mongoose.Types.ObjectId(req.query?.selectedSubSection),
-      };
-    } else {
-      Model = Section;
-      findObj = {
-        _id: mongoose.Types.ObjectId(req.query?.selectedSection),
-      };
-    }
-
-    req.Model = Model;
-    req.findObj = findObj;
-
-    next();
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error });
-  }
-};
 
 // router.get(
 //   "/mttrTrend/tmMTTRSkill/:filter/:selectedId",
@@ -18117,6 +18158,27 @@ router.get(
         message: "Attachment details get successfully!",
         attachmentDetails: machine?.[req.params?.docVariable],
       });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  }
+);
+
+router.get(
+  "/downloadAttachment/:folderName/:filePath",
+  authenticate,
+  async (req, res) => {
+    try {
+      res
+        .status(201)
+        .download(
+          path.join(
+            __dirname,
+            `../attachments/${req.params?.folderName}/${req.params?.filePath}`
+          )
+        );
     } catch (error) {
       res
         .status(500)

@@ -8,7 +8,8 @@ function MyTable() {
   const navigate = useNavigate();
   const context = useContext(RoutingContext);
 
-  const { machine_code, requestSheetID, generateType, selectedYear } = useParams();
+  const { machine_code, requestSheetID, generateType, selectedYear } =
+    useParams();
   const [selectedMachineDetails, setMachineDetails] = useState("");
   const [requestSheetDataOfBM, setRequestSheetDataOfBM] = useState("");
 
@@ -85,6 +86,7 @@ function MyTable() {
       <div>
         <PRDRequestSheetForUpdate
           // selectedMachineDetails={selectedMachineDetails}
+          machineId={selectedMachineDetails?._id}
           requestSheetDataOfBM={requestSheetDataOfBM}
           // approvalListOfBM={approvalListOfBM}
         />

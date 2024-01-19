@@ -45,12 +45,12 @@ const MasterLogMainDashboard = () => {
     },
     {
       title: "Shift",
-      dataIndex: "shiftOfBM",
+      dataIndex: "shift",
     },
 
     {
       title: "Category",
-      dataIndex: "moduleCategory",
+      dataIndex: "maintenanceType",
     },
     {
       title: "Time",
@@ -60,24 +60,31 @@ const MasterLogMainDashboard = () => {
       title: "Problem",
       dataIndex: "problem",
       // key: "problem",
-      render: (_, { problem }) => (
-        <ul>
-          {problem?.map((item) => (
-            <li>{item?.problem}</li>
-          ))}
-        </ul>
-      ),
+      render: (_, { problem }) =>
+        problem?.length > 1 ? (
+          <ul>
+            {problem?.map((item) => (
+              <li>{item?.problem}</li>
+            ))}
+          </ul>
+        ) : (
+          problem?.[0]?.problem
+        ),
     },
     {
       title: "Cause",
       dataIndex: "cause",
       render: (_, { cause }) =>
         cause ? (
-          <ul>
-            {Object?.values(cause)?.map((item) => (
-              <li>{item}</li>
-            ))}
-          </ul>
+          Object?.values(cause)?.length > 1 ? (
+            <ul>
+              {Object?.values(cause)?.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          ) : (
+            Object?.values(cause)?.[0]
+          )
         ) : (
           ""
         ),
