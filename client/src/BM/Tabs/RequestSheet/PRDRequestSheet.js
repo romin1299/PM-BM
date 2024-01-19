@@ -208,6 +208,16 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                     <button className="btn bg-button m-2" onClick={handleBack}>
                       Back
                     </button>
+                    <button
+                      className="btn bg-button m-2"
+                      onClick={() => {
+                        navigate(
+                          `/machine-history/${machine_code}/?machineId=${selectedMachineDetails?._id}`
+                        );
+                      }}
+                    >
+                      Machine History
+                    </button>
                   </Col>
                   <Col>
                     <h4 className="d-flex align-items-center justify-content-center">
