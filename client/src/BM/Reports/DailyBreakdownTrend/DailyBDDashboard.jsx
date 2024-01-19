@@ -144,6 +144,7 @@ const DailyBTDashboard = () => {
               currentTabViewName={currentTabViewName}
               sectionId={sectionId}
               selectedYear={reduceState.selectedYear}
+              showFilterSwitch={true}
             />
           </Col>
           <Col md={12} lg={6}>

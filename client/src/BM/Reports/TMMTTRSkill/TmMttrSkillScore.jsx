@@ -76,7 +76,7 @@ const TmMttrSkillScore = (prop) => {
 
       <Row className="gx-3">
         <Col xs={12} md={6} lg={4}>
-          {context.tm_grade === "HOS" ? (
+          {context.tm_grade === "HOD" || context.tm_grade === "HOS" ? (
             <TmMttrSkillScoreCrud {...prop} setHighestScore={setHighestScore} />
           ) : (
             <TmSkillScoreTable {...prop} setHighestScore={setHighestScore} />

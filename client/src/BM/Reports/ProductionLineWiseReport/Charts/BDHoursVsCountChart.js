@@ -97,8 +97,8 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
       ...totalBDCount?.map((item, index) => ({
         type: "line",
         label: `Count ${item?.groupId}`,
-        backgroundColor: chartColors.count,
-        borderColor: chartColors.count,
+        backgroundColor: chartColors.machineChartCounts[index],
+        borderColor: chartColors.machineChartCounts[index],
         borderWidth: 2,
         fill: false,
         data: item?.count,
@@ -108,7 +108,8 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
       ...BDCount?.map((item, index) => ({
         type: "line",
         label: `Count ${item?.groupId}`,
-        backgroundColor: colorArray1?.[index],
+        backgroundColor: chartColors.machineChartCounts[index],
+        borderColor: chartColors.machineChartCounts[index],
         borderWidth: 2,
         fill: false,
         data: item?.count,
@@ -117,7 +118,7 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
 
       ...BDhours?.map((item, index) => ({
         type: "bar",
-        backgroundColor: chartColors.machineBarChart,
+        backgroundColor: chartColors.machineBarChart?.[index],
         stack: "same-bar-stack",
         label: `Hours ${item?.groupId}`,
         data: item?.sumOfBDhours,
@@ -129,7 +130,7 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
     ],
   };
   return (
-    <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+    <Box sx={{ height: { xs: "300px", md: "350px" }, mt: 1 }}>
       <Chart
         type="bar"
         data={data}

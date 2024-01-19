@@ -1,26 +1,29 @@
 import { Button, ButtonGroup } from "@mui/material";
 import React from "react";
 
-const FilterSwitchButtons = ({ filter, setFilter, currentTabViewName }) => {
+const FilterSwitchButtons = ({ filter, setFilter, filterState }) => {
+  let filterMaker = {
+    plant: "section",
+    section: "cell",
+    subSection: "cell",
+    cell: "line",
+    line: "machine",
+  };
+
+  let slicedString = filterState?.flagForTogglingFilter?.split("-");
+  let currFilterState = slicedString?.[2];
+  const filterOptions = ["hourly", filterMaker?.[currFilterState] || ""];
+
+  // console.log("currFilterState:", currFilterState);
+  React.useEffect(() => {
+    if (currFilterState === "plant") setFilter(filterOptions[0]);
+    else setFilter(filterMaker?.[currFilterState]);
+  }, [currFilterState]);
+
   const handleSelect = (event) => {
     // console.log("event.target.value:", event.target.value);
     setFilter(event.target.value);
   };
-
-  const filterOptions = [
-    {
-      key: "hourly",
-      name: "Hourly",
-    },
-    {
-      key: currentTabViewName === "Plant" ? "section" : "cell",
-      name: currentTabViewName === "Plant" ? "Section" : "Cell",
-    },
-  ];
-
-  React.useEffect(() => {
-    setFilter(filterOptions[0]?.key);
-  }, []);
 
   return (
     <ButtonGroup
@@ -32,11 +35,11 @@ const FilterSwitchButtons = ({ filter, setFilter, currentTabViewName }) => {
       {filterOptions?.map((item, index) => (
         <Button
           key={index}
-          variant={filter === item.key ? "contained" : "outlined"}
-          value={item.key}
+          variant={filter === item ? "contained" : "outlined"}
+          value={item}
           onClick={handleSelect}
         >
-          {item.name}
+          {item}
         </Button>
       ))}
     </ButtonGroup>

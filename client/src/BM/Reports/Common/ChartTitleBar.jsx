@@ -3,7 +3,13 @@ import React, { Children } from "react";
 import { Col, Row } from "react-bootstrap";
 
 const ChartTitleBar = (props) => {
-  const { title, Toolbar, titleProps, disableDivider, ...restProps } = props;
+  const {
+    title,
+    Toolbar,
+    titleProps,
+    disableDivider = false,
+    ...restProps
+  } = props;
 
   return (
     <>

@@ -84,6 +84,8 @@ const MachineAgeGroupTable = ({
     } catch (error) {
       console.log("error:", error);
     }
+
+    fetchData();
   };
 
   const updateAPI = async () => {
@@ -103,6 +105,8 @@ const MachineAgeGroupTable = ({
     } catch (error) {
       console.log("error:", error);
     }
+    
+    fetchData();
   };
 
   const deleteAPI = async (id) => {
@@ -118,6 +122,8 @@ const MachineAgeGroupTable = ({
     } catch (error) {
       console.log("error:", error);
     }
+    
+    fetchData();
   };
 
   const cancelEdit = () => {
@@ -277,13 +283,13 @@ const MachineAgeGroupTable = ({
 
         {groupData?.length <= 0 && !isAdding && (
           <Box
-            className=" h-100"
+            className="h-100"
             display="flex"
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
             minHeight={100}
-            bgcolor={blueGrey[100]}
+            bgcolor={"#e2e3e5"}
           >
             <Typography variant="h5" component="h5" textAlign="center">
               No Data Found

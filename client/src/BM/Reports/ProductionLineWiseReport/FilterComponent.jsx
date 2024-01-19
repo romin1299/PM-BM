@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { Container, Row, Col } from "reactstrap";
 
 import AddHourlyFilter from "./AddHourlyFilter";
+import { Button } from "react-bootstrap";
 
 const FilterFormComponent = ({
   getBDhoursVsCountReportData,
@@ -25,7 +26,6 @@ const FilterFormComponent = ({
   }, [selectedValue, selectedYear, selectedMonth]);
 
   const handleSubmitHourFilter = (data) => {
-
     if (data?.hoursFilter?.length > 0 || data?.graterThenHoursFilter) {
       getBDhoursVsCountReportData({
         purpose,
@@ -41,15 +41,20 @@ const FilterFormComponent = ({
 
   return (
     <>
-      <Row>
+      <Row className="gx-2 mt-2">
         {/* <Row className="p-1"> */}
-        <Col lg={1}>{title}:</Col>
+        <Col
+          className="col-auto d-flex align-items-center"
+          style={{ width: "60px" }}
+        >
+          {title}:
+        </Col>
         <Col>
           <form onSubmit={handleSubmit(handleSubmitHourFilter)}>
-            <Row>
+            <Row className="gx-0">
               {FilterArray?.lessThanValue?.map((item, index) => {
                 return (
-                  <Col key={index}>
+                  <Col key={index} className="d-flex align-items-center">
                     <input
                       type="checkbox"
                       name="hoursFilter"
@@ -62,7 +67,7 @@ const FilterFormComponent = ({
                 );
               })}
 
-              <Col>
+              <Col className="d-flex align-items-center">
                 <input
                   type="checkbox"
                   name="graterThenHoursFilter"
@@ -73,9 +78,9 @@ const FilterFormComponent = ({
                 <label>{`${FilterArray?.greaterThan}+`}</label> <br />
               </Col>
               <Col>
-                <button type="submit" className="btn bg-button btn-sm">
+                <Button type="submit" className="bg-button btn-sm">
                   submit
-                </button>
+                </Button>
               </Col>
             </Row>
           </form>

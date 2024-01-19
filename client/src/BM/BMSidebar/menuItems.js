@@ -24,7 +24,9 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
-import CrisisAlertIcon from '@mui/icons-material/CrisisAlert';
+import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
+import { FaWpforms } from "react-icons/fa6";
+
 const allusers = [
   "Admin",
   "Plant-Admin",
@@ -160,6 +162,12 @@ export const menuItems = [
         route: "/bm/report/machine-age",
       },
     ],
+  },
+  {
+    title: "No Loss",
+    icon: <FaWpforms fontSize={22} className="text-white" />,
+    route: "/bm/noLossDataOfBD",
+    allowedRoles: allusers,
   },
   {
     title: "Profile",

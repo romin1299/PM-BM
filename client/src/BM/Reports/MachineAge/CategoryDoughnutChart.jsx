@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Row, Col } from "reactstrap";
-import { Box } from "@mui/material";
+import { Box, Paper } from "@mui/material";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 import ChartDataLabels from "chartjs-plugin-datalabels";
@@ -11,6 +11,7 @@ import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
 
 import { CommonDropdown } from "../ManHourReport/SubComponents/LineSelectionDropdown";
+import Loading from "../../../components/Loading/Loading";
 
 const ChartCard = ({ category }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
@@ -41,7 +42,7 @@ const ChartCard = ({ category }) => {
         label: "Hour",
         data: category?.bdTime,
         backgroundColor: category?.subcategories?.map(
-          (item, i) => chartColors.monthlyBDTrend[i]
+          (item, i) => chartColors.categoryPie[i]
         ),
         // borderWidth: 0,
       },
@@ -49,14 +50,10 @@ const ChartCard = ({ category }) => {
   };
 
   return (
-    <Box className="cell p-3">
-      <ChartTitleBar title={`${category?.category} Category`} />
-      {/* <ChartTitleBar title="BD Hours Vs Count" /> */}
-      {/* <Typography variant="body1" style={{ fontSize: "1rem" }}>
-        {category?.category} Category
-      </Typography> */}
-
-      {/* <Divider sx={{ mt: 1, mb: 2, borderColor: "gray" }} /> */}
+    <Paper variant="outlined">
+      <div className="p-3 pb-0">
+        <ChartTitleBar title={`${category?.category}`} />
+      </div>
 
       <Box
         className="ratio ratio-1x1"
@@ -73,7 +70,7 @@ const ChartCard = ({ category }) => {
           />
         )}
       </Box>
-    </Box>
+    </Paper>
   );
 };
 
@@ -83,11 +80,13 @@ const CategoryDoughnutChart = ({
   selectedYear,
   groupData,
 }) => {
+  const [loading, setLoading] = React.useState(true);
   const [categories, setCategories] = React.useState([]);
 
   const [selectedGroup, setSelectedGroup] = React.useState("");
 
   const getMachineAgePieChart = async () => {
+    setLoading(true);
     try {
       const res = await fetch(
         `/getMachineAgePieChart/${flagForTogglingFilter}/${selectedValue}/${selectedGroup}/?selectedYear=${selectedYear}`,
@@ -103,13 +102,18 @@ const CategoryDoughnutChart = ({
       const { data } = await res.json();
       if (res.status === 201 || data) {
         setCategories(data);
+        setLoading(false);
+        return;
       }
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
+    setLoading(false);
     if (selectedGroup) {
       getMachineAgePieChart();
     }
@@ -119,40 +123,35 @@ const CategoryDoughnutChart = ({
     setSelectedGroup(groupData?.[0]?._id);
   }, [groupData?.[0]?._id]);
 
-  useEffect(() => {
-    setCategories([
-      {
-        category: "BD",
-        subcategories: ["Minor"],
-        bdCount: [1],
-        bdTime: [1.5333333333333334],
-      },
-      {
-        category: "Problem",
-        subcategories: ["Electronics"],
-        bdCount: [1],
-        bdTime: [1.5333333333333334],
-      },
-    ]);
-  }, []);
-
   return (
-    <>
-      <CommonDropdown
-        selectedItem={selectedGroup}
-        setSelectedItem={setSelectedGroup}
-        arr={groupData}
-        defaultTitle="Group"
-        objKeyName="group"
-      />
-      <Row className="g-3">
-        {categories?.map((category, index) => (
-          <Col key={index} sm={6} xs={12}>
-            <ChartCard category={category} />
+    <Box className="cell p-3">
+      <Row>
+        <Col></Col>
+        <Col className="col-auto">
+          <CommonDropdown
+            selectedItem={selectedGroup}
+            setSelectedItem={setSelectedGroup}
+            arr={groupData}
+            defaultTitle="Group"
+            objKeyName="group"
+          />
+        </Col>
+      </Row>
+
+      <Row className="g-3 mt-0">
+        {[0, 1]?.map((key) => (
+          <Col key={key} sm={6} xs={12}>
+            {loading ? (
+              <Loading height={200} />
+            ) : categories?.[key] ? (
+              <ChartCard category={categories?.[key]} />
+            ) : (
+              <DataNotFound sx={{ mb: 0 }} />
+            )}
           </Col>
         ))}
       </Row>
-    </>
+    </Box>
   );
 };
 

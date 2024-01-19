@@ -10,7 +10,7 @@ import {
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
 import { Box, Paper, Typography } from "@mui/material";
-import { Row, Container } from "react-bootstrap";
+import { Row, Container, Col } from "react-bootstrap";
 import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
@@ -19,6 +19,7 @@ import ChartTitleBar from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
 import Loading from "../../../components/Loading/Loading";
+import FilterSwitchButtons from "./FilterSwitchButtons";
 
 ChartJS.register(
   CategoryScale,
@@ -88,6 +89,7 @@ const MonthlyBDTrendChart = ({
   filter,
   setFilter,
   selectedYear,
+  showFilterSwitch = false,
 }) => {
   const [loading, setLoading] = React.useState(true);
 
@@ -120,7 +122,7 @@ const MonthlyBDTrendChart = ({
     //     : `/${filter}MonthlyBdTrend/based-on-subSection/${sectionId}`;
 
     const url = `/${filter}MonthlyBdTrend/${flagForTogglingFilter}/${selectedValue}`;
-    console.log("url:", url);
+    // console.log("url:", url);
 
     const params = { selectedYear };
 
@@ -174,7 +176,7 @@ const MonthlyBDTrendChart = ({
     setLoading(false);
   };
 
-  console.log("chartData:", chartData);
+  // console.log("chartData:", chartData);
 
   useEffect(() => {
     if (flagForTogglingFilter && selectedValue && selectedYear && filter)
@@ -188,6 +190,17 @@ const MonthlyBDTrendChart = ({
         // titleProps={{
         //   sx: { fontWeight: "500" },
         // }}
+        Toolbar={
+          showFilterSwitch && (
+            <Col className="col-auto">
+              <FilterSwitchButtons
+                filter={filter}
+                setFilter={setFilter}
+                filterState={filterState}
+              />
+            </Col>
+          )
+        }
       />
 
       {loading ? (

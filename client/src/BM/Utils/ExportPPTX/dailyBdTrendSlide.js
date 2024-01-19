@@ -1,5 +1,10 @@
 import axios from "axios";
-import { commonPptOptions } from "./exportPPTXOptions";
+import {
+  commonPptOptions,
+  genSlideTitle,
+  genSlideTitleFilterNames,
+  genSlideTitleYearFilters,
+} from "./exportPPTXOptions";
 
 const fetchDailyBdTrendData = async (urlOptions) => {
   const {
@@ -35,29 +40,21 @@ export async function genSlideDailyBDTrend(pptx, urlOptions) {
   let slide = pptx.addSlide();
   let comboProps;
 
-  /*
-   * @add Title
-   *
-   */
-  slide.addText(
-    [
-      {
-        text: urlOptions?.text,
-        options: { fontSize: 32, breakLine: true },
-      },
-    ],
-    {
-      x: 0,
-      y: 0,
-      w: 13.33,
-      h: 1,
-      color: "FFFFFF",
-      fill: { color: pptx.colors.ACCENT1, transparency: 5 },
-      valign: "middle",
-      align: "center",
-      isTextBox: true,
-    }
-  );
+  console.log('urlOptions:', urlOptions)
+
+  genSlideTitle(pptx, slide, urlOptions?.text);
+  genSlideTitleFilterNames(pptx, slide, urlOptions, {
+    x: 0.5,
+    y: 0,
+    w: 4,
+    h: 0.75,
+  });
+  genSlideTitleYearFilters(pptx, slide, urlOptions, {
+    x: 8.85,
+    y: 0,
+    w: 4,
+    h: 0.75,
+  });
 
   /*
    * @add first chart

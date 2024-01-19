@@ -8,12 +8,14 @@ const MachineWiseMTTRAndMTBF = ({
   selectedYear,
   chartFor,
 }) => {
+  const [loading, setLoading] = React.useState(true);
   const [machineWiseMTTROrMTBF, setMachineWiseMTTROrMTBF] = useState({
     labels: [],
     data: [],
     target: [],
   });
   const getMachineWiseMTTROrMTBFTrendData = async () => {
+    setLoading(true);
     try {
       const res = await fetch(
         `/getTrendData/${chartFor}/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
@@ -32,6 +34,7 @@ const MachineWiseMTTRAndMTBF = ({
       if (res?.status === 201) {
         setMachineWiseMTTROrMTBF(data);
       }
+      setLoading(false);
     } catch (error) {
       console.log(error);
     }
@@ -49,6 +52,7 @@ const MachineWiseMTTRAndMTBF = ({
         title={`${chartFor} Trend`}
         xAxisTitle="Months"
         y1AxisTitle={`${chartFor} Hours`}
+        loading={loading}
         dataset={machineWiseMTTROrMTBF}
         label={{
           barLabel: chartFor,

@@ -17,11 +17,13 @@ const BDRequestSheetTable = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  // console.log("location:", location);
 
   const requestSheetHeader = [
     {
       title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
+      width: "5%"
     },
     {
       title: "Section",
@@ -52,8 +54,12 @@ const BDRequestSheetTable = ({
       field: "problem",
     },
     {
-      title: "Date-time",
+      title: "Date-Time",
       field: "problemOccurredDateAndTimeOfBM",
+    },
+    {
+      title: "Loss Time",
+      field: "loss_time"
     },
     {
       title: "Work Order Status",
@@ -74,7 +80,10 @@ const BDRequestSheetTable = ({
         navigate(
           `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
           {
-            state: { prevPath: location.pathname },
+            state: {
+              prevPath: location?.pathname,
+              prevPathSearch: location?.search,
+            },
           }
         );
       },

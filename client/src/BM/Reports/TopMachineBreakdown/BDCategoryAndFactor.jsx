@@ -9,6 +9,7 @@ import { Doughnut } from "react-chartjs-2";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
 
 const ChartCard = ({ category }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
@@ -48,8 +49,10 @@ const ChartCard = ({ category }) => {
   };
 
   return (
-    <Box className="cell p-3">
-      <ChartTitleBar title={`${category?.category} Category`} />
+    <Box variant="outlined" className="cell">
+      <div className="p-3 pb-0">
+        <ChartTitleBar title={`${category?.category}`} />
+      </div>
       {/* <ChartTitleBar title="BD Hours Vs Count" /> */}
       {/* <Typography variant="body1" style={{ fontSize: "1rem" }}>
         {category?.category} Category
@@ -82,9 +85,12 @@ const BDCategoryAndFactor = ({
   selectedYear,
   selectedMonth,
 }) => {
+  const [loading, setLoading] = React.useState(true);
   const [categories, setCategories] = React.useState([]);
 
   const BDCategoryAndFactor = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(
         `/getPieChartData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
@@ -99,12 +105,18 @@ const BDCategoryAndFactor = ({
       );
       const response = await res.json();
       if (res.status === 201) {
-        console.log(response);
+        // console.log(response);
         setCategories(response?.categoriesPieChartData);
+        setLoading(false);
+        return;
       }
+      setCategories([]);
     } catch (error) {
+      setCategories([]);
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -113,24 +125,38 @@ const BDCategoryAndFactor = ({
     }
   }, [selectedValue, selectedYear, selectedMonth]);
 
+  /**
+   * [0,1] is implemented to show only first two categories
+   * If dynamic categories is needed to show then map through categories array
+   * categories.map((cat)=>{})
+   *
+   * For Chart Component
+   * If API call promise is not fullfiled then show loading component and wait for the response
+   *
+   * When response is received, check if data array has values
+   * If the data array has values then plot the chart
+   * else data array is empty then show No Data Found component
+   */
+
   return (
     <>
       <Row className="g-3">
-        {categories?.map((category, index) => (
-          <Col key={index} sm={6} xs={12}>
-            <ChartCard category={category} />
+        {[0, 1]?.map((key) => (
+          <Col key={key} sm={6} xs={12}>
+            {loading ? (
+              <Box className="cell p-3">
+                <Loading height={200} />
+              </Box>
+            ) : categories?.[key] ? (
+              <ChartCard category={categories?.[key]} />
+            ) : (
+              <Box className="cell p-3" sx={{ height: 250 }}>
+                <DataNotFound sx={{ mb: 0 }} />
+              </Box>
+            )}
           </Col>
         ))}
       </Row>
-
-      {/* <Row className="gx-3">
-        <Col xxl={6} lg={6} md={6}>
-          <DoughnutChart title="Breakdown Category" />
-        </Col>
-        <Col xxl={6} lg={6} md={6}>
-          <DoughnutChart title="Breakdown Factor" />
-        </Col>
-      </Row> */}
     </>
   );
 };

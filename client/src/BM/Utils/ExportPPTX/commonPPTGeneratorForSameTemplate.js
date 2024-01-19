@@ -1,5 +1,10 @@
 import axios from "axios";
-import { commonPptOptions } from "./exportPPTXOptions";
+import {
+  commonPptOptions,
+  genSlideTitle,
+  genSlideTitleFilterNames,
+  genSlideTitleYearFilters,
+} from "./exportPPTXOptions";
 
 export async function commonPPTGeneratorForSameTemplate(pptx, urlOptions) {
   await genSlide01(pptx, urlOptions);
@@ -58,29 +63,31 @@ async function genSlide01(pptx, urlOptions) {
     selectedYear,
     selectedMonth,
     flagForTogglingFilter,
+    documentLimitInTheGraph,
     selectedValue,
-    targetKey
+    targetKey,
   } = urlOptions;
 
-  slide.addText(
-    [
-      {
-        text: `${name} Report`,
-        options: { fontSize: 32, breakLine: true },
-      },
-    ],
-    {
-      x: 0,
-      y: 0,
-      w: 13.33,
-      h: 1,
-      color: "FFFFFF",
-      fill: { color: pptx.colors.ACCENT1, transparency: 5 },
-      valign: "middle",
-      align: "center",
-      isTextBox: true,
-    }
-  );
+  console.log("mtbf export urlOptions:", urlOptions);
+
+  genSlideTitle(pptx, slide, `${name} Report`, {
+    x: 0,
+    y: 0,
+    w: 13.33,
+    h: 0.75,
+  });
+  genSlideTitleFilterNames(pptx, slide, urlOptions, {
+    x: 0.5,
+    y: 0,
+    w: 4,
+    h: 0.75,
+  });
+  genSlideTitleYearFilters(pptx, slide, urlOptions, {
+    x: 8.85,
+    y: 0,
+    w: 4,
+    h: 0.75,
+  });
 
   const trendData = await fetchDataAPI({
     url: `/getTrendData/${name}/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&targetKey=${targetKey}`,
@@ -91,9 +98,9 @@ async function genSlide01(pptx, urlOptions) {
   const chartOptions01 = {
     ...commonPptOptions,
     x: 0.5,
-    y: 1.5,
+    y: 1.25,
     w: 5.95,
-    h: 4.0,
+    h: 5.75,
 
     title: `${name} Trend`,
 
@@ -121,6 +128,32 @@ async function genSlide01(pptx, urlOptions) {
   };
 
   slide.addChart(chartData02, chartOptions02);
+
+  // const chartData03 = await fetchDataAPI({
+  //   url: `/getMachineWise${name}TrendData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}&&documentLimitInTheGraph=${documentLimitInTheGraph}`,
+  // });
+
+  // const data = [
+  //   {
+  //     name,
+  //     labels: chartData03?.labels,
+  //     values: chartData03?.data,
+  //   },
+  // ];
+
+  // const comboProps = {
+  //   ...commonPptOptions,
+  //   x: 0.5,
+  //   y: 4.375,
+  //   w: 12.3,
+  //   h: 2.625,
+  //   catAxisTitle: "Machines",
+  //   valAxisTitle: name,
+  //   title: "Machine Trend",
+  // };
+
+  // // Add chart to the slide with specified options
+  // slide.addChart(pptx.ChartType.line, data, comboProps);
 }
 
 async function genSlide02(pptx, urlOptions) {
@@ -152,7 +185,7 @@ async function genSlide02(pptx, urlOptions) {
     x: 0.5,
     y: 1.0,
     w: 12.3,
-    h: 5.0,
+    h: 5.5,
     catAxisTitle: "Machines",
     valAxisTitle: name,
     title: "Machine Trend",

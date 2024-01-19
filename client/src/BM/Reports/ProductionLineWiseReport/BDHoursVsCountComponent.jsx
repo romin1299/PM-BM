@@ -146,12 +146,12 @@ const BDHoursVsCountComponent = ({
         title="BD Hours Vs Count"
         Toolbar={
           <Col className="col-auto d-flex gap-2">
-            <DynamicFiltersMenu
+            {/* <DynamicFiltersMenu
               getBDhoursVsCountReportData={getBDhoursVsCountReportData}
               selectedValue={selectedValue}
               selectedYear={selectedYear}
               selectedMonth={selectedMonth}
-            />
+            /> */}
             <MonthDropdown
               selectedMonth={selectedMonth}
               setSelectedMonth={setSelectedMonth}
@@ -160,23 +160,21 @@ const BDHoursVsCountComponent = ({
         }
       />
 
+      <FilterComponent
+        getBDhoursVsCountReportData={getBDhoursVsCountReportData}
+        selectedValue={selectedValue}
+        selectedYear={selectedYear}
+        selectedMonth={selectedMonth}
+      />
       {loading ? (
-        <Loading height={300} />
+        <Loading height={300} sx={{ mt: 2 }} />
       ) : (
-        <>
-          <FilterComponent
-            getBDhoursVsCountReportData={getBDhoursVsCountReportData}
-            selectedValue={selectedValue}
-            selectedYear={selectedYear}
-            selectedMonth={selectedMonth}
-          />
-          <BDHoursVsCountChart
-            totalBDCount={reduceState?.totalBDCount}
-            BDCount={reduceState?.BDCount}
-            BDhours={reduceState?.BDhours}
-            labels={reduceState?.labels}
-          />
-        </>
+        <BDHoursVsCountChart
+          totalBDCount={reduceState?.totalBDCount}
+          BDCount={reduceState?.BDCount}
+          BDhours={reduceState?.BDhours}
+          labels={reduceState?.labels}
+        />
       )}
     </Box>
   );

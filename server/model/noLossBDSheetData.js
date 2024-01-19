@@ -4,7 +4,9 @@ const noLossBDSheetDataSchema = new mongoose.Schema({
   noLossBDNo: {
     type: String,
   },
-
+  DateOfNoLossBD: {
+    type: Date,
+  },
   // for main category
   maintenanceType: {
     type: String,
@@ -31,15 +33,21 @@ const noLossBDSheetDataSchema = new mongoose.Schema({
 
   //for cause
   causeOfNoLoss: {
-    type: String
+    type: String,
   },
-//   whyAnalysis: {
-//     why1: { type: String },
-//     why2: { type: String },
-//     why3: { type: String },
-//     why4: { type: String },
-//     why5: { type: String },
-//   },
+
+  //preventive_corrective_maintenance as on BM
+  counterMeasureStep: {
+    type: String,
+  },
+
+  //   whyAnalysis: {
+  //     why1: { type: String },
+  //     why2: { type: String },
+  //     why3: { type: String },
+  //     why4: { type: String },
+  //     why5: { type: String },
+  //   },
 
   actionAndCounterMeasureStep: [
     {
@@ -67,18 +75,27 @@ const noLossBDSheetDataSchema = new mongoose.Schema({
   //for first time or repeat / Temp or Perma
   firstTimeOrRepeat: { type: String },
 
-  categoriesOfNoLossDBData: { type: String },
+  categoriesOfRequestSheet: [
+    {
+      category: { type: String },
+      subCategory: { type: String },
+    },
+  ],
 
   doneByNoLossBD: {
-    type: String
+    type: String,
   },
-  
+
   supportingTM: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Users",
   },
 
   machineStatus: {
+    type: String,
+  },
+
+  actionTemporaryOrNot: {
     type: String,
   },
 
