@@ -1441,11 +1441,16 @@ const findTLandOperatorList = async (req, res, next) => {
 
 const filterMiddleware = async (req, res, next) => {
   try {
-    let queryObj = {},
+    let queryObj = {
+        "maintenanceReportFilledByMTD.breakDownTime": {
+          $gt: 0,
+        },
+      },
       queryObjForPM = {};
 
     if (req.query?.selectedYear) {
       queryObj = {
+        ...queryObj,
         "preAggregationTimeStampOfRequestSheet.requestSheet_year":
           req.query?.selectedYear,
       };
@@ -1523,6 +1528,15 @@ const filterMiddleware = async (req, res, next) => {
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
+  }
+};
+
+const removeBDZeroValueFiltration = async (req, res, next) => {
+  try {
+    delete req.queryObj?.["maintenanceReportFilledByMTD.breakDownTime"];
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error: new Error(error) });
   }
 };
 
@@ -1672,7 +1686,7 @@ router.get(
   "/getRequestSheetData/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-
+  removeBDZeroValueFiltration,
   async (req, res, next) => {
     try {
       // For fetching all data
@@ -4166,6 +4180,7 @@ router.get(
   "/getMachineRequestSheetDetails",
   authenticate,
   filterMiddleware,
+  removeBDZeroValueFiltration,
   getRequestSheetData,
   dashboardLevelUserCheckMiddleware,
   findTLandOperatorList,
@@ -4235,6 +4250,7 @@ router.get(
   "/getMachineRequestSheetDetailsForApproval/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  removeBDZeroValueFiltration,
   getRequestSheetData,
   dashboardLevelUserCheckMiddleware,
   findTLandOperatorList,
@@ -5735,6 +5751,9 @@ router.get(
             // cellRef: mongoose.Types.ObjectId(req.params.selectedId),
             "preAggregationTimeStampOfRequestSheet.requestSheet_year":
               req.query?.selectedYear,
+            "maintenanceReportFilledByMTD.breakDownTime": {
+              $gt: 0,
+            },
           },
         },
         {
@@ -6078,6 +6097,9 @@ router.post(
         queryObjForBM = {
           "maintenanceReportFilledByMTD.workEndedDateOfBM": {
             $ne: null,
+          },
+          "maintenanceReportFilledByMTD.breakDownTime": {
+            $gt: 0,
           },
         };
 
@@ -6463,6 +6485,7 @@ router.post(
         {
           $project: {
             machine_code: 1,
+            machine_nickname: 1,
             machine_name: 1,
             requestSheets: 1,
           },
@@ -6483,7 +6506,7 @@ router.post(
             ...queryObjects?.groupingObj,
             // count: { $push: "$requestSheets.count" },
             // sumOfBDhours: { $push: "$requestSheets.sumOfBDhours" },
-            machine_code: { $push: "$machine_code" },
+            machine_code: { $push: "$machine_nickname" },
           },
         },
 
@@ -11167,6 +11190,9 @@ router.get(
             machineRef: mongoose.Types.ObjectId(req.params.machineId),
             "preAggregationTimeStampOfRequestSheet.requestSheet_year":
               req.query?.selectedYear,
+            "maintenanceReportFilledByMTD.breakDownTime": {
+              $gt: 0,
+            },
           },
         },
         {
@@ -12125,9 +12151,9 @@ router.get(
                 },
               },
             },
-            hours: {
+            hours: truncValue({
               $divide: ["$sumOfBM", "$count"],
-            },
+            }),
           },
         },
 
@@ -13770,7 +13796,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
           pipeline: [
             {
               $project: {
-                machine_code: 1,
+                machine_nickname: 1,
               },
             },
           ],
@@ -13796,7 +13822,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
         $group: {
           _id: null,
           machineId: { $push: "$machine._id" },
-          labels: { $push: "$machine.machine_code" },
+          labels: { $push: "$machine.machine_nickname" },
           data: { $push: "$hours" },
         },
       },
@@ -14690,6 +14716,9 @@ const filtrationMiddleware = async (req, res, next) => {
     let queryObjForBM = {
       "preAggregationTimeStampOfRequestSheet.requestSheet_year":
         req.query?.selectedYear,
+      "maintenanceReportFilledByMTD.breakDownTime": {
+        $gt: 0,
+      },
     };
     let queryObjForPM = {};
 
@@ -15277,6 +15306,9 @@ router.get(
         matchQuery_BM = {
           "preAggregationTimeStampOfRequestSheet.requestSheet_year":
             req.query?.selectedYear,
+          "maintenanceReportFilledByMTD.breakDownTime": {
+            $gt: 0,
+          },
         };
 
       if (req.query?.selectedMonth) {
@@ -15631,6 +15663,9 @@ router.get(
         matchQuery_BM = {
           "preAggregationTimeStampOfRequestSheet.requestSheet_year":
             req.query?.selectedYear,
+          "maintenanceReportFilledByMTD.breakDownTime": {
+            $gt: 0,
+          },
         };
 
       if (req.query?.selectedMonth) {
@@ -18122,6 +18157,9 @@ router.get(
         machineRef: mongoose.Types.ObjectId(req.query?.machineId),
         "preAggregationTimeStampOfRequestSheet.requestSheet_year":
           req.query?.selectedYear,
+        "maintenanceReportFilledByMTD.breakDownTime": {
+          $gt: 0,
+        },
       };
       req.queryObj = queryObj;
       next();
