@@ -383,9 +383,10 @@ router.post(
               requestSheetDataFilledByMTDUser?.partQualityCheckedByMTD,
             partQualityCheckedByPRD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
-            requestSheetStatus: 
-            requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
-                ? getRequestSheetData?.requestSheetStatus : "Fill Sheet",
+            requestSheetStatus:
+              requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
+                ? getRequestSheetData?.requestSheetStatus
+                : "Fill Sheet",
             // (
             //   requestSheetDataFilledByMTDUser?.validateValueForSubmitDataWhileSendingApproval
             //     ? getRequestSheetData?.requestSheetStatus
@@ -6971,7 +6972,7 @@ router.get(
               $push: "$count",
             },
             bdTime: {
-              $push: "$bdtime",
+              $push: { $trunc : ["$bdtime",1]}
             },
           },
         },
@@ -8527,6 +8528,8 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
 const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
   try {
+
+
     const bdTrendData = await Cell.aggregate([
       {
         $match: {
@@ -8550,7 +8553,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                   $eq: ["$$cell", "$cellRef"],
                 },
                 "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-                  req.query.selectedYear,
+                  req?.query?.selectedYear,
               },
             },
 
@@ -9910,6 +9913,8 @@ router.get(
                   $expr: {
                     $eq: ["$$subsection", "$subSectionRef"],
                   },
+                  "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                  req.query.selectedYear,
                 },
               },
               {
@@ -10029,6 +10034,8 @@ router.get(
                   $expr: {
                     $eq: ["$$section", "$sectionRef"],
                   },
+                  "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                  req.query.selectedYear,
                 },
               },
 
@@ -10286,6 +10293,8 @@ router.get(
                   $expr: {
                     $eq: ["$$cell", "$cellRef"],
                   },
+                  "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                  req.query.selectedYear,
                 },
               },
 
@@ -13023,38 +13032,37 @@ router.get(
       },
 
       {
-  $addFields: {
-    groupName: {
-      $arrayElemAt: [
-        {
-          $map: {
-            input: {
-              $filter: {
-                input: { $reverseArray: "$section_data.yearGroup" },
-                as: "group",
-                cond: {
-                  $and: [
-                    { $gte: ["$yearDifference", "$$group.from"] },
-                    {
-                      $or: [
-                        { $eq: ["$$group.to", 1.7976931348623157e+308] },
-                        { $lte: ["$yearDifference", "$$group.to"] },
-                      ],
+        $addFields: {
+          groupName: {
+            $arrayElemAt: [
+              {
+                $map: {
+                  input: {
+                    $filter: {
+                      input: { $reverseArray: "$section_data.yearGroup" },
+                      as: "group",
+                      cond: {
+                        $and: [
+                          { $gte: ["$yearDifference", "$$group.from"] },
+                          {
+                            $or: [
+                              { $eq: ["$$group.to", 1.7976931348623157e308] },
+                              { $lte: ["$yearDifference", "$$group.to"] },
+                            ],
+                          },
+                        ],
+                      },
                     },
-                  ],
+                  },
+                  as: "matchedGroup",
+                  in: "$$matchedGroup.group",
                 },
               },
-            },
-            as: "matchedGroup",
-            in: "$$matchedGroup.group",
+              0,
+            ],
           },
         },
-        0,
-      ],
-    },
-  },
-},
-
+      },
 
       {
         $match: {
@@ -13198,38 +13206,38 @@ router.get(
         },
       },
 
-        {
-  $addFields: {
-    groupName: {
-      $arrayElemAt: [
-        {
-          $map: {
-            input: {
-              $filter: {
-                input: { $reverseArray: "$section_data.yearGroup" },
-                as: "group",
-                cond: {
-                  $and: [
-                    { $gte: ["$yearDifference", "$$group.from"] },
-                    {
-                      $or: [
-                        { $eq: ["$$group.to", 1.7976931348623157e+308] },
-                        { $lte: ["$yearDifference", "$$group.to"] },
-                      ],
+      {
+        $addFields: {
+          groupName: {
+            $arrayElemAt: [
+              {
+                $map: {
+                  input: {
+                    $filter: {
+                      input: { $reverseArray: "$section_data.yearGroup" },
+                      as: "group",
+                      cond: {
+                        $and: [
+                          { $gte: ["$yearDifference", "$$group.from"] },
+                          {
+                            $or: [
+                              { $eq: ["$$group.to", 1.7976931348623157e308] },
+                              { $lte: ["$yearDifference", "$$group.to"] },
+                            ],
+                          },
+                        ],
+                      },
                     },
-                  ],
+                  },
+                  as: "matchedGroup",
+                  in: "$$matchedGroup.group",
                 },
               },
-            },
-            as: "matchedGroup",
-            in: "$$matchedGroup.group",
+              0,
+            ],
           },
         },
-        0,
-      ],
-    },
-  },
-},
+      },
       {
         $match: {
           groupName: { $exists: true, $ne: null },
@@ -13343,7 +13351,7 @@ router.get(
                           { $gte: ["$yearDifference", "$$group.from"] },
                           {
                             $or: [
-                              { $eq: ["$$group.to", 1.7976931348623157e+308] },
+                              { $eq: ["$$group.to", 1.7976931348623157e308] },
                               { $lte: ["$yearDifference", "$$group.to"] },
                             ],
                           },
@@ -13428,7 +13436,7 @@ router.get(
             $push: "$count",
           },
           bdTime: {
-            $push: "$bdtime",
+            $push: { $trunc : ["$bdtime",1]}
           },
         },
       },
@@ -14401,7 +14409,7 @@ router.patch(
                   ?.departmentAndGradeOfUser
               ) + 1
             ];
-            ListOfCCEmailOfOtherHigherAuthority = majorListForTheApprovalOfPlant
+          ListOfCCEmailOfOtherHigherAuthority = majorListForTheApprovalOfPlant
             .filter((value) => {
               if (
                 value !==
@@ -18433,9 +18441,9 @@ router.get(
         BdTrendAndLastFiveProblem: {
           breakdownTrendData: req.BDHours?.[0],
           lastFiveProblem,
-        },
-      });
-    } catch (error) {
+        }, 
+      });    
+    } catch (error) {  
       res.status(500).json({ message: error?.message, error });
     }
   }
