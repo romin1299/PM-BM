@@ -383,14 +383,19 @@ router.post(
               requestSheetDataFilledByMTDUser?.partQualityCheckedByMTD,
             partQualityCheckedByPRD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
-            requestSheetStatus:
-              ((getRequestSheetData?.assignUser?._id).toString() ===
-                (req?.rootUser?._id).toString() ||
-                (getRequestSheetData?.handOverUser?._id).toString() ===
-                  (req?.rootUser?._id).toString()) &&
-              getRequestSheetData?.requestSheetStatus
-                ? getRequestSheetData?.requestSheetStatus
-                : "Fill Sheet",
+            requestSheetStatus: 
+            requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
+                ? getRequestSheetData?.requestSheetStatus : "Fill Sheet",
+            // (
+            //   requestSheetDataFilledByMTDUser?.validateValueForSubmitDataWhileSendingApproval
+            //     ? getRequestSheetData?.requestSheetStatus
+            //     : (getRequestSheetData?.assignUser?._id).toString() ===
+            //         (req?.rootUser?._id).toString() ||
+            //       (getRequestSheetData?.handOverUser?._id).toString() ===
+            //         (req?.rootUser?._id).toString()
+            // )
+            //   ? "Fill Sheet"
+            //   : getRequestSheetData?.requestSheetStatus,
             actionTemporaryOrNot:
               requestSheetDataFilledByMTDUser?.actionTemporaryOrNot,
             dataSheetOfRequestSheet:
@@ -14385,18 +14390,19 @@ router.patch(
                   ?.departmentAndGradeOfUser
               ) + 1
             ];
-
-          ListOfCCEmailOfOtherHigherAuthority =
-            majorListForTheApprovalOfPlant.map((value) => {
+            ListOfCCEmailOfOtherHigherAuthority = majorListForTheApprovalOfPlant
+            .filter((value) => {
               if (
                 value !==
                 req?.requestSheetData?.[0]?.getDataForApprovalDashboard
-                  ?.departmentAndGradeOfUse
-              ) {
-                req?.requestSheetData?.[0]?.[
-                  `approvalOf${value?.replace(" ", "_")}`
-                ]?.email;
-              }
+                  ?.departmentAndGradeOfUser
+              )
+                return value;
+            })
+            .map((obj) => {
+              return req?.requestSheetData?.[0]?.[
+                `approvalOf${obj?.replace(" ", "_")}`
+              ]?.email;
             });
         }
         getRequestSheetData[
