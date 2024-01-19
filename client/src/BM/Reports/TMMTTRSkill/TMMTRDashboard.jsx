@@ -133,7 +133,7 @@ const TMMTRMain = () => {
   const fetchChartData = async () => {
     setLoading(true);
 
-    console.log("timeFilter:", timeFilter);
+    // console.log("timeFilter:", timeFilter);
     const url = `/mttrTrend/tmMTTRSkill/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedSection=${reduceState?.selectedSection}&&selectedSubSection=${reduceState?.selectedSubSection}`;
 
     const params = {

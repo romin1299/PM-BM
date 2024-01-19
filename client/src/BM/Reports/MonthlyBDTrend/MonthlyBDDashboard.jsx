@@ -211,7 +211,7 @@ const MonthlyBDTDashboard = () => {
           <FilterSwitchButtons
             filter={filter}
             setFilter={setFilter}
-            currentTabViewName={currentTabViewName}
+            filterState={filterState}
           />
 
           <DownloadMenu

@@ -101,7 +101,6 @@ function MyTable({
           : requestSheetData.dataSheetOfRequestSheet;
 
       const formData = new FormData();
-      const { ...otherFields } = requestSheetData;
       formData.append("prdDataUpdatedByOtherUser", false);
       // Append the file field
       formData.append(
@@ -115,6 +114,8 @@ function MyTable({
           requestSheetData?.attachedDrawings[i]
         );
       }
+      const { ...otherFields } = requestSheetData;
+      console.log(otherFields);
 
       formData.append("otherData", JSON.stringify(otherFields));
 
@@ -201,6 +202,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (watch("analysisTime") === undefined) {
@@ -212,6 +214,8 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
+
         // return true;
       }
       if (watch("spareWaitingTime") === undefined) {
@@ -223,6 +227,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
       if (watch("replacementTime") === undefined) {
         setError(
@@ -233,6 +238,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
       if (watch("adjustmentTime") === undefined) {
         setError(
@@ -243,6 +249,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
       if (watch("qualityCheckTime") === undefined) {
         setError(
@@ -253,6 +260,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
       if (watch("breakTime") === undefined) {
         setError(
@@ -263,6 +271,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (
@@ -282,6 +291,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (!watch("qualityConfirmed")) {
@@ -293,6 +303,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (!watch("firstTimeOrRepeat")) {
@@ -304,6 +315,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (!watch("actionTemporaryOrNot")) {
@@ -315,6 +327,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (
@@ -329,6 +342,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (!watch("yokotenkai") && timeDifferenceMinutes > 120) {
@@ -340,6 +354,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (problems?.length === 0) {
@@ -351,6 +366,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (actions?.length === 0) {
@@ -362,6 +378,7 @@ function MyTable({
           { shouldFocus: true }
         );
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (!watch("dataSheetOfRequestSheet")) {
@@ -369,6 +386,7 @@ function MyTable({
           message: "This field is required !",
         });
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (Object.keys(watch("categories"))?.length > 0) {
@@ -378,18 +396,21 @@ function MyTable({
               message: "This field is required !",
             });
             flagCountForHandlingError++;
+            // console.log(flagCountForHandlingError);
           }
         });
       }
 
       if (
-        timeDifferenceMinutes > 120 ||
-        watch("dataSheetOfRequestSheet") === "Yes"
+        (timeDifferenceMinutes > 120 ||
+          watch("dataSheetOfRequestSheet") === "Yes") &&
+        !requestSheetDataOfBM?.attachedDataSheets
       ) {
         setError("attachedDataSheets", {
           message: "This field is required !",
         });
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (watch("drawingOfRequestSheet") === "Yes") {
@@ -397,6 +418,7 @@ function MyTable({
           message: "This field is required !",
         });
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (!watch("partQualityCheckedByPRD")) {
@@ -404,6 +426,7 @@ function MyTable({
           message: "This field is required !",
         });
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (!watch("partQualityCheckedByMTD")) {
@@ -411,6 +434,7 @@ function MyTable({
           message: "This field is required !",
         });
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
     }
     if (
@@ -422,6 +446,7 @@ function MyTable({
           message: "Please select approval value (Yes/No)",
         });
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
 
       if (
@@ -432,6 +457,7 @@ function MyTable({
           message: "Please fill rejected remarks",
         });
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
       }
     }
     return flagCountForHandlingError;
@@ -532,6 +558,7 @@ function MyTable({
             requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
             requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
           ) {
+            assignApprovalList.submitDataWhileSendingApproval = true;
             newRequestSheetRegistration(assignApprovalList);
             navigate("/bm/requestListDashboard", { replace: true });
           } else {

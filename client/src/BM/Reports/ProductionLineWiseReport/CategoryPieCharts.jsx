@@ -28,7 +28,7 @@ const ChartCard = ({ category }) => {
             Math.round(category?.bdCount?.[context?.dataIndex] * 100) / 100
           })`;
         },
-        font: {  size: 12 },
+        font: { size: 12 },
         // color: chartColors.categoryPieFont,
       },
     },
@@ -111,25 +111,41 @@ const CategoryPieCharts = ({
   };
 
   useEffect(() => {
+    setLoading(false);
     if (selectedValue) fetchChartData();
   }, [selectedValue, selectedYear]);
 
-  if (loading) {
-    return (
-      <Box className="cell p-3">
-        <ChartTitleBar title="Categories" />
-        <Loading height={300} />
-      </Box>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <Box className="cell p-3">
+  //       <ChartTitleBar title="Categories" />
+  //       <Loading height={300} />
+  //     </Box>
+  //   );
+  // }
 
   return (
     <Row className="g-2">
-      {categories?.map((category, index) => (
+      {[0, 1]?.map((key) => (
+        <Col key={key} sm={6} xs={12}>
+          {loading ? (
+            <Box className="cell p-3">
+              <Loading height={200} />
+            </Box>
+          ) : categories?.[key] ? (
+            <ChartCard category={categories?.[key]} />
+          ) : (
+            <Box className="cell p-3">
+              <DataNotFound sx={{ mb: 0 }} />
+            </Box>
+          )}
+        </Col>
+      ))}
+      {/* {categories?.map((category, index) => (
         <Col key={index} sm={6} xs={12}>
           <ChartCard category={category} />
         </Col>
-      ))}
+      ))} */}
     </Row>
   );
 };

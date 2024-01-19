@@ -84,7 +84,7 @@ const TMProgress = ({
   setTmId,
 }) => {
   const [loading, setLoading] = React.useState(true);
-  console.log("selectedValue:", selectedValue);
+  // console.log("selectedValue:", selectedValue);
 
   const [data, setData] = React.useState(undefined);
   const [isAllTM, setIsAllTM] = React.useState(false);

@@ -47,23 +47,34 @@ const MonthlyGeneratedAndCompletedCount = ({
 
   return (
     <Box className="cell p-3 rounded-2">
-      <Table striped bordered hover className="m-0">
-        <tr>
-          <th>Status</th>
-          {allMonths?.map((item) => (
-            <th>{item}</th>
-          ))}
-        </tr>
+      <Box
+        sx={{
+          width: "100%",
+          overflowX: "auto",
+        }}
+      >
+        <Table bordered hover className="m-0">
+          <thead>
+            <tr>
+              <th>Status</th>
+              {allMonths?.map((item, index) => (
+                <th key={index}>{item}</th>
+              ))}
+            </tr>
+          </thead>
 
-        {monthlyCountData?.map((item) => (
-          <tr>
-            <th>{item?.label}</th>
-            {item?.data?.map((item) => (
-              <td>{item}</td>
-            ))}
-          </tr>
-        ))}
-      </Table>
+          {monthlyCountData?.map((item, index) => (
+            <tbody key={index}>
+              <tr>
+                <th>{item?.label}</th>
+                {item?.data?.map((item, index) => (
+                  <td key={index}>{item}</td>
+                ))}
+              </tr>
+            </tbody>
+          ))}
+        </Table>
+      </Box>
     </Box>
   );
 };

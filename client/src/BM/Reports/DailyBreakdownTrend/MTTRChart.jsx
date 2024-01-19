@@ -29,12 +29,12 @@ export const options = {
       offset: -2,
     },
   },
-  elements: {
-    bar: {
-      borderColor: "000",
-      borderWidth: 1,
-    },
-  },
+  // elements: {
+  //   bar: {
+  //     borderColor: "000",
+  //     borderWidth: 1,
+  //   },
+  // },
   scales: {
     x: {
       stacked: true,
@@ -96,23 +96,21 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
     averageData: [],
   });
 
-  const getMTTRData = async () => {
-    let urlString = "";
+  let filterMaker = {
+    plant: "Plant",
+    section: "Section",
+    subSection: "Section",
+    cell: "Cell",
+    line: "Line",
+  };
 
-    if (flagForTogglingFilter === "based-on-plant") {
-      urlString = "mttrForPlant";
-    } else if (
-      flagForTogglingFilter === "based-on-section" ||
-      flagForTogglingFilter === "based-on-subSection"
-    ) {
-      urlString = "mttrForSection";
-    } else if (flagForTogglingFilter === "based-on-cell") {
-      urlString = "mttrForCell";
-    }
+  const getMTTRData = async () => {
+    let [, , currFilterState] = flagForTogglingFilter?.split("-");
+    let filterFlag = filterMaker[currFilterState];
 
     try {
       const res = await fetch(
-        `/${urlString}/kpiFromDatabase/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
+        `/mttrFor${filterFlag}/kpiFromDatabase/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -128,8 +126,8 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
       if (res?.status === 200) {
         setMttrData({
           bdTrendData,
-          averageData
-        })
+          averageData,
+        });
       }
     } catch (error) {
       console.log(error);
@@ -139,7 +137,6 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
   useEffect(() => {
     if (selectedValue) getMTTRData();
   }, [selectedValue, selectedYear]);
-
 
   const data = {
     labels,
@@ -154,13 +151,14 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
         pointStyle: "rectRot",
         yAxisID: "y1",
       },
-      ...mttrData?.bdTrendData?.map((item) => ({
+      ...mttrData?.bdTrendData?.map((item, index) => ({
         type: "bar",
         stack: "bar-stacked",
         label: item?.label,
         data: item?.data,
-        backgroundColor: chartColors.yellow[1],
-        borderColor: chartColors.yellow[1],
+        backgroundColor: chartColors.monthlyBDTrend[index],
+        borderColor: chartColors.monthlyBDTrend[index],
+        borderRadius: 4,
         pointStyle: "rect",
       })),
       // {
