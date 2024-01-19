@@ -10396,10 +10396,30 @@ router.get(
 
 // ---------------- Major BD Count Chart -------------------
 
+const labelMiddlewareForMajorBDChart = async (req, res, next) => {
+  try {
+    let labels = [];
+    if (req.query?.selectedYear) {
+      let splitYear = req.query?.selectedYear?.split("-");
+      labels = allMonths?.map((item, index) =>
+        index < 9
+          ? `${item?.monthName}-${splitYear?.[0]?.slice(-2)}`
+          : `${item?.monthName}-${splitYear?.[1]?.slice(-2)}`
+      );
+    }
+
+    req.labels = labels;
+    next();
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 router.get(
   "/majorBDCount/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  labelMiddlewareForMajorBDChart,
   targetMiddlewareForMBD,
   // middlewareForPlant,
 
@@ -10686,6 +10706,7 @@ router.get(
       return res.status(200).json({
         message: "Mbd Count data get successfully",
 
+        labels: req.labels,
         bdTrendData,
         bdTrendDataTarget: req.targetForCount,
         targetTotal: req.targetForCountTotal,
@@ -10702,6 +10723,7 @@ router.get(
   "/majorBDCountForSection/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  labelMiddlewareForMajorBDChart,
   targetMiddlewareForMBD,
   async (req, res, next) => {
     try {
@@ -10842,6 +10864,7 @@ router.get(
       return res.status(200).json({
         message: "Mbd Count data get successfully",
         bdTrendData,
+        labels: req.labels,
         bdTrendDataTarget: req.targetForCount,
         targetTotal: req.targetForCountTotal,
       });
