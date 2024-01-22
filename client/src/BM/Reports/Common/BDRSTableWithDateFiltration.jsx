@@ -7,6 +7,7 @@ import { Button, Paper } from "@mui/material";
 const BDRSTableWithDateFiltration = ({
   flagForTogglingFilter,
   selectedValue,
+  selectedYear
 }) => {
   const {
     register,
@@ -82,6 +83,7 @@ const BDRSTableWithDateFiltration = ({
           loading={loading}
           requestSheetData={requestSheetData}
           downloadFileName={"Daily breakdown trend"}
+          selectedYear={selectedYear}
         />
       </Paper>
     </>

@@ -316,6 +316,7 @@ const MachineTrend = ({
             loading={tableLoading}
             requestSheetData={reduceState?.requestSheetData}
             downloadFileName={"MTTR trend"}
+            selectedYear={selectedYear}
           />
         </Col>
       </Row>

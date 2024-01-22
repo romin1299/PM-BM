@@ -621,7 +621,7 @@ const RequestSheetMainDashboard = () => {
       position: "row",
       onClick: (event, selectedRow) => {
         navigate(
-          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
+          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`,
           {
             state: {
               prevPath: location?.pathname,

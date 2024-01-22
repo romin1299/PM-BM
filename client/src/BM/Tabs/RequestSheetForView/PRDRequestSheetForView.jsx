@@ -20,7 +20,7 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import MachineStatusBox from "../SubComponents/MachineStatusBox";
 
-function MyTable({ requestSheetDataOfBM, machineId }) {
+function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -176,7 +176,7 @@ function MyTable({ requestSheetDataOfBM, machineId }) {
                   <Col className="d-flex align-items-center justify-content-center text-center">
                     <h4>MAINTENANCE WORK REQUEST/REPORT</h4>
                   </Col>
-                  <Col className="col-sm col-lg-auto">
+                  <Col>
                     <Box
                       display="flex"
                       justifyContent="end"
@@ -185,10 +185,16 @@ function MyTable({ requestSheetDataOfBM, machineId }) {
                     >
                       <MachineStatusBox
                         title="PM Status"
-                        bodyText1="Completed"
-                        bodyText2="(13/10/2023)"
+                        bodyText1={machineStatus?.pmStatusData?.PMStatus}
+                        bodyText2={machineStatus?.pmStatusData?.PMdate}
                       />
-                      <MachineStatusBox title="BM" bodyText1="170 hrs/5 Nos" />
+                      <MachineStatusBox
+                        title="BM"
+                        bodyText1={
+                          machineStatus?.bmStatusData?.count &&
+                          `${machineStatus?.bmStatusData?.totalHours} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                        }
+                      />
                       <MachineStatusBox title="CM" />
                     </Box>
                   </Col>

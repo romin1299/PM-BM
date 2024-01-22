@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table } from "antd";
+import axios from "axios";
 
 const MasterLogTable = ({
   flagForTogglingFilter,
@@ -7,6 +8,81 @@ const MasterLogTable = ({
   selectedYear,
   selectedMonth,
 }) => {
+  const [masterLogData, setMasterLogData] = useState([]);
+
+  const [plantShiftsData, setPlantShiftsData] = useState([]);
+  const [plantCategories, setPlantCategories] = useState([]);
+  const [supportingTMList, setSupportingTMList] = useState([]);
+  const getListOfTheTLAndOperatorForNoLossBDEntryForm = async () => {
+    try {
+      const res = await fetch(
+        `/getListOfTheTLAndOperatorForNoLossBDEntryForm`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+      if (res.status === 404) {
+        console.log("error", data?.message);
+      } else {
+        setSupportingTMList(data?.TLHOSS_and_TM_user_list);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchShiftData = async () => {
+      const url = "/getAllShifts";
+
+      try {
+        const res = await axios.get(url, {
+          withCredentials: true,
+          credentials: "include",
+        });
+
+        // console.log("fetch shifts res:", res);
+        setPlantShiftsData(res?.data?.getShifts);
+        setPlantCategories(res?.data?.categories);
+      } catch (error) {
+        console.log("error:", error);
+      }
+    };
+
+    fetchShiftData();
+    getListOfTheTLAndOperatorForNoLossBDEntryForm();
+  }, []);
+
+  const getMasterLog = async () => {
+    try {
+      const res = await fetch(
+        `/common/masterLog/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const { message, masterLogData } = await res.json();
+
+      if (res?.status === 201) {
+        setMasterLogData(masterLogData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const columns = [
     {
       title: "Month",
@@ -35,6 +111,14 @@ const MasterLogTable = ({
     {
       title: "Shift",
       dataIndex: "shift",
+      filters: plantShiftsData?.map((obj) => ({
+        value: obj?.shiftName,
+        text: obj.shiftName,
+      })),
+
+      filterMode: "tree",
+      filterSearch: true,
+      onFilter: (value, record) => record?.shift?.startsWith(value),
     },
 
     {
@@ -59,6 +143,18 @@ const MasterLogTable = ({
         ) : (
           problem?.[0]?.problem
         ),
+
+      // filters: masterLogData?.map(
+      //   (obj) =>
+      //     obj?.problem?.length > 0 &&
+      //     obj?.problem?.map((obj1) => ({
+      //       value: obj1?.problem,
+      //       text: obj1?.problem,
+      //     }))
+      // ),
+      // filterMode: "tree",
+      // filterSearch: true,
+      // onFilter: (value, record) => record?.problem?.startsWith(value),
     },
     {
       title: "Cause",
@@ -93,7 +189,7 @@ const MasterLogTable = ({
         ),
     },
     {
-      title: "CounterMeasure",
+      title: "Counter Measure",
       dataIndex: "counterMeasure",
     },
     {
@@ -108,10 +204,45 @@ const MasterLogTable = ({
           ))}
         </ul>
       ),
+      filters: plantCategories?.map((obj) => ({
+        value: obj?.name,
+        text: obj.name,
+        children: obj?.subCategories?.map((objSub) => ({
+          value: objSub?.name,
+          text: objSub.name,
+        })),
+      })),
+
+      filterMode: "tree",
+      filterSearch: true,
+      onFilter: (value, record) => {
+        if (
+          record?.category?.filter((obj) => {
+            if (obj?.subCategory === value) return obj;
+          })?.length > 0
+        ) {
+          return record;
+        }
+      },
     },
     {
       title: "Is Action Temporary?",
       dataIndex: "actionTemporaryOrNot",
+      filters: [
+        {
+          value: "Yes",
+          text: "Yes",
+        },
+        {
+          value: "No",
+          text: "No",
+        },
+      ],
+
+      filterMode: "tree",
+      filterSearch: true,
+      onFilter: (value, record) =>
+        record?.actionTemporaryOrNot?.startsWith(value),
     },
     {
       title: "Done By",
@@ -126,38 +257,30 @@ const MasterLogTable = ({
         ) : (
           doneBy?.[0]?.tm_name
         ),
+      filters: supportingTMList?.map((obj) => ({
+        value: obj?.tm_name,
+        text: obj.tm_name,
+      })),
+
+      filterMode: "tree",
+      filterSearch: true,
+      onFilter: (value, record) => {
+        if (
+          record?.doneBy?.filter((obj) => {
+            console.log(typeof obj?.tm_name, value);
+            if ((obj?.tm_name).toLowerCase() === value.toLowerCase())
+              return obj;
+          })?.length > 0
+        ) {
+          return record;
+        }
+      },
     },
     {
       title: "Status",
       dataIndex: "status",
     },
   ];
-
-  const [masterLogData, setMasterLogData] = useState([]);
-
-  const getMasterLog = async () => {
-    try {
-      const res = await fetch(
-        `/common/masterLog/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
-
-      const { message, masterLogData } = await res.json();
-
-      if (res?.status === 201) {
-        setMasterLogData(masterLogData);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   useEffect(() => {
     if (selectedValue) getMasterLog();

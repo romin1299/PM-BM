@@ -59,7 +59,6 @@ function MyTable() {
       console.log(error);
     }
   };
-
   const getRequestSheetDetails = async () => {
     try {
       const res = await fetch(

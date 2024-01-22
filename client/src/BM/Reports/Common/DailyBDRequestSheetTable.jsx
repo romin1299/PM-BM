@@ -14,6 +14,7 @@ const BDRequestSheetTable = ({
   requestSheetData,
   downloadFileName,
   loading = false,
+  selectedYear
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -78,7 +79,7 @@ const BDRequestSheetTable = ({
       position: "row",
       onClick: (event, selectedRow) => {
         navigate(
-          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
+          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${selectedYear}`,
           {
             state: {
               prevPath: location?.pathname,
