@@ -588,47 +588,68 @@ router.post(
 
             <tr>
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.line_names?.cell_names?.cell_name}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              machine?.line_names?.cell_names?.cell_name
+            }</td>
             </tr>
 
             <tr style="background-color: #dddddd;">
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.line_names?.line_name}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              machine?.line_names?.line_name
+            }</td>
             </tr>
 
             <tr>
                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.machine_name}</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                  machine?.machine_name
+                }</td>
             </tr>
 
             <tr style="background-color: #dddddd;">
                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.machine_code}</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                  machine?.machine_code
+                }</td>
             </tr>
 
             <tr>
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.requestSheetNoOfBM}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              newBDRequestSheetGenerate?.requestSheetNoOfBM
+            }</td>
             </tr>   
 
             <tr style="background-color: #dddddd;">
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Problem Occurred Date and Time</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.problemOccurredDateAndTimeOfBM}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
+              newBDRequestSheetGenerate?.problemOccurredDateAndTimeOfBM
+            )
+              .tz("Asia/Kolkata")
+              .format("DD-MM-YYYY THH:mm")}</td>
             </tr>
 
             <tr>
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Problem</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.breakDownBasicDataFilledByPRD?.problemFaced}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              newBDRequestSheetGenerate?.breakDownBasicDataFilledByPRD
+                ?.problemFaced
+            }</td>
             </tr>
 
             <tr style="background-color: #dddddd;">
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.requestSheetStatus}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              newBDRequestSheetGenerate?.requestSheetStatus
+            }</td>
             </tr>
 
             <tr>
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.work_order_status}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              newBDRequestSheetGenerate?.work_order_status
+            }</td>
             </tr>
 
         </table>`;
@@ -4623,27 +4644,37 @@ router.patch(
        
              <tr>
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+               requestSheetDataOfBM?.cell
+             }</td>
              </tr>
        
              <tr style="background-color: #dddddd;">
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+               requestSheetDataOfBM?.line
+             }</td>
              </tr>
        
              <tr>
                  <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                   requestSheetDataOfBM?.machineName
+                 }</td>
              </tr>
        
              <tr style="background-color: #dddddd;">
                  <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                   requestSheetDataOfBM?.machineNo
+                 }</td>
              </tr>
        
              <tr>
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+               requestSheetDataOfBM?.requestSheetNoOfBM
+             }</td>
              </tr>   
        
              <tr style="background-color: #dddddd;">
@@ -4653,17 +4684,25 @@ router.patch(
 
              <tr>
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${approvedDateAndTime}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
+               approvedDateAndTime
+             )
+               .tz("Asia/Kolkata")
+               .format("DD-MM-YYYY THH:mm")}</td>
              </tr>
        
              <tr style="background-color: #dddddd;">
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateRequestSheetStatus?.requestSheetStatus}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+               updateRequestSheetStatus?.requestSheetStatus
+             }</td>
              </tr>
        
              <tr>
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateRequestSheetStatus?.work_order_status}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+               updateRequestSheetStatus?.work_order_status
+             }</td>
              </tr>
        
          </table>`;
@@ -14556,27 +14595,37 @@ router.patch(
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 requestSheetDataOfBM?.cell
+               }</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 requestSheetDataOfBM?.line
+               }</td>
                </tr>
 
                <tr>
                    <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                     requestSheetDataOfBM?.machineName
+                   }</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
                    <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                     requestSheetDataOfBM?.machineNo
+                   }</td>
                </tr>
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 requestSheetDataOfBM?.requestSheetNoOfBM
+               }</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
@@ -14586,17 +14635,25 @@ router.patch(
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${approvedDateAndTime}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
+                 approvedDateAndTime
+               )
+                 .tz("Asia/Kolkata")
+                 .format("DD-MM-YYYY THH:mm")}</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.requestSheetStatus}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 updateApprovalStatusOfRequestSheet?.requestSheetStatus
+               }</td>
                </tr>
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.work_order_status}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 updateApprovalStatusOfRequestSheet?.work_order_status
+               }</td>
                </tr>
 
            </table>`;
@@ -14659,27 +14716,37 @@ router.patch(
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 requestSheetDataOfBM?.cell
+               }</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 requestSheetDataOfBM?.line
+               }</td>
                </tr>
 
                <tr>
                    <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                     requestSheetDataOfBM?.machineName
+                   }</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
                    <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                     requestSheetDataOfBM?.machineNo
+                   }</td>
                </tr>
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 requestSheetDataOfBM?.requestSheetNoOfBM
+               }</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
@@ -14689,17 +14756,25 @@ router.patch(
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${approvedDateAndTime}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
+                 approvedDateAndTime
+               )
+                 .tz("Asia/Kolkata")
+                 .format("DD-MM-YYYY THH:mm")}</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.requestSheetStatus}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 updateApprovalStatusOfRequestSheet?.requestSheetStatus
+               }</td>
                </tr>
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.work_order_status}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 updateApprovalStatusOfRequestSheet?.work_order_status
+               }</td>
                </tr>
 
            </table>`;

@@ -790,6 +790,10 @@ const RequestSheetMainDashboard = () => {
                 //     //refreshPage();
                 //   }),
 
+                isDeleteHidden: (rowData) =>
+                  (context?.userType !== "TL/HOSS" &&
+                  context?.tm_department !== "MTD"),
+
                 onRowDelete: (selectedRow) =>
                   new Promise(async (resolve, reject) => {
                     // setTimeout(() => {
