@@ -6972,7 +6972,7 @@ router.get(
               $push: "$count",
             },
             bdTime: {
-              $push: { $trunc : ["$bdtime",1]}
+              $push: { $trunc: ["$bdtime", 1] },
             },
           },
         },
@@ -8297,6 +8297,10 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
       // },
 
       {
+        $sort: { subSection_name: 1 },
+      },
+
+      {
         $project: {
           _id: 0,
           label: "$subSection_name",
@@ -8414,6 +8418,10 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
       {
         $unwind: "$section_data",
       },
+
+      {
+        $sort: { section_name: 1 },
+      },
       {
         $project: {
           _id: 0,
@@ -8528,8 +8536,6 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
 const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
   try {
-
-
     const bdTrendData = await Cell.aggregate([
       {
         $match: {
@@ -8639,6 +8645,10 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
           ],
           as: "cell_data",
         },
+      },
+
+      {
+        $sort: { cell_name: 1 },
       },
 
       {
@@ -8869,7 +8879,9 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       // {
       //   $unwind: "$line_data",
       // },
-
+      {
+        $sort: { line_name: 1 },
+      },
       {
         $project: {
           _id: 0,
@@ -9092,6 +9104,10 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       // {
       //   $unwind: "$line_data",
       // },
+
+      {
+        $sort: { machine_name: 1 },
+      },
 
       {
         $project: {
@@ -9914,7 +9930,7 @@ router.get(
                     $eq: ["$$subsection", "$subSectionRef"],
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-                  req.query.selectedYear,
+                    req.query.selectedYear,
                 },
               },
               {
@@ -10005,6 +10021,10 @@ router.get(
         // {
         //   $unwind: "$section_data",
         // },
+
+        {
+          $sort: { subSection_name: 1 },
+        },
         {
           $project: {
             _id: 0,
@@ -10035,7 +10055,7 @@ router.get(
                     $eq: ["$$section", "$sectionRef"],
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-                  req.query.selectedYear,
+                    req.query.selectedYear,
                 },
               },
 
@@ -10127,6 +10147,10 @@ router.get(
         // {
         //   $unwind: "$section_data",
         // },
+
+        {
+          $sort: { section_name: 1 },
+        },
         {
           $project: {
             _id: 0,
@@ -10294,7 +10318,7 @@ router.get(
                     $eq: ["$$cell", "$cellRef"],
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-                  req.query.selectedYear,
+                    req.query.selectedYear,
                 },
               },
 
@@ -10384,6 +10408,10 @@ router.get(
         // {
         //   $unwind: "$cell_data",
         // },
+
+        {
+          $sort: { cell_name: 1 },
+        },
 
         {
           $project: {
@@ -10580,6 +10608,10 @@ router.get(
         // {
         //   $unwind: "$section_data",
         // },
+
+        {
+          $sort: { subSection_name: 1 },
+        },
         {
           $project: {
             _id: 0,
@@ -10708,6 +10740,10 @@ router.get(
         // {
         //   $unwind: "$section_data",
         // },
+
+        {
+          $sort: { section_name: 1 },
+        },
         {
           $project: {
             _id: 0,
@@ -10866,6 +10902,10 @@ router.get(
         // {
         //   $unwind: "$cell_data",
         // },
+
+        {
+          $sort: { cell_name: 1 },
+        },
 
         {
           $project: {
@@ -13039,15 +13079,30 @@ router.get(
                 $map: {
                   input: {
                     $filter: {
-                      input: { $reverseArray: "$section_data.yearGroup" },
+                      input: "$section_data.yearGroup",
                       as: "group",
                       cond: {
-                        $and: [
-                          { $gte: ["$yearDifference", "$$group.from"] },
+                        $or: [
                           {
-                            $or: [
-                              { $eq: ["$$group.to", 1.7976931348623157e308] },
-                              { $lte: ["$yearDifference", "$$group.to"] },
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  { $eq: ["$$group.to", null] },
+                                  // { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  // { $eq: ["$$group.to", null] },
+                                  { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
                             ],
                           },
                         ],
@@ -13214,15 +13269,30 @@ router.get(
                 $map: {
                   input: {
                     $filter: {
-                      input: { $reverseArray: "$section_data.yearGroup" },
+                      input: "$section_data.yearGroup",
                       as: "group",
                       cond: {
-                        $and: [
-                          { $gte: ["$yearDifference", "$$group.from"] },
+                        $or: [
                           {
-                            $or: [
-                              { $eq: ["$$group.to", 1.7976931348623157e308] },
-                              { $lte: ["$yearDifference", "$$group.to"] },
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  { $eq: ["$$group.to", null] },
+                                  // { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  // { $eq: ["$$group.to", null] },
+                                  { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
                             ],
                           },
                         ],
@@ -13344,15 +13414,30 @@ router.get(
                 $map: {
                   input: {
                     $filter: {
-                      input: { $reverseArray: "$section_data.yearGroup" },
+                      input: "$section_data.yearGroup",
                       as: "group",
                       cond: {
-                        $and: [
-                          { $gte: ["$yearDifference", "$$group.from"] },
+                        $or: [
                           {
-                            $or: [
-                              { $eq: ["$$group.to", 1.7976931348623157e308] },
-                              { $lte: ["$yearDifference", "$$group.to"] },
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  { $eq: ["$$group.to", null] },
+                                  // { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  // { $eq: ["$$group.to", null] },
+                                  { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
                             ],
                           },
                         ],
@@ -13436,7 +13521,7 @@ router.get(
             $push: "$count",
           },
           bdTime: {
-            $push: { $trunc : ["$bdtime",1]}
+            $push: { $trunc: ["$bdtime", 1] },
           },
         },
       },
@@ -13557,7 +13642,7 @@ router.get(
           $group: {
             _id: null,
             labels: { $push: "$_id" },
-            data: { $push: "$machine_hours" },
+            data: { $push: { $trunc: ["$machine_hours", 1] } },
           },
         },
       ]);
@@ -18441,9 +18526,9 @@ router.get(
         BdTrendAndLastFiveProblem: {
           breakdownTrendData: req.BDHours?.[0],
           lastFiveProblem,
-        }, 
-      });    
-    } catch (error) {  
+        },
+      });
+    } catch (error) {
       res.status(500).json({ message: error?.message, error });
     }
   }
