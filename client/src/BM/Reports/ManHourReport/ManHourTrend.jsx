@@ -14,6 +14,8 @@ import { Box } from "@mui/material";
 import { chartColors, MONTH_LABELS } from "../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "../Common/DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 
 ChartJS.register(
   CategoryScale,
@@ -26,6 +28,8 @@ ChartJS.register(
 );
 
 export const options = {
+  responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
       align: "end",
@@ -37,7 +41,6 @@ export const options = {
       display: false,
     },
   },
-  responsive: true,
   scales: {
     x: {
       stacked: true,
@@ -130,14 +133,21 @@ const ManHourTrend = ({
     ],
   };
 
+  let isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="Man-Hour Trend" />
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Bar options={options} data={data} />
-      )}
+
+      <Box sx={{ height: { xs: "250px", md: "300px" } }}>
+        {loading ? (
+          <Loading />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Bar options={options} data={data} />
+        )}
+      </Box>
     </Box>
   );
 };

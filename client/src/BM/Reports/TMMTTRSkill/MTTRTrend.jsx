@@ -18,6 +18,7 @@ import ChartTitleBar from "../Common/ChartTitleBar";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
 import Loading from "../../../components/Loading/Loading";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 
 ChartJS.register(
   CategoryScale,
@@ -105,21 +106,21 @@ const TMLoad = ({ tm_names, data, loading = false }) => {
   //   return <Chart options={options} data={data} />;
   // };
 
+  const isDataExists = isChartDataExist(chartData);
+
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="MTTR Trend" />
 
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-          {data?.length <= 0 ? (
-            <DataNotFound />
-          ) : (
-            <Chart options={options} data={chartData} />
-          )}
-        </Box>
-      )}
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart options={options} data={chartData} />
+        )}
+      </Box>
     </Box>
   );
 };

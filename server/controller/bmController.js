@@ -383,9 +383,10 @@ router.post(
               requestSheetDataFilledByMTDUser?.partQualityCheckedByMTD,
             partQualityCheckedByPRD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
-            requestSheetStatus: 
-            requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
-                ? getRequestSheetData?.requestSheetStatus : "Fill Sheet",
+            requestSheetStatus:
+              requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
+                ? getRequestSheetData?.requestSheetStatus
+                : "Fill Sheet",
             // (
             //   requestSheetDataFilledByMTDUser?.validateValueForSubmitDataWhileSendingApproval
             //     ? getRequestSheetData?.requestSheetStatus
@@ -6971,7 +6972,7 @@ router.get(
               $push: "$count",
             },
             bdTime: {
-              $push: "$bdtime",
+              $push: { $trunc: ["$bdtime", 1] },
             },
           },
         },
@@ -8296,6 +8297,10 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
       // },
 
       {
+        $sort: { subSection_name: 1 },
+      },
+
+      {
         $project: {
           _id: 0,
           label: "$subSection_name",
@@ -8413,6 +8418,10 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
       {
         $unwind: "$section_data",
       },
+
+      {
+        $sort: { section_name: 1 },
+      },
       {
         $project: {
           _id: 0,
@@ -8518,7 +8527,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
       bdTrendData,
       bdTrendDataTarget: req.target,
-      averageData,
+      averageData: averageData?.[0].data,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -8550,7 +8559,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                   $eq: ["$$cell", "$cellRef"],
                 },
                 "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-                  req.query.selectedYear,
+                  req?.query?.selectedYear,
               },
             },
 
@@ -8636,6 +8645,10 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
           ],
           as: "cell_data",
         },
+      },
+
+      {
+        $sort: { cell_name: 1 },
       },
 
       {
@@ -8817,7 +8830,8 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 lineWiseTotal: {
                   $push: {
                     month: "$_id.date",
-                    bdTimeSum: req.mttrOrSumFormula,
+                    // bdTimeSum: req.mttrOrSumFormula,
+                    bdTimeSum: { $trunc: [req.mttrOrSumFormula, 1] },
                   },
                 },
               },
@@ -8865,7 +8879,9 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       // {
       //   $unwind: "$line_data",
       // },
-
+      {
+        $sort: { line_name: 1 },
+      },
       {
         $project: {
           _id: 0,
@@ -9088,6 +9104,10 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       // {
       //   $unwind: "$line_data",
       // },
+
+      {
+        $sort: { machine_name: 1 },
+      },
 
       {
         $project: {
@@ -9909,6 +9929,8 @@ router.get(
                   $expr: {
                     $eq: ["$$subsection", "$subSectionRef"],
                   },
+                  "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                    req.query.selectedYear,
                 },
               },
               {
@@ -9999,6 +10021,10 @@ router.get(
         // {
         //   $unwind: "$section_data",
         // },
+
+        {
+          $sort: { subSection_name: 1 },
+        },
         {
           $project: {
             _id: 0,
@@ -10028,6 +10054,8 @@ router.get(
                   $expr: {
                     $eq: ["$$section", "$sectionRef"],
                   },
+                  "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                    req.query.selectedYear,
                 },
               },
 
@@ -10119,6 +10147,10 @@ router.get(
         // {
         //   $unwind: "$section_data",
         // },
+
+        {
+          $sort: { section_name: 1 },
+        },
         {
           $project: {
             _id: 0,
@@ -10285,6 +10317,8 @@ router.get(
                   $expr: {
                     $eq: ["$$cell", "$cellRef"],
                   },
+                  "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                    req.query.selectedYear,
                 },
               },
 
@@ -10374,6 +10408,10 @@ router.get(
         // {
         //   $unwind: "$cell_data",
         // },
+
+        {
+          $sort: { cell_name: 1 },
+        },
 
         {
           $project: {
@@ -10570,6 +10608,10 @@ router.get(
         // {
         //   $unwind: "$section_data",
         // },
+
+        {
+          $sort: { subSection_name: 1 },
+        },
         {
           $project: {
             _id: 0,
@@ -10698,6 +10740,10 @@ router.get(
         // {
         //   $unwind: "$section_data",
         // },
+
+        {
+          $sort: { section_name: 1 },
+        },
         {
           $project: {
             _id: 0,
@@ -10856,6 +10902,10 @@ router.get(
         // {
         //   $unwind: "$cell_data",
         // },
+
+        {
+          $sort: { cell_name: 1 },
+        },
 
         {
           $project: {
@@ -12572,7 +12622,13 @@ const altfindTLandOperatorList = async (req, res, next) => {
         tm_no: { $ne: req?.rootUser?.tm_no },
         $and: [
           {
-            user_type: "Operator",
+            $or: [
+              {
+                $and: [{ user_type: "TL/HOSS" }, { tm_department: "MTD" }],
+              },
+
+              { user_type: "Operator" },
+            ],
           },
           // {
           //         tm_department: "MTD",
@@ -12596,18 +12652,6 @@ const altfindTLandOperatorList = async (req, res, next) => {
               },
             ],
           },
-
-          // {
-          //   $and: [
-          //     {
-          //       user_type: "TL/HOSS",
-          //
-          //     },
-          //     {
-          //       tm_department: "MTD",
-          //     },
-          //   ],
-          // },
         ],
       },
       // ],
@@ -13038,9 +13082,29 @@ router.get(
                       input: "$section_data.yearGroup",
                       as: "group",
                       cond: {
-                        $and: [
-                          { $gte: ["$yearDifference", "$$group.from"] },
-                          { $lte: ["$yearDifference", "$$group.to"] },
+                        $or: [
+                          {
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  { $eq: ["$$group.to", null] },
+                                  // { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  // { $eq: ["$$group.to", null] },
+                                  { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
+                            ],
+                          },
                         ],
                       },
                     },
@@ -13055,89 +13119,89 @@ router.get(
         },
       },
 
-      // {
-      //   $match: {
-      //     groupName: { $exists: true, $ne: null },
-      //   },
-      // },
+      {
+        $match: {
+          groupName: { $exists: true, $ne: null },
+        },
+      },
 
-      // {
-      //   $group: {
-      //     _id: {
-      //       groupName: "$groupName",
-      //       date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-      //     },
+      {
+        $group: {
+          _id: {
+            groupName: "$groupName",
+            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+          },
 
-      //     bdHoursmachineWise: {
-      //       $sum: {
-      //         $cond: [
-      //           {
-      //             $gt: [
-      //               "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-      //               null,
-      //             ],
-      //           },
-      //           {
-      //             $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-      //           },
-      //           0,
-      //         ],
-      //       },
-      //     },
-      //   },
-      // },
+          bdHoursmachineWise: {
+            $sum: {
+              $cond: [
+                {
+                  $gt: [
+                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                    null,
+                  ],
+                },
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+                },
+                0,
+              ],
+            },
+          },
+        },
+      },
 
-      // {
-      //   $group: {
-      //     _id: "$_id.groupName",
-      //     label: { $first: "$_id.groupName" },
-      //     bdHoursmachineWiseTotal: {
-      //       $push: {
-      //         month: "$_id.date",
-      //         bdTimeSum: { $trunc: ["$bdHoursmachineWise", 1] },
-      //       },
-      //     },
-      //   },
-      // },
+      {
+        $group: {
+          _id: "$_id.groupName",
+          label: { $first: "$_id.groupName" },
+          bdHoursmachineWiseTotal: {
+            $push: {
+              month: "$_id.date",
+              bdTimeSum: { $trunc: ["$bdHoursmachineWise", 1] },
+            },
+          },
+        },
+      },
 
-      // {
-      //   $sort: { _id: 1 },
-      // },
+      {
+        $sort: { _id: 1 },
+      },
 
-      // {
-      //   $project: {
-      //     _id: 1,
-      //     label: 1,
-      //     data: {
-      //       $map: {
-      //         input: allMonths,
-      //         as: "month",
-      //         in: {
-      //           $cond: [
-      //             {
-      //               $in: [
-      //                 "$$month.monthName",
-      //                 "$bdHoursmachineWiseTotal.month",
-      //               ],
-      //             },
-      //             {
-      //               $arrayElemAt: [
-      //                 "$bdHoursmachineWiseTotal.bdTimeSum",
-      //                 {
-      //                   $indexOfArray: [
-      //                     "$bdHoursmachineWiseTotal.month",
-      //                     "$$month.monthName",
-      //                   ],
-      //                 },
-      //               ],
-      //             },
-      //             0,
-      //           ],
-      //         },
-      //       },
-      //     },
-      //   },
-      // },
+      {
+        $project: {
+          _id: 1,
+          label: 1,
+          data: {
+            $map: {
+              input: allMonths,
+              as: "month",
+              in: {
+                $cond: [
+                  {
+                    $in: [
+                      "$$month.monthName",
+                      "$bdHoursmachineWiseTotal.month",
+                    ],
+                  },
+                  {
+                    $arrayElemAt: [
+                      "$bdHoursmachineWiseTotal.bdTimeSum",
+                      {
+                        $indexOfArray: [
+                          "$bdHoursmachineWiseTotal.month",
+                          "$$month.monthName",
+                        ],
+                      },
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      },
     ]);
 
     // console.log(machineData);
@@ -13208,9 +13272,29 @@ router.get(
                       input: "$section_data.yearGroup",
                       as: "group",
                       cond: {
-                        $and: [
-                          { $gte: ["$yearDifference", "$$group.from"] },
-                          { $lte: ["$yearDifference", "$$group.to"] },
+                        $or: [
+                          {
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  { $eq: ["$$group.to", null] },
+                                  // { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  // { $eq: ["$$group.to", null] },
+                                  { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
+                            ],
+                          },
                         ],
                       },
                     },
@@ -13333,9 +13417,29 @@ router.get(
                       input: "$section_data.yearGroup",
                       as: "group",
                       cond: {
-                        $and: [
-                          { $gte: ["$yearDifference", "$$group.from"] },
-                          { $lte: ["$yearDifference", "$$group.to"] },
+                        $or: [
+                          {
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  { $eq: ["$$group.to", null] },
+                                  // { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  // { $eq: ["$$group.to", null] },
+                                  { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
+                            ],
+                          },
                         ],
                       },
                     },
@@ -13417,7 +13521,7 @@ router.get(
             $push: "$count",
           },
           bdTime: {
-            $push: "$bdtime",
+            $push: { $trunc: ["$bdtime", 1] },
           },
         },
       },
@@ -13538,7 +13642,7 @@ router.get(
           $group: {
             _id: null,
             labels: { $push: "$_id" },
-            data: { $push: "$machine_hours" },
+            data: { $push: { $trunc: ["$machine_hours", 1] } },
           },
         },
       ]);
@@ -14390,7 +14494,7 @@ router.patch(
                   ?.departmentAndGradeOfUser
               ) + 1
             ];
-            ListOfCCEmailOfOtherHigherAuthority = majorListForTheApprovalOfPlant
+          ListOfCCEmailOfOtherHigherAuthority = majorListForTheApprovalOfPlant
             .filter((value) => {
               if (
                 value !==

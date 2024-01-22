@@ -16,6 +16,9 @@ import { Box } from "@mui/material";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { barDatalabels } from "../../../Utils/ChartUtils/chartOptions";
 import { chartColors } from "../../../Utils/ChartUtils/chartEnums";
+import DataNotFound from "../../Common/DataNotFound";
+import Loading from "../../../../components/Loading/Loading";
+import { isChartDataExist } from "../../../Utils/functions/isChartDataExist";
 
 const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
   ChartJS.register(
@@ -129,14 +132,23 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
       })),
     ],
   };
+
+  console.log("data:", data);
+
+  const isDataExists = isChartDataExist(data);
+
   return (
     <Box sx={{ height: { xs: "300px", md: "350px" }, mt: 1 }}>
-      <Chart
-        type="bar"
-        data={data}
-        options={options}
-        plugins={[ChartDataLabels]}
-      />
+      {!isDataExists ? (
+        <DataNotFound />
+      ) : (
+        <Chart
+          type="bar"
+          data={data}
+          options={options}
+          plugins={[ChartDataLabels]}
+        />
+      )}
     </Box>
   );
 };

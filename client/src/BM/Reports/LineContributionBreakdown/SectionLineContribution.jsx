@@ -163,6 +163,8 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
   };
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
+  const noData = data === undefined || Object.keys(data).length === 0;
+
   return (
     <Box className="cell p-3">
       <ChartTitleBar title="Section Contribution" Toolbar={null} />
@@ -179,21 +181,19 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
         />
       </Row>
 
-      {loading ? (
-        <Loading height={200} sx={{ mt: 2 }} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "400px" } }}>
-          {data === undefined || Object.keys(data).length === 0 ? (
-            <DataNotFound sx={{ mt: 2 }} />
-          ) : (
-            <Chart
-              options={options}
-              data={chartData}
-              plugins={[ChartDataLabels]}
-            />
-          )}
-        </Box>
-      )}
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : noData ? (
+          <DataNotFound sx={{ mt: 2 }} />
+        ) : (
+          <Chart
+            options={options}
+            data={chartData}
+            plugins={[ChartDataLabels]}
+          />
+        )}
+      </Box>
     </Box>
   );
 };

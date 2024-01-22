@@ -19,6 +19,8 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 
 import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "../Common/DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 
 ChartJS.register(
   CategoryScale,
@@ -153,6 +155,7 @@ const DailyBDTrendChart = ({
   };
 
   useEffect(() => {
+    setLoading(false);
     if (
       selectedValue
       // &&
@@ -213,6 +216,7 @@ const DailyBDTrendChart = ({
     labels: dailyBreakdownTrendData?.labels,
     datasets,
   };
+  const isDataExists = isChartDataExist(data);
 
   return (
     <Box className="cell p-3 mt-3 mb-0">
@@ -228,13 +232,35 @@ const DailyBDTrendChart = ({
         }
       />
 
-      <div style={{ width: "100%", height: "300px" }}>
+      {/* <div style={{ width: "100%", height: "300px" }}>
         {loading ? (
           <Loading />
         ) : (
           <Chart data={data} options={options} plugins={[ChartDataLabels]} />
         )}
-      </div>
+      </div> */}
+
+      {/* {loading ? (
+        <Loading height={300} />
+      ) : (
+        <Box sx={{ height: { xs: "300px", md: "400px" } }}>
+          {data === undefined || Object.keys(data).length === 0 ? (
+            <DataNotFound />
+          ) : (
+            <Chart data={data} options={options} plugins={[ChartDataLabels]} />
+          )}
+        </Box>
+      )} */}
+
+      <Box sx={{ height: { xs: "250px", md: "300px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart data={data} options={options} plugins={[ChartDataLabels]} />
+        )}
+      </Box>
     </Box>
   );
 };

@@ -8,6 +8,8 @@ const LineBarChartForProductionLineWise = ({
   xAxisVerticleTicks,
 }) => {
   const options = {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         align: "end",
@@ -21,7 +23,6 @@ const LineBarChartForProductionLineWise = ({
       },
       datalabels: barDatalabels,
     },
-    responsive: true,
     interaction: {
       mode: "index",
       intersect: false,
@@ -78,7 +79,14 @@ const LineBarChartForProductionLineWise = ({
       },
     ],
   };
-  return <Chart type="bar" data={data} options={options} plugins={[ChartDataLabels]}/>;
+  return (
+    <Chart
+      type="bar"
+      data={data}
+      options={options}
+      plugins={[ChartDataLabels]}
+    />
+  );
 };
 
 export default LineBarChartForProductionLineWise;

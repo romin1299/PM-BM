@@ -3,6 +3,8 @@ import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductio
 
 import SmallChartCardComponent from "./SmallChartCardComponent";
 import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "../Common/DataNotFound";
+import { Box } from "@mui/material";
 
 const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   const [loading, setLoading] = React.useState(true);
@@ -78,13 +80,21 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     }
   }, [selectedValue, selectedYear]);
 
+  let isDataExists = reduceState?.BDHours?.data?.length > 0 || false;
+
   return (
     <SmallChartCardComponent title="BD Hours">
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <LineBarChartForProductionLineWise ReportData={reduceState?.BDHours} />
-      )}
+      <Box sx={{ height: { xs: "200px" } }}>
+        {loading ? (
+          <Loading />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <LineBarChartForProductionLineWise
+            ReportData={reduceState?.BDHours}
+          />
+        )}
+      </Box>
     </SmallChartCardComponent>
   );
 };

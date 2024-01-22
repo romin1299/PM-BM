@@ -19,6 +19,7 @@ import ChartTitleBar from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
 import Loading from "../../../components/Loading/Loading";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 
 ChartJS.register(
   CategoryScale,
@@ -164,6 +165,7 @@ const YearlyTrendChart = ({
   }, [flagForTogglingFilter, selectedValue, filter, selectedYear]);
 
   // console.log('chartData:', chartData)
+  const isDataExists = isChartDataExist(chartData);
 
   return (
     <Box className="cell p-3">
@@ -174,22 +176,20 @@ const YearlyTrendChart = ({
         // }}
       />
 
-      {loading ? (
-        <Loading g height={200} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-          {chartData === undefined || chartData?.datasets?.length < 1 ? (
-            <DataNotFound />
-          ) : (
-            <Chart
-              type="bar"
-              options={options}
-              data={chartData}
-              plugins={[ChartDataLabels]}
-            />
-          )}
-        </Box>
-      )}
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart
+            type="bar"
+            options={options}
+            data={chartData}
+            plugins={[ChartDataLabels]}
+          />
+        )}
+      </Box>
     </Box>
   );
 };

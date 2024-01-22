@@ -170,8 +170,14 @@ export const menuItems = [
     allowedRoles: allusers,
   },
   {
-    title: "Profile",
+    title: "Master Log",
+    icon: <LibraryBooksIcon className="text-white" />,
+    route: "/master-log",
+    allowedRoles: allusers,
+  },
+  {
     icon: <AccountCircleIcon className="text-white" />,
+    title: "Profile",
     route: "/profile",
     allowedRoles: allusers,
   },
