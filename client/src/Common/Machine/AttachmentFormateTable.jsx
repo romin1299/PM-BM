@@ -180,7 +180,8 @@ const AttachmentFormateTable = () => {
           >
             <a
               target="_blank"
-              href={`http://localhost:7000/${pageDetails?.schemaVar}/${image}`}
+              // href={`http://localhost:7000/${pageDetails?.schemaVar}/${image}`}
+              href={`http://52.66.210.221:7000/${pageDetails?.schemaVar}/${image}`}
               style={{
                 width: "100%",
                 display: "flex",
