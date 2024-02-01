@@ -29,7 +29,7 @@ const fetchMonthlyBDChartData = async (urlOptions) => {
           data: data?.map((item, index) => ({
             name: item?.label || item?._id,
             labels: MONTH_LABELS,
-            values: item?.data,
+            values: item?.data.replaceZeroWithNull(),
           })),
           options: {
             chartColors: ["2f79bf", "bbd0e5", "2693ff", "ffcd38", "ff7b64"],

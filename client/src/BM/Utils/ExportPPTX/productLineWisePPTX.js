@@ -121,7 +121,7 @@ function convertResData(pptx, data) {
         {
           name: "BD Hours",
           labels: data?.labels,
-          values: data?.data,
+          values: data?.data.replaceZeroWithNull(),
         },
       ],
       options: {

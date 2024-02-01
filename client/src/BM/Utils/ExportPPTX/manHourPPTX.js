@@ -1,5 +1,10 @@
 import { MONTH_LABELS } from "../ChartUtils/chartEnums";
-import { commonPptOptions, genSlideTitle, genSlideTitleFilterNames, genSlideTitleYearFilters } from "./exportPPTXOptions";
+import {
+  commonPptOptions,
+  genSlideTitle,
+  genSlideTitleFilterNames,
+  genSlideTitleYearFilters,
+} from "./exportPPTXOptions";
 import axios from "axios";
 
 export async function generateManHourPpt(pptx, urlOptions) {
@@ -32,12 +37,12 @@ const fetchHourTrendData = async (urlOptions) => {
         {
           name: "BM",
           labels: MONTH_LABELS,
-          values: data?.BMHourTrend,
+          values: data?.BMHourTrend.replaceZeroWithNull(),
         },
         {
           name: "PM",
           labels: MONTH_LABELS,
-          values: data?.PMHourTrend,
+          values: data?.PMHourTrend.replaceZeroWithNull(),
         },
       ];
     }
@@ -68,12 +73,12 @@ const fetchManHourTrendData = async (urlOptions) => {
         {
           name: "BM",
           labels: MONTH_LABELS,
-          values: data?.BMManHourTrend,
+          values: data?.BMManHourTrend.replaceZeroWithNull(),
         },
         {
           name: "PM",
           labels: MONTH_LABELS,
-          values: data?.PMManHourTrend,
+          values: data?.PMManHourTrend.replaceZeroWithNull(),
         },
       ];
     }
@@ -222,12 +227,12 @@ async function genSlide02(pptx, urlOptions) {
         {
           name: "BM",
           labels: data?.lines,
-          values: data?.totalSumOf_BM,
+          values: data?.totalSumOf_BM.replaceZeroWithNull(),
         },
         {
           name: "PM",
           labels: data?.lines,
-          values: data?.totalSumOf_PM,
+          values: data?.totalSumOf_PM.replaceZeroWithNull(),
         },
       ],
       options: {
@@ -240,7 +245,7 @@ async function genSlide02(pptx, urlOptions) {
         {
           name: "Counts",
           labels: data?.lines,
-          values: data?.percentage,
+          values: data?.percentage.replaceZeroWithNull(),
         },
       ],
       options: {
@@ -294,12 +299,12 @@ async function genSlide02(pptx, urlOptions) {
         {
           name: "BM",
           labels: data02?.tm_names,
-          values: data02?.totalSumOf_BM,
+          values: data02?.totalSumOf_BM.replaceZeroWithNull(),
         },
         {
           name: "PM",
           labels: data02?.tm_names,
-          values: data02?.totalSumOf_PM,
+          values: data02?.totalSumOf_PM.replaceZeroWithNull(),
         },
       ],
       options: {
@@ -312,7 +317,7 @@ async function genSlide02(pptx, urlOptions) {
         {
           name: "Percentage",
           labels: data02?.tm_names,
-          values: data02?.percentage,
+          values: data02?.percentage.replaceZeroWithNull(),
         },
       ],
       options: {

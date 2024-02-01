@@ -213,7 +213,7 @@ const fetchYearlyBDChartData = async (urlOptions) => {
           data: data?.map((item, index) => ({
             name: item?.label || item?._id,
             labels: labels,
-            values: item?.data,
+            values: item?.data.replaceZeroWithNull(),
           })),
           options: {
             chartColors: ["2f79bf", "bbd0e5", "2693ff", "ffcd38", "ff7b64"],
@@ -269,7 +269,7 @@ const fetchSectionNosData = async (urlOptions) => {
     "Mar-24",
   ];
 
-  console.log('currentTabViewName:', currentTabViewName)
+  console.log("currentTabViewName:", currentTabViewName);
   const url = `/majorBDCount${
     currentTabViewName === "Section" ? "ForSection" : ""
   }/${flagForTogglingFilter}/${selectedValue}`;
@@ -295,7 +295,7 @@ const fetchSectionNosData = async (urlOptions) => {
           data: data?.map((item, index) => ({
             name: item?.label || item?._id,
             labels: labels,
-            values: item?.data,
+            values: item?.data.replaceZeroWithNull(),
           })),
 
           options: {
