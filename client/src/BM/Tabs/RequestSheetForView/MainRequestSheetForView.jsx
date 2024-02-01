@@ -82,8 +82,8 @@ function MyTable() {
   }, [requestSheetID]);
 
   return (
-    <>
-      <div>
+    <div className="p-2">
+      <div id="request-sheet-target" className="border border-dark">
         <PRDRequestSheetForUpdate
           // selectedMachineDetails={selectedMachineDetails}
           machineId={selectedMachineDetails?._id}
@@ -99,7 +99,7 @@ function MyTable() {
           supportingTMList={supportingTMList}
         />
       </div>
-    </>
+    </div>
   );
 }
 

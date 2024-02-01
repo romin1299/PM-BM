@@ -664,7 +664,7 @@ const RequestSheetMainDashboard = () => {
               fontWeight={600}
               // sx={{ mr: 3 }}
             >
-              Request-Sheet Work Order
+              Request-Sheet Dashboard
             </Typography>
           </Col>
           <Col md={{ span: 4, offset: 4 }}>
@@ -739,7 +739,7 @@ const RequestSheetMainDashboard = () => {
                   : "d-none"
               }
             >
-              <AddCircleIcon /> &nbsp; Generate New Request-Sheet
+              <AddCircleIcon /> &nbsp; Generate Request-Sheet
             </button>
           </Col>
           <Col className="col-auto">

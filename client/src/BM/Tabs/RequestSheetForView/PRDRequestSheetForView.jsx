@@ -2,7 +2,7 @@
 // import Table from "react-bootstrap/Table";
 import React, { useState, useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Row, Col, Form } from "react-bootstrap";
+import { Row, Col, Form, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
 import Radio from "@mui/material/Radio";
@@ -10,7 +10,9 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
-import { Box } from "@mui/material";
+import { Box, Button, IconButton, Tooltip } from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
@@ -19,6 +21,9 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import MachineStatusBox from "../SubComponents/MachineStatusBox";
+
+import { denso_logo } from "../../../modules/LoginModules";
+import { exportPDF } from "../../Utils/exportPDF/exportPDF";
 
 function MyTable({ requestSheetDataOfBM, machineId }) {
   // let [searchParams] = useSearchParams();
@@ -152,47 +157,119 @@ function MyTable({ requestSheetDataOfBM, machineId }) {
     <>
       <ToastContainer />
 
-      <form className="p-2" onSubmit={() => {}}>
-        <Table className="mt-3">
+      <form className="" onSubmit={() => {}}>
+        <Table className="">
           <tbody className="m-1 border p-3">
             <tr className="row m-2">
               <td className="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
-                <Row>
-                  <Col className="col-auto">
-                    <button className="btn bg-button m-2" onClick={handleBack}>
-                      Back
-                    </button>
-                    <button
-                      className="btn bg-button m-2"
-                      onClick={() => {
-                        navigate(
-                          `/machine-history/${machine_code}/?machineId=${machineId}`
-                        );
-                      }}
+                <Container fluid>
+                  <Row>
+                    <Col
+                      id="rs-denso-logo"
+                      className="col-auto"
+                      style={{ display: "none" }}
                     >
-                      Machine History
-                    </button>
-                  </Col>
-                  <Col className="d-flex align-items-center justify-content-center text-center">
-                    <h4>MAINTENANCE WORK REQUEST/REPORT</h4>
-                  </Col>
-                  <Col className="col-sm col-lg-auto">
-                    <Box
-                      display="flex"
-                      justifyContent="end"
-                      gap={1}
-                      // sx={{ position: "absolute", top: "10px", right: "20px" }}
+                      <div
+                        variant="pills"
+                        className="px-2 ps-4"
+                        style={{
+                          background: "#ffffff",
+                          display: "flex",
+                          alignItems: "center",
+                          // justifyContent: "center",
+                          height: "100%",
+                        }}
+                      >
+                        <img
+                          src={denso_logo}
+                          alt=""
+                          className="bg-white"
+                          style={{ width: "100px", background: "#ffffff" }}
+                        />
+                      </div>
+                    </Col>
+
+                    <Col
+                      id="rs-top-btns"
+                      data-html2canvas-ignore="true"
+                      className="col-auto d-flex gap-2 align-items-center"
                     >
-                      <MachineStatusBox
-                        title="PM Status"
-                        bodyText1="Completed"
-                        bodyText2="(13/10/2023)"
-                      />
-                      <MachineStatusBox title="BM" bodyText1="170 hrs/5 Nos" />
-                      <MachineStatusBox title="CM" />
-                    </Box>
-                  </Col>
-                </Row>
+                      <button className="btn bg-button" onClick={handleBack}>
+                        Back
+                      </button>
+
+                      {/* <Tooltip title="Download Request Sheet" disableInteractive>
+                      <IconButton
+                        variant="contained"
+                        disableElevation
+                        onClick={handleBack}
+                      >
+                        <ArrowBackIcon />
+                      </IconButton>
+                    </Tooltip> */}
+
+                      <button
+                        className="btn bg-button"
+                        onClick={() => {
+                          navigate(
+                            `/machine-history/${machine_code}/?machineId=${machineId}`
+                          );
+                        }}
+                      >
+                        Machine History
+                      </button>
+
+                      <Tooltip
+                        title="Download Request Sheet"
+                        disableInteractive
+                      >
+                        <Button
+                          variant="contained"
+                          disableElevation
+                          className="bg-button px-2"
+                          style={{ minWidth: "42px" }}
+                          onClick={() => {
+                            exportPDF(
+                              "request-sheet-target",
+                              requestSheetDataOfBM?.requestSheetNoOfBM,
+                              (document) => {
+                                document.getElementById(
+                                  "rs-denso-logo"
+                                ).style.display = "block";
+                              }
+                            );
+                          }}
+                        >
+                          <DownloadIcon />
+                        </Button>
+                      </Tooltip>
+                    </Col>
+
+                    <Col className="d-flex align-items-center justify-content-center text-center">
+                      <h4>MAINTENANCE WORK REQUEST/REPORT</h4>
+                    </Col>
+
+                    <Col className="col-sm col-lg-auto">
+                      <Box
+                        display="flex"
+                        justifyContent="end"
+                        gap={1}
+                        // sx={{ position: "absolute", top: "10px", right: "20px" }}
+                      >
+                        <MachineStatusBox
+                          title="PM Status"
+                          bodyText1="Completed"
+                          bodyText2="(13/10/2023)"
+                        />
+                        <MachineStatusBox
+                          title="BM"
+                          bodyText1="170 hrs/5 Nos"
+                        />
+                        <MachineStatusBox title="CM" />
+                      </Box>
+                    </Col>
+                  </Row>
+                </Container>
               </td>
             </tr>
 
