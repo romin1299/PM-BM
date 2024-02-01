@@ -120,7 +120,7 @@ const BDCategoryAndFactor = ({
   };
 
   useEffect(() => {
-    if (selectedValue) {
+    if (selectedValue && flagForTogglingFilter === "based-on-machine") {
       BDCategoryAndFactor();
     }
   }, [selectedValue, selectedYear, selectedMonth]);

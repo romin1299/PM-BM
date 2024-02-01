@@ -170,7 +170,7 @@ function BM_Routes({ commonRoutes }) {
           element: <RequestSheetUpdate />,
         },
         {
-          path: "/bm/view/request-sheet/:machine_code/:requestSheetID",
+          path: "/bm/view/request-sheet/:machine_code/:requestSheetID/:selectedYear",
           element: <RequestSheetView />,
         },
         {
@@ -233,7 +233,7 @@ function BM_Routes({ commonRoutes }) {
           element: <RequestSheetUpdate />,
         },
         {
-          path: "/bm/view/request-sheet/:machine_code/:requestSheetID",
+          path: "/bm/view/request-sheet/:machine_code/:requestSheetID/:selectedYear",
           element: <RequestSheetView />,
         },
         {
@@ -297,7 +297,7 @@ function BM_Routes({ commonRoutes }) {
           element: <RequestSheetUpdate />,
         },
         {
-          path: "/bm/view/request-sheet/:machine_code/:requestSheetID",
+          path: "/bm/view/request-sheet/:machine_code/:requestSheetID/:selectedYear",
           element: <RequestSheetView />,
         },
         {
@@ -360,7 +360,7 @@ function BM_Routes({ commonRoutes }) {
           element: <RequestSheetUpdate />,
         },
         {
-          path: "/bm/view/request-sheet/:machine_code/:requestSheetID",
+          path: "/bm/view/request-sheet/:machine_code/:requestSheetID/:selectedYear",
           element: <RequestSheetView />,
         },
         // {

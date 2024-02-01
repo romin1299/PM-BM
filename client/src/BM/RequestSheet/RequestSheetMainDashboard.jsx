@@ -621,7 +621,7 @@ const RequestSheetMainDashboard = () => {
       position: "row",
       onClick: (event, selectedRow) => {
         navigate(
-          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
+          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`,
           {
             state: {
               prevPath: location?.pathname,
@@ -789,6 +789,10 @@ const RequestSheetMainDashboard = () => {
                 //     }, 500);
                 //     //refreshPage();
                 //   }),
+
+                isDeleteHidden: (rowData) =>
+                  (context?.userType !== "TL/HOSS" &&
+                  context?.tm_department !== "MTD"),
 
                 onRowDelete: (selectedRow) =>
                   new Promise(async (resolve, reject) => {

@@ -2129,7 +2129,8 @@ function MyTable({
                         </Typography>
                         <Button
                           target="_blank"
-                          href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
+                          // href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
+                          href={`http://52.66.210.221:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
                           disableElevation
                           size="small"
                           variant="contained"
@@ -2224,7 +2225,8 @@ function MyTable({
                           (image) => (
                             <a
                               target="_blank"
-                              href={`http://localhost:7000/${image}`}
+                              // href={`http://localhost:7000/${image}`}
+                              href={`http://52.66.210.221:7000/${image}`}
                               style={{
                                 width: "100%",
                                 display: "flex",
@@ -2234,7 +2236,8 @@ function MyTable({
                               }}
                             >
                               <img
-                                src={`http://localhost:7000/${image}`}
+                                // src={`http://localhost:7000/${image}`}
+                                src={`http://52.66.210.221:7000/${image}`}
                                 style={{
                                   maxWidth: "100px",
                                   maxHeight: "100px",

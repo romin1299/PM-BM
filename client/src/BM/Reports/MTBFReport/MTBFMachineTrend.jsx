@@ -279,6 +279,7 @@ const MTBFMachineTrend = ({
           <BDRequestSheetTable
             requestSheetData={reduceState?.requestSheetData}
             downloadFileName={"MTBF Report"}
+            selectedYear={selectedYear}
           />
         </Col>
       </Row>

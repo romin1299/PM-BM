@@ -259,6 +259,7 @@ const BMHistory = ({ machine_code, search, selectedYear, selectedMonth }) => {
       <BDRequestSheetTable
         requestSheetData={requestSheetHistoryData}
         downloadFileName={"MTTR trend"}
+        selectedYear={selectedYear}
       />
     </div>
   );

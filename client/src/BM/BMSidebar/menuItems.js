@@ -47,11 +47,11 @@ export const menuItems = [
         route: "/bm",
         allowedRoles: allusers,
       },
-      {
-        title: "Summary",
-        route: "/bm/summeryDashboard",
-        allowedRoles: allusers,
-      },
+      // {
+      //   title: "Summary",
+      //   route: "/bm/summeryDashboard",
+      //   allowedRoles: allusers,
+      // },
       {
         title: "Request Sheets",
         route: "/bm/requestListDashboard",

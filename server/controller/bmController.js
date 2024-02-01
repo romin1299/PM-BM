@@ -588,47 +588,68 @@ router.post(
 
             <tr>
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.line_names?.cell_names?.cell_name}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              machine?.line_names?.cell_names?.cell_name
+            }</td>
             </tr>
 
             <tr style="background-color: #dddddd;">
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.line_names?.line_name}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              machine?.line_names?.line_name
+            }</td>
             </tr>
 
             <tr>
                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.machine_name}</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                  machine?.machine_name
+                }</td>
             </tr>
 
             <tr style="background-color: #dddddd;">
                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machine?.machine_code}</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                  machine?.machine_code
+                }</td>
             </tr>
 
             <tr>
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.requestSheetNoOfBM}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              newBDRequestSheetGenerate?.requestSheetNoOfBM
+            }</td>
             </tr>   
 
             <tr style="background-color: #dddddd;">
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Problem Occurred Date and Time</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.problemOccurredDateAndTimeOfBM}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
+              newBDRequestSheetGenerate?.problemOccurredDateAndTimeOfBM
+            )
+              .tz("Asia/Kolkata")
+              .format("DD-MM-YYYY THH:mm")}</td>
             </tr>
 
             <tr>
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Problem</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.breakDownBasicDataFilledByPRD?.problemFaced}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              newBDRequestSheetGenerate?.breakDownBasicDataFilledByPRD
+                ?.problemFaced
+            }</td>
             </tr>
 
             <tr style="background-color: #dddddd;">
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.requestSheetStatus}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              newBDRequestSheetGenerate?.requestSheetStatus
+            }</td>
             </tr>
 
             <tr>
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
-            <td style="border: 1px solid black;text-align: left;padding: 8px;">${newBDRequestSheetGenerate?.work_order_status}</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              newBDRequestSheetGenerate?.work_order_status
+            }</td>
             </tr>
 
         </table>`;
@@ -4623,27 +4644,37 @@ router.patch(
        
              <tr>
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+               requestSheetDataOfBM?.cell
+             }</td>
              </tr>
        
              <tr style="background-color: #dddddd;">
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+               requestSheetDataOfBM?.line
+             }</td>
              </tr>
        
              <tr>
                  <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                   requestSheetDataOfBM?.machineName
+                 }</td>
              </tr>
        
              <tr style="background-color: #dddddd;">
                  <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                   requestSheetDataOfBM?.machineNo
+                 }</td>
              </tr>
        
              <tr>
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+               requestSheetDataOfBM?.requestSheetNoOfBM
+             }</td>
              </tr>   
        
              <tr style="background-color: #dddddd;">
@@ -4653,17 +4684,25 @@ router.patch(
 
              <tr>
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${approvedDateAndTime}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
+               approvedDateAndTime
+             )
+               .tz("Asia/Kolkata")
+               .format("DD-MM-YYYY THH:mm")}</td>
              </tr>
        
              <tr style="background-color: #dddddd;">
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateRequestSheetStatus?.requestSheetStatus}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+               updateRequestSheetStatus?.requestSheetStatus
+             }</td>
              </tr>
        
              <tr>
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateRequestSheetStatus?.work_order_status}</td>
+             <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+               updateRequestSheetStatus?.work_order_status
+             }</td>
              </tr>
        
          </table>`;
@@ -6972,7 +7011,7 @@ router.get(
               $push: "$count",
             },
             bdTime: {
-              $push: { $trunc : ["$bdtime",1]}
+              $push: { $trunc: ["$bdtime", 1] },
             },
           },
         },
@@ -8297,6 +8336,10 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
       // },
 
       {
+        $sort: { subSection_name: 1 },
+      },
+
+      {
         $project: {
           _id: 0,
           label: "$subSection_name",
@@ -8414,6 +8457,10 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
       {
         $unwind: "$section_data",
       },
+
+      {
+        $sort: { section_name: 1 },
+      },
       {
         $project: {
           _id: 0,
@@ -8528,8 +8575,6 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
 const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
   try {
-
-
     const bdTrendData = await Cell.aggregate([
       {
         $match: {
@@ -8639,6 +8684,10 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
           ],
           as: "cell_data",
         },
+      },
+
+      {
+        $sort: { cell_name: 1 },
       },
 
       {
@@ -8869,7 +8918,9 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       // {
       //   $unwind: "$line_data",
       // },
-
+      {
+        $sort: { line_name: 1 },
+      },
       {
         $project: {
           _id: 0,
@@ -9092,6 +9143,10 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       // {
       //   $unwind: "$line_data",
       // },
+
+      {
+        $sort: { machine_name: 1 },
+      },
 
       {
         $project: {
@@ -9914,7 +9969,7 @@ router.get(
                     $eq: ["$$subsection", "$subSectionRef"],
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-                  req.query.selectedYear,
+                    req.query.selectedYear,
                 },
               },
               {
@@ -10005,6 +10060,10 @@ router.get(
         // {
         //   $unwind: "$section_data",
         // },
+
+        {
+          $sort: { subSection_name: 1 },
+        },
         {
           $project: {
             _id: 0,
@@ -10035,7 +10094,7 @@ router.get(
                     $eq: ["$$section", "$sectionRef"],
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-                  req.query.selectedYear,
+                    req.query.selectedYear,
                 },
               },
 
@@ -10127,6 +10186,10 @@ router.get(
         // {
         //   $unwind: "$section_data",
         // },
+
+        {
+          $sort: { section_name: 1 },
+        },
         {
           $project: {
             _id: 0,
@@ -10294,7 +10357,7 @@ router.get(
                     $eq: ["$$cell", "$cellRef"],
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-                  req.query.selectedYear,
+                    req.query.selectedYear,
                 },
               },
 
@@ -10384,6 +10447,10 @@ router.get(
         // {
         //   $unwind: "$cell_data",
         // },
+
+        {
+          $sort: { cell_name: 1 },
+        },
 
         {
           $project: {
@@ -10580,6 +10647,10 @@ router.get(
         // {
         //   $unwind: "$section_data",
         // },
+
+        {
+          $sort: { subSection_name: 1 },
+        },
         {
           $project: {
             _id: 0,
@@ -10708,6 +10779,10 @@ router.get(
         // {
         //   $unwind: "$section_data",
         // },
+
+        {
+          $sort: { section_name: 1 },
+        },
         {
           $project: {
             _id: 0,
@@ -10866,6 +10941,10 @@ router.get(
         // {
         //   $unwind: "$cell_data",
         // },
+
+        {
+          $sort: { cell_name: 1 },
+        },
 
         {
           $project: {
@@ -12362,7 +12441,7 @@ router.get(
                             },
                           ],
                         },
-                        limit: 1,
+                        // limit: 1,
                       },
                     },
                     0,
@@ -13039,15 +13118,30 @@ router.get(
                 $map: {
                   input: {
                     $filter: {
-                      input: { $reverseArray: "$section_data.yearGroup" },
+                      input: "$section_data.yearGroup",
                       as: "group",
                       cond: {
-                        $and: [
-                          { $gte: ["$yearDifference", "$$group.from"] },
+                        $or: [
                           {
-                            $or: [
-                              { $eq: ["$$group.to", 1.7976931348623157e308] },
-                              { $lte: ["$yearDifference", "$$group.to"] },
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  { $eq: ["$$group.to", null] },
+                                  // { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  // { $eq: ["$$group.to", null] },
+                                  { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
                             ],
                           },
                         ],
@@ -13214,15 +13308,30 @@ router.get(
                 $map: {
                   input: {
                     $filter: {
-                      input: { $reverseArray: "$section_data.yearGroup" },
+                      input: "$section_data.yearGroup",
                       as: "group",
                       cond: {
-                        $and: [
-                          { $gte: ["$yearDifference", "$$group.from"] },
+                        $or: [
                           {
-                            $or: [
-                              { $eq: ["$$group.to", 1.7976931348623157e308] },
-                              { $lte: ["$yearDifference", "$$group.to"] },
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  { $eq: ["$$group.to", null] },
+                                  // { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  // { $eq: ["$$group.to", null] },
+                                  { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
                             ],
                           },
                         ],
@@ -13344,15 +13453,30 @@ router.get(
                 $map: {
                   input: {
                     $filter: {
-                      input: { $reverseArray: "$section_data.yearGroup" },
+                      input: "$section_data.yearGroup",
                       as: "group",
                       cond: {
-                        $and: [
-                          { $gte: ["$yearDifference", "$$group.from"] },
+                        $or: [
                           {
-                            $or: [
-                              { $eq: ["$$group.to", 1.7976931348623157e308] },
-                              { $lte: ["$yearDifference", "$$group.to"] },
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  { $eq: ["$$group.to", null] },
+                                  // { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            $and: [
+                              { $gte: ["$yearDifference", "$$group.from"] },
+                              {
+                                $or: [
+                                  // { $eq: ["$$group.to", null] },
+                                  { $lte: ["$yearDifference", "$$group.to"] },
+                                ],
+                              },
                             ],
                           },
                         ],
@@ -13436,7 +13560,7 @@ router.get(
             $push: "$count",
           },
           bdTime: {
-            $push: { $trunc : ["$bdtime",1]}
+            $push: { $trunc: ["$bdtime", 1] },
           },
         },
       },
@@ -13557,7 +13681,7 @@ router.get(
           $group: {
             _id: null,
             labels: { $push: "$_id" },
-            data: { $push: "$machine_hours" },
+            data: { $push: { $trunc: ["$machine_hours", 1] } },
           },
         },
       ]);
@@ -14471,27 +14595,37 @@ router.patch(
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 requestSheetDataOfBM?.cell
+               }</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 requestSheetDataOfBM?.line
+               }</td>
                </tr>
 
                <tr>
                    <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                     requestSheetDataOfBM?.machineName
+                   }</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
                    <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                     requestSheetDataOfBM?.machineNo
+                   }</td>
                </tr>
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 requestSheetDataOfBM?.requestSheetNoOfBM
+               }</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
@@ -14501,17 +14635,25 @@ router.patch(
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${approvedDateAndTime}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
+                 approvedDateAndTime
+               )
+                 .tz("Asia/Kolkata")
+                 .format("DD-MM-YYYY THH:mm")}</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.requestSheetStatus}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 updateApprovalStatusOfRequestSheet?.requestSheetStatus
+               }</td>
                </tr>
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.work_order_status}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 updateApprovalStatusOfRequestSheet?.work_order_status
+               }</td>
                </tr>
 
            </table>`;
@@ -14574,27 +14716,37 @@ router.patch(
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 requestSheetDataOfBM?.cell
+               }</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 requestSheetDataOfBM?.line
+               }</td>
                </tr>
 
                <tr>
                    <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                     requestSheetDataOfBM?.machineName
+                   }</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
                    <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                     requestSheetDataOfBM?.machineNo
+                   }</td>
                </tr>
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 requestSheetDataOfBM?.requestSheetNoOfBM
+               }</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
@@ -14604,17 +14756,25 @@ router.patch(
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${approvedDateAndTime}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
+                 approvedDateAndTime
+               )
+                 .tz("Asia/Kolkata")
+                 .format("DD-MM-YYYY THH:mm")}</td>
                </tr>
 
                <tr style="background-color: #dddddd;">
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.requestSheetStatus}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 updateApprovalStatusOfRequestSheet?.requestSheetStatus
+               }</td>
                </tr>
 
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
-               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateApprovalStatusOfRequestSheet?.work_order_status}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                 updateApprovalStatusOfRequestSheet?.work_order_status
+               }</td>
                </tr>
 
            </table>`;
@@ -17746,7 +17906,7 @@ router.get("/dummyAPI", authenticate, async (req, res, next) => {
         }
       );
 
-      console.log("machine-updated : ", machineFind[i]?.machine_code);
+      // console.log("machine-updated : ", machineFind[i]?.machine_code);
     }
 
     const lineFind = await Line.aggregate([
@@ -18441,9 +18601,9 @@ router.get(
         BdTrendAndLastFiveProblem: {
           breakdownTrendData: req.BDHours?.[0],
           lastFiveProblem,
-        }, 
-      });    
-    } catch (error) {  
+        },
+      });
+    } catch (error) {
       res.status(500).json({ message: error?.message, error });
     }
   }

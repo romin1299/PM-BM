@@ -14,7 +14,7 @@ function MyTable() {
 
   const [machineStatus, setMachineStatus] = useState({
     pmStatusData: "",
-    bmStatusData: ""
+    bmStatusData: "",
   });
 
   const getMachineDetails = async () => {
@@ -37,14 +37,16 @@ function MyTable() {
           navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
         }
       } else {
-        const { machine, requestSheetApprovalList, pmStatusData, bmStatusData } = await res.json();
+        const {
+          machine,
+          requestSheetApprovalList,
+          pmStatusData,
+          bmStatusData,
+        } = await res.json();
 
         setMachineDetails(machine);
         setApprovalListOfBM(requestSheetApprovalList);
-        setMachineStatus(
-          pmStatusData,
-          bmStatusData
-        )
+        setMachineStatus(pmStatusData, bmStatusData);
       }
     } catch (error) {
       console.log(error);
@@ -61,6 +63,7 @@ function MyTable() {
         {context?.tm_department === "PRD" && (
           <PRDRequestSheet
             selectedMachineDetails={selectedMachineDetails}
+            machineStatus={machineStatus}
             // approvalListOfBM={approvalListOfBM}
           />
         )}

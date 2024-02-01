@@ -203,26 +203,27 @@ const LineTrend = ({
   let isDataExists = isChartDataExist(data);
 
   return (
-    <Box className="cell p-3">
-      <ChartTitleBar title="Line Trend" />
-      {/* {loading ? (
+    <>
+      <Box className="cell p-3">
+        <ChartTitleBar title="Line Trend" />
+        {/* {loading ? (
         <Loading height={200} />
       ) : (
         <Chart options={options} data={data} />
       )} */}
 
-      <Box sx={{ height: { xs: "350px", md: "400px" } }}>
-        {loading ? (
-          <Loading height={"100%"} />
-        ) : !isDataExists ? (
-          <DataNotFound />
-        ) : (
-          <Chart options={options} data={data} />
-        )}
+        <Box sx={{ height: { xs: "350px", md: "400px" } }}>
+          {loading ? (
+            <Loading height={"100%"} />
+          ) : !isDataExists ? (
+            <DataNotFound />
+          ) : (
+            <Chart options={options} data={data} />
+          )}
+        </Box>
       </Box>
-    </Box>
-
-    // <button onClick={dummyAPI}>For Test</button>
+      {/* <button onClick={dummyAPI}>For Test</button> */}
+    </>
 
     // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>
     //   <Typography variant="h5" component="h4">

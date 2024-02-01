@@ -25,7 +25,7 @@ import MachineStatusBox from "../SubComponents/MachineStatusBox";
 import { denso_logo } from "../../../modules/LoginModules";
 import { exportPDF } from "../../Utils/exportPDF/exportPDF";
 
-function MyTable({ requestSheetDataOfBM, machineId }) {
+function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -258,12 +258,15 @@ function MyTable({ requestSheetDataOfBM, machineId }) {
                       >
                         <MachineStatusBox
                           title="PM Status"
-                          bodyText1="Completed"
-                          bodyText2="(13/10/2023)"
+                          bodyText1={machineStatus?.pmStatusData?.PMStatus}
+                          bodyText2={machineStatus?.pmStatusData?.PMdate}
                         />
                         <MachineStatusBox
                           title="BM"
-                          bodyText1="170 hrs/5 Nos"
+                          bodyText1={
+                            machineStatus?.bmStatusData?.count &&
+                            `${machineStatus?.bmStatusData?.totalHours} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                          }
                         />
                         <MachineStatusBox title="CM" />
                       </Box>

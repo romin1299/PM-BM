@@ -83,6 +83,7 @@ const DailyBTDashboard = () => {
         <BDRSTableWithDateFiltration
           flagForTogglingFilter={reduceState?.flagForTogglingFilter}
           selectedValue={reduceState?.selectedValue}
+          selectedYear= {reduceState?.selectedYear}
         />
 
         <Row className="mb-3 gx-3 mt-3">
