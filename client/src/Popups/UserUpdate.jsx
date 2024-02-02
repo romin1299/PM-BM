@@ -104,6 +104,8 @@ const UserUpdate = ({ selectedRow }) => {
       cell_data: "",
       contact_no: "",
       address: "",
+      isAuthorizedUserForUpdatingRequestSheetInAnyStatus:
+        selectedRow?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -113,6 +115,10 @@ const UserUpdate = ({ selectedRow }) => {
         body: JSON.stringify({
           tm_name: values.tm_name ? values.tm_name : selectedRow.tm_name,
           tm_no: selectedRow.tm_no,
+          isAuthorizedUserForUpdatingRequestSheetInAnyStatus:
+            values?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus
+              ? values?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus
+              : selectedRow?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
           user_type: usertype ? usertype : selectedRow.user_type,
           tm_grade: values.tm_grade
             ? values.tm_grade
@@ -304,7 +310,6 @@ const UserUpdate = ({ selectedRow }) => {
       : userTypeWhenTmDepartmentIsMtd,
   ];
 
-  console.log(selectedRow);
   return (
     <>
       <div id="main_div_reg2">
@@ -313,7 +318,7 @@ const UserUpdate = ({ selectedRow }) => {
         </span>
         <br />
         <div>
-        <h3 style={{ textAlign: "left", color:"#dc3545"}}>Edit User</h3>
+          <h3 style={{ textAlign: "left", color: "#dc3545" }}>Edit User</h3>
 
           <form onSubmit={formik.handleSubmit}>
             <div className="pwd-container">
@@ -357,6 +362,61 @@ const UserUpdate = ({ selectedRow }) => {
                 error={formik.touched.tm_no && Boolean(formik.errors.tm_no)}
                 helperText={formik.touched.tm_no && formik.errors.tm_no}
               />
+            </div>
+
+            <div className="pwd-container">
+              <span>Want to authorized this user to update RequestSheet:</span>
+              <div>
+                <span
+                  style={{ fontWeight: "normal" }}
+                >{`Previously selected: `}</span>
+                <span style={{ fontWeight: "bold" }}>
+                  {`${selectedRow.isAuthorizedUserForUpdatingRequestSheetInAnyStatus} `}
+                </span>
+                <div>
+                  <input
+                    type="radio"
+                    name="isAuthorizedUserForUpdatingRequestSheetInAnyStatus"
+                    id="outlined-number"
+                    value={"Yes"}
+                    onChange={formik.handleChange}
+                    defaultChecked={
+                      selectedRow?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus ===
+                      "Yes"
+                    }
+                  />
+                  <span
+                    style={{
+                      paddingLeft: "0.5rem",
+                      fontWeight: "550",
+                      color: "black",
+                    }}
+                  >
+                    Yes
+                  </span>
+
+                  <input
+                    type="radio"
+                    name="isAuthorizedUserForUpdatingRequestSheetInAnyStatus"
+                    id="outlined-number"
+                    value={"No"}
+                    onChange={formik.handleChange}
+                    defaultChecked={
+                      selectedRow?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus ===
+                      "No"
+                    }
+                  />
+                  <span
+                    style={{
+                      paddingLeft: "0.5rem",
+                      fontWeight: "550",
+                      color: "black",
+                    }}
+                  >
+                    No
+                  </span>
+                </div>
+              </div>
             </div>
 
             {context.user_type === "Section-Admin" ? (

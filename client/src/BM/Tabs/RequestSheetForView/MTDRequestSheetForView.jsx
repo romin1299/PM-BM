@@ -1029,7 +1029,10 @@ function MyTable({
                       <div>{timeDifferenceMinutes > 120 ? "Yes" : "No"}</div>
                     </Col>
 
-                    <Col sm={6} className="border d-flex align-items-center gap-3">
+                    <Col
+                      sm={6}
+                      className="border d-flex align-items-center gap-3"
+                    >
                       {["First Time", "Repeat"].map((text) => (
                         <span
                           style={{

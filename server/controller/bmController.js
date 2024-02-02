@@ -115,6 +115,14 @@ let currentYear =
 
 const truncValue = (prop) => ({ $trunc: [prop, 1] });
 
+const generateDateFormateObj = (field) => ({
+  $dateToString: {
+    format: "%Y-%m-%dT%H:%M",
+    date: field,
+    timezone: "Asia/Kolkata",
+  },
+});
+
 router.get(
   "/getDataBasedOnScanningRequest/:sheetType/:machineCode",
   authenticate,
@@ -1417,6 +1425,97 @@ router.patch(
   }
 );
 
+router.patch(
+  "/updateRequestSheetForAnyStatus",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      if (
+        req.rootUser?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus ===
+        "No"
+      ) {
+        return res.status(401).json({ message: "Unauthorized to update request-sheet!!!" });
+      }
+      next();
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  },
+  uploadDataSheetsOfBD.fields([
+    { name: "attachedDataSheets", maxCount: 1 },
+    { name: "attachedDrawings", maxCount: 10 },
+  ]),
+  async (req, res, next) => {
+    try {
+      let updatedDataObj = JSON.parse(req.body?.finalData);
+
+      if (
+        req.files?.attachedDataSheets?.[0]?.filename ||
+        req.files?.attachedDrawings
+      ) {
+        const requestSheet = await RequestSheetOfBM.findOne(req.query);
+
+        if (req.files?.attachedDataSheets?.[0]?.filename) {
+          fs.unlink(
+            path.join(
+              __dirname,
+              `../DataSheetOfBD/${requestSheet?.attachedDataSheets}`
+            ),
+            function (err) {
+              if (err) {
+                console.error(err);
+              } else {
+                console.log("Data-sheet file Removed Successfully");
+              }
+            }
+          );
+
+          updatedDataObj["attachedDataSheets"] =
+            req.files?.attachedDataSheets?.[0]?.filename;
+        }
+
+        if (req.files?.attachedDrawings) {
+          requestSheet?.attachedDrawings?.map((drawingFileName) => {
+            fs.unlink(
+              path.join(__dirname, `../DrawingsOfBD/${drawingFileName}`),
+              function (err) {
+                if (err) {
+                  console.error(err);
+                } else {
+                  console.log("Drawing files Removed Successfully");
+                }
+              }
+            );
+          });
+
+          updatedDataObj["attachedDrawings"] = req.files?.attachedDrawings?.map(
+            (item) => item?.filename
+          );
+        }
+      }
+
+      await RequestSheetOfBM.findOneAndUpdate(
+        req.query,
+        {
+          $set: updatedDataObj,
+        },
+        {
+          new: true,
+        }
+      );
+
+      return res.status(201).json({
+        message: "Request-sheet updated successfully",
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
+    }
+  }
+);
 const findTLandOperatorList = async (req, res, next) => {
   try {
     let TLHOSS_and_TM_user_list = [];
@@ -4226,6 +4325,474 @@ router.get(
     }
   }
 );
+
+router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
+  try {
+    let currentMonth;
+    if (moment().format("MMM") === "Jun") {
+      currentMonth = "June";
+    } else if (moment().format("MMM") === "Jul") {
+      currentMonth = "July";
+    } else {
+      currentMonth = moment().format("MMM");
+    }
+
+    const machine = await Machine.aggregate([
+      {
+        $match: { machine_code: req.query?.machine_code },
+      },
+      {
+        $unwind: "$checkSheet_data",
+      },
+      {
+        $match: {
+          "checkSheet_data.current_year": req?.query?.current_year,
+        },
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "line_names",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+          as: "line",
+        },
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cell_names",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                cell_name: 1,
+              },
+            },
+          ],
+          as: "cell",
+        },
+      },
+      {
+        $lookup: {
+          from: "subsections",
+          localField: "subSection_names",
+          foreignField: "_id",
+          as: "subSection",
+        },
+      },
+      {
+        $lookup: {
+          from: "sections",
+          localField: "section_names",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $lookup: {
+                from: "plants",
+                localField: "plant_names",
+                foreignField: "_id",
+                as: "plant",
+              },
+            },
+          ],
+          as: "section",
+        },
+      },
+      {
+        $project: {
+          machine_code: 1,
+          machine_name: 1,
+          line: { $arrayElemAt: [`$line`, 0] },
+          cell: { $arrayElemAt: [`$cell`, 0] },
+          subSection: { $arrayElemAt: [`$subSection`, 0] },
+          section: { $arrayElemAt: [`$section`, 0] },
+          plant: { $arrayElemAt: [`$section.plant`, 0] },
+          PMStatus: `$checkSheet_data.PMStatus.${currentMonth}`,
+          PMdate: {
+            $arrayElemAt: [
+              `$checkSheet_data.implemetation_completed_date.${currentMonth}`,
+              0,
+            ],
+          },
+        },
+      },
+    ]);
+
+    const bmData = await RequestSheetOfBM.aggregate([
+      {
+        $match: {
+          machineRef: machine?.[0]?._id,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+          totalHours: {
+            $sum: {
+              $trunc: [
+                {
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+                },
+                1,
+              ],
+            },
+          },
+        },
+      },
+    ]);
+
+    const section = await Section.findOne({
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    });
+
+    let queryObj = {
+      plant_data: req?.rootUser?.plant_data,
+      user_type: { $ne: "Operator" },
+      _id: { $ne: req?.rootUser?._id },
+    };
+
+    if (req?.rootUser?.tm_grade !== "HOD") {
+      if (section.dashboardLevel === "Yes") {
+        queryObj = {
+          ...queryObj,
+          section_data: req?.rootUser?.section_data,
+        };
+      } else {
+        queryObj = {
+          ...queryObj,
+          section_data: req?.rootUser?.section_data,
+          subSection_data: { $in: req?.rootUser?.subSection_data },
+        };
+      }
+    }
+
+    const allUserGroup = await User.aggregate([
+      {
+        $match: queryObj,
+      },
+      {
+        $group: {
+          _id: {
+            tm_department: "$tm_department",
+            tm_grade: "$tm_grade",
+            user_type: "$user_type",
+          },
+          users: {
+            $push: {
+              _id: "$_id",
+              tm_name: "$tm_name",
+            },
+          },
+        },
+      },
+    ]);
+
+    let TLHOSS_and_TM_user_list;
+
+    delete queryObj["user_type"];
+
+    if (
+      req?.rootUser?.tm_department === "MTD" ||
+      req?.rootUser?.user_type === "Operator"
+    ) {
+      TLHOSS_and_TM_user_list = await User.find(
+        {
+          ...queryObj,
+          tm_no: { $ne: req?.rootUser?.tm_no },
+          $or: [
+            {
+              user_type: "Operator",
+            },
+            {
+              $and: [
+                {
+                  user_type: "TL/HOSS",
+                },
+                {
+                  tm_department: "MTD",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          tm_name: 1,
+          tm_department: 1,
+          tm_grade: 1,
+          user_type: 1,
+        }
+      );
+      if (TLHOSS_and_TM_user_list?.length === 0) {
+        return res.status(400).json({
+          message: "No data to display",
+        });
+      }
+    }
+
+    const requestSheetData = await RequestSheetOfBM.aggregate([
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(req.query?._id),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "partQualityCheckedByPRD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+                tm_no: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "namesPRD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "partQualityCheckedByMTD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+                tm_no: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "namesMTD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignUser",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "namesOperators",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "requestSheetCreatedBy",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "requestSheetCreatedBy",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "handOverUser",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "handoverUserDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "approvalOfMTD_SL",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "approvalOfMTD_SL",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "supportingTM",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "supportingTM",
+        },
+      },
+      {
+        $addFields: {
+          "maintenanceReportFilledByMTD.workStartedDateOfBM":
+            generateDateFormateObj(
+              "$maintenanceReportFilledByMTD.workStartedDateOfBM"
+            ),
+          "maintenanceReportFilledByMTD.workEndedDateOfBM":
+            generateDateFormateObj(
+              "$maintenanceReportFilledByMTD.workEndedDateOfBM"
+            ),
+        },
+      },
+      {
+        $project: {
+          requestSheetNoOfBM: 1,
+          maintenanceType: 1,
+          priorityCode: 1,
+          problemOccurredDateAndTimeOfBM: generateDateFormateObj(
+            "$problemOccurredDateAndTimeOfBM"
+          ),
+          sheetIssuedDateAndTimeOfBM: generateDateFormateObj(
+            "$sheetIssuedDateAndTimeOfBM"
+          ),
+          breakDownBasicDataFilledByPRD: 1,
+
+          maintenanceReportFilledByMTD: "$maintenanceReportFilledByMTD",
+          shiftOfBM: 1,
+          qualityRelated: 1,
+          requestSheetCreatedBy: {
+            $arrayElemAt: ["$requestSheetCreatedBy", 0],
+          },
+          breakDownAttendedBy: 1,
+
+          problem: "$breakDownBasicDataFilledByPRD.problemFaced",
+          lossTime: "$maintenanceReportFilledByMTD.breakDownTime",
+          problemOccurredDateAndTimeOfBMForTable: {
+            $dateToString: {
+              format: "%d-%m-%Y T%H:%M",
+              date: "$problemOccurredDateAndTimeOfBM",
+              timezone: "Asia/Kolkata",
+            },
+          },
+          assignUser: {
+            $arrayElemAt: ["$namesOperators", 0],
+          },
+          handOverUser: {
+            $arrayElemAt: ["$handoverUserDetails", 0],
+          },
+          approvalOfMTD_SL: {
+            $arrayElemAt: ["$approvalOfMTD_SL", 0],
+          },
+          finalActivity: 1,
+          work_order_status: 1,
+          rejectedRemarksOfRequestSheet: 1,
+          feedbackMTD_HOS: 1,
+          qualityConfirmed: 1,
+
+          approvalOfMTD_TL_name: {
+            $arrayElemAt: ["$approverNameLogOfMTD_TL", -1],
+          },
+
+          approvalOfMTD_HOSS_name: {
+            $arrayElemAt: ["$approverNameLogOfMTD_HOSS", -1],
+          },
+
+          approvalOfMTD_HOS_name: {
+            $arrayElemAt: ["$approverNameLogOfMTD_HOS", -1],
+          },
+
+          approvalOfPRD_TL_name: {
+            $arrayElemAt: ["$approverNameLogOfPRD_TL", -1],
+          },
+
+          approvalOfPRD_HOS_name: {
+            $arrayElemAt: ["$approverNameLogOfPRD_HOS", -1],
+          },
+
+          approvalOfPRD_HOD_name: {
+            $arrayElemAt: ["$approverNameLogOfPRD_HOD", -1],
+          },
+
+          approvalOfMTD_HOD_name: {
+            $arrayElemAt: ["$approverNameLogOfMTD_HOD", -1],
+          },
+
+          partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
+          partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
+
+          dataSheetOfBM: 1,
+          drawingOfBM: 1,
+          sparePartUsedOrNot: 1,
+          changedParts: 1,
+
+          requestSheetStatus: 1,
+          getDataForApprovalDashboard: 1,
+
+          actionTemporaryOrNot: 1,
+          dataSheetOfRequestSheet: 1,
+          drawingOfRequestSheet: 1,
+          supportingTM: 1,
+          attachedDataSheets: 1,
+          attachedDrawings: 1,
+          categoriesOfRequestSheet: 1,
+          preventive_corrective_maintenance: 1,
+          yokotenkai: 1,
+        },
+      },
+    ]);
+
+    const shifts = await Plant.find({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+
+    return res.status(201).json({
+      message: "Request-sheet data get successfully",
+      shiftOfBM: shifts?.[0]?.shiftOfBM,
+      requestSheetDataOfBM: requestSheetData?.[0],
+      allUserGroup,
+      machine: machine?.[0],
+      bmData: bmData?.[0],
+      TLHOSS_and_TM_user_list,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error: new Error(error) });
+  }
+});
 
 router.get(
   "/getListOfTheTLAndOperatorForNoLossBDEntryForm",

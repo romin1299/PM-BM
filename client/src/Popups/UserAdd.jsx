@@ -155,16 +155,18 @@ const UserAdd = () => {
       cell_data: "",
       contact_no: "",
       address: "",
+      isAuthorizedUserForUpdatingRequestSheetInAnyStatus: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      console.log("________");
       const res = await fetch("/postUserAssign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tm_name: values.tm_name,
           tm_no: values.tm_no,
+          isAuthorizedUserForUpdatingRequestSheetInAnyStatus:
+            values?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
           user_type: values.user_type
             ? values.user_type
             : context.user_type === "Admin"
@@ -425,6 +427,49 @@ const UserAdd = () => {
                 helperText={formik.touched.tm_no && formik.errors.tm_no}
               />
             </div>
+
+            <div className="pwd-container">
+              <span>Want to authorized this user to update RequestSheet:</span>
+              <div>
+                <div>
+                  <input
+                    type="radio"
+                    name="isAuthorizedUserForUpdatingRequestSheetInAnyStatus"
+                    id="outlined-number"
+                    value={"Yes"}
+                    onChange={formik.handleChange}
+                  />
+                  <span
+                    style={{
+                      paddingLeft: "0.5rem",
+                      fontWeight: "550",
+                      color: "black",
+                    }}
+                  >
+                    Yes
+                  </span>
+
+                  <input
+                    type="radio"
+                    name="isAuthorizedUserForUpdatingRequestSheetInAnyStatus"
+                    id="outlined-number"
+                    value={"No"}
+                    onChange={formik.handleChange}
+                    defaultChecked
+                  />
+                  <span
+                    style={{
+                      paddingLeft: "0.5rem",
+                      fontWeight: "550",
+                      color: "black",
+                    }}
+                  >
+                    No
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {/* NOTE :  change user_type to user_type & Section to Section-Admin*/}
             {context.user_type === "Section-Admin" ? (
               <div>

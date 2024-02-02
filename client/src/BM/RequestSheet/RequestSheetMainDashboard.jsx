@@ -9,6 +9,7 @@ import tableIcons from "../../components/MatrialTableIcon";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import DescriptionIcon from "@mui/icons-material/Description";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -570,7 +571,7 @@ const RequestSheetMainDashboard = () => {
     setSummeryCardModal((summeryCardModal) => !summeryCardModal);
   };
 
-  const requestSheetActions = [
+  let requestSheetActions = [
     {
       icon: () => <CreditCardIcon className="text-primary1" />,
       tooltip: "History Card",
@@ -634,6 +635,27 @@ const RequestSheetMainDashboard = () => {
       },
     }),
   ];
+
+  if (context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus === "Yes") {
+    requestSheetActions?.push({
+      icon: () => <DriveFileRenameOutlineIcon className="text-primary" />,
+      tooltip: "Edit",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        navigate(
+          `/bm/edit/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`,
+          {
+            state: {
+              prevPath: location?.pathname,
+              prevPathSearch: location?.search,
+              supportingTM:
+                reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
+            },
+          }
+        );
+      },
+    });
+  }
 
   const filtration = [
     <Box m={2}>
@@ -791,8 +813,8 @@ const RequestSheetMainDashboard = () => {
                 //   }),
 
                 isDeleteHidden: (rowData) =>
-                  (context?.userType !== "TL/HOSS" &&
-                  context?.tm_department !== "MTD"),
+                  context?.userType !== "TL/HOSS" &&
+                  context?.tm_department !== "MTD",
 
                 onRowDelete: (selectedRow) =>
                   new Promise(async (resolve, reject) => {
