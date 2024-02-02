@@ -578,17 +578,6 @@ const TL = ({ userData, userDepartment }) => {
             <NavLink to="/pm/spareReportDashboard"></NavLink>
             Spare Report
           </Menuitem>
-
-          <Menuitem
-            className="text-white"
-            icon={<SummarizeIcon className="text-white" />}
-            data-toggle="tooltip"
-            data-placement="right"
-            title="Spare Report"
-          >
-            <NavLink to="/pm/generateRequestSheetMainDashboard"></NavLink>
-            GenerateRequestSheetMainDashboard
-          </Menuitem>
         </Menu>
         <Menu iconShape="square">
           <MenuItem

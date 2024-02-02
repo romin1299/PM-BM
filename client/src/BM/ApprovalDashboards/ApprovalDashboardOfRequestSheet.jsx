@@ -17,6 +17,8 @@ import {
   reducer,
   initialState,
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import { ExportCsv, ExportPdf } from "@material-table/exporters";
+import moment from "moment";
 
 const ApprovalDashboardOfRequestSheet = () => {
   const [loading, setLoading] = React.useState(true);
@@ -235,7 +237,28 @@ const ApprovalDashboardOfRequestSheet = () => {
                   // }),
                 }
               }
-              options={MaterialTableOptions}
+              options={{...MaterialTableOptions,
+                exportMenu: [
+                  {
+                    label: "Export PDF",
+                    exportFunc: (cols, data) =>
+                      ExportPdf(
+                        cols,
+                        data,
+                        `Approval List of Request-Sheet ${moment().format("DD-MM-YYYY")}`
+                      ),
+                  },
+                  {
+                    label: "Export CSV",
+                    exportFunc: (cols, data) =>
+                      ExportCsv(
+                        cols,
+                        data,
+                        `Approval List of Request-Sheet ${moment().format("DD-MM-YYYY")}`
+                      ),
+                  },
+                ],
+              }}
             />
           </Col>
         </Row>

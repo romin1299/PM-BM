@@ -378,7 +378,13 @@ router.get(
       {
         $project: {
           month: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-          date: "$problemOccurredDateAndTimeOfBM",
+          date: {
+            $dateToString: {
+              format: "%d-%m-%Y T%H:%M",
+              date: "$problemOccurredDateAndTimeOfBM",
+              timezone: "Asia/Kolkata",
+            },
+          },
           cell: { $arrayElemAt: ["$cells.cell_name", 0] },
           line: { $arrayElemAt: ["$lines.line_name", 0] },
           machine_name: { $arrayElemAt: ["$machines.machine_name", 0] },
