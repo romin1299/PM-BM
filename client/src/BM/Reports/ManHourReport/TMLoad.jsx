@@ -15,10 +15,11 @@ import {
   Legend,
   PointElement,
 } from "chart.js";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
 
 ChartJS.register(
   CategoryScale,
@@ -166,6 +167,29 @@ const TMLoad = ({
     setLoading(false);
   };
 
+  const header = [
+    "TM Names",
+    "Total Sum of PM",
+    "Total Sum of BM",
+    "Percentage",
+  ];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [
+        [
+          tmLoadData?.tm_names,
+          tmLoadData?.totalSumOf_PM,
+          tmLoadData?.totalSumOf_BM,
+          tmLoadData?.percentage,
+        ],
+      ];
+      downloadFile(bodyData, fileType, header, "TM_Load");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue && flagForTogglingFilter !== "based-on-line") {
       getTmLoadData();
@@ -212,7 +236,21 @@ const TMLoad = ({
 
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="TM Load" />
+      <ChartTitleBar
+        title="TM Load"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
       <Box sx={{ height: { xs: "350px", md: "400px" } }}>
         {loading ? (

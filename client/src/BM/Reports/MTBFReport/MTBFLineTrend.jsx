@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import LineBarChart from "../Common/LineBarChart";
+import downloadFile from "../../../util";
 
 const MTBFLineTrend = ({
   selectedValue,
@@ -44,6 +45,18 @@ const MTBFLineTrend = ({
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [[lineWiseMTBFTrend?.labels, lineWiseMTBFTrend?.data]];
+
+      downloadFile(bodyData, fileType, header, "MTBF_LineTrend");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue) {
       getLineWiseMTBFTrendData();
@@ -62,6 +75,7 @@ const MTBFLineTrend = ({
           lineLabel: "Target",
           barLabel: "MTBF",
         }}
+        onClickDownload={handleDownload}
       />
     </>
   );

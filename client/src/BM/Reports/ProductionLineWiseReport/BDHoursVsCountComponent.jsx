@@ -9,8 +9,9 @@ import { Box, Divider, Typography } from "@mui/material";
 import { MonthDropdown } from "../ManHourReport/SubComponents/LineSelectionDropdown";
 import { FilterMenu } from "../MTTRReport/SubComponents/FilterMenu";
 import { DynamicFiltersMenu } from "./DynamicFiltersMenu";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
+import downloadFile from "../../../util";
 
 const BDHoursVsCountComponent = ({
   selectedValue,
@@ -129,6 +130,23 @@ const BDHoursVsCountComponent = ({
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [
+        [
+          reduceState.BDHoursVsCountData?.labels,
+          reduceState.BDHoursVsCountData?.data,
+        ],
+      ];
+
+      downloadFile(bodyData, fileType, header, "Bd_Hours_Vs_Count");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   // console.log(reduceState);
 
   useEffect(() => {
@@ -145,18 +163,31 @@ const BDHoursVsCountComponent = ({
       <ChartTitleBar
         title="BD Hours Vs Count"
         Toolbar={
-          <Col className="col-auto d-flex gap-2">
-            {/* <DynamicFiltersMenu
+          <>
+            <Col className="col-auto d-flex gap-2">
+              {/* <DynamicFiltersMenu
               getBDhoursVsCountReportData={getBDhoursVsCountReportData}
               selectedValue={selectedValue}
               selectedYear={selectedYear}
               selectedMonth={selectedMonth}
             /> */}
-            <MonthDropdown
-              selectedMonth={selectedMonth}
-              setSelectedMonth={setSelectedMonth}
-            />
-          </Col>
+              <MonthDropdown
+                selectedMonth={selectedMonth}
+                setSelectedMonth={setSelectedMonth}
+              />
+            </Col>
+
+            <div className="col-auto">
+              <ChartDownloadMenu
+                handleDownloadCSV={() => {
+                  handleDownload("csv");
+                }}
+                handleDownloadPDF={() => {
+                  handleDownload("pdf");
+                }}
+              />
+            </div>
+          </>
         }
       />
 

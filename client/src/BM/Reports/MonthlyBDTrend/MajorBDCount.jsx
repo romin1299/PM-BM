@@ -10,6 +10,8 @@ import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
 import Loading from "../../../components/Loading/Loading";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
+import downloadFile from "../../../util";
 
 const sectionBoxStyle = {
   p: 1,
@@ -185,6 +187,20 @@ const MajorBDCount = ({
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [chartData].map((item) => [
+        item.datasets.map((a) => a.label).join("\n"),
+        item.datasets.map((a) => a.data).join("\n"),
+      ]);
+
+      downloadFile(bodyData, fileType, header, "Major_Bd_Count");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   React.useEffect(() => {
     if (flagForTogglingFilter && selectedValue && selectedYear)
       fetchChartData();
@@ -252,14 +268,30 @@ const MajorBDCount = ({
 
         <Col md={12} lg={6}>
           <Paper variant="outlined" className="cell p-3">
-            <Typography
+            {/* <Typography
               className="col"
               variant="h5"
               component="h5"
               sx={{ fontWeight: "500" }}
             >
               Sections
-            </Typography>
+            </Typography> */}
+
+            <ChartTitleBar
+              title="Sections"
+              Toolbar={
+                <div className="col-auto">
+                  <ChartDownloadMenu
+                    handleDownloadCSV={() => {
+                      handleDownload("csv");
+                    }}
+                    handleDownloadPDF={() => {
+                      handleDownload("pdf");
+                    }}
+                  />
+                </div>
+              }
+            />
 
             <Box sx={{ height: { xs: "300px", md: "350px" } }}>
               {loading ? (

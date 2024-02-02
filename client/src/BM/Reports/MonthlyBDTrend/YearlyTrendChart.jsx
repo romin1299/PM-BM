@@ -15,11 +15,12 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
 import Loading from "../../../components/Loading/Loading";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
 
 ChartJS.register(
   CategoryScale,
@@ -159,6 +160,21 @@ const YearlyTrendChart = ({
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [chartData].map((item) => [item.labels, item.datasets]);
+      const bodyData = [chartData].map((item) => [
+        item.datasets.map((a) => a.label).join("\n"),
+        item.datasets.map((a) => a.data).join("\n"),
+      ]);
+      
+      downloadFile(bodyData, fileType, header, "Yearly_Bd_Trend");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   React.useEffect(() => {
     if (flagForTogglingFilter && selectedValue && selectedYear && filter)
       fetchChartData();
@@ -174,6 +190,18 @@ const YearlyTrendChart = ({
         // titleProps={{
         //   sx: { fontWeight: "500" },
         // }}
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
       />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>

@@ -4,10 +4,11 @@ import { Box, Divider, Paper, Typography } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { Col, Row } from "react-bootstrap";
 import { CountFilters } from "./DailyBDTrendChart";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
 
 export const options = {
   maintainAspectRatio: false,
@@ -145,6 +146,24 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
     setLoading(false);
   };
 
+  const header = ["Label", "Data", "Average Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [
+        [
+          mttrData?.bdTrendData[0]?.label,
+          mttrData?.bdTrendData[0]?.data,
+          mttrData?.averageData,
+        ],
+      ];
+
+      downloadFile(bodyData, fileType, header, "MTTR");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     setLoading(false);
     if (selectedValue) getMTTRData();
@@ -180,7 +199,21 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
 
   return (
     <Box className="cell p-3 mb-3">
-      <ChartTitleBar title="Mean Time to Repair (MTTR)" />
+      <ChartTitleBar
+        title="Mean Time to Repair (MTTR)"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
         {loading ? (

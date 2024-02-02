@@ -11,10 +11,11 @@ import {
 import { Bar } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
 
 ChartJS.register(
   CategoryScale,
@@ -125,6 +126,20 @@ const ChartToPPTExample = ({
     setLoading(false);
   };
 
+  const header = ["PMHourTrend", "BMHourTrend"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [
+        [HourTrendData?.PMHourTrend, HourTrendData?.BMHourTrend],
+      ];
+
+      downloadFile(bodyData, fileType, header, "Hour_Trend");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue && flagForTogglingFilter) {
       getHourTrendData();
@@ -160,7 +175,21 @@ const ChartToPPTExample = ({
 
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="Hour Trend" />
+      <ChartTitleBar
+        title="Hour Trend"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
       <Box sx={{ height: { xs: "250px", md: "300px" } }}>
         {loading ? (
