@@ -40,10 +40,15 @@ import TargetDashboard from "./TargetOfBD/TargetDashboard";
 import MachineSummaryComponent from "../Common/Machine/MachineHistoryComponent";
 
 import NoLossBDEntryForm from "./NoLossBDDataEntry/NoLossBDEntryForm";
+import UpdateRequestSheetForAnyStatus from "./Tabs/UpdateRequestSheetForAnyStatus/UpdateRequestSheetForAnyStatus";
 
 function BM_Routes({ commonRoutes }) {
   const reportRoutes = [
     ...commonRoutes,
+    {
+      path: "/bm/edit/request-sheet/:machine_code/:requestSheetID/:selectedYear",
+      element: <UpdateRequestSheetForAnyStatus />,
+    },
     {
       path: "/bm/report/productionLineWiseReport",
       element: <ProductionLineWiseReport />,

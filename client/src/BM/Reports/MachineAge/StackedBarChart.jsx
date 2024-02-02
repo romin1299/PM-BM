@@ -14,8 +14,9 @@ import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
+import downloadFile from "../../../util";
 
 ChartJS.register(
   CategoryScale,
@@ -113,6 +114,20 @@ const StackedBarChart = ({
     }
   };
 
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [
+        [chartData?.datasets[0].label, chartData?.datasets[0].data],
+      ];
+
+      downloadFile(bodyData, fileType, header, "Machine_Age_Monthly");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue) fetchChartData();
   }, [selectedValue, selectedYear]);
@@ -124,6 +139,18 @@ const StackedBarChart = ({
         // titleProps={{
         //   sx: { fontWeight: "500" },
         // }}
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
       />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>

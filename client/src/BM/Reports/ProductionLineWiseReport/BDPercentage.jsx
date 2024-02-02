@@ -4,6 +4,9 @@ import SmallChartCardComponent from "./SmallChartCardComponent";
 import Loading from "../../../components/Loading/Loading";
 import { Box } from "@mui/material";
 import DataNotFound from "../Common/DataNotFound";
+import downloadFile from "../../../util";
+import DownloadButton from "../Common/DownloadButton";
+import { ChartDownloadMenu } from "../Common/ChartTitleBar";
 
 const BDPercentageChart = ({
   selectedValue,
@@ -78,6 +81,23 @@ const BDPercentageChart = ({
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [
+        [
+          reduceState.BDPercentageReportData?.labels,
+          reduceState.BDPercentageReportData?.data,
+        ],
+      ];
+
+      downloadFile(bodyData, fileType, header, "Bd_Percentage");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue) {
       getBDPercentageReportData();
@@ -88,7 +108,21 @@ const BDPercentageChart = ({
     reduceState?.BDPercentageReportData?.data?.length > 0 || false;
 
   return (
-    <SmallChartCardComponent title="BD %">
+    <SmallChartCardComponent
+      title="BD %"
+      Toolbar={
+        <div className="col-auto">
+          <ChartDownloadMenu
+            handleDownloadCSV={() => {
+              handleDownload("csv");
+            }}
+            handleDownloadPDF={() => {
+              handleDownload("pdf");
+            }}
+          />
+        </div>
+      }
+    >
       <Box sx={{ height: { xs: "200px" } }}>
         {loading ? (
           <Loading height={200} />

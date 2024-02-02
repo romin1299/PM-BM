@@ -18,10 +18,11 @@ import { Row, Col } from "react-bootstrap";
 import axios from "axios";
 import SectionCellSelectionDropdown from "./SectionCellSelectionDropdown";
 import DataNotFound from "../Common/DataNotFound";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import Loading from "../../../components/Loading/Loading";
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
+import downloadFile from "../../../util";
 
 ChartJS.register(
   CategoryScale,
@@ -127,6 +128,18 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
     setLoading(false);
   };
 
+  const header = ["Line Names", "Total Bd Hours", "Percentages"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [[data?.lineNames, data?.bdHours, data?.percentages]];
+
+      downloadFile(bodyData, fileType, header, "Linewise_Contribution");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   React.useEffect(() => {
     selectedValue && fetchChartData();
   }, [selectedValue, selectedYear, selectedMonth]);
@@ -167,7 +180,21 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
 
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="Section Contribution" Toolbar={null} />
+      <ChartTitleBar
+        title="Section Contribution"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
       <Row>
         <ChartsToolbar

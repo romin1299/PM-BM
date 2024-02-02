@@ -72,6 +72,11 @@ const userSchema = new mongoose.Schema({
     type: [String],
   },
 
+  isAuthorizedUserForUpdatingRequestSheetInAnyStatus: {
+    type: String,
+    default: "No",
+  },
+
   plant_ref_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Plants",

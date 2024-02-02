@@ -15,10 +15,11 @@ import {
   Legend,
   PointElement,
 } from "chart.js";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
 
 ChartJS.register(
   CategoryScale,
@@ -136,6 +137,25 @@ const LineTrend = ({
     setLoading(false);
   };
 
+  const header = ["Lines", "Total Sum of PM", "Total Sum of BM", "Percentage"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [
+        [
+          lineTrendData?.lines,
+          lineTrendData?.totalSumOf_PM,
+          lineTrendData?.totalSumOf_BM,
+          lineTrendData?.percentage,
+        ],
+      ];
+
+      downloadFile(bodyData, fileType, header, "Line_trend");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue && flagForTogglingFilter !== "based-on-line") {
       getLineTrendData();
@@ -205,7 +225,22 @@ const LineTrend = ({
   return (
     <>
       <Box className="cell p-3">
-        <ChartTitleBar title="Line Trend" />
+        <ChartTitleBar
+          title="Line Trend"
+          Toolbar={
+            <div className="col-auto">
+              <ChartDownloadMenu
+                handleDownloadCSV={() => {
+                  handleDownload("csv");
+                }}
+                handleDownloadPDF={() => {
+                  handleDownload("pdf");
+                }}
+              />
+            </div>
+          }
+        />
+
         {/* {loading ? (
         <Loading height={200} />
       ) : (

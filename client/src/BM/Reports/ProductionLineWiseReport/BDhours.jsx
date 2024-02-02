@@ -5,6 +5,8 @@ import SmallChartCardComponent from "./SmallChartCardComponent";
 import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "../Common/DataNotFound";
 import { Box } from "@mui/material";
+import downloadFile from "../../../util";
+import { ChartDownloadMenu } from "../Common/ChartTitleBar";
 
 const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   const [loading, setLoading] = React.useState(true);
@@ -74,6 +76,22 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+     
+
+      const bodyData = [
+        [reduceState.BDHours?.labels, reduceState.BDHours?.data],
+      ];
+
+      downloadFile(bodyData, fileType, header, "BD_Hours");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue) {
       getBDHours();
@@ -83,7 +101,21 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   let isDataExists = reduceState?.BDHours?.data?.length > 0 || false;
 
   return (
-    <SmallChartCardComponent title="BD Hours">
+    <SmallChartCardComponent
+      title="BD Hours"
+      Toolbar={
+        <div className="col-auto">
+          <ChartDownloadMenu
+            handleDownloadCSV={() => {
+              handleDownload("csv");
+            }}
+            handleDownloadPDF={() => {
+              handleDownload("pdf");
+            }}
+          />
+        </div>
+      }
+    >
       <Box sx={{ height: { xs: "200px" } }}>
         {loading ? (
           <Loading />

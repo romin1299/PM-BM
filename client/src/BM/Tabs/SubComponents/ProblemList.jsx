@@ -3,7 +3,12 @@ import { Button, Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import "./RequestSheet.scss";
 
-const ProblemList = ({ problems, setProblems, clearErrors }) => {
+const ProblemList = ({
+  problems,
+  setProblems,
+  clearErrors,
+  handleOnchangeFlag,
+}) => {
   const [newProblemText, setNewProblemText] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [editedProblem, setEditedProblem] = useState(null);
@@ -17,6 +22,7 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
         problem: newProblemText,
       };
       setProblems([...problems, newProblem]);
+      handleOnchangeFlag && handleOnchangeFlag("problems_val_flag");
       clearErrors && clearErrors("problemValidation");
       setNewProblemText("");
       setIsAdding(false);
@@ -31,6 +37,7 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
         problem.id === editedProblem.id ? editedProblem : problem
       );
       setProblems(updatedProblems);
+      handleOnchangeFlag && handleOnchangeFlag("problems_val_flag");
       setEditedProblem(null);
     }
   };
@@ -53,6 +60,7 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
       (problem) => problem.id !== problemId
     );
     setProblems(updatedProblems);
+    handleOnchangeFlag && handleOnchangeFlag("problems_val_flag");
   };
 
   return (

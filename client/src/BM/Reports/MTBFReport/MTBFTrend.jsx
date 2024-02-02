@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import LineBarChart from "../Common/LineBarChart";
+import downloadFile from "../../../util";
 
 const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   const [loading, setLoading] = React.useState(true);
@@ -39,6 +40,17 @@ const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
 
     setLoading(false);
   };
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [[MTBFTrendData?.labels, MTBFTrendData?.data]];
+
+      downloadFile(bodyData, fileType, header, "MTBF_TrendData");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
 
   useEffect(() => {
     if (selectedValue) {
@@ -58,6 +70,7 @@ const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
           lineLabel: "Target",
           barLabel: "MTBF",
         }}
+        onClickDownload={handleDownload}
       />
     </>
   );
