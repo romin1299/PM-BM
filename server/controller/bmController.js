@@ -17916,7 +17916,7 @@ router.get("/dummyAPI", authenticate, async (req, res, next) => {
         }
       );
 
-      console.log("machine-updated : ", machineFind[i]?.machine_code);
+      // console.log("machine-updated : ", machineFind[i]?.machine_code);
     }
 
     const lineFind = await Line.aggregate([
