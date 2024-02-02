@@ -12,10 +12,11 @@ import {
 import { Bar } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import { chartColors, MONTH_LABELS } from "../../Utils/ChartUtils/chartEnums";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
 
 ChartJS.register(
   CategoryScale,
@@ -109,6 +110,20 @@ const ManHourTrend = ({
     setLoading(false);
   };
 
+  const header = ["BMManHourTrend", "PMManHourTrend"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [
+        [manHourTrendData?.BMManHourTrend, manHourTrendData?.PMManHourTrend],
+      ];
+
+      downloadFile(bodyData, fileType, header, "ManHour_Trend");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue) {
       getManHourTrendData();
@@ -137,7 +152,21 @@ const ManHourTrend = ({
 
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="Man-Hour Trend" />
+      <ChartTitleBar
+        title="Man-Hour Trend"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
       <Box sx={{ height: { xs: "250px", md: "300px" } }}>
         {loading ? (

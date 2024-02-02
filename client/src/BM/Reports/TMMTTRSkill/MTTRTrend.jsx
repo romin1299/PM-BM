@@ -14,11 +14,12 @@ import {
   Legend,
   PointElement,
 } from "chart.js";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
 import Loading from "../../../components/Loading/Loading";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import DownloadButton from "../Common/DownloadButton";
 
 ChartJS.register(
   CategoryScale,
@@ -75,7 +76,7 @@ export const options = {
   },
 };
 
-const TMLoad = ({ tm_names, data, loading = false }) => {
+const TMLoad = ({ tm_names, data, loading = false, onClickDownload }) => {
   const chartData = {
     labels: tm_names,
     datasets: [
@@ -110,7 +111,21 @@ const TMLoad = ({ tm_names, data, loading = false }) => {
 
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="MTTR Trend" />
+      <ChartTitleBar
+        title="MTTR Trend"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                onClickDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                onClickDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
         {loading ? (

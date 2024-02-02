@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import LineBarChart from "../Common/LineBarChart";
+import downloadFile from "../../../util";
 
 const LineTrend = ({
   selectedValue,
@@ -44,6 +45,18 @@ const LineTrend = ({
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [[lineWiseMTTRTrend?.labels, lineWiseMTTRTrend?.data]];
+
+      downloadFile(bodyData, fileType, header, "MTTR_LineTrend");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue && flagForTogglingFilter !== "based-on-line") {
       getLineWiseMTTRTrendData();
@@ -62,6 +75,7 @@ const LineTrend = ({
           lineLabel: "Target",
           barLabel: "MTTR",
         }}
+        onClickDownload={handleDownload}
       />
     </>
   );

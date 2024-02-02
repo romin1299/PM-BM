@@ -16,9 +16,10 @@ import {
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import Loading from "../../../components/Loading/Loading";
+import downloadFile from "../../../util";
 
 ChartJS.register(
   CategoryScale,
@@ -147,6 +148,18 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
     setLoading(false);
   };
 
+  const header = ["Line Names", "Total Bd Hours", "Percentages"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [[data?.lineNames, data?.bdHours, data?.percentages]];
+
+      downloadFile(bodyData, fileType, header, "Linewise_Contribution");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   React.useEffect(() => {
     fetchChartData();
   }, [selectedYear, selectedMonth]);
@@ -186,7 +199,21 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
 
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="Plant Contribution" />
+      <ChartTitleBar
+        title="Plant Contribution"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
         {loading ? (

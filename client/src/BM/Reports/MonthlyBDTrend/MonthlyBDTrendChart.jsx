@@ -15,12 +15,13 @@ import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
 import Loading from "../../../components/Loading/Loading";
 import FilterSwitchButtons from "./FilterSwitchButtons";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
 
 ChartJS.register(
   CategoryScale,
@@ -137,6 +138,7 @@ const MonthlyBDTrendChart = ({
       // console.log("monthly bd trend res:", res);
 
       const data = res?.data?.bdTrendData;
+
       const barDatasets = res?.data?.bdTrendData?.map((item, index) => ({
         type: "bar",
         stack: "bar-stacked",
@@ -177,6 +179,20 @@ const MonthlyBDTrendChart = ({
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [chartData].map((item) => [
+        item.datasets.map((a) => a.label).join("\n"),
+        item.datasets.map((a) => a.data).join("\n"),
+      ]);
+
+      downloadFile(bodyData, fileType, header, "Monthly_Bd_Trend");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   console.log("chartData:", chartData);
 
   useEffect(() => {
@@ -196,15 +212,28 @@ const MonthlyBDTrendChart = ({
         //   sx: { fontWeight: "500" },
         // }}
         Toolbar={
-          showFilterSwitch && (
-            <Col className="col-auto">
-              <FilterSwitchButtons
-                filter={filter}
-                setFilter={setFilter}
-                filterState={filterState}
+          <>
+            {showFilterSwitch && (
+              <Col className="col-auto">
+                <FilterSwitchButtons
+                  filter={filter}
+                  setFilter={setFilter}
+                  filterState={filterState}
+                />
+              </Col>
+            )}
+
+            <div className="col-auto">
+              <ChartDownloadMenu
+                handleDownloadCSV={() => {
+                  handleDownload("csv");
+                }}
+                handleDownloadPDF={() => {
+                  handleDownload("pdf");
+                }}
               />
-            </Col>
-          )
+            </div>
+          </>
         }
       />
 

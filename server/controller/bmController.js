@@ -11677,7 +11677,17 @@ router.get(
             percentages: { $push: { $trunc: ["$percentage", 1] } },
           },
         },
+        {
+          $project: {
+            _id: 0,
+
+            lineNames: 1,
+            bdHours: 1,
+            percentages: 1,
+          },
+        },
       ]);
+
       return res.status(200).json({
         message: "LineWise Bd contribution for Plant get successfully",
         lineWiseBDData,
