@@ -9,6 +9,8 @@ import DataNotFound from "../Common/DataNotFound";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import Loading from "../../../components/Loading/Loading";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import downloadFile from "../../../util";
+import DownloadButton from "../Common/DownloadButton";
 
 const ChartCard = ({ category }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
@@ -110,6 +112,29 @@ const CategoryPieCharts = ({
     setLoading(false);
   };
 
+  const header = [
+    "Category",
+    "Sub-Categories",
+    "Breakdown Time",
+    "Breakdown Count",
+  ];
+
+  const handleDownload = async (fileType) => {
+    try {
+      console.log("fdfd", categories);
+      const bodyData = categories.map((item) => [
+        item.category,
+        item.subcategories,
+        item.bdTime,
+        item.bdCount,
+      ]);
+
+      downloadFile(bodyData, fileType, header, "sample");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     setLoading(false);
     if (selectedValue) fetchChartData();
@@ -128,6 +153,8 @@ const CategoryPieCharts = ({
     <Row className="g-2">
       {[0, 1]?.map((key) => (
         <Col key={key} sm={6} xs={12}>
+      
+
           {loading ? (
             <Box className="cell p-3">
               <Loading height={200} />
@@ -139,6 +166,7 @@ const CategoryPieCharts = ({
               <DataNotFound sx={{ mb: 0 }} />
             </Box>
           )}
+          
         </Col>
       ))}
       {/* {categories?.map((category, index) => (

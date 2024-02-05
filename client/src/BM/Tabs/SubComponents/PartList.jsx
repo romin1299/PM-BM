@@ -3,7 +3,7 @@ import { Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 
 const initialState = {
-  _id: "",
+  id: "",
   partNo: "",
   partName: "",
   makerName: "",
@@ -11,7 +11,7 @@ const initialState = {
   cost: "",
 };
 
-const PartList = ({ parts, setParts }) => {
+const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
   // console.clear();
   // console.log("parts:", parts);
 
@@ -29,16 +29,11 @@ const PartList = ({ parts, setParts }) => {
       newPart.quantity &&
       newPart.cost
     ) {
-      // Find the maximum id from existing parts
-      const maxId = parts.reduce(
-        (max, part) => (part._id > max ? part._id : max),
-        0
-      );
-
       // Assign a new id by incrementing the maximum id
-      newPart._id = maxId + 1;
+      newPart.id = parts?.length;
 
       setParts([...parts, newPart]);
+      handleOnchangeFlag && handleOnchangeFlag("parts_val_flag");
       setNewPart(initialState);
       setIsAdding(false);
     }
@@ -60,9 +55,10 @@ const PartList = ({ parts, setParts }) => {
       editedPart.cost
     ) {
       const updatedParts = parts.map((part) =>
-        part._id === editedPart._id ? editedPart : part
+        part.id === editedPart.id ? editedPart : part
       );
       setParts(updatedParts);
+      handleOnchangeFlag && handleOnchangeFlag("parts_val_flag");
       setEditedPart(null);
     }
   };
@@ -78,8 +74,11 @@ const PartList = ({ parts, setParts }) => {
   const deletePart = (event, partId) => {
     event.preventDefault();
 
-    const updatedParts = parts.filter((part) => part._id !== partId);
+    const updatedParts = parts.filter(
+      (part, index) => (part?.id || index) !== partId
+    );
     setParts(updatedParts);
+    handleOnchangeFlag && handleOnchangeFlag("parts_val_flag");
   };
 
   return (
@@ -124,9 +123,9 @@ const PartList = ({ parts, setParts }) => {
         </Col>
       </Row>
 
-      {parts.map((part) =>
-        editedPart && editedPart._id === part._id ? (
-          <Row key={part._id} className="m-0 d-flex">
+      {parts.map((part, index) =>
+        editedPart && editedPart.id === index ? (
+          <Row key={index} className="m-0 d-flex">
             {/* Render input fields for editing */}
             <Col lg={2} md={1} sm={2} className="border">
               <input
@@ -197,7 +196,7 @@ const PartList = ({ parts, setParts }) => {
             </Col>
           </Row>
         ) : (
-          <Row key={part._id} className="m-0">
+          <Row key={index} className="m-0">
             {/* Render part information */}
             <Col lg={2} md={1} sm={2} className="border">
               {part.partNo}
@@ -223,7 +222,7 @@ const PartList = ({ parts, setParts }) => {
               <button
                 class="bg-warning text-white border-0"
                 onClick={(event) => {
-                  editPart(event, part);
+                  editPart(event, { ...part, id: index });
                 }}
               >
                 Edit
@@ -232,7 +231,7 @@ const PartList = ({ parts, setParts }) => {
               <button
                 class="bg-danger text-white border-0"
                 onClick={(event) => {
-                  deletePart(event, part._id);
+                  deletePart(event, index);
                 }}
               >
                 Delete

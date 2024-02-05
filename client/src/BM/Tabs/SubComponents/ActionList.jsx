@@ -3,7 +3,12 @@ import { Button, Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import "./RequestSheet.scss";
 
-const ActionList = ({ actions, setActions, clearErrors }) => {
+const ActionList = ({
+  actions,
+  setActions,
+  clearErrors,
+  handleOnchangeFlag,
+}) => {
   const [newActionText, setNewActionText] = useState("");
   const [newActionStatus, setNewActionStatus] = useState("OK");
   const [isAdding, setIsAdding] = useState(false);
@@ -19,7 +24,7 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
         status: newActionStatus,
       };
       setActions([...actions, newAction]);
-
+      handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
       clearErrors && clearErrors("problemValidation");
       setNewActionText("");
       setNewActionStatus("NG");
@@ -37,6 +42,7 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
       return action;
     });
     setActions(updatedActions);
+    handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
     setEditedAction(null);
   };
 
@@ -50,6 +56,7 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
 
     const updatedActions = actions.filter((action) => action.id !== actionId);
     setActions(updatedActions);
+    handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
   };
 
   const cancelAdd = (event) => {
@@ -68,6 +75,7 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
       return action;
     });
     setActions(updatedActions);
+    handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
   };
 
   return (

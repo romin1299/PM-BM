@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import LineBarChart from "../Common/LineBarChart";
+import downloadFile from "../../../util";
 
 const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   const [loading, setLoading] = React.useState(true);
@@ -40,6 +41,18 @@ const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [[MTTRTrendData?.labels, MTTRTrendData?.data]];
+
+      downloadFile(bodyData, fileType, header, "MTTR_Trend");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue) {
       getMTTRTrendData();
@@ -58,6 +71,7 @@ const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
           lineLabel: "Target",
           barLabel: "MTTR",
         }}
+        onClickDownload={handleDownload}
       />
     </>
   );

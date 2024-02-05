@@ -35,12 +35,13 @@ import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
 import ViewGeneratedQROfMachine from "../../Popups/ViewGeneratedQROfMachine";
+import DownloadLineWiseCustomizedQRCodeOfMachine from "../../Popups/DownloadLineWiseCustomizedQRCodeOfMachine.jsx";
 
 const QRCodePopup = ({ onClose, onDownload }) => {
-  const [rows, setRows] = useState('');
-  const [columns, setColumns] = useState('');
-  const [cellWidth, setCellWidth] = useState('');
-  const [cellHeight, setCellHeight] = useState('');
+  const [rows, setRows] = useState("");
+  const [columns, setColumns] = useState("");
+  const [cellWidth, setCellWidth] = useState("");
+  const [cellHeight, setCellHeight] = useState("");
 
   const handleDownload = () => {
     const parsedRows = parseInt(rows);
@@ -48,7 +49,12 @@ const QRCodePopup = ({ onClose, onDownload }) => {
     const parsedCellWidth = parseInt(cellWidth);
     const parsedCellHeight = parseInt(cellHeight);
 
-    if (!isNaN(parsedRows) && !isNaN(parsedColumns) && !isNaN(parsedCellWidth) && !isNaN(parsedCellHeight)) {
+    if (
+      !isNaN(parsedRows) &&
+      !isNaN(parsedColumns) &&
+      !isNaN(parsedCellWidth) &&
+      !isNaN(parsedCellHeight)
+    ) {
       onDownload(parsedRows, parsedColumns, parsedCellWidth, parsedCellHeight);
       onClose();
     } else {
@@ -60,19 +66,35 @@ const QRCodePopup = ({ onClose, onDownload }) => {
     <div className="qr-code-popup">
       <label>
         Rows:
-        <input type="number" value={rows} onChange={(e) => setRows(e.target.value)} />
+        <input
+          type="number"
+          value={rows}
+          onChange={(e) => setRows(e.target.value)}
+        />
       </label>
       <label>
         Columns:
-        <input type="number" value={columns} onChange={(e) => setColumns(e.target.value)} />
+        <input
+          type="number"
+          value={columns}
+          onChange={(e) => setColumns(e.target.value)}
+        />
       </label>
       <label>
         Cell Width:
-        <input type="number" value={cellWidth} onChange={(e) => setCellWidth(e.target.value)} />
+        <input
+          type="number"
+          value={cellWidth}
+          onChange={(e) => setCellWidth(e.target.value)}
+        />
       </label>
       <label>
         Cell Height:
-        <input type="number" value={cellHeight} onChange={(e) => setCellHeight(e.target.value)} />
+        <input
+          type="number"
+          value={cellHeight}
+          onChange={(e) => setCellHeight(e.target.value)}
+        />
       </label>
       <button onClick={handleDownload}>Download QR Code</button>
     </div>
@@ -93,11 +115,15 @@ const CreationDashboardForTLHOSS = () => {
     cellHeight: 0,
   });
 
-
   const handleModalSave = () => {
     const { rows, columns, cellWidth, cellHeight } = inputData;
 
-    if (!isNaN(rows) && !isNaN(columns) && !isNaN(cellWidth) && !isNaN(cellHeight)) {
+    if (
+      !isNaN(rows) &&
+      !isNaN(columns) &&
+      !isNaN(cellWidth) &&
+      !isNaN(cellHeight)
+    ) {
       downloadQRCodeOfMachineData(rows, columns, cellWidth, cellHeight);
       setShowModal(false);
     } else {
@@ -116,6 +142,9 @@ const CreationDashboardForTLHOSS = () => {
   const [refKey3, setRefKey3] = useState(0);
 
   const [showQRCode, setShowQRCode] = useState(false);
+  const [showModalOfQRCodeForLine, setShowModalOfQRCodeForLine] =
+    useState(false);
+
   const [selectedRow, setSelectedRow] = useState();
 
   // console.log(lineList);
@@ -408,7 +437,12 @@ const CreationDashboardForTLHOSS = () => {
     doc.save(`Machine_Data_${timeStamp()}`);
   };
 
-  const downloadQRCodeOfMachineData = async (rows, columns, cellWidth, cellHeight) => {
+  const downloadQRCodeOfMachineData = async (
+    rows,
+    columns,
+    cellWidth,
+    cellHeight
+  ) => {
     const doc = new jsPDF();
 
     // Define the dimensions for the table
@@ -416,7 +450,7 @@ const CreationDashboardForTLHOSS = () => {
     const startY = 5;
     const spacing = 5;
 
-    const startTextX = 14;
+    const startTextX = 7;
     const startTextY = 5;
     const textSpacing = 5;
 
@@ -460,7 +494,7 @@ const CreationDashboardForTLHOSS = () => {
     }
 
     // Save the PDF
-    doc.save(`Machine_QR_${timeStamp()}`);
+    doc.save(`${line}_Machine_QR_${timeStamp()}`);
   };
 
   const postCellToGetLineList = async (selectedCell) => {
@@ -538,6 +572,9 @@ const CreationDashboardForTLHOSS = () => {
     setShowQRCode((showQRCode) => !showQRCode);
   };
 
+  const displayAndHideModalOfLineWiseMachineQR = () => {
+    setShowModalOfQRCodeForLine((showModalOfQRCodeForLine) => !showModalOfQRCodeForLine);
+  };
   const actionsForMachineTable = [
     {
       // icon: () => <button className="addbutton">Add</button>,
@@ -603,24 +640,31 @@ const CreationDashboardForTLHOSS = () => {
       ),
       tooltip: "Download All QR",
       isFreeAction: true,
-      onClick: (event, selectedRow) => {
-        const showPopup = () => {
-          const rows = parseInt(prompt("Enter the number of rows:"));
-          const columns = parseInt(prompt("Enter the number of columns:"));
-          const cellWidth = parseInt(prompt("Enter the cell width:"));
-          const cellHeight = parseInt(prompt("Enter the cell height:"));
+      onClick: (event, selectedRow) =>{
+        setSelectedRow(selectedRow);
+        displayAndHideModalOfLineWiseMachineQR()
+      }
+      // onClick: (event, selectedRow) => {
+      //   const showPopup = () => {
+      //     const rows = parseInt(prompt("Enter the number of rows:"));
+      //     const columns = parseInt(prompt("Enter the number of columns:"));
+      //     const cellWidth = parseInt(prompt("Enter the cell width:"));
+      //     const cellHeight = parseInt(prompt("Enter the cell height:"));
 
-          if (!isNaN(rows) && !isNaN(columns) && !isNaN(cellWidth) && !isNaN(cellHeight)) {
-            downloadQRCodeOfMachineData(rows, columns, cellWidth, cellHeight);
-          } else {
-            alert("Invalid input. Please enter valid numbers.");
-          }
-        };
+      //     if (
+      //       !isNaN(rows) &&
+      //       !isNaN(columns) &&
+      //       !isNaN(cellWidth) &&
+      //       !isNaN(cellHeight)
+      //     ) {
+      //       downloadQRCodeOfMachineData(rows, columns, cellWidth, cellHeight);
+      //     } else {
+      //       alert("Invalid input. Please enter valid numbers.");
+      //     }
+      //   };
 
-        showPopup();
-      },
-
-
+      //   showPopup();
+      // },
     },
   ];
 
@@ -639,6 +683,15 @@ const CreationDashboardForTLHOSS = () => {
         displayAndHide={displayAndHide}
         selectedRow={selectedRow}
         setSelectedRow={setSelectedRow}
+      />
+
+      <DownloadLineWiseCustomizedQRCodeOfMachine
+        showQRCode={showModalOfQRCodeForLine}
+        displayAndHideModalOfLineWiseMachineQR={displayAndHideModalOfLineWiseMachineQR}
+        selectedRow={selectedRow}
+        setSelectedRow={setSelectedRow}
+        machine={machine}
+        line={line}
       />
 
       <div className="mainPage">
@@ -702,8 +755,8 @@ const CreationDashboardForTLHOSS = () => {
                     </option>
                     {lineList !== ""
                       ? lineList?.lineArray?.map((option) => {
-                        return <option value={option}>{option}</option>;
-                      })
+                          return <option value={option}>{option}</option>;
+                        })
                       : ""}
                   </select>
                 </Col>

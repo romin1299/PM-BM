@@ -14,13 +14,14 @@ import { Col } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 
 import { MonthDropdown } from "../ManHourReport/SubComponents/LineSelectionDropdown";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 
 import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
 
 ChartJS.register(
   CategoryScale,
@@ -154,6 +155,30 @@ const DailyBDTrendChart = ({
     setLoading(false);
   };
 
+  const header = [
+    "GreaterThenOneAndLessThanOrEqualToTwoHourData",
+    "GreaterThenTwoHourData",
+    "LessThanOrEqualToOneHourData",
+    "Counts",
+  ];
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [
+        [
+          dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
+
+          dailyBreakdownTrendData?.greaterThenTwoHourData,
+          dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
+          dailyBreakdownTrendData?.dayWiseCount,
+        ],
+      ];
+
+      downloadFile(bodyData, fileType, header, "Daily_Breakdown_Trend");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     setLoading(false);
     if (
@@ -223,12 +248,24 @@ const DailyBDTrendChart = ({
       <ChartTitleBar
         title="Daily Breakdown Trend"
         Toolbar={
-          <Col className="col-auto">
-            <MonthDropdown
-              selectedMonth={dailyBDSelectedMonth}
-              setSelectedMonth={setDailyBDSelectedMonth}
-            />
-          </Col>
+          <>
+            <Col className="col-auto">
+              <MonthDropdown
+                selectedMonth={dailyBDSelectedMonth}
+                setSelectedMonth={setDailyBDSelectedMonth}
+              />
+            </Col>
+            <div className="col-auto">
+              <ChartDownloadMenu
+                handleDownloadCSV={() => {
+                  handleDownload("csv");
+                }}
+                handleDownloadPDF={() => {
+                  handleDownload("pdf");
+                }}
+              />
+            </div>
+          </>
         }
       />
 

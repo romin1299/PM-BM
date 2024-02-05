@@ -24,6 +24,7 @@ import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu";
 import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
 import TmMttrSkillScoreCrud from "./TMMttrSkillScoreCrud";
 import axios from "axios";
+import downloadFile from "../../../util";
 
 const TMMTRMain = () => {
   const [loading, setLoading] = React.useState(true);
@@ -157,6 +158,16 @@ const TMMTRMain = () => {
     setLoading(false);
   };
 
+  const header = ["Tm Names", "Data"];
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [[userWiseData?.tm_names, userWiseData?.data]];
+      downloadFile(bodyData, fileType, header, "TM_MTTR");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   React.useEffect(() => {
     if (reduceState?.selectedValue) fetchChartData();
   }, [reduceState?.selectedValue, reduceState?.selectedYear, timeFilter]);
@@ -200,7 +211,11 @@ const TMMTRMain = () => {
 
         <Row className="mt-3">
           <Col md={12} lg={6}>
-            <MTTRTrend {...userWiseData} loading={loading} />
+            <MTTRTrend
+              {...userWiseData}
+              loading={loading}
+              onClickDownload={handleDownload}
+            />
           </Col>
 
           <Col md={12} lg={6}>

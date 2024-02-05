@@ -1478,6 +1478,7 @@ router.post("/postUserAssign", async (req, res) => {
     const {
       tm_name,
       tm_no,
+      isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
       user_type,
       tm_grade,
       email,
@@ -1515,6 +1516,7 @@ router.post("/postUserAssign", async (req, res) => {
     const addNewUser = new User({
       tm_name,
       tm_no,
+      isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
       user_type,
       tm_grade,
       email,
@@ -1571,6 +1573,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
       cell_data,
       contact_no,
       joining_date,
+      isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
     } = req.body;
 
     // console.log(tm_no,
@@ -1619,6 +1622,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
           $set: {
             tm_name,
             tm_grade,
+            isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
             tm_department,
             email,
             address,
@@ -1637,6 +1641,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
           $set: {
             tm_name,
             tm_grade,
+            isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
             // tm_grade: user_type === "Section-Admin" ? "HOS" : "",
             user_type,
             tm_department,
@@ -1674,6 +1679,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
           $set: {
             tm_name,
             tm_grade,
+            isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
             user_type,
             tm_department,
             email,
@@ -1694,6 +1700,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
           $set: {
             tm_name,
             tm_grade,
+            isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
             tm_department,
             email,
             operator_password,

@@ -12,11 +12,16 @@ import { Chart } from "react-chartjs-2";
 import { Box, Checkbox, FormControlLabel } from "@mui/material";
 import { Col } from "react-bootstrap";
 import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import DataNotFound from "../Common/DataNotFound";
 import axios from "axios";
 import TeamMembersDropdown from "./TeamMembersDropdown";
 import Loading from "../../../components/Loading/Loading";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
+import { saveAs } from "file-saver";
+import downloadFile from "../../../util";
+import DownloadButton from "../Common/DownloadButton";
 
 ChartJS.register(
   CategoryScale,
@@ -123,6 +128,17 @@ const TMProgress = ({
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [[data?.labels, data?.data]];
+      downloadFile(bodyData, fileType, header, "TM_Progress");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   React.useEffect(() => {
     if (selectedValue) fetchChartData();
   }, [selectedValue, tmId, selectedYear, timeFilter]);
@@ -187,6 +203,17 @@ const TMProgress = ({
                 flagForTogglingFilter={flagForTogglingFilter}
               />
             </Col>
+
+            <div className="col-auto">
+              <ChartDownloadMenu
+                handleDownloadCSV={() => {
+                  handleDownload("csv");
+                }}
+                handleDownloadPDF={() => {
+                  handleDownload("pdf");
+                }}
+              />
+            </div>
 
             {/* {AllTMCheckBox} */}
           </>

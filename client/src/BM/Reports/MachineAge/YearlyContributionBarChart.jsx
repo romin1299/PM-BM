@@ -11,10 +11,11 @@ import {
 import { Bar } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 import Loading from "../../../components/Loading/Loading";
+import downloadFile from "../../../util";
 
 const YearlyContributionBarChart = ({
   selectedValue,
@@ -61,6 +62,21 @@ const YearlyContributionBarChart = ({
     }
 
     setLoading(false);
+  };
+
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+     
+      const bodyData = [
+        [yearlyContributionData?.label, yearlyContributionData?.data],
+      ];
+
+      downloadFile(bodyData, fileType, header, "Machine_Age_Yearly");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
   };
 
   useEffect(() => {
@@ -137,7 +153,21 @@ const YearlyContributionBarChart = ({
 
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title={"Yearly Contribution"} />
+      <ChartTitleBar
+        title={"Yearly Contribution"}
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
         {loading ? (

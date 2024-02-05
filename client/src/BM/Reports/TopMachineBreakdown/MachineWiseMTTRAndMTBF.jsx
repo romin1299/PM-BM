@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import LineBarChart from "../Common/LineBarChart";
+import downloadFile from "../../../util";
 
 const MachineWiseMTTRAndMTBF = ({
   selectedValue,
@@ -40,6 +41,19 @@ const MachineWiseMTTRAndMTBF = ({
     }
   };
 
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [
+        [machineWiseMTTROrMTBF?.labels, machineWiseMTTROrMTBF?.data],
+      ];
+      downloadFile(bodyData, fileType, header, "MachineWise_MTTRorMTBF");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue) {
       getMachineWiseMTTROrMTBFTrendData();
@@ -57,6 +71,7 @@ const MachineWiseMTTRAndMTBF = ({
         label={{
           barLabel: chartFor,
         }}
+        onClickDownload={handleDownload}
       />
     </>
   );

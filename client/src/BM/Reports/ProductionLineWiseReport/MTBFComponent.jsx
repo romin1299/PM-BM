@@ -6,6 +6,9 @@ import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductio
 import Loading from "../../../components/Loading/Loading";
 import { Box } from "@mui/material";
 import DataNotFound from "../Common/DataNotFound";
+import downloadFile from "../../../util";
+import DownloadButton from "../Common/DownloadButton";
+import { ChartDownloadMenu } from "../Common/ChartTitleBar";
 
 const MTBFComponent = ({
   selectedValue,
@@ -82,22 +85,48 @@ const MTBFComponent = ({
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      const bodyData = [
+        [reduceState.MTBFReportData?.labels, reduceState.MTBFReportData?.data],
+      ];
+
+      downloadFile(bodyData, fileType, header, "MTBF");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue) getMTBFReportData();
   }, [selectedValue, selectedYear]);
 
-
-  
   let isDataExists = reduceState?.MTBFReportData?.data?.length > 0 || false;
 
   return (
-    <SmallChartCardComponent title="MTBF">
+    <SmallChartCardComponent
+      title="MTBF"
+      Toolbar={
+        <div className="col-auto">
+          <ChartDownloadMenu
+            handleDownloadCSV={() => {
+              handleDownload("csv");
+            }}
+            handleDownloadPDF={() => {
+              handleDownload("pdf");
+            }}
+          />
+        </div>
+      }
+    >
       <Box sx={{ height: { xs: "200px" } }}>
         {loading ? (
           <Loading height={200} />
         ) : !isDataExists ? (
           <DataNotFound />
-        )  : (
+        ) : (
           <LineBarChartForProductionLineWise
             MTBF={true}
             ReportData={reduceState?.MTBFReportData}
