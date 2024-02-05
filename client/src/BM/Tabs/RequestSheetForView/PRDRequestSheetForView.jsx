@@ -160,8 +160,8 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
       <form className="" onSubmit={() => {}}>
         <Table className="">
           <tbody className="m-1 border p-3">
-            <tr className="row m-2">
-              <td className="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
+            <tr className="">
+              <td className="">
                 <Container fluid>
                   <Row>
                     <Col

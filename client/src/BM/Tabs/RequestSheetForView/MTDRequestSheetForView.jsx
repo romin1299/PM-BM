@@ -281,61 +281,58 @@ function MyTable({
 
           <tr className="row m-0 mt-0">
             <td lg={12} md={12} sm={12}>
-              <div className="mb-2">
-                <Row className="m-0">
-                  <Col className="border border-left-0" lg={12} md={12} sm={12}>
-                    <Row className="d-flex align-items-center ">
-                      <Col
-                        lg={1}
-                        md={2}
-                        sm={6}
-                        className="d-flex align-items-center border border-right-0 border-top-0 border-bottom"
-                        style={{ height: "100px" }}
-                      >
-                        <small
-                          style={{ fontSize: "12px" }}
-                          className="text-center m-0 "
-                        >
-                          <b>WORK STARTED</b>
-                        </small>
-                      </Col>
-                      <Col
-                        className="border border-right-0 border-top-0 border-bottom"
-                        lg={2}
-                        md={3}
-                        sm={6}
-                        style={{ height: "100px" }}
-                      >
-                        <div className="d-flex align-items-center justify-content-center mt-3 mb-2">
-                          <div className="text-center">
-                            <small className="mb-0 d-block">
-                              <b>DATE & TIME: </b>
-                              <input
-                                disabled
-                                type="datetime-local"
-                                style={{ width: "165px" }}
-                                // defaultValue={currentDate}
-                                // onChange={(e) => {
-                                //   setValue(
-                                //     "workStartedDateOfBM",
-                                //     e.target.value
-                                //   );
-                                //   clearErrors(
-                                //     "root.handleApprovalErrorFromServerSide"
-                                //   );
-                                // }}
-                                {...register("workStartedDateOfBM", {
-                                  // required: "Work start date is required",
-                                })}
-                              />
-                              {errors?.["workStartedDateOfBM"] && (
-                                <p className="text-error">
-                                  {errors?.["workStartedDateOfBM"]?.message}
-                                </p>
-                              )}
-                            </small>
-                          </div>{" "}
-                          {/* &nbsp;&nbsp;&nbsp;&nbsp;
+              <Row className="mx-0">
+                <Col
+                  lg={1}
+                  md={2}
+                  sm={6}
+                  className="d-flex align-items-center border  border-bottom"
+                  style={{ height: "100px" }}
+                >
+                  <small
+                    style={{ fontSize: "12px" }}
+                    className="text-center m-0 "
+                  >
+                    <b>WORK STARTED</b>
+                  </small>
+                </Col>
+                <Col
+                  className="border  border-bottom"
+                  lg={2}
+                  md={3}
+                  sm={6}
+                  style={{ height: "100px" }}
+                >
+                  <div className="d-flex align-items-center justify-content-center mt-3 mb-2">
+                    <div className="text-center">
+                      <small className="mb-0 d-block">
+                        <b>DATE & TIME: </b>
+                        <input
+                          disabled
+                          type="datetime-local"
+                          style={{ width: "165px" }}
+                          // defaultValue={currentDate}
+                          // onChange={(e) => {
+                          //   setValue(
+                          //     "workStartedDateOfBM",
+                          //     e.target.value
+                          //   );
+                          //   clearErrors(
+                          //     "root.handleApprovalErrorFromServerSide"
+                          //   );
+                          // }}
+                          {...register("workStartedDateOfBM", {
+                            // required: "Work start date is required",
+                          })}
+                        />
+                        {errors?.["workStartedDateOfBM"] && (
+                          <p className="text-error">
+                            {errors?.["workStartedDateOfBM"]?.message}
+                          </p>
+                        )}
+                      </small>
+                    </div>{" "}
+                    {/* &nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
                             <p className="mb-0">
                               <b>TIME: </b>
@@ -356,57 +353,57 @@ function MyTable({
                               )}
                             </p>
                           </div> */}
-                        </div>
-                      </Col>
-                      <Col
-                        className="border border-right-0 border-top-0 border-bottom d-flex align-items-center"
-                        lg={1}
-                        md={2}
-                        sm={6}
-                        style={{ height: "100px" }}
-                      >
-                        <small
-                          style={{ fontSize: "12px" }}
-                          className="text-center m-0"
-                        >
-                          <b>WORK ENDED</b>
-                        </small>
-                      </Col>
-                      <Col
-                        className="border border-right-0 border-top-0 border-bottom-0"
-                        lg={2}
-                        md={3}
-                        sm={6}
-                        style={{ height: "100px" }}
-                      >
-                        <div className="d-flex align-items-center justify-content-center mt-3 mb-2">
-                          <div className="text-center">
-                            <small className="mb-0 d-block">
-                              <b>DATE & TIME: </b>
-                              <br />
-                              <input
-                                disabled
-                                type="datetime-local"
-                                style={{ width: "160px" }}
-                                defaultValue={currentDate}
-                                {...register("workEndedDateOfBM", {
-                                  // required: "Work Ended date is required",
-                                })}
-                                // onChange={(e) => {
-                                //   setValue("workEndedDateOfBM", e.target.value);
-                                //   clearErrors(
-                                //     "root.handleApprovalErrorFromServerSide"
-                                //   );
-                                // }}
-                              />
-                              {errors?.["workEndedDateOfBM"] && (
-                                <p className="text-error">
-                                  {errors?.["workEndedDateOfBM"]?.message}
-                                </p>
-                              )}
-                            </small>
-                          </div>{" "}
-                          {/* &nbsp;&nbsp;&nbsp;&nbsp;
+                  </div>
+                </Col>
+                <Col
+                  className="border  border-bottom d-flex align-items-center"
+                  lg={1}
+                  md={2}
+                  sm={6}
+                  style={{ height: "100px" }}
+                >
+                  <small
+                    style={{ fontSize: "12px" }}
+                    className="text-center m-0"
+                  >
+                    <b>WORK ENDED</b>
+                  </small>
+                </Col>
+                <Col
+                  className="border"
+                  lg={2}
+                  md={3}
+                  sm={6}
+                  style={{ height: "100px" }}
+                >
+                  <div className="d-flex align-items-center justify-content-center mt-3 mb-2">
+                    <div className="text-center">
+                      <small className="mb-0 d-block">
+                        <b>DATE & TIME: </b>
+                        <br />
+                        <input
+                          disabled
+                          type="datetime-local"
+                          style={{ width: "160px" }}
+                          defaultValue={currentDate}
+                          {...register("workEndedDateOfBM", {
+                            // required: "Work Ended date is required",
+                          })}
+                          // onChange={(e) => {
+                          //   setValue("workEndedDateOfBM", e.target.value);
+                          //   clearErrors(
+                          //     "root.handleApprovalErrorFromServerSide"
+                          //   );
+                          // }}
+                        />
+                        {errors?.["workEndedDateOfBM"] && (
+                          <p className="text-error">
+                            {errors?.["workEndedDateOfBM"]?.message}
+                          </p>
+                        )}
+                      </small>
+                    </div>{" "}
+                    {/* &nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
                             <p className="mb-0">
                               <b>TIME: </b>
@@ -426,175 +423,169 @@ function MyTable({
                               )}
                             </p>
                           </div> */}
-                        </div>
-                      </Col>
-                      <Col lg={3} md={6} sm={12} style={{ height: "100px" }}>
-                        <Row className="border border-top-0 border-left-0 border-right-0">
-                          <small className="mb-0 mt-1">
-                            <b>SECTION IN-CHARGE</b>
-                          </small>
-                          <br />
-                        </Row>
-                        <Row className="border border-top-0 border-left-0 border-right-0">
-                          <Col
-                            lg={6}
-                            md={6}
-                            className="d-block border border-bottom-0 border-top-0 border-left-0 border-bottom-0"
-                          >
-                            {(selectedMinor === "Yes" &&
-                              selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                                "MTD_HOSS".replace("_", " ")
-                              )) ||
-                            (selectedMajor === "Yes" &&
-                              selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                                "MTD_HOSS"?.replace("_", " ")
-                              )) ? (
-                              <small>
-                                <b>MTD HOSS</b>
-                              </small>
-                            ) : (
-                              ""
-                            )}
-                            {requestSheetDataOfBM?.approvalOfMTD_HOSS &&
-                            requestSheetDataOfBM?.approvalStatusOfMTD_HOSS ===
-                              "Accepted" &&
-                            requestSheetDataOfBM?.requestSheetStatus !==
-                              "Rejected" ? (
-                              <p>
-                                {
-                                  requestSheetDataOfBM?.approvalOfMTD_HOSS
-                                    ?.tm_name
-                                }
-                              </p>
-                            ) : (
-                              <DropdownElem
-                                name={"MTD_HOSS"}
-                                selectedMinor={selectedMinor}
-                                selectedMajor={selectedMajor}
-                                approvalList={
-                                  selectedMachineDetails?.line_names?.cell_names
-                                    ?.subSection_names?.section_names
-                                    ?.plant_names?.approvalListOfMinorAndMajor
-                                }
-                                displayOrNot={
-                                  requestSheetDataOfBM?.approvalOfMTD_TL
-                                    ?._id === loggedUserDetails?._id
-                                }
-                                options={approvalListOfBM?.mtdTL}
-                                register={register}
-                                errors={errors}
-                                // required={
-                                //   selectedMinor === "Yes" &&
-                                //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                                //     "MTD_HOSS".replace("_", " ")
-                                //   )
-                                //     ? true
-                                //     : selectedMajor === "Yes" &&
-                                //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                                //         "MTD_HOSS".replace("_", " ")
-                                //       )
-                                //     ? true
-                                //     : false
-                                // }
-                              />
-                            )}
-                          </Col>
-                          <Col
-                            lg={6}
-                            md={6}
-                            className="d-block border-0 border-bottom-0"
-                          >
-                            {selectedMajor === "Yes" &&
-                              selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                                "MTD_HOS"?.replace("_", " ")
-                              ) && <small>MTD HOS</small>}
-                            {requestSheetDataOfBM?.approvalOfMTD_HOS &&
-                            requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
-                              "Accepted" &&
-                            requestSheetDataOfBM?.requestSheetStatus !==
-                              "Rejected" ? (
-                              requestSheetDataOfBM?.approvalOfMTD_HOS?.tm_name
-                            ) : (
-                              <DropdownElem
-                                name={"MTD_HOS"}
-                                selectedMinor={selectedMinor}
-                                selectedMajor={selectedMajor}
-                                approvalList={
-                                  selectedMachineDetails?.line_names?.cell_names
-                                    ?.subSection_names?.section_names
-                                    ?.plant_names?.approvalListOfMinorAndMajor
-                                }
-                                displayOrNot={
-                                  requestSheetDataOfBM?.approvalOfMTD_TL
-                                    ?._id === loggedUserDetails?._id
-                                }
-                                options={approvalListOfBM?.mtdHOS}
-                                register={register}
-                                errors={errors}
-                                // required={
-                                //   selectedMinor === "Yes" &&
-                                //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                                //     "MTD_HOS".replace("_", " ")
-                                //   )
-                                //     ? true
-                                //     : selectedMajor === "Yes" &&
-                                //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                                //         "MTD_HOS".replace("_", " ")
-                                //       )
-                                //     ? true
-                                //     : false
-                                // }
-                              />
-                            )}
-                          </Col>
-                        </Row>
-                      </Col>
-                      <Col
-                        lg={2}
-                        md={6}
-                        sm={12}
-                        className="border border-bottom-0 pb-2 "
-                        style={{ height: "100px" }}
-                      >
-                        {loggedUserDetails?.tm_department === "MTD" &&
-                        loggedUserDetails?.tm_grade === "HOS" &&
-                        timeDifferenceMinutes > 120 ? (
-                          <>
-                            <small className="mb-0">
-                              <b>FEEDBACK</b>
-                            </small>
-                            <br />
-                            <input
-                              disabled
-                              type="text"
-                              className="widthwhy"
-                              id="feedbackMTD_HOS"
-                              name="feedbackMTD_HOS"
-                              // {...register("feedbackMTD_HOS", {
-                              //   required: "This field is required",
-                              // })}
-                              onChange={(e) => {
-                                setValue("feedbackMTD_HOS", e.target.value, {
-                                  shouldDirty: true,
-                                });
-                                clearErrors("feedbackMTD_HOS");
-                              }}
-                            />
+                  </div>
+                </Col>
 
-                            {errors?.["feedbackMTD_HOS"] && (
-                              <p className="text-error">
-                                {errors?.["feedbackMTD_HOS"]?.message}
-                              </p>
-                            )}
-                          </>
-                        ) : (
-                          ""
-                        )}
-                      </Col>
-                    </Row>
-                  </Col>
-                </Row>
-              </div>
+                <Col
+                  lg={3}
+                  md={6}
+                  sm={12}
+                  style={{ height: "100px" }}
+                  className="border"
+                >
+                  <Row className="">
+                    <small className="mb-0 mt-1">
+                      <b>SECTION IN-CHARGE</b>
+                    </small>
+                    <br />
+                  </Row>
+                  <Row>
+                    <Col lg={6} md={6} className="d-block border">
+                      {(selectedMinor === "Yes" &&
+                        selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
+                          "MTD_HOSS".replace("_", " ")
+                        )) ||
+                      (selectedMajor === "Yes" &&
+                        selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+                          "MTD_HOSS"?.replace("_", " ")
+                        )) ? (
+                        <small>
+                          <b>MTD HOSS</b>
+                        </small>
+                      ) : (
+                        ""
+                      )}
+                      {requestSheetDataOfBM?.approvalOfMTD_HOSS &&
+                      requestSheetDataOfBM?.approvalStatusOfMTD_HOSS ===
+                        "Accepted" &&
+                      requestSheetDataOfBM?.requestSheetStatus !==
+                        "Rejected" ? (
+                        <p>
+                          {requestSheetDataOfBM?.approvalOfMTD_HOSS?.tm_name}
+                        </p>
+                      ) : (
+                        <DropdownElem
+                          name={"MTD_HOSS"}
+                          selectedMinor={selectedMinor}
+                          selectedMajor={selectedMajor}
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                          displayOrNot={
+                            requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
+                            loggedUserDetails?._id
+                          }
+                          options={approvalListOfBM?.mtdTL}
+                          register={register}
+                          errors={errors}
+                          // required={
+                          //   selectedMinor === "Yes" &&
+                          //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
+                          //     "MTD_HOSS".replace("_", " ")
+                          //   )
+                          //     ? true
+                          //     : selectedMajor === "Yes" &&
+                          //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+                          //         "MTD_HOSS".replace("_", " ")
+                          //       )
+                          //     ? true
+                          //     : false
+                          // }
+                        />
+                      )}
+                    </Col>
+                    <Col lg={6} md={6} className="d-block border">
+                      {selectedMajor === "Yes" &&
+                        selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+                          "MTD_HOS"?.replace("_", " ")
+                        ) && <small>MTD HOS</small>}
+                      {requestSheetDataOfBM?.approvalOfMTD_HOS &&
+                      requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
+                        "Accepted" &&
+                      requestSheetDataOfBM?.requestSheetStatus !==
+                        "Rejected" ? (
+                        requestSheetDataOfBM?.approvalOfMTD_HOS?.tm_name
+                      ) : (
+                        <DropdownElem
+                          name={"MTD_HOS"}
+                          selectedMinor={selectedMinor}
+                          selectedMajor={selectedMajor}
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                          displayOrNot={
+                            requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
+                            loggedUserDetails?._id
+                          }
+                          options={approvalListOfBM?.mtdHOS}
+                          register={register}
+                          errors={errors}
+                          // required={
+                          //   selectedMinor === "Yes" &&
+                          //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
+                          //     "MTD_HOS".replace("_", " ")
+                          //   )
+                          //     ? true
+                          //     : selectedMajor === "Yes" &&
+                          //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+                          //         "MTD_HOS".replace("_", " ")
+                          //       )
+                          //     ? true
+                          //     : false
+                          // }
+                        />
+                      )}
+                    </Col>
+                  </Row>
+                </Col>
+
+                <Col
+                  lg={3}
+                  md={6}
+                  sm={12}
+                  className="border pb-2 "
+                  style={{ height: "100px" }}
+                >
+                  {loggedUserDetails?.tm_department === "MTD" &&
+                  loggedUserDetails?.tm_grade === "HOS" &&
+                  timeDifferenceMinutes > 120 ? (
+                    <>
+                      <small className="mb-0">
+                        <b>FEEDBACK</b>
+                      </small>
+                      <br />
+                      <input
+                        disabled
+                        type="text"
+                        className="widthwhy"
+                        id="feedbackMTD_HOS"
+                        name="feedbackMTD_HOS"
+                        // {...register("feedbackMTD_HOS", {
+                        //   required: "This field is required",
+                        // })}
+                        onChange={(e) => {
+                          setValue("feedbackMTD_HOS", e.target.value, {
+                            shouldDirty: true,
+                          });
+                          clearErrors("feedbackMTD_HOS");
+                        }}
+                      />
+
+                      {errors?.["feedbackMTD_HOS"] && (
+                        <p className="text-error">
+                          {errors?.["feedbackMTD_HOS"]?.message}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    ""
+                  )}
+                </Col>
+              </Row>
             </td>
 
             {/* <td className="mb-0 pb-0 pt-0 col-lg-4">
