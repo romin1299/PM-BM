@@ -1,14 +1,7 @@
 import { Box, Divider, Paper, Typography } from "@mui/material";
 
 const MachineStatusBox = ({ title, bodyText1, bodyText2 }) => (
-  <Paper
-    variant="outlined"
-    sx={{
-      minHeight: "32px",
-      minWidth: "100px",
-      borderColor: "#40694842",
-    }}
-  >
+  <Paper variant="outlined" sx={{ borderColor: "#40694842" }}>
     <Box
       sx={{
         display: "flex",
@@ -27,12 +20,16 @@ const MachineStatusBox = ({ title, bodyText1, bodyText2 }) => (
     <Box
       sx={{
         backgroundColor: "#c6efce",
+        // height:"100%",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        minHeight: "48px",
+        minHeight: "32px",
+        minWidth: "100px",
+        maxWidth: "150px",
       }}
+      className="text-break"
       p={"2px 8px"}
     >
       <Typography
