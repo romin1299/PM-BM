@@ -58,8 +58,8 @@ function MyTable() {
   }, [machine_code]);
 
   return (
-    <>
-      <div style={{ overflow: "scroll" }}>
+    <div className="p-2">
+      <div id="request-sheet-target" className="border border-dark">
         {context?.tm_department === "PRD" && (
           <PRDRequestSheet
             selectedMachineDetails={selectedMachineDetails}
@@ -74,7 +74,7 @@ function MyTable() {
         approvalListOfBM={approvalListOfBM}
       /> */}
       </div>
-    </>
+    </div>
   );
 }
 

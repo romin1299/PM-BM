@@ -9,6 +9,7 @@ import { commonPPTGeneratorForSameTemplate } from "./commonPPTGeneratorForSameTe
 import { generateKPIFromDBPpt } from "./generateKPIFromDBPpt";
 import { generateLineWiseKpiStatusPpt } from "./generateLineWiseKpiStatusPpt";
 import { generateTopMachineBdPpt } from "./topMachineBbPPTX";
+import { generateTopMachineBdDefaultPpt } from "./topMachineBbDefaultPPTX";
 
 export const EXPORT_REPORT = {
   PRODUCT_LINE_WISE: "Product-Line-Wise-Report",
@@ -20,6 +21,7 @@ export const EXPORT_REPORT = {
   COMMON_TEMPLATE_REPORT: "COMMON-TEMPLATE-REPORT",
   KPI_FROM_DB: "KPI-From-Database",
   TOP_MACHINE_BREAKDOWN: "Top-Machine-Breakdown",
+  TOP_MACHINE_BD_DEFAULT: "Top-Machine-Bd-Default",
   TEST: "Test-Report",
 };
 
@@ -62,6 +64,10 @@ export async function exportPPTX(reportName, urlOptions) {
 
     case EXPORT_REPORT.TOP_MACHINE_BREAKDOWN:
       await generateTopMachineBdPpt(pptx, urlOptions);
+      break;
+
+    case EXPORT_REPORT.TOP_MACHINE_BD_DEFAULT:
+      await generateTopMachineBdDefaultPpt(pptx, urlOptions);
       break;
 
     case EXPORT_REPORT.LINE_WISE_KPI_STATUS:

@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import MTDRequestSheet from "./MTDRequestSheetForView";
 
-function MyTable() {
+function MainRequestSheetForView() {
   const navigate = useNavigate();
   const context = useContext(RoutingContext);
 
@@ -95,8 +95,8 @@ function MyTable() {
   }, [requestSheetID]);
 
   return (
-    <>
-      <div>
+    <div className="p-2">
+      <div id="request-sheet-target" className="border border-dark">
         <PRDRequestSheetForUpdate
           // selectedMachineDetails={selectedMachineDetails}
           machineId={selectedMachineDetails?._id}
@@ -113,8 +113,8 @@ function MyTable() {
           supportingTMList={supportingTMList}
         />
       </div>
-    </>
+    </div>
   );
 }
 
-export default MyTable;
+export default MainRequestSheetForView;

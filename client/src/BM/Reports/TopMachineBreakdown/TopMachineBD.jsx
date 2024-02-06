@@ -75,18 +75,30 @@ const TopMachineBD = () => {
         <ReportTitleBar
           title=""
           Toolbar={
-            <ChartsToolbar
-              baseUrlForFiltering={baseUrlForFilteringUsingDefaultValue}
-              reduceState={reduceStateForDefaultCellLineMachineFilter}
-              reducerDispatch={reducerDispatchForDefaultCellLineMachineFilter}
-              yearFiltration
-              sectionFiltration
-              subSectionFiltration
-              cellFiltration
-              lineFiltration
-              machineFiltration
-              resetButtonFiltration
-            />
+            <>
+              <ChartsToolbar
+                baseUrlForFiltering={baseUrlForFilteringUsingDefaultValue}
+                reduceState={reduceStateForDefaultCellLineMachineFilter}
+                reducerDispatch={reducerDispatchForDefaultCellLineMachineFilter}
+                yearFiltration
+                sectionFiltration
+                subSectionFiltration
+                cellFiltration
+                lineFiltration
+                machineFiltration
+                resetButtonFiltration
+              />
+              <Col className="col-auto">
+                <DownloadMenu
+                  handleDownloadPPTX={() => {
+                    exportPPTX(
+                      EXPORT_REPORT.TOP_MACHINE_BD_DEFAULT,
+                      reduceStateForDefaultCellLineMachineFilter
+                    );
+                  }}
+                />
+              </Col>
+            </>
           }
         />
 

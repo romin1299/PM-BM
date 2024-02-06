@@ -33,7 +33,7 @@ const chartDataMake = async (pptx, chartData, name) => [
       {
         name,
         labels: chartData?.labels,
-        values: chartData?.data,
+        values: chartData?.data.replaceZeroWithNull(),
       },
     ],
     options: {
@@ -46,7 +46,7 @@ const chartDataMake = async (pptx, chartData, name) => [
       {
         name: "Target",
         labels: chartData?.labels,
-        values: chartData?.target,
+        values: chartData?.target.replaceZeroWithNull(),
       },
     ],
     options: {
@@ -176,7 +176,7 @@ async function genSlide02(pptx, urlOptions) {
     {
       name,
       labels: chartData03?.labels,
-      values: chartData03?.data,
+      values: chartData03?.data.replaceZeroWithNull(),
     },
   ];
 
