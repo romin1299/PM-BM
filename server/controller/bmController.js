@@ -392,7 +392,11 @@ router.post(
             partQualityCheckedByPRD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
             requestSheetStatus:
-              requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
+              // requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
+              (getRequestSheetData?.assignUser?._id).toString() !==
+                    (req?.rootUser?._id).toString() ||
+                  (getRequestSheetData?.handOverUser?._id).toString() !==
+                    (req?.rootUser?._id).toString()
                 ? getRequestSheetData?.requestSheetStatus
                 : "Fill Sheet",
             // (
@@ -1434,7 +1438,9 @@ router.patch(
         req.rootUser?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus ===
         "No"
       ) {
-        return res.status(401).json({ message: "Unauthorized to update request-sheet!!!" });
+        return res
+          .status(401)
+          .json({ message: "Unauthorized to update request-sheet!!!" });
       }
       next();
     } catch (error) {
@@ -7212,9 +7218,8 @@ router.patch(
   async (req, res, next) => {
     try {
       delete req.body["_id"];
-      console.log(req.body);
 
-      let { greaterThan, lessThanValue } = await Plant.findOneAndUpdate(
+      let { greaterThan, lessThanValue, _id } = await Plant.findOneAndUpdate(
         { _id: req.params?.plantId },
         { $set: req.body },
         { new: true }
@@ -7223,6 +7228,7 @@ router.patch(
       res.status(201).json({
         message: "Filter updated successfully",
         responseFilter: {
+          _id,
           greaterThan,
           lessThanValue,
         },

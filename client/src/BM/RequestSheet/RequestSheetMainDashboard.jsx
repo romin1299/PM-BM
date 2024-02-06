@@ -600,7 +600,11 @@ const RequestSheetMainDashboard = () => {
           row?.work_order_status === "Closed")
           ? false
           : true,
-      hidden: row?.assignUserId === context?._id ? false : true,
+      hidden:
+        row?.assignUserId === context?._id ||
+        row?.handOverUserId === context?._id
+          ? false
+          : true,
       onClick: (event, selectedRow) => {
         console.log("selectedRow:", selectedRow);
 
