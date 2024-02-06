@@ -76,17 +76,24 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Months"].concat(reduceState.BDHours?.labels);
 
   const handleDownload = async (fileType) => {
     try {
-     
+      let bodyData = []
+      if (fileType === "csv") {
+         bodyData = [
+          [["Months"].concat(reduceState.BDHours?.labels)?.toString() + "\n"],
+          [["Hours"].concat(reduceState.BDHours?.data)?.toString() + "\n"],
+          // [reduceState.BDHours?.labels, reduceState.BDHours?.data],
+        ];
+      }else{
+        bodyData = [
+          ["Hours"].concat(reduceState.BDHours?.data),
+        ]
+      }
 
-      const bodyData = [
-        [reduceState.BDHours?.labels, reduceState.BDHours?.data],
-      ];
-
-      downloadFile(bodyData, fileType, header, "BD_Hours");
+      downloadFile(bodyData, fileType, header, `BD_Hours_${selectedYear}`);
     } catch (error) {
       console.error("Error downloading data:", error);
     }
