@@ -702,7 +702,7 @@ const RequestSheetMainDashboard = () => {
               disableElevation
               onClick={handleGenerateBMNavigation}
               className={
-                context?.tm_department !== "PRD"
+                context?.tm_department === "PRD"
                   ? `bg-button d-inline`
                   : "d-none"
               }
@@ -923,7 +923,7 @@ const RequestSheetMainDashboard = () => {
           <NewRequestSheetRegistration />
         </Row> */}
 
-        <Box className="mt-2 cell p-0 border-0">
+        <Box className="mt-1 cell p-0 border-0">
           <MaterialTable
             localization={{
               header: {
@@ -951,9 +951,9 @@ const RequestSheetMainDashboard = () => {
               //     //refreshPage();
               //   }),
 
-                isDeleteHidden: (rowData) =>
-                  context?.userType !== "TL/HOSS" &&
-                  context?.tm_department !== "MTD",
+              isDeleteHidden: (rowData) =>
+                context?.userType !== "TL/HOSS" &&
+                context?.tm_department !== "MTD",
 
               onRowDelete: (selectedRow) =>
                 new Promise(async (resolve, reject) => {

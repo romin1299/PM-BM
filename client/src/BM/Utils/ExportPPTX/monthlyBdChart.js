@@ -60,7 +60,7 @@ const fetchMonthlyBDChartData = async (urlOptions) => {
   }
 };
 
-export async function monthlyBdChart(pptx, slide, urlOptions) {
+export async function monthlyBdChart(pptx, slide, urlOptions, chartOptions) {
   const monthlyBdChartData = await fetchMonthlyBDChartData(urlOptions);
 
   let comboProps = {
@@ -73,6 +73,8 @@ export async function monthlyBdChart(pptx, slide, urlOptions) {
     title: "Monthly BD Trend",
     catAxisTitle: "Months",
     valAxisTitle: "BD Hours",
+
+    ...chartOptions,
   };
   // Add chart to the slide with specified options
   slide.addChart(monthlyBdChartData, comboProps);

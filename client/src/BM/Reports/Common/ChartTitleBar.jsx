@@ -25,7 +25,7 @@ const ChartTitleBar = (props) => {
   return (
     <>
       <Row
-        className="align-items-center  gap-2"
+        className="align-items-center gx-2"
         style={{ marginBottom: "0.5rem" }}
       >
         <Col className="d-flex align-items-center">
@@ -72,17 +72,17 @@ export function ChartDownloadMenu({
         <Button
           disableElevation
           size="small"
-          variant="contained"
+          // variant="outlined"
           id="basic-button"
           aria-haspopup="true"
           aria-controls={open ? "basic-menu" : undefined}
           aria-expanded={open ? "true" : undefined}
-          sx={{ minWidth: "auto" }}
+          sx={{ minWidth: "auto", p: "4px 6px" }}
           // size="small"
           onClick={handleClick}
         >
           <DownloadIcon
-            // fontSize="small"
+            fontSize="small"
             // style={{ color: "white" }}
           />
         </Button>

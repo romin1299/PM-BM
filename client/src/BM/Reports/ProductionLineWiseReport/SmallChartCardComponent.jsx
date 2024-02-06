@@ -15,27 +15,22 @@ import Tooltip from "@mui/material/Tooltip";
 
 const SmallChartCardComponent = ({ title, children, Toolbar }) => {
   return (
-    <Box
-      className="cell p-3"
-      //    sx={{ borderRadius: "4px" }}
-    >
+    <Box className="cell p-3">
+      <Row>
+        <Typography
+          className="col"
+          variant="h6"
+          component="h6"
+          fontSize={20}
+          fontWeight={400}
+        >
+          {title}
+        </Typography>
 
-{/* <Col className="d-flex align-items-center"> */}
+        {Toolbar && Toolbar}
+      </Row>
 
-      <Typography
-        className="col"
-        variant="h6"
-        component="h6"
-        fontSize={20}
-        fontWeight={400}
-      >
-        {title}
-      </Typography>
-
-      {Toolbar && Toolbar}
-      {/* </Col> */}
       <Divider sx={{ mb: 1, borderColor: "black" }} />
-
 
       {children}
     </Box>

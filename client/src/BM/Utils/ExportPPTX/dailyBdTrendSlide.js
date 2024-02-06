@@ -108,9 +108,9 @@ export async function genSlideDailyBDTrend(pptx, urlOptions) {
   comboProps = {
     ...commonPptOptions,
     x: 0.5,
-    y: 1.6,
+    y: 1.1,
     w: 12.3,
-    h: 5.0,
+    h: 6.0,
     //
     catAxisLabelFontSize: 10,
     catAxisOrientation: "minMax",
