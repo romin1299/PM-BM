@@ -45,13 +45,33 @@ const MTBFLineTrend = ({
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Labels", "Hours"];
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [[lineWiseMTBFTrend?.labels, lineWiseMTBFTrend?.data]];
+      // const bodyData = [[lineWiseMTBFTrend?.labels, lineWiseMTBFTrend?.data]];
 
-      downloadFile(bodyData, fileType, header, "MTBF_LineTrend");
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Line Names"].concat(lineWiseMTBFTrend?.labels)?.toString() + "\n"],
+          [["Hours"].concat(lineWiseMTBFTrend?.data)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+          [
+            lineWiseMTBFTrend?.labels?.join("\n"),
+            lineWiseMTBFTrend?.data?.join("\n"),
+          ],
+        ];
+      }
+
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `MTBF_LineTrend_${selectedMonth}_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

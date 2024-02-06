@@ -93,6 +93,8 @@ const BDPercentageChart = ({
         ];
       }else{
         bodyData = [
+
+             
           ["Hours"].concat(reduceState.BDPercentageReportData?.data),
         ]
       }

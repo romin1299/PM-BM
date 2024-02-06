@@ -117,14 +117,42 @@ const MTBFMachineTrend = ({
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [
-          reduceState.MachineWiseMTBFTrendData?.labels,
-          reduceState.MachineWiseMTBFTrendData?.data,
-        ],
-      ];
+      // const bodyData = [
+      //   [
+      //     reduceState.MachineWiseMTBFTrendData?.labels,
+      //     reduceState.MachineWiseMTBFTrendData?.data,
+      //   ],
+      // ];
 
-      downloadFile(bodyData, fileType, header, "MTBF_MachineTrend");
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [
+            ["Line Names"]
+              .concat(reduceState.MachineWiseMTBFTrendData?.labels)
+              ?.toString() + "\n",
+          ],
+          [
+            ["Hours"]
+              .concat(reduceState.MachineWiseMTBFTrendData?.data)
+              ?.toString() + "\n",
+          ],
+        ];
+      } else {
+        bodyData = [
+          [
+            reduceState.MachineWiseMTBFTrendData?.labels.join("\n"),
+            reduceState.MachineWiseMTBFTrendData?.data.join("\n"),
+          ],
+        ];
+      }
+
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `MTBF_MachineTrend_${selectedMonth}_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

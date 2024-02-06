@@ -45,13 +45,33 @@ const LineTrend = ({
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Line Names", "Hours"];
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [[lineWiseMTTRTrend?.labels, lineWiseMTTRTrend?.data]];
+      // const bodyData = [[lineWiseMTTRTrend?.labels, lineWiseMTTRTrend?.data]];
 
-      downloadFile(bodyData, fileType, header, "MTTR_LineTrend");
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Line Names"].concat(lineWiseMTTRTrend?.labels)?.toString() + "\n"],
+          [["Hours"].concat(lineWiseMTTRTrend?.data)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+          [
+            lineWiseMTTRTrend?.labels?.join("\n"),
+            lineWiseMTTRTrend?.data?.join("\n"),
+          ],
+        ];
+      }
+
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `MTTR_LineTrend_${selectedMonth}_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

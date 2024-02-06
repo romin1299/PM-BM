@@ -18,6 +18,7 @@ const downloadFile = async (bodyData, fileType, header, fileName) => {
       doc.autoTable({
         head: [header],
         body: bodyData,
+
         theme: "grid",
       });
 
