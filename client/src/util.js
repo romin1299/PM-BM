@@ -1,3 +1,4 @@
+import { theme } from "antd";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -7,15 +8,17 @@ const downloadFile = async (bodyData, fileType, header, fileName) => {
     if (fileType === "csv") {
       const blob = new Blob(bodyData, {
         type: "text/csv;charset=utf-8;",
+        // endings:'native'
       });
 
       saveAs(blob, fileName + ".csv");
     } else {
-      const doc = new jsPDF();
-
+      const doc = new jsPDF("l");
+      doc.text(fileName, 15, 10);
       doc.autoTable({
         head: [header],
         body: bodyData,
+        theme: "grid",
       });
 
       doc.save(fileName + ".pdf");

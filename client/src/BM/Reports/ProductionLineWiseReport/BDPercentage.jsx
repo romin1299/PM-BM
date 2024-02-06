@@ -81,18 +81,23 @@ const BDPercentageChart = ({
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header =["Months"].concat(reduceState.BDPercentageReportData?.labels);
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [
-          reduceState.BDPercentageReportData?.labels,
-          reduceState.BDPercentageReportData?.data,
-        ],
-      ];
+      let bodyData = []
+      if (fileType === "csv") {
+         bodyData = [
+          [["Months"].concat(reduceState.BDPercentageReportData?.labels)?.toString() + "\n"],
+          [["Hours"].concat(reduceState.BDPercentageReportData?.data)?.toString() + "\n"],
+        ];
+      }else{
+        bodyData = [
+          ["Hours"].concat(reduceState.BDPercentageReportData?.data),
+        ]
+      }
 
-      downloadFile(bodyData, fileType, header, "Bd_Percentage");
+      downloadFile(bodyData, fileType, header, `BD_Percentage_${selectedYear}`);
     } catch (error) {
       console.error("Error downloading data:", error);
     }

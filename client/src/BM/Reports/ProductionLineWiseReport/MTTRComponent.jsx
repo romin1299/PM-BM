@@ -83,15 +83,24 @@ const MTTRComponent = ({
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Months"].concat(reduceState.MTTRReportData?.labels);
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [reduceState.MTTRReportData?.labels, reduceState.MTTRReportData?.data],
-      ];
+      let bodyData = []
+      if (fileType === "csv") {
+         bodyData = [
+          [["Months"].concat(reduceState.MTTRReportData?.labels)?.toString() + "\n"],
+          [["Hours"].concat(reduceState.MTTRReportData?.data)?.toString() + "\n"],
+          // [reduceState.BDHours?.labels, reduceState.BDHours?.data],
+        ];
+      }else{
+        bodyData = [
+          ["Hours"].concat(reduceState.MTTRReportData?.data),
+        ]
+      }
 
-      downloadFile(bodyData, fileType, header, "MTTR");
+      downloadFile(bodyData, fileType, header, `MTTR_${selectedYear}`);
     } catch (error) {
       console.error("Error downloading data:", error);
     }
