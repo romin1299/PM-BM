@@ -20,7 +20,7 @@ function OperatorDataEntry() {
     []
   );
 
-  const typeDropdownList = ["BM", "Corrective", "Predictive", "Kaizen"];
+  const typeDropdownList = ["Corrective", "Predictive", "Kaizen"];
 
   const postSectionToGetAllDataForMainDashboard = async () => {
     // setSubSection(undefined);

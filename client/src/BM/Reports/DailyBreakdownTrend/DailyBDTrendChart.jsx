@@ -22,6 +22,7 @@ import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 import downloadFile from "../../../util";
+import { CSVLink, CSVDownload } from "react-csv";
 
 ChartJS.register(
   CategoryScale,
@@ -155,25 +156,56 @@ const DailyBDTrendChart = ({
     setLoading(false);
   };
 
-  const header = [
-    "GreaterThenOneAndLessThanOrEqualToTwoHourData",
-    "GreaterThenTwoHourData",
-    "LessThanOrEqualToOneHourData",
-    "Counts",
-  ];
+  const header = ["Days"].concat(dailyBreakdownTrendData?.labels);
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [
-          dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Days"].concat(dailyBreakdownTrendData?.labels)?.toString() + "\n"],
 
-          dailyBreakdownTrendData?.greaterThenTwoHourData,
-          dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
-          dailyBreakdownTrendData?.dayWiseCount,
-        ],
-      ];
+          [
+            ["Total Counts"]
+              .concat(dailyBreakdownTrendData?.dayWiseCount)
+              ?.toString() + "\n",
+          ],
+          [
+            ["<1"]
+              .concat(dailyBreakdownTrendData?.lessThanOrEqualToOneHourData)
+              ?.toString() + "\n",
+          ],
+          [
+            ["<2"]
+              .concat(
+                dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData
+              )
+              ?.toString() + "\n",
+          ],
+          [
+            [">2"]
+              .concat(dailyBreakdownTrendData?.greaterThenTwoHourData)
+              ?.toString() + "\n",
+          ],
+        ];
+      } else {
+        bodyData = [
+          ["Total Counts"].concat(dailyBreakdownTrendData?.dayWiseCount),
+          ["<1"].concat(dailyBreakdownTrendData?.lessThanOrEqualToOneHourData),
+          ["<2"].concat(
+            dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData
+          ),
+          [">2"].concat(
+            dailyBreakdownTrendData?.greaterThenTwoHourData
+          ),
+        ];
+      }
 
-      downloadFile(bodyData, fileType, header, "Daily_Breakdown_Trend");
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `Daily_Breakdown_Trend_${dailyBDSelectedMonth}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

@@ -108,7 +108,7 @@ const LineWiseSpareConsumptionTrend = ({
   };
 
   const pdfDownloadForLineWiseSpareConsumption = () => {
-    const doc = new jsPDF();
+    const doc = new jsPDF("l");
     doc.text(`${selectedYear}. Line Wise Spare Consumption Trend`, 15, 10);
 
     autoTable(doc, {

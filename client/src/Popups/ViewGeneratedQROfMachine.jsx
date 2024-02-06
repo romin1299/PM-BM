@@ -39,7 +39,13 @@ const ViewGeneratedQROfMachine = ({
     if (showQRCode && !isGenerating) {
       generateQRCode();
     }
-  }, [showQRCode, selectedRow?.machine_code, customHeight, customWidth, isGenerating]);
+  }, [
+    showQRCode,
+    selectedRow?.machine_code,
+    customHeight,
+    customWidth,
+    isGenerating,
+  ]);
 
   const handleHeightChange = (e) => {
     setCustomHeight(e.target.value);
@@ -63,14 +69,13 @@ const ViewGeneratedQROfMachine = ({
 
         const link = document.createElement("a");
         link.href = canvas.toDataURL();
-        link.download = `QRCode_${customWidth}x${customHeight}.png`;
+        link.download = `${selectedRow?.machine_code}_QRCode_${customWidth}x${customHeight}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       };
     }
   };
-
 
   return (
     <>
@@ -115,6 +120,7 @@ const ViewGeneratedQROfMachine = ({
         <Modal.Footer>
           <Button
             className="btn-reset"
+            variant="danger"
             onClick={() => {
               displayAndHide();
               setSelectedRow();
@@ -122,9 +128,9 @@ const ViewGeneratedQROfMachine = ({
           >
             Cancel
           </Button>
-          <Button variant="danger" onClick={printQRCodeOfTheSelectedMachine}>
+          {/* <Button variant="danger" onClick={printQRCodeOfTheSelectedMachine}>
             Print
-          </Button>
+          </Button> */}
           <Button variant="primary" onClick={downloadQRCode}>
             Download
           </Button>

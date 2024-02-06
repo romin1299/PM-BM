@@ -85,15 +85,24 @@ const MTBFComponent = ({
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Months"].concat(reduceState.MTBFReportData?.labels);
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [reduceState.MTBFReportData?.labels, reduceState.MTBFReportData?.data],
-      ];
 
-      downloadFile(bodyData, fileType, header, "MTBF");
+      let bodyData = []
+      if (fileType === "csv") {
+         bodyData = [
+          [["Months"].concat(reduceState.MTBFReportData?.labels)?.toString() + "\n"],
+          [["Hours"].concat(reduceState.MTBFReportData?.data)?.toString() + "\n"],
+        ];
+      }else{
+        bodyData = [
+          ["Hours"].concat(reduceState.MTBFReportData?.data),
+        ]
+      }
+
+      downloadFile(bodyData, fileType, header, `MTBF_${selectedYear}`);
     } catch (error) {
       console.error("Error downloading data:", error);
     }

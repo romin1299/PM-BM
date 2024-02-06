@@ -34,6 +34,7 @@ import {
   Chip,
   Tooltip,
   Typography,
+  Paper,
 } from "@mui/material";
 import BMTitlebar from "../Component/BMTitlebar";
 import { MaterialTableOptions } from "../Utils/TableUtils/MaterialTableProps";
@@ -460,6 +461,11 @@ const RequestSheetMainDashboard = () => {
     {
       title: "H/O Time Work End", //hand-over time
       field: "handOverTime",
+      width: "20%",
+      headerStyle: {
+        width: 90,
+        minWidth: 90,
+      },
       editable: conditionalBasedEditableFunctionForMTD,
       editComponent: ({ value, onChange, rowData }) => {
         return (
@@ -486,7 +492,6 @@ const RequestSheetMainDashboard = () => {
         );
       },
       validate: (rowData) => rowData.handOverTime !== "",
-      width: "20%",
     },
     {
       title: "Loss Time",
@@ -662,7 +667,7 @@ const RequestSheetMainDashboard = () => {
   }
 
   const filtration = [
-    <Box m={2}>
+    <Box sx={{ mx: "10px", my: "10px" }}>
       <ChartsToolbar
         baseUrlForFiltering={baseUrlForFiltering}
         reduceState={reduceState}
@@ -677,10 +682,145 @@ const RequestSheetMainDashboard = () => {
       />
     </Box>,
   ];
+
   return (
     <>
       <Container fluid>
-        <Row className="d-flex align-items-center justify-content-center cell mt-3 p-2 g-0">
+        <Row className="cell py-2 px-3 mt-3 gap-2 g-0 align-items-center">
+          <Col className="d-flex align-items-center gap-2">
+            <Typography
+              noWrap
+              variant="h4"
+              component="h4"
+              fontSize={25}
+              fontWeight={600}
+              sx={{ mr: 3 }}
+            >
+              Request-Sheet Dashboard
+            </Typography>
+          </Col>
+
+          <Box display="flex" gap="16px" className="col-auto">
+            <Button
+              variant="contained"
+              disableElevation
+              onClick={handleGenerateBMNavigation}
+              className={
+                context?.tm_department === "PRD"
+                  ? `bg-button d-inline`
+                  : "d-none"
+              }
+              sx={{ fontWeight: 400 }}
+            >
+              <AddCircleIcon sx={{ mr: "8px" }} />
+              Generate Request-Sheet
+            </Button>
+            <Button
+              variant="contained"
+              disableElevation
+              onClick={handleSummeryCardState}
+              className={`bg-button d-inline`}
+              sx={{ fontWeight: 400 }}
+            >
+              Summary
+            </Button>
+          </Box>
+        </Row>
+
+        <Box display="flex" gap="16px" className="mt-3 cell p-2 overflow-auto">
+          {[
+            {
+              title: "Total Requests",
+              value:
+                reduceStateForRequestSheetData?.counters
+                  ?.total_request_sheet_count || 0,
+              backgroundColor: "#c7defb",
+            },
+            {
+              title: "Open Requests",
+              value:
+                reduceStateForRequestSheetData?.counters
+                  ?.open_request_sheet_count || 0,
+              backgroundColor: "#d6c7fbba", //e1c7fb , d6c7fb
+            },
+            {
+              title: "Closed Requests",
+              value:
+                reduceStateForRequestSheetData?.counters
+                  ?.closed_request_sheet_count || 0,
+              backgroundColor: "#c6efce",
+            },
+          ].map((item) => (
+            <Box className="col-auto">
+              <Paper
+                variant="outlined"
+                sx={{
+                  backgroundColor: item.backgroundColor,
+                  // maxWidth: "100px",
+                  p: "4px",
+                  px: "10px",
+                  borderRadius: "8px",
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  component="div"
+                  textAlign="center"
+                  // width={120}
+                  fontWeight={500}
+                  // color={"#15005c"}
+                  // pt={"4px"}
+                  // mb={"2px"}
+                >
+                  {item.title}
+                </Typography>
+
+                <Typography
+                  variant="h5"
+                  component="h5"
+                  textAlign="center"
+                  fontWeight={600}
+                  // pb={"4px"}
+                >
+                  {item.value}
+                </Typography>
+              </Paper>
+            </Box>
+          ))}
+        </Box>
+
+        {/* Btns with new styles with mui Box */}
+        {/* <Row className="mt-3 gx-3 justify-content-end">
+          <Col className="col-auto">
+            <Button
+              variant="contained"
+              disableElevation
+              onClick={handleGenerateBMNavigation}
+              className={
+                context?.tm_department !== "PRD"
+                  ? `bg-button d-inline`
+                  : "d-none"
+              }
+              sx={{ fontWeight: 400 }}
+            >
+              <AddCircleIcon sx={{ mr: "8px" }} />
+              Generate Request-Sheet
+            </Button>
+          </Col>
+          <Col className="col-auto">
+            <Button
+              variant="contained"
+              disableElevation
+              onClick={handleSummeryCardState}
+              className={`bg-button d-inline`}
+              sx={{ fontWeight: 400 }}
+            >
+              Summary
+            </Button>
+          </Col>
+        </Row> */}
+
+        {/* <Row className="d-flex align-items-center justify-content-center cell mt-3 p-2 g-0">
           <Col lg={4} md={4}>
             <Typography
               noWrap
@@ -690,7 +830,7 @@ const RequestSheetMainDashboard = () => {
               fontWeight={600}
               // sx={{ mr: 3 }}
             >
-              Request-Sheet Work Order
+              Request-Sheet Dashboard
             </Typography>
           </Col>
           <Col md={{ span: 4, offset: 4 }}>
@@ -765,7 +905,7 @@ const RequestSheetMainDashboard = () => {
                   : "d-none"
               }
             >
-              <AddCircleIcon /> &nbsp; Generate New Request-Sheet
+              <AddCircleIcon /> &nbsp; Generate Request-Sheet
             </button>
           </Col>
           <Col className="col-auto">
@@ -781,87 +921,90 @@ const RequestSheetMainDashboard = () => {
               Summary
             </button>
           </Col>
-        </Row>
+        </Row> */}
 
         {/* <Row>
           <NewRequestSheetRegistration />
         </Row> */}
 
-        <Row>
-          <Col>
-            <MaterialTable
-              localization={{
-                header: {
-                  actions: "Actions",
+        <Box className="mt-1 cell p-0 border-0">
+          <MaterialTable
+            localization={{
+              header: {
+                actions: "Actions",
+              },
+              // toolbar: {
+              //   exportCSVName: "Export some Excel format",
+              //   exportPDFName: "Export as pdf!!"
+              // }
+            }}
+            isLoading={loading}
+            actions={requestSheetActions}
+            icons={tableIcons}
+            columns={requestSheetHeader}
+            data={reduceStateForRequestSheetData?.requestSheetData}
+            title={filtration}
+            // tableRef={this.tableRef.current.onQueryChange()}
+
+            editable={{
+              // onRowAdd: (newRow) =>
+              //   new Promise((resolve, reject) => {
+              //     setTimeout(() => {
+              //       resolve();
+              //     }, 500);
+              //     //refreshPage();
+              //   }),
+
+              isDeleteHidden: (rowData) =>
+                context?.userType !== "TL/HOSS" &&
+                context?.tm_department !== "MTD",
+
+              onRowDelete: (selectedRow) =>
+                new Promise(async (resolve, reject) => {
+                  // setTimeout(() => {
+                  await deleteRequestSheet(selectedRow);
+                  resolve();
+                  // }, 500);
+                }),
+
+              onRowUpdate: (updatedRow, oldRow) =>
+                new Promise(async (resolve, reject) => {
+                  await updateRequestSheet(updatedRow);
+                  resolve();
+                }),
+            }}
+            options={{
+              ...MaterialTableOptions,
+              maxBodyHeight: "auto",
+              showTitle: true,
+              exportMenu: [
+                {
+                  label: "Export PDF",
+                  exportFunc: (cols, data) =>
+                    ExportPdf(
+                      cols,
+                      data,
+                      `All requestSheet ${moment().format("DD-MM-YYYY")}`
+                    ),
                 },
-                // toolbar: {
-                //   exportCSVName: "Export some Excel format",
-                //   exportPDFName: "Export as pdf!!"
-                // }
-              }}
-              isLoading={loading}
-              actions={requestSheetActions}
-              icons={tableIcons}
-              columns={requestSheetHeader}
-              data={reduceStateForRequestSheetData?.requestSheetData}
-              title={filtration}
-              // tableRef={this.tableRef.current.onQueryChange()}
-
-              editable={{
-                // onRowAdd: (newRow) =>
-                //   new Promise((resolve, reject) => {
-                //     setTimeout(() => {
-                //       resolve();
-                //     }, 500);
-                //     //refreshPage();
-                //   }),
-
-                isDeleteHidden: (rowData) =>
-                  context?.userType !== "TL/HOSS" &&
-                  context?.tm_department !== "MTD",
-
-                onRowDelete: (selectedRow) =>
-                  new Promise(async (resolve, reject) => {
-                    // setTimeout(() => {
-                    await deleteRequestSheet(selectedRow);
-                    resolve();
-                    // }, 500);
-                  }),
-
-                onRowUpdate: (updatedRow, oldRow) =>
-                  new Promise(async (resolve, reject) => {
-                    await updateRequestSheet(updatedRow);
-                    resolve();
-                  }),
-              }}
-              options={{
-                ...MaterialTableOptions,
-                maxBodyHeight: "auto",
-                showTitle: true,
-                exportMenu: [
-                  {
-                    label: "Export PDF",
-                    exportFunc: (cols, data) =>
-                      ExportPdf(
-                        cols,
-                        data,
-                        `All requestSheet ${moment().format("DD-MM-YYYY")}`
-                      ),
-                  },
-                  {
-                    label: "Export CSV",
-                    exportFunc: (cols, data) =>
-                      ExportCsv(
-                        cols,
-                        data,
-                        `All requestSheet ${moment().format("DD-MM-YYYY")}`
-                      ),
-                  },
-                ],
-              }}
-            />
-          </Col>
-        </Row>
+                {
+                  label: "Export CSV",
+                  exportFunc: (cols, data) =>
+                    ExportCsv(
+                      cols,
+                      data,
+                      `All requestSheet ${moment().format("DD-MM-YYYY")}`
+                    ),
+                },
+              ],
+            }}
+            style={{
+              boxShadow: "none",
+              border: "1px solid #e3e3e3",
+              borderRadius: "6px",
+            }}
+          />
+        </Box>
       </Container>
 
       {machineHistoryCardModal && (

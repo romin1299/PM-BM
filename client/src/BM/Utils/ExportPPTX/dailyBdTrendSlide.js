@@ -40,7 +40,7 @@ export async function genSlideDailyBDTrend(pptx, urlOptions) {
   let slide = pptx.addSlide();
   let comboProps;
 
-  console.log('urlOptions:', urlOptions)
+  console.log("urlOptions:", urlOptions);
 
   genSlideTitle(pptx, slide, urlOptions?.text);
   genSlideTitleFilterNames(pptx, slide, urlOptions, {
@@ -69,17 +69,18 @@ export async function genSlideDailyBDTrend(pptx, urlOptions) {
         {
           name: "< 1",
           labels: data?.labels,
-          values: data?.lessThanOrEqualToOneHourData,
+          values: data?.lessThanOrEqualToOneHourData.replaceZeroWithNull(),
         },
         {
           name: "< 2",
           labels: data?.labels,
-          values: data?.greaterThenOneAndLessThanOrEqualToTwoHourData,
+          values:
+            data?.greaterThenOneAndLessThanOrEqualToTwoHourData.replaceZeroWithNull(),
         },
         {
           name: "> 2",
           labels: data?.labels,
-          values: data?.greaterThenTwoHourData,
+          values: data?.greaterThenTwoHourData.replaceZeroWithNull(),
         },
       ],
       options: {
@@ -92,7 +93,7 @@ export async function genSlideDailyBDTrend(pptx, urlOptions) {
         {
           name: "Counts",
           labels: data?.labels,
-          values: data?.dayWiseCount,
+          values: data?.dayWiseCount.replaceZeroWithNull(),
         },
       ],
       options: {
@@ -107,9 +108,9 @@ export async function genSlideDailyBDTrend(pptx, urlOptions) {
   comboProps = {
     ...commonPptOptions,
     x: 0.5,
-    y: 1.6,
+    y: 1.1,
     w: 12.3,
-    h: 5.0,
+    h: 6.0,
     //
     catAxisLabelFontSize: 10,
     catAxisOrientation: "minMax",

@@ -1124,7 +1124,7 @@ const UserUpdate = ({ selectedRow }) => {
                       <option selected disabled value="">
                         Please select
                       </option>
-                      {plantDropdown.plantList.plantArray.map((option) => {
+                      {plantDropdown?.plantList?.plantArray?.map((option) => {
                         return <option value={option}>{option}</option>;
                       })}
                     </select>
@@ -1180,7 +1180,7 @@ const UserUpdate = ({ selectedRow }) => {
                       <option selected disabled value="">
                         Please select
                       </option>
-                      {sectionList.map((option) => {
+                      {sectionList?.map((option) => {
                         return <option value={option}>{option}</option>;
                       })}
                     </select>
