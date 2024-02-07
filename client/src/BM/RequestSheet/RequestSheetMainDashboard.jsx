@@ -44,6 +44,8 @@ import {
   reducer,
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
+import { ReactComponent as HistoryIcon } from "../../static/svg/history.svg";
+// import HistoryIcon from '@mui/icons-material/History';
 
 const RequestSheetMainDashboard = () => {
   const [loading, setLoading] = React.useState(true);
@@ -579,15 +581,6 @@ const RequestSheetMainDashboard = () => {
   };
 
   let requestSheetActions = [
-    {
-      icon: () => <CreditCardIcon className="text-primary1" />,
-      tooltip: "History Card",
-      position: "row",
-      onClick: (event, selectedRow) => {
-        setSelectedRow(selectedRow);
-        handleMachineHistoryCardState();
-      },
-    },
     (row) => ({
       icon: () => (
         <DescriptionIcon
@@ -607,7 +600,11 @@ const RequestSheetMainDashboard = () => {
           row?.work_order_status === "Closed")
           ? false
           : true,
-      hidden: row?.assignUserId === context?._id ? false : true,
+      hidden:
+        row?.assignUserId === context?._id ||
+        row?.handOverUserId === context?._id
+          ? false
+          : true,
       onClick: (event, selectedRow) => {
         console.log("selectedRow:", selectedRow);
 
@@ -641,6 +638,16 @@ const RequestSheetMainDashboard = () => {
         );
       },
     }),
+
+    {
+      icon: () => <HistoryIcon />,
+      tooltip: "History Card",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        setSelectedRow(selectedRow);
+        handleMachineHistoryCardState();
+      },
+    },
   ];
 
   if (context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus === "Yes") {
@@ -694,25 +701,31 @@ const RequestSheetMainDashboard = () => {
               fontWeight={600}
               sx={{ mr: 3 }}
             >
-              Request-Sheet Dashboard
+              Request-Sheet Progress Monitoring
             </Typography>
           </Col>
 
           <Box display="flex" gap="16px" className="col-auto">
-            <Button
-              variant="contained"
-              disableElevation
-              onClick={handleGenerateBMNavigation}
-              className={
-                context?.tm_department === "PRD"
-                  ? `bg-button d-inline`
-                  : "d-none"
-              }
-              sx={{ fontWeight: 400 }}
-            >
-              <AddCircleIcon sx={{ mr: "8px" }} />
-              Generate Request-Sheet
-            </Button>
+            <Tooltip title="Generate New Request Sheet" disableInteractive>
+              <Button
+                variant="contained"
+                disableElevation
+                onClick={handleGenerateBMNavigation}
+                disabled={context?.tm_department !== "PRD"}
+                sx={{
+                  fontWeight: 400,
+                  bgcolor: "#004b5b",
+                  "&:hover": { bgcolor: "#026378" },
+                  // "&.Mui-disabled": {
+                  //   bgcolor: "#004f431f",
+                  //   border: "1px solid #004f431f",
+                  // },
+                }}
+              >
+                <AddCircleIcon sx={{ mr: "8px" }} />
+                Generate Request-Sheet
+              </Button>
+            </Tooltip>
             <Button
               variant="contained"
               disableElevation
@@ -739,7 +752,7 @@ const RequestSheetMainDashboard = () => {
               value:
                 reduceStateForRequestSheetData?.counters
                   ?.open_request_sheet_count || 0,
-              backgroundColor: "#d6c7fbba", //e1c7fb , d6c7fb
+              backgroundColor: "#feb4b4ba", // d6c7fbba, e1c7fb , d6c7fb
             },
             {
               title: "Closed Requests",
@@ -1009,6 +1022,14 @@ const RequestSheetMainDashboard = () => {
               boxShadow: "none",
               border: "1px solid #e3e3e3",
               borderRadius: "6px",
+            }}
+            sx={{
+              // bgcolor: "red",
+              // verticleAlign: "top",
+              "& > .MuiTableCell-head.MuiTableCell-root": {
+                color: "red",
+                verticleAlign: "top",
+              },
             }}
           />
         </Box>

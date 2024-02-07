@@ -8,7 +8,7 @@ function MyTable() {
   const navigate = useNavigate();
   const context = useContext(RoutingContext);
 
-  const { machine_code, generateType } = useParams();
+  const { machine_code, generateType, selectedYear } = useParams();
   const [selectedMachineDetails, setMachineDetails] = useState("");
   const [approvalListOfBM, setApprovalListOfBM] = useState([]);
 
@@ -20,7 +20,7 @@ function MyTable() {
   const getMachineDetails = async () => {
     try {
       const res = await fetch(
-        `/getMachineDetailsOnScanningRequest/${generateType}/?machine_code=${machine_code}`,
+        `/getMachineDetailsOnScanningRequest/${generateType}/?machine_code=${machine_code}&&current_year=${selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -46,7 +46,10 @@ function MyTable() {
 
         setMachineDetails(machine);
         setApprovalListOfBM(requestSheetApprovalList);
-        setMachineStatus(pmStatusData, bmStatusData);
+        setMachineStatus({
+          bmStatusData,
+          pmStatusData,
+        });
       }
     } catch (error) {
       console.log(error);

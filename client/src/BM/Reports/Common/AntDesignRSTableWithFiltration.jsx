@@ -118,27 +118,28 @@ const AntDesignRSTableWithFiltration = ({
             >
               Go
             </Button>
+
+            <Button
+              size="small"
+              disableElevation
+              className="bg-button"
+              variant="contained"
+              type="submit"
+              sx={{
+                ml: 1,
+                minWidth: "30px",
+                height: "30px",
+                paddingInline: "10px",
+              }}
+              onClick={() => {
+                reset();
+                getRequestSheetDataBasedOnFromAndToDateSelection();
+              }}
+            >
+              Reset
+            </Button>
           </form>
         </Row>
-        <Button
-          size="small"
-          disableElevation
-          className="bg-button"
-          variant="contained"
-          type="submit"
-          sx={{
-            ml: 1,
-            minWidth: "30px",
-            height: "30px",
-            paddingInline: "10px",
-          }}
-          onClick={() => {
-            reset();
-            getRequestSheetDataBasedOnFromAndToDateSelection();
-          }}
-        >
-          Reset
-        </Button>
 
         {loading ? (
           <Box mt={2}>

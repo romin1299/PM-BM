@@ -414,7 +414,10 @@ function MyTable({
         // console.log(flagCountForHandlingError);
       }
 
-      if (watch("drawingOfRequestSheet") === "Yes") {
+      if (
+        watch("drawingOfRequestSheet") === "Yes" &&
+        !requestSheetDataOfBM?.attachedDrawings
+      ) {
         setError("attachedDrawings", {
           message: "This field is required !",
         });

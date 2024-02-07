@@ -53,12 +53,12 @@ export const menuItems = [
       //   allowedRoles: allusers,
       // },
       {
-        title: "Request Sheets",
+        title: "Request Sheet Progress Monitoring",
         route: "/bm/requestListDashboard",
         allowedRoles: reportAccess,
       },
       {
-        title: "Request Sheet Monitoring",
+        title: "Request Sheet Status Monitoring",
         route: "/bm/requestSheetMonitoring",
         allowedRoles: reportAccess,
       },

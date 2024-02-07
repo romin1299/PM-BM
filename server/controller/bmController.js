@@ -2979,6 +2979,7 @@ router.get(
   "/getRequestSheetMonitoringData/status-chart-data/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  removeBDZeroValueFiltration,
   async (req, res, next) => {
     try {
       const allStatusCounterForGraph = await RequestSheetOfBM.aggregate([
@@ -3036,6 +3037,7 @@ router.get(
   "/getRequestSheetMonitoringData/generated-and-completed-count/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  removeBDZeroValueFiltration,
   async (req, res, next) => {
     try {
       let queryPipeline = [
@@ -7026,8 +7028,6 @@ router.post(
                 $project: {
                   machineRef: 1,
                   requestSheetNoOfBM: 1,
-                  // sheetIssuedDateAndTimeOfBM: 1,
-                  // sheetCompletedDateAndTime: 1,
                   BDhours: {
                     $divide: [
                       "$maintenanceReportFilledByMTD.breakDownTime",
@@ -7044,10 +7044,6 @@ router.post(
                   // boundaries: [0, 3], // 0 <= value < 3
                   default: "Other",
                   output: queryObjects?.bucketOutputObj,
-                  // {
-                  //   count: { $sum: 1 },
-                  //   sumOfBDhours: { $sum: "$BDhours" },
-                  // },
                 },
               },
               {
@@ -7067,30 +7063,6 @@ router.post(
                         $cond: [
                           { $in: ["$$item.id", "$array._id"] },
                           ...queryObjects?.mapArray,
-                          // {
-                          //   _id: "$$item",
-                          //   count: {
-                          //     $arrayElemAt: [
-                          //       "$array.count",
-                          //       {
-                          //         $indexOfArray: ["$array._id", "$$item.id"],
-                          //       },
-                          //     ],
-                          //   },
-                          //   sumOfBDhours: {
-                          //     $arrayElemAt: [
-                          //       "$array.sumOfBDhours",
-                          //       {
-                          //         $indexOfArray: ["$array._id", "$$item.id"],
-                          //       },
-                          //     ],
-                          //   },
-                          // },
-                          // {
-                          //   _id: "$$item",
-                          //   count: 0,
-                          //   sumOfBDhours: 0,
-                          // },
                         ],
                       },
                     },
@@ -7107,10 +7079,7 @@ router.post(
                 $project: {
                   _id: 0,
                   groupId: "$_id",
-
                   ...queryObjects?.requestSheetProjection,
-                  // count: "$count",
-                  // sumOfBDhours: "$sumOfBDhours",
                 },
               },
             ],
@@ -7139,8 +7108,6 @@ router.post(
               groupId: "$requestSheets.groupId",
             },
             ...queryObjects?.groupingObj,
-            // count: { $push: "$requestSheets.count" },
-            // sumOfBDhours: { $push: "$requestSheets.sumOfBDhours" },
             machine_code: { $push: "$machine_nickname" },
           },
         },
@@ -7150,46 +7117,8 @@ router.post(
             "_id.groupId.id": 1,
           },
         },
-        // {
-        //   $project: {
-        //     _id: 0,
-        //     groupId: "$_id.groupId.key",
-        //     // ...queryObjects?.outerMachineLevelProjection,
-        //     count: 1,
-        //     sumOfBDhours: 1,
-        //     machine_code: 1,
-        //     BDhours: {
-        //       groupId: "$_id.groupId.key",
-        //       sumOfBDhours: "$sumOfBDhours",
-        //     },
-        //   },
-        // },
-
         {
           $facet: queryObjects?.facetObj,
-          // {
-          //   BDhours: [
-          //     {
-          //       $project: {
-          //         _id: 0,
-          //         groupId: "$_id.groupId.key",
-          //         sumOfBDhours: 1,
-          //         machine_code: 1,
-          //       },
-          //     },
-          //   ],
-
-          //   BDCount: [
-          //     {
-          //       $project: {
-          //         _id: 0,
-          //         groupId: "$_id.groupId.key",
-          //         count: 1,
-          //         machine_code: 1,
-          //       },
-          //     },
-          //   ],
-          // },
         },
       ]);
 
@@ -7235,9 +7164,8 @@ router.patch(
   async (req, res, next) => {
     try {
       delete req.body["_id"];
-      console.log(req.body);
 
-      let { greaterThan, lessThanValue } = await Plant.findOneAndUpdate(
+      let { greaterThan, lessThanValue, _id } = await Plant.findOneAndUpdate(
         { _id: req.params?.plantId },
         { $set: req.body },
         { new: true }
@@ -7246,6 +7174,7 @@ router.patch(
       res.status(201).json({
         message: "Filter updated successfully",
         responseFilter: {
+          _id,
           greaterThan,
           lessThanValue,
         },

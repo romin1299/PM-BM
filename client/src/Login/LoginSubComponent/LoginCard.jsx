@@ -63,6 +63,7 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
           // refreshPage();
         } else {
           navigate("/pm", { replace: true });
+          // navigate("/kpi", { replace: true });
           // refreshPage();
         }
       }
