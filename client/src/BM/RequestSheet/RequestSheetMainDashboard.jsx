@@ -483,12 +483,13 @@ const RequestSheetMainDashboard = () => {
                     : new Date(rowData?.handOverTimeForDefault)
                   : new Date()
               }
-              format="dd/MM/yyyy hh:mm"
+              format="dd/MM/yyyy HH:mm"
               sx={{ width: "11rem" }}
               onChange={(handOverTime) => {
                 onChange(handOverTime || new Date());
                 // onChange(handOverTime.toString());
               }}
+              ampm={false}
             />
           </LocalizationProvider>
         );
@@ -598,7 +599,11 @@ const RequestSheetMainDashboard = () => {
           row?.work_order_status === "Closed")
           ? false
           : true,
-      hidden: row?.assignUserId === context?._id ? false : true,
+      hidden:
+        row?.assignUserId === context?._id ||
+        row?.handOverUserId === context?._id
+          ? false
+          : true,
       onClick: (event, selectedRow) => {
         console.log("selectedRow:", selectedRow);
 
@@ -963,6 +968,14 @@ const RequestSheetMainDashboard = () => {
               isDeleteHidden: (rowData) =>
                 context?.userType !== "TL/HOSS" &&
                 context?.tm_department !== "MTD",
+
+              isEditHidden: (rowData) =>
+                rowData?.requestSheetStatus !== statusArray[0] &&
+                rowData?.requestSheetStatus !== statusArray[1] &&
+                rowData?.requestSheetStatus !== statusArray[2] &&
+                rowData?.requestSheetStatus !== statusArray[3] &&
+                rowData?.requestSheetStatus !== statusArray[4] &&
+                rowData?.requestSheetStatus !== statusArray[5],
 
               onRowDelete: (selectedRow) =>
                 new Promise(async (resolve, reject) => {

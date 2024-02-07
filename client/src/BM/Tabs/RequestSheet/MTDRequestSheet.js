@@ -414,7 +414,10 @@ function MyTable({
         // console.log(flagCountForHandlingError);
       }
 
-      if (watch("drawingOfRequestSheet") === "Yes") {
+      if (
+        watch("drawingOfRequestSheet") === "Yes" &&
+        !requestSheetDataOfBM?.attachedDrawings
+      ) {
         setError("attachedDrawings", {
           message: "This field is required !",
         });
@@ -559,7 +562,7 @@ function MyTable({
             requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
             requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
           ) {
-            assignApprovalList.submitDataWhileSendingApproval = true;
+            // assignApprovalList.submitDataWhileSendingApproval = true;
             newRequestSheetRegistration(assignApprovalList);
             navigate("/bm/requestListDashboard", { replace: true });
           } else {

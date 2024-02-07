@@ -108,22 +108,18 @@ const DailyBDTrendChart = ({
   setDailyBDSelectedMonth,
   dailyBDSelectedMonth,
 }) => {
-  const [loading, setLoading] = React.useState(true);
-  const [dailyBreakdownTrendData, setDailyBreakdownTrendData] = useState({
-    // labels: daysLabels,
-
-    // dayWiseCount: getRandomDataArray(30),
-    // lessThanOrEqualToOneHourData: getRandomDataArray(60),
-    // greaterThenOneAndLessThanOrEqualToTwoHourData: getRandomDataArray(120),
-    // greaterThenTwoHourData: getRandomDataArray(180),
-
+  let initialState = {
     labels: [],
 
     dayWiseCount: [],
     lessThanOrEqualToOneHourData: [],
     greaterThenOneAndLessThanOrEqualToTwoHourData: [],
     greaterThenTwoHourData: [],
-  });
+  };
+
+  const [loading, setLoading] = React.useState(true);
+  const [dailyBreakdownTrendData, setDailyBreakdownTrendData] =
+    useState(initialState);
 
   // const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
@@ -148,6 +144,8 @@ const DailyBDTrendChart = ({
 
       if (res?.status === 201) {
         setDailyBreakdownTrendData(dailyBreakdownTrendData);
+      } else {
+        setDailyBreakdownTrendData(initialState);
       }
     } catch (error) {
       console.log(error);
@@ -194,9 +192,7 @@ const DailyBDTrendChart = ({
           ["<2"].concat(
             dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData
           ),
-          [">2"].concat(
-            dailyBreakdownTrendData?.greaterThenTwoHourData
-          ),
+          [">2"].concat(dailyBreakdownTrendData?.greaterThenTwoHourData),
         ];
       }
 
