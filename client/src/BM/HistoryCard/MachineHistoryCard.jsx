@@ -6,6 +6,7 @@ import { Box, Button, Divider, Paper, Typography } from "@mui/material";
 import { roundValue } from "../Utils/math/roundValue";
 
 import MachineHistoryMasterLog from "../../Common/MasterLog/MachineHistoryMasterLog";
+import { useNavigate } from "react-router-dom";
 
 const MachineHistoryCard = ({
   selectedYear,
@@ -14,6 +15,7 @@ const MachineHistoryCard = ({
   modelProp,
 }) => {
   const [masterLogModal, setMasterLogModal] = useState(false);
+  const navigate = useNavigate();
 
   const handleMasterLogModal = () => {
     setMasterLogModal((masterLogModal) => !masterLogModal);
@@ -117,20 +119,68 @@ const MachineHistoryCard = ({
     </Container>
   );
 
+  const MachineStatusBox2 = ({ title, value }) => (
+    <Row className="gx-2">
+      <Col className="col col-sm-5">
+        <Paper
+          variant="outlined"
+          sx={{
+            height: "100%",
+            borderRadius: "3px",
+            borderColor: "#3f51724d",
+            bgcolor: "#90b6ff4d",
+          }}
+        >
+          <Typography
+            variant="body2"
+            component="div"
+            fontWeight={500}
+            sx={{ p: "1px 8px" }}
+          >
+            {title}
+          </Typography>
+        </Paper>
+      </Col>
+
+      <Col className="col col-sm-7">
+        <Paper
+          variant="outlined"
+          sx={{
+            height: "100%",
+            borderRadius: "3px",
+            borderColor: "#3f51724d",
+            bgcolor: "#90b6ff4d",
+          }}
+        >
+          <Typography
+            variant="body2"
+            component="div"
+            fontWeight={500}
+            sx={{ p: "1px 8px" }}
+          >
+            {value}
+          </Typography>
+        </Paper>
+      </Col>
+    </Row>
+  );
+
+  console.log("selectedRow:", selectedRow);
+
   return (
     <Modal
       {...modelProp}
-      size="lg"
+      size="md"
       aria-labelledby="contained-modal-title-vcenter"
       centered
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          {selectedRow?.machines?.[0]?.machine_code}
+          {selectedRow?.machines?.[0]?.machine_nickname}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="container">
-        <Row className="gx-2">
+        {/* <Row className="gx-2">
           {infoItems.map((info, index) => (
             <Col lg={4} sm={6} xs={6} className="mb-2">
               <MachineStatusBox
@@ -139,7 +189,16 @@ const MachineHistoryCard = ({
               />
             </Col>
           ))}
-        </Row>
+        </Row> */}
+
+        <Box sx={{ display: "flex", gap: "8px", flexDirection: "column" }}>
+          {infoItems.map((info, index) => (
+            <MachineStatusBox2
+              title={info.name}
+              value={roundValue(historyCardData?.[info?.key], 3)}
+            />
+          ))}
+        </Box>
 
         <BDHoursTrendChart bdHourTrend={historyCardData?.bdHourTrend} />
 
@@ -161,6 +220,13 @@ const MachineHistoryCard = ({
           variant="contained"
           disableElevation
           className="bg-button"
+          onClick={() => {
+            const { _id, machine_code } = selectedRow?.machines?.[0];
+
+            navigate(
+              `/machine-history/machine-document/${machine_code}/?machineId=${_id}`
+            );
+          }}
         >
           Document
         </Button>

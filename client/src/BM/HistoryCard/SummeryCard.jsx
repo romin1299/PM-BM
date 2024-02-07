@@ -225,7 +225,7 @@ const SummeryCardModal = ({
     getSummaryCard();
   }, []);
 
-  console.log("summeryCardData:", summeryCardData);
+  console.log("modelProp:", modelProp);
 
   return (
     <Modal
@@ -251,7 +251,7 @@ const SummeryCardModal = ({
 
         <Row className="flex-nowrap overflow-auto gx-3 pt-3 pb-3">
           {summeryCardData?.cells?.map((item) => (
-            <Col style={{ minWidth: "260px", maxWidth:"380px" }}>
+            <Col style={{ minWidth: "260px", maxWidth: "380px" }}>
               <CellSummaryCard summeryCardData={summeryCardData} item={item} />
             </Col>
           ))}
@@ -264,6 +264,7 @@ const SummeryCardModal = ({
           variant="contained"
           disableElevation
           className="bg-button"
+          onClick={() => modelProp.onHide()}
         >
           Close
         </Button>
