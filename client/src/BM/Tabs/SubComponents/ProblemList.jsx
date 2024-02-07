@@ -146,7 +146,7 @@ const ProblemList = ({
               lg={3}
               md={3}
               sm={3}
-              className="d-block border col-auto gap-1 p-1"
+              className="d-flex border col-auto gap-1 p-1 flex-wrap"
             >
               <button
                 class="bg-warning text-white border-0"
@@ -157,7 +157,6 @@ const ProblemList = ({
               >
                 Edit
               </button>
-              <br />
               <button
                 class="bg-danger text-white border-0"
                 onClick={(event) => {

@@ -9,7 +9,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { Button, Typography } from "@mui/material";
 
-function MyTable({
+function MTDRequestSheetForView({
   selectedMachineDetails,
   approvalListOfBM,
   requestSheetDataOfBM,
@@ -209,7 +209,7 @@ function MyTable({
           <tr className="row m-0 mb-0">
             <td className="col-lg-8 col-md-6 col-sm-12">
               <h4 className="mt-0 d-flex align-items-center justify-content-center">
-                MAINTENANCE REPORT ( To be filled by MTD)
+                MAINTENANCE REPORT (To be filled by MTD)
               </h4>
             </td>
             <td className="mb-0 pb-0 pt-0 col-lg-4 col-md-6 col-sm-12">
@@ -236,7 +236,21 @@ function MyTable({
                       requestSheetDataOfBM?.approvalOfMTD_TL?.length - 1
                     ]?.tm_name
                   ) : ( */}
-                  {requestSheetDataOfBM?.approvalOfMTD_TL &&
+
+                  <input
+                    disabled
+                    type="text"
+                    style={{ width: "160px" }}
+                    defaultValue={
+                      requestSheetDataOfBM?.approvalOfMTD_TL &&
+                      requestSheetDataOfBM?.approvalStatusOfMTD_TL !==
+                        "Rejected"
+                        ? requestSheetDataOfBM?.approvalOfMTD_TL?.tm_name
+                        : null
+                    }
+                  />
+
+                  {/* {requestSheetDataOfBM?.approvalOfMTD_TL &&
                   requestSheetDataOfBM?.approvalStatusOfMTD_TL !==
                     "Rejected" ? (
                     requestSheetDataOfBM?.approvalOfMTD_TL?.tm_name
@@ -259,21 +273,8 @@ function MyTable({
                           loggedUserDetails?._id
                       }
                       options={approvalListOfBM?.mtdTL}
-                      // required={
-                      //   selectedMinor === "Yes" &&
-                      //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                      //     "MTD_TL".replace("_", " ")
-                      //   )
-                      //     ? true
-                      //     : selectedMajor === "Yes" &&
-                      //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                      //         "MTD_TL".replace("_", " ")
-                      //       )
-                      //     ? true
-                      //     : false
-                      // }
                     />
-                  )}
+                  )} */}
                 </Col>
               </Row>
             </td>
@@ -464,35 +465,10 @@ function MyTable({
                           {requestSheetDataOfBM?.approvalOfMTD_HOSS?.tm_name}
                         </p>
                       ) : (
-                        <DropdownElem
-                          name={"MTD_HOSS"}
-                          selectedMinor={selectedMinor}
-                          selectedMajor={selectedMajor}
-                          approvalList={
-                            selectedMachineDetails?.line_names?.cell_names
-                              ?.subSection_names?.section_names?.plant_names
-                              ?.approvalListOfMinorAndMajor
-                          }
-                          displayOrNot={
-                            requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-                            loggedUserDetails?._id
-                          }
-                          options={approvalListOfBM?.mtdTL}
-                          register={register}
-                          errors={errors}
-                          // required={
-                          //   selectedMinor === "Yes" &&
-                          //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                          //     "MTD_HOSS".replace("_", " ")
-                          //   )
-                          //     ? true
-                          //     : selectedMajor === "Yes" &&
-                          //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                          //         "MTD_HOSS".replace("_", " ")
-                          //       )
-                          //     ? true
-                          //     : false
-                          // }
+                        <input
+                          disabled
+                          type="text"
+                          style={{ maxWidth: "160px", width: "100%" }}
                         />
                       )}
                     </Col>
@@ -500,45 +476,24 @@ function MyTable({
                       {selectedMajor === "Yes" &&
                         selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
                           "MTD_HOS"?.replace("_", " ")
-                        ) && <small>MTD HOS</small>}
-                      {requestSheetDataOfBM?.approvalOfMTD_HOS &&
-                      requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
-                        "Accepted" &&
-                      requestSheetDataOfBM?.requestSheetStatus !==
-                        "Rejected" ? (
-                        requestSheetDataOfBM?.approvalOfMTD_HOS?.tm_name
-                      ) : (
-                        <DropdownElem
-                          name={"MTD_HOS"}
-                          selectedMinor={selectedMinor}
-                          selectedMajor={selectedMajor}
-                          approvalList={
-                            selectedMachineDetails?.line_names?.cell_names
-                              ?.subSection_names?.section_names?.plant_names
-                              ?.approvalListOfMinorAndMajor
-                          }
-                          displayOrNot={
-                            requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-                            loggedUserDetails?._id
-                          }
-                          options={approvalListOfBM?.mtdHOS}
-                          register={register}
-                          errors={errors}
-                          // required={
-                          //   selectedMinor === "Yes" &&
-                          //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                          //     "MTD_HOS".replace("_", " ")
-                          //   )
-                          //     ? true
-                          //     : selectedMajor === "Yes" &&
-                          //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                          //         "MTD_HOS".replace("_", " ")
-                          //       )
-                          //     ? true
-                          //     : false
-                          // }
-                        />
-                      )}
+                        ) && (
+                          <>
+                            <small>MTD HOS</small>
+                            {requestSheetDataOfBM?.approvalOfMTD_HOS &&
+                            requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
+                              "Accepted" &&
+                            requestSheetDataOfBM?.requestSheetStatus !==
+                              "Rejected" ? (
+                              requestSheetDataOfBM?.approvalOfMTD_HOS?.tm_name
+                            ) : (
+                              <input
+                                disabled
+                                type="text"
+                                style={{ maxWidth: "160px", width: "100%" }}
+                              />
+                            )}
+                          </>
+                        )}
                     </Col>
                   </Row>
                 </Col>
@@ -1614,7 +1569,7 @@ function MyTable({
           </tr>
 
           <tr className="row m-0">
-            <td className="col-lg-6 col-md-6">
+            <td className="col-sm-12 col-md-6">
               <Row className="m-0">
                 <Col className="border p-2">
                   <small className="mb-0 d-flex align-items-center justify-content-start">
@@ -1667,19 +1622,18 @@ function MyTable({
                 </Col>
               </Row>
             </td>
-            <td className="col-lg-6 col-md-6">
+            <td className="col-sm-12 col-md-6">
               {requestSheetDataOfBM?.categoriesOfRequestSheet?.map(
                 (item, index) => (
                   <>
                     <Row className="m-0" key={index}>
-                      <Col lg={4} className="border p-2">
+                      <Col md={4} className="border p-2">
                         <p className="mb-0 d-flex align-items-center justify-content-start">
                           <b>{item?.category}</b>&nbsp;&nbsp;&nbsp;
                         </p>
                       </Col>
                       <Col
-                        lg={6}
-                        md={12}
+                        md={8}
                         className="border p-2 d-flex align-items-center"
                       >
                         {item?.subCategory}
@@ -1919,7 +1873,7 @@ function MyTable({
                       </small>
                     </Col>
                   </Row>
-                  <Row>
+                  <Row style={{ minHeight: "40px" }}>
                     <Col md={3} className="border">
                       <div className="p-1">
                         {/* {requestSheetDataOfBM?.approvalOfMTD_HOD?.length > 0 ? (
@@ -1930,17 +1884,9 @@ function MyTable({
                         {requestSheetDataOfBM?.approvalOfMTD_HOD &&
                         requestSheetDataOfBM?.approvalStatusOfMTD_HOD ===
                           "Accepted" &&
-                        requestSheetDataOfBM?.requestSheetStatus !==
-                          "Rejected" ? (
-                          requestSheetDataOfBM?.approvalOfMTD_HOD?.tm_name
-                        ) : (
-                          <input
-                            type="text"
-                            className="w-100"
-                            style={{ height: "40px" }}
-                            disabled
-                          />
-                        )}
+                        requestSheetDataOfBM?.requestSheetStatus !== "Rejected"
+                          ? requestSheetDataOfBM?.approvalOfMTD_HOD?.tm_name
+                          : null}
                       </div>
                     </Col>
                     <Col md={3} className="border">
@@ -1953,17 +1899,9 @@ function MyTable({
                         {requestSheetDataOfBM?.approvalOfPRD_HOD &&
                         requestSheetDataOfBM?.approvalStatusOfPRD_HOD ===
                           "Accepted" &&
-                        requestSheetDataOfBM?.requestSheetStatus !==
-                          "Rejected" ? (
-                          requestSheetDataOfBM?.approvalOfPRD_HOD?.tm_name
-                        ) : (
-                          <input
-                            type="text"
-                            className="w-100"
-                            style={{ height: "40px" }}
-                            disabled
-                          />
-                        )}
+                        requestSheetDataOfBM?.requestSheetStatus !== "Rejected"
+                          ? requestSheetDataOfBM?.approvalOfPRD_HOD?.tm_name
+                          : null}
                       </div>
                     </Col>
                     <Col md={3} className="border">
@@ -1976,17 +1914,9 @@ function MyTable({
                         {requestSheetDataOfBM?.approvalOfPRD_HOS &&
                         requestSheetDataOfBM?.approvalStatusOfPRD_HOS ===
                           "Accepted" &&
-                        requestSheetDataOfBM?.requestSheetStatus !==
-                          "Rejected" ? (
-                          requestSheetDataOfBM?.approvalOfPRD_HOS?.tm_name
-                        ) : (
-                          <input
-                            type="text"
-                            className="w-100"
-                            style={{ height: "40px" }}
-                            disabled
-                          />
-                        )}
+                        requestSheetDataOfBM?.requestSheetStatus !== "Rejected"
+                          ? requestSheetDataOfBM?.approvalOfPRD_HOS?.tm_name
+                          : null}
                       </div>
                     </Col>
                     <Col md={3} className="border">
@@ -1999,17 +1929,9 @@ function MyTable({
                         {requestSheetDataOfBM?.approvalOfPRD_TL &&
                         requestSheetDataOfBM?.approvalStatusOfPRD_TL ===
                           "Accepted" &&
-                        requestSheetDataOfBM?.requestSheetStatus !==
-                          "Rejected" ? (
-                          requestSheetDataOfBM?.approvalOfPRD_TL?.tm_name
-                        ) : (
-                          <input
-                            type="text"
-                            className="w-100"
-                            style={{ height: "40px" }}
-                            disabled
-                          />
-                        )}
+                        requestSheetDataOfBM?.requestSheetStatus !== "Rejected"
+                          ? requestSheetDataOfBM?.approvalOfPRD_TL?.tm_name
+                          : null}
                       </div>
                     </Col>
                   </Row>
@@ -2023,4 +1945,4 @@ function MyTable({
   );
 }
 
-export default MyTable;
+export default MTDRequestSheetForView;

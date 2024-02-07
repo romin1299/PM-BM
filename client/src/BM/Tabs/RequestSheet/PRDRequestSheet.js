@@ -178,20 +178,10 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
   return (
     <>
       <ToastContainer />
-      <Row>
-        {/* <Col>
-          <button className="btn bg-button m-2" onClick={handleBack}>
-            Back
-          </button>
-        </Col> */}
-      </Row>
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
-        <Table className="container-fluid m-2 mt-3">
-          <thead>
-            <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
-          </thead>
-          <tbody className="m-1 box-shadow p-3">
-            <tr className="row" style={{ width: "100vw" }}>
+        <Table className="m-0">
+          <tbody className="m-1 border p-3">
+            <tr class="">
               {/* <td width={100}>
               <img
                 src={denso_logo}
@@ -202,59 +192,67 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
               />
               
             </td> */}
-              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
-                <Row>
-                  <Col>
-                    <button className="btn bg-button m-2" onClick={handleBack}>
-                      Back
-                    </button>
-                    <button
-                      className="btn bg-button m-2"
-                      onClick={() => {
-                        navigate(
-                          `/machine-history/${machine_code}/?machineId=${selectedMachineDetails?._id}`
-                        );
-                      }}
+
+              <td className="">
+                <Container fluid>
+                  <Row>
+                    <Col
+                      id="rs-top-btns"
+                      data-html2canvas-ignore="true"
+                      className="col-auto d-flex gap-2 align-items-center"
                     >
-                      Machine History
-                    </button>
-                  </Col>
-                  <Col>
-                    <h4 className="d-flex align-items-center justify-content-center">
-                      MAINTENANCE WORK REQUEST/REPORT
-                    </h4>
-                  </Col>
-                  <Col>
-                    <Box
-                      display="flex"
-                      justifyContent="end"
-                      gap={1}
-                      // sx={{ position: "absolute", top: "10px", right: "20px" }}
-                    >
-                      <MachineStatusBox
-                        title="PM Status"
-                        bodyText1={machineStatus?.pmStatusData?.PMStatus}
-                        bodyText2={machineStatus?.pmStatusData?.PMdate}
-                      />
-                      <MachineStatusBox
-                        title="BM"
-                        bodyText1={
-                          machineStatus?.bmStatusData?.totalHours &&
-                          `${machineStatus?.bmStatusData?.totalHours} Hrs./${machineStatus?.bmStatusData?.count} Count`
-                        }
-                      />
-                      <MachineStatusBox title="CM" />
-                    </Box>
-                  </Col>
-                </Row>
+                      <button className="btn bg-button" onClick={handleBack}>
+                        Back
+                      </button>
+                      <button
+                        className="btn bg-button"
+                        onClick={() => {
+                          navigate(
+                            `/machine-history/${machine_code}/?machineId=${selectedMachineDetails?._id}`
+                          );
+                        }}
+                      >
+                        Machine History
+                      </button>
+                    </Col>
+
+                    <Col className="d-flex align-items-center justify-content-center text-center">
+                      <h4 className="m-0">MAINTENANCE WORK REQUEST/REPORT</h4>
+                    </Col>
+
+                    <Col className="col-auto">
+                      <Box
+                        display="flex"
+                        justifyContent="end"
+                        gap={1}
+                        // sx={{ position: "absolute", top: "10px", right: "20px" }}
+                      >
+                        <MachineStatusBox
+                          title="PM Status"
+                          bodyText1={machineStatus?.pmStatusData?.PMStatus}
+                          bodyText2={machineStatus?.pmStatusData?.PMdate}
+                        />
+                        <MachineStatusBox
+                          title="BM"
+                          bodyText1={
+                            machineStatus?.bmStatusData?.totalHours &&
+                            `${machineStatus?.bmStatusData?.totalHours} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                          }
+                        />
+                        <MachineStatusBox title="CM" />
+                      </Box>
+                    </Col>
+                  </Row>
+                </Container>
               </td>
             </tr>
-            <tr className="row m-2" style={{ width: "100vw" }}>
-              <td className="mb-0 pb-0 border col-lg-1 col-md-2 col-sm-12">
+
+            <tr className="row m-2">
+              <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
                   <b>MAINT. TYPE</b>
                 </small>
-                <Form>
+                <Form style={{ fontSize: "16px !important" }}>
                   <div key={`inline-radio`}>
                     <Form.Check
                       flex
@@ -320,7 +318,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                   )}
                 </Form>
               </td>
-              <td className="mb-0 pb-0 border col-lg-1 col-md-2 col-sm-12">
+
+              <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
                   {" "}
                   <b>PRIORITY CODE</b>
@@ -391,7 +390,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                   )}
                 </Form>
               </td>
-              <td className="mb-0 pb-0 border col-lg-8 col-md-4 col-sm-12">
+
+              <td className="mb-0 pb-0 border col-12 col-md-6">
                 <div className="mb-2 border">
                   <Row className="m-0">
                     <Col className="border">
@@ -519,10 +519,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                 </div>
               </td>
 
-              <td
-                className="mb-0 pb-0 pt-0 col-lg-2 col-md-4 col-sm-12"
-                style={{ marginLeft: "-8px" }}
-              >
+              <td className="border mb-0 col-12 col-md-2">
                 {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
@@ -541,41 +538,45 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                   </p>
                 </Col>
               </Row> */}
-                <Row className="pt-0 mb-0 ">
-                  <Col className="border pb-2 pt-1">
-                    <small className="mb-0">
-                      <b>DEPT./LINE</b>
-                    </small>
-                    <br />
-                    <small>
-                      {
-                        selectedMachineDetails?.line_names?.cell_names
-                          ?.cell_name
-                      }
-                      /{selectedMachineDetails?.line_names?.line_name}
-                    </small>
-                  </Col>
-                </Row>
-                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
-                  <Col className="border pb-2">
-                    <small className="fs-6 mb-0">
-                      <b>TL [PRD]</b>
-                    </small>
-                    <br />
-                    <small>{context?.tm_name}</small>
-                    {/* <input
+                <div className="border">
+                  <Row className="m-0">
+                    <Col className="border pb-2 pt-1">
+                      <small className="mb-0">
+                        <b>DEPT./LINE</b>
+                      </small>
+                      <br />
+                      <small>
+                        {
+                          selectedMachineDetails?.line_names?.cell_names
+                            ?.cell_name
+                        }
+                        /{selectedMachineDetails?.line_names?.line_name}
+                      </small>
+                    </Col>
+                  </Row>
+
+                  <Row className="m-0">
+                    <Col className="border pb-2">
+                      <small className="fs-6 mb-0">
+                        <b>TL [PRD]</b>
+                      </small>
+                      <br />
+                      <small>{context?.tm_name}</small>
+                      {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
                       required: "Team Leader Name is required",
                     })}
                   />
                   {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
-                  </Col>
-                </Row>
+                    </Col>
+                  </Row>
+                </div>
               </td>
             </tr>
-            <tr class="row">
-              <td className="border p-3 col-lg-7 col-md-8 col-sm-12">
+
+            <tr class="row m-2">
+              <td className="border p-2 col-lg-8 col-md-7 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={4} md={6}>
                     <small className="mb-0">
@@ -779,7 +780,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                 </Row>
               </td>
 
-              <td className="border p-3 col-lg-4 col-md-12 col-sm-12">
+              <td className="border p-2 col-lg-4 col-md-4 col-sm-12">
                 <Row className="m-0">
                   <Col className="border p-2">
                     <FormControl>
@@ -866,19 +867,15 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                 </Row>
               </td>
             </tr>
-          </tbody>
 
-          <Row>
-            <Col>
-              <button
-                type="submit"
-                className="btn bg-success"
-                style={{ marginTop: "1rem" }}
-              >
-                Submit Request-Sheet
-              </button>
-            </Col>
-          </Row>
+            <tr>
+              <td>
+                <button type="submit" className="btn bg-success">
+                  Submit Request-Sheet
+                </button>
+              </td>
+            </tr>
+          </tbody>
         </Table>
       </form>
     </>

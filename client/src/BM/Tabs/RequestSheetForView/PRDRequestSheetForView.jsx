@@ -157,8 +157,8 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
     <>
       <ToastContainer />
 
-      <form className="" onSubmit={() => {}}>
-        <Table className="">
+      <form>
+        <Table>
           <tbody className="m-1 border p-3">
             <tr className="">
               <td className="">
@@ -246,7 +246,7 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
                     </Col>
 
                     <Col className="d-flex align-items-center justify-content-center text-center">
-                      <h4>MAINTENANCE WORK REQUEST/REPORT</h4>
+                      <h4 className="m-0">MAINTENANCE WORK REQUEST/REPORT</h4>
                     </Col>
 
                     <Col className="col-sm col-lg-auto">
@@ -277,7 +277,7 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
             </tr>
 
             <tr className="row m-2">
-              <td className="mb-0 pb-0 border col-lg-1 col-md-2">
+              <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
                   <b>MAINT. TYPE</b>
                 </small>
@@ -286,14 +286,14 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
                 </div>
               </td>
 
-              <td className="mb-0 pb-0 border col-lg-1 col-md-2">
+              <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
                   <b>PRIORITY CODE</b>
                 </small>
                 <div className="value">{requestSheetDataOfBM.priorityCode}</div>
               </td>
 
-              <td className="mb-0 border col-lg-8 col-md-4">
+              <td className="mb-0 border col-12 col-md-6">
                 <div className="border">
                   <Row className="m-0">
                     <Col className="border">
@@ -395,7 +395,7 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
                 </div>
               </td>
 
-              <td className="border mb-0 col-lg-2 col-md-4">
+              <td className="border mb-0 col-12 col-md-2">
                 <div className="border">
                   <Row className="m-0">
                     <Col className="border pb-2 pt-1">
@@ -704,8 +704,6 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
               </td>
             </tr>
           </tbody>
-
-          <div style={{ width: "100%", height: "50px" }}></div>
         </Table>
       </form>
     </>

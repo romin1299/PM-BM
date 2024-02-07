@@ -1226,17 +1226,26 @@ router.patch(
         } else {
           requestSheetStatus = statusArray[4];
         }
-        console.log(req.body?.handOverTime, new Date());
         if (mongoose.Types.ObjectId.isValid(req.body?.handOverUser)) {
           queryObj = {
             finalActivity: req.body?.finalActivity,
             "maintenanceReportFilledByMTD.workEndedDateOfBM":
               req.body?.handOverTime !== null
-                ? new Date(req.body?.handOverTime)
+                ? moment(req.body?.handOverTime, true).isValid()
+                  ? new Date(req?.body?.handOverTime)
+                  : moment(
+                      req.body?.handOverTime,
+                      "DD-MM-YYYY [T]HH:mm"
+                    ).toDate()
                 : new Date(),
             "maintenanceReportFilledByMTD.refHandOverTime":
               req.body?.handOverTime !== null
-                ? new Date(req.body?.handOverTime)
+                ? moment(req.body?.handOverTime, true).isValid()
+                ? new Date(req?.body?.handOverTime)
+                : moment(
+                    req.body?.handOverTime,
+                    "DD-MM-YYYY [T]HH:mm"
+                  ).toDate()
                 : new Date(),
             handOverUser: req.body?.handOverUser,
             requestSheetStatus,
@@ -1247,18 +1256,27 @@ router.patch(
             finalActivity: req.body?.finalActivity,
             "maintenanceReportFilledByMTD.workEndedDateOfBM":
               req.body?.handOverTime !== null
-                ? new Date(req.body?.handOverTime)
+                ? moment(req.body?.handOverTime, true).isValid()
+                ? new Date(req?.body?.handOverTime)
+                : moment(
+                    req.body?.handOverTime,
+                    "DD-MM-YYYY [T]HH:mm"
+                  ).toDate()
                 : new Date(),
             "maintenanceReportFilledByMTD.refHandOverTime":
               req.body?.handOverTime !== null
-                ? new Date(req.body?.handOverTime)
+                ? moment(req.body?.handOverTime, true).isValid()
+                ? new Date(req?.body?.handOverTime)
+                : moment(
+                    req.body?.handOverTime,
+                    "DD-MM-YYYY [T]HH:mm"
+                  ).toDate()
                 : new Date(),
             requestSheetStatus,
             work_order_status: req.body?.work_order_status,
           };
         }
       }
-
       const updateRequestSheetData = await RequestSheetOfBM.findOneAndUpdate(
         req.query,
         {

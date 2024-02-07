@@ -217,7 +217,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
               lg={2}
               md={2}
               sm={2}
-              className="border d-block align-items-center gap-1 p-1"
+              className="d-flex border col-auto gap-1 p-1 flex-wrap"
             >
               <button
                 class="bg-warning text-white border-0"
@@ -227,7 +227,6 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
               >
                 Edit
               </button>
-              <br />
               <button
                 class="bg-danger text-white border-0"
                 onClick={(event) => {

@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import MTDRequestSheet from "./MTDRequestSheetForView";
 
-function MyTable() {
+function MainRequestSheetForView() {
   const navigate = useNavigate();
   const context = useContext(RoutingContext);
 
@@ -117,4 +117,4 @@ function MyTable() {
   );
 }
 
-export default MyTable;
+export default MainRequestSheetForView;
