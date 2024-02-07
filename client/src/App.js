@@ -75,6 +75,8 @@ import Profile from "./pages/Profile";
 import "./App.css";
 import RightNavbar from "./components/RightNavbar/RightNavbar";
 
+import MainPageComponent from "./KPI_Tab/MainPage/MainPageComponent";
+
 const commonRoutes = [
   {
     path: "/profile",
@@ -108,6 +110,27 @@ const commonRoutes = [
   },
 ];
 
+const tabs = [
+  {
+    name: "PM",
+    keyUrl: "pm",
+    icon: <BsWrench />,
+    dashboardAndRoutes: <PMTabdashboard commonRoutes={commonRoutes} />,
+  },
+  {
+    name: "BM",
+    keyUrl: "bm",
+    icon: <BsHammer />,
+    dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
+  },
+  // {
+  //   name: "MTD KPI",
+  //   keyUrl: "kpi",
+  //   icon: <BsHammer />,
+  //   dashboardAndRoutes: <MainPageComponent commonRoutes={commonRoutes} />,
+  // },
+];
+
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -123,13 +146,24 @@ function App() {
     // Extract the part of the path you want as the active key
     const pathParts = location.pathname.split("/");
 
-    if (pathParts?.includes("pm") || pathParts?.includes("bm")) {
+    //if user directly search the page using url
+    if (
+      // pathParts?.includes(tabs?.[0]?.keyUrl) ||
+      // pathParts?.includes(tabs?.[1]?.keyUrl)
+      tabs?.filter((item) => item?.keyUrl === pathParts[1])?.length > 0
+    ) {
       localStorage.setItem("activeKey", pathParts[1]);
       setActiveKey(pathParts[1]);
-    } else if (!localStorage.getItem("activeKey")) {
-      localStorage.setItem("activeKey", "pm");
-      navigate("pm");
-      setActiveKey("pm");
+    }
+    //by default if activeKey is not there
+    else if (!localStorage.getItem("activeKey")) {
+      localStorage.setItem("activeKey", tabs?.[0]?.keyUrl);
+      navigate(tabs?.[0]?.keyUrl);
+      setActiveKey(tabs?.[0]?.keyUrl);
+
+      // localStorage.setItem("activeKey", tabs?.[2]?.keyUrl);
+      // navigate(tabs?.[2]?.keyUrl);
+      // setActiveKey(tabs?.[2]?.keyUrl);
     }
 
     // if (pathParts[1].trim().length === 0) {
@@ -165,7 +199,19 @@ function App() {
             >
               {/* Content of the first tab */}
             </div>
-            <Tab
+
+            {tabs?.map((item) => (
+              <Tab
+                variant="pills"
+                eventKey={item?.keyUrl}
+                title={
+                  <>
+                    {item?.icon} &nbsp;&nbsp; <b>{item?.name}</b>
+                  </>
+                }
+              ></Tab>
+            ))}
+            {/* <Tab
               variant="pills"
               eventKey="pm"
               title={
@@ -182,8 +228,8 @@ function App() {
                 </>
               }
             >
-              {/* Content of the second tab */}
-            </Tab>
+              Content of the second tab
+            </Tab> */}
           </Tabs>
         </Col>
         <Col lg={1} md={1} sm={1} className="d-flex justify-content-end">
@@ -193,8 +239,13 @@ function App() {
       <Row>
         {/* Content of both tabs */}
         <div className="scrollable-content">
-          {activeKey === "pm" && <PMTabdashboard commonRoutes={commonRoutes} />}
-          {activeKey === "bm" && <BM_Routes commonRoutes={commonRoutes} />}
+          {tabs?.find((item) => item?.keyUrl === activeKey)?.dashboardAndRoutes}
+          {/* {activeKey === tabs?.[0]?.keyUrl && (
+            <PMTabdashboard commonRoutes={commonRoutes} />
+          )}
+          {activeKey === tabs?.[1]?.keyUrl && (
+            <BM_Routes commonRoutes={commonRoutes} />
+          )} */}
 
           {/* <BM_Routes /> */}
         </div>

@@ -130,16 +130,22 @@ const BDHoursVsCountComponent = ({
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Machines"].concat(reduceState?.labels);
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [
-          reduceState.BDHoursVsCountData?.labels,
-          reduceState.BDHoursVsCountData?.data,
-        ],
-      ];
+
+      let bodyData = []
+      if (fileType === "csv") {
+         bodyData = [
+          [["Months"].concat(reduceState.BDHoursVsCountData?.labels)?.toString() + "\n"],
+          [["Hours"].concat(reduceState.BDHoursVsCountData?.data)?.toString() + "\n"],
+        ];
+      }else{
+        bodyData = [
+          ["Hours"].concat(reduceState.BDHoursVsCountData?.data),
+        ]
+      }
 
       downloadFile(bodyData, fileType, header, "Bd_Hours_Vs_Count");
     } catch (error) {

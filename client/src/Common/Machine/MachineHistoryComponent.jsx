@@ -42,7 +42,7 @@ const MachineHistoryComponent = () => {
       />
       {/* <CustomHooksForBackNavigation /> */}
       <MachineDetails machine_code={machine_code} search={search} />
-      <BreakdownTrend search={search} />
+      <BreakdownTrend machine_code={machine_code} search={search} />
     </Container>
   );
 };

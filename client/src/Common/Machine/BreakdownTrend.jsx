@@ -1,12 +1,15 @@
-import { Box } from "@mui/material";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { Row, Col, ListGroup } from "react-bootstrap";
 import { Bar } from "react-chartjs-2";
 import ChartTitleBar from "../../BM/Reports/Common/ChartTitleBar";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import { barChartOptions } from "../../BM/Utils/ChartUtils/chartOptions";
 import { chartColors } from "../../BM/Utils/ChartUtils/chartEnums";
+import { useLocation, useNavigate } from "react-router-dom";
+import currentYear from "../../pages/Dashboard/DashboardComponent/currentYear";
 
-const BreakdownTrend = ({ search }) => {
+const BreakdownTrend = ({ machine_code, search }) => {
   const [BdTrendAndLastFiveProblem, setBdTrendAndLastFiveProblem] = useState({
     breakdownTrendData: {
       labels: [],
@@ -14,6 +17,10 @@ const BreakdownTrend = ({ search }) => {
     },
     lastFiveProblem: [],
   });
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const getBreakdownTrendData = async () => {
     try {
       let currentYear =
@@ -33,6 +40,7 @@ const BreakdownTrend = ({ search }) => {
         }
       );
       const { BdTrendAndLastFiveProblem } = await res.json();
+      console.log("BdTrendAndLastFiveProblem:", BdTrendAndLastFiveProblem);
       if (res.status === 201) {
         setBdTrendAndLastFiveProblem(BdTrendAndLastFiveProblem);
       }
@@ -81,11 +89,40 @@ const BreakdownTrend = ({ search }) => {
       </Col>
 
       <Col lg={6}>
-        <ListGroup as="ol" numbered>
-          {BdTrendAndLastFiveProblem?.lastFiveProblem?.map((item) => (
-            <ListGroup.Item as="li">{item?.problem}</ListGroup.Item>
-          ))}
-        </ListGroup>
+        <Box className="cell p-3">
+          <ChartTitleBar title={"Last Five Problems"} />
+
+          <ListGroup as="ol" numbered>
+            {BdTrendAndLastFiveProblem?.lastFiveProblem?.map((item) => (
+              <ListGroup.Item
+                as="li"
+                className="d-flex align-items-center py-1"
+              >
+                {item?.problem}
+
+                <div style={{ marginLeft: "auto" }}>
+                  <Tooltip title="View Request Sheet" disableInteractive>
+                    <IconButton size="small"
+                      onClick={() => {
+                        navigate(
+                          `/bm/view/request-sheet/${machine_code}/${item?._id}/${currentYear}`,
+                          {
+                            state: {
+                              prevPath: location?.pathname,
+                              prevPathSearch: location?.search,
+                            },
+                          }
+                        );
+                      }}
+                    >
+                      <VisibilityIcon className="text-primary" />
+                    </IconButton>
+                  </Tooltip>
+                </div>
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        </Box>
       </Col>
     </Row>
   );

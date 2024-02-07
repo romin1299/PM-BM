@@ -2,6 +2,7 @@ import React, { useEffect, useReducer } from "react";
 
 import { Container, Row, Col } from "reactstrap";
 import { useNavigate } from "react-router-dom";
+import currentYear from "../../pages/Dashboard/DashboardComponent/currentYear";
 
 const MapComponent = ({ propsArray, handleNavigationToRequestSheet }) => {
   return (
@@ -158,7 +159,7 @@ const GenerateRequestSheetMainDashboard = () => {
   };
 
   const handleNavigationToRequestSheet = ({ machine_code }) => {
-    navigate(`/bm/request-sheet/manual/${machine_code}`);
+    navigate(`/bm/request-sheet/manual/${machine_code}/${currentYear}`);
   };
 
   if (reduceState?.dashboardLevel === "Yes") {
