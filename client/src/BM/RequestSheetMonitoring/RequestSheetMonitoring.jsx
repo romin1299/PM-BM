@@ -197,29 +197,29 @@ const RequestSheetMonitoring = () => {
   //   }
   // };
 
-  const getFiltrationValue = async () => {
-    try {
-      const res = await fetch("/getFiltrationValue/cell-level", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+  // const getFiltrationValue = async () => {
+  //   try {
+  //     const res = await fetch("/getFiltrationValue/cell-level", {
+  //       method: "GET",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
+  //       credentials: "include",
+  //     });
 
-      const data = await res.json();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     const data = await res.json();
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  useEffect(() => {
-    // getRequestSheetMonitoringData({
-    //   url: baseUrl,
-    // });
-    getFiltrationValue();
-  }, []);
+  // useEffect(() => {
+  //   // getRequestSheetMonitoringData({
+  //   //   url: baseUrl,
+  //   // });
+  //   getFiltrationValue();
+  // }, []);
 
   return (
     <Container fluid>

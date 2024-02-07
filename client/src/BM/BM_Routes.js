@@ -294,7 +294,7 @@ function BM_Routes({ commonRoutes }) {
           element: <GenerateRequestSheetMainDashboard />,
         },
         {
-          path: "/bm/request-sheet/:generateType/:machine_code",
+          path: "/bm/request-sheet/:generateType/:machine_code/:selectedYear",
           element: <RequestSheet />,
         },
         {
@@ -357,7 +357,7 @@ function BM_Routes({ commonRoutes }) {
           element: <GenerateRequestSheetMainDashboard />,
         },
         {
-          path: "/bm/request-sheet/:generateType/:machine_code",
+          path: "/bm/request-sheet/:generateType/:machine_code/:selectedYear",
           element: <RequestSheet />,
         },
         {

@@ -393,10 +393,10 @@ router.post(
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
             requestSheetStatus:
               // requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
-              (getRequestSheetData?.assignUser?._id).toString() !==
-                    (req?.rootUser?._id).toString() ||
-                  (getRequestSheetData?.handOverUser?._id).toString() !==
-                    (req?.rootUser?._id).toString()
+              getRequestSheetData?.assignUser?.toString() !==
+                req?.rootUser?._id?.toString() &&
+              getRequestSheetData?.handOverUser?.toString() !==
+                req?.rootUser?._id?.toString()
                 ? getRequestSheetData?.requestSheetStatus
                 : "Fill Sheet",
             // (
@@ -2964,6 +2964,7 @@ router.get(
   "/getRequestSheetMonitoringData/status-chart-data/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  removeBDZeroValueFiltration,
   async (req, res, next) => {
     try {
       const allStatusCounterForGraph = await RequestSheetOfBM.aggregate([
@@ -3021,6 +3022,7 @@ router.get(
   "/getRequestSheetMonitoringData/generated-and-completed-count/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  removeBDZeroValueFiltration,
   async (req, res, next) => {
     try {
       let queryPipeline = [
