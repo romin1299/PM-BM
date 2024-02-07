@@ -392,7 +392,8 @@ router.post(
             partQualityCheckedByPRD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
             requestSheetStatus:
-              requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
+              // requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
+              getRequestSheetData?.getDataForApprovalDashboard?.Id
                 ? getRequestSheetData?.requestSheetStatus
                 : "Fill Sheet",
             // (
@@ -1237,11 +1238,11 @@ router.patch(
             "maintenanceReportFilledByMTD.refHandOverTime":
               req.body?.handOverTime !== null
                 ? moment(req.body?.handOverTime, true).isValid()
-                ? new Date(req?.body?.handOverTime)
-                : moment(
-                    req.body?.handOverTime,
-                    "DD-MM-YYYY [T]HH:mm"
-                  ).toDate()
+                  ? new Date(req?.body?.handOverTime)
+                  : moment(
+                      req.body?.handOverTime,
+                      "DD-MM-YYYY [T]HH:mm"
+                    ).toDate()
                 : new Date(),
             handOverUser: req.body?.handOverUser,
             requestSheetStatus,
@@ -1253,20 +1254,20 @@ router.patch(
             "maintenanceReportFilledByMTD.workEndedDateOfBM":
               req.body?.handOverTime !== null
                 ? moment(req.body?.handOverTime, true).isValid()
-                ? new Date(req?.body?.handOverTime)
-                : moment(
-                    req.body?.handOverTime,
-                    "DD-MM-YYYY [T]HH:mm"
-                  ).toDate()
+                  ? new Date(req?.body?.handOverTime)
+                  : moment(
+                      req.body?.handOverTime,
+                      "DD-MM-YYYY [T]HH:mm"
+                    ).toDate()
                 : new Date(),
             "maintenanceReportFilledByMTD.refHandOverTime":
               req.body?.handOverTime !== null
                 ? moment(req.body?.handOverTime, true).isValid()
-                ? new Date(req?.body?.handOverTime)
-                : moment(
-                    req.body?.handOverTime,
-                    "DD-MM-YYYY [T]HH:mm"
-                  ).toDate()
+                  ? new Date(req?.body?.handOverTime)
+                  : moment(
+                      req.body?.handOverTime,
+                      "DD-MM-YYYY [T]HH:mm"
+                    ).toDate()
                 : new Date(),
             requestSheetStatus,
             work_order_status: req.body?.work_order_status,
@@ -5166,33 +5167,35 @@ router.patch(
           );
       };
 
-      const minorListForTheApprovalOfPlant =
-        requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
-          ?.minorApprovalList;
-      const majorListForTheApprovalOfPlant =
-        requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
-          ?.majorApprovalList;
-
-      let listOfHigherApproverAuthorityForSendingMail = [];
-      Object.keys(assignApprovalList).forEach((key) => {
-        if (
-          [
-            ...new Set([
-              ...minorListForTheApprovalOfPlant,
-              ...majorListForTheApprovalOfPlant,
-            ]),
-          ]?.includes(key.replace("_", " "))
-        ) {
-          updateTheStatusOfBMSheetApprover(key, assignApprovalList[key]);
-          if (assignApprovalList?.[key]?.id)
-            listOfHigherApproverAuthorityForSendingMail.push(
-              assignApprovalList[key]
-            );
-        }
-      });
-
+      
       //request-sheet is approved/accepted
       if (approvalOfRequestSheet === "Yes") {
+        
+        const minorListForTheApprovalOfPlant =
+          requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
+            ?.minorApprovalList;
+        const majorListForTheApprovalOfPlant =
+          requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
+            ?.majorApprovalList;
+  
+        let listOfHigherApproverAuthorityForSendingMail = [];
+        Object.keys(assignApprovalList).forEach((key) => {
+          if (
+            [
+              ...new Set([
+                ...minorListForTheApprovalOfPlant,
+                ...majorListForTheApprovalOfPlant,
+              ]),
+            ]?.includes(key.replace("_", " "))
+          ) {
+            updateTheStatusOfBMSheetApprover(key, assignApprovalList[key]);
+            if (assignApprovalList?.[key]?.id)
+              listOfHigherApproverAuthorityForSendingMail.push(
+                assignApprovalList[key]
+              );
+          }
+        });
+
         let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
           {
             _id: mongoose.Types.ObjectId(req.params?.reqId),

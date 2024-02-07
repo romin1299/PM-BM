@@ -88,6 +88,7 @@ const RequestSheetMainDashboard = () => {
     "Under MTD HOD Approval": teal[300],
     "Under PRD HOD Approval": teal[500],
     Completed: green["A700"],
+    Rejected: "#e05050",
   };
 
   const statusArray = [
@@ -957,12 +958,13 @@ const RequestSheetMainDashboard = () => {
                 context?.tm_department !== "MTD",
 
               isEditHidden: (rowData) =>
-                rowData?.requestSheetStatus !== statusArray[0] &&
-                rowData?.requestSheetStatus !== statusArray[1] &&
-                rowData?.requestSheetStatus !== statusArray[2] &&
-                rowData?.requestSheetStatus !== statusArray[3] &&
-                rowData?.requestSheetStatus !== statusArray[4] &&
-                rowData?.requestSheetStatus !== statusArray[5],
+                (rowData?.requestSheetStatus !== statusArray[0] &&
+                  rowData?.requestSheetStatus !== statusArray[1] &&
+                  rowData?.requestSheetStatus !== statusArray[2] &&
+                  rowData?.requestSheetStatus !== statusArray[3] &&
+                  rowData?.requestSheetStatus !== statusArray[4] &&
+                  rowData?.requestSheetStatus !== statusArray[5]) ||
+                context?.tm_department === "PRD",
 
               onRowDelete: (selectedRow) =>
                 new Promise(async (resolve, reject) => {
