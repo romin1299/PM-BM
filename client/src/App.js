@@ -123,12 +123,12 @@ const tabs = [
     icon: <BsHammer />,
     dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
   },
-  {
-    name: "MTD KPI",
-    keyUrl: "kpi",
-    icon: <BsHammer />,
-    dashboardAndRoutes: <MainPageComponent commonRoutes={commonRoutes} />,
-  },
+  // {
+  //   name: "MTD KPI",
+  //   keyUrl: "kpi",
+  //   icon: <BsHammer />,
+  //   dashboardAndRoutes: <MainPageComponent commonRoutes={commonRoutes} />,
+  // },
 ];
 
 function App() {
@@ -157,9 +157,13 @@ function App() {
     }
     //by default if activeKey is not there
     else if (!localStorage.getItem("activeKey")) {
-      localStorage.setItem("activeKey", tabs?.[2]?.keyUrl);
-      navigate(tabs?.[2]?.keyUrl);
-      setActiveKey(tabs?.[2]?.keyUrl);
+      localStorage.setItem("activeKey", tabs?.[0]?.keyUrl);
+      navigate(tabs?.[0]?.keyUrl);
+      setActiveKey(tabs?.[0]?.keyUrl);
+
+      // localStorage.setItem("activeKey", tabs?.[2]?.keyUrl);
+      // navigate(tabs?.[2]?.keyUrl);
+      // setActiveKey(tabs?.[2]?.keyUrl);
     }
 
     // if (pathParts[1].trim().length === 0) {
