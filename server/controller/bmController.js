@@ -11564,11 +11564,6 @@ router.get(
             },
           },
         },
-        {
-          $sort: {
-            percentage: -1,
-          },
-        },
 
         {
           $group: {
@@ -11577,6 +11572,12 @@ router.get(
             lineNames: { $push: "$_id" },
             bdHours: { $push: { $trunc: ["$bdHours", 1] } },
             percentages: { $push: { $trunc: ["$percentage", 1] } },
+          },
+        },
+
+        {
+          $sort: {
+            percentages: -1,
           },
         },
         {

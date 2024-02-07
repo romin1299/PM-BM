@@ -169,11 +169,16 @@ const YearlyTrendChart = ({
       //   item.datasets.map((a) => a.data).join("\n"),
       // ]);
 
+
+      
+
       let bodyData = [];
       if (fileType === "csv") {
         bodyData = [
-          [["Labels"].concat(chartData?.labels)?.toString() + "\n"],
-          [["Hours"].concat(chartData?.data)?.toString() + "\n"],
+          ["Years", chartData.labels]?.toString() + "\n",
+          ...chartData?.datasets.map(
+            (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n"
+          ),
         ];
       } else {
         bodyData = [["Hours"].concat(chartData?.data)];

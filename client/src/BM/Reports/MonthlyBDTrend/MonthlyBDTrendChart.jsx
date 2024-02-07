@@ -179,34 +179,21 @@ const MonthlyBDTrendChart = ({
     setLoading(false);
   };
 
-  const header = ["Months"].concat(MONTH_LABELS);
+  const header = ["Months", ...MONTH_LABELS];
   const handleDownload = async (fileType) => {
     try {
-      // const bodyData = [chartData].map((item) => [
-      //   item.datasets.map((a) => a.label).join("\n"),
-      //   item.datasets.map((a) => a.data).join("\n"),
-      // ]);
-
       let bodyData = [];
       if (fileType === "csv") {
-        // bodyData = [
-        //   [["Months"].concat(MONTH_LABELS)?.toString() + "\n"],
-        //   [["<1"].concat(chartData?.datasets[1]?.data)?.toString() + "\n"],
-        //   [["<2"].concat(chartData?.datasets[2]?.data)?.toString() + "\n"],
-        //   [[">2"].concat(chartData?.datasets[3]?.data)?.toString() + "\n"],
-        // ];
         bodyData = [
-          [["Months"].concat(MONTH_LABELS)?.toString() + "\n"],
-          [
-            [chartData?.datasets.map((item) => item.label)]
-              .concat(chartData?.datasets.map((item) => item.data))
-              ?.toString() + "\n",
-          ],
-          // [["<2"].concat(chartData?.datasets[2]?.data)?.toString() + "\n"],
-          // [[">2"].concat(chartData?.datasets[3]?.data)?.toString() + "\n"],
+          ["Months", ...MONTH_LABELS]?.toString() + "\n",
+          ...chartData?.datasets.map(
+            (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n"
+          ),
         ];
       } else {
-        bodyData = [["Hours"].concat(chartData?.datasets)];
+        bodyData = [
+          chartData?.datasets.map((dataset) => [dataset.label, dataset.data]),
+        ];
       }
 
       downloadFile(
