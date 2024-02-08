@@ -40,13 +40,28 @@ const MTBFTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
 
     setLoading(false);
   };
-  const header = ["Labels", "Data"];
+  const header = ["Labels"].concat(MTBFTrendData?.labels);
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [[MTBFTrendData?.labels, MTBFTrendData?.data]];
+      // const bodyData = [[MTBFTrendData?.labels, MTBFTrendData?.data]];
 
-      downloadFile(bodyData, fileType, header, "MTBF_TrendData");
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Labels"].concat(MTBFTrendData?.labels)?.toString() + "\n"],
+          [["Hours"].concat(MTBFTrendData?.data)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [["Hours"].concat(MTBFTrendData?.data)];
+      }
+
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `MTBF_TrendData_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

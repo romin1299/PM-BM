@@ -179,15 +179,29 @@ const MonthlyBDTrendChart = ({
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Months", ...MONTH_LABELS];
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [chartData].map((item) => [
-        item.datasets.map((a) => a.label).join("\n"),
-        item.datasets.map((a) => a.data).join("\n"),
-      ]);
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          ["Months", ...MONTH_LABELS]?.toString() + "\n",
+          ...chartData?.datasets.map(
+            (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n"
+          ),
+        ];
+      } else {
+        bodyData = [
+          chartData?.datasets.map((dataset) => [dataset.label, dataset.data]),
+        ];
+      }
 
-      downloadFile(bodyData, fileType, header, "Monthly_Bd_Trend");
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `Monthly_Bd_Trend_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

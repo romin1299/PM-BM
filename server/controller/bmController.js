@@ -10734,106 +10734,6 @@ router.get(
     }
   }
 );
-// router.get(
-//   "/sectionYearlyBdTrend/:filter/:selectedId",
-//   authenticate,
-//   filterMiddleware,
-//   filterForYearlyData,
-//   filterForMonthlyData,
-//   async (req, res, next) => {
-//     try {
-//       const bdTrendData = await RequestSheetOfBM.aggregate([
-//         {
-//           $match: req.queryObj,
-//         },
-
-//         {
-//           $lookup: {
-//             from: "subsections",
-//             localField: "subSectionRef",
-//             foreignField: "_id",
-//             as: "section_data",
-//           },
-//         },
-
-//         {
-//           $unwind: "$section_data",
-//         },
-//         {
-//           $group: {
-//             _id: {
-//               date: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
-//               sectionRef: "$section_data.subSection_name",
-//             },
-//             bdTimeSum: {
-//               ...req.grpQueryForAllSum,
-//             },
-//           },
-//         },
-
-//         {
-//           $group: {
-//             _id: "$_id.sectionRef",
-//             label: { $first: "$_id.sectionRef" },
-//             sectionWiseTotal: {
-//               $push: {
-//                 year: "$_id.date",
-
-//                 bdTimeSum: { $trunc: ["$bdTimeSum", 1] },
-//               },
-//             },
-//           },
-//         },
-//         {
-//           $sort: { _id: 1 },
-//         },
-
-//         {
-//           $project: {
-//             _id: 0,
-//             label: 1,
-//             data: {
-//               $map: {
-//                 input: [
-//                   `${req.previousYear}-${req.selectedYear}`,
-//                   req.query?.selectedYear,
-//                 ],
-//                 as: "year",
-//                 in: {
-//                   $cond: [
-//                     {
-//                       $in: ["$$year", "$sectionWiseTotal.year"],
-//                     },
-//                     {
-//                       $arrayElemAt: [
-//                         "$sectionWiseTotal.bdTimeSum",
-//                         {
-//                           $indexOfArray: ["$sectionWiseTotal.year", "$$year"],
-//                         },
-//                       ],
-//                     },
-//                     0,
-//                   ],
-//                 },
-//               },
-//             },
-//           },
-//         },
-//       ]);
-//       return res.status(201).json({
-//         message: "Plant Wise Yearly BD trend data get successfully",
-//         labels: [
-//           `${req.previousYear}-${req.selectedYear}`,
-//           req.query?.selectedYear,
-//         ],
-
-//         bdTrendData,
-//       });
-//     } catch (error) {
-//       res.status(500).json({ message: error?.message, error });
-//     }
-//   }
-// );
 
 router.get(
   "/cellYearlyBdTrend/:filter/:selectedId",
@@ -11614,11 +11514,6 @@ router.get(
             },
           },
         },
-        {
-          $sort: {
-            percentage: -1,
-          },
-        },
 
         {
           $group: {
@@ -11627,6 +11522,12 @@ router.get(
             lineNames: { $push: "$_id" },
             bdHours: { $push: { $trunc: ["$bdHours", 1] } },
             percentages: { $push: { $trunc: ["$percentage", 1] } },
+          },
+        },
+
+        {
+          $sort: {
+            percentages: -1,
           },
         },
         {

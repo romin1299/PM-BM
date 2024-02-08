@@ -41,14 +41,30 @@ const MachineWiseMTTRAndMTBF = ({
     }
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Labels"].concat(machineWiseMTTROrMTBF?.labels);
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [machineWiseMTTROrMTBF?.labels, machineWiseMTTROrMTBF?.data],
-      ];
-      downloadFile(bodyData, fileType, header, "MachineWise_MTTRorMTBF");
+      // const bodyData = [
+      //   [machineWiseMTTROrMTBF?.labels, machineWiseMTTROrMTBF?.data],
+      // ];
+
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Labels"].concat(machineWiseMTTROrMTBF?.labels)?.toString() + "\n"],
+          [["Hours"].concat(machineWiseMTTROrMTBF?.data)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [["Hours"].concat(machineWiseMTTROrMTBF?.data)];
+      }
+
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `MachineWise_MTTRorMTBF_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

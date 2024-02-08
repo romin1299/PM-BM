@@ -50,12 +50,29 @@ const TopMachineBDComponent = ({
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Machine Names", "Hours"];
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [[topMachineBd?.labels, topMachineBd?.data]];
-      downloadFile(bodyData, fileType, header, "Top_Machine_BD");
+      // const bodyData = [[topMachineBd?.labels, topMachineBd?.data]];
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Machine Names"].concat(topMachineBd?.labels)?.toString() + "\n"],
+          [["Hours"].concat(topMachineBd?.data)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+          [topMachineBd?.labels.join("\n"), topMachineBd?.data.join("\n")],
+        ];
+      }
+
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `Top_Machine_BD_${selectedMonth}_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

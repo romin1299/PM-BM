@@ -148,13 +148,35 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
     setLoading(false);
   };
 
-  const header = ["Line Names", "Total Bd Hours", "Percentages"];
+  const header = ["Line Names", "Hours", "Percentages"];
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [[data?.lineNames, data?.bdHours, data?.percentages]];
+      // const bodyData = [[data?.lineNames, data?.bdHours, data?.percentages]];
+     
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Line Names"].concat(data?.lineNames)?.toString() + "\n"],
+          [["Hours"].concat(data?.bdHours)?.toString() + "\n"],
+          [["Percentages"].concat(data?.percentages)?.toString() + "\n"],
+        ];
 
-      downloadFile(bodyData, fileType, header, "Linewise_Contribution");
+      } else {
+        bodyData = [
+          [
+            data?.lineNames.join("\n"),
+            data?.bdHours.join("\n"),
+            data?.percentages.join("\n"),
+          ],
+        ];
+      }
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `Plant_Linewise_Contribution_${selectedMonth}_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

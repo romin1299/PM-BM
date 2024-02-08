@@ -110,15 +110,37 @@ const ManHourTrend = ({
     setLoading(false);
   };
 
-  const header = ["BMManHourTrend", "PMManHourTrend"];
+  const header = ["Months"].concat(MONTH_LABELS);
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [manHourTrendData?.BMManHourTrend, manHourTrendData?.PMManHourTrend],
-      ];
+      // const bodyData = [
+      //   [manHourTrendData?.BMManHourTrend, manHourTrendData?.PMManHourTrend],
+      // ];
 
-      downloadFile(bodyData, fileType, header, "ManHour_Trend");
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Months"].concat(MONTH_LABELS)?.toString() + "\n"],
+          [
+            ["PM Man-Hour Trend"]
+              .concat(manHourTrendData?.PMManHourTrend)
+              ?.toString() + "\n",
+          ],
+          [
+            ["BM Man-Hour Trend"]
+              .concat(manHourTrendData?.BMManHourTrend)
+              ?.toString() + "\n",
+          ],
+        ];
+      } else {
+        bodyData = [
+          ["PM Man-Hour Trend"].concat(manHourTrendData?.PMManHourTrend),
+          ["BM Man-Hour Trend"].concat(manHourTrendData?.BMManHourTrend),
+        ];
+      }
+
+      downloadFile(bodyData, fileType, header, `ManHour_Trend_${selectedYear}`);
     } catch (error) {
       console.error("Error downloading data:", error);
     }

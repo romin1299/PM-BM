@@ -64,16 +64,35 @@ const YearlyContributionBarChart = ({
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Labels", "Hours"];
 
   const handleDownload = async (fileType) => {
     try {
-     
-      const bodyData = [
-        [yearlyContributionData?.label, yearlyContributionData?.data],
-      ];
+      // const bodyData = [
+      //   [yearlyContributionData?.label, yearlyContributionData?.data],
+      // ];
 
-      downloadFile(bodyData, fileType, header, "Machine_Age_Yearly");
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Labels"].concat(yearlyContributionData?.label)?.toString() + "\n"],
+          [["Hours"].concat(yearlyContributionData?.data)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+          [
+            yearlyContributionData?.label.join("\n"),
+            yearlyContributionData?.data.join("\n"),
+          ],
+        ];
+      }
+
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `Machine_Age_Yearly_Contribution_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }
