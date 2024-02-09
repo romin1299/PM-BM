@@ -76,7 +76,7 @@ export const options = {
   },
 };
 
-const TMLoad = ({ tm_names, data, loading = false, onClickDownload }) => {
+const TMLoad = ({ tm_names, data, loading = false, onClickDownload,  }) => {
   const chartData = {
     labels: tm_names,
     datasets: [

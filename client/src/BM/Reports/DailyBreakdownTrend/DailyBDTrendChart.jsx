@@ -23,6 +23,7 @@ import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 import downloadFile from "../../../util";
 import { CSVLink, CSVDownload } from "react-csv";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -107,6 +108,8 @@ const DailyBDTrendChart = ({
   // setDailyBDSelectedMonth
   setDailyBDSelectedMonth,
   dailyBDSelectedMonth,
+  filterValues,
+  userDetails,
 }) => {
   let initialState = {
     labels: [],
@@ -122,6 +125,30 @@ const DailyBDTrendChart = ({
     useState(initialState);
 
   // const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const getDailyBreakdownTrendData = async () => {
     setLoading(true);
@@ -158,8 +185,12 @@ const DailyBDTrendChart = ({
   const handleDownload = async (fileType) => {
     try {
       let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
           [["Days"].concat(dailyBreakdownTrendData?.labels)?.toString() + "\n"],
 
           [
@@ -194,9 +225,11 @@ const DailyBDTrendChart = ({
           ),
           [">2"].concat(dailyBreakdownTrendData?.greaterThenTwoHourData),
         ];
+        filterData = ["Filters", ...arrayItems];
       }
 
       downloadFile(
+        filterData,
         bodyData,
         fileType,
         header,

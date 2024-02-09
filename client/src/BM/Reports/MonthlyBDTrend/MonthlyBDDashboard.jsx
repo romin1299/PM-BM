@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useContext } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { Box } from "@mui/material";
 import MonthlyBDTrendChart from "./MonthlyBDTrendChart";
@@ -18,7 +18,7 @@ import {
 } from "../../Utils/ExportPPTX/exportPPTX.js";
 
 import axios from "axios";
-
+import RoutingContext from "../../../context/routing/RoutingContext.js";
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -46,6 +46,7 @@ const MonthlyBDTDashboard = () => {
   const [filter, setFilter] = React.useState("hourly");
   const [selectedYear, setSelectedYear] = React.useState("");
   const currentTabViewName = currentTabView === 0 ? "Plant" : "Section";
+  const loggedUserDetails = useContext(RoutingContext);
 
   let initialState = {
     message: "",
@@ -235,6 +236,7 @@ const MonthlyBDTDashboard = () => {
             currentTabViewName={currentTabViewName}
             sectionId={filterState?.selectedValue}
             selectedYear={selectedYear}
+            userDetails={loggedUserDetails}
           />
         </Col>
         <Col md={12} lg={3}>
@@ -245,6 +247,7 @@ const MonthlyBDTDashboard = () => {
             currentTabViewName={currentTabViewName}
             sectionId={filterState?.selectedValue}
             selectedYear={selectedYear}
+            userDetails={loggedUserDetails}
           />
         </Col>
       </Row>
@@ -256,6 +259,7 @@ const MonthlyBDTDashboard = () => {
         currentTabViewName={currentTabViewName}
         sectionId={filterState?.selectedValue}
         selectedYear={selectedYear}
+        userDetails={loggedUserDetails}
       />
     </Container>
   );

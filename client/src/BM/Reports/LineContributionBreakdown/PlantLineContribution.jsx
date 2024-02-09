@@ -20,6 +20,7 @@ import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import Loading from "../../../components/Loading/Loading";
 import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -99,9 +100,38 @@ export const options = {
   },
 };
 
-const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
+const PlantLineContribution = ({
+  selectedYear,
+  selectedMonth,
+  reduceState,
+  userDetails,
+}) => {
   const [loading, setLoading] = React.useState(true);
   const [data, setData] = React.useState({});
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    reduceState.flagForTogglingFilter,
+    reduceState,
+    reduceState.selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const fetchPlantId = async ({ url }) => {
     try {
@@ -153,15 +183,18 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
   const handleDownload = async (fileType) => {
     try {
       // const bodyData = [[data?.lineNames, data?.bdHours, data?.percentages]];
-     
+
       let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems] + "\n",
+          ["\n"],
           [["Line Names"].concat(data?.lineNames)?.toString() + "\n"],
           [["Hours"].concat(data?.bdHours)?.toString() + "\n"],
           [["Percentages"].concat(data?.percentages)?.toString() + "\n"],
         ];
-
       } else {
         bodyData = [
           [
@@ -170,8 +203,10 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
             data?.percentages.join("\n"),
           ],
         ];
+        filterData = ["Filters", ...arrayItems];
       }
       downloadFile(
+        filterData,
         bodyData,
         fileType,
         header,

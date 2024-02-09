@@ -12,6 +12,7 @@ import Loading from "../../../components/Loading/Loading";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 const sectionBoxStyle = {
   p: 1,
@@ -91,6 +92,7 @@ const MajorBDCount = ({
   currentTabViewName,
   sectionId,
   selectedYear,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
   const [data, setData] = React.useState([]);
@@ -101,6 +103,30 @@ const MajorBDCount = ({
   });
 
   const { flagForTogglingFilter, selectedValue } = filterState;
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterState,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const fetchChartData = async () => {
     setLoading(true);
@@ -187,7 +213,7 @@ const MajorBDCount = ({
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Labels", ...labels];
   const handleDownload = async (fileType) => {
     try {
       // const bodyData = [chartData].map((item) => [
@@ -196,16 +222,28 @@ const MajorBDCount = ({
       // ]);
 
       let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
           ["Months", ...labels]?.toString() + "\n",
           ...chartData?.datasets.map(
             (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n"
           ),
         ];
+      } else {
+        bodyData = [
+          ...chartData?.datasets.map((dataset) => [
+            dataset.label,
+            ...dataset.data,
+          ]),
+        ];
+        filterData = ["Filters", ...arrayItems];
       }
 
-      downloadFile(bodyData, fileType, header, "Major_Bd_Count");
+      downloadFile(filterData, bodyData, fileType, header, "Major_Bd_Count");
     } catch (error) {
       console.error("Error downloading data:", error);
     }

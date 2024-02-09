@@ -9,11 +9,14 @@ import DataNotFound from "../Common/DataNotFound";
 import downloadFile from "../../../util";
 import DownloadButton from "../Common/DownloadButton";
 import { ChartDownloadMenu } from "../Common/ChartTitleBar";
+import findFilters from "../../../filterNames";
 
 const MTBFComponent = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
+  filterValues,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
 
@@ -50,6 +53,30 @@ const MTBFComponent = ({
   };
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const getMTBFReportData = async () => {
     setLoading(true);
@@ -90,8 +117,12 @@ const MTBFComponent = ({
   const handleDownload = async (fileType) => {
     try {
       let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
           [
             ["Months"].concat(reduceState.MTBFReportData?.labels)?.toString() +
               "\n",
@@ -102,10 +133,18 @@ const MTBFComponent = ({
           ],
         ];
       } else {
+        filterData = ["Filters", ...arrayItems];
+
         bodyData = [["Hours"].concat(reduceState.MTBFReportData?.data)];
       }
 
-      downloadFile(bodyData, fileType, header, `MTBF_${selectedYear}`);
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `MTBF_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

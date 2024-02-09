@@ -9,6 +9,7 @@ import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 export const options = {
   maintainAspectRatio: false,
@@ -94,12 +95,42 @@ const labels = [
   "Mar",
 ];
 
-const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
+const MTTRChart = ({
+  flagForTogglingFilter,
+  selectedValue,
+  selectedYear,
+  filterValues,
+  userDetails,
+}) => {
   const [loading, setLoading] = React.useState(true);
   const [mttrData, setMttrData] = useState({
     bdTrendData: [{ label: "", data: [] }],
     averageData: [],
   });
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   let filterMaker = {
     plant: "Plant",
@@ -159,22 +190,31 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
       // ];
 
       let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
           [["Months"].concat(labels)?.toString() + "\n"],
           [["Hours"].concat(mttrData?.bdTrendData[0]?.data)?.toString() + "\n"],
           [["Average Hours"].concat(mttrData?.averageData)?.toString() + "\n"],
         ];
       } else {
         bodyData = [
-       
-            ["Hours"].concat(mttrData?.bdTrendData[0]?.data),
-            ["Average Hours"].concat(mttrData?.averageData),
-          
+          ["Hours"].concat(mttrData?.bdTrendData[0]?.data),
+          ["Average Hours"].concat(mttrData?.averageData),
         ];
+        filterData = ["Filters", ...arrayItems];
       }
 
-      downloadFile(bodyData, fileType, header, `MTTR_${selectedYear}`);
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `MTTR_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

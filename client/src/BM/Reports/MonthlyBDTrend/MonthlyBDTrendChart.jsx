@@ -22,6 +22,7 @@ import Loading from "../../../components/Loading/Loading";
 import FilterSwitchButtons from "./FilterSwitchButtons";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -91,6 +92,7 @@ const MonthlyBDTrendChart = ({
   filter,
   setFilter,
   selectedYear,
+  userDetails,
   showFilterSwitch = false,
 }) => {
   const [loading, setLoading] = React.useState(true);
@@ -108,6 +110,30 @@ const MonthlyBDTrendChart = ({
     else if (currentTabViewName === "Section" && filter === "section")
       setFilter("cell");
   }, [currentTabViewName]);
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterState,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const fetchChartData = async () => {
     setLoading(true);
@@ -183,8 +209,12 @@ const MonthlyBDTrendChart = ({
   const handleDownload = async (fileType) => {
     try {
       let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
           ["Months", ...MONTH_LABELS]?.toString() + "\n",
           ...chartData?.datasets.map(
             (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n"
@@ -192,11 +222,16 @@ const MonthlyBDTrendChart = ({
         ];
       } else {
         bodyData = [
-          chartData?.datasets.map((dataset) => [dataset.label, dataset.data]),
+          ...chartData?.datasets.map((dataset) => [
+            dataset.label,
+            ...dataset.data,
+          ]),
         ];
+        filterData = ["Filters", ...arrayItems];
       }
 
       downloadFile(
+        filterData,
         bodyData,
         fileType,
         header,

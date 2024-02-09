@@ -22,6 +22,7 @@ import "jspdf-autotable";
 import { saveAs } from "file-saver";
 import downloadFile from "../../../util";
 import DownloadButton from "../Common/DownloadButton";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -87,12 +88,39 @@ const TMProgress = ({
   selectedYear,
   tmId,
   setTmId,
+  userDetails,
+  reduceState,
 }) => {
   const [loading, setLoading] = React.useState(true);
   // console.log("selectedValue:", selectedValue);
 
   const [data, setData] = React.useState(undefined);
   const [isAllTM, setIsAllTM] = React.useState(false);
+  const [tmName, setTMName] = React.useState("");
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    reduceState?.flagForTogglingFilter,
+    reduceState,
+    reduceState?.selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const fetchChartData = async () => {
     setLoading(true);
@@ -135,16 +163,23 @@ const TMProgress = ({
       // const bodyData = [[data?.labels, data?.data]];
 
       let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems] + "\n",
+          ["\n"],
+          ["TM Name", tmName] + "\n",
+          ["\n"],
           [["Labels"].concat(data?.labels)?.toString() + "\n"],
           [["Hours"].concat(data?.data)?.toString() + "\n"],
         ];
       } else {
         bodyData = [["Hours"].concat(data?.data)];
+        filterData = ["Filters", ...arrayItems, "TM Name", tmName];
       }
 
-      downloadFile(bodyData, fileType, header, "TM_Progress");
+      downloadFile(filterData, bodyData, fileType, header, "TM_Progress");
     } catch (error) {
       console.error("Error downloading data:", error);
     }
@@ -212,6 +247,7 @@ const TMProgress = ({
                 setTmId={setTmId}
                 selectedValue={selectedValue}
                 flagForTogglingFilter={flagForTogglingFilter}
+                setName={setTMName}
               />
             </Col>
 

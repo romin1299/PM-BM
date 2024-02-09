@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useContext } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 
 import {
@@ -25,6 +25,8 @@ import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
 import TmMttrSkillScoreCrud from "./TMMttrSkillScoreCrud";
 import axios from "axios";
 import downloadFile from "../../../util";
+import RoutingContext from "../../../context/routing/RoutingContext";
+import findFilters from "../../../filterNames";
 
 const TMMTRMain = () => {
   const [loading, setLoading] = React.useState(true);
@@ -36,6 +38,7 @@ const TMMTRMain = () => {
   const [tmId, setTmId] = React.useState("");
   const [timeFilter, setTimeFilter] = React.useState(2);
   const timeFilterRef = React.useRef(null);
+  const userDetails = useContext(RoutingContext);
 
   // const handleChange = (event) => {
   //   setMbdIncluded(event.target.checked);
@@ -131,6 +134,30 @@ const TMMTRMain = () => {
     ],
   });
 
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    reduceState?.flagForTogglingFilter,
+    reduceState,
+    reduceState?.selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
+
   const fetchChartData = async () => {
     setLoading(true);
 
@@ -164,8 +191,12 @@ const TMMTRMain = () => {
       // const bodyData = [[userWiseData?.tm_names, userWiseData?.data]];
 
       let bodyData = [];
+      let filterData = []; 
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems]+ "\n",
+          ["\n"],
           [["TM Names"].concat(userWiseData?.tm_names)?.toString() + "\n"],
           [["Hours"].concat(userWiseData?.data)?.toString() + "\n"],
         ];
@@ -173,9 +204,11 @@ const TMMTRMain = () => {
         bodyData = [
           [userWiseData?.tm_names.join("\n"), userWiseData?.data.join("\n")],
         ];
+        filterData = ["Filters", ...arrayItems];
       }
 
       downloadFile(
+        filterData,
         bodyData,
         fileType,
         header,
@@ -242,6 +275,8 @@ const TMMTRMain = () => {
               timeFilter={timeFilter}
               tmId={tmId}
               setTmId={setTmId}
+              userDetails={userDetails}
+              reduceState={reduceState}
             />
           </Col>
 

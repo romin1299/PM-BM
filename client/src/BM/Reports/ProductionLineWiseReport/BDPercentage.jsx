@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useContext } from "react";
 import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductionLineWise";
 import SmallChartCardComponent from "./SmallChartCardComponent";
 import Loading from "../../../components/Loading/Loading";
@@ -7,13 +7,18 @@ import DataNotFound from "../Common/DataNotFound";
 import downloadFile from "../../../util";
 import DownloadButton from "../Common/DownloadButton";
 import { ChartDownloadMenu } from "../Common/ChartTitleBar";
+import RoutingContext from "../../../context/routing/RoutingContext";
+import findFilters from "../../../filterNames";
 
 const BDPercentageChart = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
+  filterValues,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
+  // const loggedUserDetails = useContext(RoutingContext);
 
   const initialState = {
     BDPercentageReportData: {
@@ -46,6 +51,30 @@ const BDPercentageChart = ({
         return state;
     }
   };
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
@@ -81,25 +110,41 @@ const BDPercentageChart = ({
     setLoading(false);
   };
 
-  const header =["Months"].concat(reduceState.BDPercentageReportData?.labels);
+  const header = ["Months"].concat(reduceState.BDPercentageReportData?.labels);
 
   const handleDownload = async (fileType) => {
     try {
-      let bodyData = []
+      let bodyData = [];
+      let filterData = [];
       if (fileType === "csv") {
-         bodyData = [
-          [["Months"].concat(reduceState.BDPercentageReportData?.labels)?.toString() + "\n"],
-          [["Hours"].concat(reduceState.BDPercentageReportData?.data)?.toString() + "\n"],
-        ];
-      }else{
         bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
 
-             
-          ["Hours"].concat(reduceState.BDPercentageReportData?.data),
-        ]
+          [
+            ["Months"]
+              .concat(reduceState.BDPercentageReportData?.labels)
+              ?.toString() + "\n",
+          ],
+          [
+            ["Hours"]
+              .concat(reduceState.BDPercentageReportData?.data)
+              ?.toString() + "\n",
+          ],
+        ];
+      } else {
+        bodyData = [["Hours"].concat(reduceState.BDPercentageReportData?.data)];
+
+        filterData = ["Filters", ...arrayItems];
       }
 
-      downloadFile(bodyData, fileType, header, `BD_Percentage_${selectedYear}`);
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `BD_Percentage_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }
