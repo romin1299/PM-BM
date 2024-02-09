@@ -75,7 +75,7 @@ import Profile from "./pages/Profile";
 import "./App.css";
 import RightNavbar from "./components/RightNavbar/RightNavbar";
 
-import MainPageComponent from "./KPI_Tab/MainPage/MainPageComponent";
+import KPI_Routes from "./KPI_Tab/KPI_Routes";
 
 const commonRoutes = [
   {
@@ -127,7 +127,7 @@ const tabs = [
     name: "MTD KPI",
     keyUrl: "kpi",
     icon: <BsHammer />,
-    dashboardAndRoutes: <MainPageComponent commonRoutes={commonRoutes} />,
+    dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
   },
 ];
 

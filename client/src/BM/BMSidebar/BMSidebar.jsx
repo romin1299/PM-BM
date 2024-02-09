@@ -16,16 +16,16 @@ import { menuItems } from "./menuItems";
 // import '../../components/Navbar/Navbar.css'
 // import '../../components/Navbar/Navbar.module.scss'
 
-const BMSidebar = ({ userData }) => {
+const BMSidebar = ({ userData, filteredItems }) => {
   const [menuCollapse, setMenuCollapse] = useState(true);
   const navigate = useNavigate();
 
-  // Inside the BMSidebar component, after defining the menuItems array
-  const filteredItems = filteredMenuItems(
-    menuItems,
-    userData.user_type,
-    userData.tm_department
-  );
+  // // Inside the BMSidebar component, after defining the menuItems array
+  // const filteredItems = filteredMenuItems(
+  //   menuItems,
+  //   userData.user_type,
+  //   userData.tm_department
+  // );
 
   const styles = {
     sideBarHeight: {
@@ -181,33 +181,33 @@ const BMSidebar = ({ userData }) => {
 export default BMSidebar;
 
 //Filtering Sidebar Links for authorized user
-const filteredMenuItems = (menuItems, user_type, user_department) => {
-  const filteredItems = [];
+// const filteredMenuItems = (menuItems, user_type, user_department) => {
+//   const filteredItems = [];
 
-  menuItems.forEach((menuItem) => {
-    if (
-      (!menuItem.allowedRoles || menuItem.allowedRoles.includes(user_type)) &&
-      (!menuItem.allowedDepartments ||
-        menuItem.allowedDepartments.includes(user_department))
-    ) {
-      if (menuItem.subItems) {
-        const filteredSubItems = menuItem.subItems?.filter((subItem) => {
-          return (
-            (!subItem.allowedRoles ||
-              subItem.allowedRoles.includes(user_type)) &&
-            (!subItem.allowedDepartments ||
-              subItem.allowedDepartments.includes(user_department))
-          );
-        });
+//   menuItems.forEach((menuItem) => {
+//     if (
+//       (!menuItem.allowedRoles || menuItem.allowedRoles.includes(user_type)) &&
+//       (!menuItem.allowedDepartments ||
+//         menuItem.allowedDepartments.includes(user_department))
+//     ) {
+//       if (menuItem.subItems) {
+//         const filteredSubItems = menuItem.subItems?.filter((subItem) => {
+//           return (
+//             (!subItem.allowedRoles ||
+//               subItem.allowedRoles.includes(user_type)) &&
+//             (!subItem.allowedDepartments ||
+//               subItem.allowedDepartments.includes(user_department))
+//           );
+//         });
 
-        if (filteredSubItems?.length > 0) {
-          filteredItems.push({ ...menuItem, subItems: filteredSubItems });
-        }
-      } else {
-        filteredItems.push(menuItem);
-      }
-    }
-  });
+//         if (filteredSubItems?.length > 0) {
+//           filteredItems.push({ ...menuItem, subItems: filteredSubItems });
+//         }
+//       } else {
+//         filteredItems.push(menuItem);
+//       }
+//     }
+//   });
 
-  return filteredItems;
-};
+//   return filteredItems;
+// };

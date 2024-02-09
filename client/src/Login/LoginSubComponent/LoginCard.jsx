@@ -62,8 +62,8 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
           navigate(`/bm/request-sheet/scanned/${scannedMachineId}`);
           // refreshPage();
         } else {
-          navigate("/pm", { replace: true });
-          // navigate("/kpi", { replace: true });
+          // navigate("/pm", { replace: true });
+          navigate("/kpi", { replace: true });
           // refreshPage();
         }
       }
