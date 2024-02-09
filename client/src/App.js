@@ -123,12 +123,12 @@ const tabs = [
     icon: <BsHammer />,
     dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
   },
-  // {
-  //   name: "MTD KPI",
-  //   keyUrl: "kpi",
-  //   icon: <BsHammer />,
-  //   dashboardAndRoutes: <MainPageComponent commonRoutes={commonRoutes} />,
-  // },
+  {
+    name: "MTD KPI",
+    keyUrl: "kpi",
+    icon: <BsHammer />,
+    dashboardAndRoutes: <MainPageComponent commonRoutes={commonRoutes} />,
+  },
 ];
 
 function App() {
