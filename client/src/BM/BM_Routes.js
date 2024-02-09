@@ -42,6 +42,11 @@ import MachineSummaryComponent from "../Common/Machine/MachineHistoryComponent";
 import NoLossBDEntryForm from "./NoLossBDDataEntry/NoLossBDEntryForm";
 import UpdateRequestSheetForAnyStatus from "./Tabs/UpdateRequestSheetForAnyStatus/UpdateRequestSheetForAnyStatus";
 
+import { filteredMenuItems } from "../Common/CommonRoutes/filteredMenuItems";
+import { menuItems } from "./BMSidebar/menuItems";
+
+import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
+
 function BM_Routes({ commonRoutes }) {
   const reportRoutes = [
     ...commonRoutes,
@@ -382,51 +387,61 @@ function BM_Routes({ commonRoutes }) {
     },
   ];
 
-  const [nav, setNav] = useState(false);
-  const value = { nav, setNav };
-
   const context = useContext(RoutingContext);
-  // console.log("context:", context);
 
   const filteredRoutes = userRoutes?.find(
     (userRoute) => userRoute?.user_type === context?.user_type
   );
 
-  return (
-    <div className="App">
-      {/* <NavContext.Provider value={value}> */}
-      <BMSidebar userData={context} />
-
-      {/* Render main container based on the user's routes */}
-      <Container
-        // stickyNav={<RightNavbar />}
-        content={
-          <Routes>
-            {filteredRoutes?.routes?.map((route) =>
-              route?.subRoutes ? (
-                route?.subRoutes?.map((subRoute) => (
-                  <Route key={route.path} path={route.path}>
-                    <Route
-                      key={subRoute.path}
-                      path={subRoute.path}
-                      element={subRoute.element}
-                    />
-                  </Route>
-                ))
-              ) : (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  element={route.element}
-                />
-              )
-            )}
-          </Routes>
-        }
-      />
-      {/* </NavContext.Provider> */}
-    </div>
+  // Inside the BMSidebar component, after defining the menuItems array
+  const filteredItems = filteredMenuItems(
+    menuItems,
+    context.user_type,
+    context.tm_department
   );
+
+  return (
+    <CommonRoutesContainer
+      routes={filteredRoutes?.routes}
+      sideBarProp={{ userData: context, filteredItems }}
+    />
+  );
+
+  // return (
+  //   <div className="App">
+  //     {/* <NavContext.Provider value={value}> */}
+  //     <BMSidebar userData={context} filteredItems={filteredItems} />
+
+  //     {/* Render main container based on the user's routes */}
+  //     <Container
+  //       // stickyNav={<RightNavbar />}
+  //       content={
+  //         <Routes>
+  //           {filteredRoutes?.routes?.map((route) =>
+  //             route?.subRoutes ? (
+  //               route?.subRoutes?.map((subRoute) => (
+  //                 <Route key={route.path} path={route.path}>
+  //                   <Route
+  //                     key={subRoute.path}
+  //                     path={subRoute.path}
+  //                     element={subRoute.element}
+  //                   />
+  //                 </Route>
+  //               ))
+  //             ) : (
+  //               <Route
+  //                 key={route.path}
+  //                 path={route.path}
+  //                 element={route.element}
+  //               />
+  //             )
+  //           )}
+  //         </Routes>
+  //       }
+  //     />
+  //     {/* </NavContext.Provider> */}
+  //   </div>
+  // );
 }
 
 export default BM_Routes;
