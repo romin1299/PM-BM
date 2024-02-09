@@ -120,14 +120,42 @@ const MachineTrend = ({
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [
-          reduceState.MachineWiseMTTRTrend?.labels,
-          reduceState.MachineWiseMTTRTrend?.data,
-        ],
-      ];
+      // const bodyData = [
+      //   [
+      //     reduceState.MachineWiseMTTRTrend?.labels.join("\n"),
+      //     reduceState.MachineWiseMTTRTrend?.data.join("\n"),
+      //   ],
+      // ];
 
-      downloadFile(bodyData, fileType, header, "MTTR_MachineTrend");
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [
+            ["Line Names"]
+              .concat(reduceState.MachineWiseMTTRTrend?.labels)
+              ?.toString() + "\n",
+          ],
+          [
+            ["Hours"]
+              .concat(reduceState.MachineWiseMTTRTrend?.data)
+              ?.toString() + "\n",
+          ],
+        ];
+      } else {
+        bodyData = [
+          [
+            reduceState.MachineWiseMTTRTrend?.labels.join("\n"),
+            reduceState.MachineWiseMTTRTrend?.data.join("\n"),
+          ],
+        ];
+      }
+
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `MTTR_MachineTrend_${selectedMonth}_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

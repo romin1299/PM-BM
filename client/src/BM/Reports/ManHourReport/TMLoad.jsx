@@ -171,20 +171,56 @@ const TMLoad = ({
     "TM Names",
     "Total Sum of PM",
     "Total Sum of BM",
-    "Percentage",
+    "Percentages",
   ];
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [
-          tmLoadData?.tm_names,
-          tmLoadData?.totalSumOf_PM,
-          tmLoadData?.totalSumOf_BM,
-          tmLoadData?.percentage,
-        ],
-      ];
-      downloadFile(bodyData, fileType, header, "TM_Load");
+      // const bodyData = [
+      //   [
+      //     tmLoadData?.tm_names,
+      //     tmLoadData?.totalSumOf_PM,
+      //     tmLoadData?.totalSumOf_BM,
+      //     tmLoadData?.percentage,
+      //   ],
+      // ];
+
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Line Names"].concat(tmLoadData?.tm_names)?.toString() + "\n"],
+          [
+            ["PM Hour Trend"].concat(tmLoadData?.totalSumOf_PM)?.toString() +
+              "\n",
+          ],
+          [
+            ["BM Hour Trend"].concat(tmLoadData?.totalSumOf_BM)?.toString() +
+              "\n",
+          ],
+          [["Percentages"].concat(tmLoadData?.percentage)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+          ["PM Hour Trend"].concat(tmLoadData?.totalSumOf_PM),
+          ["BM Hour Trend"].concat(tmLoadData?.totalSumOf_BM),
+        ];
+
+        bodyData = [
+          [
+            tmLoadData?.tm_names.join("\n"),
+            tmLoadData?.totalSumOf_PM.join("\n"),
+            tmLoadData?.totalSumOf_BM.join("\n"),
+            tmLoadData?.percentage.join("\n"),
+          ],
+        ];
+      }
+
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `TM_Load_${selectedMonth}_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

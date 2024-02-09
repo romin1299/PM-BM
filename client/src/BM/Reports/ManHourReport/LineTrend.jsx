@@ -137,20 +137,58 @@ const LineTrend = ({
     setLoading(false);
   };
 
-  const header = ["Lines", "Total Sum of PM", "Total Sum of BM", "Percentage"];
+  const header = [
+    "Line Names",
+    "Total Sum of PM",
+    "Total Sum of BM",
+    "Percentages",
+  ];
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [
-          lineTrendData?.lines,
-          lineTrendData?.totalSumOf_PM,
-          lineTrendData?.totalSumOf_BM,
-          lineTrendData?.percentage,
-        ],
-      ];
+      // const bodyData = [
+      //   [
+      //     lineTrendData?.lines,
+      //     lineTrendData?.totalSumOf_PM,
+      //     lineTrendData?.totalSumOf_BM,
+      //     lineTrendData?.percentage,
+      //   ],
+      // ];
 
-      downloadFile(bodyData, fileType, header, "Line_trend");
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Line Names"].concat(lineTrendData?.lines)?.toString() + "\n"],
+          [
+            ["PM Hour Trend"].concat(lineTrendData?.totalSumOf_PM)?.toString() +
+              "\n",
+          ],
+          [
+            ["BM Hour Trend"].concat(lineTrendData?.totalSumOf_BM)?.toString() +
+              "\n",
+          ],
+          [
+            ["Percentages"].concat(lineTrendData?.percentage)?.toString() +
+              "\n",
+          ],
+        ];
+      } else {
+        bodyData = [
+          [
+            lineTrendData?.lines.join("\n"),
+            lineTrendData?.totalSumOf_PM.join("\n"),
+            lineTrendData?.totalSumOf_BM.join("\n"),
+            lineTrendData?.percentage.join("\n"),
+          ],
+        ];
+      }
+
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `Line_trend_${selectedMonth}_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

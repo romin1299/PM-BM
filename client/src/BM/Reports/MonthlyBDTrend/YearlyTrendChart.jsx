@@ -164,11 +164,26 @@ const YearlyTrendChart = ({
   const handleDownload = async (fileType) => {
     try {
       // const bodyData = [chartData].map((item) => [item.labels, item.datasets]);
-      const bodyData = [chartData].map((item) => [
-        item.datasets.map((a) => a.label).join("\n"),
-        item.datasets.map((a) => a.data).join("\n"),
-      ]);
+      // const bodyData = [chartData].map((item) => [
+      //   item.datasets.map((a) => a.label).join("\n"),
+      //   item.datasets.map((a) => a.data).join("\n"),
+      // ]);
+
+
       
+
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          ["Years", chartData.labels]?.toString() + "\n",
+          ...chartData?.datasets.map(
+            (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n"
+          ),
+        ];
+      } else {
+        bodyData = [["Hours"].concat(chartData?.data)];
+      }
+
       downloadFile(bodyData, fileType, header, "Yearly_Bd_Trend");
     } catch (error) {
       console.error("Error downloading data:", error);

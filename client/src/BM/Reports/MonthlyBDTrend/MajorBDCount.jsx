@@ -190,10 +190,20 @@ const MajorBDCount = ({
   const header = ["Labels", "Data"];
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [chartData].map((item) => [
-        item.datasets.map((a) => a.label).join("\n"),
-        item.datasets.map((a) => a.data).join("\n"),
-      ]);
+      // const bodyData = [chartData].map((item) => [
+      //   item.datasets.map((a) => a.label).join("\n"),
+      //   item.datasets.map((a) => a.data).join("\n"),
+      // ]);
+
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          ["Months", ...labels]?.toString() + "\n",
+          ...chartData?.datasets.map(
+            (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n"
+          ),
+        ];
+      }
 
       downloadFile(bodyData, fileType, header, "Major_Bd_Count");
     } catch (error) {

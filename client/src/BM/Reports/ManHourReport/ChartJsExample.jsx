@@ -126,15 +126,35 @@ const ChartToPPTExample = ({
     setLoading(false);
   };
 
-  const header = ["PMHourTrend", "BMHourTrend"];
+  const header = ["Months"].concat(serverResLabels);
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [HourTrendData?.PMHourTrend, HourTrendData?.BMHourTrend],
-      ];
+      // const bodyData = [
+      //   [HourTrendData?.PMHourTrend, HourTrendData?.BMHourTrend],
+      // ];
 
-      downloadFile(bodyData, fileType, header, "Hour_Trend");
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Months"].concat(serverResLabels)?.toString() + "\n"],
+          [
+            ["PM Hour Trend"].concat(HourTrendData?.PMHourTrend)?.toString() +
+              "\n",
+          ],
+          [
+            ["BM Hour Trend"].concat(HourTrendData?.BMHourTrend)?.toString() +
+              "\n",
+          ],
+        ];
+      } else {
+        bodyData = [
+          ["PM Hour Trend"].concat(HourTrendData?.PMHourTrend),
+          ["BM Hour Trend"].concat(HourTrendData?.BMHourTrend),
+        ];
+      }
+
+      downloadFile(bodyData, fileType, header, `Hour_Trend_${selectedYear}`);
     } catch (error) {
       console.error("Error downloading data:", error);
     }

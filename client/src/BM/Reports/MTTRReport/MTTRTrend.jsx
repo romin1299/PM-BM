@@ -41,13 +41,23 @@ const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Labels"].concat(MTTRTrendData?.labels);
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [[MTTRTrendData?.labels, MTTRTrendData?.data]];
+      // const bodyData = [[MTTRTrendData?.labels, MTTRTrendData?.data]];
 
-      downloadFile(bodyData, fileType, header, "MTTR_Trend");
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Labels"].concat(MTTRTrendData?.labels)?.toString() + "\n"],
+          [["Hours"].concat(MTTRTrendData?.data)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [["Hours"].concat(MTTRTrendData?.data)];
+      }
+
+      downloadFile(bodyData, fileType, header, `MTTR_Trend_${selectedYear}`);
     } catch (error) {
       console.error("Error downloading data:", error);
     }

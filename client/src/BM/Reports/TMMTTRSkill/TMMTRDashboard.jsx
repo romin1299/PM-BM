@@ -158,11 +158,29 @@ const TMMTRMain = () => {
     setLoading(false);
   };
 
-  const header = ["Tm Names", "Data"];
+  const header = ["TM Names", "Hours"];
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [[userWiseData?.tm_names, userWiseData?.data]];
-      downloadFile(bodyData, fileType, header, "TM_MTTR");
+      // const bodyData = [[userWiseData?.tm_names, userWiseData?.data]];
+
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["TM Names"].concat(userWiseData?.tm_names)?.toString() + "\n"],
+          [["Hours"].concat(userWiseData?.data)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+          [userWiseData?.tm_names.join("\n"), userWiseData?.data.join("\n")],
+        ];
+      }
+
+      downloadFile(
+        bodyData,
+        fileType,
+        header,
+        `TM_MTTR_${reduceState?.selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

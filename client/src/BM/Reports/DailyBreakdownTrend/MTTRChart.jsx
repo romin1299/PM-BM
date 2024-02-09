@@ -146,19 +146,35 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
     setLoading(false);
   };
 
-  const header = ["Label", "Data", "Average Data"];
+  const header = ["Months"].concat(labels);
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [
-          mttrData?.bdTrendData[0]?.label,
-          mttrData?.bdTrendData[0]?.data,
-          mttrData?.averageData,
-        ],
-      ];
+      // const bodyData = [
+      //   [
+      //     mttrData?.bdTrendData[0]?.label,
+      //     mttrData?.bdTrendData[0]?.data,
+      //     mttrData?.averageData,
+      //   ],
+      // ];
 
-      downloadFile(bodyData, fileType, header, "MTTR");
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Months"].concat(labels)?.toString() + "\n"],
+          [["Hours"].concat(mttrData?.bdTrendData[0]?.data)?.toString() + "\n"],
+          [["Average Hours"].concat(mttrData?.averageData)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+       
+            ["Hours"].concat(mttrData?.bdTrendData[0]?.data),
+            ["Average Hours"].concat(mttrData?.averageData),
+          
+        ];
+      }
+
+      downloadFile(bodyData, fileType, header, `MTTR_${selectedYear}`);
     } catch (error) {
       console.error("Error downloading data:", error);
     }

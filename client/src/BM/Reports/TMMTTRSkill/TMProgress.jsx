@@ -128,11 +128,22 @@ const TMProgress = ({
     setLoading(false);
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Labels"].concat(data?.labels);
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [[data?.labels, data?.data]];
+      // const bodyData = [[data?.labels, data?.data]];
+
+      let bodyData = [];
+      if (fileType === "csv") {
+        bodyData = [
+          [["Labels"].concat(data?.labels)?.toString() + "\n"],
+          [["Hours"].concat(data?.data)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [["Hours"].concat(data?.data)];
+      }
+
       downloadFile(bodyData, fileType, header, "TM_Progress");
     } catch (error) {
       console.error("Error downloading data:", error);

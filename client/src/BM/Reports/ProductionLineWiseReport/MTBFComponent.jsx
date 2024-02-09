@@ -89,17 +89,20 @@ const MTBFComponent = ({
 
   const handleDownload = async (fileType) => {
     try {
-
-      let bodyData = []
+      let bodyData = [];
       if (fileType === "csv") {
-         bodyData = [
-          [["Months"].concat(reduceState.MTBFReportData?.labels)?.toString() + "\n"],
-          [["Hours"].concat(reduceState.MTBFReportData?.data)?.toString() + "\n"],
-        ];
-      }else{
         bodyData = [
-          ["Hours"].concat(reduceState.MTBFReportData?.data),
-        ]
+          [
+            ["Months"].concat(reduceState.MTBFReportData?.labels)?.toString() +
+              "\n",
+          ],
+          [
+            ["Hours"].concat(reduceState.MTBFReportData?.data)?.toString() +
+              "\n",
+          ],
+        ];
+      } else {
+        bodyData = [["Hours"].concat(reduceState.MTBFReportData?.data)];
       }
 
       downloadFile(bodyData, fileType, header, `MTBF_${selectedYear}`);

@@ -116,7 +116,7 @@ function MyTable({
         );
       }
       const { ...otherFields } = requestSheetData;
-      console.log(otherFields);
+      // console.log(otherFields);
 
       formData.append("otherData", JSON.stringify(otherFields));
 
@@ -2958,7 +2958,7 @@ function MyTable({
                           className={
                             watch("approvalOfRequestSheet") === "No"
                               ? "btn bg-dang"
-                              : "btn bg-darkyellow mt-3"
+                              : "btn bg-warning mt-3"
                           }
                           onClick={handleSubmit(
                             sendApprovalForRequestSheetOfBM
@@ -3066,7 +3066,7 @@ function MyTable({
                         &nbsp;
                         <button
                           type="submit"
-                          className="btn bg-darkyellow"
+                          className="btn bg-warning"
                           onClick={handleSubmit(
                             approveRequestSheetFromHigherAuthority
                           )}
