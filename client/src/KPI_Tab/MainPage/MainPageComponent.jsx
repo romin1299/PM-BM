@@ -68,6 +68,7 @@ const MainPageComponent = () => {
               }
               selectedYear={reduceState?.selectedYear}
               selectedMonth={reduceState?.selectedMonth}
+              chartTitle="Plant Man Hr Status"
             />
           </Col>
         </Row>

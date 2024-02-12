@@ -128,6 +128,7 @@ const TMLoad = ({
   flagForTogglingFilter,
   selectedYear,
   selectedMonth,
+  chartTitle,
 }) => {
   const [loading, setLoading] = React.useState(true);
 
@@ -273,7 +274,7 @@ const TMLoad = ({
   return (
     <Box className="cell p-3">
       <ChartTitleBar
-        title="TM Load"
+        title={chartTitle}
         Toolbar={
           <div className="col-auto">
             <ChartDownloadMenu
