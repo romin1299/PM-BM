@@ -17,6 +17,7 @@ import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -72,6 +73,8 @@ const StackedBarChart = ({
   flagForTogglingFilter,
   selectedValue,
   selectedYear,
+  filterValues,
+  userDetails,
 }) => {
   const [chartData, setChartData] = useState({
     labels: [],
@@ -82,6 +85,30 @@ const StackedBarChart = ({
       },
     ],
   });
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const fetchChartData = async () => {
     const url = `/getMachineAgeMonthwise/${flagForTogglingFilter}/${selectedValue}`;
@@ -114,15 +141,39 @@ const StackedBarChart = ({
     }
   };
 
-  const header = ["Labels", "Data"];
+  const header = ["Months", ...MONTH_LABELS];
 
   const handleDownload = async (fileType) => {
     try {
-      const bodyData = [
-        [chartData?.datasets[0].label, chartData?.datasets[0].data],
-      ];
+      let bodyData = [];
+      let filterData = [];
 
-      downloadFile(bodyData, fileType, header, "Machine_Age_Monthly");
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          ["Months", ...MONTH_LABELS]?.toString() + "\n",
+          ...chartData?.datasets.map(
+            (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n"
+          ),
+        ];
+      } else {
+        bodyData = [
+          ...chartData?.datasets.map((dataset) => [
+            dataset.label,
+            ...dataset.data,
+          ]),
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        "Machine_Age_Monthly"
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

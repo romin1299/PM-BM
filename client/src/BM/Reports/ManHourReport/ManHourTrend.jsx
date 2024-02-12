@@ -17,6 +17,7 @@ import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -73,6 +74,8 @@ const ManHourTrend = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
+  filterValues,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
 
@@ -80,6 +83,30 @@ const ManHourTrend = ({
     BMManHourTrend: [],
     PMManHourTrend: [],
   });
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const getManHourTrendData = async () => {
     setLoading(true);
@@ -119,8 +146,12 @@ const ManHourTrend = ({
       // ];
 
       let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
           [["Months"].concat(MONTH_LABELS)?.toString() + "\n"],
           [
             ["PM Man-Hour Trend"]
@@ -138,9 +169,16 @@ const ManHourTrend = ({
           ["PM Man-Hour Trend"].concat(manHourTrendData?.PMManHourTrend),
           ["BM Man-Hour Trend"].concat(manHourTrendData?.BMManHourTrend),
         ];
+        filterData = ["Filters", ...arrayItems];
       }
 
-      downloadFile(bodyData, fileType, header, `ManHour_Trend_${selectedYear}`);
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `ManHour_Trend_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

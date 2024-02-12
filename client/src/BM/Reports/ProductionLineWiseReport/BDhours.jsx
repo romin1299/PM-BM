@@ -7,8 +7,15 @@ import DataNotFound from "../Common/DataNotFound";
 import { Box } from "@mui/material";
 import downloadFile from "../../../util";
 import { ChartDownloadMenu } from "../Common/ChartTitleBar";
+import findFilters from "../../../filterNames";
 
-const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
+const BDhours = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  filterValues,
+  userDetails,
+}) => {
   const [loading, setLoading] = React.useState(true);
   const initialState = {
     BDHours: {
@@ -42,6 +49,30 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
   };
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const getBDHours = async () => {
     setLoading(true);
@@ -80,20 +111,30 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
 
   const handleDownload = async (fileType) => {
     try {
-      let bodyData = []
+      let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
-         bodyData = [
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
           [["Months"].concat(reduceState.BDHours?.labels)?.toString() + "\n"],
           [["Hours"].concat(reduceState.BDHours?.data)?.toString() + "\n"],
           // [reduceState.BDHours?.labels, reduceState.BDHours?.data],
         ];
-      }else{
-        bodyData = [
-          ["Hours"].concat(reduceState.BDHours?.data),
-        ]
+      } else {
+        filterData = ["Filters", ...arrayItems];
+
+        bodyData = [["Hours"].concat(reduceState.BDHours?.data)];
       }
 
-      downloadFile(bodyData, fileType, header, `BD_Hours_${selectedYear}`);
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `BD_Hours_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

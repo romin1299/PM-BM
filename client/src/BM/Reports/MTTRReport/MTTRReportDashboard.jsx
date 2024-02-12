@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useContext } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { Box, Typography } from "@mui/material";
 
@@ -15,12 +15,14 @@ import ReportTitleBar from "../Common/ReportTitleBar";
 
 import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu";
 import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
+import RoutingContext from "../../../context/routing/RoutingContext";
 
 const MTTRReportDashboard = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const [documentLimitInTheGraph, setDocumentLimitInTheGraph] = useState(20);
+  const loggedUserDetails = useContext(RoutingContext);
 
   return (
     <Container fluid>
@@ -61,6 +63,8 @@ const MTTRReportDashboard = () => {
         <Row className="mt-3 gx-3">
           <Col md={12} lg={6}>
             <MTTRTrend
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
@@ -68,6 +72,8 @@ const MTTRReportDashboard = () => {
           </Col>
           <Col md={12} lg={6}>
             <LineTrend
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
@@ -79,6 +85,8 @@ const MTTRReportDashboard = () => {
         <Row className="mt-3">
           <Col>
             <MachineTrend
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}

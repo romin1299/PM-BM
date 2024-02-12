@@ -20,6 +20,7 @@ import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -97,6 +98,8 @@ const LineTrend = ({
   flagForTogglingFilter,
   selectedYear,
   selectedMonth,
+  filterValues,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
   const [labels, setLabels] = useState([]);
@@ -107,6 +110,30 @@ const LineTrend = ({
     totalSumOf_BM: [],
     percentage: [],
   });
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const getLineTrendData = async () => {
     setLoading(true);
@@ -156,8 +183,12 @@ const LineTrend = ({
       // ];
 
       let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
           [["Line Names"].concat(lineTrendData?.lines)?.toString() + "\n"],
           [
             ["PM Hour Trend"].concat(lineTrendData?.totalSumOf_PM)?.toString() +
@@ -181,9 +212,11 @@ const LineTrend = ({
             lineTrendData?.percentage.join("\n"),
           ],
         ];
+        filterData = ["Filters", ...arrayItems];
       }
 
       downloadFile(
+        filterData,
         bodyData,
         fileType,
         header,

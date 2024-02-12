@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 
 import LineBarChart from "../Common/LineBarChart";
 import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 const MachineWiseMTTRAndMTBF = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
   chartFor,
+  filterValues,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
   const [machineWiseMTTROrMTBF, setMachineWiseMTTROrMTBF] = useState({
@@ -15,6 +18,31 @@ const MachineWiseMTTRAndMTBF = ({
     data: [],
     target: [],
   });
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
+
   const getMachineWiseMTTROrMTBFTrendData = async () => {
     setLoading(true);
     try {
@@ -50,16 +78,23 @@ const MachineWiseMTTRAndMTBF = ({
       // ];
 
       let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
           [["Labels"].concat(machineWiseMTTROrMTBF?.labels)?.toString() + "\n"],
           [["Hours"].concat(machineWiseMTTROrMTBF?.data)?.toString() + "\n"],
         ];
       } else {
+        filterData = ["Filters", ...arrayItems];
+
         bodyData = [["Hours"].concat(machineWiseMTTROrMTBF?.data)];
       }
 
       downloadFile(
+        filterData,
         bodyData,
         fileType,
         header,

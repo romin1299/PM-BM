@@ -8,11 +8,14 @@ import DataNotFound from "../Common/DataNotFound";
 import downloadFile from "../../../util";
 import DownloadButton from "../Common/DownloadButton";
 import { ChartDownloadMenu } from "../Common/ChartTitleBar";
+import findFilters from "../../../filterNames";
 
 const MTTRComponent = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
+  filterValues,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
 
@@ -47,6 +50,30 @@ const MTTRComponent = ({
         return state;
     }
   };
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
@@ -87,20 +114,28 @@ const MTTRComponent = ({
 
   const handleDownload = async (fileType) => {
     try {
-      let bodyData = []
+      let bodyData = [];
+      let filterData = [];
       if (fileType === "csv") {
-         bodyData = [
-          [["Months"].concat(reduceState.MTTRReportData?.labels)?.toString() + "\n"],
-          [["Hours"].concat(reduceState.MTTRReportData?.data)?.toString() + "\n"],
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          [
+            ["Months"].concat(reduceState.MTTRReportData?.labels)?.toString() +
+              "\n",
+          ],
+          [
+            ["Hours"].concat(reduceState.MTTRReportData?.data)?.toString() +
+              "\n",
+          ],
           // [reduceState.BDHours?.labels, reduceState.BDHours?.data],
         ];
-      }else{
-        bodyData = [
-          ["Hours"].concat(reduceState.MTTRReportData?.data),
-        ]
+      } else {
+        filterData = ["Filters", ...arrayItems];
+        bodyData = [["Hours"].concat(reduceState.MTTRReportData?.data)];
       }
 
-      downloadFile(bodyData, fileType, header, `MTTR_${selectedYear}`);
+      downloadFile(filterData, bodyData, fileType, header, `MTTR_${selectedYear}`);
     } catch (error) {
       console.error("Error downloading data:", error);
     }
