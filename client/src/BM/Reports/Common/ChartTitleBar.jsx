@@ -28,20 +28,22 @@ const ChartTitleBar = (props) => {
         className="align-items-center gx-2"
         style={{ marginBottom: "0.5rem" }}
       >
-        <Col className="d-flex align-items-center">
-          <Typography
-            noWrap
-            className="col"
-            variant="h5"
-            component="h5"
-            fontSize={20}
-            fontWeight={400}
-            {...titleProps}
-            {...restProps}
-          >
-            {title}
-          </Typography>
-        </Col>
+        {title && (
+          <Col className="d-flex align-items-center">
+            <Typography
+              noWrap
+              className="col"
+              variant="h5"
+              component="h5"
+              fontSize={20}
+              fontWeight={400}
+              {...titleProps}
+              {...restProps}
+            >
+              {title}
+            </Typography>
+          </Col>
+        )}
 
         {Toolbar && Toolbar}
       </Row>

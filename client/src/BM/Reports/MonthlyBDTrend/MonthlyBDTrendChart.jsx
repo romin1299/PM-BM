@@ -92,6 +92,9 @@ const MonthlyBDTrendChart = ({
   setFilter,
   selectedYear,
   showFilterSwitch = false,
+
+  forKPI,
+  PropComponent,
 }) => {
   const [loading, setLoading] = React.useState(true);
 
@@ -221,23 +224,25 @@ const MonthlyBDTrendChart = ({
   return (
     <Box className="container-fluid cell p-3">
       <ChartTitleBar
-        title="Monthly Breakdown Trend"
+        title={!forKPI && "Monthly Breakdown Trend"}
         // titleProps={{
         //   sx: { fontWeight: "500" },
         // }}
         Toolbar={
-          <>
+          <Row>
+            {forKPI && PropComponent}
             {showFilterSwitch && (
-              <Col className="col-auto">
+              <Col className={"col-auto"}>
+              {/* <Col className={forKPI ? "col-3" : "col-auto"}> */}
                 <FilterSwitchButtons
                   filter={filter}
                   setFilter={setFilter}
                   filterState={filterState}
+                  forKPI={forKPI}
                 />
               </Col>
             )}
-
-            <div className="col-auto">
+            <div className={forKPI ? "col-1" : "col-auto"}>
               <ChartDownloadMenu
                 handleDownloadCSV={() => {
                   handleDownload("csv");
@@ -247,7 +252,7 @@ const MonthlyBDTrendChart = ({
                 }}
               />
             </div>
-          </>
+          </Row>
         }
       />
 

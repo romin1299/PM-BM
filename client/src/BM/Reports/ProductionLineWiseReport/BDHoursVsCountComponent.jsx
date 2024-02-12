@@ -134,17 +134,21 @@ const BDHoursVsCountComponent = ({
 
   const handleDownload = async (fileType) => {
     try {
-
-      let bodyData = []
+      let bodyData = [];
       if (fileType === "csv") {
-         bodyData = [
-          [["Months"].concat(reduceState.BDHoursVsCountData?.labels)?.toString() + "\n"],
-          [["Hours"].concat(reduceState.BDHoursVsCountData?.data)?.toString() + "\n"],
-        ];
-      }else{
         bodyData = [
-          ["Hours"].concat(reduceState.BDHoursVsCountData?.data),
-        ]
+          [
+            ["Months"]
+              .concat(reduceState.BDHoursVsCountData?.labels)
+              ?.toString() + "\n",
+          ],
+          [
+            ["Hours"].concat(reduceState.BDHoursVsCountData?.data)?.toString() +
+              "\n",
+          ],
+        ];
+      } else {
+        bodyData = [["Hours"].concat(reduceState.BDHoursVsCountData?.data)];
       }
 
       downloadFile(bodyData, fileType, header, "Bd_Hours_Vs_Count");
