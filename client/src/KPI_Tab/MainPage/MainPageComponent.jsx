@@ -14,7 +14,7 @@ import TMLoad from "../../BM/Reports/ManHourReport/TMLoad";
 import KPIBDHoursAndCountStatus from "./KPIBDHoursAndCountStatus";
 
 const MainPageComponent = () => {
-  const [filter, setFilter] = React.useState("hourly");
+  const [filter, setFilter] = useState("hourly");
   const currentTabViewName = "Plant";
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);

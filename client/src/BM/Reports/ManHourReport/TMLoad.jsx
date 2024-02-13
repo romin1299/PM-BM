@@ -150,7 +150,6 @@ const TMLoad = ({
 
   let arrayItems;
   let filterHeaders;
-
   if (userDetails?.tm_grade === "HOD") {
     arrayItems = [
       userDetails?.plant_data?.split("-")?.[0],
