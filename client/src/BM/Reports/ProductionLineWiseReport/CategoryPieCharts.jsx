@@ -55,7 +55,7 @@ const ChartCard = ({ category }) => {
     <Box className="cell p-3">
       {/* <ChartTitleBar title="BD Hours Vs Count" /> */}
       <Typography variant="body1" style={{ fontSize: "1rem" }}>
-        {category?.category} Category
+        {category?.category}
       </Typography>
 
       <Divider sx={{ mt: 1, mb: 2, borderColor: "gray" }} />
@@ -121,7 +121,7 @@ const CategoryPieCharts = ({
 
   const handleDownload = async (fileType) => {
     try {
-      console.log("fdfd", categories);
+      // console.log("fdfd", categories);
       const bodyData = categories.map((item) => [
         item.category,
         item.subcategories,

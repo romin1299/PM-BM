@@ -3,7 +3,11 @@ import { Col, Container, Row } from "react-bootstrap";
 import ChartsToolbar from "../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
 import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
 import { Box } from "@mui/material";
-import { initialState, reducer } from "../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import {
+  initialState,
+  reducer,
+} from "../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import AllSpareConsumptionCostMTDKPI from "./AllSpareConsumptionCostMTDKPI";
 
 const MainPageComponent = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -21,6 +25,7 @@ const MainPageComponent = () => {
                 reduceState={reduceState}
                 reducerDispatch={reducerDispatch}
                 yearFiltration
+                monthFiltration
                 sectionFiltration
                 subSectionFiltration
                 cellFiltration
@@ -30,6 +35,12 @@ const MainPageComponent = () => {
             }
           />
         </Box>
+        <AllSpareConsumptionCostMTDKPI
+          selectedValue={reduceState?.selectedValue}
+          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+          selectedYear={reduceState?.selectedYear}
+          selectedMonth={reduceState?.selectedMonth}
+        />
       </Container>
     </>
   );
