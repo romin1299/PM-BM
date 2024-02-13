@@ -123,7 +123,8 @@ const MonthlyBDTrendChart = ({
   let arrayItems;
   let filterHeaders;
 
-  if (userDetails.tm_grade === "HOD") {
+  // just "?" added
+  if (userDetails?.tm_grade === "HOD") {
     arrayItems = [
       userDetails?.plant_data.split("-")?.[0],
       ...filteredValuesWithHOD,
@@ -268,7 +269,7 @@ const MonthlyBDTrendChart = ({
             {forKPI && PropComponent}
             {showFilterSwitch && (
               <Col className={"col-auto"}>
-              {/* <Col className={forKPI ? "col-3" : "col-auto"}> */}
+                {/* <Col className={forKPI ? "col-3" : "col-auto"}> */}
                 <FilterSwitchButtons
                   filter={filter}
                   setFilter={setFilter}
