@@ -7,6 +7,7 @@ import DataNotFound from "../../BM/Reports/Common/DataNotFound";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
 import { chartColors } from "../../BM/Utils/ChartUtils/chartEnums";
+import ChartTitleBar from "../../BM/Reports/Common/ChartTitleBar";
 
 const AllSpareConsumptionCostMTDKPI = ({
   selectedValue,
@@ -50,6 +51,11 @@ const AllSpareConsumptionCostMTDKPI = ({
     ],
   };
 
+  const styleObjAndClassNameForSpanValue = {
+    className: "border d-flex justify-content-center align-items-center",
+    style: { fontSize: "13px", fontWeight: "bold" },
+  };
+
   const getAllSpareConsumptionCostMTDKPI = async () => {
     setLoading(true);
 
@@ -79,12 +85,22 @@ const AllSpareConsumptionCostMTDKPI = ({
   return (
     <>
       <Box className="cell p-3">
-        {/* <ChartTitleBar title="BD Hours Vs Count" /> */}
-        <Typography variant="body1" style={{ fontSize: "1rem" }}>
-          Plant Maintenance Cost
-        </Typography>
+        <ChartTitleBar title="Plant Maintenance Cost" fontWeight={500} />
 
-        <Divider sx={{ mt: 1, mb: 2, borderColor: "gray" }} />
+        <Row className="mb-2">
+          <Col>
+            <span className="d-block  " style={{ fontSize: "13px" }}>
+              Planned Budget
+            </span>
+            <span {...styleObjAndClassNameForSpanValue}>100%</span>
+          </Col>
+          <Col>
+            <span className="d-block  " style={{ fontSize: "13px" }}>
+              Actual Budget
+            </span>
+            <span {...styleObjAndClassNameForSpanValue}>90%</span>
+          </Col>
+        </Row>
 
         <Box
           className="ratio ratio-1x1"

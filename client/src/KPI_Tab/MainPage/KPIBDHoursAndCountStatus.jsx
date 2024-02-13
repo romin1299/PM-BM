@@ -7,7 +7,7 @@ const KPIBDHoursAndCountStatus = () => {
     style: { fontSize: "12px", fontWeight: "bold" },
   };
   return (
-    <>
+    <Row className="mb-2">
       <Col>
         <span className="d-block  " style={{ fontSize: "12px" }}>
           MBD Target
@@ -32,7 +32,7 @@ const KPIBDHoursAndCountStatus = () => {
         </span>
         <span {...styleObjAndClassNameForSpanValue}>{20}</span>
       </Col>
-    </>
+    </Row>
   );
 };
 

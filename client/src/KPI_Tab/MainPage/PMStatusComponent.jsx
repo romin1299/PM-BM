@@ -4,6 +4,8 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { MonthDropdown } from "../../BM/Reports/ManHourReport/SubComponents/LineSelectionDropdown";
 import currentMonth from "../../pages/Dashboard/DashboardComponent/currentMonth";
+import ChartTitleBar from "../../BM/Reports/Common/ChartTitleBar";
+import { Box, Divider, Typography } from "@mui/material";
 
 const DoughnutChartComponent = ({ chartData }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
@@ -148,18 +150,29 @@ const PMStatusComponent = ({
   }, [selectedValue, selectedYear, selectedMonth]);
   return (
     <>
-      <Container fluid className="cell">
-        <Row>
-          <Col className="d-flex justify-content-center align-items-center">
-            <h6 className="text-danger">Plant PM Status</h6>
-          </Col>
-          <Col className="col-4 d-flex gap-2">
-            <MonthDropdown
-              selectedMonth={selectedMonth}
-              setSelectedMonth={setSelectedMonth}
-            />
-          </Col>
-        </Row>
+      <Box className="cell p-3">
+        <ChartTitleBar
+          title="Plant PM Status"
+          fontWeight={500}
+          // color="#D91616"
+          Toolbar={
+            <Col className="col-4 d-flex gap-2">
+              <MonthDropdown
+                selectedMonth={selectedMonth}
+                setSelectedMonth={setSelectedMonth}
+                selectProps={{
+                  sx: {
+                    width: 130,
+                    "& .MuiSelect-select": {
+                      p: "3px 10px",
+                    },
+                  },
+                }}
+              />
+            </Col>
+          }
+        />
+
         <Row>
           <Col>
             <span className="d-block  " style={{ fontSize: "13px" }}>
@@ -178,7 +191,8 @@ const PMStatusComponent = ({
             </span>
           </Col>
         </Row>
-        <Row className="p-1 d-flex justify-content-center align-items-center">
+
+        <Row className="p-1 my-2 justify-content-center align-items-center">
           <Col
             lg={8}
             className="d-flex justify-content-center align-items-center"
@@ -193,9 +207,10 @@ const PMStatusComponent = ({
             </div>
           </Col>
         </Row>
+
         <Row>
           <Col>
-            <Table bordered hover size="sm">
+            <Table bordered hover size="sm" className="m-0">
               <tbody>
                 {pm_status_data?.tableData.map((item) => (
                   <tr className={item.bgColor}>
@@ -211,7 +226,7 @@ const PMStatusComponent = ({
             </Table>
           </Col>
         </Row>
-      </Container>
+      </Box>
     </>
   );
 };

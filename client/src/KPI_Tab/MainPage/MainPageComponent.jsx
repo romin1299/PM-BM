@@ -42,6 +42,7 @@ const MainPageComponent = () => {
             }
           />
         </Box>
+
         <Row className="mt-3 gx-3">
           <Col md={12} lg={3}>
             <PMStatusComponent {...reduceState} />
@@ -67,7 +68,8 @@ const MainPageComponent = () => {
             />
           </Col>
         </Row>
-        <Row>
+        
+        <Row className="mt-2">
           <Col md={12} lg={7}></Col>
           <Col md={12} lg={5}>
             <TMLoad
