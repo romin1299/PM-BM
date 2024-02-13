@@ -724,7 +724,11 @@ export const YearDropdown = ({ selectedYear, setSelectedYear }) => {
   );
 };
 
-export const MonthDropdown = ({ selectedMonth, setSelectedMonth }) => {
+export const MonthDropdown = ({
+  selectedMonth,
+  setSelectedMonth,
+  selectProps,
+}) => {
   const theme = useTheme();
 
   const getStyleForSelectedValue = async (item, selectedItem) => {
@@ -752,6 +756,7 @@ export const MonthDropdown = ({ selectedMonth, setSelectedMonth }) => {
             paddingBottom: "5px",
           },
         }}
+        {...selectProps}
         renderValue={(value) => {
           if (value) {
             return value;
