@@ -42,13 +42,6 @@ const MainPageComponent = () => {
             }
           />
         </Box>
-        <AllSpareConsumptionCostMTDKPI
-          selectedValue={reduceState?.selectedValue}
-          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-          selectedYear={reduceState?.selectedYear}
-          selectedMonth={reduceState?.selectedMonth}
-        />
-
         <Row className="mt-3 gx-3">
           <Col md={12} lg={3}>
             <PMStatusComponent {...reduceState} />
@@ -63,6 +56,14 @@ const MainPageComponent = () => {
               showFilterSwitch={true}
               forKPI={true}
               PropComponent={<KPIBDHoursAndCountStatus {...reduceState} />}
+            />
+          </Col>
+          <Col md={12} lg={3}>
+            <AllSpareConsumptionCostMTDKPI
+              selectedValue={reduceState?.selectedValue}
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
+              selectedMonth={reduceState?.selectedMonth}
             />
           </Col>
         </Row>
