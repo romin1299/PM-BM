@@ -150,18 +150,16 @@ const TMLoad = ({
 
   let arrayItems;
   let filterHeaders;
-  
-  // just "?" added
   if (userDetails?.tm_grade === "HOD") {
     arrayItems = [
-      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.plant_data?.split("-")?.[0],
       ...filteredValuesWithHOD,
     ];
     // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
   } else {
     arrayItems = [
-      userDetails?.plant_data.split("-")?.[0],
-      userDetails?.section_data.split("-")?.[1],
+      userDetails?.plant_data?.split("-")?.[0],
+      userDetails?.section_data?.split("-")?.[1],
       ...filteredValues,
     ];
     // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];

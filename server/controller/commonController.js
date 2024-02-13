@@ -23,6 +23,7 @@ const moment = require("moment-timezone");
 
 const tryCatchHandler = require("../errorHandler/tryCatchHandler");
 const filtrationMiddleware = require("../middleware/filterMiddleware");
+const filterMiddleware = require("../middleware/filterMiddleware");
 const truncValue = require("../utils/truncValue");
 
 const timezone = "Asia/Kolkata";
@@ -466,6 +467,173 @@ router.get(
 
     successResponse(res, "Master log get successfully", {
       masterLogData: [...bmLog, ...pmLog, ...noLossLog],
+    });
+  })
+);
+
+router.get(
+  "/getAllSpareConsumptionCostMTDKPI/:filter/:selectedId",
+  filterMiddleware,
+  tryCatchHandler(async (req, res, next) => {
+    let queryPipelineForPmSpareCost = [
+      {
+        $addFields: {
+          totalPMSpareCost: {
+            $map: {
+              input: {
+                $objectToArray: "$checkSheet_data.checkSheet.spareDetails",
+              },
+              as: "usedSpareCost",
+              in: {
+                $cond: {
+                  if: { $eq: ["$$usedSpareCost.v.spareParts", "Yes"] },
+                  then: "$$usedSpareCost.v.cost",
+                  else: 0,
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $unwind: "$totalPMSpareCost",
+      },
+    ];
+
+    const GetAllBMSpareConsumption = await RequestSheetOfBM.aggregate([
+      {
+        $match: { ...req.queryObj, changedParts: { $ne: [] } },
+      },
+      {
+        $unwind: "$changedParts",
+      },
+      {
+        $group: {
+          _id: null,
+          totalBMSpareCost: {
+            $sum: "$changedParts.cost",
+          },
+        },
+      },
+    ]);
+
+    if (req.query?.selectedMonth) {
+      queryPipelineForPmSpareCost = [
+        {
+          $addFields: {
+            totalPMSpareCost: `$checkSheet_data.checkSheet.spareDetails.${req.query.selectedMonth}.cost`,
+          },
+        },
+      ];
+    }
+
+    const GetAllPMSpareConsumption = await Machine.aggregate([
+      {
+        $match: req.queryObjForPM,
+      },
+      {
+        $unwind: "$checkSheet_data",
+      },
+      {
+        $match: {
+          "checkSheet_data.current_year": req.query?.selectedYear,
+        },
+      },
+      {
+        $unwind: "$checkSheet_data.checkSheet",
+      },
+      {
+        $match: {
+          "checkSheet_data.checkSheet.spareDetails": { $ne: undefined },
+        },
+      },
+      ...queryPipelineForPmSpareCost,
+      {
+        $group: {
+          _id: null,
+          totalPMSpareCost: { $sum: "$totalPMSpareCost" },
+        },
+      },
+    ]);
+
+    let queryPipelineForOtherTypesSpareCost = [
+      {
+        $addFields: {
+          objectToArrayOtherTypesSpare: {
+            $filter: {
+              input: {
+                $objectToArray: "$checkSheet_data.extraSpareDetails",
+              },
+              as: "spareData",
+              cond: {
+                $ne: ["$$spareData.v", []],
+              },
+            },
+          },
+        },
+      },
+      {
+        $unwind: "$objectToArrayOtherTypesSpare",
+      },
+      {
+        $unwind: "$objectToArrayOtherTypesSpare.v",
+      },
+    ];
+
+    if (req.query?.selectedMonth) {
+      queryPipelineForOtherTypesSpareCost = [
+        {
+          $addFields: {
+            objectToArrayOtherTypesSpare: {
+              v: `$checkSheet_data.extraSpareDetails.${req.query?.selectedMonth}`,
+            },
+          },
+        },
+        {
+          $unwind: "$objectToArrayOtherTypesSpare.v",
+        },
+      ];
+    }
+
+    const GetAllOtherSpareConsumption = await Machine.aggregate([
+      {
+        $match: req.queryObjForPM,
+      },
+      {
+        $unwind: "$checkSheet_data",
+      },
+      {
+        $match: {
+          "checkSheet_data.current_year": req.query?.selectedYear,
+          "checkSheet_data.extraSpareDetails": { $ne: undefined },
+        },
+      },
+      ...queryPipelineForOtherTypesSpareCost,
+      {
+        $group: {
+          _id: "$objectToArrayOtherTypesSpare.v.type",
+          totalOtherSpareCost: { $sum: "$objectToArrayOtherTypesSpare.v.cost" },
+        },
+      },
+      {
+        $match: {
+          _id: { $ne: "BM" },
+        },
+      },
+    ]);
+    // console.log("GetAllOtherSpareConsumption---", GetAllOtherSpareConsumption);
+
+    // console.log("GetAllBMSpareConsumption---", GetAllBMSpareConsumption);
+
+    // console.log("GetAllPMSpareConsumption---", GetAllPMSpareConsumption);
+
+    successResponse(res, "Get plant maintenance spare cost successfully", {
+      TotalSpareCostWithDifferentTypes: [
+        GetAllPMSpareConsumption?.[0]?.totalPMSpareCost || 0,
+        GetAllBMSpareConsumption?.[0]?.totalBMSpareCost || 0,
+      ]?.concat(
+        GetAllOtherSpareConsumption?.map((obj) => obj?.totalOtherSpareCost || 0)
+      ),
     });
   })
 );

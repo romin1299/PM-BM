@@ -7,6 +7,7 @@ import {
   initialState,
   reducer,
 } from "../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import AllSpareConsumptionCostMTDKPI from "./AllSpareConsumptionCostMTDKPI";
 import PMStatusComponent from "./PMStatusComponent";
 import MonthlyBDTrendChart from "../../BM/Reports/MonthlyBDTrend/MonthlyBDTrendChart";
 import TMLoad from "../../BM/Reports/ManHourReport/TMLoad";
@@ -31,6 +32,7 @@ const MainPageComponent = () => {
                 reduceState={reduceState}
                 reducerDispatch={reducerDispatch}
                 yearFiltration
+                monthFiltration
                 sectionFiltration
                 subSectionFiltration
                 cellFiltration
@@ -40,7 +42,6 @@ const MainPageComponent = () => {
             }
           />
         </Box>
-
         <Row className="mt-3 gx-3">
           <Col md={12} lg={3}>
             <PMStatusComponent {...reduceState} />
@@ -55,6 +56,14 @@ const MainPageComponent = () => {
               showFilterSwitch={true}
               forKPI={true}
               PropComponent={<KPIBDHoursAndCountStatus {...reduceState} />}
+            />
+          </Col>
+          <Col md={12} lg={3}>
+            <AllSpareConsumptionCostMTDKPI
+              selectedValue={reduceState?.selectedValue}
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
+              selectedMonth={reduceState?.selectedMonth}
             />
           </Col>
         </Row>

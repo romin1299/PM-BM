@@ -113,6 +113,8 @@ export const chartColors = {
     "#608789",
   ],
 
+  MTDSpareKPIPie: ["#d7e057", "#5cd2e8", "#FF80AB", "#606F70", "#bbd0e5"],
+
   magenta: ["#cc2960", "#ca1f4b", "#EC5084"],
   yellow: ["#D49902", "#FFDA7C"],
   orange: ["#EE7A0A", "#fe5c28", "#fdb515"],
