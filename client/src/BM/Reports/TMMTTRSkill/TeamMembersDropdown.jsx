@@ -22,11 +22,13 @@ export default function TeamMembersDropdown({
   setTmId,
   selectedValue,
   flagForTogglingFilter,
+  setName,
 }) {
   const [menuItems, setMenuItems] = React.useState([]);
 
   const handleChange = (event) => {
-    console.log("event.target.value:", event.target.value);
+    // console.log("event.target.value:", event.target);
+    // console.log("menuItems", menuItems);
     setTmId(event.target.value);
   };
 
@@ -70,6 +72,7 @@ export default function TeamMembersDropdown({
         MenuProps={MenuProps}
         input={<OutlinedInput />}
         onChange={handleChange}
+        // renderValue={(value) => console.log("FWEfweF",value)}
       >
         <MenuItem disabled sx={{ pt: 0, pb: 0, fontSize: "14px" }}>
           <em style={{ fontSize: "14px", color: "#9f9f9f" }}>Select TM</em>
@@ -82,6 +85,7 @@ export default function TeamMembersDropdown({
               sx={{
                 fontSize: "14px",
               }}
+              onClick={() => setName(item?.tm_name)}
             >
               {item.tm_name}
             </MenuItem>

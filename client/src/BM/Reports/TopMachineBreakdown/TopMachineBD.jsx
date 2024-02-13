@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useContext} from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
 
@@ -15,7 +15,7 @@ import { Box } from "@mui/system";
 import BDRSTableWithDateFiltration from "../Common/BDRSTableWithDateFiltration";
 import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu";
 import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
-
+import RoutingContext from "../../../context/routing/RoutingContext";
 const TopMachineBD = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
@@ -23,6 +23,8 @@ const TopMachineBD = () => {
     reduceStateForDefaultCellLineMachineFilter,
     reducerDispatchForDefaultCellLineMachineFilter,
   ] = useReducer(reducer, initialState);
+
+  const loggedUserDetails = useContext(RoutingContext);
 
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
@@ -64,6 +66,8 @@ const TopMachineBD = () => {
 
         <Box mt={2}>
           <TopMachineBDComponent
+            userDetails={loggedUserDetails}
+            filterValues={reduceState}
             selectedValue={reduceState?.selectedValue}
             flagForTogglingFilter={reduceState?.flagForTogglingFilter}
             selectedYear={reduceState?.selectedYear}
@@ -132,6 +136,8 @@ const TopMachineBD = () => {
                 selectedYear={
                   reduceStateForDefaultCellLineMachineFilter?.selectedYear
                 }
+                userDetails={loggedUserDetails}
+                filterValues={reduceState}
               />
             </Col>
             <Col xxl={3} lg={6} md={12} className="mb-2">
@@ -146,6 +152,8 @@ const TopMachineBD = () => {
                 selectedYear={
                   reduceStateForDefaultCellLineMachineFilter?.selectedYear
                 }
+                userDetails={loggedUserDetails}
+                filterValues={reduceStateForDefaultCellLineMachineFilter}
               />
             </Col>
           </Row>

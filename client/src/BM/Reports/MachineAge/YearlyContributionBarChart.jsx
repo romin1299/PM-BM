@@ -16,11 +16,14 @@ import DataNotFound from "../Common/DataNotFound";
 import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 import Loading from "../../../components/Loading/Loading";
 import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 const YearlyContributionBarChart = ({
   selectedValue,
   selectedYear,
   flagForTogglingFilter,
+  filterValues,
+  userDetails,
 }) => {
   ChartJS.register(
     CategoryScale,
@@ -36,6 +39,30 @@ const YearlyContributionBarChart = ({
     label: [],
     data: [],
   });
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const getYearContributionChartData = async () => {
     setLoading(true);
@@ -73,8 +100,12 @@ const YearlyContributionBarChart = ({
       // ];
 
       let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
           [["Labels"].concat(yearlyContributionData?.label)?.toString() + "\n"],
           [["Hours"].concat(yearlyContributionData?.data)?.toString() + "\n"],
         ];
@@ -85,9 +116,11 @@ const YearlyContributionBarChart = ({
             yearlyContributionData?.data.join("\n"),
           ],
         ];
+        filterData = ["Filters", ...arrayItems];
       }
 
       downloadFile(
+        filterData,
         bodyData,
         fileType,
         header,

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useContext } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import ManHourTrend from "./ManHourTrend";
 import { Box, Typography } from "@mui/material";
@@ -6,7 +6,7 @@ import LineTrend from "./LineTrend";
 import TMLoad from "./TMLoad";
 import ChartToPPTExample from "./ChartJsExample";
 import ChartsToolbar from "./SubComponents/ChartsToolbar";
-
+import RoutingContext from "../../../context/routing/RoutingContext";
 import {
   initialState,
   reducer,
@@ -322,6 +322,8 @@ const ManHourDashboard = () => {
   // }, []);
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const loggedUserDetails = useContext(RoutingContext);
+
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   return (
     <Container fluid>
@@ -356,6 +358,8 @@ const ManHourDashboard = () => {
         <Row className="mt-3 gx-3 pb-4">
           <Col md={12} lg={6}>
             <ChartToPPTExample
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
@@ -364,6 +368,8 @@ const ManHourDashboard = () => {
 
           <Col md={12} lg={6}>
             <ManHourTrend
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
@@ -372,6 +378,8 @@ const ManHourDashboard = () => {
 
           <Col md={12} lg={6} style={{ marginTop: "0.5rem" }}>
             <LineTrend
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
               selectedValue={reduceState?.selectedValueForLineAnTMLoadGraph}
               flagForTogglingFilter={
                 reduceState?.togglingFilterFlagForLineAnTMLoadGraph
@@ -383,12 +391,15 @@ const ManHourDashboard = () => {
 
           <Col md={12} lg={6} style={{ marginTop: "0.5rem" }}>
             <TMLoad
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
               selectedValue={reduceState?.selectedValueForLineAnTMLoadGraph}
               flagForTogglingFilter={
                 reduceState?.togglingFilterFlagForLineAnTMLoadGraph
               }
               selectedYear={reduceState?.selectedYear}
               selectedMonth={reduceState?.selectedMonth}
+              chartTitle="TM Load"
             />
           </Col>
         </Row>

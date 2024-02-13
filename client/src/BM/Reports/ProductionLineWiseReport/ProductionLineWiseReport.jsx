@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useReducer, useEffect, useContext } from "react";
 import { Container, Row, Col } from "reactstrap";
 
 import DailyBDTrendChart from "../DailyBreakdownTrend/DailyBDTrendChart";
@@ -27,6 +27,7 @@ import {
   EXPORT_REPORT,
   exportPPTX,
 } from "../../Utils/ExportPPTX/exportPPTX.js";
+import RoutingContext from "../../../context/routing/RoutingContext.js";
 
 const ProductionLineWiseReport = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -34,6 +35,8 @@ const ProductionLineWiseReport = () => {
 
   const [dailyBDSelectedMonth, setDailyBDSelectedMonth] =
     useState(currentMonth);
+
+  const loggedUserDetails = useContext(RoutingContext);
 
   return (
     <Container fluid>
@@ -72,6 +75,8 @@ const ProductionLineWiseReport = () => {
         />
 
         <DailyBDTrendChart
+          userDetails={loggedUserDetails}
+          filterValues={reduceState}
           selectedValue={reduceState?.selectedValue}
           flagForTogglingFilter={reduceState?.flagForTogglingFilter}
           selectedYear={reduceState?.selectedYear}
@@ -87,6 +92,8 @@ const ProductionLineWiseReport = () => {
         <Row className="mt-3 g-2">
           <Col xxl={3} lg={6} md={6}>
             <BDhours
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
@@ -94,6 +101,8 @@ const ProductionLineWiseReport = () => {
           </Col>
           <Col xxl={3} lg={6} md={6}>
             <MTTRComponent
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
@@ -101,6 +110,8 @@ const ProductionLineWiseReport = () => {
           </Col>
           <Col xxl={3} lg={6} md={6}>
             <MTBFComponent
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
@@ -108,6 +119,8 @@ const ProductionLineWiseReport = () => {
           </Col>
           <Col xxl={3} lg={6} md={6}>
             <BDPercentageChart
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
@@ -118,6 +131,8 @@ const ProductionLineWiseReport = () => {
         <Row className="mt-1 g-2">
           <Col lg={6} md={12}>
             <BDHoursVsCountComponent
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}

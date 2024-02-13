@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from "react";
 import LineBarChart from "../Common/LineBarChart";
 import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
-const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
+const MTTRTrend = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  filterValues,
+  userDetails,
+}) => {
   const [loading, setLoading] = React.useState(true);
 
   const [MTTRTrendData, setMTTRTrendData] = useState({
@@ -11,6 +18,30 @@ const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     target: [],
     backgroundColor: [],
   });
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const getMTTRTrendData = async () => {
     setLoading(true);
@@ -48,16 +79,27 @@ const MTTRTrend = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
       // const bodyData = [[MTTRTrendData?.labels, MTTRTrendData?.data]];
 
       let bodyData = [];
+      let filterData = [];
+
       if (fileType === "csv") {
         bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
           [["Labels"].concat(MTTRTrendData?.labels)?.toString() + "\n"],
           [["Hours"].concat(MTTRTrendData?.data)?.toString() + "\n"],
         ];
       } else {
         bodyData = [["Hours"].concat(MTTRTrendData?.data)];
+        filterData = ["Filters", ...arrayItems];
       }
 
-      downloadFile(bodyData, fileType, header, `MTTR_Trend_${selectedYear}`);
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `MTTR_Trend_${selectedYear}`
+      );
     } catch (error) {
       console.error("Error downloading data:", error);
     }

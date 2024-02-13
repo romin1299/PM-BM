@@ -21,6 +21,7 @@ const factory = require("./handleFactory");
 const sendMailForBD = require("../sendMailForBM/sendMailForBDRequestSheet");
 const moment = require("moment-timezone");
 const timezone = "Asia/Kolkata";
+const truncValue = require("../utils/truncValue");
 
 router.use(cookieParser());
 // router.use(authenticate);
@@ -112,8 +113,6 @@ let currentYear =
   new Date().getMonth() < 3
     ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
     : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
-
-const truncValue = (prop) => ({ $trunc: [prop, 1] });
 
 const generateDateFormateObj = (field) => ({
   $dateToString: {
@@ -5169,17 +5168,15 @@ router.patch(
           );
       };
 
-      
       //request-sheet is approved/accepted
       if (approvalOfRequestSheet === "Yes") {
-        
         const minorListForTheApprovalOfPlant =
           requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
             ?.minorApprovalList;
         const majorListForTheApprovalOfPlant =
           requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
             ?.majorApprovalList;
-  
+
         let listOfHigherApproverAuthorityForSendingMail = [];
         Object.keys(assignApprovalList).forEach((key) => {
           if (

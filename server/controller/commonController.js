@@ -24,6 +24,7 @@ const moment = require("moment-timezone");
 const tryCatchHandler = require("../errorHandler/tryCatchHandler");
 const filtrationMiddleware = require("../middleware/filterMiddleware");
 const filterMiddleware = require("../middleware/filterMiddleware");
+const truncValue = require("../utils/truncValue");
 
 const timezone = "Asia/Kolkata";
 
@@ -40,6 +41,20 @@ const successResponse = (res, message, data) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
+
+const machineCommonInitialPipeline = (matchObj, selectedYear) => [
+  {
+    $match: matchObj,
+  },
+  {
+    $unwind: "$checkSheet_data",
+  },
+  {
+    $match: {
+      "checkSheet_data.current_year": selectedYear,
+    },
+  },
+];
 
 router.get(
   "/masterLog/:filter/:selectedId",
@@ -264,17 +279,21 @@ router.get(
     }
 
     const pmLog = await Machine.aggregate([
-      {
-        $match: req.queryObjForPM,
-      },
-      {
-        $unwind: "$checkSheet_data",
-      },
-      {
-        $match: {
-          "checkSheet_data.current_year": req.query?.selectedYear,
-        },
-      },
+      // {
+      //   $match: req.queryObjForPM,
+      // },
+      // {
+      //   $unwind: "$checkSheet_data",
+      // },
+      // {
+      //   $match: {
+      //     "checkSheet_data.current_year": req.query?.selectedYear,
+      //   },
+      // },
+      ...machineCommonInitialPipeline(
+        req.queryObjForPM,
+        req.query?.selectedYear
+      ),
       {
         $lookup: {
           from: "lines",
@@ -456,7 +475,6 @@ router.get(
   "/getAllSpareConsumptionCostMTDKPI/:filter/:selectedId",
   filterMiddleware,
   tryCatchHandler(async (req, res, next) => {
-
     let queryPipelineForPmSpareCost = [
       {
         $addFields: {
@@ -616,6 +634,203 @@ router.get(
       ]?.concat(
         GetAllOtherSpareConsumption?.map((obj) => obj?.totalOtherSpareCost || 0)
       ),
+    });
+  })
+);
+
+router.get(
+  "/kpi/getPMStatusData/:filter/:selectedId",
+  filtrationMiddleware,
+  tryCatchHandler(async (req, res, next) => {
+    const financialYearWiseMonthKeyArray = [
+      "Apr",
+      "May",
+      "June",
+      "July",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+      "Jan",
+      "Feb",
+      "Mar",
+    ];
+    let previousMonth =
+      financialYearWiseMonthKeyArray[
+        financialYearWiseMonthKeyArray.indexOf(req.query?.selectedMonth) - 1
+      ];
+
+    let keyForSelectedMonth = `$checkSheet_data.PMStatus.${req.query?.selectedMonth}`;
+    let keyForCurrentMonthScheduleOrNotStatus = `$checkSheet_data.currentMonthScheduleOrNotStatus.${req.query?.selectedMonth}`;
+    let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${req.query?.selectedMonth}`;
+    let keyOfTotalDoneWithDelay = `$checkSheet_data.PMStatus.${previousMonth}`;
+
+    const statusData = await Machine.aggregate([
+      ...machineCommonInitialPipeline(
+        req.queryObjForPM,
+        req.query?.selectedYear
+      ),
+      {
+        $group: {
+          _id: null,
+          total_pmSchedule: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $ne: [keyForSelectedMonth, ""],
+                    },
+                    {
+                      $ne: [keyForCurrentMonthScheduleOrNotStatus, ""],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_completed: {
+            $sum: {
+              $cond: [
+                {
+                  $or: [
+                    {
+                      $eq: [keyForSelectedMonth, "Completed"],
+                    },
+                    {
+                      $and: [
+                        {
+                          $eq: [keyOfTotalDoneWithDelay, "Done with delay"],
+                        },
+                        {
+                          $eq: [keyForCurrentMonthScheduleOrNotStatus, ""],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_ongoing: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: [keyForSelectedMonth, "Ongoing"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_previous_pending: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $eq: [keyForPreviousMonth, "CarriedPM"],
+                    },
+                    {
+                      $eq: [keyForCurrentMonthScheduleOrNotStatus, ""],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          PMRatio: {
+            targetRatio: {
+              $add: ["$total_pmSchedule", "$total_previous_pending"],
+            },
+            actualRatio: "$total_completed",
+          },
+          chartData: {
+            percentage: {
+              $concat: [
+                {
+                  $toString: truncValue({
+                    $divide: [
+                      {
+                        $multiply: ["$total_completed", 100],
+                      },
+                      {
+                        $add: ["$total_pmSchedule", "$total_previous_pending"],
+                      },
+                    ],
+                  }),
+                },
+                "%",
+              ],
+            },
+            data: [
+              "$total_completed",
+              "$total_ongoing",
+              {
+                $subtract: [
+                  {
+                    $add: ["$total_pmSchedule", "$total_previous_pending"],
+                  },
+                  {
+                    $add: ["$total_completed", "$total_ongoing"],
+                  },
+                ],
+              },
+            ],
+          },
+          tableData: [
+            {
+              name: "Planned",
+              bgColor: "table-primary",
+              value: "$total_pmSchedule",
+            },
+            {
+              name: "Pending(Previous Month)",
+              bgColor: "table-danger",
+              value: "$total_previous_pending",
+            },
+            {
+              name: "Completed",
+              bgColor: "table-success",
+              value: "$total_completed",
+            },
+            {
+              name: "Ongoing",
+              bgColor: "table-warning",
+              value: "$total_ongoing",
+            },
+            {
+              name: "Remaining(Current Month)",
+              bgColor: "",
+              value: {
+                $subtract: [
+                  {
+                    $add: ["$total_pmSchedule", "$total_previous_pending"],
+                  },
+                  {
+                    $add: ["$total_completed", "$total_ongoing"],
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    successResponse(res, "PMStatus data get successfully", {
+      statusData: statusData?.[0],
     });
   })
 );
