@@ -126,7 +126,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
           requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
           requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
         ) {
-          navigate("/bm/requestListDashboard", { replace: true });
+          navigate("/bm", { replace: true });
         } else {
           navigate("/bm/approval", { replace: true });
         }
@@ -196,7 +196,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
       requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
       requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
     ) {
-      navigate("/bm/requestListDashboard", { replace: true });
+      navigate("/bm", { replace: true });
     } else {
       navigate("/bm/approval", { replace: true });
     }

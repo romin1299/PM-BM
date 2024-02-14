@@ -137,7 +137,7 @@ function MyTable({
           requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
           requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
         ) {
-          navigate("/bm/requestListDashboard", { replace: true });
+          navigate("/bm", { replace: true });
         } else {
           navigate("/bm/approval", { replace: true });
         }
@@ -564,7 +564,7 @@ function MyTable({
           ) {
             // assignApprovalList.submitDataWhileSendingApproval = true;
             newRequestSheetRegistration(assignApprovalList);
-            navigate("/bm/requestListDashboard", { replace: true });
+            navigate("/bm", { replace: true });
           } else {
             navigate("/bm/approval", { replace: true });
           }
