@@ -12,6 +12,8 @@ import PMStatusComponent from "./PMStatusComponent";
 import MonthlyBDTrendChart from "../../BM/Reports/MonthlyBDTrend/MonthlyBDTrendChart";
 import TMLoad from "../../BM/Reports/ManHourReport/TMLoad";
 import KPIBDHoursAndCountStatus from "./KPIBDHoursAndCountStatus";
+import DataNotFound from "../../BM/Reports/Common/DataNotFound";
+import ChartTitleBar from "../../BM/Reports/Common/ChartTitleBar";
 
 const MainPageComponent = () => {
   const [filter, setFilter] = useState("hourly");
@@ -68,9 +70,17 @@ const MainPageComponent = () => {
             />
           </Col>
         </Row>
-        
+
         <Row className="mt-2">
-          <Col md={12} lg={7}></Col>
+          <Col md={12} lg={7}>
+            <Box className="cell p-3">
+              <ChartTitleBar title="Plant CM Status Status" />
+
+              <Box sx={{ height: 400 }}>
+                <DataNotFound m={0} />
+              </Box>
+            </Box>
+          </Col>
           <Col md={12} lg={5}>
             <TMLoad
               selectedValue={reduceState?.selectedValueForLineAnTMLoadGraph}
