@@ -743,7 +743,7 @@ const RequestSheetMainDashboard = () => {
               value:
                 reduceStateForRequestSheetData?.counters
                   ?.open_request_sheet_count || 0,
-              backgroundColor: "#d6c7fbba", //e1c7fb , d6c7fb
+              backgroundColor: "#feb4b4ba", // d6c7fbba, e1c7fb , d6c7fb
             },
             {
               title: "Closed Requests",
