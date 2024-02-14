@@ -14229,11 +14229,11 @@ router.get(
         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
       });
 
-      console.log(
-        `${req?.rootUser?.tm_department} ${
-          req?.rootUser?.user_type.split("/")[0]
-        }`
-      );
+      // console.log(
+      //   `${req?.rootUser?.tm_department} ${
+      //     req?.rootUser?.user_type.split("/")[0]
+      //   }`
+      // );
 
       // const getApprovalData = await RequestSheetOfBM.aggregate([
       //   {
