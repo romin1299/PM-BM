@@ -62,7 +62,7 @@ export const bmRoutes = [
   },
   {
     title: "Request Sheets",
-    path: "/bm/requestListDashboard", // PRD/MTD: TL/Hoss and operator
+    path: "/bm", // PRD/MTD: TL/Hoss and operator
     element: <RequestSheetMainDashboard />,
     allowedRoles: ["TL/Hoss", "Operator"],
   },
