@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useReducer } from "react";
-import { Table } from "antd";
+import { Table, ConfigProvider } from "antd";
 import moment from "moment-timezone";
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
@@ -301,24 +301,35 @@ const ApprovalLogs = () => {
             reduceState={reduceState}
             reducerDispatch={reducerDispatch}
             monthFiltration
-              yearFiltration
-              sectionFiltration
-              subSectionFiltration
-              cellFiltration
-              lineFiltration
-              resetButtonFiltration
+            yearFiltration
+            sectionFiltration
+            subSectionFiltration
+            cellFiltration
+            lineFiltration
+            resetButtonFiltration
           />
         }
       />
-
-      <Table
-        columns={columns}
-        dataSource={approvalLogs}
-        onChange={onChange}
-        // width={"100%"}
-        scroll={{ x: 3000, y: 600 }}
-        pagination={false}
-      />
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: {
+              headerBg: "rgb(227, 242, 253)",
+              borderColor: "rgb(204, 204, 204)",
+            },
+          },
+        }}
+      >
+        <Table
+          columns={columns}
+          dataSource={approvalLogs}
+          onChange={onChange}
+          // width={"100%"}
+          scroll={{ x: 3000, y: 600 }}
+          pagination={false}
+          bordered
+        />
+      </ConfigProvider>
     </Container>
   );
 };

@@ -132,7 +132,7 @@ const PreparationApprovalDashboard = () => {
         icon: () => <button className="btn-reset">Preparation</button>,
         // tooltip: <h1>I am a tooltip</h1>,
         onClick: (event, selectedRow) => {
-          navigate("/checksheetCreationDashboardForMTDTLandHOS", {
+          navigate("/pm/checksheetCreationDashboardForMTDTLandHOS", {
             state: {
               selectedRow: selectedRow,
               dashboardID: "FromPreparationApprovalDashboard",

@@ -597,7 +597,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
           machineData[0]?.checkSheet_data
             ?.flagForNewRevisionContentDataAdded === true
         ) {
-          navigate("/checksheetFormApproval", {
+          navigate("/pm/checksheetFormApproval", {
             state: {
               selectedRowForViewForm: machineData[0],
               displyingApprovalFormate:
@@ -615,7 +615,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
           notifyForRevisionContent();
         }
       } else {
-        navigate("/checksheetFormApproval", {
+        navigate("/pm/checksheetFormApproval", {
           state: {
             selectedRowForViewForm: machineData[0],
             displyingApprovalFormate:
@@ -625,7 +625,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
         });
       }
     } else {
-      navigate("/checksheetFormApproval", {
+      navigate("/pm/checksheetFormApproval", {
         state: { selectedRowForViewForm: machineData[0] },
       });
     }
@@ -656,11 +656,11 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
             onClick={() =>
               machineData[0]?.checkSheet_data?.checksheet_status ===
                 "Preparation"
-                ? navigate("/preparationApproval")
+                ? navigate("/pm/preparationApproval")
                 : machineData[0]?.checkSheet_data?.checksheet_status ===
                   "Planning"
-                  ? navigate("/planningApproval")
-                  : navigate("/implementationApproval")
+                  ? navigate("/pm/planningApproval")
+                  : navigate("/pm/implementationApproval")
             }
             style={{
               border: "none",

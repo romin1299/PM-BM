@@ -497,16 +497,16 @@ function ChecksheetFormApprovalForHOSAndHOD() {
         console.log("User added sucessfully...");
 
         machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
-          ? navigate("/preparationApproval")
+          ? navigate("/pm/preparationApproval")
           : machineAllData?.checkSheet_data?.checksheet_status === "Planning"
-          ? navigate("/planningApproval")
+          ? navigate("/pm/planningApproval")
           : selectedMachineCheckSheetData?.state?.dashboardID ===
             "FromSixMonthApprovalDashboard"
-          ? navigate("/sixMonthApprovalDashboard")
+          ? navigate("/pm/sixMonthApprovalDashboard")
           : selectedMachineCheckSheetData?.state?.dashboardID ===
             "FromPlanningApprovalDashboard"
-          ? navigate("/planningApproval")
-          : navigate("/implementationApproval");
+          ? navigate("/pm/planningApproval")
+          : navigate("/pm/implementationApproval");
 
         // if (
         //   selectedMachineCheckSheetData?.state?.dashboardID ===
@@ -600,17 +600,17 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                   onClick={() => {
                     machineAllData?.checkSheet_data?.checksheet_status ===
                     "Preparation"
-                      ? navigate("/preparationApproval")
+                      ? navigate("/pm/preparationApproval")
                       : machineAllData?.checkSheet_data?.checksheet_status ===
                         "Planning"
-                      ? navigate("/planningApproval")
+                      ? navigate("/pm/planningApproval")
                       : selectedMachineCheckSheetData?.state?.dashboardID ===
                         "FromSixMonthApprovalDashboard"
-                      ? navigate("/sixMonthApprovalDashboard")
+                      ? navigate("/pm/sixMonthApprovalDashboard")
                       : selectedMachineCheckSheetData?.state?.dashboardID ===
                         "FromPlanningApprovalDashboard"
-                      ? navigate("/planningApproval")
-                      : navigate("/implementationApproval");
+                      ? navigate("/pm/planningApproval")
+                      : navigate("/pm/implementationApproval");
 
                     // if (
                     //   selectedMachineCheckSheetData?.state?.dashboardID ===

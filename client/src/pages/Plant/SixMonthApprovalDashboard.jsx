@@ -92,7 +92,7 @@ const SixMonthApprovalDashboard = () => {
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
         console.log(selectedRow);
-        navigate("/checksheetFormApproval", {
+        navigate("/pm/checksheetFormApproval", {
           state: {
             selectedRowForViewForm: selectedRow,
             dashboardID: "FromSixMonthApprovalDashboard",

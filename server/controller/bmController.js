@@ -840,6 +840,9 @@ const findRequestSheetMiddleware = async (req, res, next) => {
         },
       },
       {
+        $sort: { _id: -1 },
+      },
+      {
         $project: {
           machines: 1,
           requestSheetCreatedBy: 1,
@@ -11896,11 +11899,11 @@ router.get(
         {
           $project: {
             count: 1,
-            bdHours: 1,
-            mttr: {
+            bdHours: truncValue("$bdHours"),
+            mttr: truncValue({
               $divide: ["$bdHours", "$count"],
-            },
-            mtbf: mtbfCalculation,
+            }),
+            mtbf: truncValue(mtbfCalculation),
           },
         },
       ]);
@@ -12009,9 +12012,9 @@ router.get(
           $group: {
             _id: null,
             month: { $push: "$_id" },
-            lessThanOne: { $push: "$lessThanOne" },
-            lessThanTwo: { $push: "$lessThanTwo" },
-            greaterThanTwo: { $push: "$greaterThanTwo" },
+            lessThanOne: { $push: truncValue("$lessThanOne") },
+            lessThanTwo: { $push: truncValue("$lessThanTwo") },
+            greaterThanTwo: { $push: truncValue("$greaterThanTwo") },
           },
         },
         // {

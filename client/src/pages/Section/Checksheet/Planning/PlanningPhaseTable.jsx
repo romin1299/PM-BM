@@ -54,7 +54,7 @@ function PlanningPhaseTable() {
           machineData[0]?.checkSheet_data
             ?.flagForNewRevisionContentDataAdded === true
         ) {
-          navigate("/checkSheetForm", {
+          navigate("/pm/checkSheetForm", {
             state: {
               selectedRowForViewForm: machineData[0],
               planningApprovalShow: planningApprovalShow,
@@ -70,7 +70,7 @@ function PlanningPhaseTable() {
           notifyForRevisionContent();
         }
       } else {
-        navigate("/checkSheetForm", {
+        navigate("/pm/checkSheetForm", {
           state: {
             selectedRowForViewForm: machineData[0],
             planningApprovalShow: planningApprovalShow,
@@ -78,7 +78,7 @@ function PlanningPhaseTable() {
         });
       }
     } else {
-      navigate("/checkSheetForm", {
+      navigate("/pm/checkSheetForm", {
         state: {
           selectedRowForViewForm: machineData[0],
           planningApprovalShow: planningApprovalShow,
@@ -532,7 +532,7 @@ function PlanningPhaseTable() {
       <div style={{ margin: "0.5rem" }}>
         <div className="pageCard">
           <button
-            onClick={() => navigate("/checkSheetDashboard")}
+            onClick={() => navigate("/pm/checkSheetDashboard")}
             style={{
               border: "none",
               background: "white",

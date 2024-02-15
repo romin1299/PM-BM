@@ -115,56 +115,56 @@ export const menuItems = [
     allowedRoles: ["Plant-Admin", "Section-Admin"],
   },
 
-  // ------- Reports Dashboards -------
+  // // ------- Reports Dashboards -------
+  // {
+  //   title: "Reports",
+  //   icon: <AnalyticsIcon className="text-white" />,
+  //   allowedRoles: reportAccess,
+  //   subItems: [
+  //     {
+  //       title: "Production Line Wise",
+  //       route: "/bm/report/productionLineWiseReport",
+  //     },
+  //     {
+  //       title: "Man Hour Report",
+  //       route: "/bm/report/man-hour",
+  //     },
+  //     {
+  //       title: "Daily BD Report",
+  //       route: "/bm/report/daily-breakdown-trend",
+  //     },
+  //     {
+  //       title: "Monthly BD Report",
+  //       route: "/bm/report/monthly-breakdown-trend",
+  //     },
+  //     {
+  //       title: "Line Contibution BD Report",
+  //       route: "/bm/report/line-contribution-breakdown-trend",
+  //     },
+  //     {
+  //       title: "MTTR Report",
+  //       route: "/bm/report/mttr",
+  //     },
+  //     {
+  //       title: "MTBF Report",
+  //       route: "/bm/report/mtbf",
+  //     },
+  //     {
+  //       title: "TM MTTR Skill",
+  //       route: "/bm/report/tm-mtr",
+  //     },
+  //     {
+  //       title: "Top Machine Breakdown",
+  //       route: "/bm/report/top-machine-breakdown",
+  //     },
+  //     {
+  //       title: "Machine Age",
+  //       route: "/bm/report/machine-age",
+  //     },
+  //   ],
+  // },
   {
-    title: "Reports",
-    icon: <AnalyticsIcon className="text-white" />,
-    allowedRoles: reportAccess,
-    subItems: [
-      {
-        title: "Production Line Wise",
-        route: "/bm/report/productionLineWiseReport",
-      },
-      {
-        title: "Man Hour Report",
-        route: "/bm/report/man-hour",
-      },
-      {
-        title: "Daily BD Report",
-        route: "/bm/report/daily-breakdown-trend",
-      },
-      {
-        title: "Monthly BD Report",
-        route: "/bm/report/monthly-breakdown-trend",
-      },
-      {
-        title: "Line Contibution BD Report",
-        route: "/bm/report/line-contribution-breakdown-trend",
-      },
-      {
-        title: "MTTR Report",
-        route: "/bm/report/mttr",
-      },
-      {
-        title: "MTBF Report",
-        route: "/bm/report/mtbf",
-      },
-      {
-        title: "TM MTTR Skill",
-        route: "/bm/report/tm-mtr",
-      },
-      {
-        title: "Top Machine Breakdown",
-        route: "/bm/report/top-machine-breakdown",
-      },
-      {
-        title: "Machine Age",
-        route: "/bm/report/machine-age",
-      },
-    ],
-  },
-  {
-    title: "No Loss",
+    title: "Other Loss",
     icon: <FaWpforms fontSize={22} className="text-white" />,
     route: "/bm/noLossDataOfBD",
     allowedRoles: allusers,
