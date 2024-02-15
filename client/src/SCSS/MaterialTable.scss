@@ -36,7 +36,7 @@ th div {
   z-index: 1 !important;
   text-align: left !important;
   /* background-color: #184e77 !important; */
-  color: rgb(0, 0, 0) !important;
+  color: rgb(0, 0, 0);
 }
 
 .MuiTablePagination-root {
@@ -49,7 +49,7 @@ th div {
 }
 
 .MuiIconButton-root {
-  color: #004b5b !important;
+  color: #004b5b;
 }
 
 .pwd-container {
