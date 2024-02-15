@@ -11516,6 +11516,12 @@ router.get(
         },
 
         {
+          $sort: {
+            percentage: -1,
+          },
+        },
+
+        {
           $group: {
             _id: null,
 
@@ -11525,11 +11531,6 @@ router.get(
           },
         },
 
-        {
-          $sort: {
-            percentages: -1,
-          },
-        },
         {
           $project: {
             _id: 0,
@@ -11896,6 +11897,8 @@ router.get(
           },
         },
         // ...MTBF_monthlyFilterQueryPipeline,
+        // greaterThanTwo: { $push: { $trunc: ["$greaterThanTwo", 1] }},
+
         {
           $project: {
             count: 1,
@@ -12290,14 +12293,21 @@ router.get(
             },
           },
           // ...MTBF_monthlyFilterQueryPipeline,
+          // mtbf: { $trunc: [mtbfCalculation, 1] },
+
           {
             $project: {
               count: 1,
               bdHours: 1,
               mttr: {
-                $divide: ["$bdHours", "$count"],
+                $trunc: [
+                  {
+                    $divide: ["$bdHours", "$count"],
+                  },
+                  1,
+                ],
               },
-              mtbf: mtbfCalculation,
+              mtbf: { $trunc: [mtbfCalculation, 1] },
             },
           },
         ]);

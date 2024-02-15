@@ -6,31 +6,31 @@ export const exportPDF = (elementId, name, onclone) => {
 
   const options = {
     onclone,
-    scale: 1.4,
+    scale: 4,
     windowWidth: 1600,
   };
 
   html2canvas(domElement, options).then((canvas) => {
     const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "pt", "a1");
 
+    const pdf = new jsPDF("p", "pt", "a4");
     var pageWidth = pdf.internal.pageSize.getWidth();
     var pageHeight = pdf.internal.pageSize.getHeight();
 
-    const imgWidth = 1600;
+    const imgWidth = pageWidth;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
     let heightLeft = imgHeight;
     let position = 0;
 
-    pdf.addImage(imgData, "JPEG", 60, 60);
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
 
     heightLeft -= pageHeight;
 
     while (heightLeft >= 0) {
       position = heightLeft - imgHeight;
       pdf.addPage();
-      pdf.addImage(imgData, "JPEG", 60, position);
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
     }
 
