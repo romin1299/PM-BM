@@ -11902,16 +11902,11 @@ router.get(
         {
           $project: {
             count: 1,
-            bdHours: 1,
-            mttr: {
-              $trunc: [
-                {
-                  $divide: ["$bdHours", "$count"],
-                },
-                1,
-              ],
-            },
-            mtbf: { $trunc: [mtbfCalculation, 1] },
+            bdHours: truncValue("$bdHours"),
+            mttr: truncValue({
+              $divide: ["$bdHours", "$count"],
+            }),
+            mtbf: truncValue(mtbfCalculation),
           },
         },
       ]);
@@ -12020,9 +12015,9 @@ router.get(
           $group: {
             _id: null,
             month: { $push: "$_id" },
-            lessThanOne: { $push: { $trunc: ["$lessThanOne", 1] } },
-            lessThanTwo: { $push: { $trunc: ["$lessThanTwo", 1] } },
-            greaterThanTwo: { $push: { $trunc: ["$greaterThanTwo", 1] } },
+            lessThanOne: { $push: truncValue("$lessThanOne") },
+            lessThanTwo: { $push: truncValue("$lessThanTwo") },
+            greaterThanTwo: { $push: truncValue("$greaterThanTwo") },
           },
         },
         // {

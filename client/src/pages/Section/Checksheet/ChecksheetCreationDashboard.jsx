@@ -726,7 +726,7 @@ const ChecksheetCreationDashboard = ({}) => {
           machineData[0]?.checkSheet_data
             ?.flagForNewRevisionContentDataAdded === true
         ) {
-          navigate("/checkSheetForm", {
+          navigate("/pm/checkSheetForm", {
             state: {
               selectedRowForViewForm: machineData[0],
               displyingApprovalFormate:
@@ -744,7 +744,7 @@ const ChecksheetCreationDashboard = ({}) => {
           notifyForRevisionContent();
         }
       } else {
-        navigate("/checkSheetForm", {
+        navigate("/pm/checkSheetForm", {
           state: {
             selectedRowForViewForm: machineData[0],
             displyingApprovalFormate:
@@ -754,7 +754,7 @@ const ChecksheetCreationDashboard = ({}) => {
         });
       }
     } else {
-      navigate("/checkSheetForm", {
+      navigate("/pm/checkSheetForm", {
         state: {
           selectedRowForViewForm: machineData[0],
         },
@@ -786,8 +786,8 @@ const ChecksheetCreationDashboard = ({}) => {
           <button
             onClick={() =>
               context.user_type === "Section-Admin"
-                ? navigate("/approvalDashboard")
-                : navigate("/checkSheetDashboard")
+                ? navigate("/pm/approvalDashboard")
+                : navigate("/pm/checkSheetDashboard")
             }
             style={{
               border: "none",

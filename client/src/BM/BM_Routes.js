@@ -48,58 +48,65 @@ import { menuItems } from "./BMSidebar/menuItems";
 import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
 
 function BM_Routes({ commonRoutes }) {
-  const reportRoutes = [
-    ...commonRoutes,
-    {
-      path: "/bm/edit/request-sheet/:machine_code/:requestSheetID/:selectedYear",
-      element: <UpdateRequestSheetForAnyStatus />,
-    },
-    {
-      path: "/bm/report/productionLineWiseReport",
-      element: <ProductionLineWiseReport />,
-    },
-    { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
-    {
-      path: "/bm/report/daily-breakdown-trend",
-      element: <DailyBTDashboard />,
-    },
-    {
-      path: "/bm/report/monthly-breakdown-trend",
-      element: <MonthlyBDTDashboard />,
-    },
-    // {
-    //   path: "/bm/report/mttr-report",
-    //   element: <MTTRReportDashboard />,
-    // },
-    // {
-    //   path: "/bm/report/mtbf-report",
-    //   element: <MTBFReportDashboard />,
-    // },
-    {
-      path: "/bm/report/line-contribution-breakdown-trend",
-      element: <LineContributionBD />,
-    },
-    {
-      path: "/bm/report/tm-mtr",
-      element: <TMMTR />,
-    },
-    {
-      path: "/bm/report/mttr",
-      element: <MTTRReportDashboard />,
-    },
-    {
-      path: "/bm/report/mtbf",
-      element: <MTBFReportDashboard />,
-    },
-    {
-      path: "/bm/report/top-machine-breakdown",
-      element: <TopMachineBD />,
-    },
-    {
-      path: "/bm/report/machine-age",
-      element: <MachineAgeReport />,
-    },
-  ];
+  // const reportRoutes = [
+  //   ...commonRoutes,
+  //   {
+  //     path: "/bm/edit/request-sheet/:machine_code/:requestSheetID/:selectedYear",
+  //     element: <UpdateRequestSheetForAnyStatus />,
+  //   },
+  //   {
+  //     path: "/bm/report/productionLineWiseReport",
+  //     element: <ProductionLineWiseReport />,
+  //   },
+  //   { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
+  //   {
+  //     path: "/bm/report/daily-breakdown-trend",
+  //     element: <DailyBTDashboard />,
+  //   },
+  //   {
+  //     path: "/bm/report/monthly-breakdown-trend",
+  //     element: <MonthlyBDTDashboard />,
+  //   },
+  //   // {
+  //   //   path: "/bm/report/mttr-report",
+  //   //   element: <MTTRReportDashboard />,
+  //   // },
+  //   // {
+  //   //   path: "/bm/report/mtbf-report",
+  //   //   element: <MTBFReportDashboard />,
+  //   // },
+  //   {
+  //     path: "/bm/report/line-contribution-breakdown-trend",
+  //     element: <LineContributionBD />,
+  //   },
+  //   {
+  //     path: "/bm/report/tm-mtr",
+  //     element: <TMMTR />,
+  //   },
+  //   {
+  //     path: "/bm/report/mttr",
+  //     element: <MTTRReportDashboard />,
+  //   },
+  //   {
+  //     path: "/bm/report/mtbf",
+  //     element: <MTBFReportDashboard />,
+  //   },
+  //   {
+  //     path: "/bm/report/top-machine-breakdown",
+  //     element: <TopMachineBD />,
+  //   },
+  //   {
+  //     path: "/bm/report/machine-age",
+  //     element: <MachineAgeReport />,
+  //   },
+  // ];
+
+  let reportRoutes = commonRoutes;
+
+  reportRoutes.push({
+    path: "/bm/edit/request-sheet/:machine_code/:requestSheetID/:selectedYear",
+    element: <UpdateRequestSheetForAnyStatus />,
+  });
 
   // Define an array of routes for each user type
   const userRoutes = [

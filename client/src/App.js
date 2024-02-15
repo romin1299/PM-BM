@@ -71,6 +71,7 @@ import HistoryFormateTable from "./Common/Machine/HistoryFormateTable";
 
 import MasterLogMainDashboard from "./Common/MasterLog/MasterLogMainDashboard";
 import Profile from "./pages/Profile";
+import ViewChecksheet from "./pages/Section/Checksheet/ViewChecksheet";
 
 import "./App.css";
 import RightNavbar from "./components/RightNavbar/RightNavbar";
@@ -83,13 +84,17 @@ const commonRoutes = [
     element: <Profile />,
   },
   {
+    path: "/viewCheckSheet",
+    element: <ViewChecksheet />,
+  },
+  {
     path: "/master-log",
     element: <MasterLogMainDashboard />,
   },
   {
     path: "/machine-history",
     element: <MachineHistoryComponent />,
-    subRoutes: [
+    children: [
       {
         path: ":machine_code",
         element: <MachineHistoryComponent />,

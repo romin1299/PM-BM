@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Table, ConfigProvider } from "antd";
 import axios from "axios";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const MasterLogTable = ({
   flagForTogglingFilter,
@@ -8,56 +10,59 @@ const MasterLogTable = ({
   selectedYear,
   selectedMonth,
 }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [masterLogData, setMasterLogData] = useState([]);
 
   const [plantShiftsData, setPlantShiftsData] = useState([]);
   const [plantCategories, setPlantCategories] = useState([]);
   const [supportingTMList, setSupportingTMList] = useState([]);
-  const getListOfTheTLAndOperatorForNoLossBDEntryForm = async () => {
-    try {
-      const res = await fetch(
-        `/getListOfTheTLAndOperatorForNoLossBDEntryForm`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
-      const data = await res.json();
-      if (res.status === 404) {
-        console.log("error", data?.message);
-      } else {
-        setSupportingTMList(data?.TLHOSS_and_TM_user_list);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const getListOfTheTLAndOperatorForNoLossBDEntryForm = async () => {
+  //   try {
+  //     const res = await fetch(
+  //       `/getListOfTheTLAndOperatorForNoLossBDEntryForm`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           Accept: "application/json",
+  //           "Content-Type": "application/json",
+  //         },
+  //         credentials: "include",
+  //       }
+  //     );
+  //     const data = await res.json();
+  //     if (res.status === 404) {
+  //       console.log("error", data?.message);
+  //     } else {
+  //       setSupportingTMList(data?.TLHOSS_and_TM_user_list);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  useEffect(() => {
-    const fetchShiftData = async () => {
-      const url = "/getAllShifts";
+  // useEffect(() => {
+  //   const fetchShiftData = async () => {
+  //     const url = "/getAllShifts";
 
-      try {
-        const res = await axios.get(url, {
-          withCredentials: true,
-          credentials: "include",
-        });
+  //     try {
+  //       const res = await axios.get(url, {
+  //         withCredentials: true,
+  //         credentials: "include",
+  //       });
 
-        // console.log("fetch shifts res:", res);
-        setPlantShiftsData(res?.data?.getShifts);
-        setPlantCategories(res?.data?.categories);
-      } catch (error) {
-        console.log("error:", error);
-      }
-    };
+  //       // console.log("fetch shifts res:", res);
+  //       setPlantShiftsData(res?.data?.getShifts);
+  //       setPlantCategories(res?.data?.categories);
+  //     } catch (error) {
+  //       console.log("error:", error);
+  //     }
+  //   };
 
-    fetchShiftData();
-    getListOfTheTLAndOperatorForNoLossBDEntryForm();
-  }, []);
+  //   fetchShiftData();
+  //   getListOfTheTLAndOperatorForNoLossBDEntryForm();
+  // }, []);
 
   const getMasterLog = async () => {
     try {
@@ -73,9 +78,18 @@ const MasterLogTable = ({
         }
       );
 
-      const { message, masterLogData } = await res.json();
+      const {
+        message,
+        getShifts,
+        categories,
+        TLHOSS_and_TM_user_list,
+        masterLogData,
+      } = await res.json();
 
       if (res?.status === 201) {
+        setPlantShiftsData(getShifts);
+        setPlantCategories(categories);
+        setSupportingTMList(TLHOSS_and_TM_user_list);
         setMasterLogData(masterLogData);
       }
     } catch (error) {
@@ -123,6 +137,39 @@ const MasterLogTable = ({
     {
       title: "Category",
       dataIndex: "maintenanceType",
+      filters: [
+        {
+          value: "PM",
+          text: "PM",
+        },
+        {
+          value: "BM",
+          text: "BM",
+        },
+        {
+          value: "CM",
+          text: "CM",
+        },
+        {
+          value: "BD with No Loss",
+          text: "BD with No Loss",
+        },
+        {
+          value: "Documentation",
+          text: "Documentation",
+        },
+        {
+          value: "PRD Support",
+          text: "PRD Support",
+        },
+        {
+          value: "PED Support",
+          text: "PED Support",
+        },
+      ],
+      filterMode: "tree",
+      filterSearch: true,
+      onFilter: (value, record) => record?.maintenanceType?.startsWith(value),
     },
     {
       title: "Time",
@@ -278,6 +325,128 @@ const MasterLogTable = ({
     {
       title: "Status",
       dataIndex: "status",
+      filters: [
+        {
+          value: "Completed",
+          text: "Completed",
+        },
+        {
+          value: "Generated",
+          text: "Generated",
+        },
+        {
+          value: "Assigned",
+          text: "Assigned",
+        },
+        {
+          value: "Work Order Open",
+          text: "Work Order Open",
+        },
+        {
+          value: "Work Order Pending",
+          text: "Work Order Pending",
+        },
+
+        {
+          value: "Work Order Closed",
+          text: "Work Order Closed",
+        },
+        {
+          value: "Fill Sheet",
+          text: "Fill Sheet",
+        },
+        {
+          value: "Under MTD TL Approval",
+          text: "Under MTD TL Approval",
+        },
+        {
+          value: "Under MTD HOSS Approval",
+          text: "Under MTD HOSS Approval",
+        },
+        {
+          value: "Under PRD TL Approval",
+          text: "Under PRD TL Approval",
+        },
+        {
+          value: "Under PRD HOS Approval",
+          text: "Under PRD HOS Approval",
+        },
+        {
+          value: "Under MTD HOS Approval",
+          text: "Under MTD HOS Approval",
+        },
+        {
+          value: "Under MTD HOD Approval",
+          text: "Under MTD HOD Approval",
+        },
+        {
+          value: "Under PRD HOD Approval",
+          text: "Under PRD HOD Approval",
+        },
+
+        {
+          value: "Current Plan",
+          text: "Current Plan",
+        },
+        {
+          value: "Scheduled",
+          text: "Scheduled",
+        },
+
+        {
+          value: "Ongoing",
+          text: "Ongoing",
+        },
+        {
+          value: "No Completion",
+          text: "No Completion",
+        },
+        {
+          value: "Done with delay",
+          text: "Done with delay",
+        },
+        {
+          value: "PM Skip",
+          text: "PM Skip",
+        },
+      ],
+      filterMode: "tree",
+      filterSearch: true,
+      onFilter: (value, record) => record?.status?.startsWith(value),
+    },
+    {
+      title: "View",
+      dataIndex: "",
+      render: (value) =>
+        ["PM", "BM"]?.includes(value?.maintenanceType) && (
+          <VisibilityIcon
+            className="text-primary"
+            role="button"
+            onClick={async () => {
+              if (value?.maintenanceType === "PM") {
+                const res = await axios.get(
+                  `/getMachineWithSelectedYear/${value?._id}/?checkSheet_data.current_year=${selectedYear}`
+                );
+
+                navigate("/viewCheckSheet", {
+                  state: {
+                    selectedRowForViewForm: res.data?.machine,
+                  },
+                });
+              } else if (value?.maintenanceType === "BM") {
+                navigate(
+                  `/bm/view/request-sheet/${value?.machine_code}/${value?._id}/${selectedYear}`,
+                  {
+                    state: {
+                      prevPath: location?.pathname,
+                      prevPathSearch: location?.search,
+                    },
+                  }
+                );
+              }
+            }}
+          />
+        ),
     },
   ];
 
