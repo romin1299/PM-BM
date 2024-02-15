@@ -34,6 +34,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
   const navigate = useNavigate();
   const { machine_code, generateType } = useParams();
   const context = useContext(RoutingContext);
+
   const {
     register,
     handleSubmit,
@@ -61,9 +62,13 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
       // }),
     },
   });
+
   const selectedRequestSheetData = useLocation();
 
   const [plantShiftsData, setPlantShiftsData] = useState([]);
+  // const [problemOccurredDateAndTimeOfBM, setProblemOccurredDateAndTimeOfBM] =
+  useState("");
+
   // const [selectedShift, setSelectedShift] = useState("");
   // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
@@ -133,23 +138,45 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
     hour12: false,
   });
 
-  const momentTime = moment(sheetIssuedTime, "HH:mm");
+  // console.log("watch", defaultValues);
+  // const momentTime = moment(sheetIssuedTime, "HH:mm");
+  const problemOccurredDateAndTimeOfBM = watch(
+    "problemOccurredDateAndTimeOfBM"
+  );
+  const [date, time] = problemOccurredDateAndTimeOfBM.split("T");
+  const momentTime = moment(time, "HH:mm");
 
   useEffect(() => {
     const getCurrentShiftName = () => {
       for (let shiftInfo of plantShiftsData) {
-        if (
-          momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
-          momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
-        )
-          return shiftInfo.shiftName;
+        const startTime = moment(shiftInfo.shiftStartTime, "HH:mm");
+        const endTime = moment(shiftInfo.shiftEndTime, "HH:mm");
+
+        // if (
+        //   momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
+        //   momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
+        // )
+
+        if (endTime.isBefore(startTime)) {
+          if (
+            momentTime.isSameOrAfter(startTime) ||
+            momentTime.isSameOrBefore(endTime)
+          ) {
+            return shiftInfo.shiftName;
+          }
+        } else {
+          if (momentTime.isBetween(startTime, endTime)) {
+            return shiftInfo.shiftName;
+          }
+        }
       }
+      // }
 
       return "";
     };
 
     setValue("shiftOfBM", getCurrentShiftName());
-  }, [plantShiftsData]);
+  }, [problemOccurredDateAndTimeOfBM]);
 
   React.useEffect(() => {
     const fetchShiftData = async () => {
@@ -437,6 +464,11 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                                 type="datetime-local"
                                 {...register("problemOccurredDateAndTimeOfBM", {
                                   required: "RequestSheet date is required",
+                                  onChange: (event) =>
+                                    setValue(
+                                      "problemOccurredDateAndTimeOfBM",
+                                      event.target.value
+                                    ),
                                 })}
                               />
                               {errors?.["problemOccurredDateAndTimeOfBM"] && (

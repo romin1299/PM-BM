@@ -5169,17 +5169,15 @@ router.patch(
           );
       };
 
-      
       //request-sheet is approved/accepted
       if (approvalOfRequestSheet === "Yes") {
-        
         const minorListForTheApprovalOfPlant =
           requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
             ?.minorApprovalList;
         const majorListForTheApprovalOfPlant =
           requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
             ?.majorApprovalList;
-  
+
         let listOfHigherApproverAuthorityForSendingMail = [];
         Object.keys(assignApprovalList).forEach((key) => {
           if (
@@ -11516,6 +11514,12 @@ router.get(
         },
 
         {
+          $sort: {
+            percentage: -1,
+          },
+        },
+
+        {
           $group: {
             _id: null,
 
@@ -11525,11 +11529,6 @@ router.get(
           },
         },
 
-        {
-          $sort: {
-            percentages: -1,
-          },
-        },
         {
           $project: {
             _id: 0,
@@ -11896,14 +11895,21 @@ router.get(
           },
         },
         // ...MTBF_monthlyFilterQueryPipeline,
+        // greaterThanTwo: { $push: { $trunc: ["$greaterThanTwo", 1] }},
+
         {
           $project: {
             count: 1,
             bdHours: 1,
             mttr: {
-              $divide: ["$bdHours", "$count"],
+              $trunc: [
+                {
+                  $divide: ["$bdHours", "$count"],
+                },
+                1,
+              ],
             },
-            mtbf: mtbfCalculation,
+            mtbf: { $trunc: [mtbfCalculation, 1] },
           },
         },
       ]);
@@ -12012,9 +12018,9 @@ router.get(
           $group: {
             _id: null,
             month: { $push: "$_id" },
-            lessThanOne: { $push: "$lessThanOne" },
-            lessThanTwo: { $push: "$lessThanTwo" },
-            greaterThanTwo: { $push: "$greaterThanTwo" },
+            lessThanOne: { $push: { $trunc: ["$lessThanOne", 1] } },
+            lessThanTwo: { $push: { $trunc: ["$lessThanTwo", 1] } },
+            greaterThanTwo: { $push: { $trunc: ["$greaterThanTwo", 1] } },
           },
         },
         // {
@@ -12290,14 +12296,21 @@ router.get(
             },
           },
           // ...MTBF_monthlyFilterQueryPipeline,
+          // mtbf: { $trunc: [mtbfCalculation, 1] },
+
           {
             $project: {
               count: 1,
               bdHours: 1,
               mttr: {
-                $divide: ["$bdHours", "$count"],
+                $trunc: [
+                  {
+                    $divide: ["$bdHours", "$count"],
+                  },
+                  1,
+                ],
               },
-              mtbf: mtbfCalculation,
+              mtbf: { $trunc: [mtbfCalculation, 1] },
             },
           },
         ]);
