@@ -155,7 +155,7 @@ const GenerateRequestSheetMainDashboard = () => {
   }, [reduceState?.selectedSubSection]);
 
   const handleBack = () => {
-    navigate("/bm/requestListDashboard");
+    navigate("/bm");
   };
 
   const handleNavigationToRequestSheet = ({ machine_code }) => {

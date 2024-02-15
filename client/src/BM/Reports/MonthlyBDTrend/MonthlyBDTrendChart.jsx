@@ -259,13 +259,14 @@ const MonthlyBDTrendChart = ({
   return (
     <Box className="container-fluid cell p-3">
       <ChartTitleBar
-        title={!forKPI && "Monthly Breakdown Trend"}
+        title={forKPI ? "Plant BD Status" : "Monthly Breakdown Trend"}
         // titleProps={{
         //   sx: { fontWeight: "500" },
         // }}
+        // color="#D91616"
+        fontWeight={500}
         Toolbar={
-          <Row>
-            {forKPI && PropComponent}
+          <>
             {showFilterSwitch && (
               <Col className={"col-auto"}>
                 {/* <Col className={forKPI ? "col-3" : "col-auto"}> */}
@@ -277,7 +278,7 @@ const MonthlyBDTrendChart = ({
                 />
               </Col>
             )}
-            <div className={forKPI ? "col-1" : "col-auto"}>
+            <div className={"col-auto"}>
               <ChartDownloadMenu
                 handleDownloadCSV={() => {
                   handleDownload("csv");
@@ -287,9 +288,11 @@ const MonthlyBDTrendChart = ({
                 }}
               />
             </div>
-          </Row>
+          </>
         }
       />
+
+      {forKPI && PropComponent}
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
         {loading ? (

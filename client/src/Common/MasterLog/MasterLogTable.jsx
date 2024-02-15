@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Table } from "antd";
+import React, { useState, useEffect } from "react";
+import { Table, ConfigProvider } from "antd";
 import axios from "axios";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -129,7 +129,6 @@ const MasterLogTable = ({
         value: obj?.shiftName,
         text: obj.shiftName,
       })),
-
       filterMode: "tree",
       filterSearch: true,
       onFilter: (value, record) => record?.shift?.startsWith(value),
@@ -456,12 +455,26 @@ const MasterLogTable = ({
   }, [selectedValue, selectedYear, selectedMonth]);
 
   return (
-    <Table
-      columns={columns}
-      dataSource={masterLogData}
-      scroll={{ x: 2000 }}
-      pagination={false}
-    />
+    <>
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: {
+              headerBg: "rgb(227, 242, 253)",
+              borderColor: "rgb(204, 204, 204)",
+            },
+          },
+        }}
+      >
+        <Table
+          columns={columns}
+          dataSource={masterLogData}
+          scroll={{ x: 2500, y: 500 }}
+          pagination={false}
+          bordered
+        />
+      </ConfigProvider>
+    </>
   );
 };
 

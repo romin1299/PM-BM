@@ -42,11 +42,11 @@ export const menuItems = [
     title: "Dashboard",
     icon: <DashboardIcon className="text-white" />,
     subItems: [
-      {
-        title: "Plant Dashboard",
-        route: "/bm",
-        allowedRoles: allusers,
-      },
+      // {
+      //   title: "Plant Dashboard",
+      //   route: "/bm",
+      //   allowedRoles: allusers,
+      // },
       // {
       //   title: "Summary",
       //   route: "/bm/summeryDashboard",
@@ -54,7 +54,7 @@ export const menuItems = [
       // },
       {
         title: "Request Sheet Progress Monitoring",
-        route: "/bm/requestListDashboard",
+        route: "/bm",
         allowedRoles: reportAccess,
       },
       {
@@ -86,7 +86,7 @@ export const menuItems = [
   // {
   //   title: "Request Sheets",
   //   icon: <AddTaskIcon className="text-white" />,
-  //   route: "/bm/requestListDashboard",
+  //   route: "/bm",
   //   allowedRoles: reportAccess,
   // },
   {
@@ -164,7 +164,7 @@ export const menuItems = [
   //   ],
   // },
   {
-    title: "No Loss",
+    title: "Other Loss",
     icon: <FaWpforms fontSize={22} className="text-white" />,
     route: "/bm/noLossDataOfBD",
     allowedRoles: allusers,
@@ -319,7 +319,7 @@ export const menuItems = [
   // {
   //   title: "Request-sheet dashboard",
   //   icon: <SummarizeIcon className="text-white" />,
-  //   route: "/bm/requestListDashboard",
+  //   route: "/bm",
   //   allowedRoles: ["TL/HOSS"],
   // },
 ];

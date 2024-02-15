@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {  Col } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 
 const KPIBDHoursAndCountStatus = ({
   flagForTogglingFilter,
@@ -83,7 +83,7 @@ const KPIBDHoursAndCountStatus = ({
   }, [selectedValue, selectedYear]);
 
   return (
-    <>
+    <Row className="mb-2">
       <Col>
         <span className="d-block  " style={{ fontSize: "12px" }}>
           MBD Target
@@ -116,7 +116,7 @@ const KPIBDHoursAndCountStatus = ({
           {BDHoursStatus?.BDActual}
         </span>
       </Col>
-    </>
+    </Row>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
-import { Table, Input } from "antd";
+import { Table, Input, ConfigProvider } from "antd";
 import { Row, Col } from "react-bootstrap";
 const Search = Input.Search;
 
@@ -74,16 +74,22 @@ const BDRequestSheetAntDesignTable = ({
     let searchResultFind = requestSheetData.filter((obj) => {
       return (
         obj?.sectionName?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
-        obj?.requestSheetNoOfBM?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
+        obj?.requestSheetNoOfBM
+          ?.toLowerCase()
+          ?.startsWith(value?.toLowerCase()) ||
         obj?.cell?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
         obj?.line?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
         obj?.machineNo?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
         obj?.machineName?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
         obj?.problem?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
-        obj?.problemOccurredDateAndTimeOfBM?.toLowerCase()?.startsWith(value?.toLowerCase())||
-        obj?.work_order_status?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
+        obj?.problemOccurredDateAndTimeOfBM
+          ?.toLowerCase()
+          ?.startsWith(value?.toLowerCase()) ||
+        obj?.work_order_status
+          ?.toLowerCase()
+          ?.startsWith(value?.toLowerCase()) ||
         obj?.requestSheetStatus?.toLowerCase()?.startsWith(value?.toLowerCase())
-      )
+      );
     });
     setSearchResult(searchResultFind);
   };
@@ -101,14 +107,27 @@ const BDRequestSheetAntDesignTable = ({
           />
         </Col>
       </Row>
-      <Table
-        columns={requestSheetHeader}
-        dataSource={searchResult?.length > 0 ? searchResult : requestSheetData}
-        onChange={onChange}
-        // width={"100%"}
-        scroll={{ x: 2000 }}
-        pagination={false}
-      />
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: {
+              headerBg: "rgb(227, 242, 253)",
+              borderColor: "rgb(204, 204, 204)",
+            },
+          },
+        }}
+      >
+        <Table
+          columns={requestSheetHeader}
+          dataSource={
+            searchResult?.length > 0 ? searchResult : requestSheetData
+          }
+          onChange={onChange}
+          // width={"100%"}
+          scroll={{ x: 2000 }}
+          pagination={false}
+        />
+      </ConfigProvider>
     </>
   );
 };

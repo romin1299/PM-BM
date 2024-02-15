@@ -113,7 +113,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
         // if (generateType === "scanned") {
         //   navigate("/", { replace: true });
         // } else {
-        navigate("/bm/requestListDashboard", { replace: true });
+        navigate("/bm", { replace: true });
         // }
       } else {
         WarningToast(data?.message);
@@ -172,7 +172,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
   }, []);
 
   const handleBack = () => {
-    navigate("/bm/requestListDashboard", { replace: true });
+    navigate("/bm", { replace: true });
   };
 
   return (

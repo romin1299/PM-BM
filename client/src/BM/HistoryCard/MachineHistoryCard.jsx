@@ -194,7 +194,14 @@ const MachineHistoryCard = ({
           ))}
         </Row> */}
 
-        <Box sx={{ display: "flex", gap: "8px", flexDirection: "column" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
+            mb: 1,
+          }}
+        >
           {infoItems.map((info, index) => (
             <MachineStatusBox2
               title={info.name}
