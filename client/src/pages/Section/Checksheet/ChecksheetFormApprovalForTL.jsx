@@ -488,10 +488,10 @@ function ChecksheetFormApprovalForTL() {
         //   : navigate("/implementationApproval");
 
         machineAllData?.checkSheet_data?.checksheet_status === "Implementation"
-          ? navigate("/implementationApproval")
+          ? navigate("/pm/implementationApproval")
           : machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
-          ? navigate("/preparationApproval")
-          : navigate("/planningApproval");
+          ? navigate("/pm/preparationApproval")
+          : navigate("/pm/planningApproval");
 
         // if (
         //   selectedMachineCheckSheetData?.state?.dashboardID ===
@@ -572,11 +572,11 @@ function ChecksheetFormApprovalForTL() {
                   onClick={() => {
                     machineAllData?.checkSheet_data?.checksheet_status ===
                     "Implementation"
-                      ? navigate("/implementationApproval")
+                      ? navigate("/pm/implementationApproval")
                       : machineAllData?.checkSheet_data?.checksheet_status ===
                         "Preparation"
-                      ? navigate("/preparationApproval")
-                      : navigate("/planningApproval");
+                      ? navigate("/pm/preparationApproval")
+                      : navigate("/pm/planningApproval");
 
                     // console.log(
                     //   selectedMachineCheckSheetData?.state?.dashboardID

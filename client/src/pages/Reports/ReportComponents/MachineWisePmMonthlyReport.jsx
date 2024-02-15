@@ -317,7 +317,7 @@ const MachineWisePmMonthlyReport = () => {
         icon: () => <button className="btn-primary1">PM Edit</button>,
         // tooltip: <h1>I am a tooltip</h1>,
         onClick: (event, selectedRow) => {
-          navigate("/skipedPMWorkData", {
+          navigate("/pm/skipedPMWorkData", {
             state: { selectedRowForSkipData: selectedRow },
           });
           // console.log(employeePassword)

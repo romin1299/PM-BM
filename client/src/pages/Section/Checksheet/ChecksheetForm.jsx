@@ -529,7 +529,7 @@ function CheckSheetForm() {
         window.alert("Invalid credentials !");
       } else {
         console.log("Send request sucessfully...");
-        navigate("/checkSheetDashboard");
+        navigate("/pm/checkSheetDashboard");
         // if (values.email) {
         //   newPasswordLink(values.email);
         // }
@@ -564,7 +564,7 @@ function CheckSheetForm() {
         window.alert("Invalid credentials !");
       } else {
         console.log("Send request sucessfully...");
-        navigate("/checkSheetDashboard");
+        navigate("/pm/checkSheetDashboard");
         // refreshPage();
         // if (values.email) {
         //   newPasswordLink(values.email);
@@ -594,7 +594,7 @@ function CheckSheetForm() {
         window.alert("Invalid credentials !");
       } else {
         console.log("Send request sucessfully...");
-        navigate("/checkSheetDashboard");
+        navigate("/pm/checkSheetDashboard");
         // if (values.email) {
         //   newPasswordLink(values.email);
         // }
@@ -728,7 +728,7 @@ function CheckSheetForm() {
               {/* <a style={{ color: "Black" }} href="/checkSheetDashboard"> */}
               <button
                 className="mt-2"
-                onClick={() => navigate("/checkSheetDashboard")}
+                onClick={() => navigate("/pm/checkSheetDashboard")}
                 style={{
                   border: "none",
                   background: "white",

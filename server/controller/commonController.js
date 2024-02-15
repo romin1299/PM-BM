@@ -278,7 +278,7 @@ router.get(
       ];
     }
 
-    const pmLog = await Machine.aggregate([
+    const pmLog = Machine.aggregate([
       // {
       //   $match: req.queryObjForPM,
       // },
@@ -380,7 +380,7 @@ router.get(
       //   },
     ]);
 
-    const bmLog = await RequestSheetOfBM.aggregate([
+    const bmLog = RequestSheetOfBM.aggregate([
       {
         $match: req.queryObj,
       },
@@ -426,7 +426,7 @@ router.get(
       },
     ]);
 
-    const noLossLog = await NoLossBD.aggregate([
+    const noLossLog = NoLossBD.aggregate([
       {
         $match: req.queryObj,
       },
@@ -465,8 +465,72 @@ router.get(
       },
     ]);
 
+    let queryObj = {
+      plant_data: req?.rootUser?.plant_data,
+    };
+
+    if (req?.rootUser?.tm_grade !== "HOD") {
+      const section = await Section.findOne({
+        section_id: req?.rootUser?.section_data?.split("-")?.[0],
+      });
+      if (section.dashboardLevel === "Yes") {
+        queryObj = {
+          ...queryObj,
+          section_data: req?.rootUser?.section_data,
+        };
+      } else {
+        queryObj = {
+          ...queryObj,
+          section_data: req?.rootUser?.section_data,
+          subSection_data: { $in: req?.rootUser?.subSection_data },
+        };
+      }
+    }
+
+    let TLHOSS_and_TM_user_list = User.find(
+      {
+        ...req.queryObj,
+        $or: [
+          {
+            user_type: "Operator",
+          },
+          {
+            $and: [
+              {
+                user_type: "TL/HOSS",
+              },
+              {
+                tm_department: "MTD",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        tm_name: 1,
+        tm_department: 1,
+        tm_grade: 1,
+        user_type: 1,
+      }
+    );
+
+    const shifts = Plant.find({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+
+    const values = await Promise.all([
+      bmLog,
+      pmLog,
+      noLossLog,
+      TLHOSS_and_TM_user_list,
+      shifts,
+    ]);
+
     successResponse(res, "Master log get successfully", {
-      masterLogData: [...bmLog, ...pmLog, ...noLossLog],
+      getShifts: values?.[4]?.[0]?.shiftOfBM,
+      categories: values?.[4]?.[0]?.categories,
+      TLHOSS_and_TM_user_list: values?.[3],
+      masterLogData: [...values?.[0], ...values?.[1], ...values?.[2]],
     });
   })
 );

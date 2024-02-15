@@ -5,7 +5,7 @@ import BDHoursTrendChart from "./BDHoursTrendChart";
 import { Box, Button, Divider, Paper, Typography } from "@mui/material";
 import { roundValue } from "../Utils/math/roundValue";
 
-import MachineHistoryMasterLog from "../../Common/MasterLog/MachineHistoryMasterLog";
+// import MachineHistoryMasterLog from "../../Common/MasterLog/MachineHistoryMasterLog";
 import { useNavigate } from "react-router-dom";
 
 const MachineHistoryCard = ({
@@ -14,11 +14,16 @@ const MachineHistoryCard = ({
   selectedRow,
   modelProp,
 }) => {
-  const [masterLogModal, setMasterLogModal] = useState(false);
+  // const [masterLogModal, setMasterLogModal] = useState(false);
   const navigate = useNavigate();
 
-  const handleMasterLogModal = () => {
-    setMasterLogModal((masterLogModal) => !masterLogModal);
+  // const handleMasterLogModal = () => {
+  //   setMasterLogModal((masterLogModal) => !masterLogModal);
+  // };
+  const handleMasterLogNavigation = () => {
+    navigate(
+      `/master-log/?machine=${selectedRow?.machines?.[0]?._id}&selectedYear=${selectedYear}&selectedMonth=${selectedMonth}`
+    );
   };
 
   const [historyCardData, setHistoryCardData] = useState({
@@ -165,8 +170,6 @@ const MachineHistoryCard = ({
     </Row>
   );
 
-  console.log("selectedRow:", selectedRow);
-
   return (
     <Modal
       {...modelProp}
@@ -202,7 +205,7 @@ const MachineHistoryCard = ({
 
         <BDHoursTrendChart bdHourTrend={historyCardData?.bdHourTrend} />
 
-        {masterLogModal && (
+        {/* {masterLogModal && (
           <MachineHistoryMasterLog
             selectedYear={selectedYear}
             selectedMonth={selectedMonth}
@@ -212,7 +215,7 @@ const MachineHistoryCard = ({
               onHide: () => handleMasterLogModal(),
             }}
           />
-        )}
+        )} */}
       </Modal.Body>
       <Modal.Footer className="gap-2">
         <Button
@@ -235,10 +238,19 @@ const MachineHistoryCard = ({
           variant="contained"
           disableElevation
           className="bg-button"
-          onClick={handleMasterLogModal}
+          onClick={handleMasterLogNavigation}
         >
           History
         </Button>
+        {/* <Button
+          size="small"
+          variant="contained"
+          disableElevation
+          className="bg-button"
+          onClick={handleMasterLogModal}
+        >
+          History
+        </Button> */}
       </Modal.Footer>
     </Modal>
   );

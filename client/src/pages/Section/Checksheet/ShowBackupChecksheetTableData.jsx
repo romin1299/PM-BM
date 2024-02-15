@@ -235,7 +235,7 @@ const ShowBackupChecksheetTableData = ({}) => {
       <div style={{ margin: "0.5rem" }}>
         <div className="pageCard">
           <button
-            onClick={() => navigate("/backupDataOfCheckSheet")}
+            onClick={() => navigate("/pm/backupDataOfCheckSheet")}
             style={{
               border: "none",
               background: "white",

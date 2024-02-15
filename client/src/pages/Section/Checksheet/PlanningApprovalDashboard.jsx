@@ -235,7 +235,7 @@ const PlanningApprovalDashboard = () => {
         //     },
         //   });
         // } else {
-        navigate("/checksheetFormApproval", {
+        navigate("/pm/checksheetFormApproval", {
           state: {
             selectedRowForViewForm: selectedRow,
             dashboardID: "FromPlanningApprovalDashboard",

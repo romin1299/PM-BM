@@ -21938,6 +21938,35 @@ router.post(
   }
 );
 
+router.get(
+  "/getMachineWithSelectedYear/:selectedId",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      const machine = await Machine.aggregate([
+        {
+          $match: {
+            _id: mongoose.Types.ObjectId(req.params?.selectedId),
+          },
+        },
+        {
+          $unwind: "$checkSheet_data",
+        },
+        {
+          $match: req.query,
+        },
+      ]);
+
+      res.status(201).json({
+        message: "Machine data get successfully",
+        machine: machine?.[0],
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
 // router.post('/postSectionToGetAllData12', authenticate, async (req, res) => {
 //     try {
 //         let { selectedYear } = req.body

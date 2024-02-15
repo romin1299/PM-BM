@@ -64,7 +64,7 @@ function CreateNewPassword() {
         setTimeout(fade_out, 3000);
       } else {
         // window.alert("New password generation successfully !!!");
-        navigate("/login",{replace:true});
+        navigate("/loginPage",{replace:true});
       }
     },
   });

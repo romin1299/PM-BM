@@ -213,7 +213,7 @@ const SkipPMWorkData = () => {
       {workOnSkipPM}
       <div className="pageCard">
         <button
-          onClick={() => navigate("/machineWisePmMonthlyReport")}
+          onClick={() => navigate("/pm/machineWisePmMonthlyReport")}
           style={{
             border: "none",
             background: "white",
