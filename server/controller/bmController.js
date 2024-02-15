@@ -21,6 +21,7 @@ const factory = require("./handleFactory");
 const sendMailForBD = require("../sendMailForBM/sendMailForBDRequestSheet");
 const moment = require("moment-timezone");
 const timezone = "Asia/Kolkata";
+const truncValue = require("../utils/truncValue");
 
 router.use(cookieParser());
 // router.use(authenticate);
@@ -112,8 +113,6 @@ let currentYear =
   new Date().getMonth() < 3
     ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
     : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
-
-const truncValue = (prop) => ({ $trunc: [prop, 1] });
 
 const generateDateFormateObj = (field) => ({
   $dateToString: {
@@ -839,6 +838,9 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           ],
           as: "requestSheetCreatedBy",
         },
+      },
+      {
+        $sort: { _id: -1 },
       },
       {
         $project: {
@@ -14245,11 +14247,11 @@ router.get(
         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
       });
 
-      console.log(
-        `${req?.rootUser?.tm_department} ${
-          req?.rootUser?.user_type.split("/")[0]
-        }`
-      );
+      // console.log(
+      //   `${req?.rootUser?.tm_department} ${
+      //     req?.rootUser?.user_type.split("/")[0]
+      //   }`
+      // );
 
       // const getApprovalData = await RequestSheetOfBM.aggregate([
       //   {

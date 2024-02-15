@@ -399,6 +399,7 @@ const ManHourDashboard = () => {
               }
               selectedYear={reduceState?.selectedYear}
               selectedMonth={reduceState?.selectedMonth}
+              chartTitle="TM Load"
             />
           </Col>
         </Row>

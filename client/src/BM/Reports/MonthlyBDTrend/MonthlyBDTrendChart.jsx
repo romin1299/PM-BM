@@ -94,6 +94,9 @@ const MonthlyBDTrendChart = ({
   selectedYear,
   userDetails,
   showFilterSwitch = false,
+
+  forKPI,
+  PropComponent,
 }) => {
   const [loading, setLoading] = React.useState(true);
 
@@ -120,16 +123,16 @@ const MonthlyBDTrendChart = ({
   let arrayItems;
   let filterHeaders;
 
-  if (userDetails.tm_grade === "HOD") {
+  if (userDetails?.tm_grade === "HOD") {
     arrayItems = [
-      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.plant_data?.split("-")?.[0],
       ...filteredValuesWithHOD,
     ];
     // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
   } else {
     arrayItems = [
-      userDetails?.plant_data.split("-")?.[0],
-      userDetails?.section_data.split("-")?.[1],
+      userDetails?.plant_data?.split("-")?.[0],
+      userDetails?.section_data?.split("-")?.[1],
       ...filteredValues,
     ];
     // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
@@ -256,23 +259,26 @@ const MonthlyBDTrendChart = ({
   return (
     <Box className="container-fluid cell p-3">
       <ChartTitleBar
-        title="Monthly Breakdown Trend"
+        title={forKPI ? "Plant BD Status" : "Monthly Breakdown Trend"}
         // titleProps={{
         //   sx: { fontWeight: "500" },
         // }}
+        // color="#D91616"
+        fontWeight={500}
         Toolbar={
           <>
             {showFilterSwitch && (
-              <Col className="col-auto">
+              <Col className={"col-auto"}>
+                {/* <Col className={forKPI ? "col-3" : "col-auto"}> */}
                 <FilterSwitchButtons
                   filter={filter}
                   setFilter={setFilter}
                   filterState={filterState}
+                  forKPI={forKPI}
                 />
               </Col>
             )}
-
-            <div className="col-auto">
+            <div className={"col-auto"}>
               <ChartDownloadMenu
                 handleDownloadCSV={() => {
                   handleDownload("csv");
@@ -285,6 +291,8 @@ const MonthlyBDTrendChart = ({
           </>
         }
       />
+
+      {forKPI && PropComponent}
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
         {loading ? (
