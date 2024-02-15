@@ -164,7 +164,7 @@ export const menuItems = [
     ],
   },
   {
-    title: "No Loss",
+    title: "Other Loss",
     icon: <FaWpforms fontSize={22} className="text-white" />,
     route: "/bm/noLossDataOfBD",
     allowedRoles: allusers,

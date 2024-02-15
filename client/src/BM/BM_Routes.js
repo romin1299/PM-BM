@@ -192,10 +192,10 @@ function BM_Routes({ commonRoutes }) {
           path: "/bm/targetDashboard",
           element: <TargetDashboard />,
         },
-        // {
-        //   path: "/bm/profile",
-        //   element: <Profile />,
-        // },
+        {
+          path: "/bm/noLossDataOfBD",
+          element: <NoLossBDEntryForm />,
+        },
 
         ...reportRoutes,
       ],
@@ -251,6 +251,10 @@ function BM_Routes({ commonRoutes }) {
         {
           path: "/bm/targetDashboard",
           element: <TargetDashboard />,
+        },
+        {
+          path: "/bm/noLossDataOfBD",
+          element: <NoLossBDEntryForm />,
         },
         // {
         //   path: "/bm/profile",
@@ -374,6 +378,10 @@ function BM_Routes({ commonRoutes }) {
         {
           path: "/bm/approvalLogs",
           element: <ApprovalLogs />,
+        },
+        {
+          path: "/bm/noLossDataOfBD",
+          element: <NoLossBDEntryForm />,
         },
 
         ...reportRoutes,

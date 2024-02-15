@@ -170,7 +170,7 @@ const NoLossBDEntryForm = () => {
 
   return (
     <Container fluid>
-      <ReportTitleBar title="No Loss BD Entry Form" />
+      <ReportTitleBar title="Other Loss BD Entry Form" />
 
       <form
         onSubmit={handleSubmit(postNoLossBDFormData)}

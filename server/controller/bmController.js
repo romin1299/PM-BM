@@ -840,6 +840,9 @@ const findRequestSheetMiddleware = async (req, res, next) => {
         },
       },
       {
+        $sort: { _id: -1 },
+      },
+      {
         $project: {
           machines: 1,
           requestSheetCreatedBy: 1,
