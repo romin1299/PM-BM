@@ -101,18 +101,18 @@ const BDHoursTrendChart = ({
           },
         },
       },
-      y2: {
-        position: "right",
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: "black",
-          font: {
-            size: labelsFontSize,
-          },
-        },
-      },
+      // y2: {
+      //   position: "right",
+      //   grid: {
+      //     display: false,
+      //   },
+      //   ticks: {
+      //     color: "black",
+      //     font: {
+      //       size: labelsFontSize,
+      //     },
+      //   },
+      // },
     },
   };
 

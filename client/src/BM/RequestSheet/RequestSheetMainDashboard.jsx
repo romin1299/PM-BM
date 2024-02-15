@@ -45,6 +45,12 @@ import {
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
 
+import SvgIcon from "@mui/material/SvgIcon";
+import { ReactComponent as HistoryIcon } from "../../static/svg/history.svg";
+import { ReactComponent as EditSheetIcon } from "../../static/svg/edit-sheet-2.svg";
+import EditSheetIconSVG from "../../static/svg/edit-sheet-2.svg";
+import EditIcon from "@mui/icons-material/Edit";
+
 const RequestSheetMainDashboard = () => {
   const [loading, setLoading] = React.useState(true);
 
@@ -98,6 +104,7 @@ const RequestSheetMainDashboard = () => {
     "Work Order Pending",
     "Work Order Closed",
     "Fill Sheet",
+    "Rejected",
     "Under MTD TL approval",
     "Under MTD HOSS approval",
     "Under MTD HOS approval",
@@ -484,6 +491,10 @@ const RequestSheetMainDashboard = () => {
               }
               format="dd/MM/yyyy HH:mm"
               sx={{ width: "11rem" }}
+              // sx={{
+              //   width: "10.5rem",
+              //    "& input": { p: "6px 10px" }
+              // }}
               onChange={(handOverTime) => {
                 onChange(handOverTime || new Date());
                 // onChange(handOverTime.toString());
@@ -579,42 +590,32 @@ const RequestSheetMainDashboard = () => {
   };
 
   let requestSheetActions = [
-    {
-      icon: () => <CreditCardIcon className="text-primary1" />,
-      tooltip: "History Card",
-      position: "row",
-      onClick: (event, selectedRow) => {
-        setSelectedRow(selectedRow);
-        handleMachineHistoryCardState();
-      },
-    },
+    // Edit Request Sheet
     (row) => ({
-      icon: () => (
-        <DescriptionIcon
-          className={
-            row?.work_order_status === "Open"
-              ? "text-secondary"
-              : "text-primary"
-          }
+      icon: (props) => (
+        <SvgIcon
+          component={EditSheetIcon}
+          sx={{
+            color: props.disabled ? "inherit" : "#FF6F00",
+          }}
+          inheritViewBox
         />
+
+        // <SvgIcon sx={{ color: "yellow" }}>
+        //   <EditSheetIcon color="green" />
+        // </SvgIcon>
+
+        // <DescriptionIcon />
       ),
-      tooltip: "Update",
+      tooltip: "Update Req-sheet",
       position: "row",
       disabled:
         (row?.assignUserId === context?._id ||
           row?.handOverUserId === context?._id) &&
-        (row?.work_order_status === "Pending" ||
-          row?.work_order_status === "Closed")
+        statusArray.slice(0, 7).includes(row?.requestSheetStatus)
           ? false
           : true,
-      hidden:
-        row?.assignUserId === context?._id ||
-        row?.handOverUserId === context?._id
-          ? false
-          : true,
-      onClick: (event, selectedRow) => {
-        console.log("selectedRow:", selectedRow);
-
+      onClick: (event, selectedRow) =>
         navigate(
           `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`,
           {
@@ -623,10 +624,10 @@ const RequestSheetMainDashboard = () => {
                 reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
             },
           }
-        );
-      },
+        ),
     }),
 
+    // Open Request Sheet for View
     (row) => ({
       icon: () => <VisibilityIcon className="text-primary" />,
       tooltip: "View",
@@ -644,6 +645,35 @@ const RequestSheetMainDashboard = () => {
           }
         );
       },
+    }),
+
+    // Open History card of selected machine for View
+    (row) => ({
+      icon: () => (
+        <HistoryIcon />
+
+        // <SvgIcon
+        //   component={HistoryIcon}
+        //   sx={{ color: "#FF6F00" }}
+        //   // viewBox="0 0 22 22"
+        //   inheritViewBox
+        // />
+      ),
+      tooltip: "History Card",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        setSelectedRow(selectedRow);
+        handleMachineHistoryCardState();
+      },
+    }),
+
+    (rowData) => ({
+      icon: () => <EditIcon />,
+      tooltip: "Edit",
+      disabled: true,
+      hidden:
+        context?.tm_department !== "PRD" &&
+        statusArray.slice(0, 6).includes(rowData?.requestSheetStatus),
     }),
   ];
 
@@ -698,7 +728,7 @@ const RequestSheetMainDashboard = () => {
               fontWeight={600}
               sx={{ mr: 3 }}
             >
-              Request-Sheet Dashboard
+              Request Sheet Progress Monitoring
             </Typography>
           </Col>
 
@@ -707,12 +737,12 @@ const RequestSheetMainDashboard = () => {
               variant="contained"
               disableElevation
               onClick={handleGenerateBMNavigation}
-              className={
-                context?.tm_department === "PRD"
-                  ? `bg-button d-inline`
-                  : "d-none"
-              }
-              sx={{ fontWeight: 400 }}
+              disabled={context?.tm_department !== "PRD"}
+              sx={{
+                fontWeight: 400,
+                bgcolor: "#004b5b",
+                "&:hover": { bgcolor: "#026378" },
+              }}
             >
               <AddCircleIcon sx={{ mr: "8px" }} />
               Generate Request-Sheet
@@ -958,8 +988,8 @@ const RequestSheetMainDashboard = () => {
               //   }),
 
               isDeleteHidden: (rowData) =>
-                context?.userType !== "TL/HOSS" &&
-                context?.tm_department !== "MTD",
+                context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
+                "Yes",
 
               isEditHidden: (rowData) =>
                 (rowData?.requestSheetStatus !== statusArray[0] &&
