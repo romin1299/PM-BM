@@ -39,6 +39,10 @@ const LineChart = ({
     responsive: true,
     maintainAspectRatio: false,
     maxBarThickness: 100,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
     plugins: {
       // annotation: {
       //   annotations: {
@@ -81,6 +85,9 @@ const LineChart = ({
       },
       y2: {
         stacked: true,
+        grid: {
+          display: false,
+        },
         title: {
           display: true,
           text: "Hours",

@@ -35,6 +35,10 @@ export const options = {
   responsive: true,
   maintainAspectRatio: false,
   maxBarThickness: 100,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -64,6 +68,9 @@ export const options = {
       },
     },
     y: {
+      grid: {
+        display: false,
+      },
       stacked: true,
       title: {
         display: true,
