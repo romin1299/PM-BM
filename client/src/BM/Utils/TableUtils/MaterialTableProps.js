@@ -41,3 +41,13 @@ export const MaterialTableOptions = {
     // color: "#FFF",
   },
 };
+
+export const MaterialTableStyle = {
+  boxShadow: "none",
+  border: "1px solid gray",
+  borderRadius: "6px",
+};
+export const MaterialTableSX = {
+  // "&.MuiTable-root": { border: "1px solid gray" },
+  "& .MuiTableCell-root": { border: "1px solid gray" },
+};
