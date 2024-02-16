@@ -37,6 +37,10 @@ const BarChart = ({
     responsive: true,
     maintainAspectRatio: false,
     maxBarThickness: 100,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
     plugins: {
       legend: {
         display: false,
@@ -63,6 +67,9 @@ const BarChart = ({
         },
       },
       y: {
+        grid: {
+          display: false,
+        },
         title: {
           display: true,
           text: "Total Hours",

@@ -37,7 +37,11 @@ import {
   Paper,
 } from "@mui/material";
 import BMTitlebar from "../Component/BMTitlebar";
-import { MaterialTableOptions } from "../Utils/TableUtils/MaterialTableProps";
+import {
+  MaterialTableOptions,
+  MaterialTableSX,
+  MaterialTableStyle,
+} from "../Utils/TableUtils/MaterialTableProps";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import {
   initialState,
@@ -665,19 +669,22 @@ const RequestSheetMainDashboard = () => {
           resetButtonFiltration
         />
       </Box>
-      <Button
-        variant="contained"
-        disableElevation
-        className={`d-inline`}
-        sx={{ fontWeight: 400 }}
-        size="small"
-        color="warning"
-        onClick={() =>
-          setDisplayColumnOrNot((displayColumnOrNot) => !displayColumnOrNot)
-        }
-      >
-        Show/Hide Column
-      </Button>
+
+      <Box display="flex" alignItems="center">
+        <Button
+          variant="contained"
+          disableElevation
+          className={`d-inline`}
+          sx={{ fontWeight: 400 }}
+          size="small"
+          color="warning"
+          onClick={() =>
+            setDisplayColumnOrNot((displayColumnOrNot) => !displayColumnOrNot)
+          }
+        >
+          Show/Hide Column
+        </Button>
+      </Box>
     </div>,
   ];
 
@@ -1008,11 +1015,8 @@ const RequestSheetMainDashboard = () => {
                 },
               ],
             }}
-            style={{
-              boxShadow: "none",
-              border: "1px solid #e3e3e3",
-              borderRadius: "6px",
-            }}
+            style={MaterialTableStyle}
+            sx={MaterialTableSX}
           />
         </Box>
       </Container>

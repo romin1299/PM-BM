@@ -37,6 +37,10 @@ ChartJS.register(
 export const options = {
   maintainAspectRatio: false,
   responsive: true,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -71,6 +75,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       position: "left",
       title: {
         display: true,
@@ -82,6 +89,9 @@ export const options = {
     },
     y2: {
       position: "right",
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Count",

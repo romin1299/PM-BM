@@ -14,6 +14,10 @@ import findFilters from "../../../filterNames";
 export const options = {
   maintainAspectRatio: false,
   responsive: true,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -59,6 +63,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Total Hours",
@@ -69,6 +76,9 @@ export const options = {
     },
     y1: {
       position: "right", // Align the y-axis to the right
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Cummulative Avg Hrs",

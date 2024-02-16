@@ -36,6 +36,10 @@ ChartJS.register(
 export const options = {
   maintainAspectRatio: false,
   responsive: true,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   maxBarThickness: 100,
   plugins: {
     legend: {
@@ -68,6 +72,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       position: "left",
       title: {
         display: true,

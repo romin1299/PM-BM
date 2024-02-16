@@ -32,6 +32,10 @@ const sectionBodyBoxStyle = {
 export const options = {
   maintainAspectRatio: false,
   responsive: true,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     title: {
       display: false,
@@ -61,6 +65,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Nos",
