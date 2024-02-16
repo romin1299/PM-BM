@@ -98,17 +98,22 @@ const RequestSheetMainDashboard = () => {
     Rejected: "#e05050",
   };
 
-  const statusArray = [
+  const RSStatusArray = [
     "Generated",
     "Assigned",
     "Work Order Open",
     "Work Order Pending",
     "Work Order Closed",
     "Fill Sheet",
-    "Rejected",
     "Under MTD TL approval",
     "Under MTD HOSS approval",
-    "Under MTD HOS approval",
+    "Under PRD TL Approval",
+    "Under PRD HOS Approval",
+    "Under MTD HOS Approval",
+    "Under MTD HOD Approval",
+    "Under PRD HOD Approval",
+    "Completed",
+    "Rejected",
   ];
 
   const initialStateForRequestSheetData = {
@@ -166,10 +171,9 @@ const RequestSheetMainDashboard = () => {
 
   const getAllRequestSheetData = async () => {
     setLoading(true);
-
     try {
       const res = await fetch(
-        `/getRequestSheetData/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`,
+        `/getRequestSheetData/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}`,
         {
           method: "GET",
           headers: {
@@ -278,6 +282,7 @@ const RequestSheetMainDashboard = () => {
     reduceState?.selectedValue,
     reduceState?.selectedYear,
     reduceState?.selectedMonth,
+    reduceState?.selectedRSStatus,
   ]);
 
   const handleGenerateBMNavigation = async () => {
@@ -300,10 +305,10 @@ const RequestSheetMainDashboard = () => {
       (context?.tm_department === "MTD" ||
         row?.assignUserId === context?._id ||
         row?.handOverUserId === context?._id) &&
-      (row?.requestSheetStatus === statusArray[1] ||
-        row?.requestSheetStatus === statusArray[2] ||
-        row?.requestSheetStatus === statusArray[3] ||
-        row?.requestSheetStatus === statusArray[4])
+      (row?.requestSheetStatus === RSStatusArray[1] ||
+        row?.requestSheetStatus === RSStatusArray[2] ||
+        row?.requestSheetStatus === RSStatusArray[3] ||
+        row?.requestSheetStatus === RSStatusArray[4])
     ) {
       return true;
     }
@@ -346,7 +351,7 @@ const RequestSheetMainDashboard = () => {
         // editable: context?.tm_department === "MTD" ? "always" : "never",
         editable: (_, row) =>
           context?.tm_department === "MTD" &&
-          row?.requestSheetStatus === statusArray[0]
+          row?.requestSheetStatus === RSStatusArray[0]
             ? true
             : false,
         editComponent: ({ value, onChange, rowData }) =>
@@ -364,10 +369,10 @@ const RequestSheetMainDashboard = () => {
         // editable: context?.tm_department === "MTD" ? "always" : "never",
         editable: (col, row) =>
           context?.tm_department === "MTD" &&
-          (row?.requestSheetStatus === statusArray[1] ||
-            row?.requestSheetStatus === statusArray[2] ||
-            row?.requestSheetStatus === statusArray[3] ||
-            row?.requestSheetStatus === statusArray[4])
+          (row?.requestSheetStatus === RSStatusArray[1] ||
+            row?.requestSheetStatus === RSStatusArray[2] ||
+            row?.requestSheetStatus === RSStatusArray[3] ||
+            row?.requestSheetStatus === RSStatusArray[4])
             ? true
             : false,
         editComponent: ({ value, onChange, rowData }) => {
@@ -555,7 +560,7 @@ const RequestSheetMainDashboard = () => {
       disabled:
         (row?.assignUserId === context?._id ||
           row?.handOverUserId === context?._id) &&
-        statusArray.slice(0, 7).includes(row?.requestSheetStatus)
+        RSStatusArray.slice(0, 7).includes(row?.requestSheetStatus)
           ? false
           : true,
       onClick: (event, selectedRow) =>
@@ -616,7 +621,7 @@ const RequestSheetMainDashboard = () => {
       disabled: true,
       hidden:
         context?.tm_department !== "PRD" &&
-        statusArray.slice(0, 6).includes(rowData?.requestSheetStatus),
+        RSStatusArray.slice(0, 6).includes(rowData?.requestSheetStatus),
     }),
   ];
 
@@ -655,6 +660,8 @@ const RequestSheetMainDashboard = () => {
           cellFiltration
           lineFiltration
           machineFiltration
+          RSStatusArray={RSStatusArray}
+          RSStatusFiltration
           resetButtonFiltration
         />
       </Box>
@@ -673,8 +680,6 @@ const RequestSheetMainDashboard = () => {
       </Button>
     </div>,
   ];
-
-  console.log(displayColumnOrNot);
 
   return (
     <>
@@ -953,12 +958,12 @@ const RequestSheetMainDashboard = () => {
                 "Yes",
 
               isEditHidden: (rowData) =>
-                (rowData?.requestSheetStatus !== statusArray[0] &&
-                  rowData?.requestSheetStatus !== statusArray[1] &&
-                  rowData?.requestSheetStatus !== statusArray[2] &&
-                  rowData?.requestSheetStatus !== statusArray[3] &&
-                  rowData?.requestSheetStatus !== statusArray[4] &&
-                  rowData?.requestSheetStatus !== statusArray[5]) ||
+                (rowData?.requestSheetStatus !== RSStatusArray[0] &&
+                  rowData?.requestSheetStatus !== RSStatusArray[1] &&
+                  rowData?.requestSheetStatus !== RSStatusArray[2] &&
+                  rowData?.requestSheetStatus !== RSStatusArray[3] &&
+                  rowData?.requestSheetStatus !== RSStatusArray[4] &&
+                  rowData?.requestSheetStatus !== RSStatusArray[5]) ||
                 context?.tm_department === "PRD",
 
               onRowDelete: (selectedRow) =>

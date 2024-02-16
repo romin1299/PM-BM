@@ -314,8 +314,9 @@ const ApprovalLogs = () => {
         theme={{
           components: {
             Table: {
-              headerBg: "rgb(227, 242, 253)",
+              headerBg: "#0fa3b1",
               borderColor: "rgb(204, 204, 204)",
+              fontWeightStrong: 700,
             },
           },
         }}

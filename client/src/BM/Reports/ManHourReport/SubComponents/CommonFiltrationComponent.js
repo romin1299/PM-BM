@@ -26,6 +26,8 @@ export const initialState = {
       : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
   selectedMonth: "",
 
+  selectedRSStatus: "",
+
   message: "",
   isLoading: true,
   isError: false,
@@ -44,6 +46,7 @@ export const ACTION = {
   HANDLE_SELECT_MACHINE: "handle-selected-machine",
   HANDLE_SELECT_YEAR: "handle-selected-year",
   HANDLE_SELECT_MONTH: "handle-selected-month",
+  HANDLE_SELECT_STATUS: "handle-selected-status",
 };
 
 export const getFiltrationValue = async ({ url }) => {
@@ -258,12 +261,19 @@ export const reducer = (state, action) => {
         ...state,
         selectedYear: action?.selectedYear,
         selectedMonth: "",
+        selectedRSStatus: ""
       };
 
     case ACTION?.HANDLE_SELECT_MONTH:
       return {
         ...state,
         selectedMonth: action?.selectedMonth,
+      };
+
+    case ACTION?.HANDLE_SELECT_STATUS:
+      return {
+        ...state,
+        selectedRSStatus: action?.selectedRSStatus,
       };
 
     default:

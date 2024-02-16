@@ -45,6 +45,9 @@ const ChartCard = ({ category }) => {
         backgroundColor: category?.subcategories?.map(
           (item, i) => chartColors.categoryPie[i]
         ),
+        // hoverBackgroundColor: category?.subcategories?.map(
+        //   (item, i) => chartColors.categoryPie[i]
+        // ),
         // borderColor: chartColors.tmSkillPie,
         borderWidth: 1,
       },
@@ -153,8 +156,6 @@ const CategoryPieCharts = ({
     <Row className="g-2">
       {[0, 1]?.map((key) => (
         <Col key={key} sm={6} xs={12}>
-      
-
           {loading ? (
             <Box className="cell p-3">
               <Loading height={200} />
@@ -166,7 +167,6 @@ const CategoryPieCharts = ({
               <DataNotFound sx={{ mb: 0 }} />
             </Box>
           )}
-          
         </Col>
       ))}
       {/* {categories?.map((category, index) => (
