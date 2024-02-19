@@ -10,7 +10,7 @@ export const MaterialTableOptions = {
   actionsColumnIndex: -1,
   pageSize: 10,
   pageSizeOptions: [5, 10, 20, 50],
-  paginationType: "stepped",
+  // paginationType: "stepped",
   addRowPosition: "first",
   headerStyle: {
     position: "sticky",
@@ -38,6 +38,9 @@ export const MaterialTableOptions = {
 
     backgroundColor: "#0fa3b1", // 6eaebd33, "004b5b", "E3F2FD", f3f3f3
     // color: "#fff", // 004b5b, 000, 000, 000
+  },
+  searchFieldStyle: {
+    width: "170px",
   },
 };
 

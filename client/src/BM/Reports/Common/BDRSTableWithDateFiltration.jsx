@@ -48,7 +48,7 @@ const BDRSTableWithDateFiltration = ({
 
   return (
     <>
-      <Paper variant="outlined" sx={{ p: 2 }} className="mt-3 g-0">
+      <Paper variant="outlined" sx={{ p: 2 }} className="cell mt-3 g-0">
         <form
           onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedDate)}
           className="mb-2 pt-1 d-flex align-items-center justify-content-end"

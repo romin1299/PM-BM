@@ -4,7 +4,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import { cyan, deepPurple, green, indigo } from "@mui/material/colors";
 import { lightBlue, lightGreen, orange, red, teal } from "@mui/material/colors";
 
-import MaterialTable from "@material-table/core";
+import MaterialTable, { MTableToolbar } from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -35,6 +35,7 @@ import {
   Tooltip,
   Typography,
   Paper,
+  Switch,
 } from "@mui/material";
 import BMTitlebar from "../Component/BMTitlebar";
 import {
@@ -691,19 +692,15 @@ const RequestSheetMainDashboard = () => {
       </Box>
 
       <Box display="flex" alignItems="center">
-        <Button
-          variant="contained"
-          disableElevation
-          className={`d-inline`}
-          sx={{ fontWeight: 400 }}
-          size="small"
-          color="warning"
-          onClick={() =>
-            setDisplayColumnOrNot((displayColumnOrNot) => !displayColumnOrNot)
-          }
-        >
-          Show/Hide Column
-        </Button>
+        <Tooltip title="Show/Hide Column">
+          <Switch
+            size="medium"
+            checked={displayColumnOrNot}
+            onClick={() =>
+              setDisplayColumnOrNot((displayColumnOrNot) => !displayColumnOrNot)
+            }
+          />
+        </Tooltip>
       </Box>
     </div>,
   ];
@@ -1007,8 +1004,28 @@ const RequestSheetMainDashboard = () => {
                   resolve();
                 }),
             }}
+            // components={{
+            //   Toolbar: (props) => (
+            //     <div
+            //       style={{
+            //         display: "flex",
+            //         justifyContent: "space-between",
+            //         alignItems: "center",
+            //       }}
+            //     >
+            //       {filtration}
+            //       <div style={{ width: "13rem" }}>
+            //         <MTableToolbar {...props} />
+            //       </div>
+            //     </div>
+            //   ),
+            // }}
             options={{
               ...MaterialTableOptions,
+              pageSize:
+                reduceStateForRequestSheetData?.requestSheetData?.length > 10
+                  ? 10
+                  : reduceStateForRequestSheetData?.requestSheetData?.length,
               maxBodyHeight: "auto",
               showTitle: true,
               // actionsCellStyle: {

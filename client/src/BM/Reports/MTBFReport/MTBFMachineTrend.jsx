@@ -331,7 +331,7 @@ const MTBFMachineTrend = ({
         <Col className="cell p-3">
           <form
             onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedMachine)}
-            className="pt-1 d-flex align-items-center justify-content-end gap-2"
+            className="mb-2 pt-1 d-flex align-items-center justify-content-end gap-2"
           >
             {errors?.["selectedMachine"] && (
               <p className="text-error">

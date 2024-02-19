@@ -100,6 +100,9 @@ const BDRequestSheetTable = ({
           header: {
             actions: "Actions",
           },
+          pagination: {
+            // labelRowsPerPage: "",
+          },
           // toolbar: {
           //   exportCSVName: "Export some Excel format",
           //   exportPDFName: "Export as pdf!!"
@@ -137,6 +140,7 @@ const BDRequestSheetTable = ({
         options={{
           ...MaterialTableOptions,
           pageSize: 5,
+          maxBodyHeight: "auto",
           exportMenu: [
             {
               label: "Export PDF",

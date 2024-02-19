@@ -47,6 +47,7 @@ const NoLossBDEntryForm = () => {
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+  const [inc, setInc] = useState(1);
 
   const getListOfTheTLAndOperatorForNoLossBDEntryForm = async () => {
     try {
@@ -66,6 +67,7 @@ const NoLossBDEntryForm = () => {
         console.log("error", data?.message);
       } else {
         setSupportingTMList(data?.TLHOSS_and_TM_user_list);
+        setInc(data?.getNoLossNo);
       }
     } catch (error) {
       console.log(error);
@@ -77,7 +79,8 @@ const NoLossBDEntryForm = () => {
   }, []);
 
   const timezone = "Asia/Kolkata";
-  const startedDate = moment().tz(timezone).month() + 1;
+  const currentMonth = moment().format("MMM");
+  const currentYear = moment().tz(timezone).year();
 
   let sheetIssuedTime = new Date().toLocaleString("en-US", {
     timeZone: "Asia/Kolkata",
@@ -200,14 +203,15 @@ const NoLossBDEntryForm = () => {
               <b>NO-LOSS BD NO: </b>
             </small>
             <br />
-            <input
+            {/* <input
               type="text"
               name=""
               id=""
               className="w-100"
               style={{ maxWidth: "300px" }}
               {...register("noLossBDNo", {})}
-            />
+            /> */}
+            {currentYear} - {currentMonth} - {inc + 1 || 1}
             <br />
             <small className="mb-0 d-block">
               <b>DATE & TIME: </b>

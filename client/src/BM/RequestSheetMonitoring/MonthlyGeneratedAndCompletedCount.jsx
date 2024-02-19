@@ -58,7 +58,10 @@ const MonthlyGeneratedAndCompletedCount = ({
             <tr>
               <th style={{ background: "#0fa3b1" }}>Status</th>
               {allMonths?.map((item, index) => (
-                <th style={{ background: "#0fa3b1" }} key={index}>
+                <th
+                  style={{ background: "#0fa3b1", textAlign: "center" }}
+                  key={index}
+                >
                   {item}
                 </th>
               ))}
@@ -70,7 +73,9 @@ const MonthlyGeneratedAndCompletedCount = ({
               <tr>
                 <th style={{ background: "#b5e2fa" }}>{item?.label}</th>
                 {item?.data?.map((item, index) => (
-                  <td key={index}>{item}</td>
+                  <td key={index} style={{ textAlign: "center" }}>
+                    {item}
+                  </td>
                 ))}
               </tr>
             </tbody>

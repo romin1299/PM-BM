@@ -13,6 +13,7 @@ const Cell = require("../model/cellSchema");
 const Line = require("../model/lineSchema");
 const LogHistory = require("../model/logHistorySchema");
 const NoLossBD = require("../model/noLossBDSheetData");
+const HandlingActions = require("../model/handlingActions");
 
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
@@ -4859,9 +4860,18 @@ router.get(
         }
       );
 
+      const getPlantIdForNoLossBDEntry = await Plant.findOne({
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+      });
+
+      const getNoLossNo = await HandlingActions.find({
+        plant_id: mongoose.Types.ObjectId(getPlantIdForNoLossBDEntry._id),
+      });
+
       res.status(201).json({
         message: "TL and Operator data get successfully",
         TLHOSS_and_TM_user_list,
+        getNoLossNo: getNoLossNo[0].noLossBdNos,
       });
     } catch (error) {
       console.log(error);
@@ -12311,16 +12321,11 @@ router.get(
           {
             $project: {
               count: 1,
-              bdHours: 1,
-              mttr: {
-                $trunc: [
-                  {
-                    $divide: ["$bdHours", "$count"],
-                  },
-                  1,
-                ],
-              },
-              mtbf: { $trunc: [mtbfCalculation, 1] },
+              bdHours: truncValue("$bdHours"),
+              mttr: truncValue({
+                $divide: ["$bdHours", "$count"],
+              }),
+              mtbf: truncValue(mtbfCalculation),
             },
           },
         ]);
@@ -19088,8 +19093,23 @@ router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
       plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
     });
 
+ 
+
+
+    const addNewNoLossNo = await HandlingActions.findOneAndUpdate(
+      { plant_id: getPlantIdForNoLossBDEntry._id }, 
+    
+      { $inc: { noLossBdNos: 1 } },
+      {
+        new: true,
+      }
+    );
+
+   
+ 
     const addNewNoLossBD = new NoLossBD({
       ...noLossData,
+
       problemsOfBM,
       actionAndCounterMeasureStep,
       supportingTM: selectedSupportedTM?.map((obj) => obj?._id),

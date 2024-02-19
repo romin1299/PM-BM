@@ -160,8 +160,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
         if (endTime.isBefore(startTime)) {
           if (
             momentTime.isSameOrAfter(startTime) ||
-            momentTime.isSameOrBefore(endTime)
-          ) {
+            momentTime.isSameOrBefore(endTime)  
+          ) { 
             return shiftInfo.shiftName;
           }
         } else {
@@ -170,7 +170,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
           }
         }
       }
-      // }
 
       return "";
     };
@@ -437,7 +436,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                           ? selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.section_name
                               ?.trim()
                               ?.substring(0, 2)
-                              ?.toUpperCase()
+                              ?.toUpperCase() 
                           : selectedMachineDetails?.line_names?.cell_names?.subSection_names?.subSection_name
                               ?.trim()
                               ?.substring(0, 2)

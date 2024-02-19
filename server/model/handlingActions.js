@@ -9,7 +9,11 @@ const handlingActionsSchema = mongoose.Schema({
 
     financialYears: {
         type: [String]
-    }
+    },
+
+    noLossBdNos: {
+        type: Number,
+      },
 })
 
 const HandlingOtherActions = new mongoose.model('OtherActionsHandle', handlingActionsSchema);
