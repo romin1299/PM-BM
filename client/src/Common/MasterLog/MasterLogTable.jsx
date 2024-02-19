@@ -3,6 +3,7 @@ import { Table, ConfigProvider } from "antd";
 import axios from "axios";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Box } from "@mui/material";
 
 const MasterLogTable = ({
   flagForTogglingFilter,
@@ -101,10 +102,12 @@ const MasterLogTable = ({
     {
       title: "Month",
       dataIndex: "month",
+      width: 80,
     },
     {
       title: "Date",
       dataIndex: "date",
+      width: 120,
     },
     {
       title: "Cell",
@@ -132,11 +135,13 @@ const MasterLogTable = ({
       filterMode: "tree",
       filterSearch: true,
       onFilter: (value, record) => record?.shift?.startsWith(value),
+      width: 90,
     },
 
     {
       title: "Category",
       dataIndex: "maintenanceType",
+      width: 120,
       filters: [
         {
           value: "PM",
@@ -174,6 +179,7 @@ const MasterLogTable = ({
     {
       title: "Time",
       dataIndex: "time",
+      width: 70,
     },
     {
       title: "Problem",
@@ -417,6 +423,8 @@ const MasterLogTable = ({
     {
       title: "View",
       dataIndex: "",
+      width: 66,
+
       render: (value) =>
         ["PM", "BM"]?.includes(value?.maintenanceType) && (
           <VisibilityIcon
@@ -455,7 +463,22 @@ const MasterLogTable = ({
   }, [selectedValue, selectedYear, selectedMonth]);
 
   return (
-    <>
+    <Box
+      sx={{
+        "& .ant-dropdown-trigger": {
+          "&:hover": { bgcolor: "#ffcdcd66" },
+          "& > .anticon .svg": { width: "1.4em", height: "1.4em" },
+        },
+        "& .ant-dropdown-trigger.active": {
+          color: "#004fbf", bgcolor: "#b2d2ff8a"
+        },
+        "& .ant-table-cell > ul": {
+          margin: "0px",
+          padding: "0px",
+          paddingLeft: "1rem",
+        },
+      }}
+    >
       <ConfigProvider
         theme={{
           components: {
@@ -463,6 +486,9 @@ const MasterLogTable = ({
               headerBg: "#0fa3b1",
               fontWeightStrong: 700,
               borderColor: "#9f9f9f",
+
+              headerFilterActiveBg: "rgb(255, 230, 230)",
+              headerFilterHoverBg: "rgb(255, 255, 255)",
             },
           },
         }}
@@ -475,7 +501,7 @@ const MasterLogTable = ({
           bordered
         />
       </ConfigProvider>
-    </>
+    </Box>
   );
 };
 

@@ -103,9 +103,14 @@ const RequestSheetMonitoringBarChart = ({
     maintainAspectRatio: false,
     responsive: true,
     maxBarThickness: 100,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
     plugins: {
       legend: {
         align: "end",
+        position: "bottom",
         labels: {
           usePointStyle: true,
         },

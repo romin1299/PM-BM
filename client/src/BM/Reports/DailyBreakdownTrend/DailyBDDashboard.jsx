@@ -69,11 +69,11 @@ const DailyBTDashboard = () => {
           }
         />
 
-        <Row className="gx-3 mt-1">
+        <Row className="gx-3 mt-3">
           <BDHoursAndCountStatus {...reduceState} />
         </Row>
 
-        <Box className="mb-3 mt-3">
+        <Box className="mb-3 mt-0">
           <DailyBDTrendChart
             userDetails={loggedUserDetails}
             filterValues={reduceState}
