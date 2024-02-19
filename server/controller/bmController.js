@@ -1616,8 +1616,7 @@ const filterMiddleware = async (req, res, next) => {
     if (req.query?.selectedRSStatus) {
       queryObj = {
         ...queryObj,
-        "requestSheetStatus":
-          req.query?.selectedRSStatus,
+        requestSheetStatus: req.query?.selectedRSStatus,
       };
     }
 
@@ -5610,19 +5609,25 @@ router.get(
           .json({ message: "You can't selected the future month!!!" });
       }
 
-      if (
-        currentYear === req.query?.selectedYear &&
-        moment().tz(timezone).month(req.query.selectedMonth).month() ===
-          moment().tz(timezone).month()
-      ) {
-        endDate = moment().tz(timezone).endOf("day");
-      } else {
-        endDate = moment()
-          .tz(timezone)
-          .year(year)
-          .month(req.query.selectedMonth)
-          .endOf("month");
-      }
+      // if (
+      //   currentYear === req.query?.selectedYear &&
+      //   moment().tz(timezone).month(req.query.selectedMonth).month() ===
+      //     moment().tz(timezone).month()
+      // ) {
+      //   endDate = moment().tz(timezone).endOf("day");
+      // } else {
+      //   endDate = moment()
+      //     .tz(timezone)
+      //     .year(year)
+      //     .month(req.query.selectedMonth)
+      //     .endOf("month");
+      // }
+
+      endDate = moment()
+        .tz(timezone)
+        .year(year)
+        .month(req.query.selectedMonth)
+        .endOf("month");
 
       const startDate = moment()
         .tz(timezone)
