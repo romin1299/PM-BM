@@ -77,8 +77,13 @@ import "./App.css";
 import RightNavbar from "./components/RightNavbar/RightNavbar";
 
 import KPI_Routes from "./KPI_Tab/KPI_Routes";
+import MainPageComponent from "./KPI_Tab/MainPage/MainPageComponent";
 
 const commonRoutes = [
+  {
+    path: "/",
+    element: <MainPageComponent />,
+  },
   {
     path: "/profile",
     element: <Profile />,

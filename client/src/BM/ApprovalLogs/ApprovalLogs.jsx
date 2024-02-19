@@ -306,6 +306,7 @@ const ApprovalLogs = () => {
             subSectionFiltration
             cellFiltration
             lineFiltration
+            machineFiltration
             resetButtonFiltration
           />
         }
