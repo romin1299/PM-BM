@@ -31,7 +31,7 @@ const ChartCard = ({ category }) => {
           })`;
         },
         font: { size: 12 },
-        // color: chartColors.categoryPieFont,
+        color: "white",
       },
     },
   };
@@ -41,10 +41,23 @@ const ChartCard = ({ category }) => {
     datasets: [
       {
         label: "Hour",
+        // data: [5, 5, 5, 5, 5, 5, 5, 5, 5],
         data: category?.bdTime,
-        backgroundColor: category?.subcategories?.map(
-          (item, i) => chartColors.categoryPie[i]
-        ),
+        backgroundColor: [
+          "#a2ad00",
+          "#0ca4be",
+          "#cc3e6d",
+          "#bd38d4",
+          "#197bdd",
+          "#dd4343",
+          "#4e60c5",
+          "#d4ad36",
+          "#bd7878",
+        ],
+        // backgroundColor: category?.subcategories?.map(
+        // backgroundColor: category?.subcategories?.map(
+        //   (item, i) => chartColors.categoryPie[i]
+        // ),
         // hoverBackgroundColor: category?.subcategories?.map(
         //   (item, i) => chartColors.categoryPie[i]
         // ),

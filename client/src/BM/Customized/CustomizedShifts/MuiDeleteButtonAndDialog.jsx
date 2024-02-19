@@ -30,7 +30,7 @@ export default function MuiDeleteDialog({
   };
 
   const handleDelete = () => {
-    console.log("item:", item);
+    // console.log("item:", item);
     handleSubmit();
     setOpen(false);
   };

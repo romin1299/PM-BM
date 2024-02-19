@@ -264,12 +264,32 @@ const RequestSheetMainDashboard = () => {
         );
 
       if (res.status === 201) {
+        let countersObj = {
+          open_request_sheet_count:
+            reduceStateForRequestSheetData.counters?.open_request_sheet_count -
+            1,
+        };
+
+        if (selectedRow?.requestSheetStatus === "Completed") {
+          countersObj = {
+            closed_request_sheet_count:
+              reduceStateForRequestSheetData.counters
+                ?.closed_request_sheet_count - 1,
+          };
+        }
+
         reducerDispatchForRequestSheetData({
           type: ACTION.GET,
           requestSheetData: updatedRequestSheetData,
           TLHOSS_and_TM_user_list:
             reduceStateForRequestSheetData.TLHOSS_and_TM_user_list,
-          counters: reduceStateForRequestSheetData.counters,
+          counters: {
+            ...reduceStateForRequestSheetData.counters,
+            ...countersObj,
+            total_request_sheet_count:
+              reduceStateForRequestSheetData.counters
+                ?.total_request_sheet_count - 1,
+          },
           message,
         });
         // return updatedRequestSheetData;
@@ -957,9 +977,9 @@ const RequestSheetMainDashboard = () => {
               //     //refreshPage();
               //   }),
 
-              isDeleteHidden: (rowData) =>
-                context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
-                "Yes",
+              // isDeleteHidden: (rowData) =>
+              //   context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
+              //   "Yes",
 
               isEditHidden: (rowData) =>
                 (rowData?.requestSheetStatus !== RSStatusArray[0] &&

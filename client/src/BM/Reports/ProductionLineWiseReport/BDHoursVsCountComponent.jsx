@@ -120,8 +120,6 @@ const BDHoursVsCountComponent = ({
     // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
   }
 
- 
-
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getBDhoursVsCountReportData = async ({ purpose, data }) => {
@@ -173,7 +171,6 @@ const BDHoursVsCountComponent = ({
 
       let bodyData = [];
       let filterData = [];
-
 
       if (fileType === "csv") {
         bodyData = [

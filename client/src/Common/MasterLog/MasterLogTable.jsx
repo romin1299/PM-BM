@@ -179,7 +179,7 @@ const MasterLogTable = ({
     {
       title: "Time",
       dataIndex: "time",
-      width: 70,
+      width: 80,
     },
     {
       title: "Problem",
@@ -455,6 +455,7 @@ const MasterLogTable = ({
             }}
           />
         ),
+      width: 80,
     },
   ];
 

@@ -262,13 +262,66 @@ const DailyBDTrendChart = ({
     }
   }, [selectedValue, selectedYear, dailyBDSelectedMonth]);
 
+  // const datasets = [
+  //   {
+  //     type: "line",
+  //     label: "Total Count",
+  //     data: dailyBreakdownTrendData?.dayWiseCount,
+  //     backgroundColor: chartColors.count,
+  //     borderColor: chartColors.count,
+  //     borderWidth: 2,
+  //     fill: false,
+  //     yAxisID: "y2",
+  //   },
+  //   {
+  //     type: "bar",
+  //     stack: "bar-stacked",
+  //     label: "< 1",
+  //     yAxisID: "y",
+  //     data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
+  //     backgroundColor: chartColors.dailyBDTrend[0],
+  //     // borderColor: chartColors.dailyBDTrendBorder[0],
+  //     // borderWidth: 1,
+  //     borderRadius: 4,
+  //   },
+  //   {
+  //     type: "bar",
+  //     stack: "bar-stacked",
+  //     label: "< 2",
+  //     yAxisID: "y",
+  //     data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
+  //     backgroundColor: chartColors.dailyBDTrend[1],
+  //     // borderColor: chartColors.dailyBDTrendBorder[1],
+  //     // borderWidth: 1,
+  //     borderRadius: 4,
+  //   },
+  //   {
+  //     type: "bar",
+  //     stack: "bar-stacked",
+  //     label: "> 2",
+  //     yAxisID: "y",
+  //     data: dailyBreakdownTrendData?.greaterThenTwoHourData,
+  //     backgroundColor: chartColors.dailyBDTrend[2],
+  //     // borderColor: chartColors.dailyBDTrendBorder[2],
+  //     // borderWidth: 1,
+  //     borderRadius: 4,
+  //   },
+  // ];
+
+  /* 
+   1. FF1744  3949AB  43A047  FFD740 
+   2. 000000  0F6292  16FF00  FFED00
+
+   */
+
   const datasets = [
     {
       type: "line",
       label: "Total Count",
+      // data: [1, 2, 3, 3, 4, 4, 4],
       data: dailyBreakdownTrendData?.dayWiseCount,
-      backgroundColor: chartColors.count,
-      borderColor: chartColors.count,
+      backgroundColor: "#D04848",
+      borderColor: "#D04848",
       borderWidth: 2,
       fill: false,
       yAxisID: "y2",
@@ -278,8 +331,9 @@ const DailyBDTrendChart = ({
       stack: "bar-stacked",
       label: "< 1",
       yAxisID: "y",
+      // data: [1, 2, 3, 3, 4, 4, 4],
       data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
-      backgroundColor: chartColors.dailyBDTrend[0],
+      backgroundColor: "#34aa30",
       // borderColor: chartColors.dailyBDTrendBorder[0],
       // borderWidth: 1,
       borderRadius: 4,
@@ -289,8 +343,9 @@ const DailyBDTrendChart = ({
       stack: "bar-stacked",
       label: "< 2",
       yAxisID: "y",
+      // data: [1, 2, 3, 3, 4, 4, 4],
       data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
-      backgroundColor: chartColors.dailyBDTrend[1],
+      backgroundColor: "#eccc14",
       // borderColor: chartColors.dailyBDTrendBorder[1],
       // borderWidth: 1,
       borderRadius: 4,
@@ -300,8 +355,9 @@ const DailyBDTrendChart = ({
       stack: "bar-stacked",
       label: "> 2",
       yAxisID: "y",
+      // data: [1, 2, 3, 3, 4, 4, 4],
       data: dailyBreakdownTrendData?.greaterThenTwoHourData,
-      backgroundColor: chartColors.dailyBDTrend[2],
+      backgroundColor: "#1f6fdf",
       // borderColor: chartColors.dailyBDTrendBorder[2],
       // borderWidth: 1,
       borderRadius: 4,
@@ -309,6 +365,7 @@ const DailyBDTrendChart = ({
   ];
 
   const data = {
+    // labels: ["a", "b", "c", "d", "e", "f", "g"],
     labels: dailyBreakdownTrendData?.labels,
     datasets,
   };
