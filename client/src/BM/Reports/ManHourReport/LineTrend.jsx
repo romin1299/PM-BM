@@ -36,6 +36,10 @@ ChartJS.register(
 export const options = {
   responsive: true,
   maintainAspectRatio: false,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -72,6 +76,9 @@ export const options = {
       stacked: true,
       position: "right",
 
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Percentage",
@@ -81,6 +88,9 @@ export const options = {
       },
     },
     y2: {
+      grid: {
+        display: false,
+      },
       stacked: true,
       title: {
         display: true,

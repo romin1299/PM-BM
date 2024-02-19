@@ -7,7 +7,11 @@ import CreditCardIcon from "@mui/icons-material/CreditCard";
 import RoutingContext from "../../context/routing/RoutingContext";
 import { useNavigate } from "react-router-dom";
 import BMTitlebar from "../Component/BMTitlebar";
-import { MaterialTableOptions } from "../Utils/TableUtils/MaterialTableProps";
+import {
+  MaterialTableOptions,
+  MaterialTableSX,
+  MaterialTableStyle,
+} from "../Utils/TableUtils/MaterialTableProps";
 
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 
@@ -200,7 +204,7 @@ const ApprovalDashboardOfRequestSheet = () => {
             />
           }
         />
-        <Row className="cell p-2 mt-3 gap-2 g-0">
+        <Row className="mt-3 gap-2 g-0">
           <MonthlyGeneratedAndCompletedCount
             selectedValue={reduceState?.selectedValue}
             flagForTogglingFilter={reduceState?.flagForTogglingFilter}
@@ -237,7 +241,9 @@ const ApprovalDashboardOfRequestSheet = () => {
                   // }),
                 }
               }
-              options={{...MaterialTableOptions,
+              options={{
+                ...MaterialTableOptions,
+                pageSize: 5,
                 exportMenu: [
                   {
                     label: "Export PDF",
@@ -245,7 +251,9 @@ const ApprovalDashboardOfRequestSheet = () => {
                       ExportPdf(
                         cols,
                         data,
-                        `Approval List of Request-Sheet ${moment().format("DD-MM-YYYY")}`
+                        `Approval List of Request-Sheet ${moment().format(
+                          "DD-MM-YYYY"
+                        )}`
                       ),
                   },
                   {
@@ -254,11 +262,15 @@ const ApprovalDashboardOfRequestSheet = () => {
                       ExportCsv(
                         cols,
                         data,
-                        `Approval List of Request-Sheet ${moment().format("DD-MM-YYYY")}`
+                        `Approval List of Request-Sheet ${moment().format(
+                          "DD-MM-YYYY"
+                        )}`
                       ),
                   },
                 ],
               }}
+              style={MaterialTableStyle}
+              sx={MaterialTableSX}
             />
           </Col>
         </Row>

@@ -176,7 +176,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
     };
 
     setValue("shiftOfBM", getCurrentShiftName());
-  }, [problemOccurredDateAndTimeOfBM]);
+  }, [problemOccurredDateAndTimeOfBM, plantShiftsData]);
 
   React.useEffect(() => {
     const fetchShiftData = async () => {

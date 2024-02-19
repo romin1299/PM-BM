@@ -36,8 +36,17 @@ export const MaterialTableOptions = {
     fontWeight: "bold",
     marginTop: "10px",
 
-    backgroundColor: "#E3F2FD", //#f3f3f3
-    // backgroundColor: "#004b5b",
-    // color: "#FFF",
+    backgroundColor: "#0fa3b1", // 6eaebd33, "004b5b", "E3F2FD", f3f3f3
+    // color: "#fff", // 004b5b, 000, 000, 000
   },
+};
+
+export const MaterialTableStyle = {
+  boxShadow: "none",
+  border: "1px solid #9f9f9f",
+  borderRadius: "6px",
+};
+export const MaterialTableSX = {
+  // "&.MuiTable-root": { border: "1px solid #9f9f9f" },
+  "& .MuiTableCell-root": { border: "1px solid #9f9f9f" },
 };

@@ -150,6 +150,10 @@ const YearlyContributionBarChart = ({
     maintainAspectRatio: false,
     maxBarThickness: 100,
     indexAxis: "y",
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
     plugins: {
       legend: {
         display: false,
@@ -190,8 +194,8 @@ const YearlyContributionBarChart = ({
     {
       label: "Top 20",
       data: yearlyContributionData?.data,
-      backgroundColor: chartColors[0],
-      borderColor: chartColors[7],
+      backgroundColor: chartColors.monthlyBDTrend,
+      // borderColor: chartColors[7],
       borderWidth: 1,
     },
   ];

@@ -55,6 +55,10 @@ const ChartCard = ({ category }) => {
           "#bd7878",
         ],
         // backgroundColor: category?.subcategories?.map(
+        // backgroundColor: category?.subcategories?.map(
+        //   (item, i) => chartColors.categoryPie[i]
+        // ),
+        // hoverBackgroundColor: category?.subcategories?.map(
         //   (item, i) => chartColors.categoryPie[i]
         // ),
         // borderColor: chartColors.tmSkillPie,

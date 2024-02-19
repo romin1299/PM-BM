@@ -69,11 +69,14 @@ export default function LineSelectionDropdown({
   machines,
   selectedYear,
   selectedMonth,
+  RSStatusArray,
 
   reducerDispatch,
   baseUrlForFiltering,
   monthFiltration,
   yearFiltration,
+  RSStatusFiltration,
+  selectedRSStatus,
 
   sectionFiltration,
   subSectionFiltration,
@@ -295,6 +298,7 @@ export default function LineSelectionDropdown({
       lines,
       selectedMachine,
       machines,
+      selectedRSStatus
     } = data;
 
     if (res?.status === 201) {
@@ -315,6 +319,7 @@ export default function LineSelectionDropdown({
         selectedMachine,
         machines,
         message,
+        selectedRSStatus
       });
     }
   };
@@ -624,6 +629,51 @@ export default function LineSelectionDropdown({
                 style={getStyleForSelectedValue(
                   item,
                   selectedMonth,
+                  "for-array-value"
+                )}
+              >
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      </FormControl>
+
+      <FormControl size="small">
+        {RSStatusFiltration && (
+          <Select
+            displayEmpty
+            value={selectedRSStatus}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_STATUS,
+                selectedRSStatus: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 170,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) {
+                return value;
+              }
+              return "Req. Sheet Status";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {RSStatusArray?.map((item) => (
+              <MenuItem
+                key={item}
+                value={item}
+                style={getStyleForSelectedValue(
+                  item,
+                  selectedRSStatus,
                   "for-array-value"
                 )}
               >

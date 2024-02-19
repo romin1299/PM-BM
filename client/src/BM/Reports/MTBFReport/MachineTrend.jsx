@@ -54,6 +54,9 @@ export const options = {
       }
     },
     y: {
+      grid: {
+        display: false,
+      },
       min: 0,
       max: 3,
       maxRotation: 90,

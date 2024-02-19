@@ -111,8 +111,9 @@ const BDRequestSheetAntDesignTable = ({
         theme={{
           components: {
             Table: {
-              headerBg: "rgb(227, 242, 253)",
-              borderColor: "rgb(204, 204, 204)",
+              headerBg: "#0fa3b1",
+              fontWeightStrong: 700,
+              borderColor: "#9f9f9f",
             },
           },
         }}
@@ -126,6 +127,7 @@ const BDRequestSheetAntDesignTable = ({
           // width={"100%"}
           scroll={{ x: 2000 }}
           pagination={false}
+          bordered
         />
       </ConfigProvider>
     </>

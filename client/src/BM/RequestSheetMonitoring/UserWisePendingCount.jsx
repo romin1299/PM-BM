@@ -66,7 +66,7 @@ const UserWisePendingCount = ({
       >
         <Table bordered hover className="m-0">
           <thead>
-            <tr>
+            <tr style={{ background: "#0fa3b1" }}>
               <th>User Type</th>
               <th>TM Name</th>
               {allMonths?.map((item, index) => (
