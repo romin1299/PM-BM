@@ -79,6 +79,7 @@ const CategoryDoughnutChart = ({
   selectedValue,
   selectedYear,
   groupData,
+  getDataForOtherComponentBasedOnMachineAgeGroupChange,
 }) => {
   const [loading, setLoading] = React.useState(true);
   const [categories, setCategories] = React.useState([]);
@@ -114,10 +115,14 @@ const CategoryDoughnutChart = ({
 
   useEffect(() => {
     setLoading(false);
-    if (selectedGroup) {
+    if (selectedGroup || getDataForOtherComponentBasedOnMachineAgeGroupChange) {
       getMachineAgePieChart();
     }
-  }, [selectedYear, selectedGroup]);
+  }, [
+    selectedYear,
+    selectedGroup,
+    getDataForOtherComponentBasedOnMachineAgeGroupChange,
+  ]);
 
   useEffect(() => {
     setSelectedGroup(groupData?.[0]?._id);

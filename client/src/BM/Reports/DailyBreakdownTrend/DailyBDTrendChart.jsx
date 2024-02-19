@@ -318,8 +318,8 @@ const DailyBDTrendChart = ({
     {
       type: "line",
       label: "Total Count",
-      data: [1, 2, 3, 3, 4, 4, 4],
-      // data: dailyBreakdownTrendData?.dayWiseCount,
+      // data: [1, 2, 3, 3, 4, 4, 4],
+      data: dailyBreakdownTrendData?.dayWiseCount,
       backgroundColor: "#D04848",
       borderColor: "#D04848",
       borderWidth: 2,
@@ -331,8 +331,8 @@ const DailyBDTrendChart = ({
       stack: "bar-stacked",
       label: "< 1",
       yAxisID: "y",
-      data: [1, 2, 3, 3, 4, 4, 4],
-      // data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
+      // data: [1, 2, 3, 3, 4, 4, 4],
+      data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
       backgroundColor: "#34aa30",
       // borderColor: chartColors.dailyBDTrendBorder[0],
       // borderWidth: 1,
@@ -343,8 +343,8 @@ const DailyBDTrendChart = ({
       stack: "bar-stacked",
       label: "< 2",
       yAxisID: "y",
-      data: [1, 2, 3, 3, 4, 4, 4],
-      // data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
+      // data: [1, 2, 3, 3, 4, 4, 4],
+      data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
       backgroundColor: "#eccc14",
       // borderColor: chartColors.dailyBDTrendBorder[1],
       // borderWidth: 1,
@@ -355,8 +355,8 @@ const DailyBDTrendChart = ({
       stack: "bar-stacked",
       label: "> 2",
       yAxisID: "y",
-      data: [1, 2, 3, 3, 4, 4, 4],
-      // data: dailyBreakdownTrendData?.greaterThenTwoHourData,
+      // data: [1, 2, 3, 3, 4, 4, 4],
+      data: dailyBreakdownTrendData?.greaterThenTwoHourData,
       backgroundColor: "#1f6fdf",
       // borderColor: chartColors.dailyBDTrendBorder[2],
       // borderWidth: 1,
@@ -365,8 +365,8 @@ const DailyBDTrendChart = ({
   ];
 
   const data = {
-    labels: ["a", "b", "c", "d", "e", "f", "g"],
-    // labels: dailyBreakdownTrendData?.labels,
+    // labels: ["a", "b", "c", "d", "e", "f", "g"],
+    labels: dailyBreakdownTrendData?.labels,
     datasets,
   };
   const isDataExists = isChartDataExist(data);

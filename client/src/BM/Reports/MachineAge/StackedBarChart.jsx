@@ -72,6 +72,7 @@ const StackedBarChart = ({
   selectedYear,
   filterValues,
   userDetails,
+  getDataForOtherComponentBasedOnMachineAgeGroupChange,
 }) => {
   const [chartData, setChartData] = useState({
     labels: [],
@@ -177,8 +178,13 @@ const StackedBarChart = ({
   };
 
   useEffect(() => {
-    if (selectedValue) fetchChartData();
-  }, [selectedValue, selectedYear]);
+    if (selectedValue || getDataForOtherComponentBasedOnMachineAgeGroupChange)
+      fetchChartData();
+  }, [
+    selectedValue,
+    selectedYear,
+    getDataForOtherComponentBasedOnMachineAgeGroupChange,
+  ]);
 
   return (
     <Box className="container-fluid cell p-3">

@@ -17,6 +17,11 @@ const MachineAgeReport = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const loggedUserDetails = useContext(RoutingContext);
 
+  const [
+    getDataForOtherComponentBasedOnMachineAgeGroupChange,
+    setGetDataForOtherComponentBasedOnMachineAgeGroupChange,
+  ] = useState(false);
+
   const [groupData, setGroupData] = useState([
     { _id: "", group: 0, from: 0, to: 0 },
   ]);
@@ -48,6 +53,9 @@ const MachineAgeReport = () => {
               {...reduceState}
               groupData={groupData}
               setGroupData={setGroupData}
+              setGetDataForOtherComponentBasedOnMachineAgeGroupChange={
+                setGetDataForOtherComponentBasedOnMachineAgeGroupChange
+              }
             />
           </Col>
           <Col xxl={6} lg={6} md={12} className="mb-2">
@@ -55,6 +63,12 @@ const MachineAgeReport = () => {
               userDetails={loggedUserDetails}
               filterValues={reduceState}
               {...reduceState}
+              getDataForOtherComponentBasedOnMachineAgeGroupChange={
+                getDataForOtherComponentBasedOnMachineAgeGroupChange
+              }
+              setGetDataForOtherComponentBasedOnMachineAgeGroupChange={
+                setGetDataForOtherComponentBasedOnMachineAgeGroupChange
+              }
             />
           </Col>
           <Col xxl={6} lg={6} md={12} className="mb-2">
@@ -62,10 +76,19 @@ const MachineAgeReport = () => {
               userDetails={loggedUserDetails}
               filterValues={reduceState}
               {...reduceState}
+              getDataForOtherComponentBasedOnMachineAgeGroupChange={
+                getDataForOtherComponentBasedOnMachineAgeGroupChange
+              }
             />
           </Col>
           <Col xxl={6} lg={6} md={12} className="mb-2">
-            <CategoryDoughnutChart {...reduceState} groupData={groupData} />
+            <CategoryDoughnutChart
+              {...reduceState}
+              groupData={groupData}
+              getDataForOtherComponentBasedOnMachineAgeGroupChange={
+                getDataForOtherComponentBasedOnMachineAgeGroupChange
+              }
+            />
           </Col>
         </Row>
       </Container>

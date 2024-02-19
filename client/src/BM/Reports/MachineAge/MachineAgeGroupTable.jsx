@@ -36,7 +36,8 @@ const MachineAgeGroupTable = ({
   selectedSection,
   selectedSubSection,
   groupData,
-  setGroupData
+  setGroupData,
+  setGetDataForOtherComponentBasedOnMachineAgeGroupChange
 }) => {
   // const [data, setData] = React.useState([
   //   { _id: "", group: 0, from: 0, to: 0 },
@@ -46,7 +47,6 @@ const MachineAgeGroupTable = ({
   const [newData, setNewData] = useState({});
 
   let baseQuery = `?selectedSection=${selectedSection}&&selectedSubSection=${selectedSubSection}`;
-
   React.useEffect(() => {
     if (selectedSection || selectedSubSection) {
       fetchData();
@@ -61,7 +61,6 @@ const MachineAgeGroupTable = ({
         withCredentials: true,
         credentials: "include",
       });
-
       if (res.status === 201) {
         setGroupData(res?.data?.yearGroups);
       }
@@ -78,6 +77,7 @@ const MachineAgeGroupTable = ({
 
       if (res.status === 201) {
         setGroupData([...groupData, payload]);
+        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(true)
       }
       setNewData(initialState);
       setIsAdding(false);
@@ -99,6 +99,7 @@ const MachineAgeGroupTable = ({
           group._id === editedData._id ? editedData : group
         );
         setGroupData(updatedScores);
+        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(true)
       }
 
       setEditedData(null);
@@ -118,6 +119,7 @@ const MachineAgeGroupTable = ({
       if (res.status === 201) {        
         const updatedScores = groupData?.filter((group) => group._id !== id);
         setGroupData(updatedScores);
+        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(true)
       }
     } catch (error) {
       console.log("error:", error);
