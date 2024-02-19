@@ -30,6 +30,10 @@ ChartJS.register(
 export const options = {
   responsive: true,
   maintainAspectRatio: false,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -60,6 +64,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       ticks: {
         color: "black",
       },

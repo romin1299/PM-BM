@@ -1614,6 +1614,14 @@ const filterMiddleware = async (req, res, next) => {
       };
     }
 
+    if (req.query?.selectedRSStatus) {
+      queryObj = {
+        ...queryObj,
+        "requestSheetStatus":
+          req.query?.selectedRSStatus,
+      };
+    }
+
     if (req.params?.filter === "based-on-plant") {
       queryObj = {
         ...queryObj,

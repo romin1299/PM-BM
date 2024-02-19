@@ -24,6 +24,8 @@ const YearlyContributionBarChart = ({
   flagForTogglingFilter,
   filterValues,
   userDetails,
+  getDataForOtherComponentBasedOnMachineAgeGroupChange,
+  setGetDataForOtherComponentBasedOnMachineAgeGroupChange
 }) => {
   ChartJS.register(
     CategoryScale,
@@ -83,6 +85,7 @@ const YearlyContributionBarChart = ({
 
       if (res?.status === 201) {
         setYearlyContributionData(machineData?.[0]);
+        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(false)
       }
     } catch (error) {
       console.log(error);
@@ -130,13 +133,16 @@ const YearlyContributionBarChart = ({
       console.error("Error downloading data:", error);
     }
   };
-
   useEffect(() => {
     setLoading(false);
-    if (selectedValue) {
+    if (selectedValue || getDataForOtherComponentBasedOnMachineAgeGroupChange) {
       getYearContributionChartData();
     }
-  }, [selectedValue, selectedYear]);
+  }, [
+    selectedValue,
+    selectedYear,
+    getDataForOtherComponentBasedOnMachineAgeGroupChange,
+  ]);
 
   // const dataset = {
   //   _id: null,
@@ -150,6 +156,10 @@ const YearlyContributionBarChart = ({
     maintainAspectRatio: false,
     maxBarThickness: 100,
     indexAxis: "y",
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
     plugins: {
       legend: {
         display: false,
@@ -190,8 +200,8 @@ const YearlyContributionBarChart = ({
     {
       label: "Top 20",
       data: yearlyContributionData?.data,
-      backgroundColor: chartColors[0],
-      borderColor: chartColors[7],
+      backgroundColor: chartColors.monthlyBDTrend,
+      // borderColor: chartColors[7],
       borderWidth: 1,
     },
   ];

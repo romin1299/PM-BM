@@ -32,39 +32,36 @@ export const options = {
   maintainAspectRatio: false,
   responsive: true,
   maxBarThickness: 100,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
-      labels: {
-        usePointStyle: true,
-      },
+      labels: { usePointStyle: true },
     },
     datalabels: commonDatalabels,
   },
   scales: {
     x: {
       stacked: true,
-      grid: {
-        display: false,
-      },
+      grid: { display: false },
       title: {
         display: true,
         text: "Months",
       },
-      ticks: {
-        color: "black",
-      },
+      ticks: { color: "black" },
     },
     y: {
       stacked: true,
+      grid: { display: false },
       position: "left",
       title: {
         display: true,
         text: "BD Hours",
       },
-      ticks: {
-        color: "black",
-      },
+      ticks: { color: "black" },
     },
   },
 };
@@ -75,6 +72,7 @@ const StackedBarChart = ({
   selectedYear,
   filterValues,
   userDetails,
+  getDataForOtherComponentBasedOnMachineAgeGroupChange,
 }) => {
   const [chartData, setChartData] = useState({
     labels: [],
@@ -180,8 +178,13 @@ const StackedBarChart = ({
   };
 
   useEffect(() => {
-    if (selectedValue) fetchChartData();
-  }, [selectedValue, selectedYear]);
+    if (selectedValue || getDataForOtherComponentBasedOnMachineAgeGroupChange)
+      fetchChartData();
+  }, [
+    selectedValue,
+    selectedYear,
+    getDataForOtherComponentBasedOnMachineAgeGroupChange,
+  ]);
 
   return (
     <Box className="container-fluid cell p-3">

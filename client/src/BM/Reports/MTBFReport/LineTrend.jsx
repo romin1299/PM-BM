@@ -76,6 +76,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Hours",

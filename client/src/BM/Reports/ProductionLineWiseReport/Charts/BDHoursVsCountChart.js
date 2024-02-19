@@ -75,6 +75,9 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
       },
       y1: {
         stacked: true,
+        grid: {
+          display: false,
+        },
         position: "right",
         title: {
           display: true,
@@ -83,6 +86,9 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
       },
       y2: {
         stacked: true,
+        grid: {
+          display: false,
+        },
         position: "left",
         title: {
           display: true,
@@ -91,8 +97,6 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
       },
     },
   };
-
-  let colorArray1 = ["red", "green"];
 
   const data = {
     labels,
@@ -133,7 +137,6 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
     ],
   };
 
-  console.log("data:", data);
 
   const isDataExists = isChartDataExist(data);
 

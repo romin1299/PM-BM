@@ -81,6 +81,10 @@ const LineBarChart = ({
     responsive: true,
     maintainAspectRatio: false,
     maxBarThickness: 100,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
     plugins: {
       // annotation: {
       //   annotations: {
@@ -120,6 +124,9 @@ const LineBarChart = ({
         title: {
           display: y1AxisTitle ? true : false,
           text: y1AxisTitle,
+        },
+        grid: {
+          display: false,
         },
       },
       // y2: {

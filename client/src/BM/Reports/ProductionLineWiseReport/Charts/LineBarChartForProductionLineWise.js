@@ -30,6 +30,9 @@ const LineBarChartForProductionLineWise = ({
     scales: {
       x: {
         stacked: true,
+        grid: {
+          display: false,
+        },
         ticks: {
           maxRotation: 90,
           minRotation: 90,
@@ -40,6 +43,9 @@ const LineBarChartForProductionLineWise = ({
       },
       y: {
         stacked: true,
+        grid: {
+          display: false,
+        },
       },
     },
 
