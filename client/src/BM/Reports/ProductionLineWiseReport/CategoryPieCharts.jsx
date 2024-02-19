@@ -31,7 +31,7 @@ const ChartCard = ({ category }) => {
           })`;
         },
         font: { size: 12 },
-        // color: chartColors.categoryPieFont,
+        color: "white",
       },
     },
   };
@@ -41,10 +41,22 @@ const ChartCard = ({ category }) => {
     datasets: [
       {
         label: "Hour",
+        // data: [5, 5, 5, 5, 5, 5, 5, 5, 5],
         data: category?.bdTime,
-        backgroundColor: category?.subcategories?.map(
-          (item, i) => chartColors.categoryPie[i]
-        ),
+        backgroundColor: [
+          "#a2ad00",
+          "#0ca4be",
+          "#cc3e6d",
+          "#bd38d4",
+          "#197bdd",
+          "#dd4343",
+          "#4e60c5",
+          "#d4ad36",
+          "#bd7878",
+        ],
+        // backgroundColor: category?.subcategories?.map(
+        //   (item, i) => chartColors.categoryPie[i]
+        // ),
         // borderColor: chartColors.tmSkillPie,
         borderWidth: 1,
       },
@@ -153,8 +165,6 @@ const CategoryPieCharts = ({
     <Row className="g-2">
       {[0, 1]?.map((key) => (
         <Col key={key} sm={6} xs={12}>
-      
-
           {loading ? (
             <Box className="cell p-3">
               <Loading height={200} />
@@ -166,7 +176,6 @@ const CategoryPieCharts = ({
               <DataNotFound sx={{ mb: 0 }} />
             </Box>
           )}
-          
         </Col>
       ))}
       {/* {categories?.map((category, index) => (

@@ -92,8 +92,6 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
     },
   };
 
-  let colorArray1 = ["red", "green"];
-
   const data = {
     labels,
     datasets: [
@@ -133,7 +131,6 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
     ],
   };
 
-  console.log("data:", data);
 
   const isDataExists = isChartDataExist(data);
 
