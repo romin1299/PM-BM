@@ -462,7 +462,7 @@ const MasterLogTable = ({
             Table: {
               headerBg: "#0fa3b1",
               fontWeightStrong: 700,
-              borderColor: "rgb(204, 204, 204)",
+              borderColor: "#9f9f9f",
             },
           },
         }}

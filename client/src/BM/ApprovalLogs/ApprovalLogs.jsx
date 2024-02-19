@@ -315,7 +315,7 @@ const ApprovalLogs = () => {
           components: {
             Table: {
               headerBg: "#0fa3b1",
-              borderColor: "rgb(204, 204, 204)",
+              borderColor: "#9f9f9f",
               fontWeightStrong: 700,
             },
           },
