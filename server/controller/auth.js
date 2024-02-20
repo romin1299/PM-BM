@@ -739,6 +739,13 @@ router.post("/addNewCell", authenticate, async (req, res) => {
     }
     let total = await Cell.find().sort({ _id: -1 }).limit(1);
 
+    const findLoggedUserPlantData = await Plant.findOne({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+
+    const findLoggedUserSectionData = await Section.findOne({
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    });
     // console.log(total)
     var cell_id;
     var cellName = "C";
@@ -770,6 +777,8 @@ router.post("/addNewCell", authenticate, async (req, res) => {
         cell_name,
         subSection_names: subSectionInfo[0]._id,
         cell_sequence,
+        plant_names: findLoggedUserPlantData?._id,
+        section_names: findLoggedUserSectionData?._id
       });
     } else {
       newCell = new Cell({
@@ -777,6 +786,8 @@ router.post("/addNewCell", authenticate, async (req, res) => {
         cell_name,
         subSection_names: subSectionInfo[0]._id,
         cell_sequence,
+        plant_names: findLoggedUserPlantData?._id,
+        section_names: findLoggedUserSectionData?._id
       });
     }
 
