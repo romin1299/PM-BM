@@ -19089,27 +19089,25 @@ router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
         subCategory: noLossData?.categories?.[key],
       }));
 
+    const currentMonth = moment().format("MMM");
+    const currentYear = moment().tz(timezone).year();
+
     const getPlantIdForNoLossBDEntry = await Plant.findOne({
       plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
     });
 
- 
-
-
     const addNewNoLossNo = await HandlingActions.findOneAndUpdate(
-      { plant_id: getPlantIdForNoLossBDEntry._id }, 
-    
+      { plant_id: getPlantIdForNoLossBDEntry._id },
       { $inc: { noLossBdNos: 1 } },
       {
         new: true,
       }
     );
 
-   
- 
+    const noLossBDNo = `${currentYear}-${currentMonth}-${addNewNoLossNo.noLossBdNos}`;
     const addNewNoLossBD = new NoLossBD({
       ...noLossData,
-
+      noLossBDNo,
       problemsOfBM,
       actionAndCounterMeasureStep,
       supportingTM: selectedSupportedTM?.map((obj) => obj?._id),

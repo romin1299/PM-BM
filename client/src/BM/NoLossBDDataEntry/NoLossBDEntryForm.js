@@ -163,6 +163,7 @@ const NoLossBDEntryForm = () => {
         setProblems([]);
         setActions([]);
         setSelectedSupportedTM([]);
+        setInc(inc + 1);
       } else {
         WarningToast(data?.message);
       }
@@ -211,7 +212,7 @@ const NoLossBDEntryForm = () => {
               style={{ maxWidth: "300px" }}
               {...register("noLossBDNo", {})}
             /> */}
-            {currentYear} - {currentMonth} - {inc + 1 || 1}
+            {currentYear}-{currentMonth}-{inc + 1 || 1}
             <br />
             <small className="mb-0 d-block">
               <b>DATE & TIME: </b>
