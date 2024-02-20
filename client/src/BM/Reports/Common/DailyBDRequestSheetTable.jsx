@@ -18,6 +18,7 @@ const BDRequestSheetTable = ({
   downloadFileName,
   loading = false,
   selectedYear,
+  filters = null,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -101,45 +102,16 @@ const BDRequestSheetTable = ({
           header: {
             actions: "Actions",
           },
-          pagination: {
-            // labelRowsPerPage: "",
-          },
-          // toolbar: {
-          //   exportCSVName: "Export some Excel format",
-          //   exportPDFName: "Export as pdf!!"
-          // }
         }}
         isLoading={loading}
         actions={requestSheetActions}
         icons={tableIcons}
         columns={requestSheetHeader}
         data={requestSheetData}
-        // title="User Management"
-        // tableRef={this.tableRef.current.onQueryChange()}
-
-        editable={
-          {
-            // onRowAdd: (newRow) =>
-            //   new Promise((resolve, reject) => {
-            //     setTimeout(() => {
-            //       resolve();
-            //     }, 500);
-            //     //refreshPage();
-            //   }),
-            // onRowDelete: (selectedRow) =>
-            //   new Promise((resolve, reject) => {
-            //     setTimeout(() => {
-            //       resolve();
-            //     }, 500);
-            //   }),
-            // onRowUpdate: (updatedRow, oldRow) =>
-            //   new Promise(async (resolve, reject) => {
-            //     resolve();
-            //   }),
-          }
-        }
+        title={filters}
         options={{
           ...MaterialTableOptions,
+          showTitle: true,
           pageSize: 5,
           maxBodyHeight: "auto",
           exportMenu: [

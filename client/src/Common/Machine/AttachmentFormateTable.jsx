@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import FileDownload from "js-file-download";
 
@@ -20,6 +20,7 @@ import {
   MaterialTableSX,
   MaterialTableStyle,
 } from "../../BM/Utils/TableUtils/MaterialTableProps";
+import { MachineNameTypography } from "./MachineDocument";
 
 const pageInfo = {
   // "bm-history": {
@@ -82,11 +83,13 @@ const pageInfo = {
 };
 
 const AttachmentFormateTable = () => {
+  const [attachmentDetails, setAttachmentDetails] = useState([]);
   let { page, machine_code } = useParams();
 
-  const pageDetails = pageInfo?.[page];
+  const { state } = useLocation();
+  const machineName = state?.selectedMachineDetails?.machine_name;
 
-  const [attachmentDetails, setAttachmentDetails] = useState([]);
+  const pageDetails = pageInfo?.[page];
 
   const [handleShowAddNewAttachmentModal, setHandleShowAddNewAttachmentModal] =
     useState(false);
@@ -229,42 +232,17 @@ const AttachmentFormateTable = () => {
     },
   ];
 
-  const MachineName = ({ machineCode }) => {
-    return (
-      <Col className="col-auto">
-        <Typography
-          noWrap
-          variant="h4"
-          component="h4"
-          sx={{
-            "&.MuiTypography-root": {
-              fontSize: 22,
-              fontWeight: 600,
-            },
-          }}
-        >
-          <Typography
-            noWrap
-            variant="body2"
-            component="div"
-            sx={{
-              "&.MuiTypography-root": { mb: "-8px", ml: "1px" },
-            }}
-          >
-            Machine Code
-          </Typography>
-          {machineCode}
-        </Typography>
-      </Col>
-    );
-  };
-
   return (
     <Container fluid>
       <ReportTitleBar
         title={pageDetails?.name}
         PreTools={<MuiNavigateBack />}
-        Toolbar={<MachineName machineCode={machine_code} />}
+        Toolbar={
+          <MachineNameTypography
+            machineCode={machine_code}
+            machineName={machineName}
+          />
+        }
       />
 
       {/* <CustomHooksForBackNavigation /> */}

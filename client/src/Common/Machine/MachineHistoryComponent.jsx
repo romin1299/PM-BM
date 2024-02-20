@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Col, Container } from "react-bootstrap";
 
@@ -18,6 +18,15 @@ const MachineHistoryComponent = () => {
   const navigate = useNavigate();
   const { search } = useLocation();
 
+  const [selectedMachineDetails, setMachineDetails] = useState({
+    _id: "",
+    machine_code: "",
+    machine_name: "",
+    cell_names: {
+      cell_name: "",
+    },
+  });
+
   return (
     <Container fluid>
       <ReportTitleBar
@@ -30,7 +39,8 @@ const MachineHistoryComponent = () => {
               sx={{ paddingInline: "1rem" }}
               onClick={() => {
                 navigate(
-                  `/machine-history/machine-document/${machine_code}/${search}`
+                  `/machine-history/machine-document/${machine_code}/${search}`,
+                  { state: { selectedMachineDetails } }
                 );
               }}
               endIcon={<LaunchIcon sx={{ pb: "2px" }} />}
@@ -41,7 +51,12 @@ const MachineHistoryComponent = () => {
         }
       />
       {/* <CustomHooksForBackNavigation /> */}
-      <MachineDetails machine_code={machine_code} search={search} />
+      <MachineDetails
+        machine_code={machine_code}
+        search={search}
+        selectedMachineDetails={selectedMachineDetails}
+        setMachineDetails={setMachineDetails}
+      />
       <BreakdownTrend machine_code={machine_code} search={search} />
     </Container>
   );

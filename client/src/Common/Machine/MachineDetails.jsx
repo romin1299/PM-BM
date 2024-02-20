@@ -3,18 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Row, Col, Table } from "react-bootstrap";
 import { Box } from "@mui/material";
 
-const MachineDetails = ({ machine_code, search }) => {
-  const navigate = useNavigate();
-
-  const [selectedMachineDetails, setMachineDetails] = useState({
-    _id: "",
-    machine_code: "",
-    machine_name: "",
-    cell_names: {
-      cell_name: "",
-    },
-  });
-
+const MachineDetails = ({
+  machine_code,
+  selectedMachineDetails,
+  setMachineDetails,
+}) => {
   const getMachineDetails = async () => {
     try {
       const res = await fetch(
@@ -29,6 +22,7 @@ const MachineDetails = ({ machine_code, search }) => {
         }
       );
       const { machine } = await res.json();
+      console.log("machine:", machine);
       if (res.status === 201) {
         setMachineDetails(machine);
       }
