@@ -239,7 +239,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                         );
                       }}
                     >
-                      Machine History
+                      Machine Details
                     </button>
                   </Col>
                   <Col>

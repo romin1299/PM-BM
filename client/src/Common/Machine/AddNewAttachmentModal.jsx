@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
+import Box from "@mui/material/Box";
 
 import { useDropzone } from "react-dropzone";
 import styled from "styled-components";
+import { Typography } from "@mui/material";
 
 const thumbsContainer = {
   display: "flex",
   flexDirection: "row",
   flexWrap: "wrap",
-  marginTop: 16,
+  marginTop: 10,
 };
 
 const thumb = {
@@ -16,7 +18,7 @@ const thumb = {
   justifyContent: "center",
   alignItems: "center",
 
-  // width: "100px",
+  minWidth: "60px",
   minHeight: "50px",
 
   boxSizing: "border-box",
@@ -128,27 +130,47 @@ const AddNewAttachmentModal = ({
       },
     });
 
-  const thumbs = files.map((file) => (
+  // Filter files based on file type
+  const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+  const otherFiles = files.filter((file) => !file.type.startsWith("image/"));
+
+  const imageThumbs = imageFiles.map((file) => (
     <div style={thumb} key={file.name}>
       <div style={thumbInner}>
         <img
           src={file.preview}
           style={img}
-          // Revoke data uri after image is loaded
           onLoad={() => {
             URL.revokeObjectURL(file.preview);
           }}
+          alt="preview"
         />
       </div>
     </div>
   ));
+
+  const otherFileList = otherFiles.map((file, index) => {
+    let fileSize;
+    if (file.size < 1024 * 1024) {
+      // File size is less than 1MB, display in KB
+      fileSize = (file.size / 1024).toFixed(2) + " KB";
+    } else {
+      // File size is 1MB or more, display in MB
+      fileSize = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+    }
+    return (
+      <li key={index}>
+        {file.name} - {fileSize}
+      </li>
+    );
+  });
 
   useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
     return () => {
       files.forEach((file) => URL.revokeObjectURL(file.preview));
     };
-  }, []);
+  }, [files]);
 
   return (
     <Modal
@@ -170,7 +192,31 @@ const AddNewAttachmentModal = ({
           <input {...getInputProps()} />
           <p>Drag 'n' drop some files here, or click to select files</p>
         </DropzoneContainer>
-        {files.length > 0 && <aside style={thumbsContainer}>{thumbs}</aside>}
+
+        {files.length > 0 && (
+          <Box mt={2}>
+            {imageFiles.length > 0 && (
+              <div>
+                <Typography variant="h6" gutterBottom>
+                  Images Selected
+                </Typography>
+                <div style={thumbsContainer}>{imageThumbs}</div>
+              </div>
+            )}
+            {otherFiles.length > 0 && (
+              <div>
+                <Typography variant="h6" gutterBottom>
+                  Files Selected
+                </Typography>
+                <Typography component="ul">
+                  {otherFileList.map((file, index) => (
+                    <li key={index}>{file}</li>
+                  ))}
+                </Typography>
+              </div>
+            )}
+          </Box>
+        )}
       </Modal.Body>
       <Modal.Footer>
         <Button

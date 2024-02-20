@@ -105,7 +105,7 @@ const MachineDocument = () => {
         sx={{
           p: 2,
           minHeight: "4rem",
-          borderBottom: "3px solid #616161",
+          borderBottom: "2px solid #616161",
           borderRadius: "4px",
           bgcolor: "white",
           boxShadow: "-2px -2px 4px 0px rgba(0, 0, 0, 0.03) inset",

@@ -11,6 +11,7 @@ import {
   MaterialTableSX,
   MaterialTableStyle,
 } from "../../Utils/TableUtils/MaterialTableProps";
+import { Box } from "@material-ui/core";
 
 const BDRequestSheetTable = ({
   requestSheetData,
@@ -94,7 +95,7 @@ const BDRequestSheetTable = ({
   ];
 
   return (
-    <>
+    <Box className="mt-1 cell p-0 border-0">
       <MaterialTable
         localization={{
           header: {
@@ -165,7 +166,7 @@ const BDRequestSheetTable = ({
         style={MaterialTableStyle}
         sx={MaterialTableSX}
       />
-    </>
+    </Box>
   );
 };
 
