@@ -48,6 +48,7 @@ import { menuItems } from "./BMSidebar/menuItems";
 import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
 
 function BM_Routes({ commonRoutes }) {
+  //For DENSO-INDIA
   // const reportRoutes = [
   //   ...commonRoutes,
   //   {
@@ -101,6 +102,7 @@ function BM_Routes({ commonRoutes }) {
   //   },
   // ];
 
+  //For DENSO-HARYANA
   let reportRoutes = commonRoutes;
 
   reportRoutes.push({
