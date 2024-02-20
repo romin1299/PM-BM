@@ -78,8 +78,15 @@ import RightNavbar from "./components/RightNavbar/RightNavbar";
 
 import KPI_Routes from "./KPI_Tab/KPI_Routes";
 import MainPageComponent from "./KPI_Tab/MainPage/MainPageComponent";
+import OperatorDashboard from "./pages/Operator/OperatorDashboard";
 
 const commonRoutes = [
+  //For DENSO-INDIA
+  // {
+  //   path: "/",
+  //   element: <OperatorDashboard />,
+  // },
+  //For DENSO-HARYANA
   {
     path: "/",
     element: <MainPageComponent />,
