@@ -11,7 +11,7 @@ import AddNewAttachmentModal from "./AddNewAttachmentModal";
 import CustomHooksForBackNavigation, {
   MuiNavigateBack,
 } from "../ButtonComponents/CustomHooksForBackNavigation";
-import { Col, Container } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
 import { Box, Typography } from "@mui/material";
 import { Link, Paper } from "@material-ui/core";

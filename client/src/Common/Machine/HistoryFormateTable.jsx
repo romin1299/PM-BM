@@ -23,6 +23,7 @@ import {
   MaterialTableStyle,
 } from "../../BM/Utils/TableUtils/MaterialTableProps";
 import { Box } from "@material-ui/core";
+import { Typography } from "@mui/material";
 
 const PMHistory = ({ machine_code, selectedYear, selectedMonth }) => {
   let columns = [
@@ -237,6 +238,10 @@ const pageInfo = {
   "bm-history": (prop) => <BMHistory {...prop} />,
   "pm-history": (prop) => <PMHistory {...prop} />,
 };
+const pageNames = {
+  "bm-history": "BM History",
+  "pm-history": "PM History",
+};
 
 const HistoryFormateTable = () => {
   const { page, machine_code } = useParams();
@@ -252,7 +257,7 @@ const HistoryFormateTable = () => {
 
   return (
     <Container fluid>
-      <ReportTitleBar
+      {/* <ReportTitleBar
         title={machine_code}
         PreTools={<MuiNavigateBack />}
         Toolbar={
@@ -268,7 +273,44 @@ const HistoryFormateTable = () => {
             />
           </Col>
         }
-      />
+      /> */}
+
+      <Row className="cell p-3 mt-3 gap-2 g-0 align-items-center">
+        <Col className="d-flex align-items-center gap-2">
+          <MuiNavigateBack />
+
+          <Typography noWrap variant="body2" component="div">
+            <Typography
+              noWrap
+              variant="h4"
+              component="h4"
+              sx={{
+                "&.MuiTypography-root": {
+                  mb: "-4px",
+                  ml: "-1px",
+                  fontSize: 24,
+                  fontWeight: 600,
+                },
+              }}
+            >
+              {pageNames?.[page]}
+            </Typography>
+            {machine_code}
+          </Typography>
+        </Col>
+
+        <Col className="col-auto">
+          <YearDropdown
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+          />
+          &nbsp;
+          <MonthDropdown
+            selectedMonth={selectedMonth}
+            setSelectedMonth={setSelectedMonth}
+          />
+        </Col>
+      </Row>
 
       <Row>
         {pageInfo?.[page]({
