@@ -973,6 +973,9 @@ router.post("/addNewLine", authenticate, async (req, res) => {
       newLine = new Line({
         line_id,
         line_name,
+        plant_names:cellInfo[0]?.plant_names,
+        section_names:cellInfo[0]?.section_names,
+        subSection_names:cellInfo[0]?.subSection_names,
         cell_names: cellInfo[0]._id,
         line_sequence,
         annualPmScheduleApproval: {
@@ -984,6 +987,9 @@ router.post("/addNewLine", authenticate, async (req, res) => {
       newLine = new Line({
         line_id,
         line_name,
+        plant_names:cellInfo[0]?.plant_names,
+        section_names:cellInfo[0]?.section_names,
+        subSection_names:cellInfo[0]?.subSection_names,
         cell_names: cellInfo[0]._id,
         line_sequence,
         annualPmScheduleApproval: {
@@ -1877,6 +1883,10 @@ router.post("/addNewMachine", async (req, res) => {
         manufacturingDate,
         maker_name,
         maker_sr_no,
+        plant_names:lineInfo[0]?.plant_names,
+        section_names:lineInfo[0]?.section_names,
+        subSection_names:lineInfo[0]?.subSection_names,
+        cell_names:lineInfo[0]?.cell_names,
         line_names: lineInfo[0]._id,
       });
     } else {
@@ -1890,6 +1900,10 @@ router.post("/addNewMachine", async (req, res) => {
         manufacturingDate,
         maker_name,
         maker_sr_no,
+        plant_names:lineInfo[0]?.plant_names,
+        section_names:lineInfo[0]?.section_names,
+        subSection_names:lineInfo[0]?.subSection_names,
+        cell_names:lineInfo[0]?.cell_names,
         line_names: lineInfo[0]._id,
       });
     }
