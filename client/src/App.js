@@ -82,15 +82,15 @@ import OperatorDashboard from "./pages/Operator/OperatorDashboard";
 
 const commonRoutes = [
   //For DENSO-INDIA
-  // {
-  //   path: "/",
-  //   element: <OperatorDashboard />,
-  // },
-  //For DENSO-HARYANA
   {
     path: "/",
-    element: <MainPageComponent />,
+    element: <OperatorDashboard />,
   },
+  //For DENSO-HARYANA
+  // {
+  //   path: "/",
+  //   element: <MainPageComponent />,
+  // },
   {
     path: "/profile",
     element: <Profile />,
@@ -140,12 +140,12 @@ const tabs = [
     icon: <BsHammer />,
     dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
   },
-  {
-    name: "MTD KPI",
-    keyUrl: "kpi",
-    icon: <BsHammer />,
-    dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
-  },
+  // {
+  //   name: "MTD KPI",
+  //   keyUrl: "kpi",
+  //   icon: <BsHammer />,
+  //   dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
+  // },
 ];
 
 function App() {
