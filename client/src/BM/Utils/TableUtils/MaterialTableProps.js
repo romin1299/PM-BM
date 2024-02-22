@@ -32,7 +32,7 @@ export const MaterialTableOptions = {
     // backdropFilter: "blur(5px)",
   },
   headerStyle: {
-    fontSize: "12px",
+    fontSize: "14px",
     fontWeight: "bold",
     marginTop: "10px",
 

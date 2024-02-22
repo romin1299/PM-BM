@@ -12,6 +12,7 @@ import {
 
 import MasterLogTable from "./MasterLogTable";
 import { useLocation } from "react-router-dom";
+import { MuiNavigateBack } from "../ButtonComponents/CustomHooksForBackNavigation";
 
 const MasterLogInnerComponent = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
@@ -68,7 +69,10 @@ const MasterLogMainDashboard = () => {
         <Box>
           <Row>
             <Col>
-              <ReportTitleBar title="Master Log" />
+              <ReportTitleBar
+                title="Master Log"
+                PreTools={<MuiNavigateBack />}
+              />
             </Col>
           </Row>
           <Row>

@@ -497,7 +497,7 @@ const MasterLogTable = ({
         <Table
           columns={columns}
           dataSource={masterLogData}
-          scroll={{ x: 2500, y: 500 }}
+          scroll={{ x: 2500, y: 700 }}
           pagination={false}
           bordered
         />
