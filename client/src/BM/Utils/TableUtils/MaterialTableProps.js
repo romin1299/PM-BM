@@ -28,6 +28,7 @@ export const MaterialTableOptions = {
     // backdropFilter: "blur(5px)",
   },
   headerStyle: {
+    fontSize: "14px",
     // position: "sticky",
     // top: "0",
     fontSize: "14px",

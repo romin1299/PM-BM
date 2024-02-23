@@ -2,14 +2,18 @@ import React, { useState, useEffect } from "react";
 import moment from "moment";
 import { Table, Input, ConfigProvider } from "antd";
 import { Row, Col } from "react-bootstrap";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { useLocation, useNavigate } from "react-router-dom";
 const Search = Input.Search;
 
 const BDRequestSheetAntDesignTable = ({
   requestSheetData,
   downloadFileName,
+  selectedYear,
 }) => {
   const [searchResult, setSearchResult] = useState([]);
-
+  const navigate = useNavigate();
+  const location = useLocation();
   // let SrNo = 0;
   const requestSheetHeader = [
     // {
@@ -63,6 +67,30 @@ const BDRequestSheetAntDesignTable = ({
     {
       title: "R.S Status",
       dataIndex: "requestSheetStatus",
+    },
+    {
+      title: "View",
+      dataIndex: "",
+      width: 66,
+
+      render: (value) => (
+        <VisibilityIcon
+          className="text-primary"
+          role="button"
+          onClick={async () =>
+            navigate(
+              `/bm/view/request-sheet/${value?.machineNo}/${value?._id}/${selectedYear}`,
+              {
+                state: {
+                  prevPath: location?.pathname,
+                  prevPathSearch: location?.search,
+                },
+              }
+            )
+          }
+        />
+      ),
+      width: 80,
     },
   ];
 

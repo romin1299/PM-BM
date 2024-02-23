@@ -1,4 +1,4 @@
-import React, { useReducer, useContext} from "react";
+import React, { useReducer, useContext } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
 
@@ -164,6 +164,9 @@ const TopMachineBD = () => {
               }
               selectedValue={
                 reduceStateForDefaultCellLineMachineFilter?.selectedValue
+              }
+              selectedYear={
+                reduceStateForDefaultCellLineMachineFilter?.selectedYear
               }
             />
           </Row>

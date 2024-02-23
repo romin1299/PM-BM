@@ -149,6 +149,7 @@ const AntDesignRSTableWithFiltration = ({
           <BDRequestSheetAntDesignTable
             requestSheetData={requestSheetDataForProductAndLineWise}
             downloadFileName={downloadFileName}
+            selectedYear={selectedYear}
           />
         )}
       </Paper>
