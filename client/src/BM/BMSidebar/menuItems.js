@@ -112,7 +112,7 @@ export const menuItems = [
     title: "Target Dashboard",
     icon: <CrisisAlertIcon className="text-white" />,
     route: "/bm/targetDashboard",
-    allowedRoles: ["Plant-Admin", "Section-Admin"],
+    allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
   },
 
   // // ------- Reports Dashboards -------

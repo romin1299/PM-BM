@@ -80,7 +80,8 @@ export default function DownloadMenu({
           </ListItemIcon>
           <ListItemText>PPTX</ListItemText>
         </MenuItem>
-        <MenuItem onClick={handleDownloadCSV}>
+        
+        {/* <MenuItem onClick={handleDownloadCSV}>
           <ListItemIcon>
             <DescriptionIcon className="text-success" />
           </ListItemIcon>
@@ -97,7 +98,7 @@ export default function DownloadMenu({
             <ImageIcon className="text-primary" />
           </ListItemIcon>
           <ListItemText>Image</ListItemText>
-        </MenuItem>
+        </MenuItem> */}
       </Menu>
     </div>
   );
