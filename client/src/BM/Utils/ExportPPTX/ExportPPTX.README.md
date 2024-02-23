@@ -10,15 +10,15 @@
 6. [Extending Functionality](#extending-functionality)
 7. [Common Options](#common-options)
 8. [Utility Functions](#utility-functions)
-   - genSlideTitle
-   - genSlideTitleFilterNames
-   - genSlideTitleYearFilters
-   - genNoDataFoundText
-   - getFilterNames and generateFilterNames
+   - [genSlideTitle](#1-genslidetitle)
+   - [genSlideTitleFilterNames](#2-genslidetitlefilternames)
+   - [genSlideTitleYearFilters](#3-genslidetitleyearfilters)
+   - [genNoDataFoundText](#4-gennodatafoundtext)
+   - [getFilterNames and generateFilterNames](#5-getfilternames-and-generatefilternames)
 9. [Usage](#usage)
 10. [Example (Generator Functions)](#example-generator-functions)
-    - Basic Example
-    - Multi Axis Example
+    - [Basic Example](#1-basic-example)
+    - [Multi Axis Example](#2-multi-axis-example)
 11. [Considerations](#considerations)
 12. [References](#references)
 
@@ -51,7 +51,6 @@ BM/
         ├── tmMTTRSkillPPTX.js
         ├── topMachineBbDefaultPPTX.js
         └── topMachineBbPPTX.js
-
 ```
 
 ## Dependencies
@@ -124,6 +123,9 @@ To export a specific report, provide its corresponding `reportName` from the `EX
 // Import necessary modules
 import { EXPORT_REPORT } from "./path/to/exportPPTX";
 import { exportPPTX } from "./path/to/exportPPTX";
+
+// optional object that you can use while applying dynamic api call
+const urlOptions = {}
 
 // Trigger PPTX export for Monthly BD Report
 <DownloadMenu
