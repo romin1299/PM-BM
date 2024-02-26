@@ -321,7 +321,7 @@ export async function genChartMatrix(pptx, dataArray) {
 
   // dataArray.splice(0, noOfCols);
 
-  const slicedArray = await dataArray.slice(noOfCols, dataArray.length);
+  const slicedArray = await dataArray?.slice(noOfCols, dataArray.length);
 
   await genChartMatrix(pptx, slicedArray);
 }

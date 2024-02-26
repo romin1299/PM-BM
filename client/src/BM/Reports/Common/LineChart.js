@@ -25,6 +25,7 @@ const LineChart = ({
   setValue,
   clearErrors,
   AppendToolComponents,
+  reset
 }) => {
   ChartJS.register(
     CategoryScale,

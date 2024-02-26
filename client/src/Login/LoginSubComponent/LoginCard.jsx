@@ -63,10 +63,10 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
           // refreshPage();
         } else {
           //For DENSO-INDIA
-          navigate("/pm", { replace: true });
+          // navigate("/pm", { replace: true });
 
           //For DENSO-HARYANA
-          // navigate("/kpi", { replace: true });
+          navigate("/kpi", { replace: true });
           // refreshPage();
         }
       }

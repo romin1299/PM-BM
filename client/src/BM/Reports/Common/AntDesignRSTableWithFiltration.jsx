@@ -124,7 +124,6 @@ const AntDesignRSTableWithFiltration = ({
               disableElevation
               className="bg-button"
               variant="contained"
-              type="submit"
               sx={{
                 ml: 1,
                 minWidth: "30px",

@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useContext } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import ChartsToolbar from "../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
 import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
@@ -14,6 +14,8 @@ import TMLoad from "../../BM/Reports/ManHourReport/TMLoad";
 import KPIBDHoursAndCountStatus from "./KPIBDHoursAndCountStatus";
 import DataNotFound from "../../BM/Reports/Common/DataNotFound";
 import ChartTitleBar from "../../BM/Reports/Common/ChartTitleBar";
+import MTTRChart from "../../BM/Reports/DailyBreakdownTrend/MTTRChart";
+import RoutingContext from "../../context/routing/RoutingContext";
 
 const MainPageComponent = () => {
   const [filter, setFilter] = useState("hourly");
@@ -21,6 +23,7 @@ const MainPageComponent = () => {
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
   const baseUrlForFiltering = "/getFiltrationValue/plant-level-filtration";
+  const loggedUserDetails = useContext(RoutingContext);
 
   return (
     <>
@@ -73,13 +76,11 @@ const MainPageComponent = () => {
 
         <Row className="mt-2">
           <Col md={12} lg={7}>
-            <Box className="cell p-3">
-              <ChartTitleBar title="Plant CM Status Status" />
-
-              <Box sx={{ height: 400 }}>
-                <DataNotFound m={0} />
-              </Box>
-            </Box>
+            <MTTRChart
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
+              {...reduceState}
+            />
           </Col>
           <Col md={12} lg={5}>
             <TMLoad

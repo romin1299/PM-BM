@@ -14773,21 +14773,48 @@ router.get(
 );
 
 router.get(
-  "/getRequestSheetDataBasedOnSelectedMachine/:machineCode/:date",
+  "/getRequestSheetDataBasedOnSelectedMachine/:machineCode/:toDate/:fromDate",
   authenticate,
   async (req, res, next) => {
     try {
-      let nextDate = new Date(req.params.date);
-      nextDate.setDate(nextDate.getDate() + 1);
-
-      req.queryObj = {
-        machineRef: mongoose.Types.ObjectId(req.params?.machineCode),
-        problemOccurredDateAndTimeOfBM: {
-          $gte: new Date(req.params.date),
-          $lt: nextDate,
-        },
-      };
-
+      // let nextDate = new Date(req.params.date);
+      // nextDate.setDate(nextDate.getDate() + 1);
+      // if (req.params.date !== "undefined") {
+      //   req.queryObj = {
+      //     machineRef: mongoose.Types.ObjectId(req.params?.machineCode),
+      //     problemOccurredDateAndTimeOfBM: {
+      //       $gte: new Date(req.params.date),
+      //       $lt: nextDate,
+      //     },
+      //   };
+      // } 
+      if (
+        req?.params?.toDate !== "undefined" &&
+        req?.params?.fromDate !== "undefined"
+      ) {
+        req.queryObj = {
+          machineRef: mongoose.Types.ObjectId(req.params?.machineCode),
+          $and: [
+            {
+              problemOccurredDateAndTimeOfBM: {
+                $gte: new Date(moment(req?.params?.fromDate).format()),
+              },
+            },
+            {
+              problemOccurredDateAndTimeOfBM: {
+                $lte: new Date(
+                  moment(req?.params?.toDate).endOf("day").format()
+                ),
+              },
+            },
+          ],
+        };
+      }
+      else {
+        req.queryObj = {
+          machineRef: mongoose.Types.ObjectId(req.params?.machineCode),
+        };
+      }
       next();
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -18762,7 +18789,7 @@ router.post(
           if (addMonthlyProductionAndBDHrsTargetValueInLine)
             return res.status(201).json({
               message: `Production and BD Hrs target set successfully`,
-              addMonthlyProductionAndBDHesTargetValueInLine,
+              addMonthlyProductionAndBDHrsTargetValueInLine,
             });
         }
       }
@@ -19093,20 +19120,15 @@ router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
       plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
     });
 
- 
-
-
     const addNewNoLossNo = await HandlingActions.findOneAndUpdate(
-      { plant_id: getPlantIdForNoLossBDEntry._id }, 
-    
+      { plant_id: getPlantIdForNoLossBDEntry._id },
+
       { $inc: { noLossBdNos: 1 } },
       {
         new: true,
       }
     );
 
-   
- 
     const addNewNoLossBD = new NoLossBD({
       ...noLossData,
 

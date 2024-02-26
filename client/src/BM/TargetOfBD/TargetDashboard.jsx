@@ -240,6 +240,7 @@ const TargetDashboard = () => {
                           >
                             <input
                               type="number"
+                              step="any"
                               className="target-table-input"
                               style={{ width: "100%", minWidth: "50px" }}
                               id={`${month?.key}`}

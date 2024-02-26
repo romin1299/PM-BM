@@ -28,13 +28,15 @@ const MachineTrend = ({
     setValue,
     clearErrors,
     formState: { errors },
+    reset,
   } = useForm({
     defaultValues: {
       selectedMachine: {
         _id: "",
         machine_code: "",
       },
-      selectedDate: "",
+      selectedToDate: "",
+      selectedFromDate: "",
     },
   });
 
@@ -203,7 +205,6 @@ const MachineTrend = ({
 
   const getRequestSheetDataBasedOnSelectedMachine = async (data) => {
     setTableLoading(true);
-
     try {
       if (data?.selectedMachine?._id === "") {
         setTableLoading(false);
@@ -214,7 +215,9 @@ const MachineTrend = ({
         });
       }
       const res = await fetch(
-        `/getRequestSheetDataBasedOnSelectedMachine/${data?.selectedMachine?._id}/${data?.selectedDate}`,
+        `/getRequestSheetDataBasedOnSelectedMachine/${
+          data?.selectedMachine?._id || data
+        }/${data?.selectedToDate}/${data?.selectedFromDate}`,
         {
           method: "GET",
           headers: {
@@ -303,6 +306,15 @@ const MachineTrend = ({
     </>
   );
 
+  useEffect(() => {
+    if (
+      watch("selectedMachine.machine_code") !== "" ||
+      watch("selectedMachine.machine_code" !== undefined)
+    ) {
+      getRequestSheetDataBasedOnSelectedMachine(watch("selectedMachine._id"));
+    }
+  }, [watch("selectedMachine.machine_code")]);
+
   return (
     <Container fluid>
       <Row>
@@ -368,7 +380,7 @@ const MachineTrend = ({
 
           <form
             onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedMachine)}
-            className="pt-1 d-flex align-items-center justify-content-end gap-2"
+            className="p-1 d-flex align-items-center justify-content-end gap-2"
           >
             {errors?.["selectedMachine"] && (
               <p className="text-error">
@@ -377,20 +389,40 @@ const MachineTrend = ({
             )}
             {watch("selectedMachine.machine_code")}
 
-            <input
-              type="date"
-              {...register("selectedDate", {
-                required: "Please select date",
-              })}
-            />
-            {errors?.["selectedDate"] && (
-              <p className="text-error">{errors?.["selectedDate"]?.message}</p>
-            )}
-
-            {/* <button type="submit" className="btn bg-button ">
-              Go
-            </button> */}
-
+            <div>
+              <span className="m-1">
+                <b>From Date:</b>
+              </span>
+              <input
+                type="date"
+                {...register("selectedFromDate", {
+                  required: "Please select date",
+                })}
+              />
+              <br />
+              {errors?.["selectedFromDate"] && (
+                <p className="text-error">
+                  {errors?.["selectedFromDate"]?.message}
+                </p>
+              )}
+            </div>
+            <div>
+              <span className="m-1">
+                <b>To Date:</b>
+              </span>
+              <input
+                type="date"
+                {...register("selectedToDate", {
+                  required: "Please select date",
+                })}
+              />
+              <br />
+              {errors?.["selectedToDate"] && (
+                <p className="text-error">
+                  {errors?.["selectedToDate"]?.message}
+                </p>
+              )}
+            </div>
             <Button
               size="small"
               disableElevation
@@ -398,12 +430,32 @@ const MachineTrend = ({
               variant="contained"
               type="submit"
               sx={{
+                ml: 1,
                 minWidth: "30px",
                 height: "30px",
                 paddingInline: "10px",
               }}
             >
               Go
+            </Button>
+
+            <Button
+              size="small"
+              disableElevation
+              className="bg-button"
+              variant="contained"
+              sx={{
+                ml: 1,
+                minWidth: "30px",
+                height: "30px",
+                paddingInline: "10px",
+              }}
+              onClick={() => {
+                reduceState.requestSheetData = [];
+                reset();
+              }}
+            >
+              Reset
             </Button>
           </form>
 

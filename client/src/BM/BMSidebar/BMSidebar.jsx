@@ -100,6 +100,7 @@ const BMSidebar = ({ userData, filteredItems }) => {
                   className="text-white"
                   title={menuItem.title}
                   icon={menuItem.icon}
+                  defaultOpen
                 >
                   {menuItem.subItems.map((subItem, subIndex) => {
                     return (

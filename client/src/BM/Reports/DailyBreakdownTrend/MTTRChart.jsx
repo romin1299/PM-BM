@@ -281,7 +281,7 @@ const MTTRChart = ({
         }
       />
 
-      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+      <Box sx={{ height: { xs: "350px", md: "400px" } }}>
         {loading ? (
           <Loading height={"100%"} />
         ) : !isDataExists ? (
