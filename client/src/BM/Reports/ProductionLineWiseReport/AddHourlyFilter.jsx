@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import { Container, Row, Col, Modal, Button } from "react-bootstrap";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const AddHourlyFilter = ({
   show,
@@ -9,6 +10,7 @@ const AddHourlyFilter = ({
   setFilterArray,
 }) => {
   const [filter, setFilter] = useState(FilterArray);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     setFilter(FilterArray);
@@ -18,6 +20,15 @@ const AddHourlyFilter = ({
     setFilter({
       ...filter,
       lessThanValue: [...filter?.lessThanValue, ""],
+    });
+  };
+
+  const handleDeleteInputField = (selectedIndex) => {
+    setFilter({
+      ...filter,
+      lessThanValue: filter?.lessThanValue?.filter(
+        (item, index) => index !== selectedIndex
+      ),
     });
   };
 
@@ -39,6 +50,13 @@ const AddHourlyFilter = ({
 
   const handleSubmitData = async () => {
     try {
+      let maxLessValue =
+        filter?.lessThanValue?.sort()?.[filter?.lessThanValue?.length - 1];
+
+      if (maxLessValue > filter?.greaterThan) {
+        return setErrorMsg(`Please enter greater value of ${maxLessValue}`);
+      }
+
       const res = await fetch(
         `/hourlyFilterProductionOrLineWiseReport/${FilterArray?._id}`,
         {
@@ -72,7 +90,7 @@ const AddHourlyFilter = ({
       }}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Add more options</Modal.Title>
+        <Modal.Title>Breakdown hours filtering</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Container fluid>
@@ -90,13 +108,17 @@ const AddHourlyFilter = ({
           <Row className="p-2">
             {filter?.lessThanValue?.map((item, index) => {
               return (
-                <Col className="p-1" key={index}>
+                <Col className="p-1 col-auto" key={index}>
                   <input
                     type="number"
                     value={item}
                     onChange={(e) =>
                       handleInputChangeForLessThanValue(e, index)
                     }
+                  />
+                  <DeleteIcon
+                    role="button"
+                    onClick={() => handleDeleteInputField(index)}
                   />
                 </Col>
               );
@@ -112,6 +134,7 @@ const AddHourlyFilter = ({
                 value={filter?.greaterThan}
                 onChange={handleChangeForGreaterThanValue}
               />
+              {errorMsg && <label>{`${errorMsg}`}</label>}
             </Col>
           </Row>
         </Container>

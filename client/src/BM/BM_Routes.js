@@ -329,6 +329,10 @@ function BM_Routes({ commonRoutes }) {
           path: "/bm/noLossDataOfBD",
           element: <NoLossBDEntryForm />,
         },
+        {
+          path: "/bm/targetDashboard",
+          element: <TargetDashboard />,
+        },
         // {
         //   path: "/bm/profile",
         //   element: <Profile />,

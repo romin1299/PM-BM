@@ -977,9 +977,9 @@ const RequestSheetMainDashboard = () => {
               //     //refreshPage();
               //   }),
 
-              // isDeleteHidden: (rowData) =>
-              //   context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
-              //   "Yes",
+              isDeleteHidden: (rowData) =>
+                context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
+                "Yes",
 
               isEditHidden: (rowData) =>
                 (rowData?.requestSheetStatus !== RSStatusArray[0] &&

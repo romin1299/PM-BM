@@ -15,9 +15,13 @@ const ReportTitleBar = ({ title, Toolbar, PreTools }) => {
           noWrap
           variant="h4"
           component="h4"
-          fontSize={25}
-          fontWeight={600}
-          sx={{ mr: 3 }}
+          sx={{
+            "&.MuiTypography-root": {
+              mr: 3,
+              fontSize: 25,
+              fontWeight: 600,
+            },
+          }}
         >
           {title}
         </Typography>

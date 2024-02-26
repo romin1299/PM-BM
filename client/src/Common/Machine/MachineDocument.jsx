@@ -88,12 +88,37 @@ const allEvents = [
   ],
 ];
 
+export const MachineNameTypography = ({ machineCode, machineName }) => {
+  return (
+    <Col className="col-auto">
+      <Typography
+        noWrap
+        variant="h4"
+        component="h4"
+        fontSize={22}
+        fontWeight={600}
+      >
+        <Typography
+          noWrap
+          variant="body2"
+          component="div"
+          mb={"-4px"}
+          ml={"1px"}
+        >
+          Machine: {machineCode}
+        </Typography>
+        {machineName}
+      </Typography>
+    </Col>
+  );
+};
+
 const MachineDocument = () => {
   const { machine_code } = useParams();
-
-  const { search } = useLocation();
-
   const navigate = useNavigate();
+
+  const { search, state } = useLocation();
+  const machineName = state?.selectedMachineDetails?.machine_name;
 
   const MachineTabCard = ({
     title = "Provide Title",
@@ -105,7 +130,7 @@ const MachineDocument = () => {
         sx={{
           p: 2,
           minHeight: "4rem",
-          borderBottom: "3px solid #616161",
+          borderBottom: "2px solid #616161",
           borderRadius: "4px",
           bgcolor: "white",
           boxShadow: "-2px -2px 4px 0px rgba(0, 0, 0, 0.03) inset",
@@ -160,37 +185,14 @@ const MachineDocument = () => {
     );
   };
 
-  const MachineName = ({ machineCode }) => {
-    return (
-      <Col className="col-auto">
-        <Typography
-          noWrap
-          variant="h4"
-          component="h4"
-          fontSize={22}
-          fontWeight={600}
-        >
-          <Typography
-            noWrap
-            variant="body2"
-            component="div"
-            mb={"-8px"}
-            ml={"1px"}
-          >
-            Machine Code
-          </Typography>
-          {machineCode}
-        </Typography>
-      </Col>
-    );
-  };
-
   return (
     <Container fluid>
       <ReportTitleBar
         title={"Machine Documents"}
         PreTools={<MuiNavigateBack />}
-        Toolbar={<MachineName machineCode={machine_code} />}
+        Toolbar={
+          <MachineNameTypography machineCode={machine_code} machineName={machineName} />
+        }
       />
       {/* <CustomHooksForBackNavigation /> */}
 
@@ -202,7 +204,12 @@ const MachineDocument = () => {
                 title={event?.name}
                 onClick={() => {
                   navigate(
-                    `/machine-history/${event?.formate}/${event?.url}/${machine_code}/${search}`
+                    `/machine-history/${event?.formate}/${event?.url}/${machine_code}/${search}`,
+                    {
+                      state: {
+                        selectedMachineDetails: state?.selectedMachineDetails,
+                      },
+                    }
                   );
                 }}
                 icon={event?.icon || null}

@@ -3,11 +3,9 @@ import { useParams, useLocation } from "react-router-dom";
 import MaterialTable from "@material-table/core";
 import axios from "axios";
 import FileDownload from "js-file-download";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row } from "react-bootstrap";
 
-import CustomHooksForBackNavigation, {
-  MuiNavigateBack,
-} from "../ButtonComponents/CustomHooksForBackNavigation";
+import { MuiNavigateBack } from "../ButtonComponents/CustomHooksForBackNavigation";
 import {
   YearDropdown,
   MonthDropdown,
@@ -17,7 +15,20 @@ import BDRequestSheetTable from "../../BM/Reports/Common/DailyBDRequestSheetTabl
 import tableIcons from "../../components/MatrialTableIcon";
 import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
 
-const PMHistory = ({ machine_code, selectedYear, selectedMonth }) => {
+import {
+  MaterialTableOptions,
+  MaterialTableSX,
+  MaterialTableStyle,
+} from "../../BM/Utils/TableUtils/MaterialTableProps";
+import { Box, Paper } from "@material-ui/core";
+import { MachineNameTypography } from "./MachineDocument";
+
+const PMHistory = ({
+  machine_code,
+  selectedYear,
+  selectedMonth,
+  filters = null,
+}) => {
   let columns = [
     {
       title: "Sr. No.",
@@ -159,71 +170,39 @@ const PMHistory = ({ machine_code, selectedYear, selectedMonth }) => {
   }, [machine_code, selectedYear, selectedMonth]);
 
   return (
-    <MaterialTable
-      localization={{
-        header: {
-          actions: "Actions",
-        },
-      }}
-      actions={[]}
-      icons={tableIcons}
-      columns={columns}
-      data={pmHistory}
-      editable={{}}
-      options={{
-        showTitle: false,
-        paging: false,
-        sorting: true,
-        search: true,
-        filtering: false,
-        exportButton: true,
-        exportAllData: true,
-        draggable: false,
-        actionsColumnIndex: -1,
-        pageSize: 10,
-        paginationType: "stepped",
-        addRowPosition: "first",
-        headerStyle: {
-          position: "sticky",
-          top: "0",
-          fontWeight: "bold",
-          fontSize: "14px",
-        },
-        maxBodyHeight: "70vh",
-        rowStyle: {
-          boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-          borderRadius: "5px",
-          border: "1px solid rgba(255,255,255)",
-          WebkitBackdropFilter: "blur( 2px )",
-          background: "rgba(255,255,255,0.1)",
-          backdropFilter: "blur(5px)",
-        },
-        // exportMenu: [
-        //   {
-        //     label: "Export PDF",
-        //     exportFunc: (cols, data) =>
-        //       ExportPdf(
-        //         cols,
-        //         data,
-        //         `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
-        //       ),
-        //   },
-        //   {
-        //     label: "Export CSV",
-        //     exportFunc: (cols, data) =>
-        //       ExportCsv(
-        //         cols,
-        //         data,
-        //         `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
-        //       ),
-        //   },
-        // ],
-      }}
-    />
+    <div>
+      <Box className="mt-1 cell p-0 border-0">
+        <MaterialTable
+          localization={{
+            header: {
+              actions: "Actions",
+            },
+          }}
+          actions={[]}
+          icons={tableIcons}
+          columns={columns}
+          data={pmHistory}
+          title={filters}
+          options={{
+            ...MaterialTableOptions,
+            showTitle: true,
+            pageSize: 5,
+          }}
+          style={MaterialTableStyle}
+          sx={MaterialTableSX}
+        />
+      </Box>
+    </div>
   );
 };
 
-const BMHistory = ({ machine_code, search, selectedYear, selectedMonth }) => {
+const BMHistory = ({
+  machine_code,
+  search,
+  selectedYear,
+  selectedMonth,
+  filters = null,
+}) => {
   const [requestSheetHistoryData, setRequestSheetHistoryData] = useState([]);
 
   const getRequestSheetHistoryBasedOnMachine = async () => {
@@ -260,6 +239,7 @@ const BMHistory = ({ machine_code, search, selectedYear, selectedMonth }) => {
         requestSheetData={requestSheetHistoryData}
         downloadFileName={"MTTR trend"}
         selectedYear={selectedYear}
+        filters={filters}
       />
     </div>
   );
@@ -269,11 +249,16 @@ const pageInfo = {
   "bm-history": (prop) => <BMHistory {...prop} />,
   "pm-history": (prop) => <PMHistory {...prop} />,
 };
+const pageNames = {
+  "bm-history": "BM History",
+  "pm-history": "PM History",
+};
 
 const HistoryFormateTable = () => {
   const { page, machine_code } = useParams();
 
-  const { search } = useLocation();
+  const { search, state } = useLocation();
+  const machineName = state?.selectedMachineDetails?.machine_name;
 
   const [selectedYear, setSelectedYear] = useState(
     new Date().getMonth() < 3
@@ -282,25 +267,59 @@ const HistoryFormateTable = () => {
   );
   const [selectedMonth, setSelectedMonth] = useState("");
 
+  const TimeFiltersComponent = () => {
+    return (
+      <div className="py-2 px-2">
+        <YearDropdown
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+        />
+        &nbsp;
+        <MonthDropdown
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+        />
+      </div>
+    );
+  };
+
   return (
     <Container fluid>
       <ReportTitleBar
-        title={machine_code}
+        title={pageNames?.[page]}
         PreTools={<MuiNavigateBack />}
         Toolbar={
-          <Col className="col-auto">
-            <YearDropdown
-              selectedYear={selectedYear}
-              setSelectedYear={setSelectedYear}
-            />
-            &nbsp;
-            <MonthDropdown
-              selectedMonth={selectedMonth}
-              setSelectedMonth={setSelectedMonth}
-            />
-          </Col>
+          <MachineNameTypography
+            machineCode={machine_code}
+            machineName={machineName}
+          />
         }
       />
+      {/* 
+      <Row className="cell p-3 mt-3 gap-2 g-0 align-items-center">
+        <Col className="d-flex align-items-center gap-2">
+          <MuiNavigateBack />
+
+          <Typography noWrap variant="body2" component="div">
+            <Typography
+              noWrap
+              variant="h4"
+              component="h4"
+              sx={{
+                "&.MuiTypography-root": {
+                  mb: "-4px",
+                  ml: "-1px",
+                  fontSize: 24,
+                  fontWeight: 600,
+                },
+              }}
+            >
+              {pageNames?.[page]}
+            </Typography>
+            {machineName}
+          </Typography>
+        </Col>
+      </Row> */}
 
       <Row>
         {pageInfo?.[page]({
@@ -308,6 +327,7 @@ const HistoryFormateTable = () => {
           search,
           selectedYear,
           selectedMonth,
+          filters: <TimeFiltersComponent />,
         })}
       </Row>
     </Container>

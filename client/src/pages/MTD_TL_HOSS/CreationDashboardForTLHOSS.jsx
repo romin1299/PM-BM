@@ -10,6 +10,8 @@ import {
 } from "../../modules/PageModules";
 
 import qr from "qrcode";
+import DescriptionIcon from "@mui/icons-material/Description";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 import {
   newCell,
@@ -103,6 +105,8 @@ const QRCodePopup = ({ onClose, onDownload }) => {
 
 const CreationDashboardForTLHOSS = () => {
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+  let [searchParams, setSearchParams] = useSearchParams();
 
   const handleModalClose = () => setShowModal(false);
 
@@ -131,8 +135,8 @@ const CreationDashboardForTLHOSS = () => {
     }
   };
 
-  const [cell, setCell] = useState();
-  const [line, setLine] = useState();
+  const [cell, setCell] = useState(searchParams.get("cell"));
+  const [line, setLine] = useState(searchParams.get("line"));
 
   const [machine, setMachine] = useState([]);
 
@@ -498,7 +502,9 @@ const CreationDashboardForTLHOSS = () => {
   };
 
   const postCellToGetLineList = async (selectedCell) => {
-    setLine(undefined);
+    if (!searchParams.get("line")) {
+      setLine(undefined);
+    }
     setMachine([]);
     try {
       const res = await fetch("/postCellToGetLineList", {
@@ -573,7 +579,9 @@ const CreationDashboardForTLHOSS = () => {
   };
 
   const displayAndHideModalOfLineWiseMachineQR = () => {
-    setShowModalOfQRCodeForLine((showModalOfQRCodeForLine) => !showModalOfQRCodeForLine);
+    setShowModalOfQRCodeForLine(
+      (showModalOfQRCodeForLine) => !showModalOfQRCodeForLine
+    );
   };
   const actionsForMachineTable = [
     {
@@ -635,15 +643,29 @@ const CreationDashboardForTLHOSS = () => {
     {
       icon: () => (
         <button className="border-0">
+          <DescriptionIcon />
+        </button>
+      ),
+      tooltip: "Machine Details",
+      isFreeAction: false,
+      onClick: (event, selectedRow) => {
+        navigate(
+          `/machine-history/machine-document/${selectedRow?.machine_code}`
+        );
+      },
+    },
+    {
+      icon: () => (
+        <button className="border-0">
           <QrCodeIcon onClick={showPopup} />
         </button>
       ),
       tooltip: "Download All QR",
       isFreeAction: true,
-      onClick: (event, selectedRow) =>{
+      onClick: (event, selectedRow) => {
         setSelectedRow(selectedRow);
-        displayAndHideModalOfLineWiseMachineQR()
-      }
+        displayAndHideModalOfLineWiseMachineQR();
+      },
       // onClick: (event, selectedRow) => {
       //   const showPopup = () => {
       //     const rows = parseInt(prompt("Enter the number of rows:"));
@@ -687,7 +709,9 @@ const CreationDashboardForTLHOSS = () => {
 
       <DownloadLineWiseCustomizedQRCodeOfMachine
         showQRCode={showModalOfQRCodeForLine}
-        displayAndHideModalOfLineWiseMachineQR={displayAndHideModalOfLineWiseMachineQR}
+        displayAndHideModalOfLineWiseMachineQR={
+          displayAndHideModalOfLineWiseMachineQR
+        }
         selectedRow={selectedRow}
         setSelectedRow={setSelectedRow}
         machine={machine}
@@ -717,6 +741,9 @@ const CreationDashboardForTLHOSS = () => {
                     value={cell === undefined ? "" : cell}
                     onChange={(e) => {
                       setCell(e.target.value);
+                      setSearchParams(
+                        `?${new URLSearchParams({ cell: e.target.value })}`
+                      );
                     }}
                     variant="standard"
                   >
@@ -747,6 +774,12 @@ const CreationDashboardForTLHOSS = () => {
                     value={line === undefined ? "" : line}
                     onChange={(e) => {
                       setLine(e.target.value);
+                      setSearchParams(
+                        `?${new URLSearchParams({
+                          cell: searchParams.get("cell"),
+                          line: e.target.value,
+                        })}`
+                      );
                     }}
                     variant="standard"
                   >

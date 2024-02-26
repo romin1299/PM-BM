@@ -255,7 +255,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                           );
                         }}
                       >
-                        Machine History
+                        Machine Details
                       </button>
                     </Col>
 

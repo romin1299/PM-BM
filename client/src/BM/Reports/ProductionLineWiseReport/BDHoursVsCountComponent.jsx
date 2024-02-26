@@ -23,9 +23,13 @@ const BDHoursVsCountComponent = ({
   userDetails,
   // selectedMonth,
 }) => {
+  console.log(filterValues);
+
   const [loading, setLoading] = React.useState(true);
   const [selectedMonth, setSelectedMonth] = useState();
-  const loggedUserDetails = useContext(RoutingContext);
+
+  const [documentLimitInTheGraph, setDocumentLimitInTheGraph] = useState(10);
+
   const initialState = {
     labels: [],
 
@@ -128,7 +132,7 @@ const BDHoursVsCountComponent = ({
     try {
       const res = await fetch(
         // `/getBDhoursVsCountDataFunction/${purpose}/${flagForTogglingFilter}/63317dbe1d1becfedab337e4/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
-        `/getBDhoursVsCountDataFunction/${purpose}/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        `/getBDhoursVsCountDataFunction/${purpose}/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}&&documentLimitInTheGraph=${documentLimitInTheGraph}`,
         {
           method: "POST",
           headers: {
@@ -273,6 +277,8 @@ const BDHoursVsCountComponent = ({
 
       <FilterComponent
         getBDhoursVsCountReportData={getBDhoursVsCountReportData}
+        documentLimitInTheGraph={documentLimitInTheGraph}
+        setDocumentLimitInTheGraph={setDocumentLimitInTheGraph}
         selectedValue={selectedValue}
         selectedYear={selectedYear}
         selectedMonth={selectedMonth}
