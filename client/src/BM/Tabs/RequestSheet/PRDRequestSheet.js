@@ -647,6 +647,21 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       </p>
                     )}
                   </Col>
+                  {/* <Col lg={5}></Col>
+                  <Col lg={7}>
+                    <select
+                      name="problemfaced"
+                      id="problemfaced"
+                      {...register("problemFaced", {
+                        // required: "Please fill this field",
+                      })}
+                    >
+                      <option selected disabled value="">
+                        Please select
+                      </option>
+                      <option value=""></option>
+                    </select>
+                  </Col> */}
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>

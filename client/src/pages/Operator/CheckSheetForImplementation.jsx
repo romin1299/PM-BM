@@ -201,6 +201,7 @@ const CheckSheet = ({
     validationSchema: validationSchema1,
 
     onSubmit: async (values) => {
+      console.log(HOSList[values.mtd_hos_list])
       const res = await fetch("/sendRequestForApproval", {
         method: "Post",
         headers: { "Content-Type": "application/json" },

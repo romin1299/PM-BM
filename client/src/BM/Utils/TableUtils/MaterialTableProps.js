@@ -12,11 +12,7 @@ export const MaterialTableOptions = {
   pageSizeOptions: [5, 10, 20, 50],
   // paginationType: "stepped",
   addRowPosition: "first",
-  headerStyle: {
-    position: "sticky",
-    top: "0",
-    fontWeight: "bold",
-  },
+
   maxBodyHeight: "70vh",
   rowStyle: {
     // fontStyle:'bold'
@@ -32,7 +28,10 @@ export const MaterialTableOptions = {
     // backdropFilter: "blur(5px)",
   },
   headerStyle: {
-    fontSize: "12px",
+    fontSize: "14px",
+    // position: "sticky",
+    // top: "0",
+    fontSize: "14px",
     fontWeight: "bold",
     marginTop: "10px",
 

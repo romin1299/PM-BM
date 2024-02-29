@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useReducer } from "react";
-import { Table, ConfigProvider } from "antd";
+import { Table, Input, ConfigProvider } from "antd";
 import moment from "moment-timezone";
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
@@ -8,12 +8,15 @@ import {
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 import { Container } from "react-bootstrap";
 import BMTitlebar from "../Component/BMTitlebar";
+import { Row, Col } from "react-bootstrap";
+const Search = Input.Search;
 
 const ApprovalLogs = () => {
   const [approvalLogs, setApprovalLogs] = useState([]);
   // const [approverHeaderList, setApproverHeaderList] = useState([]);
 
   const [columns, setColumns] = useState([]);
+  const [searchResult, setSearchResult] = useState([]);
 
   let commonColumns = [
     {
@@ -291,6 +294,15 @@ const ApprovalLogs = () => {
     console.log("params", pagination, filters, sorter, extra);
   };
 
+  const findSearchValue = (value) => {
+    let searchResultFind = approvalLogs.filter((obj) => {
+      return obj?.requestSheetNoOfBM
+        ?.toLowerCase()
+        ?.startsWith(value?.toLowerCase());
+    });
+    setSearchResult(searchResultFind);
+  };
+
   return (
     <Container fluid>
       <BMTitlebar
@@ -311,6 +323,17 @@ const ApprovalLogs = () => {
           />
         }
       />
+      <Row className="p-1">
+        <Col></Col>
+        <Col xs={6}></Col>
+        <Col>
+          <Search
+            allowClear
+            placeholder="Search..."
+            onSearch={(value) => findSearchValue(value)}
+          />
+        </Col>
+      </Row>
       <ConfigProvider
         theme={{
           components: {
@@ -324,7 +347,7 @@ const ApprovalLogs = () => {
       >
         <Table
           columns={columns}
-          dataSource={approvalLogs}
+          dataSource={searchResult?.length > 0 ? searchResult : approvalLogs}
           onChange={onChange}
           // width={"100%"}
           scroll={{ x: 3000, y: 600 }}

@@ -87,11 +87,7 @@ const KPI_Routes = ({ commonRoutes }) => {
     //   icon: <AnalyticsIcon className="text-white" />,
     //   route: "/kpi/report/daily-breakdown-trend",
     // },
-    {
-      title: "Spare Report",
-      icon: <SummarizeIcon className="text-white" />,
-      route: "/kpi/spareReportDashboard",
-    },
+    
     // ------- Reports Dashboards -------
     {
       title: "Reports",
@@ -103,27 +99,27 @@ const KPI_Routes = ({ commonRoutes }) => {
           route: "/kpi/report/productionLineWiseReport",
         },
         {
-          title: "Man Hour Report",
+          title: "Man Hour",
           route: "/kpi/report/man-hour",
         },
         {
-          title: "Daily BD Report",
+          title: "Daily BD",
           route: "/kpi/report/daily-breakdown-trend",
         },
         {
-          title: "Monthly BD Report",
+          title: "Monthly BD",
           route: "/kpi/report/monthly-breakdown-trend",
         },
         {
-          title: "Line Contibution BD Report",
+          title: "Line Contibution BD",
           route: "/kpi/report/line-contribution-breakdown-trend",
         },
         {
-          title: "MTTR Report",
+          title: "MTTR",
           route: "/kpi/report/mttr",
         },
         {
-          title: "MTBF Report",
+          title: "MTBF",
           route: "/kpi/report/mtbf",
         },
         {
@@ -139,6 +135,12 @@ const KPI_Routes = ({ commonRoutes }) => {
           route: "/kpi/report/machine-age",
         },
       ],
+    },
+
+    {
+      title: "Spare Report",
+      icon: <SummarizeIcon className="text-white" />,
+      route: "/kpi/spareReportDashboard",
     },
   ];
 

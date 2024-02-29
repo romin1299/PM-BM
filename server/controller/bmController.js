@@ -115,6 +115,23 @@ let currentYear =
     ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
     : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
+const gettingFYYearForSelectedDate = (date) => {
+  if (moment(new Date(date)).tz("Asia/Kolkata").month() < 3) {
+    return `${moment(new Date(date)).tz("Asia/Kolkata").year() - 1}-${moment(
+      new Date(date)
+    )
+      .tz("Asia/Kolkata")
+      .year()}`;
+  }
+
+  return `${moment(new Date(date)).tz("Asia/Kolkata").year()}-${
+    moment(new Date(date)).tz("Asia/Kolkata").year() + 1
+  }`;
+};
+
+const gettingMonthForSelectedDate = (date) =>
+  monthKeyArray[moment(new Date(date)).tz("Asia/Kolkata").month()];
+
 const generateDateFormateObj = (field) => ({
   $dateToString: {
     format: "%Y-%m-%dT%H:%M",
@@ -566,8 +583,12 @@ router.post(
               how_details,
             },
             preAggregationTimeStampOfRequestSheet: {
-              requestSheet_year: currentYear,
-              requestSheet_month: currentMonth,
+              requestSheet_year: gettingFYYearForSelectedDate(
+                problemOccurredDateAndTimeOfBM
+              ),
+              requestSheet_month: gettingMonthForSelectedDate(
+                problemOccurredDateAndTimeOfBM
+              ),
             },
           });
 
@@ -1896,15 +1917,16 @@ router.get(
   findRequestSheetMiddleware,
   dashboardLevelUserCheckMiddleware,
   findTLandOperatorList,
-  getCountBDCountBasedOnLoggedUserMiddleware,
+  // getCountBDCountBasedOnLoggedUserMiddleware,
   async (req, res, next) => {
     try {
       const counters = await RequestSheetOfBM.aggregate([
-        {
-          $match: {
-            ...req?.queryObjForCountOfBDForRequestSheetDashboard,
-          },
-        },
+        // {
+        //   $match: {
+        //     // ...req?.queryObjForCountOfBDForRequestSheetDashboard,
+        //   },
+        // },
+        ...req.queryPipeline,
         {
           $group: {
             _id: null,
@@ -5948,6 +5970,28 @@ router.get(
       //   // },
       // ]);
 
+      // const requestSheet = await RequestSheetOfBM.find({});
+
+      // for (let i = 0; i < requestSheet.length; i++) {
+      //   const element = requestSheet[i];
+
+      //   await RequestSheetOfBM.updateOne(
+      //     {
+      //       _id: element?._id,
+      //     },
+      //     {
+      //       "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+      //         gettingFYYearForSelectedDate(
+      //           element?.problemOccurredDateAndTimeOfBM
+      //         ),
+      //       "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+      //         gettingMonthForSelectedDate(
+      //           element?.problemOccurredDateAndTimeOfBM
+      //         ),
+      //     }
+      //   );
+      // }
+
       return res.status(201).json({
         message: "DailyBreakdownTrend graph data get successfully",
         // data,
@@ -6827,13 +6871,15 @@ router.post(
 
       if (req.body?.graterThenHoursFilter) {
         if (req.body?.hoursFilter?.length > 0) {
-          boundaries = [
-            ...boundaries,
-            req.body?.graterThenHoursFilter * 1,
-            Infinity,
-          ];
+          let graterValue = boundaries?.includes(
+            req.body?.graterThenHoursFilter * 1
+          )
+            ? req.body?.graterThenHoursFilter * 1 + 1
+            : req.body?.graterThenHoursFilter * 1;
+
+          boundaries = [...boundaries, graterValue, Infinity];
           customLegendArray.push({
-            id: req.body?.graterThenHoursFilter * 1,
+            id: graterValue,
             key: `${req.body?.graterThenHoursFilter}+`,
           });
         } else {
@@ -6879,13 +6925,13 @@ router.post(
           },
         ],
         requestSheetProjection: {
-          count: "$count",
-          sumOfBDhours: "$sumOfBDhours",
+          count: "$data.count",
+          sumOfBDhours: "$data.sumOfBDhours",
         },
         groupingObj: {
-          count: { $push: "$requestSheets.count" },
+          count: { $push: "$requestSheets.data.count" },
           sumOfBDhours: {
-            $push: truncValue("$requestSheets.sumOfBDhours"),
+            $push: truncValue("$requestSheets.data.sumOfBDhours"),
           },
         },
         // outerMachineLevelProjection: {
@@ -6906,7 +6952,7 @@ router.post(
             {
               $project: {
                 _id: 0,
-                groupId: "$_id.groupId.key",
+                groupId: "$_id.groupId",
                 sumOfBDhours: 1,
                 machine_code: 1,
               },
@@ -6917,7 +6963,7 @@ router.post(
             {
               $project: {
                 _id: 0,
-                groupId: "$_id.groupId.key",
+                groupId: "$_id.groupId",
                 count: 1,
                 machine_code: 1,
               },
@@ -6950,11 +6996,11 @@ router.post(
             },
           ],
           requestSheetProjection: {
-            sumOfBDhours: "$sumOfBDhours",
+            sumOfBDhours: "$data.sumOfBDhours",
           },
           groupingObj: {
             sumOfBDhours: {
-              $push: truncValue("$requestSheets.sumOfBDhours"),
+              $push: truncValue("$requestSheets.data.sumOfBDhours"),
             },
           },
           // outerMachineLevelProjection: {
@@ -6974,7 +7020,7 @@ router.post(
               {
                 $project: {
                   _id: 0,
-                  groupId: "$_id.groupId.key",
+                  groupId: "$_id.groupId",
                   sumOfBDhours: 1,
                   machine_code: 1,
                 },
@@ -7005,10 +7051,10 @@ router.post(
             },
           ],
           requestSheetProjection: {
-            count: "$count",
+            count: "$data.count",
           },
           groupingObj: {
-            count: { $push: "$requestSheets.count" },
+            count: { $push: "$requestSheets.data.count" },
           },
 
           facetObj: {
@@ -7024,7 +7070,7 @@ router.post(
               {
                 $project: {
                   _id: 0,
-                  groupId: "$_id.groupId.key",
+                  groupId: "$_id.groupId",
                   count: 1,
                   machine_code: 1,
                 },
@@ -7073,11 +7119,13 @@ router.post(
                 $group: {
                   _id: null,
                   array: { $push: "$$ROOT" },
+                  totalSumForSorting: { $sum: "$sumOfBDhours" },
                 },
               },
               {
                 $project: {
                   _id: 0,
+                  totalSumForSorting: 1,
                   data: {
                     $map: {
                       input: customLegendArray,
@@ -7095,16 +7143,16 @@ router.post(
               {
                 $unwind: "$data",
               },
-              {
-                $replaceRoot: { newRoot: "$data" },
-              },
-              {
-                $project: {
-                  _id: 0,
-                  groupId: "$_id",
-                  ...queryObjects?.requestSheetProjection,
-                },
-              },
+              // {
+              //   $replaceRoot: { newRoot: "$data" },
+              // },
+              // {
+              //   $project: {
+              //     _id: 0,
+              //     groupId: "$data._id",
+              //     ...queryObjects?.requestSheetProjection,
+              //   },
+              // },
             ],
             as: "requestSheets",
           },
@@ -7119,27 +7167,29 @@ router.post(
         },
         {
           $sort: {
-            _id: -1,
+            "requestSheets.0.totalSumForSorting": -1,
           },
+        },
+        {
+          $limit: req.query?.documentLimitInTheGraph * 1,
         },
         {
           $unwind: "$requestSheets",
         },
+
         {
           $group: {
             _id: {
-              groupId: "$requestSheets.groupId",
+              groupId: "$requestSheets.data._id.key",
+              // totalSumForSorting: "$requestSheets.totalSumForSorting",
+              // groupId: "$requestSheets.groupId",
             },
             ...queryObjects?.groupingObj,
             machine_code: { $push: "$machine_nickname" },
+            // totalSumForSorting: { $push: "$requestSheets.totalSumForSorting" },
           },
         },
 
-        {
-          $sort: {
-            "_id.groupId.id": 1,
-          },
-        },
         {
           $facet: queryObjects?.facetObj,
         },
@@ -7147,8 +7197,9 @@ router.post(
 
       return res.status(201).json({
         message: "BD hours vs count graph data get successfully",
-        labels: BDHoursVsCountData?.[0]?.labels?.[0]?.machine_code,
+        // BDHoursVsCountData,
         BDHoursVsCountData: BDHoursVsCountData?.[0],
+        labels: BDHoursVsCountData?.[0]?.labels?.[0]?.machine_code,
       });
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -14792,21 +14843,48 @@ router.get(
 );
 
 router.get(
-  "/getRequestSheetDataBasedOnSelectedMachine/:machineCode/:date",
+  "/getRequestSheetDataBasedOnSelectedMachine/:machineCode/:toDate/:fromDate",
   authenticate,
   async (req, res, next) => {
     try {
-      let nextDate = new Date(req.params.date);
-      nextDate.setDate(nextDate.getDate() + 1);
-
-      req.queryObj = {
-        machineRef: mongoose.Types.ObjectId(req.params?.machineCode),
-        problemOccurredDateAndTimeOfBM: {
-          $gte: new Date(req.params.date),
-          $lt: nextDate,
-        },
-      };
-
+      // let nextDate = new Date(req.params.date);
+      // nextDate.setDate(nextDate.getDate() + 1);
+      // if (req.params.date !== "undefined") {
+      //   req.queryObj = {
+      //     machineRef: mongoose.Types.ObjectId(req.params?.machineCode),
+      //     problemOccurredDateAndTimeOfBM: {
+      //       $gte: new Date(req.params.date),
+      //       $lt: nextDate,
+      //     },
+      //   };
+      // } 
+      if (
+        req?.params?.toDate !== "undefined" &&
+        req?.params?.fromDate !== "undefined"
+      ) {
+        req.queryObj = {
+          machineRef: mongoose.Types.ObjectId(req.params?.machineCode),
+          $and: [
+            {
+              problemOccurredDateAndTimeOfBM: {
+                $gte: new Date(moment(req?.params?.fromDate).format()),
+              },
+            },
+            {
+              problemOccurredDateAndTimeOfBM: {
+                $lte: new Date(
+                  moment(req?.params?.toDate).endOf("day").format()
+                ),
+              },
+            },
+          ],
+        };
+      }
+      else {
+        req.queryObj = {
+          machineRef: mongoose.Types.ObjectId(req.params?.machineCode),
+        };
+      }
       next();
     } catch (error) {
       res.status(500).json({ message: error?.message, error });
@@ -18288,102 +18366,268 @@ router.get("/dummyAPI", authenticate, async (req, res, next) => {
     //     }
 
     // })
-    const machineFind = await Machine.aggregate([
-      {
-        $match: {},
-      },
-      {
-        $lookup: {
-          from: "lines",
-          localField: "line_names",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $lookup: {
-                from: "cells",
-                localField: "cell_names",
-                foreignField: "_id",
-                pipeline: [
-                  {
-                    $lookup: {
-                      from: "subsections",
-                      localField: "subSection_names",
-                      foreignField: "_id",
-                      pipeline: [
-                        {
-                          $lookup: {
-                            from: "sections",
-                            localField: "section_names",
-                            foreignField: "_id",
-                            pipeline: [
-                              {
-                                $project: { plant_names: 1 },
-                              },
-                            ],
-                            as: "section",
-                          },
-                        },
-                        {
-                          $project: {
-                            section: 1,
-                          },
-                        },
-                      ],
-                      as: "subSection",
-                    },
-                  },
-                  {
-                    $project: {
-                      subSection: 1,
-                    },
-                  },
-                ],
-                as: "cell",
-              },
-            },
-            {
-              $project: {
-                cell: 1,
-              },
-            },
-          ],
-          as: "line",
-        },
-      },
-      {
-        $project: {
-          machine_code: 1,
-          line: 1,
-        },
-      },
-      // {
-      //   $match: {
-      //     "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
-      //       req.params?.selectedId
-      //     ),
-      //   },
-      // },
-    ]);
+    // const machineFind = await Machine.aggregate([
+    //   {
+    //     $match: {},
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "lines",
+    //       localField: "line_names",
+    //       foreignField: "_id",
+    //       pipeline: [
+    //         {
+    //           $lookup: {
+    //             from: "cells",
+    //             localField: "cell_names",
+    //             foreignField: "_id",
+    //             pipeline: [
+    //               {
+    //                 $lookup: {
+    //                   from: "subsections",
+    //                   localField: "subSection_names",
+    //                   foreignField: "_id",
+    //                   pipeline: [
+    //                     {
+    //                       $lookup: {
+    //                         from: "sections",
+    //                         localField: "section_names",
+    //                         foreignField: "_id",
+    //                         pipeline: [
+    //                           {
+    //                             $project: { plant_names: 1 },
+    //                           },
+    //                         ],
+    //                         as: "section",
+    //                       },
+    //                     },
+    //                     {
+    //                       $project: {
+    //                         section: 1,
+    //                       },
+    //                     },
+    //                   ],
+    //                   as: "subSection",
+    //                 },
+    //               },
+    //               {
+    //                 $project: {
+    //                   subSection: 1,
+    //                 },
+    //               },
+    //             ],
+    //             as: "cell",
+    //           },
+    //         },
+    //         {
+    //           $project: {
+    //             cell: 1,
+    //           },
+    //         },
+    //       ],
+    //       as: "line",
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       machine_code: 1,
+    //       line: 1,
+    //     },
+    //   },
+    //   // {
+    //   //   $match: {
+    //   //     "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
+    //   //       req.params?.selectedId
+    //   //     ),
+    //   //   },
+    //   // },
+    // ]);
 
-    for (let i = 0; i < machineFind.length; i++) {
-      await Machine.updateOne(
+    // for (let i = 0; i < machineFind.length; i++) {
+    //   await Machine.updateOne(
+    //     {
+    //       _id: machineFind[i]?._id,
+    //     },
+    //     {
+    //       cell_names: machineFind[i]?.line?.[0]?.cell?.[0]?._id,
+    //       subSection_names:
+    //         machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]?._id,
+    //       section_names:
+    //         machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]?.section[0]
+    //           ?._id,
+    //       plant_names:
+    //         machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]?.section[0]
+    //           ?.plant_names,
+    //     }
+    //   );
+
+    //   // console.log("machine-updated : ", machineFind[i]?.machine_code);
+    // }
+
+    // const lineFind = await Line.aggregate([
+    //   {
+    //     $match: {},
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "cells",
+    //       localField: "cell_names",
+    //       foreignField: "_id",
+    //       pipeline: [
+    //         {
+    //           $lookup: {
+    //             from: "subsections",
+    //             localField: "subSection_names",
+    //             foreignField: "_id",
+    //             pipeline: [
+    //               {
+    //                 $lookup: {
+    //                   from: "sections",
+    //                   localField: "section_names",
+    //                   foreignField: "_id",
+    //                   pipeline: [
+    //                     {
+    //                       $project: { plant_names: 1 },
+    //                     },
+    //                   ],
+    //                   as: "section",
+    //                 },
+    //               },
+    //               {
+    //                 $project: {
+    //                   section: 1,
+    //                 },
+    //               },
+    //             ],
+    //             as: "subSection",
+    //           },
+    //         },
+    //         {
+    //           $project: {
+    //             subSection: 1,
+    //           },
+    //         },
+    //       ],
+    //       as: "cell",
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       line_name: 1,
+    //       cell: 1,
+    //     },
+    //   },
+    //   // {
+    //   //   $match: {
+    //   //     "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
+    //   //       req.params?.selectedId
+    //   //     ),
+    //   //   },
+    //   // },
+    // ]);
+
+    // for (let i = 0; i < lineFind.length; i++) {
+    //   await Line.updateOne(
+    //     {
+    //       _id: lineFind[i]?._id,
+    //     },
+    //     {
+    //       subSection_names: lineFind[i]?.cell?.[0]?.subSection?.[0]?._id,
+    //       section_names:
+    //         lineFind[i]?.cell?.[0]?.subSection?.[0]?.section[0]?._id,
+    //       plant_names:
+    //         lineFind[i]?.cell?.[0]?.subSection?.[0]?.section[0]?.plant_names,
+    //     }
+    //   );
+
+    //   console.log("Line-updated : ", lineFind[i]?.line_name);
+    // }
+
+    // const cellFind = await Cell.aggregate([
+    //   {
+    //     $match: {},
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "subsections",
+    //       localField: "subSection_names",
+    //       foreignField: "_id",
+    //       pipeline: [
+    //         {
+    //           $lookup: {
+    //             from: "sections",
+    //             localField: "section_names",
+    //             foreignField: "_id",
+    //             pipeline: [
+    //               {
+    //                 $project: { plant_names: 1 },
+    //               },
+    //             ],
+    //             as: "section",
+    //           },
+    //         },
+    //         {
+    //           $project: {
+    //             section: 1,
+    //           },
+    //         },
+    //       ],
+    //       as: "subSection",
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       cell_name: 1,
+    //       subSection: 1,
+    //     },
+    //   },
+    //   // {
+    //   //   $match: {
+    //   //     "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
+    //   //       req.params?.selectedId
+    //   //     ),
+    //   //   },
+    //   // },
+    // ]);
+
+    // for (let i = 0; i < cellFind.length; i++) {
+    //   await Cell.updateOne(
+    //     {
+    //       _id: cellFind[i]?._id,
+    //     },
+    //     {
+    //       section_names: cellFind[i]?.subSection?.[0]?.section[0]?._id,
+    //       plant_names: cellFind[i]?.subSection?.[0]?.section[0]?.plant_names,
+    //     }
+    //   );
+
+    //   console.log("Cell-updated : ", cellFind[i]?.cell_name);
+    // }
+
+    // ----------------------------------------------------------------------------------------------------------------------------
+
+    const requestSheet = await RequestSheetOfBM.find({});
+
+    for (let i = 0; i < requestSheet.length; i++) {
+      const element = requestSheet[i];
+
+      await RequestSheetOfBM.updateOne(
         {
-          _id: machineFind[i]?._id,
+          _id: element?._id,
         },
         {
-          cell_names: machineFind[i]?.line?.[0]?.cell?.[0]?._id,
-          subSection_names:
-            machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]?._id,
-          section_names:
-            machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]?.section[0]
-              ?._id,
-          plant_names:
-            machineFind[i]?.line?.[0]?.cell?.[0]?.subSection?.[0]?.section[0]
-              ?.plant_names,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            gettingFYYearForSelectedDate(
+              element?.problemOccurredDateAndTimeOfBM
+            ),
+          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+            gettingMonthForSelectedDate(
+              element?.problemOccurredDateAndTimeOfBM
+            ),
         }
       );
 
-      // console.log("machine-updated : ", machineFind[i]?.machine_code);
+      console.log("machine-updated : ", machineFind[i]?.machine_code);
     }
 
     const lineFind = await Line.aggregate([
@@ -18781,7 +19025,7 @@ router.post(
           if (addMonthlyProductionAndBDHrsTargetValueInLine)
             return res.status(201).json({
               message: `Production and BD Hrs target set successfully`,
-              addMonthlyProductionAndBDHesTargetValueInLine,
+              addMonthlyProductionAndBDHrsTargetValueInLine,
             });
         }
       }

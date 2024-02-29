@@ -181,7 +181,7 @@ router.post("/resetPass", (req, res) => {
         console.log(error);
       }
       const token = buffer.toString("hex");
-      const user = await User.findOne({ email: req.body.email });
+      const user = await User.findOne({ email: req.body?.email });
       console.log(user);
       if (!user) {
         return res.status(422).send("User don't exists with that email");
@@ -190,7 +190,7 @@ router.post("/resetPass", (req, res) => {
           user.token = token;
           user.expireToken = Date.now() + 300000;
           user.save().then((result) => {
-            sendMail(user.email, token);
+            sendMail(user?.email, token);
           });
           res.status(201).json("Email send successful!!!");
         } catch (error) {
@@ -4917,15 +4917,15 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
       section_id: loggedUserData?.section_data?.split("-")?.[0],
     });
 
-    if (request === "Yes" && tl_list.email != "") {
+    if (request === "Yes" && tl_list?.email != "") {
       //for grreting of the mail
       const findAssignTlName = await User.findOne({
-        tm_no: tl_list.tm_no,
-        email: tl_list.email,
+        tm_no: tl_list?.tm_no,
+        email: tl_list?.email,
       });
       const findAssignHosName = await User.findOne({
-        tm_no: hos_list.tm_no,
-        email: hos_list.email,
+        tm_no: hos_list?.tm_no,
+        email: hos_list?.email,
       });
 
       const updateChecksheetStatus = await Machine.updateOne(
@@ -4939,15 +4939,15 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
           $push: {
             "checkSheet_data.$[outer].tl_approval_status": "Pending",
             "checkSheet_data.$[outer].hos_approval_status": "Pending",
-            "checkSheet_data.$[outer].assign_TL": tl_list.email,
-            "checkSheet_data.$[outer].assign_TL_name": findAssignTlName.tm_name,
-            "checkSheet_data.$[outer].assign_HOS": hos_list.email,
+            "checkSheet_data.$[outer].assign_TL": tl_list?.email,
+            "checkSheet_data.$[outer].assign_TL_name": findAssignTlName?.tm_name,
+            "checkSheet_data.$[outer].assign_HOS": hos_list?.email,
             "checkSheet_data.$[outer].assign_HOS_name":
-              findAssignHosName.tm_name,
-            "checkSheet_data.$[outer].sender_tm_no": loggedUserData.tm_no,
-            "checkSheet_data.$[outer].sender_tm_name": loggedUserData.tm_name,
+              findAssignHosName?.tm_name,
+            "checkSheet_data.$[outer].sender_tm_no": loggedUserData?.tm_no,
+            "checkSheet_data.$[outer].sender_tm_name": loggedUserData?.tm_name,
             "checkSheet_data.$[outer].checkSheetSendingUser":
-              loggedUserData.email,
+              loggedUserData?.email,
             "checkSheet_data.$[outer].preparation_TL_date": preparation_TL_date,
           },
         },
@@ -5006,8 +5006,8 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
         selected_machine_data.machine_code,
         selected_machine_data.machine_name,
         checksheet_status,
-        tl_list.email,
-        hos_list.email,
+        tl_list?.email,
+        hos_list?.email,
         undefined,
         undefined,
         request
@@ -5016,8 +5016,8 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
     } else if (prd_tl_list?.email && phaseStatus === "Planning") {
       //for grreting of the mail
       const findAssignTlName = await User.findOne({
-        tm_no: prd_tl_list.tm_no,
-        email: prd_tl_list.email,
+        tm_no: prd_tl_list?.tm_no,
+        email: prd_tl_list?.email,
       });
 
       if (sectionInfo?.dashboardLevel === "Yes") {
@@ -5053,15 +5053,15 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
           },
           $push: {
             "checkSheet_data.$[outer].prd_tl_approval_status": "Pending",
-            "checkSheet_data.$[outer].assign_PRD_TL": prd_tl_list.email,
+            "checkSheet_data.$[outer].assign_PRD_TL": prd_tl_list?.email,
             "checkSheet_data.$[outer].assign_PRD_TL_name":
-              findAssignTlName.tm_name,
+              findAssignTlName?.tm_name,
             "checkSheet_data.$[outer].plan_prepared_tm_no":
-              loggedUserData.tm_no,
+              loggedUserData?.tm_no,
             "checkSheet_data.$[outer].plan_prepared_tm_name":
-              loggedUserData.tm_name,
+              loggedUserData?.tm_name,
             "checkSheet_data.$[outer].plan_prepared_email":
-              loggedUserData.email,
+              loggedUserData?.email,
             "checkSheet_data.$[outer].planning_TL_date": planning_TL_date,
           },
         },
@@ -5120,7 +5120,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
         selected_machine_data.machine_code,
         selected_machine_data.machine_name,
         selected_machine_data.checksheet_status,
-        prd_tl_list.email,
+        prd_tl_list?.email,
         undefined,
         undefined,
         undefined,
@@ -5128,8 +5128,8 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
       );
       return res.status(201).json("approval request send successfully!!!");
     } else if (
-      prd_tl_list?.email &&
-      mtd_tl_list?.email &&
+      prd_tl_list?.tm_no && //change prd_tl_list.email to tm_no for DENSO-INDIA
+      mtd_tl_list?.tm_no && //change mtd_tl_list.email to tm_no for DENSO-INDIA
       mtd_hos_list?.email &&
       phaseStatus === "Implementation"
     ) {
@@ -5188,17 +5188,17 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
             [keyOfImplemetation_prd_tl_approval_status]: "Pending",
             [keyOfImplemetation_mtd_tl_approval_status]: "Pending",
             [keyOfImplemetation_mtd_hos_approval_status]: "Pending",
-            [keyOfImplementation_assign_PRD_TL]: prd_tl_list.email,
-            [keyOfImplementation_assign_MTD_TL]: mtd_tl_list.email,
-            [keyOfImplementation_assign_MTD_HOS]: mtd_hos_list.email,
-            [keyOfImplementation_assign_PRD_TL_name]: prd_tl_list.tm_name,
+            [keyOfImplementation_assign_PRD_TL]: prd_tl_list?.email,
+            [keyOfImplementation_assign_MTD_TL]: mtd_tl_list?.email,
+            [keyOfImplementation_assign_MTD_HOS]: mtd_hos_list?.email,
+            [keyOfImplementation_assign_PRD_TL_name]: prd_tl_list?.tm_name,
             [keyOfImplementation_assign_PRD_TL_tm_no]: prd_tl_list?.tm_no,
-            [keyOfImplementation_assign_MTD_TL_name]: mtd_tl_list.tm_name,
+            [keyOfImplementation_assign_MTD_TL_name]: mtd_tl_list?.tm_name,
             [keyOfImplementation_assign_MTD_TL_tm_no]: mtd_tl_list?.tm_no,
-            [keyOfImplementation_assign_MTD_HOS_name]: mtd_hos_list.tm_name,
+            [keyOfImplementation_assign_MTD_HOS_name]: mtd_hos_list?.tm_name,
             [keyOfImplementation_assign_MTD_HOS_tm_no]: mtd_hos_list?.tm_no,
-            [keyOfImplemetation_completed_tm_no]: loggedUserData.tm_no,
-            [keyOfImplemetation_completed_tm_name]: loggedUserData.tm_name,
+            [keyOfImplemetation_completed_tm_no]: loggedUserData?.tm_no,
+            [keyOfImplemetation_completed_tm_name]: loggedUserData?.tm_name,
             [keyOfImplemetation_completed_date]: implemetation_completed_date,
           },
         },
@@ -5214,11 +5214,11 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
       // console.log(updateImplementationCompletionPhase)
       // console.log(prd_tl_list, mtd_tl_list, mtd_hos_list)
 
-      let ccMail = [mtd_tl_list.email, mtd_hos_list.email];
+      let ccMail = [mtd_tl_list?.email, mtd_hos_list?.email];
       // for grreting of the mail
       const findAssignTlName = await User.findOne({
-        tm_no: prd_tl_list.tm_no,
-        email: prd_tl_list.email,
+        tm_no: prd_tl_list?.tm_no,
+        email: prd_tl_list?.email,
       });
 
       subject = `Checksheet Approval Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
@@ -5271,7 +5271,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
         selected_machine_data.machine_code,
         selected_machine_data.machine_name,
         selected_machine_data.checksheet_status,
-        prd_tl_list.email,
+        prd_tl_list?.email,
         undefined,
         undefined,
         undefined,
@@ -5356,8 +5356,8 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
     } else {
       //for grreting of the mail
       const findAssignHosName = await User.findOne({
-        tm_no: hos_list.tm_no,
-        email: hos_list.email,
+        tm_no: hos_list?.tm_no,
+        email: hos_list?.email,
       });
 
       const updateChecksheetStatus = await Machine.updateOne(
@@ -5371,7 +5371,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
           },
           $push: {
             "checkSheet_data.$[outer].hos_approval_status": "Pending",
-            "checkSheet_data.$[outer].assign_HOS": hos_list.email,
+            "checkSheet_data.$[outer].assign_HOS": hos_list?.email,
             "checkSheet_data.$[outer].assign_HOS_name":
               findAssignHosName.tm_name,
             "checkSheet_data.$[outer].sender_tm_no": loggedUserData.tm_no,
@@ -5383,7 +5383,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
             "checkSheet_data.$[outer].preparation_TL_date": preparation_TL_date,
             "checkSheet_data.$[outer].preparation_TL_HOSS_date": "",
             "checkSheet_data.$[outer].checkSheetSendingUser":
-              loggedUserData.email,
+              loggedUserData?.email,
           },
         },
         {
@@ -5441,7 +5441,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
         selected_machine_data.machine_code,
         selected_machine_data.machine_name,
         checksheet_status,
-        hos_list.email,
+        hos_list?.email,
         undefined,
         undefined,
         undefined,
@@ -5638,7 +5638,7 @@ router.get(
                     $expr: {
                       $eq: [
                         { $arrayElemAt: ["$checkSheet_data.assign_TL", -1] },
-                        loggedUserData.email,
+                        loggedUserData?.email,
                       ],
                     },
                   },
@@ -5681,7 +5681,7 @@ router.get(
                       $expr: {
                         $eq: [
                           { $arrayElemAt: ["$checkSheet_data.assign_HOS", -1] },
-                          loggedUserData.email,
+                          loggedUserData?.email,
                         ],
                       },
                     },
@@ -5743,7 +5743,7 @@ router.get(
                       $expr: {
                         $eq: [
                           { $arrayElemAt: ["$checkSheet_data.assign_HOS", -1] },
-                          loggedUserData.email,
+                          loggedUserData?.email,
                         ],
                       },
                     },
@@ -5812,7 +5812,7 @@ router.get(
                         {
                           $arrayElemAt: ["$checkSheet_data.assign_PRD_TL", -1],
                         },
-                        loggedUserData.email,
+                        loggedUserData?.email,
                       ],
                     },
                   },
@@ -5961,7 +5961,7 @@ router.get(
                               -1,
                             ],
                           },
-                          loggedUserData.email,
+                          loggedUserData?.email,
                         ],
                       },
                     },
@@ -6058,7 +6058,7 @@ router.get(
                               -1,
                             ],
                           },
-                          loggedUserData.email,
+                          loggedUserData?.email,
                         ],
                       },
                     },
@@ -6182,7 +6182,7 @@ router.get(
                             -1,
                           ],
                         },
-                        loggedUserData.email,
+                        loggedUserData?.email,
                       ],
                     },
                   },
@@ -6508,8 +6508,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         // console.log(TLApprovalStatusUpdate)
         const findAssignHosName = await User.findOne({
           email:
-            selected_machine_data.checkSheet_data.assign_HOS[
-              selected_machine_data.checkSheet_data.assign_HOS.length - 1
+            selected_machine_data?.checkSheet_data?.assign_HOS?.[
+              selected_machine_data?.checkSheet_data?.assign_HOS?.length - 1
             ],
         });
 
@@ -7223,16 +7223,16 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
         // console.log(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth])
         let ccMail =
-          selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
+          selected_machine_data?.checkSheet_data?.implementation_assign_MTD_HOS?.[
             senderApprovalMonth
           ];
         const findAssignMTDTLNameOfImplementation = await User.findOne({
           email:
-            selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[
+            selected_machine_data?.checkSheet_data?.implementation_assign_MTD_TL?.[
               senderApprovalMonth
             ][
-              selected_machine_data.checkSheet_data
-                .implementation_assign_MTD_TL[senderApprovalMonth].length - 1
+              selected_machine_data?.checkSheet_data
+                ?.implementation_assign_MTD_TL?.[senderApprovalMonth]?.length - 1
             ],
         });
 
@@ -7296,12 +7296,12 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           selected_machine_data.machine_code,
           selected_machine_data.machine_name,
           selected_machine_data.checkSheet_data.checksheet_status,
-          selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[
+          selected_machine_data?.checkSheet_data?.implementation_assign_MTD_TL?.[
             senderApprovalMonth
           ][
-            selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[
+            selected_machine_data?.checkSheet_data?.implementation_assign_MTD_TL?.[
               senderApprovalMonth
-            ].length - 1
+            ]?.length - 1
           ],
           undefined,
           prd_tl_approval_status,
@@ -7444,22 +7444,22 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           );
         const findAssignMTDHOSNameOfImplementation = await User.findOne({
           email:
-            selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
+            selected_machine_data?.checkSheet_data?.implementation_assign_MTD_HOS?.[
               senderApprovalMonth
             ][
-              selected_machine_data.checkSheet_data
-                .implementation_assign_MTD_HOS[senderApprovalMonth].length - 1
+              selected_machine_data?.checkSheet_data
+                ?.implementation_assign_MTD_HOS?.[senderApprovalMonth]?.length - 1
             ],
         });
-        console.log(
-          selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
-            senderApprovalMonth
-          ][
-            selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
-              senderApprovalMonth
-            ].length - 1
-          ]
-        );
+        // console.log(
+        //   selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
+        //     senderApprovalMonth
+        //   ][
+        //     selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
+        //       senderApprovalMonth
+        //     ].length - 1
+        //   ]
+        // );
 
         subject = `Checksheet Approved by MTD TL/HoSS Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
         title = `Checksheet Approved Plan vs Actual`;
@@ -7849,9 +7849,9 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
         const findAssignHOSName = await User.findOne({
           email:
-            selected_machine_data.checkSheet_data.assign_HOS[
-              selected_machine_data.checkSheet_data.checkSheetSendingUser
-                .length - 1
+            selected_machine_data?.checkSheet_data?.assign_HOS?.[
+              selected_machine_data?.checkSheet_data?.checkSheetSendingUser
+                ?.length - 1
             ],
         });
 
@@ -8366,11 +8366,11 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           );
         const findAssignMTDHOSNameOfImplementation = await User.findOne({
           email:
-            selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
+            selected_machine_data?.checkSheet_data?.implementation_assign_MTD_HOS?.[
               senderApprovalMonth
             ][
-              selected_machine_data.checkSheet_data
-                .implementation_assign_MTD_HOS[senderApprovalMonth].length - 1
+              selected_machine_data?.checkSheet_data
+                ?.implementation_assign_MTD_HOS?.[senderApprovalMonth]?.length - 1
             ],
         });
         let greetingNamesForAll = "All";
@@ -18248,25 +18248,25 @@ router.post(
               reasonForDelayOfTL,
               rejectedRemarksOfSkipPMMachines: "",
               skippedDataApprovalSender: {
-                senderTLNo: loggedUserData.tm_no,
-                senderTLName: loggedUserData.tm_name,
-                senderTLEmail: loggedUserData.email,
+                senderTLNo: loggedUserData?.tm_no,
+                senderTLName: loggedUserData?.tm_name,
+                senderTLEmail: loggedUserData?.email,
               },
               assignAndApprovedHOSlist: {
-                assignMTDHOSemail: mtd_hos_list.email,
-                assignMTDHOSname: mtd_hos_list.tm_name,
+                assignMTDHOSemail: mtd_hos_list?.email,
+                assignMTDHOSname: mtd_hos_list?.tm_name,
               },
               assignAndApprovedMTDHODlist: {
-                assignMTDHODname: mtd_hod_list.tm_name,
-                assignMTDHODemail: mtd_hod_list.email,
+                assignMTDHODname: mtd_hod_list?.tm_name,
+                assignMTDHODemail: mtd_hod_list?.email,
               },
               assignAndApprovedPRDHOSlist: {
                 assignPRDHOSname: prd_hos_list.tm_name,
                 assignPRDHOSemail: prd_hos_list.email,
               },
               assignAndApprovedPRDHODlist: {
-                assignPRDHODname: prd_hod_list.tm_name,
-                assignPRDHODemail: prd_hod_list.email,
+                assignPRDHODname: prd_hod_list?.tm_name,
+                assignPRDHODemail: prd_hod_list?.email,
               },
               approvalStatusOfMTDHOS: "Pending",
               approvalStatusOfMTDHOD: "Pending",
@@ -18280,25 +18280,25 @@ router.post(
           section_id: sectionInfo?._id,
           reasonForDelayOfTL,
           skippedDataApprovalSender: {
-            senderTLNo: loggedUserData.tm_no,
-            senderTLName: loggedUserData.tm_name,
-            senderTLEmail: loggedUserData.email,
+            senderTLNo: loggedUserData?.tm_no,
+            senderTLName: loggedUserData?.tm_name,
+            senderTLEmail: loggedUserData?.email,
           },
           assignAndApprovedHOSlist: {
-            assignMTDHOSemail: mtd_hos_list.email,
-            assignMTDHOSname: mtd_hos_list.tm_name,
+            assignMTDHOSemail: mtd_hos_list?.email,
+            assignMTDHOSname: mtd_hos_list?.tm_name,
           },
           assignAndApprovedMTDHODlist: {
-            assignMTDHODname: mtd_hod_list.tm_name,
-            assignMTDHODemail: mtd_hod_list.email,
+            assignMTDHODname: mtd_hod_list?.tm_name,
+            assignMTDHODemail: mtd_hod_list?.email,
           },
           assignAndApprovedPRDHOSlist: {
-            assignPRDHOSname: prd_hos_list.tm_name,
-            assignPRDHOSemail: prd_hos_list.email,
+            assignPRDHOSname: prd_hos_list?.tm_name,
+            assignPRDHOSemail: prd_hos_list?.email,
           },
           assignAndApprovedPRDHODlist: {
-            assignPRDHODname: prd_hod_list.tm_name,
-            assignPRDHODemail: prd_hod_list.email,
+            assignPRDHODname: prd_hod_list?.tm_name,
+            assignPRDHODemail: prd_hod_list?.email,
           },
           approvalStatusOfMTDHOS: "Pending",
           approvalStatusOfMTDHOD: "Pending",
@@ -18317,25 +18317,25 @@ router.post(
           subSection_id: subSectionsData?._id,
           reasonForDelayOfTL,
           skippedDataApprovalSender: {
-            senderTLNo: loggedUserData.tm_no,
-            senderTLName: loggedUserData.tm_name,
-            senderTLEmail: loggedUserData.email,
+            senderTLNo: loggedUserData?.tm_no,
+            senderTLName: loggedUserData?.tm_name,
+            senderTLEmail: loggedUserData?.email,
           },
           assignAndApprovedHOSlist: {
-            assignMTDHOSemail: mtd_hos_list.email,
-            assignMTDHOSname: mtd_hos_list.tm_name,
+            assignMTDHOSemail: mtd_hos_list?.email,
+            assignMTDHOSname: mtd_hos_list?.tm_name,
           },
           assignAndApprovedMTDHODlist: {
-            assignMTDHODname: mtd_hod_list.tm_name,
-            assignMTDHODemail: mtd_hod_list.email,
+            assignMTDHODname: mtd_hod_list?.tm_name,
+            assignMTDHODemail: mtd_hod_list?.email,
           },
           assignAndApprovedPRDHOSlist: {
-            assignPRDHOSname: prd_hos_list.tm_name,
-            assignPRDHOSemail: prd_hos_list.email,
+            assignPRDHOSname: prd_hos_list?.tm_name,
+            assignPRDHOSemail: prd_hos_list?.email,
           },
           assignAndApprovedPRDHODlist: {
-            assignPRDHODname: prd_hod_list.tm_name,
-            assignPRDHODemail: prd_hod_list.email,
+            assignPRDHODname: prd_hod_list?.tm_name,
+            assignPRDHODemail: prd_hod_list?.email,
           },
           approvalStatusOfMTDHOS: "Pending",
           approvalStatusOfMTDHOD: "Pending",
@@ -18348,10 +18348,10 @@ router.post(
       sendApprovalOfSkippedPM(
         loggedUserData.tm_no,
         loggedUserData.tm_name,
-        mtd_hos_list.email,
-        mtd_hod_list.email,
-        prd_hos_list.email,
-        prd_hod_list.email,
+        mtd_hos_list?.email,
+        mtd_hod_list?.email,
+        prd_hos_list?.email,
+        prd_hod_list?.email,
         approvalStatusOfMTDHOS,
         approvalStatusOfMTDHOD,
         approvalStatusOfPRDHOS,
@@ -18451,7 +18451,7 @@ router.post(
           sendApprovalOfSkippedPM(
             loggedUserData.tm_no,
             loggedUserData.tm_name,
-            skipApprovalStatusData.skippedDataApprovalSender.senderTLEmail,
+            skipApprovalStatusData.skippedDataApprovalSender?.senderTLEmail,
             skipApprovalStatusData.assignAndApprovedMTDHODlist
               .assignMTDHODemail,
             skipApprovalStatusData.assignAndApprovedPRDHOSlist

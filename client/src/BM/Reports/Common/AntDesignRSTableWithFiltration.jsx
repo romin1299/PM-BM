@@ -124,7 +124,6 @@ const AntDesignRSTableWithFiltration = ({
               disableElevation
               className="bg-button"
               variant="contained"
-              type="submit"
               sx={{
                 ml: 1,
                 minWidth: "30px",
@@ -149,6 +148,7 @@ const AntDesignRSTableWithFiltration = ({
           <BDRequestSheetAntDesignTable
             requestSheetData={requestSheetDataForProductAndLineWise}
             downloadFileName={downloadFileName}
+            selectedYear={selectedYear}
           />
         )}
       </Paper>

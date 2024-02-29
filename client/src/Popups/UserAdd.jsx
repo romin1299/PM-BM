@@ -14,6 +14,7 @@ import {
   FormControl,
 } from "@material-ui/core";
 // import Context from "@mui/base/TabsUnstyled/TabsContext";
+import { LIST_OF_COMPANY, NAME_OF_THE_COMPANY } from "../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const UserAdd = () => {
   const context = useContext(RoutingContext);
@@ -33,8 +34,6 @@ const UserAdd = () => {
   const [sections, setsections] = useState();
   const [subsections, setsubsections] = useState([]);
   const [cells, setcells] = useState([]);
-
-  console.log(context);
 
   //for dropdown list
   const [sectionList, setSectionList] = useState([]);
@@ -107,9 +106,10 @@ const UserAdd = () => {
     //     : "",
     email: yup.string().when(["user_type"], {
       is: () =>
-        formik.values.user_type === "TL/HOSS" ||
-        context.user_type === "Admin" ||
-        context.user_type === "Plant-Admin",
+        LIST_OF_COMPANY?.[0] === NAME_OF_THE_COMPANY &&
+        (formik.values.user_type === "TL/HOSS" ||
+          context.user_type === "Admin" ||
+          context.user_type === "Plant-Admin"),
       then: yup
         .string("Enter your email")
         .email("Enter a valid email")

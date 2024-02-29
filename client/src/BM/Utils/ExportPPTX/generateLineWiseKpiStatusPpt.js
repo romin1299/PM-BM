@@ -129,7 +129,7 @@ function convertResData(data) {
         {
           name: "BD Hours",
           labels: MONTH_LABELS,
-          values: data?.data,
+          values: data?.data.replaceZeroWithNull(),
         },
       ],
       options: {
@@ -142,7 +142,7 @@ function convertResData(data) {
         {
           name: "Target",
           labels: MONTH_LABELS,
-          values: data?.target,
+          values: data?.target.replaceZeroWithNull(),
         },
       ],
       options: {
@@ -207,6 +207,7 @@ export async function genChartMatrix(pptx, dataArray) {
     // showValAxisTitle: false,
     valAxisTitle: "Hours",
     valAxisTitleFontSize: fontSize,
+    dataLabelFontSize: 7,
     legendFontSize: 7,
     catAxisLabelFontSize: fontSize,
     valAxisLabelFontSize: fontSize,
@@ -321,7 +322,7 @@ export async function genChartMatrix(pptx, dataArray) {
 
   // dataArray.splice(0, noOfCols);
 
-  const slicedArray = await dataArray.slice(noOfCols, dataArray.length);
+  const slicedArray = await dataArray?.slice(noOfCols, dataArray.length);
 
   await genChartMatrix(pptx, slicedArray);
 }
@@ -346,8 +347,8 @@ export function genMatrix(noOfRows = 3, noOfCols = 3) {
     }
   }
 
-  console.log("Matrix========>");
-  console.table(matrix);
+  // console.log("Matrix========>");
+  // console.table(matrix);
 }
 
 export function calcEqualCols(length) {
