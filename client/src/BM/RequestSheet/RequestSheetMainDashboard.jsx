@@ -67,7 +67,7 @@ const RequestSheetMainDashboard = () => {
   const [selectedRow, setSelectedRow] = useState();
   const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
   const [summeryCardModal, setSummeryCardModal] = useState(false);
-  const [displayColumnOrNot, setDisplayColumnOrNot] = useState(false);
+  const [displayColumnOrNot, setDisplayColumnOrNot] = useState(true);
 
   const statusColorMap = {
     // Generated: "#9bcbdb",
@@ -387,6 +387,11 @@ const RequestSheetMainDashboard = () => {
             dropDownArray:
               reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
           }),
+        validate: (rowData) => {
+          return rowData.assignUser === undefined
+            ? { isValid: false, helperText: "Assign user cannot be empty" }
+            : true;
+        },
       },
       {
         title: "Handover To",
@@ -415,7 +420,6 @@ const RequestSheetMainDashboard = () => {
         field: "finalActivity",
         editable: conditionalBasedEditableFunctionForMTD,
         width: "20%",
-        validate: (rowData) => rowData.finalActivity !== "",
       },
       {
         title: "H/O Time Work End", //hand-over time

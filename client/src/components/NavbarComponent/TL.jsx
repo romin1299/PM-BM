@@ -323,7 +323,7 @@ const TL = ({ userData, userDepartment }) => {
                     }}
                   />
                 }
-                href="/pm/planningApproval"
+                href="/planningApproval"
               >
                 <NavLink to="/pm/planningApproval"></NavLink>
                 Planning Approval

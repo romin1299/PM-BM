@@ -46,69 +46,76 @@ import { filteredMenuItems } from "../Common/CommonRoutes/filteredMenuItems";
 import { menuItems } from "./BMSidebar/menuItems";
 
 import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
+import {
+  NAME_OF_THE_COMPANY,
+  LIST_OF_COMPANY,
+} from "../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 function BM_Routes({ commonRoutes }) {
-  //For DENSO-INDIA
-  // const reportRoutes = [
-  //   ...commonRoutes,
-  //   {
-  //     path: "/bm/edit/request-sheet/:machine_code/:requestSheetID/:selectedYear",
-  //     element: <UpdateRequestSheetForAnyStatus />,
-  //   },
-  //   {
-  //     path: "/bm/report/productionLineWiseReport",
-  //     element: <ProductionLineWiseReport />,
-  //   },
-  //   { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
-  //   {
-  //     path: "/bm/report/daily-breakdown-trend",
-  //     element: <DailyBTDashboard />,
-  //   },
-  //   {
-  //     path: "/bm/report/monthly-breakdown-trend",
-  //     element: <MonthlyBDTDashboard />,
-  //   },
-  //   // {
-  //   //   path: "/bm/report/mttr-report",
-  //   //   element: <MTTRReportDashboard />,
-  //   // },
-  //   // {
-  //   //   path: "/bm/report/mtbf-report",
-  //   //   element: <MTBFReportDashboard />,
-  //   // },
-  //   {
-  //     path: "/bm/report/line-contribution-breakdown-trend",
-  //     element: <LineContributionBD />,
-  //   },
-  //   {
-  //     path: "/bm/report/tm-mtr",
-  //     element: <TMMTR />,
-  //   },
-  //   {
-  //     path: "/bm/report/mttr",
-  //     element: <MTTRReportDashboard />,
-  //   },
-  //   {
-  //     path: "/bm/report/mtbf",
-  //     element: <MTBFReportDashboard />,
-  //   },
-  //   {
-  //     path: "/bm/report/top-machine-breakdown",
-  //     element: <TopMachineBD />,
-  //   },
-  //   {
-  //     path: "/bm/report/machine-age",
-  //     element: <MachineAgeReport />,
-  //   },
-  // ];
+  let reportRoutes = [];
+  if (NAME_OF_THE_COMPANY !== LIST_OF_COMPANY?.[0]) {
+    // For DENSO-INDIA
+    reportRoutes = [
+      ...commonRoutes,
+      {
+        path: "/bm/edit/request-sheet/:machine_code/:requestSheetID/:selectedYear",
+        element: <UpdateRequestSheetForAnyStatus />,
+      },
+      {
+        path: "/bm/report/productionLineWiseReport",
+        element: <ProductionLineWiseReport />,
+      },
+      { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
+      {
+        path: "/bm/report/daily-breakdown-trend",
+        element: <DailyBTDashboard />,
+      },
+      {
+        path: "/bm/report/monthly-breakdown-trend",
+        element: <MonthlyBDTDashboard />,
+      },
+      // {
+      //   path: "/bm/report/mttr-report",
+      //   element: <MTTRReportDashboard />,
+      // },
+      // {
+      //   path: "/bm/report/mtbf-report",
+      //   element: <MTBFReportDashboard />,
+      // },
+      {
+        path: "/bm/report/line-contribution-breakdown-trend",
+        element: <LineContributionBD />,
+      },
+      {
+        path: "/bm/report/tm-mtr",
+        element: <TMMTR />,
+      },
+      {
+        path: "/bm/report/mttr",
+        element: <MTTRReportDashboard />,
+      },
+      {
+        path: "/bm/report/mtbf",
+        element: <MTBFReportDashboard />,
+      },
+      {
+        path: "/bm/report/top-machine-breakdown",
+        element: <TopMachineBD />,
+      },
+      {
+        path: "/bm/report/machine-age",
+        element: <MachineAgeReport />,
+      },
+    ];
+  } else {
+    //For DENSO-HARYANA
+    reportRoutes = commonRoutes;
 
-  //For DENSO-HARYANA
-  let reportRoutes = commonRoutes;
-
-  reportRoutes.push({
-    path: "/bm/edit/request-sheet/:machine_code/:requestSheetID/:selectedYear",
-    element: <UpdateRequestSheetForAnyStatus />,
-  });
+    reportRoutes.push({
+      path: "/bm/edit/request-sheet/:machine_code/:requestSheetID/:selectedYear",
+      element: <UpdateRequestSheetForAnyStatus />,
+    });
+  }
 
   // Define an array of routes for each user type
   const userRoutes = [
@@ -168,7 +175,7 @@ function BM_Routes({ commonRoutes }) {
         //     </div>
         //   ),
         // },
-        // 
+        //
         {
           path: "/bm/approval",
           element: <ApprovalDashboardOfRequestSheet />,
@@ -228,7 +235,7 @@ function BM_Routes({ commonRoutes }) {
         //     </div>
         //   ),
         // },
-        // 
+        //
         {
           path: "/bm/requestSheetMonitoring",
           element: <RequestSheetMonitoring />,

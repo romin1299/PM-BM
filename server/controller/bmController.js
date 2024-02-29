@@ -1917,15 +1917,16 @@ router.get(
   findRequestSheetMiddleware,
   dashboardLevelUserCheckMiddleware,
   findTLandOperatorList,
-  getCountBDCountBasedOnLoggedUserMiddleware,
+  // getCountBDCountBasedOnLoggedUserMiddleware,
   async (req, res, next) => {
     try {
       const counters = await RequestSheetOfBM.aggregate([
-        {
-          $match: {
-            ...req?.queryObjForCountOfBDForRequestSheetDashboard,
-          },
-        },
+        // {
+        //   $match: {
+        //     // ...req?.queryObjForCountOfBDForRequestSheetDashboard,
+        //   },
+        // },
+        ...req.queryPipeline,
         {
           $group: {
             _id: null,

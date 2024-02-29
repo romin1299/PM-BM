@@ -27,6 +27,7 @@
     "chart.js": "^4.0.1",
     "chartjs-plugin-annotation": "^3.0.1",
     "chartjs-plugin-datalabels": "^2.2.0",
+    "chartjs-plugin-gradient": "^0.6.1",
     "date-fns": "^2.0.0-alpha.27",
     "file-saver": "^2.0.5",
     "force": "^0.0.3",
