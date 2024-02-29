@@ -8708,6 +8708,7 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
                       lessThanOne: 0,
                       lessThanTwo: 0,
                       greaterThanTwo: 0,
+                      totalCount : 0
                     },
                   },
                 ],
@@ -8724,22 +8725,24 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
         $group: {
           _id: null,
           labels: { $push: "$month" },
-
           lessThanOne: { $push: { $trunc: ["$value.lessThanOne", 1] } },
-
           lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
           greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
+          totalCount: { $push: "$value.totalCount" },
         },
       },
     ]);
 
     return res.status(200).json({
       message: "Monthly BD trend data for hourly get successfully",
-      bdTrendData: [
+      bdTrendData:
+       [
         { label: "<1", data: bdTrendData?.[0].lessThanOne },
         { label: "<2", data: bdTrendData?.[0].lessThanTwo },
         { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
+        // { label: "Total", data: bdTrendData?.[0].totalCount },
       ],
+      totalCount : bdTrendData?.[0].totalCount,
       bdTrendDataTarget: req.target,
     });
   } catch (error) {
@@ -9821,7 +9824,10 @@ const filterForMonthlyData = async (req, res, next) => {
             0,
           ],
         },
+        
       },
+
+      
       lessThanTwo: {
         $sum: {
           $cond: [
@@ -9876,6 +9882,7 @@ const filterForMonthlyData = async (req, res, next) => {
           ],
         },
       },
+      totalCount: { $sum: 1 },
     };
 
     const grpQueryForAllSum = {
@@ -10416,6 +10423,7 @@ router.get(
                         lessThanOne: 0,
                         lessThanTwo: 0,
                         greaterThanTwo: 0,
+                        totalCount : 0
                       },
                     },
                   ],
@@ -10437,6 +10445,7 @@ router.get(
 
             lessThanTwo: { $push: { $trunc: ["$value.lessThanTwo", 1] } },
             greaterThanTwo: { $push: { $trunc: ["$value.greaterThanTwo", 1] } },
+            totalCount: { $push: "$value.totalCount" },
           },
         },
       ]);
@@ -10453,6 +10462,7 @@ router.get(
           { label: "<2", data: bdTrendData?.[0].lessThanTwo },
           { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
         ],
+        totalCount : bdTrendData?.[0].totalCount,
         bdTrendDataTarget: [req.previousYearlyTarget, req.currentYearlyTarget],
       });
     } catch (error) {
@@ -11992,6 +12002,7 @@ router.get(
                 ],
               },
             },
+            totalCount: { $sum: 1 },
           },
         },
         {
@@ -12023,6 +12034,7 @@ router.get(
                       lessThanOne: 0,
                       lessThanTwo: 0,
                       greaterThanTwo: 0,
+                      totalCount :0
                     },
                   ],
                 },
@@ -12041,6 +12053,7 @@ router.get(
             lessThanOne: { $push: truncValue("$lessThanOne") },
             lessThanTwo: { $push: truncValue("$lessThanTwo") },
             greaterThanTwo: { $push: truncValue("$greaterThanTwo") },
+            totalCount: { $push: "$totalCount" },
           },
         },
         // {
@@ -12102,6 +12115,8 @@ router.get(
           ],
         bdTrendData: bdTrendData?.[0],
         machineHistoryCardData: machineHistoryCardData?.[0],
+      totalCount : bdTrendData?.[0].totalCount,
+
         bdTrendDataTarget: req.target,
       });
     } catch (error) {
@@ -12385,6 +12400,7 @@ router.get(
                   ],
                 },
               },
+              totalCount: { $sum: 1 },
             },
           },
           {
@@ -12425,6 +12441,7 @@ router.get(
                           lessThanOne: 0,
                           lessThanTwo: 0,
                           greaterThanTwo: 0,
+                          totalCount : 0
                         },
                       },
                     ],
@@ -12450,6 +12467,7 @@ router.get(
               greaterThanTwo: {
                 $push: { $trunc: ["$array.value.greaterThanTwo", 1] },
               },
+              totalCount: { $push: "$array.value.totalCount" },
             },
           },
         ]);
@@ -12497,6 +12515,7 @@ router.get(
           cellWiseCount,
           bdTrendData,
           machineSummaryCardData: machineSummaryCardData,
+          totalCount : bdTrendData?.[0].totalCount,
           bdTrendDataTarget: req.target,
         });
       } catch (error) {
