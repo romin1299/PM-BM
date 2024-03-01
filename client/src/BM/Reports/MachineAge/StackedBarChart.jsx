@@ -127,6 +127,8 @@ const StackedBarChart = ({
           label: item?.label || item?._id,
           data: item?.data,
           backgroundColor: chartColors.monthlyBDTrend[index],
+          borderColor: "#312A7D",
+          borderWidth: 2,
         }));
 
         setChartData({

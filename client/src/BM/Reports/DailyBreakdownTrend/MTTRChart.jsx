@@ -254,9 +254,10 @@ const MTTRChart = ({
         label: item?.label,
         data: item?.data,
         backgroundColor: chartColors.monthlyBDTrend[index],
-        borderColor: chartColors.monthlyBDTrend[index],
         borderRadius: 4,
         pointStyle: "rect",
+        borderColor: "#312A7D",
+        borderWidth: 2,
       })),
     ],
   };

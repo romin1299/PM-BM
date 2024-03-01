@@ -170,6 +170,8 @@ const LineBarChart = ({
       yAxisID: "y1",
       backgroundColor: chartColors.barLineChart,
       borderRadius: 4,
+      borderColor: "#312A7D",
+      borderWidth: 2,
     },
   ];
 

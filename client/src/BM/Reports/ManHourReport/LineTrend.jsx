@@ -266,6 +266,8 @@ const LineTrend = ({
         data: lineTrendData?.totalSumOf_BM,
         backgroundColor: chartColors.bmpm[0],
         borderRadius: 4,
+        borderColor: "#312A7D",
+        borderWidth: 2,
         yAxisID: "y2",
       },
       {
@@ -275,6 +277,8 @@ const LineTrend = ({
         data: lineTrendData?.totalSumOf_PM,
         backgroundColor: chartColors.bmpm[1],
         borderRadius: 4,
+        borderColor: "#312A7D",
+        borderWidth: 2,
         yAxisID: "y2",
       },
     ],

@@ -298,6 +298,8 @@ const TMLoad = ({
         backgroundColor: chartColors.bmpm[0],
         borderRadius: 4,
         yAxisID: "y2",
+        borderColor: "#312A7D",
+        borderWidth: 2,
       },
       {
         type: "bar",
@@ -307,6 +309,8 @@ const TMLoad = ({
         backgroundColor: chartColors.bmpm[1],
         borderRadius: 4,
         yAxisID: "y2",
+        borderColor: "#312A7D",
+        borderWidth: 2,
       },
     ],
   };

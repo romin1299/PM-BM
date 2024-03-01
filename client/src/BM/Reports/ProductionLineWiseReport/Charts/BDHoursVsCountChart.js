@@ -129,7 +129,7 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
         stack: "same-bar-stack",
         label: `Hours ${item?.groupId}`,
         data: item?.sumOfBDhours,
-        borderColor: "white",
+        borderColor: "#312A7D",
         borderWidth: 2,
         yAxisID: "y2",
         borderRadius: 4,

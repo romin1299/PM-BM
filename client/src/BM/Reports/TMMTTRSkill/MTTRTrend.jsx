@@ -83,7 +83,7 @@ export const options = {
   },
 };
 
-const TMLoad = ({ tm_names, data, loading = false, onClickDownload,  }) => {
+const TMLoad = ({ tm_names, data, loading = false, onClickDownload }) => {
   const chartData = {
     labels: tm_names,
     datasets: [
@@ -95,6 +95,8 @@ const TMLoad = ({ tm_names, data, loading = false, onClickDownload,  }) => {
         backgroundColor: chartColors.bmpm,
         borderRadius: 4,
         yAxisID: "y",
+        borderColor: "#312A7D",
+        borderWidth: 2,
       },
     ],
   };

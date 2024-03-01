@@ -224,7 +224,28 @@ const Section = ({ userData, userDepartment }) => {
                 </MenuItem>
               </SubMenu>
             ) : (
-              ""
+              <SubMenu
+                className="text-white"
+                title="Creation"
+                icon={<FaThList className="text-white" />}
+              >
+                <MenuItem
+                  className="text"
+                  icon={
+                    <PersonAddIcon
+                      className="text-white"
+                      style={{
+                        background: "#004B5B",
+                        borderRadius: "3px",
+                        padding: "2px",
+                      }}
+                    />
+                  }
+                >
+                  <NavLink to="/pm/userAssign"></NavLink>
+                  User Assign
+                </MenuItem>
+              </SubMenu>
             )}
 
             <SubMenu
@@ -559,29 +580,29 @@ const Section = ({ userData, userDepartment }) => {
             </Menuitem>
           </Menu>
           <Menu iconShape="square">
-          <MenuItem
-            className="text"
-            icon={
-              <LogoutIcon
-                className="text-white"
-                style={{ transform: "rotate(180deg)" }}
-              />
-            }
-            data-toggle="tooltip"
-            data-placement="right"
-            title="Logout"
-            onClick={() =>
-              Logout(userData).then((res) => {
-                if (res) {
-                  loggedOut();
-                }
-              })
-            }
-          >
-            {" "}
-            Logout{" "}
-          </MenuItem>
-        </Menu>
+            <MenuItem
+              className="text"
+              icon={
+                <LogoutIcon
+                  className="text-white"
+                  style={{ transform: "rotate(180deg)" }}
+                />
+              }
+              data-toggle="tooltip"
+              data-placement="right"
+              title="Logout"
+              onClick={() =>
+                Logout(userData).then((res) => {
+                  if (res) {
+                    loggedOut();
+                  }
+                })
+              }
+            >
+              {" "}
+              Logout{" "}
+            </MenuItem>
+          </Menu>
         </SidebarContent>
         {/* <SidebarFooter fixed="bottom">
           <Menu iconShape="square">

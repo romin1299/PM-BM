@@ -102,6 +102,8 @@ const BarChart = ({
       // borderColor: "#243552",
       // borderWidth: 1,
       borderRadius: 4,
+      borderColor: "#312A7D",
+      borderWidth: 2,
     },
   ];
 

@@ -254,6 +254,8 @@ const PlantLineContribution = ({
         backgroundColor: chartColors.barChart,
         borderRadius: 4,
         yAxisID: "y",
+        borderColor: "#312A7D",
+        borderWidth: 2,
       },
     ],
   };

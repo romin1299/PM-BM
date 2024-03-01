@@ -18607,148 +18607,148 @@ router.get("/dummyAPI", authenticate, async (req, res, next) => {
         }
       );
 
-      console.log("machine-updated : ", machineFind[i]?.machine_code);
+      console.log("machine-updated : ", i);
     }
 
-    const lineFind = await Line.aggregate([
-      {
-        $match: {},
-      },
-      {
-        $lookup: {
-          from: "cells",
-          localField: "cell_names",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $lookup: {
-                from: "subsections",
-                localField: "subSection_names",
-                foreignField: "_id",
-                pipeline: [
-                  {
-                    $lookup: {
-                      from: "sections",
-                      localField: "section_names",
-                      foreignField: "_id",
-                      pipeline: [
-                        {
-                          $project: { plant_names: 1 },
-                        },
-                      ],
-                      as: "section",
-                    },
-                  },
-                  {
-                    $project: {
-                      section: 1,
-                    },
-                  },
-                ],
-                as: "subSection",
-              },
-            },
-            {
-              $project: {
-                subSection: 1,
-              },
-            },
-          ],
-          as: "cell",
-        },
-      },
-      {
-        $project: {
-          line_name: 1,
-          cell: 1,
-        },
-      },
-      // {
-      //   $match: {
-      //     "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
-      //       req.params?.selectedId
-      //     ),
-      //   },
-      // },
-    ]);
+    // const lineFind = await Line.aggregate([
+    //   {
+    //     $match: {},
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "cells",
+    //       localField: "cell_names",
+    //       foreignField: "_id",
+    //       pipeline: [
+    //         {
+    //           $lookup: {
+    //             from: "subsections",
+    //             localField: "subSection_names",
+    //             foreignField: "_id",
+    //             pipeline: [
+    //               {
+    //                 $lookup: {
+    //                   from: "sections",
+    //                   localField: "section_names",
+    //                   foreignField: "_id",
+    //                   pipeline: [
+    //                     {
+    //                       $project: { plant_names: 1 },
+    //                     },
+    //                   ],
+    //                   as: "section",
+    //                 },
+    //               },
+    //               {
+    //                 $project: {
+    //                   section: 1,
+    //                 },
+    //               },
+    //             ],
+    //             as: "subSection",
+    //           },
+    //         },
+    //         {
+    //           $project: {
+    //             subSection: 1,
+    //           },
+    //         },
+    //       ],
+    //       as: "cell",
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       line_name: 1,
+    //       cell: 1,
+    //     },
+    //   },
+    //   // {
+    //   //   $match: {
+    //   //     "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
+    //   //       req.params?.selectedId
+    //   //     ),
+    //   //   },
+    //   // },
+    // ]);
 
-    for (let i = 0; i < lineFind.length; i++) {
-      await Line.updateOne(
-        {
-          _id: lineFind[i]?._id,
-        },
-        {
-          subSection_names: lineFind[i]?.cell?.[0]?.subSection?.[0]?._id,
-          section_names:
-            lineFind[i]?.cell?.[0]?.subSection?.[0]?.section[0]?._id,
-          plant_names:
-            lineFind[i]?.cell?.[0]?.subSection?.[0]?.section[0]?.plant_names,
-        }
-      );
+    // for (let i = 0; i < lineFind.length; i++) {
+    //   await Line.updateOne(
+    //     {
+    //       _id: lineFind[i]?._id,
+    //     },
+    //     {
+    //       subSection_names: lineFind[i]?.cell?.[0]?.subSection?.[0]?._id,
+    //       section_names:
+    //         lineFind[i]?.cell?.[0]?.subSection?.[0]?.section[0]?._id,
+    //       plant_names:
+    //         lineFind[i]?.cell?.[0]?.subSection?.[0]?.section[0]?.plant_names,
+    //     }
+    //   );
 
-      console.log("Line-updated : ", lineFind[i]?.line_name);
-    }
+    //   console.log("Line-updated : ", lineFind[i]?.line_name);
+    // }
 
-    const cellFind = await Cell.aggregate([
-      {
-        $match: {},
-      },
-      {
-        $lookup: {
-          from: "subsections",
-          localField: "subSection_names",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $lookup: {
-                from: "sections",
-                localField: "section_names",
-                foreignField: "_id",
-                pipeline: [
-                  {
-                    $project: { plant_names: 1 },
-                  },
-                ],
-                as: "section",
-              },
-            },
-            {
-              $project: {
-                section: 1,
-              },
-            },
-          ],
-          as: "subSection",
-        },
-      },
-      {
-        $project: {
-          cell_name: 1,
-          subSection: 1,
-        },
-      },
-      // {
-      //   $match: {
-      //     "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
-      //       req.params?.selectedId
-      //     ),
-      //   },
-      // },
-    ]);
+    // const cellFind = await Cell.aggregate([
+    //   {
+    //     $match: {},
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "subsections",
+    //       localField: "subSection_names",
+    //       foreignField: "_id",
+    //       pipeline: [
+    //         {
+    //           $lookup: {
+    //             from: "sections",
+    //             localField: "section_names",
+    //             foreignField: "_id",
+    //             pipeline: [
+    //               {
+    //                 $project: { plant_names: 1 },
+    //               },
+    //             ],
+    //             as: "section",
+    //           },
+    //         },
+    //         {
+    //           $project: {
+    //             section: 1,
+    //           },
+    //         },
+    //       ],
+    //       as: "subSection",
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       cell_name: 1,
+    //       subSection: 1,
+    //     },
+    //   },
+    //   // {
+    //   //   $match: {
+    //   //     "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
+    //   //       req.params?.selectedId
+    //   //     ),
+    //   //   },
+    //   // },
+    // ]);
 
-    for (let i = 0; i < cellFind.length; i++) {
-      await Cell.updateOne(
-        {
-          _id: cellFind[i]?._id,
-        },
-        {
-          section_names: cellFind[i]?.subSection?.[0]?.section[0]?._id,
-          plant_names: cellFind[i]?.subSection?.[0]?.section[0]?.plant_names,
-        }
-      );
+    // for (let i = 0; i < cellFind.length; i++) {
+    //   await Cell.updateOne(
+    //     {
+    //       _id: cellFind[i]?._id,
+    //     },
+    //     {
+    //       section_names: cellFind[i]?.subSection?.[0]?.section[0]?._id,
+    //       plant_names: cellFind[i]?.subSection?.[0]?.section[0]?.plant_names,
+    //     }
+    //   );
 
-      console.log("Cell-updated : ", cellFind[i]?.cell_name);
-    }
+    //   console.log("Cell-updated : ", cellFind[i]?.cell_name);
+    // }
 
     return res.status(201).json({
       message: "Success !!!!",

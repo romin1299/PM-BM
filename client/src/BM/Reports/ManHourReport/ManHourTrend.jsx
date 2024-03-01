@@ -205,12 +205,16 @@ const ManHourTrend = ({
         data: manHourTrendData?.BMManHourTrend,
         backgroundColor: chartColors.bmpm[0],
         borderRadius: 4,
+        borderColor: "#312A7D",
+        borderWidth: 2,
       },
       {
         label: "PM",
         data: manHourTrendData?.PMManHourTrend,
         backgroundColor: chartColors.bmpm[1],
         borderRadius: 4,
+        borderColor: "#312A7D",
+        borderWidth: 2,
       },
     ],
   };

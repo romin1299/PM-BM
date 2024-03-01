@@ -308,10 +308,12 @@ const DailyBDTrendChart = ({
   //   },
   // ];
 
-  /* 
-   1. FF1744  3949AB  43A047  FFD740 
-   2. 000000  0F6292  16FF00  FFED00
-
+  /*
+   * ***********  COLORS  ***********
+   * 1. FF1744  3949AB  43A047  FFD740
+   * 2. 000000  0F6292  16FF00  FFED00
+   * 3. D04848  34aa30  eccc14  1f6fdf
+   * ********************************
    */
 
   const datasets = [
@@ -320,8 +322,9 @@ const DailyBDTrendChart = ({
       label: "Total Count",
       // data: [1, 2, 3, 3, 4, 4, 4],
       data: dailyBreakdownTrendData?.dayWiseCount,
-      backgroundColor: "#D04848",
-      borderColor: "#D04848",
+      backgroundColor: "#db3131",
+      borderColor: "#db3131",
+      // borderColor: "#db3131",
       borderWidth: 2,
       fill: false,
       yAxisID: "y2",
@@ -333,10 +336,45 @@ const DailyBDTrendChart = ({
       yAxisID: "y",
       // data: [1, 2, 3, 3, 4, 4, 4],
       data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
-      backgroundColor: "#34aa30",
-      // borderColor: chartColors.dailyBDTrendBorder[0],
-      // borderWidth: 1,
+      backgroundColor: "#f8f85d",
+      borderColor: "#312A7D",
+      borderWidth: 2,
       borderRadius: 4,
+      
+      // backgroundColor: "#8EBA0E",
+      // (context) => {
+      //   const chart = context.chart;
+      //   const { ctx, chartArea } = chart;
+
+      //   console.log(ctx);
+
+      //   if (!chartArea) {
+      //     // This case happens on initial chart load
+      //     return;
+      //   }
+
+      //   let width, height, gradient;
+
+      //   const chartWidth = chartArea.right - chartArea.left;
+      //   const chartHeight = chartArea.bottom - chartArea.top;
+      //   if (!gradient || width !== chartWidth || height !== chartHeight) {
+      //     // Create the gradient because this is either the first render
+      //     // or the size of the chart has changed
+      //     width = chartWidth;
+      //     height = chartHeight;
+      //     gradient = ctx.createLinearGradient(
+      //       0,
+      //       chartArea.bottom,
+      //       0,
+      //       chartArea.top
+      //     );
+      //     gradient.addColorStop(0.5, "yellow");
+      //     gradient.addColorStop(1, "red");
+      //   }
+
+      //   return gradient;
+      // },
+      
     },
     {
       type: "bar",
@@ -344,10 +382,13 @@ const DailyBDTrendChart = ({
       label: "< 2",
       yAxisID: "y",
       // data: [1, 2, 3, 3, 4, 4, 4],
+      // data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
       data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
-      backgroundColor: "#eccc14",
+      // backgroundColor: "#f7cf69",
+      backgroundColor: "#eb8f18",
       // borderColor: chartColors.dailyBDTrendBorder[1],
-      // borderWidth: 1,
+      borderWidth: 2,
+      borderColor: "#312A7D",
       borderRadius: 4,
     },
     {
@@ -355,11 +396,13 @@ const DailyBDTrendChart = ({
       stack: "bar-stacked",
       label: "> 2",
       yAxisID: "y",
-      // data: [1, 2, 3, 3, 4, 4, 4],
-      data: dailyBreakdownTrendData?.greaterThenTwoHourData,
-      backgroundColor: "#1f6fdf",
+      // data: [1, 2, 3, 3, 4, 4, 4, 10],
+      data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
+      // data: dailyBreakdownTrendData?.greaterThenTwoHourData,
+      borderColor: "#312A7D",
+      backgroundColor: "#eb6b6b",
       // borderColor: chartColors.dailyBDTrendBorder[2],
-      // borderWidth: 1,
+      borderWidth: 2,
       borderRadius: 4,
     },
   ];

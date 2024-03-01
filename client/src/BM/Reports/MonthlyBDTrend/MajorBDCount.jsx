@@ -172,6 +172,8 @@ const MajorBDCount = ({
         data: item?.data,
         backgroundColor: chartColors.sections[index],
         borderRadius: 4,
+        borderColor: "#312A7D",
+        borderWidth: 2,
       }));
 
       const targetData = res?.data?.bdTrendDataTarget;

@@ -220,12 +220,16 @@ const ChartToPPTExample = ({
         data: HourTrendData?.BMHourTrend,
         backgroundColor: chartColors.bmpm[0],
         borderRadius: 4,
+        borderColor: "#312A7D",
+        borderWidth: 2,
       },
       {
         label: "PM",
         data: HourTrendData?.PMHourTrend,
         backgroundColor: chartColors.bmpm[1],
         borderRadius: 4,
+        borderColor: "#312A7D",
+        borderWidth: 2,
       },
     ],
 
@@ -234,8 +238,6 @@ const ChartToPPTExample = ({
     //   backgroundColor: i === 0 ? "rgba(202, 31, 75)" : chartColors[i - 1],
     // })),
   };
-
-  console.log("data:", data);
 
   let isDataExists = isChartDataExist(data);
 

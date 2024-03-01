@@ -25,7 +25,7 @@ const YearlyContributionBarChart = ({
   filterValues,
   userDetails,
   getDataForOtherComponentBasedOnMachineAgeGroupChange,
-  setGetDataForOtherComponentBasedOnMachineAgeGroupChange
+  setGetDataForOtherComponentBasedOnMachineAgeGroupChange,
 }) => {
   ChartJS.register(
     CategoryScale,
@@ -85,7 +85,7 @@ const YearlyContributionBarChart = ({
 
       if (res?.status === 201) {
         setYearlyContributionData(machineData?.[0]);
-        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(false)
+        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(false);
       }
     } catch (error) {
       console.log(error);
@@ -202,7 +202,8 @@ const YearlyContributionBarChart = ({
       data: yearlyContributionData?.data,
       backgroundColor: chartColors.monthlyBDTrend,
       // borderColor: chartColors[7],
-      borderWidth: 1,
+      borderColor: "#312A7D",
+      borderWidth: 2,
     },
   ];
 
