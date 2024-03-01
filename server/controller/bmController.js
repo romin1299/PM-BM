@@ -1495,7 +1495,7 @@ router.patch(
 );
 
 router.patch(
-  "/updateRequestSheetForAnyStatus",
+  "/updateRequestSheetForAnyStatus/:machineId",
   authenticate,
   async (req, res, next) => {
     try {
@@ -1565,6 +1565,19 @@ router.patch(
             (item) => item?.filename
           );
         }
+      }
+
+      if (updatedDataObj["breakDownBasicDataFilledByPRD.problemFaced"]) {
+        await Machine.findOneAndUpdate(
+          { _id: mongoose.Types.ObjectId(req.params?.machineId) },
+          {
+            $addToSet: {
+              machine_problems_faced:
+                updatedDataObj["breakDownBasicDataFilledByPRD.problemFaced"],
+            },
+          },
+          { new: true }
+        );
       }
 
       await RequestSheetOfBM.findOneAndUpdate(
@@ -4490,6 +4503,7 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
         $project: {
           machine_code: 1,
           machine_name: 1,
+          machine_problems_faced: 1,
           line: { $arrayElemAt: [`$line`, 0] },
           cell: { $arrayElemAt: [`$cell`, 0] },
           subSection: { $arrayElemAt: [`$subSection`, 0] },

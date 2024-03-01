@@ -40,6 +40,8 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
     watch,
     reset,
     setValue,
+    setError,
+    clearErrors,
   } = useForm({
     defaultValues: {
       ...requestSheetDataOfBM,
@@ -98,7 +100,11 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
     // requestSheetData.qualityRelated = selectedQuality;
     // requestSheetData.shiftOfBM = selectedShift;
     const formData = new FormData();
-    const { ...otherFields } = requestSheetData;
+    let { ...otherFields } = requestSheetData;
+
+    otherFields.problemFaced = otherFields?.select_problemFaced
+      ? otherFields?.select_problemFaced
+      : otherFields?.problemFaced;
 
     formData.append("prdDataUpdatedByOtherUser", true);
     formData.append("otherData", JSON.stringify(otherFields));
@@ -659,13 +665,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                     </select>
                   </Col> */}
 
-                      <select
-                        name="problemfaced"
-                        id="problemfaced"
-                        {...register("problemFaced", {
-                          // required: "Please fill this field",
-                        })}
-                      >
+                      <select {...register("select_problemFaced")}>
                         <option selected disabled value="">
                           Please select
                         </option>

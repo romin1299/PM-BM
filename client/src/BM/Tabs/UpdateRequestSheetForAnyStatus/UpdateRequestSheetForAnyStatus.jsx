@@ -86,6 +86,7 @@ const UpdateRequestSheetForAnyStatus = () => {
     reset,
     setValue,
     control,
+    clearErrors,
   } = useForm({});
 
   const getDataForEditingTheRS = async () => {
@@ -202,14 +203,19 @@ const UpdateRequestSheetForAnyStatus = () => {
       finalData["changedParts"] = parts;
     }
 
+    finalData["breakDownBasicDataFilledByPRD.problemFaced"] =
+      finalData?.select_problemFaced
+        ? finalData?.select_problemFaced
+        : finalData["breakDownBasicDataFilledByPRD.problemFaced"];
+
     formData.append("finalData", JSON.stringify(finalData));
 
     const res = await axios.patch(
-      `/updateRequestSheetForAnyStatus/?_id=${requestSheetID}`,
+      `/updateRequestSheetForAnyStatus/${AllData?.machine?._id}/?_id=${requestSheetID}`,
       formData
     );
 
-    if (res.status == 201) {
+    if (res.status === 201) {
       SuccessToast(res?.data?.message);
       handleBackNavigation();
     }
@@ -478,15 +484,36 @@ const UpdateRequestSheetForAnyStatus = () => {
                     </p>
                   </Col>
                   <Col lg={5}>
-                    <input
-                      type="text"
-                      id="prob"
-                      className="m-1 mb-2"
-                      style={{ width: "350px" }}
-                      {...register(
-                        "breakDownBasicDataFilledByPRD.problemFaced"
+                    <div className="d-flex align-items-center">
+                      <input
+                        type="text"
+                        id="prob"
+                        className="m-1 mb-2"
+                        style={{ width: "350px" }}
+                        {...register(
+                          "breakDownBasicDataFilledByPRD.problemFaced"
+                        )}
+                      />
+
+                      {AllData?.machine?.machine_problems_faced?.length > 0 && (
+                        <select
+                          {...register("select_problemFaced")}
+                          onInput={() => {
+                            clearErrors("error_problemFaced");
+                          }}
+                        >
+                          <option selected disabled value="">
+                            Please select
+                          </option>
+
+                          {AllData?.machine?.machine_problems_faced?.map(
+                            (problem, index) => {
+                              return <option key={index}>{problem}</option>;
+                            }
+                          )}
+                        </select>
                       )}
-                    />
+                    </div>
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
