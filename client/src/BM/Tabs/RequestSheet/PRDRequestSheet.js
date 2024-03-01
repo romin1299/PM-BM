@@ -42,6 +42,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
     watch,
     reset,
     setValue,
+    setError,
+    clearErrors,
   } = useForm({
     defaultValues: {
       problemOccurredDateAndTimeOfBM: moment(new Date()).format(
@@ -97,6 +99,9 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
     // requestSheetData.shiftOfBM = selectedShift;
 
     try {
+      if (errors?.["problemFaced"]) {
+        return;
+      }
       const res = await fetch(
         `/newRequestSheetRegistration/?machineRef=${machine_code}`,
         {
@@ -106,6 +111,9 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
           },
           body: JSON.stringify({
             ...requestSheetData,
+            problemFaced: requestSheetData?.select_problemFaced
+              ? requestSheetData?.select_problemFaced
+              : requestSheetData?.problemFaced,
           }),
         }
       );
@@ -639,20 +647,19 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       <input
                         type="text"
                         id="prob"
-                        name="problemfaced"
                         className="m-1 mb-2"
                         style={{ width: "350px" }}
-                        {...register("problemFaced", {
-                          // required: "Please fill this field",
-                        })}
+                        {...register("problemFaced")}
+                        onInput={() => {
+                          clearErrors("error_problemFaced");
+                        }}
                       />
                       {isEnable && (
                         <select
-                          name="problemfaced"
-                          id="problemfaced"
-                          {...register("problemFaced", {
-                            // required: "Please fill this field",
-                          })}
+                          {...register("select_problemFaced")}
+                          onInput={() => {
+                            clearErrors("error_problemFaced");
+                          }}
                         >
                           <option selected disabled value="">
                             Please select
@@ -666,6 +673,11 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                         </select>
                       )}
                     </div>
+                    {errors?.["error_problemFaced"] && (
+                      <p className="text-error">
+                        {errors?.["error_problemFaced"]?.message}
+                      </p>
+                    )}
                   </Col>
                 </Row>
 
@@ -922,7 +934,21 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
 
             <tr>
               <td>
-                <button type="submit" className="btn bg-success">
+                <button
+                  type="submit"
+                  className="btn bg-success"
+                  onClick={() => {
+                    if (
+                      !watch("problemFaced") &&
+                      !watch("select_problemFaced")
+                    ) {
+                      return setError("error_problemFaced", {
+                        type: "custom",
+                        message: "Please fill or select this field",
+                      });
+                    }
+                  }}
+                >
                   Submit Request-Sheet
                 </button>
               </td>
