@@ -650,7 +650,7 @@ function App({ commonRoutes }) {
                   element={<PreparationApprovalDashboard />}
                 />
                 <Route
-                  path="/pm/pm/planningApproval"
+                  path="/pm/planningApproval"
                   element={<PlanningApprovalDashboard />}
                 />
                 <Route

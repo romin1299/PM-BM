@@ -336,7 +336,7 @@ const CheckSheetDashboard = () => {
                     ? rowData?.checkSheet_data?.checkSheet?.length > 0
                       ? rowData?.checkSheet_data?.checkSheet?.length < 1
                         ? "Preparation"
-                        : rowData?.checkSheet_data.assign_TL?.length !==
+                        : rowData?.checkSheet_data?.assign_TL?.length !==
                             rowData?.checkSheet_data?.approved_by_TL?.length ||
                           rowData?.checkSheet_data?.assign_HOS?.length !==
                             rowData?.checkSheet_data?.approved_by_HOS?.length

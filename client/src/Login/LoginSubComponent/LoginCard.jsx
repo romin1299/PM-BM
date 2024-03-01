@@ -15,6 +15,10 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Alert, AlertTitle } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import {
+  NAME_OF_THE_COMPANY,
+  LIST_OF_COMPANY,
+} from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const LoginCard = ({ scannedMachineId, windowWidth }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -62,12 +66,13 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
           navigate(`/bm/request-sheet/scanned/${scannedMachineId}`);
           // refreshPage();
         } else {
-          //For DENSO-INDIA
-          // navigate("/pm", { replace: true });
-
-          //For DENSO-HARYANA
-          navigate("/kpi", { replace: true });
-          // refreshPage();
+          if (NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0]) {
+            //For DENSO-HARYANA
+            navigate("/kpi", { replace: true });
+          } else {
+            //For DENSO-INDIA
+            navigate("/pm", { replace: true });
+          }
         }
       }
     },

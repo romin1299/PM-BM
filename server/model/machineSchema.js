@@ -1506,6 +1506,10 @@ const machineSchema = mongoose.Schema({
       },
     },
   ],
+
+  machine_problems_faced: {
+    type: [String],
+  },
 });
 
 const Machine = new mongoose.model("MachinesAllData", machineSchema);

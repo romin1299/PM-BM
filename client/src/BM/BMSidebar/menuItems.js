@@ -26,6 +26,10 @@ import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
 import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
 import { FaWpforms } from "react-icons/fa6";
+import {
+  NAME_OF_THE_COMPANY,
+  LIST_OF_COMPANY,
+} from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const allusers = [
   "Admin",
@@ -36,6 +40,60 @@ const allusers = [
 ];
 
 const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
+
+let menuItemsForDensoIndia = [];
+
+if (NAME_OF_THE_COMPANY !== LIST_OF_COMPANY?.[0]) {
+  menuItemsForDensoIndia = [
+    {
+      title: "Reports",
+      icon: <AnalyticsIcon className="text-white" />,
+      allowedRoles: reportAccess,
+      subItems: [
+        {
+          title: "Production Line Wise",
+          route: "/bm/report/productionLineWiseReport",
+        },
+        {
+          title: "Man Hour",
+          route: "/bm/report/man-hour",
+        },
+        {
+          title: "Daily BD",
+          route: "/bm/report/daily-breakdown-trend",
+        },
+        {
+          title: "Monthly BD",
+          route: "/bm/report/monthly-breakdown-trend",
+        },
+        {
+          title: "Line Contibution BD",
+          route: "/bm/report/line-contribution-breakdown-trend",
+        },
+        {
+          title: "MTTR",
+          route: "/bm/report/mttr",
+        },
+        {
+          title: "MTBF",
+          route: "/bm/report/mtbf",
+        },
+        {
+          title: "TM MTTR Skill",
+          route: "/bm/report/tm-mtr",
+        },
+        {
+          title: "Top Machine Breakdown",
+          route: "/bm/report/top-machine-breakdown",
+        },
+        {
+          title: "Machine Age",
+          route: "/bm/report/machine-age",
+        },
+      ],
+    },
+  ];
+}
 
 export const menuItems = [
   {
@@ -115,55 +173,9 @@ export const menuItems = [
     allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
   },
 
-  // // ------- Reports Dashboards -------
   //For DENSO-INDIA
-  // {
-  //   title: "Reports",
-  //   icon: <AnalyticsIcon className="text-white" />,
-  //   allowedRoles: reportAccess,
-  //   subItems: [
-  //     {
-  //       title: "Production Line Wise",
-  //       route: "/bm/report/productionLineWiseReport",
-  //     },
-  //     {
-  //       title: "Man Hour",
-  //       route: "/bm/report/man-hour",
-  //     },
-  //     {
-  //       title: "Daily BD",
-  //       route: "/bm/report/daily-breakdown-trend",
-  //     },
-  //     {
-  //       title: "Monthly BD",
-  //       route: "/bm/report/monthly-breakdown-trend",
-  //     },
-  //     {
-  //       title: "Line Contibution BD",
-  //       route: "/bm/report/line-contribution-breakdown-trend",
-  //     },
-  //     {
-  //       title: "MTTR",
-  //       route: "/bm/report/mttr",
-  //     },
-  //     {
-  //       title: "MTBF",
-  //       route: "/bm/report/mtbf",
-  //     },
-  //     {
-  //       title: "TM MTTR Skill",
-  //       route: "/bm/report/tm-mtr",
-  //     },
-  //     {
-  //       title: "Top Machine Breakdown",
-  //       route: "/bm/report/top-machine-breakdown",
-  //     },
-  //     {
-  //       title: "Machine Age",
-  //       route: "/bm/report/machine-age",
-  //     },
-  //   ],
-  // },
+  ...menuItemsForDensoIndia,
+  
   {
     title: "Other Loss",
     icon: <FaWpforms fontSize={22} className="text-white" />,

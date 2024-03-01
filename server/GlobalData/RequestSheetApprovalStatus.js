@@ -35,3 +35,8 @@ exports.APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM = [
     priority: 7,
   },
 ];
+
+
+exports.NAME_OF_THE_COMPANY = 'DNIN';
+
+exports.LIST_OF_COMPANY = ['DNHA', 'DNIN'];

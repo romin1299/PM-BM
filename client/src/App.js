@@ -79,18 +79,30 @@ import RightNavbar from "./components/RightNavbar/RightNavbar";
 import KPI_Routes from "./KPI_Tab/KPI_Routes";
 import MainPageComponent from "./KPI_Tab/MainPage/MainPageComponent";
 import OperatorDashboard from "./pages/Operator/OperatorDashboard";
+import { NAME_OF_THE_COMPANY, LIST_OF_COMPANY } from "./ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
-const commonRoutes = [
+let mainRouteForCompanyBased = [];
+
+if (NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0]) {
+  // For DENSO-HARYANA
+  mainRouteForCompanyBased = [
+    {
+      path: "/",
+      element: <MainPageComponent />,
+    },
+  ];
+} else {
   //For DENSO-INDIA
-  {
-    path: "/",
-    element: <OperatorDashboard />,
-  },
-  //For DENSO-HARYANA
-  // {
-  //   path: "/",
-  //   element: <MainPageComponent />,
-  // },
+  mainRouteForCompanyBased = [
+    {
+      path: "/",
+      element: <OperatorDashboard />,
+    },
+  ];
+}
+
+let commonRoutes = [
+  ...mainRouteForCompanyBased,
   {
     path: "/profile",
     element: <Profile />,
@@ -127,7 +139,7 @@ const commonRoutes = [
   },
 ];
 
-const tabs = [
+let tabs = [
   {
     name: "PM",
     keyUrl: "pm",
@@ -140,15 +152,24 @@ const tabs = [
     icon: <BsHammer />,
     dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
   },
-  {
-    name: "MTD KPI",
-    keyUrl: "kpi",
-    icon: <BsHammer />,
-    dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
-  },
+  // {
+  //   name: "MTD KPI",
+  //   keyUrl: "kpi",
+  //   icon: <BsHammer />,
+  //   dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
+  // },
 ];
 
 function App() {
+  //DENSO-HARYANA
+  if (NAME_OF_THE_COMPANY === LIST_OF_COMPANY[0]) {
+    tabs.push({
+      name: "MTD KPI",
+      keyUrl: "kpi",
+      icon: <BsHammer />,
+      dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
+    });
+  }
   const navigate = useNavigate();
   const location = useLocation();
   const [activeKey, setActiveKey] = useState(localStorage.getItem("activeKey"));

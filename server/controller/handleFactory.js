@@ -59,8 +59,12 @@ exports.getUserData =
         $project: {
           _id: 0,
           PMStatus: `$checkSheet_data.PMStatus.${currentMonth}`,
-          PMdate: { $arrayElemAt: [`$checkSheet_data.implemetation_completed_date.${currentMonth}`, 0] }
-
+          PMdate: {
+            $arrayElemAt: [
+              `$checkSheet_data.implemetation_completed_date.${currentMonth}`,
+              0,
+            ],
+          },
         },
       },
     ]);

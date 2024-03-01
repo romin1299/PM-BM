@@ -6,7 +6,7 @@ export const exportPDF = (elementId, name, onclone) => {
 
   const options = {
     onclone,
-    scale: 4,
+    scale: 2,
     windowWidth: 1600,
   };
 
