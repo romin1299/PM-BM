@@ -621,22 +621,66 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                       <b>PROBLEM FACED: </b>
                     </p>
                   </Col>
-                  <Col lg={5}>
-                    <input
-                      type="text"
-                      id="prob"
-                      name="problemFaced"
-                      className="m-1 mb-2"
-                      style={{ width: "350px" }}
+                  <Col lg={7}>
+                    <div className="d-flex align-items-center">
+                      <input
+                        type="text"
+                        id="prob"
+                        name="problemFaced"
+                        className="m-1 mb-2"
+                        style={{ width: "350px" }}
+                        {...register("problemFaced", {
+                          required: "Please fill this field",
+                        })}
+                      />
+
+                      {errors?.["problemFaced"] && (
+                        <p className="text-error">
+                          {errors?.["problemFaced"]?.message}
+                        </p>
+                      )}
+
+                      {/* <Col lg={7}>
+                    <select
+                      name="problemfaced"
+                      id="problemfaced"
                       {...register("problemFaced", {
-                        required: "Please fill this field",
+                        // required: "Please fill this field",
                       })}
-                    />
-                    {/* {errors?.["problemFaced"] && (
-                      <p className="text-error">
-                        {errors?.["problemFaced"]?.message}
-                      </p>
-                    )} */}
+                    >
+                      <option selected disabled value="">
+                        Please select
+                      </option>
+                      {requestSheetDataOfBM?.machineRef?.machine_problems_faced?.map(
+                        (problem) => {
+                          return <option value="">{problem}</option>;
+                        }
+                      )}
+                    </select>
+                  </Col> */}
+
+                      <select
+                        name="problemfaced"
+                        id="problemfaced"
+                        {...register("problemFaced", {
+                          // required: "Please fill this field",
+                        })}
+                      >
+                        <option selected disabled value="">
+                          Please select
+                        </option>
+
+                        {requestSheetDataOfBM?.machineRef?.machine_problems_faced?.map(
+                          (problem, index) => {
+                            return (
+                              <option key={index} value={problem}>
+                                {problem}
+                              </option>
+                            );
+                          }
+                        )}
+                      </select>
+                    </div>
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">

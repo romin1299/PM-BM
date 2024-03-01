@@ -201,6 +201,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
     navigate("/bm", { replace: true });
   };
 
+  const isEnable = selectedMachineDetails?.machine_problems_faced?.length > 0;
+
   return (
     <>
       <ToastContainer />
@@ -630,39 +632,43 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       <b>PROBLEM FACED: </b>
                     </p>
                   </Col>
+
                   <Col lg={7}>
-                    <input
-                      type="text"
-                      id="prob"
-                      name="problemfaced"
-                      className="m-1 mb-2"
-                      style={{ width: "350px" }}
-                      {...register("problemFaced", {
-                        required: "Please fill this field",
-                      })}
-                    />
-                    {errors?.["problemFaced"] && (
-                      <p className="text-error">
-                        {errors?.["problemFaced"]?.message}
-                      </p>
-                    )}
+                    <div className="d-flex align-items-center">
+                      {" "}
+                      <input
+                        type="text"
+                        id="prob"
+                        name="problemfaced"
+                        className="m-1 mb-2"
+                        style={{ width: "350px" }}
+                        {...register("problemFaced", {
+                          // required: "Please fill this field",
+                        })}
+                      />
+                      {isEnable && (
+                        <select
+                          name="problemfaced"
+                          id="problemfaced"
+                          {...register("problemFaced", {
+                            // required: "Please fill this field",
+                          })}
+                        >
+                          <option selected disabled value="">
+                            Please select
+                          </option>
+
+                          {selectedMachineDetails?.machine_problems_faced?.map(
+                            (problem, index) => {
+                              return <option key={index}>{problem}</option>;
+                            }
+                          )}
+                        </select>
+                      )}
+                    </div>
                   </Col>
-                  {/* <Col lg={5}></Col>
-                  <Col lg={7}>
-                    <select
-                      name="problemfaced"
-                      id="problemfaced"
-                      {...register("problemFaced", {
-                        // required: "Please fill this field",
-                      })}
-                    >
-                      <option selected disabled value="">
-                        Please select
-                      </option>
-                      <option value=""></option>
-                    </select>
-                  </Col> */}
                 </Row>
+
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>

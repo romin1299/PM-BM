@@ -303,7 +303,9 @@ router.post(
           const prdDataUpdatedByOtherUser = JSON.parse(
             req?.body?.prdDataUpdatedByOtherUser
           );
+
           if (prdDataUpdatedByOtherUser) {
+            console.log("rererere");
             let queryObjForUpdateDataByOtherUser = {
               priorityCode: requestSheetDataFilledByMTDUser?.priorityCode,
               qualityRelated: requestSheetDataFilledByMTDUser?.qualityRelated,
@@ -324,6 +326,24 @@ router.post(
                 how_details: requestSheetDataFilledByMTDUser?.how_details,
               },
             };
+
+            console.log(
+              "queryObjForUpdateDataByOtherUser",
+              queryObjForUpdateDataByOtherUser.breakDownBasicDataFilledByPRD
+                .problemFaced
+            );
+
+            await Machine.findOneAndUpdate(
+              { machine_code: machine.machine_code },
+              {
+                $addToSet: {
+                  machine_problems_faced:
+                    queryObjForUpdateDataByOtherUser
+                      .breakDownBasicDataFilledByPRD.problemFaced,
+                },
+              },
+              { new: true }
+            );
 
             requestSheet = await RequestSheetOfBM.findOneAndUpdate(
               { _id: mongoose.Types.ObjectId(req.query?.reqId) },
@@ -559,6 +579,12 @@ router.post(
                   moment().tz("Asia/Kolkata").month() + 1
                 }-${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim();
 
+          await Machine.findOneAndUpdate(
+            { machine_code: machine.machine_code },
+            { $addToSet: { machine_problems_faced: problemFaced } },
+            { new: true }
+          );
+
           requestSheet = new RequestSheetOfBM({
             ...req.query,
             ..._idObject,
@@ -684,14 +710,14 @@ router.post(
 
         </table>`;
 
-            sendMailForBD({
-              subject: `Request Sheet is generated (${machine?.line_names?.cell_names?.cell_name}/${machine?.line_names?.line_name}/${machine?.machine_name}/${newBDRequestSheetGenerate?.requestSheetNoOfBM})`,
-              title: `Request sheet is generated`,
-              greetings: `Sir\\Ma'am`,
-              toEmailIds: getMTDTL?.map((obj) => obj?.email),
-              ccEmailIds: getMTDHOS?.map((obj) => obj?.email),
-              bodyTable,
-            });
+            // sendMailForBD({
+            //   subject: `Request Sheet is generated (${machine?.line_names?.cell_names?.cell_name}/${machine?.line_names?.line_name}/${machine?.machine_name}/${newBDRequestSheetGenerate?.requestSheetNoOfBM})`,
+            //   title: `Request sheet is generated`,
+            //   greetings: `Sir\\Ma'am`,
+            //   toEmailIds: getMTDTL?.map((obj) => obj?.email),
+            //   ccEmailIds: getMTDHOS?.map((obj) => obj?.email),
+            //   bodyTable,
+            // });
 
             res.status(201).json({
               message: "Request-sheet generated successfully",
@@ -8759,7 +8785,7 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
                       lessThanOne: 0,
                       lessThanTwo: 0,
                       greaterThanTwo: 0,
-                      totalCount : 0
+                      totalCount: 0,
                     },
                   },
                 ],
@@ -8786,14 +8812,13 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
 
     return res.status(200).json({
       message: "Monthly BD trend data for hourly get successfully",
-      bdTrendData:
-       [
+      bdTrendData: [
         { label: "<1", data: bdTrendData?.[0].lessThanOne },
         { label: "<2", data: bdTrendData?.[0].lessThanTwo },
         { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
         // { label: "Total", data: bdTrendData?.[0].totalCount },
       ],
-      totalCount : bdTrendData?.[0].totalCount,
+      totalCount: bdTrendData?.[0].totalCount,
       bdTrendDataTarget: req.target,
     });
   } catch (error) {
@@ -9875,10 +9900,8 @@ const filterForMonthlyData = async (req, res, next) => {
             0,
           ],
         },
-        
       },
 
-      
       lessThanTwo: {
         $sum: {
           $cond: [
@@ -10474,7 +10497,7 @@ router.get(
                         lessThanOne: 0,
                         lessThanTwo: 0,
                         greaterThanTwo: 0,
-                        totalCount : 0
+                        totalCount: 0,
                       },
                     },
                   ],
@@ -10513,7 +10536,7 @@ router.get(
           { label: "<2", data: bdTrendData?.[0].lessThanTwo },
           { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
         ],
-        totalCount : bdTrendData?.[0].totalCount,
+        totalCount: bdTrendData?.[0].totalCount,
         bdTrendDataTarget: [req.previousYearlyTarget, req.currentYearlyTarget],
       });
     } catch (error) {
@@ -12085,7 +12108,7 @@ router.get(
                       lessThanOne: 0,
                       lessThanTwo: 0,
                       greaterThanTwo: 0,
-                      totalCount :0
+                      totalCount: 0,
                     },
                   ],
                 },
@@ -12166,7 +12189,7 @@ router.get(
           ],
         bdTrendData: bdTrendData?.[0],
         machineHistoryCardData: machineHistoryCardData?.[0],
-      totalCount : bdTrendData?.[0].totalCount,
+        totalCount: bdTrendData?.[0].totalCount,
 
         bdTrendDataTarget: req.target,
       });
@@ -12492,7 +12515,7 @@ router.get(
                           lessThanOne: 0,
                           lessThanTwo: 0,
                           greaterThanTwo: 0,
-                          totalCount : 0
+                          totalCount: 0,
                         },
                       },
                     ],
@@ -12566,7 +12589,7 @@ router.get(
           cellWiseCount,
           bdTrendData,
           machineSummaryCardData: machineSummaryCardData,
-          totalCount : bdTrendData?.[0].totalCount,
+          totalCount: bdTrendData?.[0].totalCount,
           bdTrendDataTarget: req.target,
         });
       } catch (error) {
@@ -14857,7 +14880,7 @@ router.get(
       //       $lt: nextDate,
       //     },
       //   };
-      // } 
+      // }
       if (
         req?.params?.toDate !== "undefined" &&
         req?.params?.fromDate !== "undefined"
@@ -14879,8 +14902,7 @@ router.get(
             },
           ],
         };
-      }
-      else {
+      } else {
         req.queryObj = {
           machineRef: mongoose.Types.ObjectId(req.params?.machineCode),
         };
