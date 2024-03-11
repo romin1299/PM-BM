@@ -21,10 +21,12 @@ require(path.join(__dirname, "./model/machineSchema"));
 
 app.use(express.json());
 
-const keys = {
-  key: fs.readFileSync('C:/certificate/cert.key'),
-  cert: fs.readFileSync('C:/certificate/cert.crt')
-};
+//for when deploying application on AWS
+
+// const keys = {
+//   key: fs.readFileSync('C:/certificate/cert.key'),
+//   cert: fs.readFileSync('C:/certificate/cert.crt')
+// };
 
 // const { dummyCron } = require(path.join(__dirname, "./controller/dummyCron"));
 // dummyCron();
@@ -74,8 +76,9 @@ app.get("/*", (req, res) => {
 
 const PORT = process.env.PORT;
 
-const server = https.createServer(keys, app);
+//for when deploying application on AWS
+// const server = https.createServer(keys, app);
 
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`server is running in port ${PORT} `);
 });
