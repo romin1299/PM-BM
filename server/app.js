@@ -2,6 +2,8 @@ const dotenv = require("dotenv");
 const express = require("express");
 const app = express();
 const path = require("path");
+const fs = require('fs');
+const https = require('https');
 
 const Line = require("./model/lineSchema");
 
@@ -18,6 +20,11 @@ require(path.join(__dirname, "./model/lineSchema"));
 require(path.join(__dirname, "./model/machineSchema"));
 
 app.use(express.json());
+
+const keys = {
+  key: fs.readFileSync('C:/certificate/cert.key'),
+  cert: fs.readFileSync('C:/certificate/cert.crt')
+};
 
 // const { dummyCron } = require(path.join(__dirname, "./controller/dummyCron"));
 // dummyCron();
@@ -67,6 +74,8 @@ app.get("/*", (req, res) => {
 
 const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
+const server = https.createServer(keys, app);
+
+server.listen(PORT, () => {
   console.log(`server is running in port ${PORT} `);
 });

@@ -322,8 +322,8 @@ const DailyBDTrendChart = ({
     {
       type: "line",
       label: "Total Count",
-      data: [1, 2, 3, 3, 4, 4, 0, 2, 4, 5, 2, 0, 3, 1, 7, 3, 6, 15, 0, 1],
-      // data: dailyBreakdownTrendData?.dayWiseCount,
+      // data: [1, 2, 3, 3, 4, 4, 0, 2, 4, 5, 2, 0, 3, 1, 7, 3, 6, 15, 0, 1],
+      data: dailyBreakdownTrendData?.dayWiseCount,
       backgroundColor: "#D04848",
       borderColor: "#D04848",
       borderWidth: 2,
@@ -335,20 +335,20 @@ const DailyBDTrendChart = ({
       stack: "bar-stacked",
       label: "< 1",
       yAxisID: "y",
-      data: [1, 2, 3, 3, 4, 4, 25, 2, 4, 5, 2, 0, 3, 1, 7, 3, 6, 0, 0, 1],
-      // data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
-      // backgroundColor: "#34aa30",
-      gradient: {
-        backgroundColor: {
-          axis: "y",
-          colors: {
-            0: "#F7FD04",
-            5: "#FEE84F",
-            15: "#FFD138",
-          },
-        },
-      },
-      borderColor: "#312A7D",
+      // data: [1, 2, 3, 3, 4, 4, 25, 2, 4, 5, 2, 0, 3, 1, 7, 3, 6, 0, 0, 1],
+      data: dailyBreakdownTrendData?.lessThanOrEqualToOneHourData,
+      backgroundColor: "#34aa30",
+      // gradient: {
+      //   backgroundColor: {
+      //     axis: "y",
+      //     colors: {
+      //       0: "#F7FD04",
+      //       5: "#FEE84F",
+      //       15: "#FFD138",
+      //     },
+      //   },
+      // },
+      // borderColor: "#312A7D",
       borderWidth: 2,
       // borderColor: chartColors.dailyBDTrendBorder[0],
       // borderWidth: 1,
@@ -394,23 +394,23 @@ const DailyBDTrendChart = ({
       stack: "bar-stacked",
       label: "< 2",
       yAxisID: "y",
-      data: [1, 2, 3, 3, 4, 4, 0, 2, 4, 5, 2, 15, 3, 1, 7, 3, 6, 0, 0, 1],
-      // data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
-      // backgroundColor: "#eccc14",
+      // data: [1, 2, 3, 3, 4, 4, 0, 2, 4, 5, 2, 15, 3, 1, 7, 3, 6, 0, 0, 1],
+      data: dailyBreakdownTrendData?.greaterThenOneAndLessThanOrEqualToTwoHourData,
+      backgroundColor: "#eccc14",
       // borderColor: chartColors.dailyBDTrendBorder[1],
       // borderWidth: 1,
-      gradient: {
-        backgroundColor: {
-          axis: "y",
-          colors: {
-            0: "#FFB759",
-            50: "#FF7F31",
-            100: "#FF4608",
-          },
-        },
-      },
+      // gradient: {
+      //   backgroundColor: {
+      //     axis: "y",
+      //     colors: {
+      //       0: "#FFB759",
+      //       50: "#FF7F31",
+      //       100: "#FF4608",
+      //     },
+      //   },
+      // },
       borderRadius: 4,
-        borderColor: "#312A7D",
+        // borderColor: "#312A7D",
         borderWidth: 2,
     },
     {
@@ -418,20 +418,20 @@ const DailyBDTrendChart = ({
       stack: "bar-stacked",
       label: "> 2",
       yAxisID: "y",
-      data: [1, 2, 3, 3, 4, 4, 0, 2, 4, 5, 2, 0, 3, 1, 7, 3, 6, 25, 0, 1],
-      // data: dailyBreakdownTrendData?.greaterThenTwoHourData,
-      // backgroundColor: "#1f6fdf",
-      gradient: {
-        backgroundColor: {
-          axis: "y",
-          colors: {
-            0: "#FC7456",
-            50: "#EE4A39",
-            100: "#E0201B",
-          },
-        },
-      },
-      borderColor: "#312A7D",
+      // data: [1, 2, 3, 3, 4, 4, 0, 2, 4, 5, 2, 0, 3, 1, 7, 3, 6, 25, 0, 1],
+      data: dailyBreakdownTrendData?.greaterThenTwoHourData,
+      backgroundColor: "#1f6fdf",
+      // gradient: {
+      //   backgroundColor: {
+      //     axis: "y",
+      //     colors: {
+      //       0: "#FC7456",
+      //       50: "#EE4A39",
+      //       100: "#E0201B",
+      //     },
+      //   },
+      // },
+      // borderColor: "#312A7D",
       borderWidth: 2,
       // borderColor: chartColors.dailyBDTrendBorder[2],
       borderRadius: 4,

@@ -21,7 +21,7 @@ import {
   MaterialTableStyle,
 } from "../../BM/Utils/TableUtils/MaterialTableProps";
 import { MachineNameTypography } from "./MachineDocument";
-
+import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 const pageInfo = {
   // "bm-history": {
   //   name: "BM History",
@@ -191,7 +191,7 @@ const AttachmentFormateTable = () => {
           >
             <Link
               target="_blank"
-              href={`http://52.66.210.221:7000/${pageDetails?.schemaVar}/${attached_file}`}
+              href={`${BASE_URL}${pageDetails?.schemaVar}/${attached_file}`}
               underline="hover"
             >
               {/* Render image if it's an image file, otherwise display file type */}

@@ -49,6 +49,11 @@ import {
 } from "react-pro-sidebar";
 import "react-pro-sidebar/dist/css/styles.css";
 
+import {
+  NAME_OF_THE_COMPANY,
+  LIST_OF_COMPANY,
+} from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+
 const Menuitem = styled(MenuItem)`
   :hover {
     background-color: white;
@@ -224,28 +229,30 @@ const Section = ({ userData, userDepartment }) => {
                 </MenuItem>
               </SubMenu>
             ) : (
-              <SubMenu
-                className="text-white"
-                title="Creation"
-                icon={<FaThList className="text-white" />}
-              >
-                <MenuItem
-                  className="text"
-                  icon={
-                    <PersonAddIcon
-                      className="text-white"
-                      style={{
-                        background: "#004B5B",
-                        borderRadius: "3px",
-                        padding: "2px",
-                      }}
-                    />
-                  }
+              NAME_OF_THE_COMPANY !== LIST_OF_COMPANY?.[0] && (
+                <SubMenu
+                  className="text-white"
+                  title="Creation"
+                  icon={<FaThList className="text-white" />}
                 >
-                  <NavLink to="/pm/userAssign"></NavLink>
-                  User Assign
-                </MenuItem>
-              </SubMenu>
+                  <MenuItem
+                    className="text"
+                    icon={
+                      <PersonAddIcon
+                        className="text-white"
+                        style={{
+                          background: "#004B5B",
+                          borderRadius: "3px",
+                          padding: "2px",
+                        }}
+                      />
+                    }
+                  >
+                    <NavLink to="/pm/userAssign"></NavLink>
+                    User Assign
+                  </MenuItem>
+                </SubMenu>
+              )
             )}
 
             <SubMenu

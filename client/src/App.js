@@ -79,10 +79,13 @@ import RightNavbar from "./components/RightNavbar/RightNavbar";
 import KPI_Routes from "./KPI_Tab/KPI_Routes";
 import MainPageComponent from "./KPI_Tab/MainPage/MainPageComponent";
 import OperatorDashboard from "./pages/Operator/OperatorDashboard";
-import { NAME_OF_THE_COMPANY, LIST_OF_COMPANY } from "./ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import {
+  NAME_OF_THE_COMPANY,
+  LIST_OF_COMPANY,
+} from "./ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 let mainRouteForCompanyBased = [];
-
+console.log(NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0]);
 if (NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0]) {
   // For DENSO-HARYANA
   mainRouteForCompanyBased = [
@@ -152,24 +155,26 @@ let tabs = [
     icon: <BsHammer />,
     dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
   },
-  // {
-  //   name: "MTD KPI",
-  //   keyUrl: "kpi",
-  //   icon: <BsHammer />,
-  //   dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
-  // },
+  NAME_OF_THE_COMPANY === LIST_OF_COMPANY[0]
+    ? {
+        name: "MTD KPI",
+        keyUrl: "kpi",
+        icon: <BsHammer />,
+        dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
+      }
+    : [],
 ];
 
 function App() {
   //DENSO-HARYANA
-  if (NAME_OF_THE_COMPANY === LIST_OF_COMPANY[0]) {
-    tabs.push({
-      name: "MTD KPI",
-      keyUrl: "kpi",
-      icon: <BsHammer />,
-      dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
-    });
-  }
+  // if (NAME_OF_THE_COMPANY === LIST_OF_COMPANY[0]) {
+  //   tabs.push({
+  //     name: "MTD KPI",
+  //     keyUrl: "kpi",
+  //     icon: <BsHammer />,
+  //     dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
+  //   });
+  // }
   const navigate = useNavigate();
   const location = useLocation();
   const [activeKey, setActiveKey] = useState(localStorage.getItem("activeKey"));

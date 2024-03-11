@@ -5172,7 +5172,7 @@ router.patch(
           "_"
         );
       Object.keys(assignApprovalList[formattedKey])?.length === 0 &&
-        delete assignApprovalList[formattedKey];
+        delete assignApprovalList?.[formattedKey];
       // });
 
       //Handling validation for approval list which is not selected by user from client-side
@@ -5185,8 +5185,8 @@ router.patch(
           if (
             requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
               minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
-            ].includes(
-              Object.keys(assignApprovalList)?.[index].replace("_", " ")
+            ]?.includes(
+              Object.keys(assignApprovalList)?.[index]?.replace("_", " ")
             )
           ) {
             if (
@@ -5195,9 +5195,9 @@ router.patch(
               )?.length === 0
             ) {
               return res.status(400).json({
-                message: `Please select required approval list ${(requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+                message: `Please select required approval list ${requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
                   minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
-                ]).join(", ")}`,
+                ]?.join(", ")}`,
               });
             }
           }
@@ -5246,55 +5246,87 @@ router.patch(
             ?.majorApprovalList;
 
         let listOfHigherApproverAuthorityForSendingMail = [];
-        Object.keys(assignApprovalList).forEach((key) => {
+        Object.keys(assignApprovalList)?.forEach((key) => {
           if (
             [
               ...new Set([
                 ...minorListForTheApprovalOfPlant,
                 ...majorListForTheApprovalOfPlant,
               ]),
-            ]?.includes(key.replace("_", " "))
+            ]?.includes(key?.replace("_", " "))
           ) {
             updateTheStatusOfBMSheetApprover(key, assignApprovalList[key]);
             if (assignApprovalList?.[key]?.id)
-              listOfHigherApproverAuthorityForSendingMail.push(
+              listOfHigherApproverAuthorityForSendingMail?.push(
                 assignApprovalList[key]
               );
           }
         });
 
-        let updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
-          {
-            _id: mongoose.Types.ObjectId(req.params?.reqId),
-            approvalStatusOfMTD_TL: "Pending",
-          },
-          {
-            $set: {
-              requestSheetStatus: `Under ${
-                requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
-                  minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
-                ]?.[1]
-              } Approval`,
-              "getDataForApprovalDashboard.Id":
-                assignApprovalList?.[
-                  (requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+        let updateRequestSheetStatus;
+
+        if (
+          requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+            minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
+          ]?.[1] === undefined
+        ) {
+          updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
+            {
+              _id: mongoose.Types.ObjectId(req.params?.reqId),
+              approvalStatusOfMTD_TL: "Pending",
+            },
+            {
+              $set: {
+                requestSheetStatus: "Completed",
+                "approvalStatusOfMTD_TL.$": "Accepted",
+              },
+              $push: {
+                approvalDateAndTimeOfMTD_TL: new Date(),
+              },
+              $unset: {
+                getDataForApprovalDashboard: "",
+              },
+            }
+          );
+        } else {
+          updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
+            {
+              _id: mongoose.Types.ObjectId(req.params?.reqId),
+              approvalStatusOfMTD_TL: "Pending",
+            },
+            {
+              $set: {
+                requestSheetStatus: `Under ${
+                  requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
                     minorBD === "Yes"
                       ? "minorApprovalList"
                       : "majorApprovalList"
-                  ]?.[1]).replace(" ", "_")
-                ]?.id,
-              "getDataForApprovalDashboard.departmentAndGradeOfUser":
-                requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
-                  minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
-                ]?.[1],
-              "approvalStatusOfMTD_TL.$": "Accepted",
+                  ]?.[1]
+                } Approval`,
+                "getDataForApprovalDashboard.Id":
+                  assignApprovalList?.[
+                    requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+                      minorBD === "Yes"
+                        ? "minorApprovalList"
+                        : "majorApprovalList"
+                    ]?.[1]?.replace(" ", "_")
+                  ]?.id,
+                "getDataForApprovalDashboard.departmentAndGradeOfUser":
+                  requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+                    minorBD === "Yes"
+                      ? "minorApprovalList"
+                      : "majorApprovalList"
+                  ]?.[1],
+                "approvalStatusOfMTD_TL.$": "Accepted",
+              },
+              $push: {
+                approvalDateAndTimeOfMTD_TL: new Date(),
+              },
             },
-            $push: {
-              approvalDateAndTimeOfMTD_TL: new Date(),
-            },
-          },
-          { new: true }
-        );
+            { new: true }
+          );
+        }
+
         if (updateRequestSheetStatus) {
           const bodyContent = ({ key, value, approvedDateAndTime }) => {
             return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
@@ -5379,10 +5411,10 @@ router.patch(
             greetings: `Sir\\Ma'am`,
             toEmailIds:
               assignApprovalList?.[
-                (requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
+                requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
                   minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
-                ]?.[1]).replace(" ", "_")
-              ]?.email,
+                ]?.[1]?.replace(" ", "_")
+              ]?.email || undefined,
             ccEmailIds: listOfHigherApproverAuthorityForSendingMail
               ?.map((obj) => obj?.email)
               ?.slice(1),
@@ -15036,17 +15068,17 @@ router.patch(
         requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor
           ?.majorApprovalList;
 
-      let keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition = `approvalStatusOf${(requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser).replace(
+      let keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition = `approvalStatusOf${requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser?.replace(
         " ",
         "_"
       )}`;
 
-      let keyOfSendingEmailToNextHigherAuthority = `approvalOf${(requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser).replace(
+      let keyOfSendingEmailToNextHigherAuthority = `approvalOf${requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser?.replace(
         " ",
         "_"
       )}`;
 
-      let keyOfApprovalDateAndTimeOfAcceptedOrRejected = `approvalDateAndTimeOf${(requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser).replace(
+      let keyOfApprovalDateAndTimeOfAcceptedOrRejected = `approvalDateAndTimeOf${requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser?.replace(
         " ",
         "_"
       )}`;
@@ -15134,7 +15166,7 @@ router.patch(
 
           let valueOfGetDataForApprovalDashboardId =
             requestSheetDataOfBM?.[
-              `approvalOf${getNextApproverDepartmentAndGradeOfUser.replace(
+              `approvalOf${getNextApproverDepartmentAndGradeOfUser?.replace(
                 " ",
                 "_"
               )}`

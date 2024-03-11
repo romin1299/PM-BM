@@ -8,7 +8,7 @@ import DropdownElem from "../../Component/DropdownElem";
 import DownloadIcon from "@mui/icons-material/Download";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { Button, Typography } from "@mui/material";
-
+import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 function MTDRequestSheetForView({
   selectedMachineDetails,
   approvalListOfBM,
@@ -1361,7 +1361,7 @@ function MTDRequestSheetForView({
                         <Button
                           target="_blank"
                           // href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
-                          href={`http://52.66.210.221:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
+                          href={`${BASE_URL}${requestSheetDataOfBM?.attachedDataSheets}`}
                           disableElevation
                           size="small"
                           variant="contained"
@@ -1400,7 +1400,7 @@ function MTDRequestSheetForView({
                             <a
                               target="_blank"
                               // href={`http://localhost:7000/${image}`}
-                              href={`http://52.66.210.221:7000/${image}`}
+                              href={`${BASE_URL}${image}`}
                               style={{
                                 width: "100%",
                                 display: "flex",
@@ -1411,7 +1411,7 @@ function MTDRequestSheetForView({
                             >
                               <img
                                 // src={`http://localhost:7000/${image}`}
-                                src={`http://52.66.210.221:7000/${image}`}
+                                src={`${BASE_URL}${image}`}
                                 style={{
                                   maxWidth: "100px",
                                   maxHeight: "100px",

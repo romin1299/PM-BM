@@ -17,6 +17,8 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import Multiselect from "multiselect-react-dropdown";
 import { Button, Typography } from "@mui/material";
+import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+
 const list = [
   { key: "A", value: "A" },
   { key: "B", value: "B" },
@@ -2126,7 +2128,7 @@ function MyTable({
                         <Button
                           target="_blank"
                           // href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
-                          href={`http://52.66.210.221:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
+                          href={`${BASE_URL}${requestSheetDataOfBM?.attachedDataSheets}`}
                           disableElevation
                           size="small"
                           variant="contained"
@@ -2222,7 +2224,7 @@ function MyTable({
                             <a
                               target="_blank"
                               // href={`http://localhost:7000/${image}`}
-                              href={`http://52.66.210.221:7000/${image}`}
+                              href={`${BASE_URL}${image}`}
                               style={{
                                 width: "100%",
                                 display: "flex",
@@ -2233,7 +2235,7 @@ function MyTable({
                             >
                               <img
                                 // src={`http://localhost:7000/${image}`}
-                                src={`http://52.66.210.221:7000/${image}`}
+                                src={`${BASE_URL}/${image}`}
                                 style={{
                                   maxWidth: "100px",
                                   maxHeight: "100px",

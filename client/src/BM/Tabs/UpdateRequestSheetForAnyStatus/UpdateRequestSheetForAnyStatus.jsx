@@ -21,7 +21,7 @@ import DropdownElem from "../../Component/DropdownElem";
 import ProblemList from "../SubComponents/ProblemList";
 import ActionList from "../SubComponents/ActionList";
 import PartList from "../SubComponents/PartList";
-
+import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 
 const UpdateRequestSheetForAnyStatus = () => {
@@ -1458,7 +1458,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                               <Button
                                 target="_blank"
                                 // href={`http://localhost:7000/${watch("attachedDataSheets")}`}
-                                href={`http://52.66.210.221:7000/${watch(
+                                href={`${BASE_URL}${watch(
                                   "attachedDataSheets"
                                 )}`}
                                 disableElevation
@@ -1542,7 +1542,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                                   <a
                                     target="_blank"
                                     // href={`http://localhost:7000/${image}`}
-                                    href={`http://52.66.210.221:7000/${image}`}
+                                    href={`${BASE_URL}${image}`}
                                     style={{
                                       width: "100%",
                                       display: "flex",
@@ -1553,7 +1553,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                                   >
                                     <img
                                       // src={`http://localhost:7000/${image}`}
-                                      src={`http://52.66.210.221:7000/${image}`}
+                                      src={`${BASE_URL}${image}`}
                                       style={{
                                         maxWidth: "100px",
                                         maxHeight: "100px",
