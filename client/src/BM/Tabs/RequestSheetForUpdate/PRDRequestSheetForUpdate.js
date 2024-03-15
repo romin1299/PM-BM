@@ -470,6 +470,9 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                               <br />
                               <input
                                 type="datetime-local"
+                                min={moment(new Date() - 1)
+                                  .subtract(1, "days")
+                                  .format("YYYY-MM-DDTHH:mm")}
                                 {...register("problemOccurredDateAndTimeOfBM")}
                                 disabled={
                                   (requestSheetDataOfBM?.assignUser?._id !==

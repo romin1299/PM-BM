@@ -778,7 +778,7 @@ router.post("/addNewCell", authenticate, async (req, res) => {
         subSection_names: subSectionInfo[0]._id,
         cell_sequence,
         plant_names: findLoggedUserPlantData?._id,
-        section_names: findLoggedUserSectionData?._id
+        section_names: findLoggedUserSectionData?._id,
       });
     } else {
       newCell = new Cell({
@@ -787,7 +787,7 @@ router.post("/addNewCell", authenticate, async (req, res) => {
         subSection_names: subSectionInfo[0]._id,
         cell_sequence,
         plant_names: findLoggedUserPlantData?._id,
-        section_names: findLoggedUserSectionData?._id
+        section_names: findLoggedUserSectionData?._id,
       });
     }
 
@@ -973,9 +973,9 @@ router.post("/addNewLine", authenticate, async (req, res) => {
       newLine = new Line({
         line_id,
         line_name,
-        plant_names:cellInfo[0]?.plant_names,
-        section_names:cellInfo[0]?.section_names,
-        subSection_names:cellInfo[0]?.subSection_names,
+        plant_names: cellInfo[0]?.plant_names,
+        section_names: cellInfo[0]?.section_names,
+        subSection_names: cellInfo[0]?.subSection_names,
         cell_names: cellInfo[0]._id,
         line_sequence,
         annualPmScheduleApproval: {
@@ -987,9 +987,9 @@ router.post("/addNewLine", authenticate, async (req, res) => {
       newLine = new Line({
         line_id,
         line_name,
-        plant_names:cellInfo[0]?.plant_names,
-        section_names:cellInfo[0]?.section_names,
-        subSection_names:cellInfo[0]?.subSection_names,
+        plant_names: cellInfo[0]?.plant_names,
+        section_names: cellInfo[0]?.section_names,
+        subSection_names: cellInfo[0]?.subSection_names,
         cell_names: cellInfo[0]._id,
         line_sequence,
         annualPmScheduleApproval: {
@@ -1883,10 +1883,10 @@ router.post("/addNewMachine", async (req, res) => {
         manufacturingDate,
         maker_name,
         maker_sr_no,
-        plant_names:lineInfo[0]?.plant_names,
-        section_names:lineInfo[0]?.section_names,
-        subSection_names:lineInfo[0]?.subSection_names,
-        cell_names:lineInfo[0]?.cell_names,
+        plant_names: lineInfo[0]?.plant_names,
+        section_names: lineInfo[0]?.section_names,
+        subSection_names: lineInfo[0]?.subSection_names,
+        cell_names: lineInfo[0]?.cell_names,
         line_names: lineInfo[0]._id,
       });
     } else {
@@ -1900,10 +1900,10 @@ router.post("/addNewMachine", async (req, res) => {
         manufacturingDate,
         maker_name,
         maker_sr_no,
-        plant_names:lineInfo[0]?.plant_names,
-        section_names:lineInfo[0]?.section_names,
-        subSection_names:lineInfo[0]?.subSection_names,
-        cell_names:lineInfo[0]?.cell_names,
+        plant_names: lineInfo[0]?.plant_names,
+        section_names: lineInfo[0]?.section_names,
+        subSection_names: lineInfo[0]?.subSection_names,
+        cell_names: lineInfo[0]?.cell_names,
         line_names: lineInfo[0]._id,
       });
     }
@@ -4940,7 +4940,8 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
             "checkSheet_data.$[outer].tl_approval_status": "Pending",
             "checkSheet_data.$[outer].hos_approval_status": "Pending",
             "checkSheet_data.$[outer].assign_TL": tl_list?.email,
-            "checkSheet_data.$[outer].assign_TL_name": findAssignTlName?.tm_name,
+            "checkSheet_data.$[outer].assign_TL_name":
+              findAssignTlName?.tm_name,
             "checkSheet_data.$[outer].assign_HOS": hos_list?.email,
             "checkSheet_data.$[outer].assign_HOS_name":
               findAssignHosName?.tm_name,
@@ -7223,16 +7224,15 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
         // console.log(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth])
         let ccMail =
-          selected_machine_data?.checkSheet_data?.implementation_assign_MTD_HOS?.[
-            senderApprovalMonth
-          ];
+          selected_machine_data?.checkSheet_data
+            ?.implementation_assign_MTD_HOS?.[senderApprovalMonth];
         const findAssignMTDTLNameOfImplementation = await User.findOne({
           email:
-            selected_machine_data?.checkSheet_data?.implementation_assign_MTD_TL?.[
-              senderApprovalMonth
-            ][
+            selected_machine_data?.checkSheet_data
+              ?.implementation_assign_MTD_TL?.[senderApprovalMonth][
               selected_machine_data?.checkSheet_data
-                ?.implementation_assign_MTD_TL?.[senderApprovalMonth]?.length - 1
+                ?.implementation_assign_MTD_TL?.[senderApprovalMonth]?.length -
+                1
             ],
         });
 
@@ -7296,12 +7296,10 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           selected_machine_data.machine_code,
           selected_machine_data.machine_name,
           selected_machine_data.checkSheet_data.checksheet_status,
-          selected_machine_data?.checkSheet_data?.implementation_assign_MTD_TL?.[
-            senderApprovalMonth
-          ][
-            selected_machine_data?.checkSheet_data?.implementation_assign_MTD_TL?.[
-              senderApprovalMonth
-            ]?.length - 1
+          selected_machine_data?.checkSheet_data
+            ?.implementation_assign_MTD_TL?.[senderApprovalMonth][
+            selected_machine_data?.checkSheet_data
+              ?.implementation_assign_MTD_TL?.[senderApprovalMonth]?.length - 1
           ],
           undefined,
           prd_tl_approval_status,
@@ -7444,11 +7442,11 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           );
         const findAssignMTDHOSNameOfImplementation = await User.findOne({
           email:
-            selected_machine_data?.checkSheet_data?.implementation_assign_MTD_HOS?.[
-              senderApprovalMonth
-            ][
+            selected_machine_data?.checkSheet_data
+              ?.implementation_assign_MTD_HOS?.[senderApprovalMonth][
               selected_machine_data?.checkSheet_data
-                ?.implementation_assign_MTD_HOS?.[senderApprovalMonth]?.length - 1
+                ?.implementation_assign_MTD_HOS?.[senderApprovalMonth]?.length -
+                1
             ],
         });
         // console.log(
@@ -8366,11 +8364,11 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           );
         const findAssignMTDHOSNameOfImplementation = await User.findOne({
           email:
-            selected_machine_data?.checkSheet_data?.implementation_assign_MTD_HOS?.[
-              senderApprovalMonth
-            ][
+            selected_machine_data?.checkSheet_data
+              ?.implementation_assign_MTD_HOS?.[senderApprovalMonth][
               selected_machine_data?.checkSheet_data
-                ?.implementation_assign_MTD_HOS?.[senderApprovalMonth]?.length - 1
+                ?.implementation_assign_MTD_HOS?.[senderApprovalMonth]?.length -
+                1
             ],
         });
         let greetingNamesForAll = "All";
@@ -9621,23 +9619,72 @@ router.post(
         );
       }
       let keyOfPMworkedTMNameForPreviosMonthDoneWithDelay = `checkSheet_data.$[outer].PMworkedTMName.${previousMonth}`;
+      //for add time and worked PM operator for skip pm data
+      let PMworkedTMNameArray = {
+        Apr: [],
+
+        May: [],
+
+        June: [],
+
+        July: [],
+
+        Aug: [],
+
+        Sep: [],
+
+        Oct: [],
+
+        Nov: [],
+
+        Dec: [],
+
+        Jan: [],
+
+        Feb: [],
+
+        Mar: [],
+      };
+
+      PMworkedTMNameArray[previousMonth].push(loggedUserData.tm_name);
+
+      let keyOfMonthOfTotalWorkedPMTime = `checkSheet_data.$[outer].PMworkedTMName`;
 
       //for done with delay status
       if (totalCarriedPMCount) {
         if (completedCarriedPMCount >= 1) {
           if (
-            !machineDataAfterSaveAllData[0]?.checkSheet_data?.PMworkedTMName?.[
-              previousMonth
-            ]?.includes(loggedUserData.tm_name)
+            machineDataAfterSaveAllData[0].checkSheet_data.PMworkedTMName !=
+            undefined
           ) {
+            if (
+              !machineDataAfterSaveAllData[0]?.checkSheet_data?.PMworkedTMName?.[
+                previousMonth
+              ]?.includes(loggedUserData.tm_name)
+            ) {
+              updatePMworkedTMName = await Machine.updateOne(
+                {
+                  machine_code: machineId,
+                },
+                {
+                  $push: {
+                    [keyOfPMworkedTMNameForPreviosMonthDoneWithDelay]:
+                      loggedUserData.tm_name,
+                  },
+                },
+                {
+                  arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
+                }
+              );
+            }
+          } else {
             updatePMworkedTMName = await Machine.updateOne(
               {
                 machine_code: machineId,
               },
               {
-                $push: {
-                  [keyOfPMworkedTMNameForPreviosMonthDoneWithDelay]:
-                    loggedUserData.tm_name,
+                $set: {
+                  [keyOfMonthOfTotalWorkedPMTime]: PMworkedTMNameArray,
                 },
               },
               {
@@ -10851,7 +10898,7 @@ router.post("/savedWorkedPMData", async (req, res) => {
       if (
         !getSelectedMachineChecksheet[0]?.checkSheet_data?.PMworkedTMName[
           monthForCompareSystemMonth
-        ].includes(PMworkedTMName)
+        ]?.includes(PMworkedTMName)
       ) {
         updatePMworkedTMName = await Machine.updateOne(
           {

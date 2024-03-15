@@ -55,7 +55,7 @@
 
 // export default App;
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, Tab, Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -83,87 +83,7 @@ import {
   NAME_OF_THE_COMPANY,
   LIST_OF_COMPANY,
 } from "./ConditionsForDNINandDNHA/ConditionBasedDisplay";
-
-let mainRouteForCompanyBased = [];
-console.log(NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0]);
-if (NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0]) {
-  // For DENSO-HARYANA
-  mainRouteForCompanyBased = [
-    {
-      path: "/",
-      element: <MainPageComponent />,
-    },
-  ];
-} else {
-  //For DENSO-INDIA
-  mainRouteForCompanyBased = [
-    {
-      path: "/",
-      element: <OperatorDashboard />,
-    },
-  ];
-}
-
-let commonRoutes = [
-  ...mainRouteForCompanyBased,
-  {
-    path: "/profile",
-    element: <Profile />,
-  },
-  {
-    path: "/viewCheckSheet",
-    element: <ViewChecksheet />,
-  },
-  {
-    path: "/master-log",
-    element: <MasterLogMainDashboard />,
-  },
-  {
-    path: "/machine-history",
-    element: <MachineHistoryComponent />,
-    children: [
-      {
-        path: ":machine_code",
-        element: <MachineHistoryComponent />,
-      },
-      {
-        path: "machine-document/:machine_code",
-        element: <MachineDocument />,
-      },
-      {
-        path: "attachment-formate/:page/:machine_code",
-        element: <AttachmentFormateTable />,
-      },
-      {
-        path: "history-formate/:page/:machine_code",
-        element: <HistoryFormateTable />,
-      },
-    ],
-  },
-];
-
-let tabs = [
-  {
-    name: "PM",
-    keyUrl: "pm",
-    icon: <BsWrench />,
-    dashboardAndRoutes: <PMTabdashboard commonRoutes={commonRoutes} />,
-  },
-  {
-    name: "BM",
-    keyUrl: "bm",
-    icon: <BsHammer />,
-    dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
-  },
-  NAME_OF_THE_COMPANY === LIST_OF_COMPANY[0]
-    ? {
-        name: "MTD KPI",
-        keyUrl: "kpi",
-        icon: <BsHammer />,
-        dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
-      }
-    : [],
-];
+import RoutingContext from "./context/routing/RoutingContext";
 
 function App() {
   //DENSO-HARYANA
@@ -215,6 +135,91 @@ function App() {
     //   setActiveKey(pathParts[1]);
     // }
   }, [location.pathname]);
+
+  const loggedUser = useContext(RoutingContext);
+  let mainRouteForCompanyBased = [];
+  // console.log(NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0]);
+  if (
+    NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
+    loggedUser?.tm_department === "MTD"
+  ) {
+    // For DENSO-HARYANA
+    mainRouteForCompanyBased = [
+      {
+        path: "/",
+        element: <MainPageComponent />,
+      },
+    ];
+  } else {
+    //For DENSO-INDIA
+    mainRouteForCompanyBased = [
+      {
+        path: "/",
+        element: <OperatorDashboard />,
+      },
+    ];
+  }
+
+  let commonRoutes = [
+    ...mainRouteForCompanyBased,
+    {
+      path: "/profile",
+      element: <Profile />,
+    },
+    {
+      path: "/viewCheckSheet",
+      element: <ViewChecksheet />,
+    },
+    {
+      path: "/master-log",
+      element: <MasterLogMainDashboard />,
+    },
+    {
+      path: "/machine-history",
+      element: <MachineHistoryComponent />,
+      children: [
+        {
+          path: ":machine_code",
+          element: <MachineHistoryComponent />,
+        },
+        {
+          path: "machine-document/:machine_code",
+          element: <MachineDocument />,
+        },
+        {
+          path: "attachment-formate/:page/:machine_code",
+          element: <AttachmentFormateTable />,
+        },
+        {
+          path: "history-formate/:page/:machine_code",
+          element: <HistoryFormateTable />,
+        },
+      ],
+    },
+  ];
+
+  let tabs = [
+    {
+      name: "PM",
+      keyUrl: "pm",
+      icon: <BsWrench />,
+      dashboardAndRoutes: <PMTabdashboard commonRoutes={commonRoutes} />,
+    },
+    {
+      name: "BM",
+      keyUrl: "bm",
+      icon: <BsHammer />,
+      dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
+    },
+    NAME_OF_THE_COMPANY === LIST_OF_COMPANY[0]
+      ? {
+          name: "MTD KPI",
+          keyUrl: "kpi",
+          icon: <BsHammer />,
+          dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
+        }
+      : [],
+  ];
 
   return (
     <div>
