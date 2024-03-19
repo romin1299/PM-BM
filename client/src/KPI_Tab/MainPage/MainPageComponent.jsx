@@ -16,6 +16,7 @@ import DataNotFound from "../../BM/Reports/Common/DataNotFound";
 import ChartTitleBar from "../../BM/Reports/Common/ChartTitleBar";
 import MTTRChart from "../../BM/Reports/DailyBreakdownTrend/MTTRChart";
 import RoutingContext from "../../context/routing/RoutingContext";
+import ManHourTrend from "../../BM/Reports/ManHourReport/ManHourTrend";
 
 const MainPageComponent = () => {
   const [filter, setFilter] = useState("hourly");
@@ -83,14 +84,12 @@ const MainPageComponent = () => {
             />
           </Col>
           <Col md={12} lg={5}>
-            <TMLoad
-              selectedValue={reduceState?.selectedValueForLineAnTMLoadGraph}
-              flagForTogglingFilter={
-                reduceState?.togglingFilterFlagForLineAnTMLoadGraph
-              }
+            <ManHourTrend
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
+              selectedValue={reduceState?.selectedValue}
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
-              selectedMonth={reduceState?.selectedMonth}
-              chartTitle="Plant Man Hr Status"
             />
           </Col>
         </Row>
