@@ -526,11 +526,24 @@ router.get(
       shifts,
     ]);
 
+    let updatedCsvDataForMasterLog = [...values?.[0], ...values?.[1], ...values?.[2]]
+
+    updatedCsvDataForMasterLog =  updatedCsvDataForMasterLog?.map((value) => {
+      value.problem = value?.problem?.map((data) => data?.problem);
+      value.action = value?.action?.map((data) => data?.action);
+      value.doneBy = value?.doneBy?.map((data) => data?.tm_name);
+      value.category = value?.category?.map(
+        (data) => `${data?.category}- ${data?.subCategory}`
+      );
+      return value;
+    });
+
     successResponse(res, "Master log get successfully", {
       getShifts: values?.[4]?.[0]?.shiftOfBM,
       categories: values?.[4]?.[0]?.categories,
       TLHOSS_and_TM_user_list: values?.[3],
       masterLogData: [...values?.[0], ...values?.[1], ...values?.[2]],
+      updatedCsvDataForMasterLog
     });
   })
 );

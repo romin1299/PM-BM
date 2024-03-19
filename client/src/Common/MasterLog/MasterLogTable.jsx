@@ -10,6 +10,7 @@ const MasterLogTable = ({
   selectedValue,
   selectedYear,
   selectedMonth,
+  setCsvDataOfMasterLog,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,7 +65,6 @@ const MasterLogTable = ({
   //   fetchShiftData();
   //   getListOfTheTLAndOperatorForNoLossBDEntryForm();
   // }, []);
-
   const getMasterLog = async () => {
     try {
       const res = await fetch(
@@ -85,6 +85,7 @@ const MasterLogTable = ({
         categories,
         TLHOSS_and_TM_user_list,
         masterLogData,
+        updatedCsvDataForMasterLog,
       } = await res.json();
 
       if (res?.status === 201) {
@@ -92,6 +93,7 @@ const MasterLogTable = ({
         setPlantCategories(categories);
         setSupportingTMList(TLHOSS_and_TM_user_list);
         setMasterLogData(masterLogData);
+        // setCsvDataOfMasterLog(updatedCsvDataForMasterLog);
       }
     } catch (error) {
       console.log(error);
@@ -471,7 +473,8 @@ const MasterLogTable = ({
           "& > .anticon .svg": { width: "1.4em", height: "1.4em" },
         },
         "& .ant-dropdown-trigger.active": {
-          color: "#004fbf", bgcolor: "#b2d2ff8a"
+          color: "#004fbf",
+          bgcolor: "#b2d2ff8a",
         },
         "& .ant-table-cell > ul": {
           margin: "0px",
