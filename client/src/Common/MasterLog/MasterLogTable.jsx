@@ -85,7 +85,6 @@ const MasterLogTable = ({
         categories,
         TLHOSS_and_TM_user_list,
         masterLogData,
-        updatedCsvDataForMasterLog,
       } = await res.json();
 
       if (res?.status === 201) {
@@ -93,7 +92,21 @@ const MasterLogTable = ({
         setPlantCategories(categories);
         setSupportingTMList(TLHOSS_and_TM_user_list);
         setMasterLogData(masterLogData);
-        // setCsvDataOfMasterLog(updatedCsvDataForMasterLog);
+
+        let csvMasterLogData = [];
+        for (let i = 0; i < masterLogData.length; i++) {
+          csvMasterLogData.push({
+            ...masterLogData[i],
+            problem: masterLogData[i]?.problem?.map((data) => data?.problem),
+            action: masterLogData[i]?.action?.map((data) => data?.action),
+            doneBy: masterLogData[i]?.doneBy?.map((data) => data?.tm_name),
+            category: masterLogData[i]?.category?.map(
+              (data) => `${data?.category}- ${data?.subCategory}`
+            ),
+          });
+        }
+
+        setCsvDataOfMasterLog(csvMasterLogData);
       }
     } catch (error) {
       console.log(error);
