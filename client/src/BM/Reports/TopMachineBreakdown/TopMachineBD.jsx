@@ -16,6 +16,8 @@ import BDRSTableWithDateFiltration from "../Common/BDRSTableWithDateFiltration";
 import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu";
 import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
 import RoutingContext from "../../../context/routing/RoutingContext";
+import AntDesignRSTableWithFiltration from "../Common/AntDesignRSTableWithFiltration";
+
 const TopMachineBD = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
@@ -158,7 +160,7 @@ const TopMachineBD = () => {
             </Col>
           </Row>
           <Row>
-            <BDRSTableWithDateFiltration
+            <AntDesignRSTableWithFiltration
               flagForTogglingFilter={
                 reduceStateForDefaultCellLineMachineFilter?.flagForTogglingFilter
               }
