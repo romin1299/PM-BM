@@ -471,6 +471,9 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                               <br />
                               <input
                                 type="datetime-local"
+                                min={moment(new Date() - 1)
+                                  .subtract(1, "days")
+                                  .format("YYYY-MM-DDTHH:mm")}
                                 {...register("problemOccurredDateAndTimeOfBM", {
                                   required: "RequestSheet date is required",
                                   onChange: (event) =>
