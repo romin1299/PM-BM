@@ -5,7 +5,7 @@ export const filteredMenuItems = (menuItems, user_type, user_department) => {
       if (
         (!menuItem.allowedRoles || menuItem.allowedRoles.includes(user_type)) &&
         (!menuItem.allowedDepartments ||
-          menuItem.allowedDepartments.includes(user_department))
+          menuItem.allowedDepartments.includes(user_department)) 
       ) {
         if (menuItem.subItems) {
           const filteredSubItems = menuItem.subItems?.filter((subItem) => {

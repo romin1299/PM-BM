@@ -138,7 +138,6 @@ function App() {
 
   const loggedUser = useContext(RoutingContext);
   let mainRouteForCompanyBased = [];
-  // console.log(NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0]);
   if (
     NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
     loggedUser?.tm_department === "MTD"
@@ -151,13 +150,7 @@ function App() {
       },
     ];
   } else {
-    //For DENSO-INDIA
-    mainRouteForCompanyBased = [
-      {
-        path: "/",
-        element: <OperatorDashboard />,
-      },
-    ];
+    mainRouteForCompanyBased = [];
   }
 
   let commonRoutes = [
@@ -211,14 +204,16 @@ function App() {
       icon: <BsHammer />,
       dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
     },
-    NAME_OF_THE_COMPANY === LIST_OF_COMPANY[0]
-      ? {
-          name: "MTD KPI",
-          keyUrl: "kpi",
-          icon: <BsHammer />,
-          dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
-        }
-      : [],
+    ...mainRouteForCompanyBased,
+    // NAME_OF_THE_COMPANY === LIST_OF_COMPANY[0] &&
+    // loggedUser?.tm_department === "MTD"
+    //   ? {
+    //       name: "MTD KPI",
+    //       keyUrl: "kpi",
+    //       icon: <BsHammer />,
+    //       dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
+    //     }
+    //   : [],
   ];
 
   return (

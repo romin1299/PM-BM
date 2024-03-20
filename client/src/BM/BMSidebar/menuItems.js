@@ -171,16 +171,18 @@ export const menuItems = [
     icon: <CrisisAlertIcon className="text-white" />,
     route: "/bm/targetDashboard",
     allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
+    allowedDepartments: ["MTD"],
   },
 
   //For DENSO-INDIA
   ...menuItemsForDensoIndia,
-  
+
   {
     title: "Other Loss",
     icon: <FaWpforms fontSize={22} className="text-white" />,
     route: "/bm/noLossDataOfBD",
     allowedRoles: allusers,
+    allowedDepartments: ["MTD"],
   },
   {
     title: "Master Log",

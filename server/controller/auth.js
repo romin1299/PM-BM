@@ -160,8 +160,12 @@ router.post("/signIn", async (req, res) => {
       if (!passwordMatch) {
         res.status(400).json({ error: "Invalid password " });
       } else {
-        // console.log("user login successfully")
-        res.json({ message: "user login successfully" });
+        res.json({ message: "user login successfully", userLogin: {
+          tm_no: userLogin?.tm_no,
+          tm_name: userLogin?.tm_name,
+          tm_department: userLogin?.tm_department,
+          tm_grade: userLogin?.tm_grade
+        } });
       }
       // }
     } else {

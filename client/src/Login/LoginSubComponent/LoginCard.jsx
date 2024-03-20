@@ -66,11 +66,11 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
           navigate(`/bm/request-sheet/scanned/${scannedMachineId}`);
           // refreshPage();
         } else {
-          if (NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0]) {
+          if (NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
+            data?.userLogin?.tm_department === "MTD") {
             //For DENSO-HARYANA
             navigate("/kpi", { replace: true });
           } else {
-            //For DENSO-INDIA
             navigate("/pm", { replace: true });
           }
         }
