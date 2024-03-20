@@ -19,6 +19,7 @@ import {
   NAME_OF_THE_COMPANY,
   LIST_OF_COMPANY,
 } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import currentYear from "../../pages/Dashboard/DashboardComponent/currentYear";
 
 const LoginCard = ({ scannedMachineId, windowWidth }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -63,7 +64,7 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
         // window.alert("Login Successful");
         if (scannedMachineId) {
           //call request-sheet component
-          navigate(`/bm/request-sheet/scanned/${scannedMachineId}`);
+          navigate(`/bm/request-sheet/scanned/${scannedMachineId}/${currentYear}`);
           // refreshPage();
         } else {
           if (NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
