@@ -204,16 +204,12 @@ function App() {
       icon: <BsHammer />,
       dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
     },
-    ...mainRouteForCompanyBased,
-    // NAME_OF_THE_COMPANY === LIST_OF_COMPANY[0] &&
-    // loggedUser?.tm_department === "MTD"
-    //   ? {
-    //       name: "MTD KPI",
-    //       keyUrl: "kpi",
-    //       icon: <BsHammer />,
-    //       dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
-    //     }
-    //   : [],
+    {
+      name: "MTD KPI",
+      keyUrl: "kpi",
+      icon: <BsHammer />,
+      dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
+    },
   ];
 
   return (

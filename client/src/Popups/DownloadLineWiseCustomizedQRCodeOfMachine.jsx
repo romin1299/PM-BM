@@ -41,10 +41,10 @@ const DownloadLineWiseCustomizedQRCodeOfMachine = ({
 
     // Define the dimensions for the table
     const startX = 5;
-    const startY = 5;
+    const startY = 6;
     const spacing = 5;
 
-    const startTextX = 7;
+    const startTextX = 5;
     const startTextY = 5;
     const textSpacing = 5;
 
@@ -79,17 +79,26 @@ const DownloadLineWiseCustomizedQRCodeOfMachine = ({
         startY +
         row * (parseInt(customQRCodeDataForLineWise?.customHeight) + spacing);
 
-      const textX =
-        startTextX +
-        col *
-          (parseInt(customQRCodeDataForLineWise?.customWidth) + textSpacing);
+      const textX = x + parseInt(customQRCodeDataForLineWise?.customWidth) / 2;
       const textY =
         startTextY +
         row *
           (parseInt(customQRCodeDataForLineWise?.customHeight) + textSpacing);
       // Generate the QR code as a data URL and add to the PDF
       const qrCodeDataURL = await generateQRCode(data);
-      doc.text(data, textX, textY);
+
+      if (
+        parseInt(customQRCodeDataForLineWise?.customWidth) > 25 &&
+        parseInt(customQRCodeDataForLineWise?.customWidth) < 35
+      ) {
+        doc.setFontSize(8);
+      } else if (parseInt(customQRCodeDataForLineWise?.customWidth) > 35) {
+        doc.setFontSize(10);
+      } else {
+        doc.setFontSize(6);
+      }
+
+      doc.text(data.trim(), textX, textY, null, null, "center");
       doc.addImage(
         qrCodeDataURL,
         "JPEG",

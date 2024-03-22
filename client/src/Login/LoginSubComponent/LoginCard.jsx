@@ -63,12 +63,20 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
       } else {
         // window.alert("Login Successful");
         if (scannedMachineId) {
-          //call request-sheet component
-          navigate(`/bm/request-sheet/scanned/${scannedMachineId}/${currentYear}`);
+          if (data?.userLogin?.tm_department === "PRD") {
+            //call request-sheet component
+            navigate(
+              `/bm/request-sheet/scanned/${scannedMachineId}/${currentYear}`
+            );
+          } else {
+            navigate("/bm", { replace: true });
+          }
           // refreshPage();
         } else {
-          if (NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
-            data?.userLogin?.tm_department === "MTD") {
+          if (
+            NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
+            data?.userLogin?.tm_department === "MTD"
+          ) {
             //For DENSO-HARYANA
             navigate("/kpi", { replace: true });
           } else {
