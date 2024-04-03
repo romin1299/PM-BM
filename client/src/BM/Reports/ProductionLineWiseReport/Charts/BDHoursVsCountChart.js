@@ -106,7 +106,7 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
         label: `Count ${item?.groupId}`,
         backgroundColor: chartColors.machineChartCounts[index],
         borderColor: chartColors.machineChartCounts[index],
-        borderWidth: 2,
+        //borderWidth: 2,
         fill: false,
         data: item?.count,
         yAxisID: "y1",
@@ -117,7 +117,7 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
         label: `Count ${item?.groupId}`,
         backgroundColor: chartColors.machineChartCounts[index],
         borderColor: chartColors.machineChartCounts[index],
-        borderWidth: 2,
+        //borderWidth: 2,
         fill: false,
         data: item?.count,
         yAxisID: "y1",
@@ -129,19 +129,18 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
         stack: "same-bar-stack",
         label: `Hours ${item?.groupId}`,
         data: item?.sumOfBDhours,
-        borderColor: "#312A7D",
-        borderWidth: 2,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
         yAxisID: "y2",
         borderRadius: 4,
       })),
     ],
   };
 
-
   const isDataExists = isChartDataExist(data);
 
   return (
-    <Box sx={{ height: { xs: "300px", md: "350px" }, mt: 1 }}>
+    <Box sx={{ height: { xs: "300px", md: "300px", lg: "300px" }, mt: 1 }}>
       {!isDataExists ? (
         <DataNotFound />
       ) : (

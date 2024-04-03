@@ -55,7 +55,7 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
           password: values.password,
         }),
       });
-      const data = res.json();
+      const data = await res.json();
       if (res.status === 400 || res.status === 422 || !data) {
         setInvalid("Invalid credentials !");
 
@@ -79,6 +79,8 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
           ) {
             //For DENSO-HARYANA
             navigate("/kpi", { replace: true });
+          } else if (data?.userLogin?.tm_department === "PRD") {
+            navigate("/bm", { replace: true });
           } else {
             navigate("/pm", { replace: true });
           }

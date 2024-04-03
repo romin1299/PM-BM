@@ -1,1 +1,1 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"47217014939340d79c1754036b5431fd","collectionName":"machinesalldatas","type":"collection"}
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"9f7d2d7cb27747d4b211230b5951a1ff","collectionName":"machinesalldatas","type":"collection"}

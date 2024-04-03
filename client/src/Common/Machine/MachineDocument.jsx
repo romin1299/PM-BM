@@ -12,24 +12,38 @@ import HistoryIcon from "@mui/icons-material/History";
 import ArchitectureIcon from "@mui/icons-material/Architecture";
 import DescriptionIcon from "@mui/icons-material/Description";
 
+import BM_History from "../../static/Icons/BM_History.png";
+import product_drawing from "../../static/Icons/product_drawing.png";
+import PM_history from "../../static/Icons/PM_history.png";
+import machine_manual from "../../static/Icons/machine_manual.png";
+import jigs_dws from "../../static/Icons/jigs_dws.png";
+import electric_drawing from "../../static/Icons/electric_drawing.png";
+import jigs_mcs from "../../static/Icons/jigs_mcs.png";
+import machine_pokayoke from "../../static/Icons/machine_pokayoke.png";
+import OMS from "../../static/Icons/OMS.png";
+import other_documents from "../../static/Icons/other_documents.jpg";
+import mechanical from "../../static/Icons/mechanical.png";
+import consumable_spare from "../../static/Icons/consumable_spare.png";
+
 const allEvents = [
   [
     {
       url: "bm-history",
       formate: "history-formate",
       name: "BM History",
-      icon: <HistoryIcon fontSize="large" />,
+      icon: BM_History,
     },
     {
       url: "product-drawing",
       formate: "attachment-formate",
       name: "Product Drawing",
+      icon: product_drawing,
     },
     {
       url: "jigs-mcs",
       formate: "attachment-formate",
       name: "Jigs MCS",
-      icon: <ArchitectureIcon fontSize="large" />,
+      icon: jigs_mcs,
     },
   ],
   [
@@ -37,19 +51,19 @@ const allEvents = [
       url: "pm-history",
       formate: "history-formate",
       name: "PM History",
-      icon: <HistoryIcon fontSize="large" />,
+      icon: PM_history,
     },
     {
       url: "machine-manuals",
       formate: "attachment-formate",
       name: "Machine Manuals",
-      icon: <DescriptionIcon fontSize="large" />,
+      icon: machine_manual,
     },
     {
       url: "jigs-dws",
       formate: "attachment-formate",
       name: "Jigs Dws(Mech/Elec)",
-      icon: <ArchitectureIcon fontSize="large" />,
+      icon: jigs_dws,
     },
   ],
   [
@@ -57,16 +71,19 @@ const allEvents = [
       url: "mech-dws",
       formate: "attachment-formate",
       name: "Mech. Drawings",
+      icon: mechanical,
     },
     {
       url: "ele-dws",
       formate: "attachment-formate",
       name: "Electric Drawings",
+      icon: electric_drawing,
     },
     {
       url: "machine-poka-yoke",
       formate: "attachment-formate",
       name: "Machine Poka-Yoke",
+      icon: machine_pokayoke,
     },
   ],
   [
@@ -74,16 +91,19 @@ const allEvents = [
       url: "spare",
       formate: "attachment-formate",
       name: "Consumable & Spare",
+      icon: consumable_spare,
     },
     {
       url: "oms",
       formate: "attachment-formate",
       name: "OMS",
+      icon: OMS,
     },
     {
       url: "other-documents",
       formate: "attachment-formate",
       name: "Other Documents",
+      icon: other_documents,
     },
   ],
 ];
@@ -171,7 +191,8 @@ const MachineDocument = () => {
           justifyContent="center"
           alignItems="center"
         >
-          {icon && icon}
+          <img src={icon} alt="" srcset="" height="50rem" width="50rem" />
+          {/* {icon && icon} */}
         </Box>
         <Typography
           variant="body1"
@@ -191,7 +212,10 @@ const MachineDocument = () => {
         title={"Machine Documents"}
         PreTools={<MuiNavigateBack />}
         Toolbar={
-          <MachineNameTypography machineCode={machine_code} machineName={machineName} />
+          <MachineNameTypography
+            machineCode={machine_code}
+            machineName={machineName}
+          />
         }
       />
       {/* <CustomHooksForBackNavigation /> */}

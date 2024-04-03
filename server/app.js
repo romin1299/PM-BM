@@ -2,8 +2,8 @@ const dotenv = require("dotenv");
 const express = require("express");
 const app = express();
 const path = require("path");
-const fs = require('fs');
-const https = require('https');
+const fs = require("fs");
+const https = require("https");
 
 const Line = require("./model/lineSchema");
 
@@ -24,8 +24,8 @@ app.use(express.json());
 //for when deploying application on AWS
 
 // const keys = {
-//   key: fs.readFileSync('C:/certificate/cert.key'),
-//   cert: fs.readFileSync('C:/certificate/cert.crt')
+//   key: fs.readFileSync('D:/Romin/Projects/DENSO BM/certificate/cert.key'),
+//   cert: fs.readFileSync('D:/Romin/Projects/DENSO BM/certificate/cert.crt')
 // };
 
 // const { dummyCron } = require(path.join(__dirname, "./controller/dummyCron"));
@@ -77,7 +77,7 @@ app.get("/*", (req, res) => {
 const PORT = process.env.PORT;
 
 //for when deploying application on AWS
-// const server = https.createServer(keys, app);
+const server = https.createServer(keys, app);
 
 app.listen(PORT, () => {
   console.log(`server is running in port ${PORT} `);

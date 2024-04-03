@@ -650,7 +650,7 @@ const CreationDashboardForTLHOSS = () => {
       isFreeAction: false,
       onClick: (event, selectedRow) => {
         navigate(
-          `/machine-history/machine-document/${selectedRow?.machine_code}`
+          `/machine-history/machine-document/${selectedRow?.machine_code}/?machineId=${selectedRow?._id}`
         );
       },
     },

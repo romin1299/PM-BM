@@ -51,7 +51,7 @@ const ChartCard = ({ category }) => {
   };
 
   return (
-    <Box variant="outlined" className="cell">
+    <Box variant="outlined" className="cell" sx={{ height: "420px" }}>
       <div className="p-3 pb-0">
         <ChartTitleBar title={`${category?.category}`} />
       </div>
@@ -157,7 +157,6 @@ const BDCategoryAndFactor = ({
       <Row className="g-3">
         {[0, 1]?.map((key) => (
           <Col key={key} sm={6} xs={12}>
-
             {loading ? (
               <Box className="cell p-3">
                 <Loading height={200} />

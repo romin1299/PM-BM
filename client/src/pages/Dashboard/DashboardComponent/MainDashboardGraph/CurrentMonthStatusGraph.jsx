@@ -65,20 +65,18 @@ import { Pie } from "react-chartjs-2";
 export const options = {
   responsive: true,
   plugins: {
-    
     title: {
       display: true,
-      text: 'Monthly Plan vs Actual',
+      text: "Monthly Plan vs Actual",
       color: "black",
       font: {
-       size:16
-     }
+        size: 16,
+      },
     },
   },
 };
 const CurrentMonthStatusGraph = ({ TableData }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
-
 
   // console.log("----------",TableData)
 
@@ -91,19 +89,14 @@ const CurrentMonthStatusGraph = ({ TableData }) => {
         // backgroundColor: ["#54B435", "#FF8D29", "white"],
         // borderColor: ["black"],
 
-        backgroundColor: [
-          "#b2e476",
-          "#ffff59",
-          "#FFFFFF",
-          "#CCE5FF",
-        ],
+        backgroundColor: ["#b2e476", "#ffff59", "#FFFFFF", "#CCE5FF"],
         borderColor: [
           "#458d01",
           "rgb(228, 224, 0)",
           "rgb(211, 223, 223)",
           "rgb(201, 203, 207)",
         ],
-        borderWidth: 2,
+        //borderWidth: 2,
         // blur: "12",
       },
     ],

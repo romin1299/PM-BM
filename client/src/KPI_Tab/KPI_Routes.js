@@ -19,6 +19,8 @@ import MTTRReportDashboard from "../BM/Reports/MTTRReport/MTTRReportDashboard";
 import MTBFReportDashboard from "../BM/Reports/MTBFReport/MTBFReportDashboard";
 import TopMachineBD from "../BM/Reports/TopMachineBreakdown/TopMachineBD";
 import MachineAgeReport from "../BM/Reports/MachineAge/MachineAgeReport";
+import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
+import TargetDashboard from "../BM/TargetOfBD/TargetDashboard";
 
 const KPI_Routes = ({ commonRoutes }) => {
   const userData = useContext(RoutingContext);
@@ -32,6 +34,10 @@ const KPI_Routes = ({ commonRoutes }) => {
     {
       path: "/kpi/report/daily-breakdown-trend",
       element: <DailyBTDashboard />,
+    },
+    {
+      path: "/kpi/targetDashboard",
+      element: <TargetDashboard />,
     },
     {
       path: "/kpi/spareReportDashboard",
@@ -87,7 +93,7 @@ const KPI_Routes = ({ commonRoutes }) => {
     //   icon: <AnalyticsIcon className="text-white" />,
     //   route: "/kpi/report/daily-breakdown-trend",
     // },
-    
+
     // ------- Reports Dashboards -------
     {
       title: "Reports",
@@ -136,7 +142,13 @@ const KPI_Routes = ({ commonRoutes }) => {
         },
       ],
     },
-
+    {
+      title: "Target Dashboard",
+      icon: <CrisisAlertIcon className="text-white" />,
+      route: "/kpi/targetDashboard",
+      allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
+      allowedDepartments: ["MTD"],
+    },
     {
       title: "Spare Report",
       icon: <SummarizeIcon className="text-white" />,

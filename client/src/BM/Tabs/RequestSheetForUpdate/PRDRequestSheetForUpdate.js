@@ -32,7 +32,7 @@ const list = [
 function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { machine_code, generateType, requestSheetID } = useParams();
+  const { machine_code, generateType, requestSheetID, selectedYear } = useParams();
   const {
     register,
     handleSubmit,
@@ -257,7 +257,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                         className="btn bg-button"
                         onClick={() => {
                           navigate(
-                            `/machine-history/${machine_code}/?machineId=${machineId}`
+                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
                           );
                         }}
                       >

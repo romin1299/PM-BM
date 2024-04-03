@@ -126,7 +126,7 @@ const TopMachineBD = () => {
                 }
               />
             </Col>
-            <Col xxl={3} lg={6} md={12} className="mb-2">
+            <Col xxl={3} lg={3} md={12} className="mb-2">
               <MachineWiseMTTRAndMTBF
                 chartFor="MTTR"
                 selectedValue={
@@ -142,7 +142,7 @@ const TopMachineBD = () => {
                 filterValues={reduceState}
               />
             </Col>
-            <Col xxl={3} lg={6} md={12} className="mb-2">
+            <Col xxl={3} lg={3} md={12} className="mb-2">
               <MachineWiseMTTRAndMTBF
                 chartFor="MTBF"
                 selectedValue={

@@ -25,7 +25,7 @@ const LineChart = ({
   setValue,
   clearErrors,
   AppendToolComponents,
-  reset
+  reset,
 }) => {
   ChartJS.register(
     CategoryScale,
@@ -53,7 +53,7 @@ const LineChart = ({
       //       yMin: 1,
       //       yMax: 1,
       //       borderColor: chartColors[3],
-      //       borderWidth: 2,
+      //       //borderWidth: 2,
       //     },
       //   },
       // },
@@ -130,7 +130,7 @@ const LineChart = ({
       data: dataset?.data,
       backgroundColor: chartColors.target,
       borderColor: chartColors.targetBorder,
-      borderWidth: 2,
+      //borderWidth: 2,
       fill: false,
       yAxisID: "y2",
     },

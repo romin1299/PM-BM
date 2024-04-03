@@ -243,7 +243,7 @@ const MTTRChart = ({
         label: "Average",
         data: mttrData?.averageData,
         borderColor: chartColors.blue[1],
-        borderWidth: 2,
+        //borderWidth: 2,
         backgroundColor: chartColors.blue[1],
         pointStyle: "rectRot",
         yAxisID: "y1",
@@ -256,8 +256,8 @@ const MTTRChart = ({
         backgroundColor: chartColors.monthlyBDTrend[index],
         borderRadius: 4,
         pointStyle: "rect",
-        borderColor: "#312A7D",
-        borderWidth: 2,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       })),
     ],
   };
@@ -282,7 +282,7 @@ const MTTRChart = ({
         }
       />
 
-      <Box sx={{ height: { xs: "350px", md: "400px" } }}>
+      <Box sx={{ height: { xs: "250px", md: "300px" } }}>
         {loading ? (
           <Loading height={"100%"} />
         ) : !isDataExists ? (

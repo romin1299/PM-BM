@@ -94,7 +94,7 @@ const LineBarChart = ({
       //       yMin: 1,
       //       yMax: 1,
       //       borderColor: chartColors[3],
-      //       borderWidth: 2,
+      //       //borderWidth: 2,
       //     },
       //   },
       // },
@@ -117,6 +117,10 @@ const LineBarChart = ({
         title: {
           display: xAxisTitle ? true : false,
           text: xAxisTitle,
+        },
+        ticks: {
+          maxRotation: 90,
+          minRotation: 90,
         },
       },
       y1: {
@@ -152,7 +156,7 @@ const LineBarChart = ({
         data: dataset?.target,
         borderColor: chartColors.targetBorder,
         backgroundColor: chartColors.target,
-        borderWidth: 2,
+        //borderWidth: 2,
         fill: false,
         pointStyle: "rectRot",
         yAxisID: "y1",
@@ -170,8 +174,8 @@ const LineBarChart = ({
       yAxisID: "y1",
       backgroundColor: chartColors.barLineChart,
       borderRadius: 4,
-      borderColor: "#312A7D",
-      borderWidth: 2,
+      //borderColor: "#312A7D",
+      //borderWidth: 2,
     },
   ];
 
@@ -204,7 +208,7 @@ const LineBarChart = ({
         <Chart data={data} options={options} />
       </div> */}
 
-      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+      <Box sx={{ height: { xs: "300px", md: "330px" } }}>
         {loading ? (
           <Loading height={"100%"} />
         ) : !isDataExists ? (

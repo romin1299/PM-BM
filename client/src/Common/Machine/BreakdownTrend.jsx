@@ -9,7 +9,7 @@ import { chartColors } from "../../BM/Utils/ChartUtils/chartEnums";
 import { useLocation, useNavigate } from "react-router-dom";
 import currentYear from "../../pages/Dashboard/DashboardComponent/currentYear";
 
-const BreakdownTrend = ({ machine_code, search }) => {
+const BreakdownTrend = ({ machine_code, selectedYear, search }) => {
   const [BdTrendAndLastFiveProblem, setBdTrendAndLastFiveProblem] = useState({
     breakdownTrendData: {
       labels: [],
@@ -29,7 +29,7 @@ const BreakdownTrend = ({ machine_code, search }) => {
           : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
       const res = await fetch(
-        `/getBreakdownTrendData/${search}&&selectedYear=${currentYear}`,
+        `/getBreakdownTrendData/${search}&&selectedYear=${selectedYear}`,
         {
           method: "GET",
           headers: {

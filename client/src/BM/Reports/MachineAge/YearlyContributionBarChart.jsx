@@ -202,8 +202,8 @@ const YearlyContributionBarChart = ({
       data: yearlyContributionData?.data,
       backgroundColor: chartColors.monthlyBDTrend,
       // borderColor: chartColors[7],
-      borderColor: "#312A7D",
-      borderWidth: 2,
+      //borderColor: "#312A7D",
+      //borderWidth: 2,
     },
   ];
 

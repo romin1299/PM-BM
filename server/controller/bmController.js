@@ -6375,7 +6375,7 @@ router.get(
           ...MTTRReportData?.[0],
           target: req.target,
           backgroundColor: req.target?.map((item, index) =>
-            MTTRReportData?.[0]?.data?.[index] <= item ? "green" : "red"
+            MTTRReportData?.[0]?.data?.[index] <= item ? "#16FF00" : "red"
           ),
         },
       });
@@ -6485,7 +6485,7 @@ router.get(
           ...req.BDHours?.[0],
           target: req.target,
           backgroundColor: req.target?.map((item, index) =>
-            item > req.BDHours?.[0]?.data?.[index] ? "green" : "red"
+            item > req.BDHours?.[0]?.data?.[index] ? "#16FF00" : "red"
           ),
         },
       });
@@ -8100,7 +8100,7 @@ const middlewareForFindingPercentageData = async (req, res, next) => {
         ...getBdPercentage?.[0],
         target: req.targetForBdPercentage,
         backgroundColor: req.targetForBdPercentage?.map((item, index) =>
-          getBdPercentage?.[0]?.data?.[index] <= item ? "green" : "red"
+          getBdPercentage?.[0]?.data?.[index] <= item ? "#16FF00" : "red"
         ),
       },
     });
@@ -8435,7 +8435,7 @@ const middlewareForFindingMTBFData = async (req, res, next) => {
         ...mtbfData?.[0],
         target: req.targetForMtbf,
         backgroundColor: req.targetForMtbf?.map((item, index) =>
-          mtbfData?.[0]?.data?.[index] >= item ? "green" : "red"
+          mtbfData?.[0]?.data?.[index] >= item ? "#16FF00" : "red"
         ),
       },
     });

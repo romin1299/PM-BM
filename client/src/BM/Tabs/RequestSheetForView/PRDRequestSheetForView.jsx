@@ -31,7 +31,7 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
   const location = useLocation();
   // console.log("location.state.prevPath:", location?.state);
 
-  const { machine_code } = useParams();
+  const { machine_code, selectedYear } = useParams();
 
   const {
     register,
@@ -212,7 +212,7 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
                         className="btn bg-button"
                         onClick={() => {
                           navigate(
-                            `/machine-history/${machine_code}/?machineId=${machineId}`
+                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
                           );
                         }}
                       >

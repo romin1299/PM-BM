@@ -76,14 +76,14 @@ const MainPageComponent = () => {
         </Row>
 
         <Row className="mt-2">
-          <Col md={12} lg={7}>
+          <Col md={12} lg={6}>
             <MTTRChart
               userDetails={loggedUserDetails}
               filterValues={reduceState}
               {...reduceState}
             />
           </Col>
-          <Col md={12} lg={5}>
+          <Col md={12} lg={6}>
             <ManHourTrend
               userDetails={loggedUserDetails}
               filterValues={reduceState}

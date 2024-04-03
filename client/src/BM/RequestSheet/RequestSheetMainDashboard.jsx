@@ -388,7 +388,8 @@ const RequestSheetMainDashboard = () => {
               reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
           }),
         validate: (rowData) => {
-          return rowData.assignUser === undefined
+          return rowData.assignUser === undefined &&
+            rowData?.tableData?.editing === "update"
             ? { isValid: false, helperText: "Assign user cannot be empty" }
             : true;
         },
@@ -508,6 +509,9 @@ const RequestSheetMainDashboard = () => {
       title: "R.S Status",
       field: "requestSheetStatus",
       editable: false,
+      cellStyle: {
+        textAlign: "center",
+      },
       render: (rowData) => (
         <button
           className="btn"
@@ -646,7 +650,7 @@ const RequestSheetMainDashboard = () => {
 
     (rowData) => ({
       icon: () => <EditIcon />,
-      tooltip: "Edit",
+      tooltip: "Edit Action",
       disabled: true,
       hidden:
         context?.tm_department !== "PRD" &&
@@ -657,7 +661,7 @@ const RequestSheetMainDashboard = () => {
   if (context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus === "Yes") {
     requestSheetActions?.push({
       icon: () => <DriveFileRenameOutlineIcon className="text-primary" />,
-      tooltip: "Edit",
+      tooltip: "Edit After All Approval",
       position: "row",
       onClick: (event, selectedRow) => {
         navigate(
@@ -981,9 +985,9 @@ const RequestSheetMainDashboard = () => {
               //     //refreshPage();
               //   }),
 
-              isDeleteHidden: (rowData) =>
-                context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
-                "Yes",
+              // isDeleteHidden: (rowData) =>
+              //   context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
+              //   "Yes",
 
               isEditHidden: (rowData) =>
                 (rowData?.requestSheetStatus !== RSStatusArray[0] &&

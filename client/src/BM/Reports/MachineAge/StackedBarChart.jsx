@@ -127,8 +127,8 @@ const StackedBarChart = ({
           label: item?.label || item?._id,
           data: item?.data,
           backgroundColor: chartColors.monthlyBDTrend[index],
-          borderColor: "#312A7D",
-          borderWidth: 2,
+          //borderColor: "#312A7D",
+          //borderWidth: 2,
         }));
 
         setChartData({
@@ -189,7 +189,7 @@ const StackedBarChart = ({
   ]);
 
   return (
-    <Box className="container-fluid cell p-3">
+    <Box className="container-fluid cell p-3" sx={{ height: "450px" }}>
       <ChartTitleBar
         title="Machine Age"
         // titleProps={{

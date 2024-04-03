@@ -166,13 +166,13 @@ export const menuItems = [
     allowedRoles: ["Plant-Admin", "Section-Admin"],
   },
 
-  {
-    title: "Target Dashboard",
-    icon: <CrisisAlertIcon className="text-white" />,
-    route: "/bm/targetDashboard",
-    allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
-    allowedDepartments: ["MTD"],
-  },
+  // {
+  //   title: "Target Dashboard",
+  //   icon: <CrisisAlertIcon className="text-white" />,
+  //   route: "/bm/targetDashboard",
+  //   allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
+  //   allowedDepartments: ["MTD"],
+  // },
 
   //For DENSO-INDIA
   ...menuItemsForDensoIndia,

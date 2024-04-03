@@ -271,7 +271,7 @@ const DailyBDTrendChart = ({
   //     data: dailyBreakdownTrendData?.dayWiseCount,
   //     backgroundColor: chartColors.count,
   //     borderColor: chartColors.count,
-  //     borderWidth: 2,
+  //     //borderWidth: 2,
   //     fill: false,
   //     yAxisID: "y2",
   //   },
@@ -326,7 +326,7 @@ const DailyBDTrendChart = ({
       data: dailyBreakdownTrendData?.dayWiseCount,
       backgroundColor: "#D04848",
       borderColor: "#D04848",
-      borderWidth: 2,
+      //borderWidth: 2,
       fill: false,
       yAxisID: "y2",
     },
@@ -348,12 +348,12 @@ const DailyBDTrendChart = ({
       //     },
       //   },
       // },
-      // borderColor: "#312A7D",
-      borderWidth: 2,
+      // //borderColor: "#312A7D",
+      //borderWidth: 2,
       // borderColor: chartColors.dailyBDTrendBorder[0],
       // borderWidth: 1,
       borderRadius: 4,
-      
+
       // backgroundColor: "#8EBA0E",
       // (context) => {
       //   const chart = context.chart;
@@ -387,7 +387,6 @@ const DailyBDTrendChart = ({
 
       //   return gradient;
       // },
-      
     },
     {
       type: "bar",
@@ -410,8 +409,8 @@ const DailyBDTrendChart = ({
       //   },
       // },
       borderRadius: 4,
-        // borderColor: "#312A7D",
-        borderWidth: 2,
+      // //borderColor: "#312A7D",
+      //borderWidth: 2,
     },
     {
       type: "bar",
@@ -431,8 +430,8 @@ const DailyBDTrendChart = ({
       //     },
       //   },
       // },
-      // borderColor: "#312A7D",
-      borderWidth: 2,
+      // //borderColor: "#312A7D",
+      //borderWidth: 2,
       // borderColor: chartColors.dailyBDTrendBorder[2],
       borderRadius: 4,
     },

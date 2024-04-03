@@ -241,7 +241,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                       className="btn bg-button m-2"
                       onClick={() => {
                         navigate(
-                          `/machine-history/${machine_code}/?machineId=${AllData?.machine?._id}`
+                          `/machine-history/${machine_code}/${selectedYear}/?machineId=${AllData?.machine?._id}`
                         );
                       }}
                     >

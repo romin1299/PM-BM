@@ -140,7 +140,8 @@ function App() {
   let mainRouteForCompanyBased = [];
   if (
     NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
-    loggedUser?.tm_department === "MTD"
+    loggedUser?.tm_department === "MTD" &&
+    loggedUser?.user_type !== "Operator"
   ) {
     // For DENSO-HARYANA
     mainRouteForCompanyBased = [
@@ -172,7 +173,7 @@ function App() {
       element: <MachineHistoryComponent />,
       children: [
         {
-          path: ":machine_code",
+          path: ":machine_code/:selectedYear",
           element: <MachineHistoryComponent />,
         },
         {
@@ -191,6 +192,24 @@ function App() {
     },
   ];
 
+  let displayKPIDashboard = [];
+  if (
+    NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
+    loggedUser?.tm_department === "MTD" &&
+    loggedUser?.user_type !== "Operator"
+  ) {
+    displayKPIDashboard = [
+      {
+        name: "MTD KPI",
+        keyUrl: "kpi",
+        icon: <BsHammer />,
+        dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
+      },
+    ];
+  } else {
+    displayKPIDashboard = [];
+  }
+
   let tabs = [
     {
       name: "PM",
@@ -204,12 +223,13 @@ function App() {
       icon: <BsHammer />,
       dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
     },
-    {
-      name: "MTD KPI",
-      keyUrl: "kpi",
-      icon: <BsHammer />,
-      dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
-    },
+    ...displayKPIDashboard
+    // {
+    //   name: "MTD KPI",
+    //   keyUrl: "kpi",
+    //   icon: <BsHammer />,
+    //   dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
+    // },
   ];
 
   return (

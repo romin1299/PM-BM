@@ -32,7 +32,7 @@ const list = [
 function MyTable({ selectedMachineDetails, machineStatus }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { machine_code, generateType } = useParams();
+  const { machine_code, generateType, selectedYear } = useParams();
   const context = useContext(RoutingContext);
 
   const {
@@ -244,7 +244,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                         className="btn bg-button"
                         onClick={() => {
                           navigate(
-                            `/machine-history/${machine_code}/?machineId=${selectedMachineDetails?._id}`
+                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineDetails?._id}`
                           );
                         }}
                       >

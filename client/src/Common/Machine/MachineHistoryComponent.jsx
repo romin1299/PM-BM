@@ -13,7 +13,7 @@ import { Button, IconButton } from "@mui/material";
 import LaunchIcon from "@mui/icons-material/Launch";
 
 const MachineHistoryComponent = () => {
-  const { machine_code } = useParams();
+  const { machine_code, selectedYear } = useParams();
 
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -57,7 +57,7 @@ const MachineHistoryComponent = () => {
         selectedMachineDetails={selectedMachineDetails}
         setMachineDetails={setMachineDetails}
       />
-      <BreakdownTrend machine_code={machine_code} search={search} />
+      <BreakdownTrend machine_code={machine_code} selectedYear={selectedYear} search={search} />
     </Container>
   );
 };

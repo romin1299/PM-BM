@@ -161,8 +161,8 @@ const YearlyTrendChart = ({
         data: item?.data,
         backgroundColor: chartColors.monthlyBDTrend[index],
         borderRadius: 4,
-        borderColor: "#312A7D",
-        borderWidth: 2,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       }));
       const targetData = res?.data?.bdTrendDataTarget;
       // const targetData = getRandomDataArray(2, 5, 8);
@@ -175,7 +175,7 @@ const YearlyTrendChart = ({
               type: "line",
               label: "Target",
               data: targetData,
-              borderWidth: 2,
+              //borderWidth: 2,
               borderColor: chartColors.target2,
               backgroundColor: chartColors.target2,
               pointStyle: "rectRot",
@@ -261,7 +261,7 @@ const YearlyTrendChart = ({
         }
       />
 
-      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+      <Box sx={{ height: { xs: "250px", md: "300px" } }}>
         {loading ? (
           <Loading height={"100%"} />
         ) : !isDataExists ? (

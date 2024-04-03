@@ -77,9 +77,9 @@ const ChartCard = ({ category }) => {
       <Divider sx={{ mt: 1, mb: 2, borderColor: "gray" }} />
 
       <Box
-        className="ratio ratio-1x1"
-        // sx={{ height: { xs: "300px", md: "350px" } }}
-        sx={{ maxHeight: "350px" }}
+        className="d-flex align-items-center justify-content-center"
+        sx={{ height: { lg: "420px", md: "350px" } }}
+        // sx={{ maxHeight: "350px" }}
       >
         {category?.bdCount === undefined ? (
           <DataNotFound />

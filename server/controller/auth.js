@@ -21379,7 +21379,7 @@ router.post(
       );
       top20MachineSparePartConsumption = top20MachineSparePartConsumption
         .sort((a, b) => parseFloat(b.cost) - parseFloat(a.cost))
-        .slice(0, 21);
+        .slice(0, 20);
       res.json({
         subSectionsData,
         cellData,

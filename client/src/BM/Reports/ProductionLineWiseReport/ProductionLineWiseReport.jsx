@@ -94,7 +94,7 @@ const ProductionLineWiseReport = () => {
             />
 
             <Row className="mt-3 g-2">
-              <Col xxl={3} lg={6} md={6}>
+              <Col xxl={3} xs={12} lg={3} md={6}>
                 <BDhours
                   userDetails={loggedUserDetails}
                   filterValues={reduceState}
@@ -103,7 +103,7 @@ const ProductionLineWiseReport = () => {
                   selectedYear={reduceState?.selectedYear}
                 />
               </Col>
-              <Col xxl={3} lg={6} md={6}>
+              <Col xxl={3} xs={12} lg={3} md={6}>
                 <MTTRComponent
                   userDetails={loggedUserDetails}
                   filterValues={reduceState}
@@ -112,7 +112,7 @@ const ProductionLineWiseReport = () => {
                   selectedYear={reduceState?.selectedYear}
                 />
               </Col>
-              <Col xxl={3} lg={6} md={6}>
+              <Col xxl={3} xs={12} lg={3} md={6}>
                 <MTBFComponent
                   userDetails={loggedUserDetails}
                   filterValues={reduceState}
@@ -121,7 +121,7 @@ const ProductionLineWiseReport = () => {
                   selectedYear={reduceState?.selectedYear}
                 />
               </Col>
-              <Col xxl={3} lg={6} md={6}>
+              <Col xxl={3} xs={12} lg={3} md={6}>
                 <BDPercentageChart
                   userDetails={loggedUserDetails}
                   filterValues={reduceState}
@@ -133,7 +133,7 @@ const ProductionLineWiseReport = () => {
             </Row>
 
             <Row className="mt-1 g-2">
-              <Col lg={6} md={12}>
+              <Col xl={6} md={12}>
                 <BDHoursVsCountComponent
                   userDetails={loggedUserDetails}
                   filterValues={reduceState}
@@ -143,7 +143,7 @@ const ProductionLineWiseReport = () => {
                   selectedMonth={reduceState?.selectedMonth}
                 />
               </Col>
-              <Col lg={6} md={12}>
+              <Col xl={6} md={12}>
                 <CategoryPieCharts
                   selectedValue={reduceState?.selectedValue}
                   flagForTogglingFilter={reduceState?.flagForTogglingFilter}

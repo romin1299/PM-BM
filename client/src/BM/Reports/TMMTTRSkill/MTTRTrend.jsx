@@ -95,8 +95,8 @@ const TMLoad = ({ tm_names, data, loading = false, onClickDownload }) => {
         backgroundColor: chartColors.bmpm,
         borderRadius: 4,
         yAxisID: "y",
-        borderColor: "#312A7D",
-        borderWidth: 2,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       },
     ],
   };

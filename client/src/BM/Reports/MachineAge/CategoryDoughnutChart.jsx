@@ -50,13 +50,13 @@ const ChartCard = ({ category }) => {
   };
 
   return (
-    <Paper variant="outlined">
-      <div className="p-3 pb-0">
+    <Paper variant="outlined" sx={{ height: { md: "350px" } }}>
+      <div className="p-2 pb-0">
         <ChartTitleBar title={`${category?.category}`} />
       </div>
 
       <Box
-        className="ratio ratio-1x1"
+        className="d-flex justify-content-center align-items-center"
         // sx={{ height: { xs: "300px", md: "350px" } }}
         sx={{ maxHeight: "350px" }}
       >
@@ -129,7 +129,7 @@ const CategoryDoughnutChart = ({
   }, [groupData?.[0]?._id]);
 
   return (
-    <Box className="cell p-3">
+    <Box className="cell p-3" sx={{ height: { md: "450px" } }}>
       <Row>
         <Col></Col>
         <Col className="col-auto">

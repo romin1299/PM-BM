@@ -206,7 +206,7 @@ const TMProgress = ({
         data: data?.data,
         backgroundColor: chartColors.count,
         borderColor: chartColors.count,
-        borderWidth: 2,
+        //borderWidth: 2,
         pointStyle: "circle",
         yAxisID: "y",
       },
@@ -245,7 +245,7 @@ const TMProgress = ({
   return (
     <Box className="cell p-3">
       <ChartTitleBar
-        title="TM Load"
+        title="TM Wise Skill Monitor"
         Toolbar={
           <>
             <Col className="col-auto">
