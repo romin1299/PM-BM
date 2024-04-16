@@ -87,9 +87,10 @@ function MyTable({
       // }));
       requestSheetData.changedParts = parts;
       requestSheetData.supportingTM =
-        selectedSupportedTM?.length > 0
-          ? selectedSupportedTM?.map((obj) => obj?._id)
-          : requestSheetDataOfBM?.supportingTM?.map((obj) => obj?._id);
+        // selectedSupportedTM?.length > 0
+        //   ?
+        selectedSupportedTM?.map((obj) => obj?._id);
+      // : requestSheetDataOfBM?.supportingTM?.map((obj) => obj?._id);
       requestSheetData.partQualityCheckedByPRD =
         approvalListOfBM?.prdTL?.[
           requestSheetData?.partQualityCheckedByPRD
@@ -166,12 +167,16 @@ function MyTable({
   const handleCustomErrors = () => {
     deleteDirtyFieldsWhichIsNotRequiredToValidate();
     //This validation for not submit/save value while send for approval
-    if (Object?.keys(dirtyFields)?.length > 0) {
-      WarningToast(
-        "Save/submit the change value before sending it for approval!!!"
-      );
-      return true;
-    }
+    // if (
+    //   Object?.keys(dirtyFields)?.length > 0 &&
+    //   (loggedUserDetails?.tm_department === "MTD" ||
+    //     loggedUserDetails?.user_type === "Operator")
+    // ) {
+    //   WarningToast(
+    //     "Save/submit the change value before sending it for approval!!!"
+    //   );
+    //   return true;
+    // }
     let flagCountForHandlingError = 0;
     if (
       requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
@@ -384,12 +389,18 @@ function MyTable({
         // console.log(flagCountForHandlingError);
       }
 
-      if (!watch("dataSheetOfRequestSheet")) {
+      if (
+        !watch("dataSheetOfRequestSheet") &&
+        !requestSheetDataOfBM?.dataSheetOfRequestSheet
+        //    ||
+        // (timeDifferenceMinutes > 120 &&
+        //   requestSheetDataOfBM?.dataSheetOfRequestSheet === "Yes")
+      ) {
         setError("dataSheetOfRequestSheet", {
           message: "This field is required !",
         });
         flagCountForHandlingError++;
-        // console.log(flagCountForHandlingError);
+        // console.log(requestSheetDataOfBM?.dataSheetOfRequestSheet);
       }
 
       if (Object.keys(watch("categories"))?.length > 0) {
@@ -407,7 +418,8 @@ function MyTable({
       if (
         (timeDifferenceMinutes > 120 ||
           watch("dataSheetOfRequestSheet") === "Yes") &&
-        !requestSheetDataOfBM?.attachedDataSheets
+        !requestSheetDataOfBM?.attachedDataSheets &&
+        !watch("attachedDataSheets")
       ) {
         setError("attachedDataSheets", {
           message: "This field is required !",
@@ -560,12 +572,12 @@ function MyTable({
         const data = await res.json();
         if (res.status === 201) {
           SuccessToast(data?.message);
+          newRequestSheetRegistration(assignApprovalList);
           if (
             requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
             requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
           ) {
             // assignApprovalList.submitDataWhileSendingApproval = true;
-            newRequestSheetRegistration(assignApprovalList);
             navigate("/bm", { replace: true });
           } else {
             navigate("/bm/approval", { replace: true });
@@ -579,7 +591,9 @@ function MyTable({
     }
   };
 
-  const approveRequestSheetFromHigherAuthority = async () => {
+  const approveRequestSheetFromHigherAuthority = async (
+    updatedRequestSheetData
+  ) => {
     let checkWhetherAnyErrorOccurredOrNot = handleCustomErrors();
     if (checkWhetherAnyErrorOccurredOrNot > 0) {
       return;
@@ -608,6 +622,8 @@ function MyTable({
           } else {
             WarningToast(data?.message);
           }
+          if (loggedUserDetails?.tm_department !== "PRD")
+            newRequestSheetRegistration(updatedRequestSheetData);
           navigate("/bm/approval", { replace: true });
         } else {
           WarningToast(data?.message);
@@ -752,6 +768,8 @@ function MyTable({
           ?.actionAndCounterMeasureStep
       );
       setParts(requestSheetDataOfBM?.changedParts);
+
+      setSelectedSupportedTM(requestSheetDataOfBM?.supportingTM);
     }
   }, [requestSheetDataOfBM]);
 
@@ -3009,73 +3027,71 @@ function MyTable({
 
                     <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
                       Kindly approve request-sheet.{" "}
-                      <Form>
-                        <div className="d-flex">
-                          <Form.Check
-                            flex
-                            label="Yes"
-                            name="approvalOfRequestSheet"
-                            type="radio"
-                            value="Yes"
-                            id="approvalOfRequestSheet"
-                            {...register("approvalOfRequestSheet", {
-                              // required: "This field is required",
-                            })}
-                            // onChange={handleQuality}
-                          />{" "}
-                          &nbsp;
-                          <Form.Check
-                            flex
-                            label="No"
-                            name="approvalOfRequestSheet"
-                            type="radio"
-                            value="No"
-                            id="approvalOfRequestSheet"
-                            {...register("approvalOfRequestSheet", {
-                              // required: "This field is required",
-                            })}
-                            // onChange={handleQuality}
-                          />
-                        </div>
-                        {errors?.["approvalOfRequestSheet"] && (
-                          <p className="text-error">
-                            {errors?.["approvalOfRequestSheet"]?.message}
-                          </p>
-                        )}
-                        {watch("approvalOfRequestSheet") === "No" ? (
-                          <>
-                            <input
-                              type="text"
-                              name="rejectedRemarksOfRequestSheet"
-                              placeholder="Enter rejected remarks"
-                              className="p-1 m-1"
-                              {...register("rejectedRemarksOfRequestSheet", {
-                                // required: "Please fill this field",
-                              })}
-                            />
-                            {errors?.["rejectedRemarksOfRequestSheet"] && (
-                              <p className="text-error">
-                                {
-                                  errors?.["rejectedRemarksOfRequestSheet"]
-                                    ?.message
-                                }
-                              </p>
-                            )}
-                          </>
-                        ) : (
-                          ""
-                        )}
+                      <div className="d-flex">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="approvalOfRequestSheet"
+                          type="radio"
+                          value="Yes"
+                          id="approvalOfRequestSheet"
+                          {...register("approvalOfRequestSheet", {
+                            // required: "This field is required",
+                          })}
+                          // onChange={handleQuality}
+                        />{" "}
                         &nbsp;
-                        <button
-                          type="submit"
-                          className="btn bg-warning"
-                          onClick={handleSubmit(
-                            approveRequestSheetFromHigherAuthority
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="approvalOfRequestSheet"
+                          type="radio"
+                          value="No"
+                          id="approvalOfRequestSheet"
+                          {...register("approvalOfRequestSheet", {
+                            // required: "This field is required",
+                          })}
+                          // onChange={handleQuality}
+                        />
+                      </div>
+                      {errors?.["approvalOfRequestSheet"] && (
+                        <p className="text-error">
+                          {errors?.["approvalOfRequestSheet"]?.message}
+                        </p>
+                      )}
+                      {watch("approvalOfRequestSheet") === "No" ? (
+                        <>
+                          <input
+                            type="text"
+                            name="rejectedRemarksOfRequestSheet"
+                            placeholder="Enter rejected remarks"
+                            className="p-1 m-1"
+                            {...register("rejectedRemarksOfRequestSheet", {
+                              // required: "Please fill this field",
+                            })}
+                          />
+                          {errors?.["rejectedRemarksOfRequestSheet"] && (
+                            <p className="text-error">
+                              {
+                                errors?.["rejectedRemarksOfRequestSheet"]
+                                  ?.message
+                              }
+                            </p>
                           )}
-                        >
-                          Submit
-                        </button>
-                      </Form>
+                        </>
+                      ) : (
+                        ""
+                      )}
+                      &nbsp;
+                      <button
+                        type="submit"
+                        className="btn bg-warning"
+                        onClick={handleSubmit(
+                          approveRequestSheetFromHigherAuthority
+                        )}
+                      >
+                        Submit
+                      </button>
                     </Col>
                   </Row>
                 </>

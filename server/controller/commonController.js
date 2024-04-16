@@ -441,7 +441,13 @@ router.get(
       {
         $project: {
           month: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-          date: "$DateOfNoLossBD",
+          date: {
+            $dateToString: {
+              format: "%d-%m-%Y T%H:%M",
+              date: "$DateOfNoLossBD",
+              timezone: "Asia/Kolkata",
+            },
+          },
           cell: { $arrayElemAt: ["$cells.cell_name", 0] },
           line: { $arrayElemAt: ["$lines.line_name", 0] },
           machine_name: { $arrayElemAt: ["$machines.machine_name", 0] },
@@ -526,7 +532,11 @@ router.get(
       shifts,
     ]);
 
-    let updatedCsvDataForMasterLog = [...values?.[0], ...values?.[1], ...values?.[2]]
+    let updatedCsvDataForMasterLog = [
+      ...values?.[0],
+      ...values?.[1],
+      ...values?.[2],
+    ];
 
     successResponse(res, "Master log get successfully", {
       getShifts: values?.[4]?.[0]?.shiftOfBM,

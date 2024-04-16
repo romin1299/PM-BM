@@ -164,7 +164,8 @@ router.post("/signIn", async (req, res) => {
           tm_no: userLogin?.tm_no,
           tm_name: userLogin?.tm_name,
           tm_department: userLogin?.tm_department,
-          tm_grade: userLogin?.tm_grade
+          tm_grade: userLogin?.tm_grade,
+          user_type: userLogin?.user_type
         } });
       }
       // }

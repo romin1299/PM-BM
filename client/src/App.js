@@ -84,6 +84,7 @@ import {
   LIST_OF_COMPANY,
 } from "./ConditionsForDNINandDNHA/ConditionBasedDisplay";
 import RoutingContext from "./context/routing/RoutingContext";
+import RequestSheetMainDashboard from "./BM/RequestSheet/RequestSheetMainDashboard";
 
 function App() {
   //DENSO-HARYANA
@@ -139,9 +140,9 @@ function App() {
   const loggedUser = useContext(RoutingContext);
   let mainRouteForCompanyBased = [];
   if (
-    NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
-    loggedUser?.tm_department === "MTD" &&
-    loggedUser?.user_type !== "Operator"
+    (NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
+      loggedUser?.tm_department === "MTD") ||
+    loggedUser?.user_type === "Operator"
   ) {
     // For DENSO-HARYANA
     mainRouteForCompanyBased = [
@@ -151,7 +152,12 @@ function App() {
       },
     ];
   } else {
-    mainRouteForCompanyBased = [];
+    mainRouteForCompanyBased = [
+      {
+        path: "/",
+        element: <RequestSheetMainDashboard />,
+      },
+    ];
   }
 
   let commonRoutes = [
@@ -194,20 +200,20 @@ function App() {
 
   let displayKPIDashboard = [];
   if (
-    NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
-    loggedUser?.tm_department === "MTD" &&
-    loggedUser?.user_type !== "Operator"
+    (NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
+      loggedUser?.tm_department === "MTD") ||
+    loggedUser?.user_type === "Operator"
   ) {
     displayKPIDashboard = [
       {
         name: "MTD KPI",
         keyUrl: "kpi",
         icon: <BsHammer />,
-        dashboardAndRoutes: <KPI_Routes commonRoutes={commonRoutes} />,
+        dashboardAndRoutes: (
+          <KPI_Routes commonRoutes={commonRoutes} loggedUser={loggedUser} />
+        ),
       },
     ];
-  } else {
-    displayKPIDashboard = [];
   }
 
   let tabs = [
@@ -223,7 +229,7 @@ function App() {
       icon: <BsHammer />,
       dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
     },
-    ...displayKPIDashboard
+    ...displayKPIDashboard,
     // {
     //   name: "MTD KPI",
     //   keyUrl: "kpi",

@@ -272,7 +272,9 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                           title="BM"
                           bodyText1={
                             machineStatus?.bmStatusData?.totalHours &&
-                            `${machineStatus?.bmStatusData?.totalHours} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(
+                              1
+                            )} Hrs./${machineStatus?.bmStatusData?.count} Count`
                           }
                         />
                         <MachineStatusBox title="CM" />
@@ -471,9 +473,9 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                               <br />
                               <input
                                 type="datetime-local"
-                                min={moment(new Date() - 1)
-                                  .subtract(1, "days")
-                                  .format("YYYY-MM-DDTHH:mm")}
+                                // min={moment(new Date() - 1)
+                                //   .subtract(1, "days")
+                                //   .format("YYYY-MM-DDTHH:mm")}
                                 {...register("problemOccurredDateAndTimeOfBM", {
                                   required: "RequestSheet date is required",
                                   onChange: (event) =>

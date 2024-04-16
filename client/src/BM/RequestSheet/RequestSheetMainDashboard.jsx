@@ -110,6 +110,7 @@ const RequestSheetMainDashboard = () => {
     "Work Order Pending",
     "Work Order Closed",
     "Fill Sheet",
+    "Rejected",
     "Under MTD TL approval",
     "Under MTD HOSS approval",
     "Under PRD TL Approval",
@@ -118,7 +119,6 @@ const RequestSheetMainDashboard = () => {
     "Under MTD HOD Approval",
     "Under PRD HOD Approval",
     "Completed",
-    "Rejected",
   ];
 
   const initialStateForRequestSheetData = {
@@ -433,27 +433,43 @@ const RequestSheetMainDashboard = () => {
         editable: conditionalBasedEditableFunctionForMTD,
         editComponent: ({ value, onChange, rowData }) => {
           return (
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <MobileDateTimePicker
-                renderInput={(props) => (
-                  <input className="text-field mt-0" value={value} {...props} />
-                )}
-                value={
-                  value
-                    ? typeof value === "object"
-                      ? new Date(value)
-                      : new Date(rowData?.handOverTimeForDefault)
-                    : new Date()
-                }
-                format="dd/MM/yyyy HH:mm"
-                sx={{ width: "11rem" }}
-                onChange={(handOverTime) => {
-                  onChange(handOverTime || new Date());
-                  // onChange(handOverTime.toString());
-                }}
-                ampm={false}
-              />
-            </LocalizationProvider>
+            // <LocalizationProvider dateAdapter={AdapterDateFns}>
+            //   <MobileDateTimePicker
+            //     renderInput={(props) => (
+            //       <input className="text-field mt-0" value={value} {...props} />
+            //     )}
+            //     value={
+            //       value
+            //         ? typeof value === "object"
+            //           ? new Date(value)
+            //           : new Date(rowData?.handOverTimeForDefault)
+            //         : new Date()
+            //     }
+            //     format="dd/MM/yyyy HH:mm"
+            //     sx={{ width: "11rem" }}
+            //     onChange={(handOverTime) => {
+            //       onChange(handOverTime || new Date());
+            //       // onChange(handOverTime.toString());
+            //     }}
+            //     ampm={false}
+            //   />
+            // </LocalizationProvider>
+
+            <input
+              type="datetime-local"
+              style={{ width: "165px" }}
+              // defaultValue={moment(new Date()).format("YYYY-MM-DDTHH:mm")}
+              value={
+                value
+                  ? moment(value, "YYYY-MM-DDTHH:mm", true).isValid()
+                    ? value
+                    : moment(rowData?.handOverTimeForDefault).format(
+                        "YYYY-MM-DDTHH:mm"
+                      )
+                  : moment(new Date()).format("YYYY-MM-DDTHH:mm")
+              }
+              onChange={(e) => onChange(e.target.value)}
+            />
           );
         },
         validate: (rowData) => rowData.handOverTime !== "",
@@ -985,9 +1001,9 @@ const RequestSheetMainDashboard = () => {
               //     //refreshPage();
               //   }),
 
-              // isDeleteHidden: (rowData) =>
-              //   context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
-              //   "Yes",
+              isDeleteHidden: (rowData) =>
+                context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
+                "Yes",
 
               isEditHidden: (rowData) =>
                 (rowData?.requestSheetStatus !== RSStatusArray[0] &&

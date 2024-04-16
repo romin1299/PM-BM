@@ -32,7 +32,8 @@ const list = [
 function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { machine_code, generateType, requestSheetID, selectedYear } = useParams();
+  const { machine_code, generateType, requestSheetID, selectedYear } =
+    useParams();
   const {
     register,
     handleSubmit,
@@ -285,7 +286,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                           title="BM"
                           bodyText1={
                             machineStatus?.bmStatusData?.count &&
-                            `${machineStatus?.bmStatusData?.totalHours} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(1)} Hrs./${machineStatus?.bmStatusData?.count} Count`
                           }
                         />
                         <MachineStatusBox title="CM" />
@@ -470,15 +471,15 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                               <br />
                               <input
                                 type="datetime-local"
-                                min={moment(new Date() - 1)
-                                  .subtract(1, "days")
-                                  .format("YYYY-MM-DDTHH:mm")}
+                                // min={moment(new Date() - 1)
+                                //   .subtract(1, "days")
+                                //   .format("YYYY-MM-DDTHH:mm")}
                                 {...register("problemOccurredDateAndTimeOfBM")}
                                 disabled={
-                                  (requestSheetDataOfBM?.assignUser?._id !==
-                                    loggedUserDetails?._id ||
-                                    requestSheetDataOfBM?.handOverUser?._id !==
-                                      loggedUserDetails?._id) &&
+                                  requestSheetDataOfBM?.assignUser?._id !==
+                                    loggedUserDetails?._id &&
+                                  requestSheetDataOfBM?.handOverUser?._id !==
+                                    loggedUserDetails?._id &&
                                   requestSheetDataOfBM?.approvalOfMTD_TL
                                     ?._id !== loggedUserDetails?._id
                                 }
@@ -935,14 +936,17 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
               </td>
             </tr>
 
-            {loggedUserDetails?.tm_department === "MTD" &&
-            requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
-            (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
-              requestSheetDataOfBM?.requestSheetStatus ===
-                "Work Order Pending" ||
-              requestSheetDataOfBM?.requestSheetStatus ===
-                "Work Order Closed") &&
-            requestSheetDataOfBM?.requestSheetStatus !== "Completed" ? (
+            {(loggedUserDetails?.tm_department === "MTD" &&
+              requestSheetDataOfBM?.requestSheetStatus !== "Completed") ||
+            ((requestSheetDataOfBM?.assignUser?._id ===
+              loggedUserDetails?._id ||
+              requestSheetDataOfBM?.handOverUser?._id ===
+                loggedUserDetails?._id) &&
+              (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
+                requestSheetDataOfBM?.requestSheetStatus ===
+                  "Work Order Pending" ||
+                requestSheetDataOfBM?.requestSheetStatus ===
+                  "Work Order Closed")) ? (
               <tr>
                 <td>
                   <button

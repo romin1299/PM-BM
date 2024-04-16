@@ -305,7 +305,6 @@ router.post(
           );
 
           if (prdDataUpdatedByOtherUser) {
-            console.log("rererere");
             let queryObjForUpdateDataByOtherUser = {
               priorityCode: requestSheetDataFilledByMTDUser?.priorityCode,
               qualityRelated: requestSheetDataFilledByMTDUser?.qualityRelated,
@@ -326,12 +325,6 @@ router.post(
                 how_details: requestSheetDataFilledByMTDUser?.how_details,
               },
             };
-
-            console.log(
-              "queryObjForUpdateDataByOtherUser",
-              queryObjForUpdateDataByOtherUser.breakDownBasicDataFilledByPRD
-                .problemFaced
-            );
 
             await Machine.findOneAndUpdate(
               { machine_code: machine.machine_code },
@@ -430,7 +423,8 @@ router.post(
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
             requestSheetStatus:
               // requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
-              getRequestSheetData?.getDataForApprovalDashboard?.Id
+              getRequestSheetData?.getDataForApprovalDashboard?.Id ||
+              getRequestSheetData?.requestSheetStatus === "Completed"
                 ? getRequestSheetData?.requestSheetStatus
                 : "Fill Sheet",
             // (
@@ -710,14 +704,14 @@ router.post(
 
         </table>`;
 
-            // sendMailForBD({
-            //   subject: `Request Sheet is generated (${machine?.line_names?.cell_names?.cell_name}/${machine?.line_names?.line_name}/${machine?.machine_name}/${newBDRequestSheetGenerate?.requestSheetNoOfBM})`,
-            //   title: `Request sheet is generated`,
-            //   greetings: `Sir\\Ma'am`,
-            //   toEmailIds: getMTDTL?.map((obj) => obj?.email),
-            //   ccEmailIds: getMTDHOS?.map((obj) => obj?.email),
-            //   bodyTable,
-            // });
+            sendMailForBD({
+              subject: `Request Sheet is generated (${machine?.line_names?.cell_names?.cell_name}/${machine?.line_names?.line_name}/${machine?.machine_name}/${newBDRequestSheetGenerate?.requestSheetNoOfBM})`,
+              title: `Request sheet is generated`,
+              greetings: `Sir\\Ma'am`,
+              toEmailIds: getMTDTL?.map((obj) => obj?.email),
+              ccEmailIds: getMTDHOS?.map((obj) => obj?.email),
+              bodyTable,
+            });
 
             res.status(201).json({
               message: "Request-sheet generated successfully",
@@ -1273,53 +1267,46 @@ router.patch(
         } else {
           requestSheetStatus = statusArray[4];
         }
+        let timeDifferenceMinutes = moment(
+          req.body?.handOverTime !== null
+            ? moment(req.body?.handOverTime, true).isValid()
+              ? new Date(req?.body?.handOverTime)
+              : moment(req.body?.handOverTime, "DD-MM-YYYY [T]HH:mm").toDate()
+            : new Date()
+        )
+          .tz("Asia/Kolkata")
+          .diff(
+            moment(isRequestSheetExist?.problemOccurredDateAndTimeOfBM).tz(
+              "Asia/Kolkata"
+            ),
+            "minutes"
+          );
+
+        let workEndedDateOfBM =
+          req.body?.handOverTime !== null
+            ? moment(req.body?.handOverTime, true).isValid()
+              ? new Date(req?.body?.handOverTime)
+              : moment(req.body?.handOverTime, "DD-MM-YYYY [T]HH:mm").toDate()
+            : new Date();
         if (mongoose.Types.ObjectId.isValid(req.body?.handOverUser)) {
           queryObj = {
             finalActivity: req.body?.finalActivity,
-            "maintenanceReportFilledByMTD.workEndedDateOfBM":
-              req.body?.handOverTime !== null
-                ? moment(req.body?.handOverTime, true).isValid()
-                  ? new Date(req?.body?.handOverTime)
-                  : moment(
-                      req.body?.handOverTime,
-                      "DD-MM-YYYY [T]HH:mm"
-                    ).toDate()
-                : new Date(),
-            "maintenanceReportFilledByMTD.refHandOverTime":
-              req.body?.handOverTime !== null
-                ? moment(req.body?.handOverTime, true).isValid()
-                  ? new Date(req?.body?.handOverTime)
-                  : moment(
-                      req.body?.handOverTime,
-                      "DD-MM-YYYY [T]HH:mm"
-                    ).toDate()
-                : new Date(),
+            "maintenanceReportFilledByMTD.workEndedDateOfBM": workEndedDateOfBM,
+            "maintenanceReportFilledByMTD.refHandOverTime": workEndedDateOfBM,
             handOverUser: req.body?.handOverUser,
             requestSheetStatus,
+            "maintenanceReportFilledByMTD.breakDownTime": timeDifferenceMinutes,
+            dataSheetOfRequestSheet: timeDifferenceMinutes > 120 && "Yes",
             work_order_status: req.body?.work_order_status,
           };
         } else {
           queryObj = {
             finalActivity: req.body?.finalActivity,
-            "maintenanceReportFilledByMTD.workEndedDateOfBM":
-              req.body?.handOverTime !== null
-                ? moment(req.body?.handOverTime, true).isValid()
-                  ? new Date(req?.body?.handOverTime)
-                  : moment(
-                      req.body?.handOverTime,
-                      "DD-MM-YYYY [T]HH:mm"
-                    ).toDate()
-                : new Date(),
-            "maintenanceReportFilledByMTD.refHandOverTime":
-              req.body?.handOverTime !== null
-                ? moment(req.body?.handOverTime, true).isValid()
-                  ? new Date(req?.body?.handOverTime)
-                  : moment(
-                      req.body?.handOverTime,
-                      "DD-MM-YYYY [T]HH:mm"
-                    ).toDate()
-                : new Date(),
+            "maintenanceReportFilledByMTD.workEndedDateOfBM": workEndedDateOfBM,
+            "maintenanceReportFilledByMTD.refHandOverTime": workEndedDateOfBM,
             requestSheetStatus,
+            "maintenanceReportFilledByMTD.breakDownTime": timeDifferenceMinutes,
+            dataSheetOfRequestSheet: timeDifferenceMinutes > 120 && "Yes",
             work_order_status: req.body?.work_order_status,
           };
         }
@@ -1813,6 +1800,7 @@ const targetMiddleware = async (req, res, next) => {
           },
         },
       ];
+      console.log(pipeline)
 
       if (req.params?.filter === "based-on-plant") {
         queryObj = {
@@ -1848,7 +1836,7 @@ const targetMiddleware = async (req, res, next) => {
 
       ...pipeline,
     ]);
-
+    console.log(req.params?.filter,"----->",target);
     req.target = target?.[0]?.monthlyTarget || [];
     next();
   } catch (error) {
@@ -2395,7 +2383,7 @@ router.get("/getMtdUserDetails", authenticate, async (req, res, next) => {
 
 const middlewareForGettingAllDropdownList = async (req, res, next) => {
   try {
-    if (Object.keys(req.query)?.length !== 0) {
+    if (Object.keys(req?.query)?.length !== 0) {
       return next();
     }
 
@@ -5185,7 +5173,7 @@ router.patch(
           " ",
           "_"
         );
-      Object.keys(assignApprovalList[formattedKey])?.length === 0 &&
+      Object.keys(assignApprovalList?.[formattedKey])?.length === 0 &&
         delete assignApprovalList?.[formattedKey];
       // });
 
@@ -12888,7 +12876,6 @@ const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
   try {
     let Model,
       findObj = {};
-
     if (req.query?.selectedSubSection) {
       Model = SubSection;
       findObj = {
@@ -13630,15 +13617,14 @@ const middlewareForMachineAgeLookup = async (req, res, next) => {
             from: "subsections",
             localField: "subSectionRef",
             foreignField: "_id",
-            as: "section_data",
+            as: "subSection_data",
           },
         },
         {
-          $unwind: "$section_data",
+          $unwind: "$subSection_data",
         },
       ];
     }
-    //  console.log("queryObjPipeline", queryObjPipeline);
 
     req.queryObjPipeline = queryObjPipeline;
     next();
@@ -14000,205 +13986,211 @@ router.get(
   filterMiddleware,
   middlewareForMachineAgeLookup,
   async (req, res, next) => {
-    const currentDate = new Date();
-
-    const machineData = await RequestSheetOfBM.aggregate([
-      {
-        $match: req.queryObj,
-      },
-      {
-        $lookup: {
-          from: "machinesalldatas",
-          localField: "machineRef",
-          foreignField: "_id",
-          as: "machine_data",
+    try {
+      const currentDate = new Date();
+      const machineData = await RequestSheetOfBM.aggregate([
+        {
+          $match: req.queryObj,
         },
-      },
-      {
-        $unwind: "$machine_data",
-      },
+        {
+          $lookup: {
+            from: "machinesalldatas",
+            localField: "machineRef",
+            foreignField: "_id",
+            as: "machine_data",
+          },
+        },
+        {
+          $unwind: "$machine_data",
+        },
 
-      ...req.queryObjPipeline,
+        ...req.queryObjPipeline,
 
-      {
-        $addFields: {
-          installationDate: {
-            $dateFromString: {
-              dateString: "$machine_data.installation_date",
+        {
+          $addFields: {
+            installationDate: {
+              $dateFromString: {
+                dateString: "$machine_data.installation_date",
+              },
             },
           },
         },
-      },
-      {
-        $addFields: {
-          yearDifference: {
-            $dateDiff: {
-              startDate: "$installationDate",
-              endDate: currentDate,
-              unit: "year",
-              timezone: timezone,
+        {
+          $addFields: {
+            yearDifference: {
+              $dateDiff: {
+                startDate: "$installationDate",
+                endDate: currentDate,
+                unit: "year",
+                timezone: timezone,
+              },
             },
           },
         },
-      },
 
-      {
-        $addFields: {
-          groupName: {
-            $arrayElemAt: [
-              {
-                $map: {
-                  input: {
-                    $filter: {
-                      input: "$section_data.yearGroup",
-                      as: "group",
-                      cond: {
-                        $or: [
-                          {
-                            $and: [
-                              { $gte: ["$yearDifference", "$$group.from"] },
-                              {
-                                $or: [
-                                  { $eq: ["$$group.to", null] },
-                                  // { $lte: ["$yearDifference", "$$group.to"] },
-                                ],
-                              },
-                            ],
-                          },
-                          {
-                            $and: [
-                              { $gte: ["$yearDifference", "$$group.from"] },
-                              {
-                                $or: [
-                                  // { $eq: ["$$group.to", null] },
-                                  { $lte: ["$yearDifference", "$$group.to"] },
-                                ],
-                              },
-                            ],
-                          },
-                        ],
+        {
+          $addFields: {
+            groupName: {
+              $arrayElemAt: [
+                {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: "$section_data.yearGroup",
+                        as: "group",
+                        cond: {
+                          $or: [
+                            {
+                              $and: [
+                                { $gte: ["$yearDifference", "$$group.from"] },
+                                {
+                                  $or: [
+                                    { $eq: ["$$group.to", null] },
+                                    // { $lte: ["$yearDifference", "$$group.to"] },
+                                  ],
+                                },
+                              ],
+                            },
+                            {
+                              $and: [
+                                { $gte: ["$yearDifference", "$$group.from"] },
+                                {
+                                  $or: [
+                                    // { $eq: ["$$group.to", null] },
+                                    { $lte: ["$yearDifference", "$$group.to"] },
+                                  ],
+                                },
+                              ],
+                            },
+                          ],
+                        },
                       },
                     },
+                    as: "matchedGroup",
+                    in: "$$matchedGroup",
                   },
-                  as: "matchedGroup",
-                  in: "$$matchedGroup",
-                },
-              },
-              0,
-            ],
-          },
-        },
-      },
-
-      {
-        $match: {
-          "groupName._id": mongoose.Types.ObjectId(req?.params?.groupId),
-        },
-      },
-
-      {
-        $unwind: "$categoriesOfRequestSheet",
-      },
-
-      {
-        $match: {
-          "categoriesOfRequestSheet.subCategory": {
-            $exists: true,
-            $ne: null,
-          },
-        },
-      },
-
-      {
-        $group: {
-          _id: {
-            groupName: "$groupName.group",
-            date: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
-            category: "$categoriesOfRequestSheet.category",
-            subCategory: "$categoriesOfRequestSheet.subCategory",
-          },
-          count: { $sum: 1 },
-          bdtime: {
-            $sum: {
-              $cond: [
-                {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ],
-                },
-                {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
                 },
                 0,
               ],
             },
           },
         },
-      },
 
-      {
-        $sort: {
-          "_id.subCategory": 1,
-        },
-      },
-
-      {
-        $group: {
-          _id: {
-            category: "$_id.category",
-          },
-          subcategories: {
-            $push: "$_id.subCategory",
-            // count: "$count",
-            // bdtime: "$bdtime",
-          },
-          bdCount: {
-            $push: "$count",
-          },
-          bdTime: {
-            $push: { $trunc: ["$bdtime", 1] },
+        {
+          $match: {
+            "groupName._id": mongoose.Types.ObjectId(req?.params?.groupId),
           },
         },
-      },
-      {
-        $limit: 2,
-      },
 
-      {
-        $sort: {
-          "_id.category": 1,
+        {
+          $unwind: "$categoriesOfRequestSheet",
         },
-      },
 
-      {
-        $group: {
-          _id: null,
-          categories: {
-            $push: {
-              category: "$_id.category",
-              subcategories: "$subcategories",
-              bdCount: "$bdCount",
-              bdTime: "$bdTime",
+        {
+          $match: {
+            "categoriesOfRequestSheet.subCategory": {
+              $exists: true,
+              $ne: null,
             },
           },
         },
-      },
 
-      {
-        $project: {
-          _id: 0,
-          categories: 1,
+        {
+          $group: {
+            _id: {
+              groupName: "$groupName.group",
+              date: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
+              category: "$categoriesOfRequestSheet.category",
+              subCategory: "$categoriesOfRequestSheet.subCategory",
+            },
+            count: { $sum: 1 },
+            bdtime: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: [
+                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                      null,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      60,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
         },
-      },
-    ]);
 
-    // console.log(machineData);
+        {
+          $sort: {
+            "_id.subCategory": 1,
+          },
+        },
 
-    return res.status(201).json({
-      message: "Machine Age data for Piechart get successfully",
-      data: machineData?.[0]?.categories,
-    });
+        {
+          $group: {
+            _id: {
+              category: "$_id.category",
+            },
+            subcategories: {
+              $push: "$_id.subCategory",
+              // count: "$count",
+              // bdtime: "$bdtime",
+            },
+            bdCount: {
+              $push: "$count",
+            },
+            bdTime: {
+              $push: { $trunc: ["$bdtime", 1] },
+            },
+          },
+        },
+        {
+          $limit: 2,
+        },
+
+        {
+          $sort: {
+            "_id.category": 1,
+          },
+        },
+
+        {
+          $group: {
+            _id: null,
+            categories: {
+              $push: {
+                category: "$_id.category",
+                subcategories: "$subcategories",
+                bdCount: "$bdCount",
+                bdTime: "$bdTime",
+              },
+            },
+          },
+        },
+
+        {
+          $project: {
+            _id: 0,
+            categories: 1,
+          },
+        },
+      ]);
+
+      // console.log(machineData);
+
+      return res.status(201).json({
+        message: "Machine Age data for Piechart get successfully",
+        data: machineData?.[0]?.categories,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
   }
 );
 
@@ -19451,8 +19443,12 @@ router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
       lineRef: selectedLine || null,
       machineRef: selectedMachine || null,
       preAggregationTimeStampOfRequestSheet: {
-        requestSheet_year: currentYear,
-        requestSheet_month: currentMonth,
+        requestSheet_year: gettingFYYearForSelectedDate(
+          noLossData?.DateOfNoLossBD
+        ),
+        requestSheet_month: gettingMonthForSelectedDate(
+          noLossData?.DateOfNoLossBD
+        ),
       },
     });
 

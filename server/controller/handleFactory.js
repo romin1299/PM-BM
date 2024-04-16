@@ -101,12 +101,12 @@ exports.getUserData =
           count: { $sum: 1 },
           totalHours: {
             $sum: {
-              $trunc: [
-                {
+              // $trunc: [
+              //   {
                   $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                },
-                1,
-              ],
+              //   },
+              //   1,
+              // ],
             },
           },
         },

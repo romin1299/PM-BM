@@ -22,9 +22,23 @@ import MachineAgeReport from "../BM/Reports/MachineAge/MachineAgeReport";
 import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
 import TargetDashboard from "../BM/TargetOfBD/TargetDashboard";
 
-const KPI_Routes = ({ commonRoutes }) => {
+const KPI_Routes = ({ commonRoutes, loggedUser }) => {
   const userData = useContext(RoutingContext);
   const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
+
+  let targetDashboardRouteDisplay = [];
+
+  if (
+    loggedUser?.tm_department === "MTD" ||
+    loggedUser?.user_type === "Operator"
+  ) {
+    targetDashboardRouteDisplay = [
+      {
+        path: "/kpi/targetDashboard",
+        element: <TargetDashboard />,
+      },
+    ];
+  }
 
   let routes = commonRoutes?.concat([
     {
@@ -35,10 +49,7 @@ const KPI_Routes = ({ commonRoutes }) => {
       path: "/kpi/report/daily-breakdown-trend",
       element: <DailyBTDashboard />,
     },
-    {
-      path: "/kpi/targetDashboard",
-      element: <TargetDashboard />,
-    },
+    ...targetDashboardRouteDisplay,
     {
       path: "/kpi/spareReportDashboard",
       element: <SpareReportMainDashboard />,
@@ -81,6 +92,18 @@ const KPI_Routes = ({ commonRoutes }) => {
       element: <MachineAgeReport />,
     },
   ]);
+
+  let targetDashboardDisplay = [];
+
+  if (loggedUser?.tm_department === "MTD") {
+    targetDashboardDisplay = [
+      {
+        title: "Target Dashboard",
+        icon: <CrisisAlertIcon className="text-white" />,
+        route: "/kpi/targetDashboard",
+      },
+    ];
+  }
 
   const filteredItems = [
     {
@@ -142,13 +165,7 @@ const KPI_Routes = ({ commonRoutes }) => {
         },
       ],
     },
-    {
-      title: "Target Dashboard",
-      icon: <CrisisAlertIcon className="text-white" />,
-      route: "/kpi/targetDashboard",
-      allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
-      allowedDepartments: ["MTD"],
-    },
+    ...targetDashboardDisplay,
     {
       title: "Spare Report",
       icon: <SummarizeIcon className="text-white" />,

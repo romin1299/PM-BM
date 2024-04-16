@@ -75,6 +75,7 @@ export const options = {
       ticks: {
         color: "black",
       },
+      min: 1
     },
   },
 };

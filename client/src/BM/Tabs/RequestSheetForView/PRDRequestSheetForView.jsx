@@ -265,7 +265,7 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
                           title="BM"
                           bodyText1={
                             machineStatus?.bmStatusData?.count &&
-                            `${machineStatus?.bmStatusData?.totalHours} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(1)} Hrs./${machineStatus?.bmStatusData?.count} Count`
                           }
                         />
                         <MachineStatusBox title="CM" />

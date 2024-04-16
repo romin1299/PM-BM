@@ -43,7 +43,7 @@ const StatusBox = ({ title, value }) => (
         fontWeight={500}
         p={1}
       >
-        {value}
+        {value || 0}
       </Typography>
     </Paper>
   </Col>
