@@ -1762,7 +1762,7 @@ const targetMiddleware = async (req, res, next) => {
         {
           $project: {
             _id: 0,
-            line_ids: ['$_id'],
+            line_ids: ["$_id"],
             monthlyTarget: {
               $map: {
                 input: {
@@ -1801,7 +1801,7 @@ const targetMiddleware = async (req, res, next) => {
           $project: {
             _id: 0,
             monthlyTarget: arr,
-            line_ids: 1
+            line_ids: 1,
           },
         },
       ];
@@ -1865,7 +1865,7 @@ const targetMiddleware = async (req, res, next) => {
       ...pipeline,
     ]);
     req.target = target?.[0]?.monthlyTarget || [];
-    req.line_ids = target?.[0]?.line_ids
+    req.line_ids = target?.[0]?.line_ids || [];
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -7900,7 +7900,7 @@ const productionHourFiltration = async (req, res, next) => {
 
     for (let i = 0; i < allMonths.length; i++) {
       obj[allMonths?.[i]?.monthName] = {
-        $sum: `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`,
+        $avg: `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`,
       };
     }
 
@@ -7936,6 +7936,11 @@ const productionHourFiltration = async (req, res, next) => {
       {
         $match: {
           "allTargetData.current_year": req.query?.selectedYear,
+        },
+      },
+      {
+        $match: {
+          "allTargetData.yearTotalProductionHrs": { $ne: 0 }
         },
       },
       {
@@ -14542,8 +14547,7 @@ const middlewareForFindingTrendData = async (req, res, next) => {
   try {
     const TrendData = await RequestSheetOfBM.aggregate([
       {
-        $match: {...req.queryObj, lineRef: {$in: req?.line_ids}},
-
+        $match: { ...req.queryObj, lineRef: { $in: req?.line_ids } },
       },
       {
         $group: {
@@ -14571,7 +14575,7 @@ const middlewareForFindingTrendData = async (req, res, next) => {
       {
         $project: {
           count: 1,
-          hours: req.hourCalculationFormula,
+          hours: truncValue(req.hourCalculationFormula),
         },
       },
       {
@@ -14649,12 +14653,25 @@ const middlewareForFindingTrendData = async (req, res, next) => {
 
 const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
   try {
-    let target = `$allTargetData.${req.query?.yearTargetKey}`;
+    let target = {
+      $avg: [],
+    };
 
     if (req.query?.selectedMonth) {
       target = `$allTargetData.${req.query?.monthTargetKey}.${req.query?.selectedMonth}`;
+    } else {
+      for (let index = 0; index < allMonths.length; index++) {
+        target["$avg"].push(
+          `$allTargetData.${req.query?.monthTargetKey}.${allMonths?.[index]?.monthName}`
+        );
+        if (
+          allMonths?.[index]?.monthName === currentMonth &&
+          currentYear === req?.query?.selectedYear
+        ) {
+          break;
+        }
+      }
     }
-
     const TrendData = await RequestSheetOfBM.aggregate([
       {
         $match: req.queryObj,
@@ -15042,10 +15059,22 @@ router.get(
   filterMiddleware,
   async (req, res, next) => {
     try {
-      let productionHrs = "$allTargetData.yearTotalProductionHrs";
-
+      // let productionHrs = "$allTargetData.yearTotalProductionHrs";
+      
+      let productionHrs = {
+        $sum: []
+      };
+  
       if (req.query?.selectedMonth) {
         productionHrs = `$allTargetData.monthlyProductionHrs.${req.query?.selectedMonth}`;
+      } else {
+        
+        for (let index = 0; index < allMonths.length; index++) {
+          productionHrs["$sum"].push(`$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`);
+          if (allMonths?.[index]?.monthName === currentMonth && currentYear === req?.query?.selectedYear) {
+            break;
+          }
+        }
       }
 
       req.mtbfProductionHrs = {

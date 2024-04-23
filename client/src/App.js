@@ -240,6 +240,11 @@ function App() {
 
   return (
     <div>
+      <Row className="text-center justify-content-center">
+        <h4>
+          <b>Integrated Maintenance Operation System</b>
+        </h4>
+      </Row>
       <Row style={{ background: "#ddebf9" }}>
         <Col
           lg={11}
