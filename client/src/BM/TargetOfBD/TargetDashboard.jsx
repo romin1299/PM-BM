@@ -13,7 +13,7 @@ import "./TargetDashboard.scss";
 import ReportTitleBar from "../Reports/Common/ReportTitleBar";
 
 const TargetDashboard = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/cell-level-filtration";
 
   const {

@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import { Table, ConfigProvider } from "antd";
 import axios from "axios";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Box } from "@mui/material";
+import MainRequestSheetForView from "../../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
+import ViewNoLossBDEntryForm from "../../BM/NoLossBDDataEntry/ViewNoLossBDEntryForm";
+import DeleteOutline from "@material-ui/icons/DeleteOutline";
 
 const MasterLogTable = ({
   flagForTogglingFilter,
@@ -20,6 +23,54 @@ const MasterLogTable = ({
   const [plantShiftsData, setPlantShiftsData] = useState([]);
   const [plantCategories, setPlantCategories] = useState([]);
   const [supportingTMList, setSupportingTMList] = useState([]);
+
+  const [selectedRow, setSelectedRow] = useState();
+
+  const initialState = {
+    requestSheetModalOpenClose: false,
+    noLossBMEntryModalOpenClose: false,
+  };
+
+  const ACTION = {
+    OPEN_CLOSE_RS: "request-sheet-open-close",
+    OPEN_CLOSE_NO_LOSS_BD: "no-loss-bd-open-close",
+  };
+
+  const reducer = (state, action) => {
+    if (action?.type === ACTION?.OPEN_CLOSE_RS) {
+      return {
+        ...state,
+        requestSheetModalOpenClose: !state?.requestSheetModalOpenClose,
+      };
+    } else if (action?.type === ACTION?.OPEN_CLOSE_NO_LOSS_BD) {
+      return {
+        ...state,
+        noLossBMEntryModalOpenClose: !state?.noLossBMEntryModalOpenClose,
+      };
+    } else {
+      return state;
+    }
+  };
+
+  const [handleAllModals, handleAllModalsDispatch] = useReducer(
+    reducer,
+    initialState
+  );
+
+  // const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
+  //   useState(false);
+
+  // const [noLossBMEntryModalOpenClose, seNoLossBMEntryModalOpenClose] =
+  //   useState(false);
+
+  const handleRequestSheetShowAndCloseState = () => {
+    handleAllModalsDispatch({ type: ACTION?.OPEN_CLOSE_RS });
+  };
+
+  const handleNoLossBMEntryShowAndCloseState = () => {
+    handleAllModalsDispatch({ type: ACTION?.OPEN_CLOSE_NO_LOSS_BD });
+  };
+
   // const getListOfTheTLAndOperatorForNoLossBDEntryForm = async () => {
   //   try {
   //     const res = await fetch(
@@ -114,6 +165,13 @@ const MasterLogTable = ({
   };
 
   const columns = [
+    {
+      title: "Sr. No.",
+      render: (value, item, idx) => {
+        return ++idx;
+      },
+      width: 60,
+    },
     {
       title: "Month",
       dataIndex: "month",
@@ -440,37 +498,51 @@ const MasterLogTable = ({
       dataIndex: "",
       width: 66,
 
-      render: (value) =>
-        ["PM", "BM"]?.includes(value?.maintenanceType) && (
-          <VisibilityIcon
-            className="text-primary"
-            role="button"
-            onClick={async () => {
-              if (value?.maintenanceType === "PM") {
-                const res = await axios.get(
-                  `/getMachineWithSelectedYear/${value?._id}/?checkSheet_data.current_year=${selectedYear}`
-                );
+      render: (value) => (
+        // ["PM", "BM"]?.includes(value?.maintenanceType) &&
+        <>
+          <div className="d-flex justify-content-center align-items-center">
+            <VisibilityIcon
+              className="text-primary"
+              role="button"
+              onClick={async () => {
+                if (value?.maintenanceType === "PM") {
+                  const res = await axios.get(
+                    `/getMachineWithSelectedYear/${value?._id}/?checkSheet_data.current_year=${selectedYear}`
+                  );
 
-                navigate("/viewCheckSheet", {
-                  state: {
-                    selectedRowForViewForm: res.data?.machine,
-                  },
-                });
-              } else if (value?.maintenanceType === "BM") {
-                navigate(
-                  `/bm/view/request-sheet/${value?.machine_code}/${value?._id}/${selectedYear}`,
-                  {
+                  navigate("/viewCheckSheet", {
                     state: {
-                      prevPath: location?.pathname,
-                      prevPathSearch: location?.search,
+                      selectedRowForViewForm: res.data?.machine,
                     },
-                  }
-                );
-              }
-            }}
-          />
-        ),
-      width: 80,
+                  });
+                } else if (value?.maintenanceType === "BM") {
+                  // navigate(
+                  //   `/bm/view/request-sheet/${value?.machine_code}/${value?._id}/${selectedYear}`,
+                  //   {
+                  //     state: {
+                  //       prevPath: location?.pathname,
+                  //       prevPathSearch: location?.search,
+                  //     },
+                  //   }
+                  // );
+                  setSelectedRow(value);
+                  handleRequestSheetShowAndCloseState();
+                } else {
+                  // navigate(
+                  //   `/bm/view/update-view-otherBDLoss/${value?.machine_code}/${value?._id}/${selectedYear}`
+                  // );
+                  setSelectedRow(value);
+                  handleNoLossBMEntryShowAndCloseState();
+                }
+              }}
+            />
+            {/* {!["PM", "BM"]?.includes(value?.maintenanceType) && (
+              <DeleteOutline className="text-danger" />
+            )} */}
+          </div>
+        </>
+      ),
     },
   ];
 
@@ -479,46 +551,73 @@ const MasterLogTable = ({
   }, [selectedValue, selectedYear, selectedMonth]);
 
   return (
-    <Box
-      sx={{
-        "& .ant-dropdown-trigger": {
-          "&:hover": { bgcolor: "#ffcdcd66" },
-          "& > .anticon .svg": { width: "1.4em", height: "1.4em" },
-        },
-        "& .ant-dropdown-trigger.active": {
-          color: "#004fbf",
-          bgcolor: "#b2d2ff8a",
-        },
-        "& .ant-table-cell > ul": {
-          margin: "0px",
-          padding: "0px",
-          paddingLeft: "1rem",
-        },
-      }}
-    >
-      <ConfigProvider
-        theme={{
-          components: {
-            Table: {
-              headerBg: "#0fa3b1",
-              fontWeightStrong: 700,
-              borderColor: "#9f9f9f",
-
-              headerFilterActiveBg: "rgb(255, 230, 230)",
-              headerFilterHoverBg: "rgb(255, 255, 255)",
-            },
+    <>
+      {handleAllModals?.requestSheetModalOpenClose && (
+        <MainRequestSheetForView
+          selectedYear={selectedYear}
+          machine_code={selectedRow?.machine_code}
+          requestSheetID={selectedRow?._id}
+          modelProp={{
+            show: handleAllModals?.requestSheetModalOpenClose,
+            onHide: () => handleRequestSheetShowAndCloseState(),
+          }}
+        />
+      )}
+      {handleAllModals?.noLossBMEntryModalOpenClose && (
+        <ViewNoLossBDEntryForm
+          selectedYear={selectedYear}
+          machine_code={selectedRow?.machine_code}
+          noLossBDRequestSheetID={selectedRow?._id}
+          modelProp={{
+            show: handleAllModals?.noLossBMEntryModalOpenClose,
+            onHide: () => handleNoLossBMEntryShowAndCloseState(),
+          }}
+          supportingTMList={supportingTMList}
+          plantCategories={plantCategories}
+          plantShiftsData={plantShiftsData}
+        />
+      )}
+      <Box
+        sx={{
+          "& .ant-dropdown-trigger": {
+            "&:hover": { bgcolor: "#ffcdcd66" },
+            "& > .anticon .svg": { width: "1.4em", height: "1.4em" },
+          },
+          "& .ant-dropdown-trigger.active": {
+            color: "#004fbf",
+            bgcolor: "#b2d2ff8a",
+          },
+          "& .ant-table-cell > ul": {
+            margin: "0px",
+            padding: "0px",
+            paddingLeft: "1rem",
           },
         }}
       >
-        <Table
-          columns={columns}
-          dataSource={masterLogData}
-          scroll={{ x: 2500, y: 700 }}
-          pagination={false}
-          bordered
-        />
-      </ConfigProvider>
-    </Box>
+        <ConfigProvider
+          theme={{
+            components: {
+              Table: {
+                headerBg: "#0fa3b1",
+                fontWeightStrong: 700,
+                borderColor: "#9f9f9f",
+
+                headerFilterActiveBg: "rgb(255, 230, 230)",
+                headerFilterHoverBg: "rgb(255, 255, 255)",
+              },
+            },
+          }}
+        >
+          <Table
+            columns={columns}
+            dataSource={masterLogData}
+            scroll={{ x: 2500, y: 700 }}
+            pagination={false}
+            bordered
+          />
+        </ConfigProvider>
+      </Box>
+    </>
   );
 };
 

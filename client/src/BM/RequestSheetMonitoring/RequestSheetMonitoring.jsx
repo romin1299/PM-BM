@@ -138,7 +138,7 @@ const RequestSheetMonitoring = () => {
   //   }
   // };
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const allMonths = [

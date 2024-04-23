@@ -19,7 +19,7 @@ import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
 import RoutingContext from "../../../context/routing/RoutingContext";
 
 const MTBFReportDashboard = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const [documentLimitInTheGraph, setDocumentLimitInTheGraph] = useState(20);

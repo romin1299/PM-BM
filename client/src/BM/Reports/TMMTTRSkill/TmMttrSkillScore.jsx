@@ -53,7 +53,7 @@ const TmMttrSkillScore = (prop) => {
             xs={4}
             key={index}
           >
-            <Box className="aleart alert-primary border">
+            <Box className="alert alert-primary border">
               <Typography variant="h6" textAlign="center">
                 {tm.tm_name}
               </Typography>

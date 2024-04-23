@@ -33,7 +33,10 @@ const ApprovalDashboardOfRequestSheet = () => {
   const [approvalRequestSheetDataOfBM, setApprovalRequestSheetDataOfBM] =
     useState([]);
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(
+    reducer,
+    initialState("Yes")
+  );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const approvalDashboardHeader = [
@@ -201,6 +204,7 @@ const ApprovalDashboardOfRequestSheet = () => {
               cellFiltration
               lineFiltration
               resetButtonFiltration
+              isWithLocalStorageForFiltration="Yes"
             />
           }
         />

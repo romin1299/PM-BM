@@ -13,7 +13,7 @@ import StackedBarChart from "./StackedBarChart";
 import CategoryDoughnutChart from "./CategoryDoughnutChart";
 import RoutingContext from "../../../context/routing/RoutingContext";
 const MachineAgeReport = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const loggedUserDetails = useContext(RoutingContext);
 

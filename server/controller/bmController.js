@@ -424,7 +424,8 @@ router.post(
             requestSheetStatus:
               // requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
               getRequestSheetData?.getDataForApprovalDashboard?.Id ||
-              getRequestSheetData?.requestSheetStatus === "Completed"
+              getRequestSheetData?.requestSheetStatus === "Completed" ||
+              getRequestSheetData?.requestSheetStatus === "Rejected"
                 ? getRequestSheetData?.requestSheetStatus
                 : "Fill Sheet",
             // (
@@ -941,6 +942,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
             },
           },
           "maintenanceReportFilledByMTD.workEndedDateOfBM": 1,
+          firstTimeOrRepeat: "$maintenanceReportFilledByMTD.firstTimeOrRepeat",
           partQualityStatusOfPRD: 1,
           finalActivity: 1,
           statusPRD_TL: 1,
@@ -1747,6 +1749,7 @@ const removeBDZeroValueFiltration = async (req, res, next) => {
 const targetMiddleware = async (req, res, next) => {
   try {
     let queryObj = {},
+      queryObjForHandlingLineForTarget = {},
       targetKey = `$allTargetData.${req.query?.targetKey}`;
     pipeline = [];
 
@@ -1759,6 +1762,7 @@ const targetMiddleware = async (req, res, next) => {
         {
           $project: {
             _id: 0,
+            line_ids: ['$_id'],
             monthlyTarget: {
               $map: {
                 input: {
@@ -1777,7 +1781,7 @@ const targetMiddleware = async (req, res, next) => {
 
       for (let i = 0; i < allMonths.length; i++) {
         obj[allMonths?.[i]?.monthName] = {
-          $sum: `${targetKey}.${allMonths?.[i]?.monthName}`,
+          $avg: `${targetKey}.${allMonths?.[i]?.monthName}`,
         };
 
         arr.push(`$${allMonths?.[i]?.monthName}`);
@@ -1787,8 +1791,8 @@ const targetMiddleware = async (req, res, next) => {
         {
           $group: {
             _id: null,
-            line_name: {
-              $push: "$line_name",
+            line_ids: {
+              $push: "$_id",
             },
             ...obj,
           },
@@ -1797,10 +1801,10 @@ const targetMiddleware = async (req, res, next) => {
           $project: {
             _id: 0,
             monthlyTarget: arr,
+            line_ids: 1
           },
         },
       ];
-      console.log(pipeline)
 
       if (req.params?.filter === "based-on-plant") {
         queryObj = {
@@ -1821,6 +1825,28 @@ const targetMiddleware = async (req, res, next) => {
       }
     }
 
+    if (req.query?.targetKey === "monthlyProductionHrs") {
+      queryObjForHandlingLineForTarget = {
+        "allTargetData.yearTotalProductionHrs": { $ne: 0 },
+      };
+    } else if (req.query?.targetKey === "monthlyBDHrsTarget") {
+      queryObjForHandlingLineForTarget = {
+        "allTargetData.yearTotalBDHrsTarget": { $ne: 0 },
+      };
+    } else if (req.query?.targetKey === "monthlyMTTRTarget") {
+      queryObjForHandlingLineForTarget = {
+        "allTargetData.yearTotalMTTRTarget": { $ne: 0 },
+      };
+    } else if (req.query?.targetKey === "monthlyMTBFTarget") {
+      queryObjForHandlingLineForTarget = {
+        "allTargetData.yearTotalMTBFTarget": { $ne: 0 },
+      };
+    } else if (req.query?.targetKey === "monthlyBDPercentageTarget") {
+      queryObjForHandlingLineForTarget = {
+        "allTargetData.yearTotalBDPercentageTarget": { $ne: 0 },
+      };
+    }
+
     const target = await Line.aggregate([
       {
         $match: queryObj,
@@ -1833,11 +1859,13 @@ const targetMiddleware = async (req, res, next) => {
           "allTargetData.current_year": req.query?.selectedYear,
         },
       },
-
+      {
+        $match: queryObjForHandlingLineForTarget,
+      },
       ...pipeline,
     ]);
-    console.log(req.params?.filter,"----->",target);
     req.target = target?.[0]?.monthlyTarget || [];
+    req.line_ids = target?.[0]?.line_ids
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -3783,7 +3811,7 @@ router.get("/getMachineDetails", async (req, res, next) => {
 });
 
 router.get(
-  "/getMachineDetailsOnScanningRequest/:generateType",
+  "/getMachineDetailsOnScanningRequest",
   authenticate,
   factory.getUserData(Machine, Section, User)
 );
@@ -4418,7 +4446,6 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
     } else {
       currentMonth = moment().format("MMM");
     }
-
     const machine = await Machine.aggregate([
       {
         $match: { machine_code: req.query?.machine_code },
@@ -6245,6 +6272,7 @@ router.get(
   requestSheetMiddleware
 );
 
+//get MTTR for production line wise 4 charts
 router.get(
   "/getMTTRGraphData/:filter/:selectedId",
   authenticate,
@@ -6459,6 +6487,8 @@ const yearlyBdHourMiddleware = async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
+
+//get BD Hours for production line wise 4 charts
 router.get(
   "/getBDHoursGraphData/:filter/:selectedId",
   authenticate,
@@ -13038,7 +13068,9 @@ router.get(
             }),
           },
         },
-
+        {
+          $sort: { hours: 1 },
+        },
         {
           $group: {
             _id: null,
@@ -14510,7 +14542,8 @@ const middlewareForFindingTrendData = async (req, res, next) => {
   try {
     const TrendData = await RequestSheetOfBM.aggregate([
       {
-        $match: req.queryObj,
+        $match: {...req.queryObj, lineRef: {$in: req?.line_ids}},
+
       },
       {
         $group: {
@@ -14538,7 +14571,7 @@ const middlewareForFindingTrendData = async (req, res, next) => {
       {
         $project: {
           count: 1,
-          hours: truncValue(req.hourCalculationFormula),
+          hours: req.hourCalculationFormula,
         },
       },
       {
@@ -14607,9 +14640,7 @@ const middlewareForFindingTrendData = async (req, res, next) => {
         },
       },
     ]);
-
     req.TrendData = TrendData;
-
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -14861,6 +14892,7 @@ const responseMiddlewareForDataTrendReport = async (req, res, next) => {
   }
 };
 
+//Whole MTTR Dashboard (MTTR Trend)
 router.get(
   "/getTrendData/MTTR/:filter/:selectedId",
   authenticate,
@@ -14953,6 +14985,7 @@ router.get(
   requestSheetMiddleware
 );
 
+//Whole MTBF Dashboard (MTBF Trend)
 router.get(
   "/getTrendData/MTBF/:filter/:selectedId",
   authenticate,
@@ -19405,64 +19438,223 @@ router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
       selectedMachine,
     } = req.body;
 
-    const convertedData =
+    const noLossBDSheetExistsOrNot = await NoLossBD.findOne({
+      _id: noLossData?._id,
+    });
+
+    let resultOfSaveOrUpdateNoLossBD;
+
+    let convertedData =
       noLossData?.categories &&
       Object.keys(noLossData?.categories)?.map((key) => ({
         category: key,
         subCategory: noLossData?.categories?.[key],
       }));
 
-    const currentMonth = moment().format("MMM");
-    const currentYear = moment().tz(timezone).year();
+    if (noLossBDSheetExistsOrNot) {
+      resultOfSaveOrUpdateNoLossBD = await NoLossBD.findOneAndUpdate(
+        {
+          _id: noLossData?._id,
+        },
+        {
+          $set: {
+            ...noLossData,
+            problemsOfBM,
+            actionAndCounterMeasureStep,
+            supportingTM: selectedSupportedTM?.map((obj) => obj?._id),
+            breakDownTime,
+            categoriesOfRequestSheet: convertedData,
+          },
+        },
+        {
+          new: true,
+        }
+      );
+    } else {
+      const currentMonth = moment().format("MMM");
+      const currentYear = moment().tz(timezone).year();
 
-    const getPlantIdForNoLossBDEntry = await Plant.findOne({
-      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-    });
+      const getPlantIdForNoLossBDEntry = await Plant.findOne({
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+      });
 
-    const addNewNoLossNo = await HandlingActions.findOneAndUpdate(
-      { plant_id: getPlantIdForNoLossBDEntry._id },
-      { $inc: { noLossBdNos: 1 } },
-      {
-        new: true,
-      }
-    );
+      const addNewNoLossNo = await HandlingActions.findOneAndUpdate(
+        { plant_id: getPlantIdForNoLossBDEntry._id },
+        { $inc: { noLossBdNos: 1 } },
+        {
+          new: true,
+        }
+      );
 
-    const noLossBDNo = `${currentYear}-${currentMonth}-${addNewNoLossNo.noLossBdNos}`;
-    const addNewNoLossBD = new NoLossBD({
-      ...noLossData,
-      noLossBDNo,
-      problemsOfBM,
-      actionAndCounterMeasureStep,
-      supportingTM: selectedSupportedTM?.map((obj) => obj?._id),
-      breakDownTime,
-      categoriesOfRequestSheet: convertedData,
-      plantRef: getPlantIdForNoLossBDEntry?._id || null,
-      sectionRef: selectedSection || null,
-      subSectionRef: selectedSubSection || null,
-      cellRef: selectedCell || null,
-      lineRef: selectedLine || null,
-      machineRef: selectedMachine || null,
-      preAggregationTimeStampOfRequestSheet: {
-        requestSheet_year: gettingFYYearForSelectedDate(
-          noLossData?.DateOfNoLossBD
-        ),
-        requestSheet_month: gettingMonthForSelectedDate(
-          noLossData?.DateOfNoLossBD
-        ),
-      },
-    });
+      const noLossBDNo = `${currentYear}-${currentMonth}-${addNewNoLossNo.noLossBdNos}`;
+      const addNewNoLossBD = new NoLossBD({
+        ...noLossData,
+        noLossBDNo,
+        problemsOfBM,
+        actionAndCounterMeasureStep,
+        supportingTM: selectedSupportedTM?.map((obj) => obj?._id),
+        breakDownTime,
+        categoriesOfRequestSheet: convertedData,
+        plantRef: getPlantIdForNoLossBDEntry?._id || null,
+        sectionRef: selectedSection || null,
+        subSectionRef: selectedSubSection || null,
+        cellRef: selectedCell || null,
+        lineRef: selectedLine || null,
+        machineRef: selectedMachine || null,
+        preAggregationTimeStampOfRequestSheet: {
+          requestSheet_year: gettingFYYearForSelectedDate(
+            noLossData?.DateOfNoLossBD
+          ),
+          requestSheet_month: gettingMonthForSelectedDate(
+            noLossData?.DateOfNoLossBD
+          ),
+        },
+      });
 
-    const resultOfSaveNoLossBD = await addNewNoLossBD.save();
-
-    if (resultOfSaveNoLossBD) {
+      resultOfSaveOrUpdateNoLossBD = await addNewNoLossBD.save();
+    }
+    if (resultOfSaveOrUpdateNoLossBD) {
       res.status(201).json({
         message: "No Loss data added successfully",
-        resultOfSaveNoLossBD,
+        resultOfSaveOrUpdateNoLossBD,
       });
     }
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error?.message, error: new Error(error) });
+  }
+});
+
+router.get("/getNoLossBDEntryData", authenticate, async (req, res, next) => {
+  try {
+    const noLossBDRequestSheetData = await NoLossBD.aggregate([
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(req?.query?._id),
+        },
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                machine_code: 1,
+                machine_name: 1,
+              },
+            },
+          ],
+          as: "machine",
+        },
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+          as: "line",
+        },
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cellRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                cell_name: 1,
+              },
+            },
+          ],
+          as: "cell",
+        },
+      },
+      {
+        $lookup: {
+          from: "subsections",
+          localField: "subSectionRef",
+          foreignField: "_id",
+          as: "subSection",
+        },
+      },
+      {
+        $lookup: {
+          from: "sections",
+          localField: "sectionRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $lookup: {
+                from: "plants",
+                localField: "plant_names",
+                foreignField: "_id",
+                as: "plant",
+              },
+            },
+          ],
+          as: "section",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "supportingTM",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "supportingTM",
+        },
+      },
+      {
+        $project: {
+          noLossBDNo: 1,
+          maintenanceType: 1,
+          problemsOfBM: 1,
+          shiftOfBM: 1,
+          workStartedDateOfBM: generateDateFormateObj("$workStartedDateOfBM"),
+          workEndedDateOfBM: generateDateFormateObj("$workEndedDateOfBM"),
+          breakDownTime: 1,
+          causeOfNoLoss: 1,
+          counterMeasureStep: 1,
+          actionAndCounterMeasureStep: 1,
+          categoriesOfRequestSheet: 1,
+          doneByNoLossBD: 1,
+          supportingTM: 1,
+          machineStatus: 1,
+          actionTemporaryOrNot: 1,
+          machine: 1,
+          line: 1,
+          cell: 1,
+          subSection: 1,
+          section: 1,
+        },
+      },
+    ]);
+
+    return res.status(201).json({
+      message: "No loss break-down data get successfully",
+      noLossBDRequestSheetData: noLossBDRequestSheetData?.[0],
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
   }
 });
 

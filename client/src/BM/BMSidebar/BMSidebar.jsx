@@ -15,7 +15,7 @@ import { denso_logo } from "../../components/NavbarComponent/ImportModules";
 import { menuItems } from "./menuItems";
 // import '../../components/Navbar/Navbar.css'
 // import '../../components/Navbar/Navbar.module.scss'
-
+import { clearLocalStorage } from "../Component/GlobalDataDisplayOrHandle";
 const BMSidebar = ({ userData, filteredItems }) => {
   const [menuCollapse, setMenuCollapse] = useState(true);
   const navigate = useNavigate();
@@ -110,6 +110,7 @@ const BMSidebar = ({ userData, filteredItems }) => {
                         data-toggle="tooltip"
                         data-placement="right"
                         icon={subItem.icon}
+                        onClick={clearLocalStorage}
                       >
                         <NavLink to={subItem.route}></NavLink> {subItem.title}
                       </MenuItem>
@@ -124,6 +125,7 @@ const BMSidebar = ({ userData, filteredItems }) => {
                   key={index}
                   className="text text-white"
                   icon={menuItem.icon}
+                  onClick={clearLocalStorage}
                 >
                   <NavLink to={menuItem.route}></NavLink> {menuItem.title}
                 </MenuItem>

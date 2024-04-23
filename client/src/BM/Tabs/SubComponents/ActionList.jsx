@@ -25,7 +25,7 @@ const ActionList = ({
       };
       setActions([...actions, newAction]);
       handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
-      clearErrors && clearErrors("problemValidation");
+      clearErrors && clearErrors("actionValidation");
       setNewActionText("");
       setNewActionStatus("NG");
       setIsAdding(false);
@@ -35,7 +35,7 @@ const ActionList = ({
   const editAction = (event, actionId, newText) => {
     event.preventDefault();
 
-    const updatedActions = actions.map((action) => {
+    const updatedActions = actions?.map((action) => {
       if (action.id === actionId) {
         return { ...action, action: newText };
       }
@@ -54,7 +54,7 @@ const ActionList = ({
   const deleteAction = (event, actionId) => {
     event.preventDefault();
 
-    const updatedActions = actions.filter((action) => action.id !== actionId);
+    const updatedActions = actions?.filter((action) => action?.id !== actionId);
     setActions(updatedActions);
     handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
   };
@@ -68,7 +68,7 @@ const ActionList = ({
   };
 
   const handleStatusChange = (actionId, newStatus) => {
-    const updatedActions = actions.map((action) => {
+    const updatedActions = actions?.map((action) => {
       if (action.id === actionId) {
         return { ...action, status: newStatus };
       }
@@ -111,7 +111,7 @@ const ActionList = ({
         </Col>
       </Row>
 
-      {actions.map((action, index) => (
+      {actions?.map((action, index) => (
         <Row key={action.id} className="m-0">
           <Col
             lg={8}
@@ -218,7 +218,7 @@ const ActionList = ({
             md={7}
             className="border col-auto d-flex align-items-center gap-1"
           >
-            <b>Action {actions.length + 1}: </b>
+            <b>Action {actions?.length + 1}: </b>
             <input
               type="text"
               value={newActionText}
@@ -284,7 +284,7 @@ const ActionList = ({
         </Row>
       )}
 
-      {Array.from({ length: 2 - actions.length }).map((_, index) => (
+      {Array.from({ length: 2 - actions?.length }).map((_, index) => (
         <Row key={index} className="m-0 p-1 border">
           <AddBoxIcon onClick={() => setIsAdding(true)} />
         </Row>

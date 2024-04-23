@@ -12,7 +12,6 @@ const AntDesignRSTableWithFiltration = ({
   downloadFileName,
 }) => {
   const [loading, setLoading] = React.useState(true);
-
   const {
     register,
     handleSubmit,

@@ -22,7 +22,7 @@ const MainPageComponent = () => {
   const [filter, setFilter] = useState("hourly");
   const currentTabViewName = "Plant";
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/plant-level-filtration";
   const loggedUserDetails = useContext(RoutingContext);
 

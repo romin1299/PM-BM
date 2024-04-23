@@ -4,6 +4,7 @@ import { Table, Input, ConfigProvider } from "antd";
 import { Row, Col } from "react-bootstrap";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useLocation, useNavigate } from "react-router-dom";
+import MainRequestSheetForView from "../../Tabs/RequestSheetForView/MainRequestSheetForView";
 const Search = Input.Search;
 
 const BDRequestSheetAntDesignTable = ({
@@ -12,6 +13,18 @@ const BDRequestSheetAntDesignTable = ({
   selectedYear,
 }) => {
   const [searchResult, setSearchResult] = useState([]);
+
+  const [selectedRow, setSelectedRow] = useState();
+
+  const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
+    useState(false);
+
+  const handleRequestSheetShowAndCloseState = () => {
+    setRequestSheetModalOpenClose(
+      (requestSheetModalOpenClose) => !requestSheetModalOpenClose
+    );
+  };
+
   const navigate = useNavigate();
   const location = useLocation();
   // let SrNo = 0;
@@ -78,19 +91,22 @@ const BDRequestSheetAntDesignTable = ({
           className="text-primary"
           role="button"
           onClick={async () =>
-            navigate(
-              `/bm/view/request-sheet/${value?.machineNo}/${value?._id}/${selectedYear}`,
-              {
-                state: {
-                  prevPath: location?.pathname,
-                  prevPathSearch: location?.search,
-                },
-              }
-            )
+            // navigate(
+            //   `/bm/view/request-sheet/${value?.machineNo}/${value?._id}/${selectedYear}`,
+            //   {
+            //     state: {
+            //       prevPath: location?.pathname,
+            //       prevPathSearch: location?.search,
+            //     },
+            //   }
+            // )
+            {
+              setSelectedRow(value);
+              handleRequestSheetShowAndCloseState();
+            }
           }
         />
       ),
-      width: 80,
     },
   ];
 
@@ -124,6 +140,17 @@ const BDRequestSheetAntDesignTable = ({
 
   return (
     <>
+      {requestSheetModalOpenClose && (
+        <MainRequestSheetForView
+          selectedYear={selectedYear}
+          machine_code={selectedRow?.machineNo}
+          requestSheetID={selectedRow?._id}
+          modelProp={{
+            show: requestSheetModalOpenClose,
+            onHide: () => handleRequestSheetShowAndCloseState(),
+          }}
+        />
+      )}
       <Row className="p-1">
         <Col></Col>
         <Col xs={6}></Col>

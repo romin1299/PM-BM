@@ -40,6 +40,7 @@ import TargetDashboard from "./TargetOfBD/TargetDashboard";
 import MachineSummaryComponent from "../Common/Machine/MachineHistoryComponent";
 
 import NoLossBDEntryForm from "./NoLossBDDataEntry/NoLossBDEntryForm";
+import ViewNoLossBDEntryForm from "./NoLossBDDataEntry/ViewNoLossBDEntryForm";
 import UpdateRequestSheetForAnyStatus from "./Tabs/UpdateRequestSheetForAnyStatus/UpdateRequestSheetForAnyStatus";
 
 import { filteredMenuItems } from "../Common/CommonRoutes/filteredMenuItems";

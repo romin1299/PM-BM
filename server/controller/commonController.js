@@ -410,7 +410,7 @@ router.get(
           machine_name: { $arrayElemAt: ["$machines.machine_name", 0] },
           machine_code: { $arrayElemAt: ["$machines.machine_code", 0] },
           shift: "$shiftOfBM",
-          maintenanceType: "BM",
+          maintenanceType: "$maintenanceType",
           time: "$maintenanceReportFilledByMTD.breakDownTime",
 
           problem: "$maintenanceReportFilledByMTD.problemsOfBM",
@@ -493,9 +493,9 @@ router.get(
       }
     }
 
-    let TLHOSS_and_TM_user_list = User.find(
+    let TLHOSS_and_TM_user_list = await User.find(
       {
-        ...req.queryObj,
+        ...queryObj,
         $or: [
           {
             user_type: "Operator",
@@ -907,6 +907,365 @@ router.get(
 
     successResponse(res, "PMStatus data get successfully", {
       statusData: statusData?.[0],
+    });
+  })
+);
+
+//This API usage for future spare entry logs/history
+router.get(
+  "/getAllSpareUsageHistoryDetails/:filter/:selectedId",
+  filterMiddleware,
+  tryCatchHandler(async (req, res, next) => {
+    // console.log(req?.params);
+    // console.log(req?.query);
+
+    let queryPipelineForPmSpareCost = [
+      {
+        $addFields: {
+          totalSpareDataUsageHistory: {
+            $map: {
+              input: {
+                $objectToArray: "$checkSheet_data.checkSheet.spareDetails",
+              },
+              as: "usedSpareCost",
+              in: {
+                $cond: {
+                  if: {
+                    $and: [
+                      {
+                        $eq: ["$$usedSpareCost.v.spareParts", "Yes"],
+                      },
+                      {
+                        $ne: ["$$usedSpareCost.v.cost", 0],
+                      },
+                    ],
+                  },
+                  then: {
+                    date: {
+                      $getField: {
+                        field: "v",
+                        input: {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input: {
+                                  $objectToArray:
+                                    "$checkSheet_data.checkSheet.completionDateOfInspection",
+                                },
+                                as: "completionDate",
+                                cond: {
+                                  $eq: [
+                                    "$$completionDate.k",
+                                    "$$usedSpareCost.k",
+                                  ],
+                                },
+                              },
+                            },
+                            0,
+                          ],
+                        },
+                      },
+                    },
+                    doneBy: {
+                      $getField: {
+                        field: "v",
+                        input: {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input: {
+                                  $objectToArray:
+                                    "$checkSheet_data.checkSheet.inspectionCompletionBy",
+                                },
+                                as: "doneByName",
+                                cond: {
+                                  $eq: ["$$doneByName.k", "$$usedSpareCost.k"],
+                                },
+                              },
+                            },
+                            0,
+                          ],
+                        },
+                      },
+                    },
+                    spareParts: "$$usedSpareCost.v.spareParts",
+                    partName: "$$usedSpareCost.v.partName",
+                    partNo: "$$usedSpareCost.v.partNo",
+                    cost: "$$usedSpareCost.v.cost",
+                    type: "PM",
+                  },
+                  else: 0,
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $unwind: "$totalSpareDataUsageHistory",
+      },
+    ];
+
+    if (req.query?.selectedMonth) {
+      queryPipelineForPmSpareCost = [
+        {
+          $addFields: {
+            totalSpareDataUsageHistory: {
+              $cond: {
+                if: {
+                  $and: [
+                    {
+                      $eq: [
+                        `$checkSheet_data.checkSheet.spareDetails.${req.query.selectedMonth}.spareParts`,
+                        "Yes",
+                      ],
+                    },
+                    {
+                      $ne: [
+                        `$checkSheet_data.checkSheet.spareDetails.${req.query.selectedMonth}.cost`,
+                        0,
+                      ],
+                    },
+                  ],
+                },
+                then: {
+                  spareParts: `$checkSheet_data.checkSheet.spareDetails.${req.query.selectedMonth}.spareParts`,
+                  partName: `$checkSheet_data.checkSheet.spareDetails.${req.query.selectedMonth}.partName`,
+                  partNo: `$checkSheet_data.checkSheet.spareDetails.${req.query.selectedMonth}.partNo`,
+                  cost: `$checkSheet_data.checkSheet.spareDetails.${req.query.selectedMonth}.cost`,
+                  doneBy: `$checkSheet_data.checkSheet.inspectionCompletionBy.${req.query.selectedMonth}`,
+                  date: `$checkSheet_data.checkSheet.completionDateOfInspection.${req.query.selectedMonth}`,
+                },
+                else: 0,
+              },
+            },
+          },
+        },
+      ];
+    }
+
+    const GetAllPMSpareConsumption = await Machine.aggregate([
+      {
+        $match: {
+          ...req.queryObjForPM,
+          // _id: mongoose.Types.ObjectId("63b67ccba716e21c95cd37ae"),
+        },
+      },
+      {
+        $unwind: "$checkSheet_data",
+      },
+      {
+        $match: {
+          "checkSheet_data.current_year": req.query?.selectedYear,
+        },
+      },
+      {
+        $unwind: "$checkSheet_data.checkSheet",
+      },
+      {
+        $match: {
+          "checkSheet_data.checkSheet.spareDetails": { $ne: undefined },
+        },
+      },
+      ...queryPipelineForPmSpareCost,
+      {
+        $match: {
+          totalSpareDataUsageHistory: { $ne: 0 },
+        },
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "line_names",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+          as: "lines",
+        },
+      },
+      {
+        $project: {
+          totalSpareDataUsageHistory: 1,
+          machine_name: 1,
+          machine_code: 1,
+          line: { $arrayElemAt: ["$lines.line_name", 0] },
+          abnormality: {
+            $cond: {
+              if: { $eq: ["$totalSpareDataUsageHistory.spareParts", "Yes"] },
+              then: "Yes",
+              else: "No",
+            },
+          },
+          type: "PM",
+          doneBy: "$totalSpareDataUsageHistory.doneBy",
+          totalCost: {
+            $sum: "$totalSpareDataUsageHistory.cost",
+          },
+        },
+      },
+    ]);
+
+    let queryPipelineForOtherTypesSpareCost = [
+      {
+        $addFields: {
+          totalSpareDataUsageOfOtherTypesSpare: {
+            $filter: {
+              input: {
+                $objectToArray: "$checkSheet_data.extraSpareDetails",
+              },
+              as: "spareData",
+              cond: {
+                $ne: ["$$spareData.v", []],
+              },
+            },
+          },
+        },
+      },
+      {
+        $unwind: "$totalSpareDataUsageOfOtherTypesSpare",
+      },
+      {
+        $unwind: "$totalSpareDataUsageOfOtherTypesSpare.v",
+      },
+    ];
+
+    if (req.query?.selectedMonth) {
+      queryPipelineForOtherTypesSpareCost = [
+        {
+          $addFields: {
+            totalSpareDataUsageOfOtherTypesSpare: {
+              v: `$checkSheet_data.extraSpareDetails.${req.query?.selectedMonth}`,
+            },
+          },
+        },
+        {
+          $unwind: "$totalSpareDataUsageOfOtherTypesSpare.v",
+        },
+      ];
+    }
+
+    const GetAllOtherSpareConsumption = await Machine.aggregate([
+      {
+        $match: req.queryObjForPM,
+      },
+      {
+        $unwind: "$checkSheet_data",
+      },
+      {
+        $match: {
+          "checkSheet_data.current_year": req.query?.selectedYear,
+          "checkSheet_data.extraSpareDetails": { $ne: undefined },
+        },
+      },
+      ...queryPipelineForOtherTypesSpareCost,
+      {
+        $lookup: {
+          from: "lines",
+          localField: "line_names",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+          as: "lines",
+        },
+      },
+      {
+        $project: {
+          totalSpareDataUsageHistory: "$totalSpareDataUsageOfOtherTypesSpare.v",
+          machine_name: 1,
+          machine_code: 1,
+          line: { $arrayElemAt: ["$lines.line_name", 0] },
+          abnormality: "",
+          doneBy: "$totalSpareDataUsageOfOtherTypesSpare.v.usedBy",
+          type: "$totalSpareDataUsageOfOtherTypesSpare.v.type",
+        },
+      },
+    ]);
+
+    const GetAllBMSpareConsumption = await RequestSheetOfBM.aggregate([
+      {
+        $match: { ...req.queryObj, changedParts: { $ne: [] } },
+      },
+      {
+        $unwind: "$changedParts",
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                machine_code: 1,
+                machine_name: 1,
+              },
+            },
+          ],
+          as: "machine",
+        },
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+          as: "lines",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignUser",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "doneBy",
+        },
+      },
+      {
+        $project: {
+          totalSpareDataUsageHistory: "$changedParts",
+          machine_name: { $arrayElemAt: ["$machine.machine_name", 0] },
+          machine_code: { $arrayElemAt: ["$machine.machine_code", 0] },
+          line: { $arrayElemAt: ["$lines.line_name", 0] },
+          abnormality: "",
+          type: "$maintenanceType",
+          doneBy: { $arrayElemAt: ["$doneBy.tm_name", 0] },
+        },
+      },
+    ]);
+
+
+    successResponse(res, "Get all spare consumption logs", {
+      GetAllSpareConsumption: GetAllPMSpareConsumption.concat(
+        GetAllOtherSpareConsumption,
+        GetAllBMSpareConsumption
+      ),
     });
   })
 );

@@ -31,7 +31,7 @@ import findFilters from "../../../filterNames";
 const TMMTRMain = () => {
   const [loading, setLoading] = React.useState(true);
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   // const [mbdIncluded, setMbdIncluded] = React.useState(false);

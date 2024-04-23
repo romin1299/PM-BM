@@ -16,7 +16,7 @@ import { MuiNavigateBack } from "../ButtonComponents/CustomHooksForBackNavigatio
 import { CSVLink } from "react-csv";
 
 const MasterLogInnerComponent = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState("Yes"));
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const [csvDataOfMasterLog, setCsvDataOfMasterLog] = useState([]);
@@ -129,6 +129,7 @@ const MasterLogInnerComponent = () => {
                     lineFiltration
                     machineFiltration
                     resetButtonFiltration
+                    isWithLocalStorageForFiltration="Yes"
                   />
                   <div className="col-auto">
                     <CSVLink

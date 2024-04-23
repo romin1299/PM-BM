@@ -19,12 +19,12 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import AntDesignRSTableWithFiltration from "../Common/AntDesignRSTableWithFiltration";
 
 const TopMachineBD = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
 
   const [
     reduceStateForDefaultCellLineMachineFilter,
     reducerDispatchForDefaultCellLineMachineFilter,
-  ] = useReducer(reducer, initialState);
+  ] = useReducer(reducer, initialState());
 
   const loggedUserDetails = useContext(RoutingContext);
 

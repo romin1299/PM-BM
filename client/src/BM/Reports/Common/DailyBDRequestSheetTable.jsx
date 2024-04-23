@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../../components/MatrialTableIcon";
@@ -12,6 +12,7 @@ import {
   MaterialTableStyle,
 } from "../../Utils/TableUtils/MaterialTableProps";
 import { Box } from "@material-ui/core";
+import MainRequestSheetForView from "../../Tabs/RequestSheetForView/MainRequestSheetForView";
 
 const BDRequestSheetTable = ({
   requestSheetData,
@@ -23,7 +24,16 @@ const BDRequestSheetTable = ({
   const navigate = useNavigate();
   const location = useLocation();
   // console.log("location:", location);
+  const [selectedRow, setSelectedRow] = useState();
 
+  const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
+    useState(false);
+
+  const handleRequestSheetShowAndCloseState = () => {
+    setRequestSheetModalOpenClose(
+      (requestSheetModalOpenClose) => !requestSheetModalOpenClose
+    );
+  };
   const requestSheetHeader = [
     {
       title: "Sr. No.",
@@ -82,63 +92,77 @@ const BDRequestSheetTable = ({
       tooltip: "View",
       position: "row",
       onClick: (event, selectedRow) => {
-        navigate(
-          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${selectedYear}`,
-          {
-            state: {
-              prevPath: location?.pathname,
-              prevPathSearch: location?.search,
-            },
-          }
-        );
+        // navigate(
+        //   `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${selectedYear}`,
+        //   {
+        //     state: {
+        //       prevPath: location?.pathname,
+        //       prevPathSearch: location?.search,
+        //     },
+        //   }
+        // );
+        setSelectedRow(selectedRow);
+        handleRequestSheetShowAndCloseState();
       },
     }),
   ];
-
   return (
-    <Box className="mt-1 cell p-0 border-0">
-      <MaterialTable
-        localization={{
-          header: {
-            actions: "Actions",
-          },
-        }}
-        isLoading={loading}
-        actions={requestSheetActions}
-        icons={tableIcons}
-        columns={requestSheetHeader}
-        data={requestSheetData}
-        title={filters}
-        options={{
-          ...MaterialTableOptions,
-          showTitle: true,
-          pageSize: 5,
-          maxBodyHeight: "auto",
-          exportMenu: [
-            {
-              label: "Export PDF",
-              exportFunc: (cols, data) =>
-                ExportPdf(
-                  cols,
-                  data,
-                  `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
-                ),
+    <>
+    {requestSheetModalOpenClose && (
+        <MainRequestSheetForView
+          selectedYear={selectedYear}
+          machine_code={selectedRow?.machineNo}
+          requestSheetID={selectedRow?._id}
+          modelProp={{
+            show: requestSheetModalOpenClose,
+            onHide: () => handleRequestSheetShowAndCloseState(),
+          }}
+        />
+      )}
+      <Box className="mt-1 cell p-0 border-0">
+        <MaterialTable
+          localization={{
+            header: {
+              actions: "Actions",
             },
-            {
-              label: "Export CSV",
-              exportFunc: (cols, data) =>
-                ExportCsv(
-                  cols,
-                  data,
-                  `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
-                ),
-            },
-          ],
-        }}
-        style={MaterialTableStyle}
-        sx={MaterialTableSX}
-      />
-    </Box>
+          }}
+          isLoading={loading}
+          actions={requestSheetActions}
+          icons={tableIcons}
+          columns={requestSheetHeader}
+          data={requestSheetData}
+          title={filters}
+          options={{
+            ...MaterialTableOptions,
+            showTitle: true,
+            pageSize: 5,
+            maxBodyHeight: "auto",
+            exportMenu: [
+              {
+                label: "Export PDF",
+                exportFunc: (cols, data) =>
+                  ExportPdf(
+                    cols,
+                    data,
+                    `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
+                  ),
+              },
+              {
+                label: "Export CSV",
+                exportFunc: (cols, data) =>
+                  ExportCsv(
+                    cols,
+                    data,
+                    `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
+                  ),
+              },
+            ],
+          }}
+          style={MaterialTableStyle}
+          sx={MaterialTableSX}
+        />
+      </Box>
+    </>
   );
 };
 

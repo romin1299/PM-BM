@@ -245,7 +245,7 @@ const ApprovalLogs = () => {
     setColumns(commonColumns.concat(mergedApprovalListArrayForTable));
   };
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const getApprovalLogDetails = async () => {

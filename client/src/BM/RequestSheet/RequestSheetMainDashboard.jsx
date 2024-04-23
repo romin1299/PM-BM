@@ -55,6 +55,7 @@ import { ReactComponent as HistoryIcon } from "../../static/svg/history.svg";
 import { ReactComponent as EditSheetIcon } from "../../static/svg/edit-sheet-2.svg";
 import EditSheetIconSVG from "../../static/svg/edit-sheet-2.svg";
 import EditIcon from "@mui/icons-material/Edit";
+import MainRequestSheetForView from "../Tabs/RequestSheetForView/MainRequestSheetForView";
 
 const RequestSheetMainDashboard = () => {
   const [loading, setLoading] = React.useState(true);
@@ -68,6 +69,9 @@ const RequestSheetMainDashboard = () => {
   const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
   const [summeryCardModal, setSummeryCardModal] = useState(false);
   const [displayColumnOrNot, setDisplayColumnOrNot] = useState(true);
+
+  const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
+    useState(false);
 
   const statusColorMap = {
     // Generated: "#9bcbdb",
@@ -171,7 +175,7 @@ const RequestSheetMainDashboard = () => {
   const [reduceStateForRequestSheetData, reducerDispatchForRequestSheetData] =
     useReducer(reducerForRequestSheetData, initialStateForRequestSheetData);
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState("Yes"));
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const getAllRequestSheetData = async () => {
@@ -474,6 +478,13 @@ const RequestSheetMainDashboard = () => {
         },
         validate: (rowData) => rowData.handOverTime !== "",
       },
+
+      {
+        title: "First Time/ Repeat",
+        field: "firstTimeOrRepeat",
+        width: "10%",
+        editable: false,
+      },
     ];
 
   const requestSheetHeader = [
@@ -586,6 +597,12 @@ const RequestSheetMainDashboard = () => {
     setSummeryCardModal((summeryCardModal) => !summeryCardModal);
   };
 
+  const handleRequestSheetShowAndCloseState = () => {
+    setRequestSheetModalOpenClose(
+      (requestSheetModalOpenClose) => !requestSheetModalOpenClose
+    );
+  };
+
   let requestSheetActions = [
     // Edit Request Sheet
     (row) => ({
@@ -630,17 +647,19 @@ const RequestSheetMainDashboard = () => {
       tooltip: "View",
       position: "row",
       onClick: (event, selectedRow) => {
-        navigate(
-          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`,
-          {
-            state: {
-              prevPath: location?.pathname,
-              prevPathSearch: location?.search,
-              supportingTM:
-                reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
-            },
-          }
-        );
+        setSelectedRow(selectedRow);
+        handleRequestSheetShowAndCloseState();
+        // navigate(
+        //   `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`,
+        //   {
+        //     state: {
+        //       prevPath: location?.pathname,
+        //       prevPathSearch: location?.search,
+        //       supportingTM:
+        //         reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
+        //     },
+        //   }
+        // );
       },
     }),
 
@@ -712,6 +731,7 @@ const RequestSheetMainDashboard = () => {
           RSStatusArray={RSStatusArray}
           RSStatusFiltration
           resetButtonFiltration
+          isWithLocalStorageForFiltration="Yes"
         />
       </Box>
 
@@ -1112,6 +1132,18 @@ const RequestSheetMainDashboard = () => {
             }}
           />
         )}
+
+      {requestSheetModalOpenClose && (
+        <MainRequestSheetForView
+          selectedYear={reduceState?.selectedYear}
+          machine_code={selectedRow?.machineNo}
+          requestSheetID= {selectedRow?._id}
+          modelProp={{
+            show: requestSheetModalOpenClose,
+            onHide: () => handleRequestSheetShowAndCloseState(),
+          }}
+        />
+      )}
     </>
   );
 };

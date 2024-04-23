@@ -10,11 +10,6 @@ import ProblemList from "../Tabs/SubComponents/ProblemList";
 import ActionList from "../Tabs/SubComponents/ActionList";
 import Multiselect from "multiselect-react-dropdown";
 import ReportTitleBar from "../Reports/Common/ReportTitleBar";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
 import axios from "axios";
 import moment from "moment-timezone";
 import RoutingContext from "../../context/routing/RoutingContext";
@@ -45,7 +40,7 @@ const NoLossBDEntryForm = () => {
   const [plantShiftsData, setPlantShiftsData] = useState([]);
   const [plantCategories, setPlantCategories] = useState([]);
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const [inc, setInc] = useState(1);
 
@@ -91,21 +86,21 @@ const NoLossBDEntryForm = () => {
 
   const momentTime = moment(sheetIssuedTime, "HH:mm");
 
-  useEffect(() => {
-    const getCurrentShiftName = () => {
-      for (let shiftInfo of plantShiftsData) {
-        if (
-          momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
-          momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
-        )
-          return shiftInfo.shiftName;
-      }
+  // useEffect(() => {
+  //   const getCurrentShiftName = () => {
+  //     for (let shiftInfo of plantShiftsData) {
+  //       if (
+  //         momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
+  //         momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
+  //       )
+  //         return shiftInfo.shiftName;
+  //     }
 
-      return "";
-    };
+  //     return "";
+  //   };
 
-    setValue("shiftOfBM", getCurrentShiftName());
-  }, [plantShiftsData]);
+  //   setValue("shiftOfBM", getCurrentShiftName());
+  // }, [plantShiftsData]);
 
   useEffect(() => {
     const fetchShiftData = async () => {
@@ -214,7 +209,7 @@ const NoLossBDEntryForm = () => {
             /> */}
             {currentYear}-{currentMonth}-{inc + 1 || 1}
             <br />
-            <small className="mb-0 d-block">
+            {/* <small className="mb-0 d-block">
               <b>DATE & TIME: </b>
               <br />
               <input
@@ -222,7 +217,7 @@ const NoLossBDEntryForm = () => {
                 {...register("DateOfNoLossBD", {})}
               />
             </small>
-            <br />
+            <br /> */}
             <small>
               <b>MAINT. TYPE</b>
             </small>
@@ -314,31 +309,32 @@ const NoLossBDEntryForm = () => {
             xl={3}
           >
             <Row className="gx-3 gy-2">
-              <Col className="col-auto">
-                <FormControl>
+              <Col className="col-auto d-flex align-items-center">
+                <Form>
                   <small>
                     <b>SHIFT</b>
                   </small>
-
-                  {watch("shiftOfBM") && (
-                    <RadioGroup
-                      row
-                      value={watch("shiftOfBM")}
-                      // value={"B"}
-                      aria-labelledby="demo-radio-buttons-group-label"
-                      name="radio-buttons-group"
-                    >
-                      {plantShiftsData?.map((shiftInfo) => (
-                        <FormControlLabel
-                          value={shiftInfo.shiftName}
-                          control={<Radio color="default" size="small" />}
-                          label={shiftInfo.shiftName}
-                          disabled={watch("shiftOfBM") !== shiftInfo.shiftName}
-                        />
-                      ))}
-                    </RadioGroup>
+                  {plantShiftsData?.map((shiftInfo) => (
+                    <Form.Check
+                      flex
+                      label={shiftInfo.shiftName}
+                      type="radio"
+                      value={shiftInfo.shiftName}
+                      name={`shiftOfBM`}
+                      // {...register(`shiftOfBM.${shiftInfo.shiftName}`)}
+                      onChange={(e) => {
+                        setValue(`shiftOfBM`, e.target.value, {
+                          shouldDirty: true,
+                        });
+                      }}
+                    />
+                  ))}
+                  {errors?.["shiftOfBM"] && (
+                    <p className="text-error">
+                      {errors?.["shiftOfBM"]?.message}
+                    </p>
                   )}
-                </FormControl>
+                </Form>
               </Col>
 
               <Col className="col-auto">
@@ -356,7 +352,7 @@ const NoLossBDEntryForm = () => {
                       id="actionTemporaryOrNot"
                       // onChange={handleactionTemporaryOrNot}
                       {...register("actionTemporaryOrNot", {
-                        // required: "This field is required",
+                        required: "This field is required",
                       })}
                     />{" "}
                     &nbsp;&nbsp;
@@ -369,7 +365,7 @@ const NoLossBDEntryForm = () => {
                       id="actionTemporaryOrNot"
                       // onChange={handleactionTemporaryOrNot}
                       {...register("actionTemporaryOrNot", {
-                        // required: "This field is required",
+                        required: "This field is required",
                       })}
                     />
                   </div>
@@ -389,9 +385,16 @@ const NoLossBDEntryForm = () => {
                   <br />
                   <input
                     type="datetime-local"
-                    {...register("workStartedDateOfBM", {})}
+                    {...register("workStartedDateOfBM", {
+                      required: "This field is required",
+                    })}
                   />
                 </small>
+                {errors?.["workStartedDateOfBM"] && (
+                  <p className="text-error">
+                    {errors?.["workStartedDateOfBM"]?.message}
+                  </p>
+                )}
               </Col>
               <Col className="col-auto">
                 <small className="mb-0 d-block">
@@ -399,9 +402,16 @@ const NoLossBDEntryForm = () => {
                   <br />
                   <input
                     type="datetime-local"
-                    {...register("workEndedDateOfBM", {})}
+                    {...register("workEndedDateOfBM", {
+                      required: "This field is required",
+                    })}
                   />
                 </small>
+                {errors?.["workEndedDateOfBM"] && (
+                  <p className="text-error">
+                    {errors?.["workEndedDateOfBM"]?.message}
+                  </p>
+                )}
               </Col>
             </Row>
 

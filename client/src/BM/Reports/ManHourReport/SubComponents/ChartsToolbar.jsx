@@ -23,6 +23,7 @@ const ChartsToolbar = ({
   RSStatusArray,
   RSStatusFiltration,
   resetButtonFiltration,
+  isWithLocalStorageForFiltration
 }) => {
   const generatePPT = () => {
     const pptx = new pptxgen();
@@ -110,6 +111,7 @@ const ChartsToolbar = ({
           RSStatusArray={RSStatusArray}
           RSStatusFiltration={RSStatusFiltration}
           resetButtonFiltration={resetButtonFiltration}
+          isWithLocalStorageForFiltration={isWithLocalStorageForFiltration}
         />
       </Box>
 

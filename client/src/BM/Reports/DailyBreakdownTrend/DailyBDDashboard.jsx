@@ -28,7 +28,7 @@ const DailyBTDashboard = () => {
   // const [selectedYear, setSelectedYear] = React.useState("");
   const currentTabViewName = currentTabView === 0 ? "Plant" : "Section";
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/plant-level-filtration";
 
   const [dailyBDSelectedMonth, setDailyBDSelectedMonth] =

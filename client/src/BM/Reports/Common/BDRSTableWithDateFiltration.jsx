@@ -7,14 +7,13 @@ import { Button, Paper } from "@mui/material";
 const BDRSTableWithDateFiltration = ({
   flagForTogglingFilter,
   selectedValue,
-  selectedYear
+  selectedYear,
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({});
-
   const [loading, setLoading] = React.useState(false);
   const [requestSheetData, setRequestSheetData] = React.useState([]);
 

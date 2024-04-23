@@ -85,6 +85,7 @@ export default function LineSelectionDropdown({
   machineFiltration,
 
   resetButtonFiltration,
+  isWithLocalStorageForFiltration,
 }) {
   const context = useContext(RoutingContext);
 
@@ -138,6 +139,7 @@ export default function LineSelectionDropdown({
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_SECTION,
 
+          isWithLocalStorageForFiltration,
           flagForTogglingFilter,
           selectedValue,
 
@@ -185,6 +187,7 @@ export default function LineSelectionDropdown({
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_SUBSECTION,
 
+          isWithLocalStorageForFiltration,
           selectedValue,
           flagForTogglingFilter,
 
@@ -225,6 +228,8 @@ export default function LineSelectionDropdown({
       if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_CELL,
+
+          isWithLocalStorageForFiltration,
           flagForTogglingFilter,
           selectedValue,
 
@@ -262,6 +267,8 @@ export default function LineSelectionDropdown({
       if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_LINE,
+
+          isWithLocalStorageForFiltration,
           flagForTogglingFilter,
           selectedValue,
 
@@ -298,13 +305,14 @@ export default function LineSelectionDropdown({
       lines,
       selectedMachine,
       machines,
-      selectedRSStatus
+      selectedRSStatus,
     } = data;
 
     if (res?.status === 201) {
       reducerDispatch({
         type: ACTION.GET_DATA,
 
+        isWithLocalStorageForFiltration,
         flagForTogglingFilter,
         selectedValue,
 
@@ -319,13 +327,20 @@ export default function LineSelectionDropdown({
         selectedMachine,
         machines,
         message,
-        selectedRSStatus
+        selectedRSStatus,
       });
     }
   };
 
   useEffect(() => {
-    getFiltrationValueByDefault();
+    if (
+      !localStorage.getItem("selectedValue") &&
+      isWithLocalStorageForFiltration
+    ) {
+      getFiltrationValueByDefault();
+    } else if (!isWithLocalStorageForFiltration) {
+      getFiltrationValueByDefault();
+    }
   }, []);
 
   return (
@@ -342,6 +357,7 @@ export default function LineSelectionDropdown({
               onChange={(e) => {
                 reducerDispatch({
                   type: ACTION.HANDLE_SELECT_SECTION,
+                  isWithLocalStorageForFiltration,
                   flagForTogglingFilter: "based-on-section",
                   selectedSection: e.target.value,
                 });
@@ -384,6 +400,7 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_SUBSECTION,
+                isWithLocalStorageForFiltration,
                 flagForTogglingFilter: "based-on-subSection",
                 selectedSubSection: e.target.value,
               });
@@ -431,6 +448,7 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_CELL,
+                isWithLocalStorageForFiltration,
                 flagForTogglingFilter: "based-on-cell",
                 selectedCell: e.target.value,
               });
@@ -474,6 +492,7 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_LINE,
+                isWithLocalStorageForFiltration,
                 flagForTogglingFilter: "based-on-line",
                 selectedLine: e.target.value,
               });
@@ -517,6 +536,7 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_MACHINE,
+                isWithLocalStorageForFiltration,
                 flagForTogglingFilter: "based-on-machine",
                 selectedMachine: e.target.value,
               });
@@ -559,6 +579,7 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_YEAR,
+                isWithLocalStorageForFiltration,
                 selectedYear: e.target.value,
               });
             }}
@@ -602,6 +623,7 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_MONTH,
+                isWithLocalStorageForFiltration,
                 selectedMonth: e.target.value,
               });
             }}
@@ -647,6 +669,7 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_STATUS,
+                isWithLocalStorageForFiltration,
                 selectedRSStatus: e.target.value,
               });
             }}
@@ -699,6 +722,7 @@ export default function LineSelectionDropdown({
 
             await reducerDispatch({
               type: ACTION.HANDLE_SELECT_YEAR,
+              isWithLocalStorageForFiltration,
               selectedYear,
             });
 

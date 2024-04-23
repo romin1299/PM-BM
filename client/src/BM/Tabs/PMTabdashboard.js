@@ -47,7 +47,7 @@ import CreationDashboardForTLHOSS from "../../pages/MTD_TL_HOSS/CreationDashboar
 import UserAssignTLHOSS from "../../pages/MTD_TL_HOSS/UserAssignTLHOSS";
 import SparePartUsageHistory from "../../pages/MTD_TL_HOSS/SparePartUsageHistory";
 import OperatorDataEntry from "../../pages/MTD_TL_HOSS/OperatorDataEntry";
-
+import AllSparePartsUsageHistory from "../../pages/MTD_TL_HOSS/AllSparePartsUsageHistory";
 //for Operator
 import CheckSheetForImplementation from "../../pages/Operator/CheckSheetForImplementation";
 import SkipPMWorkData from "../../pages/Reports/SkipPMWorkData";
@@ -581,7 +581,8 @@ function App({ commonRoutes }) {
                 )}
                 <Route
                   path="/pm/sparePartUsageHistory"
-                  element={<SparePartUsageHistory />}
+                  // element={<SparePartUsageHistory />}
+                  element={<AllSparePartsUsageHistory />}
                 />
 
                 <Route

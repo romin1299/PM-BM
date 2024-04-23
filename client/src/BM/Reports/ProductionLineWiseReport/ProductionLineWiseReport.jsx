@@ -30,7 +30,7 @@ import {
 import RoutingContext from "../../../context/routing/RoutingContext.js";
 
 const ProductionLineWiseReport = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/cell-level-filtration";
 
   const [dailyBDSelectedMonth, setDailyBDSelectedMonth] =
@@ -91,6 +91,7 @@ const ProductionLineWiseReport = () => {
             <BDRSTableWithDateFiltration
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedValue={reduceState?.selectedValue}
+              selectedYear={reduceState?.selectedYear}
             />
 
             <Row className="mt-3 g-2">

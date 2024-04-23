@@ -25,13 +25,13 @@ import MachineStatusBox from "../SubComponents/MachineStatusBox";
 import { denso_logo } from "../../../modules/LoginModules";
 import { exportPDF } from "../../Utils/exportPDF/exportPDF";
 
-function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
+function MyTable({ requestSheetDataOfBM, machineId, machineStatus, machine_code, selectedYear }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
   // console.log("location.state.prevPath:", location?.state);
 
-  const { machine_code, selectedYear } = useParams();
+  // const { machine_code, selectedYear } = useParams();
 
   const {
     register,
@@ -194,9 +194,9 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus }) {
                       data-html2canvas-ignore="true"
                       className="col-auto d-flex gap-2 align-items-center"
                     >
-                      <button className="btn bg-button" onClick={handleBack}>
+                      {/* <button className="btn bg-button" onClick={handleBack}>
                         Back
-                      </button>
+                      </button> */}
 
                       {/* <Tooltip title="Download Request Sheet" disableInteractive>
                       <IconButton

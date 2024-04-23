@@ -21,6 +21,7 @@ import TopMachineBD from "../BM/Reports/TopMachineBreakdown/TopMachineBD";
 import MachineAgeReport from "../BM/Reports/MachineAge/MachineAgeReport";
 import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
 import TargetDashboard from "../BM/TargetOfBD/TargetDashboard";
+import MainRequestSheetForView from "../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
 
 const KPI_Routes = ({ commonRoutes, loggedUser }) => {
   const userData = useContext(RoutingContext);
@@ -45,6 +46,10 @@ const KPI_Routes = ({ commonRoutes, loggedUser }) => {
       path: "/kpi",
       element: <MainPageComponent />,
     },
+    // {
+    //   path: "/kpi/view/request-sheet/:machine_code/:requestSheetID/:selectedYear",
+    //   element: <MainRequestSheetForView />,
+    // },
     {
       path: "/kpi/report/daily-breakdown-trend",
       element: <DailyBTDashboard />,

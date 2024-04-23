@@ -3,13 +3,19 @@ import PRDRequestSheetForUpdate from "./PRDRequestSheetForView";
 import { useParams, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import MTDRequestSheet from "./MTDRequestSheetForView";
+import { Modal, Button } from "react-bootstrap";
 
-function MainRequestSheetForView() {
+function MainRequestSheetForView({
+  machine_code,
+  requestSheetID,
+  modelProp,
+  generateType,
+  selectedYear,
+}) {
   const navigate = useNavigate();
   const context = useContext(RoutingContext);
-
-  const { machine_code, requestSheetID, generateType, selectedYear } =
-    useParams();
+  // const { machine_code, requestSheetID, generateType, selectedYear } =
+  //   useParams();
   const [selectedMachineDetails, setMachineDetails] = useState("");
   const [requestSheetDataOfBM, setRequestSheetDataOfBM] = useState("");
 
@@ -23,7 +29,7 @@ function MainRequestSheetForView() {
   const getMachineDetails = async () => {
     try {
       const res = await fetch(
-        `/getMachineDetailsOnScanningRequest/${generateType}/?machine_code=${machine_code}&&current_year=${selectedYear}`,
+        `/getMachineDetailsOnScanningRequest/?machine_code=${machine_code}&&current_year=${selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -95,25 +101,50 @@ function MainRequestSheetForView() {
   }, [requestSheetID]);
 
   return (
-    <div className="p-2">
-      <div id="request-sheet-target" className="border border-dark">
-        <PRDRequestSheetForUpdate
-          // selectedMachineDetails={selectedMachineDetails}
-          machineId={selectedMachineDetails?._id}
-          requestSheetDataOfBM={requestSheetDataOfBM}
-          machineStatus={machineStatus}
-          // approvalListOfBM={approvalListOfBM}
-        />
+    <>
+      <Modal
+        {...modelProp}
+        fullscreen
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header>
+          <Modal.Title id="contained-modal-title-vcenter">
+            Breakdown Request-Sheet
+          </Modal.Title>
+          <Button
+            variant="secondary"
+            onClick={modelProp?.onHide}
+            className="btn-danger"
+          >
+            Close
+          </Button>
+        </Modal.Header>
+        <Modal.Body>
+          <div>
+            <div id="request-sheet-target" className="border border-dark">
+              <PRDRequestSheetForUpdate
+                // selectedMachineDetails={selectedMachineDetails}
+                machineId={selectedMachineDetails?._id}
+                requestSheetDataOfBM={requestSheetDataOfBM}
+                machineStatus={machineStatus}
+                selectedYear={selectedYear}
+                machine_code={machine_code}
+                // approvalListOfBM={approvalListOfBM}
+              />
 
-        {/* need to add condition for PRD not able add data on MTD part */}
-        <MTDRequestSheet
-          selectedMachineDetails={selectedMachineDetails}
-          approvalListOfBM={approvalListOfBM}
-          requestSheetDataOfBM={requestSheetDataOfBM}
-          supportingTMList={supportingTMList}
-        />
-      </div>
-    </div>
+              {/* need to add condition for PRD not able add data on MTD part */}
+              <MTDRequestSheet
+                selectedMachineDetails={selectedMachineDetails}
+                approvalListOfBM={approvalListOfBM}
+                requestSheetDataOfBM={requestSheetDataOfBM}
+                supportingTMList={supportingTMList}
+              />
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
+    </>
   );
 }
 

@@ -321,7 +321,7 @@ const ManHourDashboard = () => {
   //   })();
   // }, []);
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const loggedUserDetails = useContext(RoutingContext);
 
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";

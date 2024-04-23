@@ -1639,7 +1639,7 @@ function MyTable({
                             label="REPEAT"
                             name="firstTimeOrRepeat"
                             type="radio"
-                            value="REPEAT"
+                            value="Repeat"
                             id="firstTimeOrRepeat"
                             {...register("firstTimeOrRepeat", {
                               // required: "This field is required",

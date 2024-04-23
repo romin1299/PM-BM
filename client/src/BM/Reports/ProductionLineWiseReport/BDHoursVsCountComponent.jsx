@@ -23,7 +23,6 @@ const BDHoursVsCountComponent = ({
   userDetails,
   // selectedMonth,
 }) => {
-  console.log(filterValues);
 
   const [loading, setLoading] = React.useState(true);
   const [selectedMonth, setSelectedMonth] = useState();

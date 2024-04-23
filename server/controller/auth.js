@@ -21026,7 +21026,7 @@ router.post("/deleteCategoryPoint", async (req, res) => {
       }
     );
 
-    res.status(201).json({ message: "CheckSheet data updated successfully" });
+    res.status(201).json({ message: "Spare entry deleted successfully" });
   } catch (error) {
     console.log(error);
     console.log("Data not valid or received !!!");
