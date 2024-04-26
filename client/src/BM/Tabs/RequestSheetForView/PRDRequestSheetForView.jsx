@@ -24,14 +24,24 @@ import MachineStatusBox from "../SubComponents/MachineStatusBox";
 
 import { denso_logo } from "../../../modules/LoginModules";
 import { exportPDF } from "../../Utils/exportPDF/exportPDF";
+import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import ProblemModeHistory from "../../../Common/Machine/ProblemModeHistory";
 
-function MyTable({ requestSheetDataOfBM, machineId, machineStatus, machine_code, selectedYear }) {
+function MyTable({
+  requestSheetDataOfBM,
+  machineId,
+  machineStatus,
+  machine_code,
+  selectedYear,
+}) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
   // console.log("location.state.prevPath:", location?.state);
 
   // const { machine_code, selectedYear } = useParams();
+
+  const [problemModeCardModal, setProblemModeCardModal] = useState(false);
 
   const {
     register,
@@ -153,10 +163,26 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus, machine_code,
     );
   };
 
+  const handleProblemModeHistoryCardState = () => {
+    setProblemModeCardModal((problemModeCardModal) => !problemModeCardModal);
+  };
+
   return (
     <>
       <ToastContainer />
-
+      {problemModeCardModal && (
+        <ProblemModeHistory
+          machineId={machineId}
+          machineCode={requestSheetDataOfBM?.machineRef?.machine_code}
+          problemMode={
+            requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.problemFaced
+          }
+          modelProp={{
+            show: problemModeCardModal,
+            onHide: () => handleProblemModeHistoryCardState(),
+          }}
+        />
+      )}
       <form>
         <Table>
           <tbody className="m-1 border p-3">
@@ -243,6 +269,14 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus, machine_code,
                           <DownloadIcon />
                         </Button>
                       </Tooltip>
+                      <Button
+                        className="btn bg-warning"
+                        onClick={() => {
+                          handleProblemModeHistoryCardState();
+                        }}
+                      >
+                        Problem Mode History
+                      </Button>
                     </Col>
 
                     <Col className="d-flex align-items-center justify-content-center text-center">
@@ -265,7 +299,9 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus, machine_code,
                           title="BM"
                           bodyText1={
                             machineStatus?.bmStatusData?.count &&
-                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(1)} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(
+                              1
+                            )} Hrs./${machineStatus?.bmStatusData?.count} Count`
                           }
                         />
                         <MachineStatusBox title="CM" />
@@ -699,6 +735,26 @@ function MyTable({ requestSheetDataOfBM, machineId, machineStatus, machine_code,
                       `, ${requestSheetDataOfBM?.supportingTM
                         ?.map((obj) => obj?.tm_name)
                         ?.join(", ")}`}
+                  </Col>
+                  <Col lg={12} className="border pb-2 pt-1">
+                    {requestSheetDataOfBM?.attachedImagesOrVideoByPRDUser?.map(
+                      (imageOrVideo, idx) => (
+                        <a
+                          target="_blank"
+                          // href={`http://localhost:7000/${image}`}
+                          href={`${BASE_URL}${imageOrVideo}`}
+                          style={{
+                            width: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          {imageOrVideo}
+                        </a>
+                      )
+                    )}
                   </Col>
                 </Row>
               </td>

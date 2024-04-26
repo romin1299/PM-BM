@@ -19,7 +19,8 @@ require(path.join(__dirname, "./model/cellSchema"));
 require(path.join(__dirname, "./model/lineSchema"));
 require(path.join(__dirname, "./model/machineSchema"));
 
-app.use(express.json({limit: '50mb'}));
+app.use(express.json({limit: "50mb"}));
+app.use(express.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
 
 //for when deploying application on AWS
 
@@ -55,7 +56,7 @@ require(path.join(
   "./controller/autoUpdateAndSendMailForSixMonthApproval"
 ));
 require(path.join(__dirname, "./controller/financialYearController"));
-// require(path.join(__dirname, './controller/everyDayAutoBackup'));
+require(path.join(__dirname, './controller/everyDayAutoBackup'));
 
 //for logos and other image
 app.use(express.static(path.join(__dirname, "images")));
@@ -72,6 +73,8 @@ app.use(express.static(path.join(__dirname, "DataSheetOfBD")));
 app.use(express.static(path.join(__dirname, "DrawingsOfBD")));
 //for attachments
 app.use(express.static(path.join(__dirname, "attachments")));
+//for BM Image or Video By PRD User while generate request-sheet
+app.use(express.static(path.join(__dirname, "ImagesOrVideoOfPRD")));
 
 // index file path
 app.get("/*", (req, res) => {

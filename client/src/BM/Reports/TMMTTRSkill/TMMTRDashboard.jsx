@@ -191,11 +191,11 @@ const TMMTRMain = () => {
       // const bodyData = [[userWiseData?.tm_names, userWiseData?.data]];
 
       let bodyData = [];
-      let filterData = []; 
+      let filterData = [];
 
       if (fileType === "csv") {
         bodyData = [
-          ["Filters", ...arrayItems]+ "\n",
+          ["Filters", ...arrayItems] + "\n",
           ["\n"],
           [["TM Names"].concat(userWiseData?.tm_names)?.toString() + "\n"],
           [["Hours"].concat(userWiseData?.data)?.toString() + "\n"],

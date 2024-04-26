@@ -4,15 +4,15 @@ const EmailConfigurationController = require('../controller/emailConfigurationCo
 const sendMailForBD = async ({subject, title, greetings, toEmailIds, ccEmailIds, bodyTable}) => {
 
     let emailConfData = await EmailConfigurationController()
-    console.log("toEmailIds-----> ", toEmailIds)
-    console.log("ccEmailIds ===========> ", ccEmailIds)
+    // console.log("toEmailIds-----> ", toEmailIds)
+    // console.log("ccEmailIds ===========> ", ccEmailIds)
 
     let transporter = nodemailer.createTransport({
         service: 'smtp-mail.outlook.com',
         // pool: true,
-        // host: emailConfData.serverIP,
-        // port: emailConfData.emailPort,
-        // secureConnection: false,
+        host: emailConfData.serverIP,
+        port: emailConfData.emailPort,
+        secureConnection: false,
         secure: false,
         // logger: false,
         // debug: false,
@@ -23,21 +23,21 @@ const sendMailForBD = async ({subject, title, greetings, toEmailIds, ccEmailIds,
         
 
         //for local-development
-        host: "smtp-mail.outlook.com",
-        port: 587,
-        requireTLS: true,
-        auth: {
-            user: "sm_sample11@outlook.com",
-            pass: "Sendemail@111"
-        }
+        // host: "smtp-mail.outlook.com",
+        // port: 587,
+        // requireTLS: true,
+        // auth: {
+        //     user: "sm_sample11@outlook.com",
+        //     pass: "Sendemail@111"
+        // }
 
     });
 
     let mailOptions = {
-        // from: emailConfData.fromEmailId,
-        from: "sm_sample11@outlook.com",
-        to: ['romin301.osl@gmail.com'], //toEmailIds
-        cc: ['emailgen50@gmail.com'], //ccEmailIds,
+        from: emailConfData.fromEmailId,
+        // from: "sm_sample11@outlook.com",
+        to: toEmailIds,
+        cc: ccEmailIds,
         subject: subject,
         html: `
         <!doctype html>

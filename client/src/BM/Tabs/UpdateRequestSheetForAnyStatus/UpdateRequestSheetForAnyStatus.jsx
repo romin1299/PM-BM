@@ -234,6 +234,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                     <button
                       className="btn bg-button m-2"
                       onClick={handleBackNavigation}
+                      type="button"
                     >
                       Back
                     </button>
@@ -485,16 +486,6 @@ const UpdateRequestSheetForAnyStatus = () => {
                   </Col>
                   <Col lg={5}>
                     <div className="d-flex align-items-center">
-                      <input
-                        type="text"
-                        id="prob"
-                        className="m-1 mb-2"
-                        style={{ width: "350px" }}
-                        {...register(
-                          "breakDownBasicDataFilledByPRD.problemFaced"
-                        )}
-                      />
-
                       {AllData?.machine?.machine_problems_faced?.length > 0 && (
                         <select
                           {...register("select_problemFaced")}
@@ -511,7 +502,26 @@ const UpdateRequestSheetForAnyStatus = () => {
                               return <option key={index}>{problem}</option>;
                             }
                           )}
+                          <option
+                            key={
+                              AllData?.machine?.machine_problems_faced?.length
+                            }
+                          >
+                            Other
+                          </option>
                         </select>
+                      )}
+
+                      {watch("select_problemFaced") === "Other" && (
+                        <input
+                          type="text"
+                          id="prob"
+                          className="m-1 mb-2"
+                          style={{ width: "350px" }}
+                          {...register(
+                            "breakDownBasicDataFilledByPRD.problemFaced"
+                          )}
+                        />
                       )}
                     </div>
                   </Col>

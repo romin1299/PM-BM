@@ -1,5 +1,7 @@
 export const clearLocalStorage = () => {
   const listOfLocalStorageItems = [
+    "selectedYear",
+    "selectedMonth",
     "selectedValue",
     "flagForTogglingFilter",
     "selectedValueForLineAnTMLoadGraph",

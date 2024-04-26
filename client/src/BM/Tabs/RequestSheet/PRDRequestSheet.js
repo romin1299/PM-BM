@@ -102,19 +102,38 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
       if (errors?.["problemFaced"]) {
         return;
       }
+
+      const formData = new FormData();
+      const { ...otherFields } = requestSheetData;
+
+      otherFields.problemFaced =
+        (requestSheetData?.select_problemFaced &&
+        requestSheetData?.select_problemFaced === "Other"
+          ? requestSheetData?.problemFaced
+          : requestSheetData?.select_problemFaced) ||
+        requestSheetData?.problemFaced;
+
+      for (
+        let i = 0;
+        i < requestSheetData?.attachedImagesOrVideoByPRDUser?.length;
+        i++
+      ) {
+        formData.append(
+          "attachedImagesOrVideoByPRDUser",
+          requestSheetData?.attachedImagesOrVideoByPRDUser[i]
+        );
+      }
+
+      formData.append("otherData", JSON.stringify(otherFields));
+
       const res = await fetch(
         `/newRequestSheetRegistration/?machineRef=${machine_code}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...requestSheetData,
-            problemFaced: requestSheetData?.select_problemFaced
-              ? requestSheetData?.select_problemFaced
-              : requestSheetData?.problemFaced,
-          }),
+          // headers: {
+          //   "Content-Type": "application/json",
+          // },
+          body: formData,
         }
       );
 
@@ -647,35 +666,48 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                   </Col>
 
                   <Col lg={7}>
-                    <div className="d-flex align-items-center">
+                    <div className="d-block align-items-center">
                       {" "}
-                      <input
-                        type="text"
-                        id="prob"
-                        className="m-1 mb-2"
-                        style={{ width: "350px" }}
-                        {...register("problemFaced")}
-                        onInput={() => {
-                          clearErrors("error_problemFaced");
-                        }}
-                      />
                       {isEnable && (
-                        <select
-                          {...register("select_problemFaced")}
+                        <>
+                          <select
+                            className="mb-1"
+                            {...register("select_problemFaced")}
+                            onInput={() => {
+                              clearErrors("error_problemFaced");
+                            }}
+                          >
+                            <option selected disabled value="">
+                              Please select
+                            </option>
+                            {selectedMachineDetails?.machine_problems_faced?.map(
+                              (problem, index) => {
+                                return <option key={index}>{problem}</option>;
+                              }
+                            )}
+                            <option
+                              key={
+                                selectedMachineDetails?.machine_problems_faced
+                                  ?.length
+                              }
+                            >
+                              Other
+                            </option>
+                          </select>
+                        </>
+                      )}
+                      {(!isEnable ||
+                        watch("select_problemFaced") === "Other") && (
+                        <input
+                          type="text"
+                          id="prob"
+                          className="m-1 mb-2"
+                          style={{ width: "350px" }}
+                          {...register("problemFaced")}
                           onInput={() => {
                             clearErrors("error_problemFaced");
                           }}
-                        >
-                          <option selected disabled value="">
-                            Please select
-                          </option>
-
-                          {selectedMachineDetails?.machine_problems_faced?.map(
-                            (problem, index) => {
-                              return <option key={index}>{problem}</option>;
-                            }
-                          )}
-                        </select>
+                        />
                       )}
                     </div>
                     {errors?.["error_problemFaced"] && (
@@ -931,6 +963,33 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       <b>BREAKDOWN ATTENDED BY</b>
                     </small>
                     <br />
+                    {/* {selectedAttendee} */}
+                  </Col>
+                  <Col lg={12} className="border pb-2 pt-1">
+                    <small className="mb-0">
+                      <b>ATTACHED VIDEO OR IMAGES</b>
+                    </small>
+                    <br />
+                    <Form.Group controlId="formFileMultiple" className="mb-3">
+                      <Form.Control
+                        type="file"
+                        multiple
+                        // accept="image/png, image/gif, image/jpeg"
+                        onChange={(e) => {
+                          setValue(
+                            "attachedImagesOrVideoByPRDUser",
+                            e.target.files,
+                            {
+                              shouldDirty: true,
+                            }
+                          );
+                          clearErrors("attachedImagesOrVideoByPRDUser");
+                        }}
+                      />
+                      {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (
+                        <p className="text-error">{"This field is required"}</p>
+                      )} */}
+                    </Form.Group>
                     {/* {selectedAttendee} */}
                   </Col>
                 </Row>

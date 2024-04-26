@@ -226,11 +226,11 @@ const NoLossBDEntryForm = () => {
                 <Form.Check
                   flex
                   style={{ fontSize: "12px" }}
-                  label="CM"
+                  label="CM Entry"
                   name="maintenanceType"
                   type="radio"
                   id={`inline-radio-1`}
-                  value="CM"
+                  value="CM Entry"
                   {...register("maintenanceType", {
                     required: "Please select maintenance type",
                   })}
@@ -287,6 +287,20 @@ const NoLossBDEntryForm = () => {
                   name="maintenanceType"
                   id={`inline-radio-5`}
                   value="PED Support"
+                  // onChange={handleMaintenanceType}
+                  // checked={selectedMaintenanceType === "TPM"}
+                  {...register("maintenanceType", {
+                    required: "Please select maintenance type",
+                  })}
+                />
+                <Form.Check
+                  flex
+                  style={{ fontSize: "12px" }}
+                  label="TPM"
+                  type="radio"
+                  name="maintenanceType"
+                  id={`inline-radio-6`}
+                  value="TPM"
                   // onChange={handleMaintenanceType}
                   // checked={selectedMaintenanceType === "TPM"}
                   {...register("maintenanceType", {

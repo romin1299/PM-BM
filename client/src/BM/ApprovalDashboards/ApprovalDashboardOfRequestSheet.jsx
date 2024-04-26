@@ -110,14 +110,14 @@ const ApprovalDashboardOfRequestSheet = () => {
   ];
 
   const requestSheetApprovalAction = [
-    {
-      icon: () => <CreditCardIcon className="text-primary1" />,
-      tooltip: "History Card",
-      position: "row",
-      onClick: (event, selectedRow) => {
-        console.log("----------", selectedRow);
-      },
-    },
+    // {
+    //   icon: () => <CreditCardIcon className="text-primary1" />,
+    //   tooltip: "History Card",
+    //   position: "row",
+    //   onClick: (event, selectedRow) => {
+    //     console.log("----------", selectedRow);
+    //   },
+    // },
     (row) => ({
       icon: () => <DescriptionIcon className="text-primary" />,
       tooltip: "Update Action",

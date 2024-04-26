@@ -45,14 +45,14 @@ const allEvents = [
       name: "Jigs MCS",
       icon: jigs_mcs,
     },
-  ],
-  [
     {
       url: "pm-history",
       formate: "history-formate",
       name: "PM History",
       icon: PM_history,
     },
+  ],
+  [
     {
       url: "machine-manuals",
       formate: "attachment-formate",
@@ -65,8 +65,6 @@ const allEvents = [
       name: "Jigs Dws(Mech/Elec)",
       icon: jigs_dws,
     },
-  ],
-  [
     {
       url: "mech-dws",
       formate: "attachment-formate",
@@ -79,14 +77,14 @@ const allEvents = [
       name: "Electric Drawings",
       icon: electric_drawing,
     },
+  ],
+  [
     {
       url: "machine-poka-yoke",
       formate: "attachment-formate",
       name: "Machine Poka-Yoke",
       icon: machine_pokayoke,
     },
-  ],
-  [
     {
       url: "spare",
       formate: "attachment-formate",
@@ -156,22 +154,11 @@ const MachineDocument = () => {
           boxShadow: "-2px -2px 4px 0px rgba(0, 0, 0, 0.03) inset",
           filter:
             "drop-shadow(-2px -2px 4px rgba(0, 0, 0, 0.03)) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.03))",
-
-          // "& .icon-circle": {
-          //   border: "2px dotted #616161",
-          //   transition: "border 0.5s",
-          // },
-
-          // ":hover": {
-          //   "& .icon-circle": {
-          //     border: "2px solid #616161",
-          //   },
-          // },
         }}
         role="button"
         display="flex"
         flexDirection="column"
-        justifyContent="space-between"
+        // justifyContent="space-between"
         alignItems="center"
         gap={2}
         onClick={onClick}
@@ -179,9 +166,9 @@ const MachineDocument = () => {
         <Box
           className="icon-circle"
           sx={{
-            height: "6rem",
-            width: "6rem",
-            borderRadius: "50%",
+            height: "10rem",
+            width: "10rem",
+            // borderRadius: "50%",
             // bgcolor: "#fecd47",
             background: "#FFF",
             boxShadow:
@@ -191,7 +178,7 @@ const MachineDocument = () => {
           justifyContent="center"
           alignItems="center"
         >
-          <img src={icon} alt="" srcset="" height="50rem" width="50rem" />
+          <img src={icon} alt="" srcset="" height="100rem" width="100rem" />
           {/* {icon && icon} */}
         </Box>
         <Typography
@@ -221,9 +208,9 @@ const MachineDocument = () => {
       {/* <CustomHooksForBackNavigation /> */}
 
       {allEvents?.map((item) => (
-        <Row className="mt-0 gy-3 gx-3">
+        <Row className="m-0 gy-3 gx-3">
           {item?.map((event) => (
-            <Col lg={4} md={4} sm={6}>
+            <Col lg={3} md={3} sm={6}>
               <MachineTabCard
                 title={event?.name}
                 onClick={() => {

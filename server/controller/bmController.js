@@ -185,8 +185,13 @@ router.get(
 
 const storageForDataSheetsOfBD = multer.diskStorage({
   destination: function (req, file, cb) {
-    if (file.fieldname === "attachedDataSheets") cb(null, "./DataSheetOfBD/");
-    else cb(null, "./DrawingsOfBD/");
+    if (file.fieldname === "attachedDataSheets") {
+      cb(null, "./DataSheetOfBD/");
+    } else if (file.fieldname === "drawingOfRequestSheet") {
+      cb(null, "./DrawingsOfBD/");
+    } else if (file.fieldname === "attachedImagesOrVideoByPRDUser") {
+      cb(null, "./ImagesOrVideoOfPRD/");
+    }
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "_" + file.originalname);
@@ -248,6 +253,7 @@ router.post(
   uploadDataSheetsOfBD.fields([
     { name: "attachedDataSheets", maxCount: 1 },
     { name: "attachedDrawings", maxCount: 10 },
+    { name: "attachedImagesOrVideoByPRDUser", maxCount: 10 },
   ]),
   async (req, res, next) => {
     try {
@@ -423,9 +429,7 @@ router.post(
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
             requestSheetStatus:
               // requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
-              getRequestSheetData?.getDataForApprovalDashboard?.Id ||
-              getRequestSheetData?.requestSheetStatus === "Completed" ||
-              getRequestSheetData?.requestSheetStatus === "Rejected"
+              getRequestSheetData?.getDataForApprovalDashboard?.Id
                 ? getRequestSheetData?.requestSheetStatus
                 : "Fill Sheet",
             // (
@@ -528,6 +532,10 @@ router.post(
             requestSheet,
           });
         } else {
+          const requestSheetDataFilledByPRDUser = JSON.parse(
+            req.body.otherData
+          );
+
           const {
             problemFaced,
             PRD_ObservationForProblem_5Why_1How,
@@ -547,6 +555,7 @@ router.post(
             priorityCode,
             qualityRelated,
             shiftOfBM,
+            attachedImagesOrVideoByPRDUser,
           } = req.body;
 
           let requestSheetNos = machine.line_names.requestSheetNos + 1 || 1;
@@ -576,39 +585,52 @@ router.post(
 
           await Machine.findOneAndUpdate(
             { machine_code: machine.machine_code },
-            { $addToSet: { machine_problems_faced: problemFaced } },
+            {
+              $addToSet: {
+                machine_problems_faced:
+                  requestSheetDataFilledByPRDUser?.problemFaced,
+              },
+            },
             { new: true }
           );
 
           requestSheet = new RequestSheetOfBM({
             ...req.query,
             ..._idObject,
-            ...req.body,
+            // ...req.body,
             requestSheetNoOfBM,
             requestSheetCreatedBy: req.rootUser._id,
-            priorityCode: priorityCode,
-            qualityRelated: qualityRelated,
-            shiftOfBM: shiftOfBM,
+            priorityCode: requestSheetDataFilledByPRDUser?.priorityCode,
+            qualityRelated: requestSheetDataFilledByPRDUser?.qualityRelated,
+            shiftOfBM: requestSheetDataFilledByPRDUser?.shiftOfBM,
             // breakDownAttendedBy: req.rootUser._id,
-            maintenanceType: maintenanceType || "BM",
-            problemOccurredDateAndTimeOfBM,
+            maintenanceType:
+              requestSheetDataFilledByPRDUser?.maintenanceType || "BM",
+            problemOccurredDateAndTimeOfBM:
+              requestSheetDataFilledByPRDUser?.problemOccurredDateAndTimeOfBM,
             sheetIssuedDateAndTimeOfBM: new Date(),
+            attachedImagesOrVideoByPRDUser:
+              dataSheet?.attachedImagesOrVideoByPRDUser?.map(
+                (obj) => obj?.filename
+              ),
             breakDownBasicDataFilledByPRD: {
-              problemFaced,
-              PRD_ObservationForProblem_5Why_1How,
-              why_5M_1E,
-              where_process,
-              when_frequency,
-              who_person,
-              which_defectLocation,
-              how_details,
+              problemFaced: requestSheetDataFilledByPRDUser?.problemFaced,
+              PRD_ObservationForProblem_5Why_1How:
+                requestSheetDataFilledByPRDUser?.PRD_ObservationForProblem_5Why_1How,
+              why_5M_1E: requestSheetDataFilledByPRDUser?.why_5M_1E,
+              where_process: requestSheetDataFilledByPRDUser?.where_process,
+              when_frequency: requestSheetDataFilledByPRDUser?.when_frequency,
+              who_person: requestSheetDataFilledByPRDUser?.who_person,
+              which_defectLocation:
+                requestSheetDataFilledByPRDUser?.which_defectLocation,
+              how_details: requestSheetDataFilledByPRDUser?.how_details,
             },
             preAggregationTimeStampOfRequestSheet: {
               requestSheet_year: gettingFYYearForSelectedDate(
-                problemOccurredDateAndTimeOfBM
+                requestSheetDataFilledByPRDUser?.problemOccurredDateAndTimeOfBM
               ),
               requestSheet_month: gettingMonthForSelectedDate(
-                problemOccurredDateAndTimeOfBM
+                requestSheetDataFilledByPRDUser?.problemOccurredDateAndTimeOfBM
               ),
             },
           });
@@ -1784,7 +1806,20 @@ const targetMiddleware = async (req, res, next) => {
           $avg: `${targetKey}.${allMonths?.[i]?.monthName}`,
         };
 
-        arr.push(`$${allMonths?.[i]?.monthName}`);
+        if (req.query?.targetKey === "monthlyMTBFTarget") {
+          obj[`count_${allMonths?.[i]?.monthName}`] = {
+            $sum: 1,
+          };
+
+          arr.push({
+            $divide: [
+              `$${allMonths?.[i]?.monthName}`,
+              `$count_${allMonths?.[i]?.monthName}`,
+            ],
+          });
+        } else {
+          arr.push(`$${allMonths?.[i]?.monthName}`);
+        }
       }
 
       pipeline = [
@@ -1827,23 +1862,23 @@ const targetMiddleware = async (req, res, next) => {
 
     if (req.query?.targetKey === "monthlyProductionHrs") {
       queryObjForHandlingLineForTarget = {
-        "allTargetData.yearTotalProductionHrs": { $ne: 0 },
+        "allTargetData.yearTotalProductionHrs": { $gt: 0 },
       };
     } else if (req.query?.targetKey === "monthlyBDHrsTarget") {
       queryObjForHandlingLineForTarget = {
-        "allTargetData.yearTotalBDHrsTarget": { $ne: 0 },
+        "allTargetData.yearTotalBDHrsTarget": { $gt: 0 },
       };
     } else if (req.query?.targetKey === "monthlyMTTRTarget") {
       queryObjForHandlingLineForTarget = {
-        "allTargetData.yearTotalMTTRTarget": { $ne: 0 },
+        "allTargetData.yearTotalMTTRTarget": { $gt: 0 },
       };
     } else if (req.query?.targetKey === "monthlyMTBFTarget") {
       queryObjForHandlingLineForTarget = {
-        "allTargetData.yearTotalMTBFTarget": { $ne: 0 },
+        "allTargetData.yearTotalMTBFTarget": { $gt: 0 },
       };
     } else if (req.query?.targetKey === "monthlyBDPercentageTarget") {
       queryObjForHandlingLineForTarget = {
-        "allTargetData.yearTotalBDPercentageTarget": { $ne: 0 },
+        "allTargetData.yearTotalBDPercentageTarget": { $gt: 0 },
       };
     }
 
@@ -4268,6 +4303,7 @@ const getRequestSheetData = async (req, res, next) => {
             $arrayElemAt: ["$requestSheetCreatedBy", 0],
           },
           breakDownAttendedBy: 1,
+          attachedImagesOrVideoByPRDUser: 1,
 
           //only for material table purpose
           cell: { $arrayElemAt: ["$cells.cell_name", 0] },
@@ -7893,16 +7929,31 @@ const productionHourFiltration = async (req, res, next) => {
 
     let queryObj = {},
       obj = {
-        yearTotalProductionHrs: {
-          $sum: `$allTargetData.yearTotalProductionHrs`,
-        },
+        yearTotalProductionHrs: {},
       };
+
+    let productionHrs = {
+      $sum: [],
+    };
 
     for (let i = 0; i < allMonths.length; i++) {
       obj[allMonths?.[i]?.monthName] = {
         $avg: `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`,
       };
+      productionHrs["$sum"].push(
+        `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`
+      );
+      if (
+        allMonths?.[i]?.monthName === currentMonth &&
+        currentYear === req?.query?.selectedYear
+      ) {
+        break;
+      }
     }
+
+    obj["yearTotalProductionHrs"] = {
+      $avg: productionHrs,
+    };
 
     if (req.params?.filter === "based-on-plant") {
       queryObj = {
@@ -7940,7 +7991,7 @@ const productionHourFiltration = async (req, res, next) => {
       },
       {
         $match: {
-          "allTargetData.yearTotalProductionHrs": { $ne: 0 }
+          "allTargetData.yearTotalProductionHrs": { $ne: 0 },
         },
       },
       {
@@ -11949,22 +12000,8 @@ router.get(
   bdHourTrendMiddleware,
   async (req, res, next) => {
     try {
-      let MTBF_monthlyFilterQueryPipeline = [],
-        mtbfCalculation = {
-          $divide: [
-            {
-              $divide: [
-                {
-                  $subtract: [
-                    req.productionHrs?.yearTotalProductionHrs,
-                    "$bdHours",
-                  ],
-                },
-                "$count",
-              ],
-            },
-            24,
-          ],
+      let productionHour = {
+          $sum: [],
         },
         groupingObj = {
           groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
@@ -11987,94 +12024,60 @@ router.get(
         groupingObj = {
           groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
         };
-
-        // MTBF_monthlyFilterQueryPipeline = [
-        //   {
-        //     $addFields: {
-        //       productionDataBasedOnSelectedFilter: {
-        //         $function: {
-        //           body: function (month, productionHrs) {
-        //             return productionHrs?.monthlyProductionHrs?.[month];
-        //           },
-        //           args: ["$_id.groupId", req.productionHrs],
-        //           lang: "js",
-        //         },
-        //       },
-        //     },
-        //   },
-        // ];
-
-        mtbfCalculation = {
-          $divide: [
-            {
-              $divide: [
-                {
-                  $subtract: [
-                    {
-                      $getField: {
-                        field: "v",
-                        input: {
-                          $arrayElemAt: [
-                            {
-                              $filter: {
-                                input: {
-                                  $objectToArray: req.productionHrs,
-                                },
-                                as: "monthlyProduction",
-                                cond: {
-                                  $eq: [
-                                    "$$monthlyProduction.k",
-                                    "$_id.groupId",
-                                  ],
-                                },
-                              },
-                            },
-                            0,
-                          ],
-                        },
-                      },
-                    },
-                    "$bdHours",
-                  ],
-                },
-                "$count",
-              ],
-            },
-            24,
-          ],
-        };
+        productionHour = `$allTargetData.monthlyProductionHrs.${req.query?.selectedMonth}`;
+      } else {
+        for (let index = 0; index < allMonths.length; index++) {
+          productionHour["$sum"].push(
+            `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`
+          );
+          if (
+            allMonths?.[index]?.monthName === currentMonth &&
+            currentYear === req?.query?.selectedYear
+          ) {
+            break;
+          }
+        }
       }
 
       const machineHistoryCardData = await RequestSheetOfBM.aggregate([
         { $match: queryObj },
         {
+          $lookup: {
+            from: "lines",
+            localField: "lineRef",
+            foreignField: "_id",
+            pipeline: [
+              {
+                $unwind: "$allTargetData",
+              },
+              {
+                $match: {
+                  "allTargetData.current_year": req.query?.selectedYear,
+                },
+              },
+              {
+                $project: {
+                  line_name: 1,
+                  productionHour,
+                },
+              },
+            ],
+            as: "line",
+          },
+        },
+        { $unwind: "$line" },
+        {
           $group: {
             _id: groupingObj,
+            productionHour: { $first: "$line.productionHour" },
             count: { $sum: 1 },
             bdHours: {
               $sum: {
-                $cond: [
-                  {
-                    $gt: [
-                      "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                      null,
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
-                      60,
-                    ],
-                  },
-                  0,
-                ],
+                $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
               },
             },
           },
         },
-        // ...MTBF_monthlyFilterQueryPipeline,
-        // greaterThanTwo: { $push: { $trunc: ["$greaterThanTwo", 1] }},
-
         {
           $project: {
             count: 1,
@@ -12082,7 +12085,19 @@ router.get(
             mttr: truncValue({
               $divide: ["$bdHours", "$count"],
             }),
-            mtbf: truncValue(mtbfCalculation),
+            mtbf: truncValue({
+              $divide: [
+                {
+                  $divide: [
+                    {
+                      $subtract: ["$productionHour", "$bdHours"],
+                    },
+                    "$count",
+                  ],
+                },
+                24,
+              ],
+            }),
           },
         },
       ]);
@@ -12272,90 +12287,22 @@ router.get(
   "/getSummaryCard/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-  productionHourFiltration,
-  targetMiddlewareForMBD,
-  bdHourTrendMiddleware,
+  // productionHourFiltration,
+  // targetMiddlewareForMBD,
+  // bdHourTrendMiddleware,
   async (req, res, next) => {
-    // let MTBF_monthlyFilterQueryPipeline = [],
-    //   mtbfCalculation = {
-    //     $divide: [
-    //       {
-    //         $subtract: [req.productionHrs?.yearTotalallTargetData, "$bdHours"],
-    //       },
-    //       "$count",
-    //     ],
-    //   },
-    //   groupingObj = {
-    //     groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
-    //   },
-    //   queryObj = {
-    //     machineRef: mongoose.Types.ObjectId(req.params.machineId),
-    //     "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-    //       req.query?.selectedYear,
-    //   };
-
-    // if (req.query?.selectedMonth) {
-    //   queryObj = {
-    //     ...queryObj,
-    //     "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-    //       req.query?.selectedMonth,
-    //   };
-    //   groupingObj = {
-    //     groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-    //   };
-
-    //     MTBF_monthlyFilterQueryPipeline = [
-    //       {
-    //         $addFields: {
-    //           productionDataBasedOnSelectedFilter: {
-    //             $function: {
-    //               body: function (month, productionHrs) {
-    //                 return productionHrs?.monthlyProductionHrs?.[month];
-    //               },
-    //               args: ["$_id.groupId", req.productionHrs],
-    //               lang: "js",
-    //             },
-    //           },
-    //         },
-    //       },
-    //     ];
-
-    //   mtbfCalculation = {
-    //     $divide: [
-    //       {
-    //         $subtract: ["$productionDataBasedOnSelectedFilter", "$bdHours"],
-    //       },
-    //       "$count",
-    //     ],
-    //   };
-    // }
-
-    // console.log(MTBF_monthlyFilterQueryPipeline);
     try {
       let cells,
         bdHoursFormula = {
           $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
         },
-        MTBF_monthlyFilterQueryPipeline = [],
-        mtbfCalculation = {
-          $divide: [
-            {
-              $divide: [
-                {
-                  $subtract: [
-                    req.productionHrs?.yearTotalProductionHrs,
-                    "$bdHours",
-                  ],
-                },
-                "$count",
-              ],
-            },
-            24,
-          ],
-        },
-        groupingObj = {
-          groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
+        productionHour = {
+          $sum: [],
         };
+
+      groupingObj = {
+        groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
+      };
 
       if (req.params?.filter === "based-on-subSection") {
         cells = await Cell.find({
@@ -12375,71 +12322,19 @@ router.get(
         groupingObj = {
           groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
         };
-
-        // MTBF_monthlyFilterQueryPipeline = [
-        //   {
-        //     $addFields: {
-        //       productionDataBasedOnSelectedFilter: {
-        //         $function: {
-        //           body: function (month, productionHrs) {
-        //             return productionHrs?.monthlyProductionHrs?.[month];
-        //           },
-        //           args: ["$_id.groupId", req.productionHrs],
-        //           lang: "js",
-        //         },
-        //       },
-        //     },
-        //   },
-        // ];
-
-        // mtbfCalculation = {
-        //   $divide: [
-        //     {
-        //       $subtract: ["$productionDataBasedOnSelectedFilter", "$bdHours"],
-        //     },
-        //     "$count",
-        //   ],
-        // };
-
-        mtbfCalculation = {
-          $divide: [
-            {
-              $divide: [
-                {
-                  $subtract: [
-                    {
-                      $getField: {
-                        field: "v",
-                        input: {
-                          $arrayElemAt: [
-                            {
-                              $filter: {
-                                input: {
-                                  $objectToArray: req.productionHrs,
-                                },
-                                as: "monthlyProduction",
-                                cond: {
-                                  $eq: [
-                                    "$$monthlyProduction.k",
-                                    "$_id.groupId",
-                                  ],
-                                },
-                              },
-                            },
-                            0,
-                          ],
-                        },
-                      },
-                    },
-                    "$bdHours",
-                  ],
-                },
-                "$count",
-              ],
-            },
-            24,
-          ],
-        };
+        productionHour = `$allTargetData.monthlyProductionHrs.${req.query?.selectedMonth}`;
+      } else {
+        for (let index = 0; index < allMonths.length; index++) {
+          productionHour["$sum"].push(
+            `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`
+          );
+          if (
+            allMonths?.[index]?.monthName === currentMonth &&
+            currentYear === req?.query?.selectedYear
+          ) {
+            break;
+          }
+        }
       }
 
       try {
@@ -12447,35 +12342,52 @@ router.get(
           { $match: req.queryObj },
           {
             $group: {
-              _id: {
-                cell: "$cellRef",
-                ...groupingObj,
-              },
+              _id: "$lineRef",
+              cellRef: { $first: "$cellRef" },
               count: { $sum: 1 },
               bdHours: {
                 $sum: {
-                  $cond: [
-                    {
-                      $gt: [
-                        "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                        null,
-                      ],
-                    },
-                    {
-                      $divide: [
-                        "$maintenanceReportFilledByMTD.breakDownTime",
-                        60,
-                      ],
-                    },
-                    0,
-                  ],
+                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
                 },
               },
             },
           },
-          // ...MTBF_monthlyFilterQueryPipeline,
-          // mtbf: { $trunc: [mtbfCalculation, 1] },
-
+          {
+            $lookup: {
+              from: "lines",
+              localField: "_id",
+              foreignField: "_id",
+              pipeline: [
+                {
+                  $unwind: "$allTargetData",
+                },
+                {
+                  $match: {
+                    "allTargetData.current_year": req.query?.selectedYear,
+                  },
+                },
+                {
+                  $project: {
+                    line_name: 1,
+                    productionHour,
+                  },
+                },
+              ],
+              as: "line",
+            },
+          },
+          { $unwind: "$line" },
+          {
+            $group: {
+              _id: {
+                cell: "$cellRef",
+                // ...groupingObj,
+              },
+              productionHour: { $avg: "$line.productionHour" },
+              count: { $sum: "$count" },
+              bdHours: { $sum: "$bdHours" },
+            },
+          },
           {
             $project: {
               count: 1,
@@ -12483,7 +12395,19 @@ router.get(
               mttr: truncValue({
                 $divide: ["$bdHours", "$count"],
               }),
-              mtbf: truncValue(mtbfCalculation),
+              mtbf: truncValue({
+                $divide: [
+                  {
+                    $divide: [
+                      {
+                        $subtract: ["$productionHour", "$bdHours"],
+                      },
+                      "$count",
+                    ],
+                  },
+                  24,
+                ],
+              }),
             },
           },
         ]);
@@ -14710,6 +14634,7 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
             {
               $match: {
                 "allTargetData.current_year": req.query?.selectedYear,
+                "allTargetData.yearTotalProductionHrs": { $ne: 0 },
               },
             },
             {
@@ -14775,7 +14700,10 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
 
       {
         $group: {
-          _id: "$machineRef",
+          _id: {
+            machineRef: "$machineRef",
+            lineRef: "$lineRef",
+          },
           count: { $sum: 1 },
           hours: {
             $sum: {
@@ -14798,7 +14726,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
       {
         $lookup: {
           from: "machinesalldatas",
-          localField: "_id",
+          localField: "_id.machineRef",
           foreignField: "_id",
           pipeline: [
             {
@@ -14811,6 +14739,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
         },
       },
       { $unwind: "$machine" },
+      ...req.queryPipeline,
       {
         $project: {
           machine: 1,
@@ -14852,6 +14781,8 @@ const filterMiddlewareForMTTRReport = async (req, res, next) => {
       $divide: ["$hours", "$count"],
     };
 
+    req.queryPipeline = [];
+
     next();
   } catch (error) {
     res.status(500).json({ message: error?.message, error });
@@ -14861,16 +14792,58 @@ const filterMiddlewareForMTTRReport = async (req, res, next) => {
 // filter middleware for all the charts of MTBF Report
 const filterMiddlewareForMTBFReport = async (req, res, next) => {
   try {
-    let subtractionKey = req.productionHrs?.yearTotalProductionHrs;
+    let productionHour = {
+      $sum: [],
+    };
 
     if (req.query?.selectedMonth) {
-      subtractionKey = req.productionHrs?.[req.query?.selectedMonth];
+      productionHour = `$allTargetData.monthlyProductionHrs.${req.query?.selectedMonth}`;
+    } else {
+      for (let index = 0; index < allMonths.length; index++) {
+        productionHour["$sum"].push(
+          `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`
+        );
+        if (
+          allMonths?.[index]?.monthName === currentMonth &&
+          currentYear === req?.query?.selectedYear
+        ) {
+          break;
+        }
+      }
     }
+
+    req.queryPipeline = [
+      {
+        $lookup: {
+          from: "lines",
+          localField: "_id.lineRef",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $unwind: "$allTargetData",
+            },
+            {
+              $match: {
+                "allTargetData.current_year": req.query?.selectedYear,
+              },
+            },
+            {
+              $project: {
+                line_name: 1,
+                productionHour,
+              },
+            },
+          ],
+          as: "line",
+        },
+      },
+      { $unwind: "$line" },
+    ];
 
     req.hourCalculationFormula = {
       $divide: [
         {
-          $subtract: [subtractionKey, "$hours"],
+          $subtract: ["$line.productionHour", "$hours"],
         },
         "$count",
       ],
@@ -15060,18 +15033,22 @@ router.get(
   async (req, res, next) => {
     try {
       // let productionHrs = "$allTargetData.yearTotalProductionHrs";
-      
+
       let productionHrs = {
-        $sum: []
+        $sum: [],
       };
-  
+
       if (req.query?.selectedMonth) {
         productionHrs = `$allTargetData.monthlyProductionHrs.${req.query?.selectedMonth}`;
       } else {
-        
         for (let index = 0; index < allMonths.length; index++) {
-          productionHrs["$sum"].push(`$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`);
-          if (allMonths?.[index]?.monthName === currentMonth && currentYear === req?.query?.selectedYear) {
+          productionHrs["$sum"].push(
+            `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`
+          );
+          if (
+            allMonths?.[index]?.monthName === currentMonth &&
+            currentYear === req?.query?.selectedYear
+          ) {
             break;
           }
         }
@@ -15106,7 +15083,7 @@ router.get(
   authenticate,
   middlewareForLimitValidation,
   filterMiddleware,
-  productionHourFiltration,
+  // productionHourFiltration,
   filterMiddlewareForMTBFReport,
   async (req, res, next) => {
     req.sort = 1;
@@ -19042,23 +19019,23 @@ router.post(
       } else {
         let sumOfMonthlyProductionHrsTargetForYearlyTarget = Object.values(
           targetValue?.monthlyProductionHrs
-        )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
+        )?.reduce((acc, value) => acc + (value === "" ? 0 : value) * 1, 0);
 
         let sumOfMonthlyBDHrsTargetForYearlyTarget = Object.values(
           targetValue?.monthlyBDHrsTarget
-        )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
+        )?.reduce((acc, value) => acc + (value === "" ? 0 : value) * 1, 0);
 
         let sumOfMonthlyMTTRTargetForYearlyTarget = Object.values(
           targetValue?.monthlyMTTRTarget
-        )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
+        )?.reduce((acc, value) => acc + (value === "" ? 0 : value) * 1, 0);
 
         let sumOfMonthlyMTBFTargetForYearlyTarget = Object.values(
           targetValue?.monthlyMTBFTarget
-        )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
+        )?.reduce((acc, value) => acc + (value === "" ? 0 : value) * 1, 0);
 
         let sumOfMonthlyBDPercentageTargetForYearlyTarget = Object.values(
           targetValue?.monthlyBDPercentageTarget
-        )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
+        )?.reduce((acc, value) => acc + (value === "" ? 0 : value) * 1, 0);
 
         const yearExistsOrNotInLineTargetField = await Line.findOne({
           _id: mongoose.Types.ObjectId(req?.params?.selectedId),
@@ -19681,6 +19658,21 @@ router.get("/getNoLossBDEntryData", authenticate, async (req, res, next) => {
     return res.status(201).json({
       message: "No loss break-down data get successfully",
       noLossBDRequestSheetData: noLossBDRequestSheetData?.[0],
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error });
+  }
+});
+
+router.delete("/deleteNoLossRequestSheet/", async (req, res, next) => {
+  try {
+    const deletedNoLossRequestSheet = await NoLossBD.findByIdAndDelete(
+      req?.query?._id
+    );
+
+    return res.status(201).json({
+      message: "No Loss RequestSheet Deleted successfully",
+      deletedNoLossRequestSheet,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, error });

@@ -85,6 +85,10 @@ import {
 } from "./ConditionsForDNINandDNHA/ConditionBasedDisplay";
 import RoutingContext from "./context/routing/RoutingContext";
 import RequestSheetMainDashboard from "./BM/RequestSheet/RequestSheetMainDashboard";
+import PM from './static/Icons/PM.png'
+import BM from './static/Icons/BM.png'
+import MTD_KPI from './static/Icons/MTD_KPI.png'
+
 
 function App() {
   //DENSO-HARYANA
@@ -208,7 +212,7 @@ function App() {
       {
         name: "MTD KPI",
         keyUrl: "kpi",
-        icon: <BsHammer />,
+        icon: MTD_KPI,
         dashboardAndRoutes: (
           <KPI_Routes commonRoutes={commonRoutes} loggedUser={loggedUser} />
         ),
@@ -220,13 +224,13 @@ function App() {
     {
       name: "PM",
       keyUrl: "pm",
-      icon: <BsWrench />,
+      icon: PM,
       dashboardAndRoutes: <PMTabdashboard commonRoutes={commonRoutes} />,
     },
     {
       name: "BM",
       keyUrl: "bm",
-      icon: <BsHammer />,
+      icon: BM,
       dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
     },
     ...displayKPIDashboard,
@@ -276,7 +280,7 @@ function App() {
                 eventKey={item?.keyUrl}
                 title={
                   <>
-                    {item?.icon} &nbsp;&nbsp; <b>{item?.name}</b>
+                    <img src={item?.icon} alt="" srcset="" height={25} width={25} /> &nbsp;&nbsp; <b>{item?.name}</b>
                   </>
                 }
               ></Tab>

@@ -5,7 +5,7 @@ cron.schedule('0 0 * * *', async (req, res) => {
 
     // define the folder and command you want to run
     const folderPath = process.env.BACKUP_DATA_LOCATION;
-    const command = 'mongodump --host localhost --port 27017 --db DENSO-PM';
+    const command = 'mongodump --host localhost --port 27017 --db DENSO-PM-BM';
 
     // run the command in the specified folder
     exec(command, { cwd: folderPath }, (error, stdout, stderr) => {

@@ -286,7 +286,9 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                           title="BM"
                           bodyText1={
                             machineStatus?.bmStatusData?.count &&
-                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(1)} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(
+                              1
+                            )} Hrs./${machineStatus?.bmStatusData?.count} Count`
                           }
                         />
                         <MachineStatusBox title="CM" />
@@ -683,7 +685,37 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                             );
                           }
                         )}
+
+                        <option
+                          key={
+                            requestSheetDataOfBM?.machineRef
+                              ?.machine_problems_faced?.length
+                          }
+                        >
+                          Other
+                        </option>
                       </select>
+
+                      {watch("select_problemFaced") === "Other" && (
+                        <>
+                          <input
+                            type="text"
+                            id="prob"
+                            name="problemFaced"
+                            className="m-1 mb-2"
+                            style={{ width: "350px" }}
+                            {...register("problemFaced", {
+                              required: "Please fill this field",
+                            })}
+                          />
+
+                          {errors?.["problemFaced"] && (
+                            <p className="text-error">
+                              {errors?.["problemFaced"]?.message}
+                            </p>
+                          )}
+                        </>
+                      )}
                     </div>
                   </Col>
                 </Row>

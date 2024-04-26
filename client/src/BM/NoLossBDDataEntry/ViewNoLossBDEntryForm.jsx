@@ -10,6 +10,8 @@ import moment from "moment-timezone";
 import RoutingContext from "../../context/routing/RoutingContext";
 import { SuccessToast, WarningToast } from "../Component/ShowTostify";
 import { Modal, Button } from "react-bootstrap";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Tooltip, IconButton } from "@mui/material";
 
 const ViewNoLossBDEntryForm = ({
   modelProp,
@@ -19,6 +21,7 @@ const ViewNoLossBDEntryForm = ({
   plantShiftsData,
   plantCategories,
   supportingTMList,
+  removeDataFromMaster
 }) => {
   const {
     register,
@@ -91,12 +94,30 @@ const ViewNoLossBDEntryForm = ({
       if (res.status === 201) {
         SuccessToast(data?.message);
         modelProp?.onHide();
-        // reset();
-        // setProblems([]);
-        // setActions([]);
-        // setSelectedSupportedTM([]);
       } else {
         WarningToast(data?.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteNoLossRequestSheet = async (selectedRow) => {
+    try {
+      const res = await fetch(
+        `/deleteNoLossRequestSheet/?_id=${noLossBDRequestSheetID}`,
+        {
+          method: "DELETE",
+        }
+      );
+      const { deletedNoLossRequestSheet, message } = await res.json();
+
+      if (res.status === 201) {
+        SuccessToast(message);
+        modelProp?.onHide();
+        removeDataFromMaster(deletedNoLossRequestSheet?._id)
+      } else {
+        console.log("error");
       }
     } catch (error) {
       console.log(error);
@@ -149,6 +170,15 @@ const ViewNoLossBDEntryForm = ({
                   {", "}
                   {dataOfNoLossBD?.machine?.[0]?.machine_code}
                 </small>
+              </Col>
+              <Col className="d-flex justify-content-end">
+                <Tooltip title="Delete Other Loss Request-sheet">
+                    <DeleteIcon
+                      className="text-danger"
+                      role="button"
+                      onClick={deleteNoLossRequestSheet}
+                    />
+                </Tooltip>
               </Col>
             </Row>
 
@@ -424,7 +454,7 @@ const ViewNoLossBDEntryForm = ({
                                     {...register(
                                       `categories.${categoryObj?.name}`
                                       // {
-                                        // required: "This field is required",
+                                      // required: "This field is required",
                                       // }
                                     )}
                                     onChange={(e) => {

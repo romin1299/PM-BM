@@ -225,8 +225,8 @@ const MasterLogTable = ({
           text: "BM",
         },
         {
-          value: "CM",
-          text: "CM",
+          value: "CM Entry",
+          text: "CM Entry",
         },
         {
           value: "BD with No Loss",
@@ -243,6 +243,10 @@ const MasterLogTable = ({
         {
           value: "PED Support",
           text: "PED Support",
+        },
+        {
+          value: "TPM",
+          text: "TPM",
         },
       ],
       filterMode: "tree",
@@ -497,6 +501,7 @@ const MasterLogTable = ({
       title: "View",
       dataIndex: "",
       width: 66,
+      fixed: "right",
 
       render: (value) => (
         // ["PM", "BM"]?.includes(value?.maintenanceType) &&
@@ -516,7 +521,7 @@ const MasterLogTable = ({
                       selectedRowForViewForm: res.data?.machine,
                     },
                   });
-                } else if (value?.maintenanceType === "BM") {
+                } else if (value?.maintenanceType === "BM" || value?.maintenanceType === "CM") {
                   // navigate(
                   //   `/bm/view/request-sheet/${value?.machine_code}/${value?._id}/${selectedYear}`,
                   //   {
@@ -545,6 +550,12 @@ const MasterLogTable = ({
       ),
     },
   ];
+
+  const removeDataFromMaster = (idOfDeletedSheet) => {
+    setMasterLogData(
+      masterLogData?.filter((key) => key._id !== idOfDeletedSheet)
+    );
+  };
 
   useEffect(() => {
     if (selectedValue) getMasterLog();
@@ -575,6 +586,7 @@ const MasterLogTable = ({
           supportingTMList={supportingTMList}
           plantCategories={plantCategories}
           plantShiftsData={plantShiftsData}
+          removeDataFromMaster={removeDataFromMaster}
         />
       )}
       <Box

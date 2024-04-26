@@ -32,6 +32,9 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: Date,
     default: new Date(),
   },
+
+  attachedImagesOrVideoByPRDUser: {type: [String]},
+
   breakDownBasicDataFilledByPRD: {
     problemFaced: { type: String },
     PRD_ObservationForProblem_5Why_1How: { type: String },
