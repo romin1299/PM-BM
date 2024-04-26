@@ -6747,7 +6747,7 @@ router.get(
                       ],
                     },
                     "ef5350",
-                    "c2c933",
+                    "16FF00",
                   ],
                 },
                 mttrData: {
@@ -6769,7 +6769,7 @@ router.get(
                         // "$line.eachMonthBDHrsTarget.v",
                       ],
                     },
-                    "c2c933",
+                    "16FF00",
                     "ef5350",
                   ],
                 },
@@ -6806,7 +6806,7 @@ router.get(
                       ],
                     },
                     "ef5350",
-                    "c2c933",
+                    "16FF00",
                   ],
                 },
                 bdPercentage: {
@@ -6840,7 +6840,7 @@ router.get(
                       ],
                     },
                     "ef5350",
-                    "c2c933",
+                    "16FF00",
                   ],
                 },
               },
@@ -6878,7 +6878,7 @@ router.get(
                   bdHours: returnQueryObj({ key: "bdHours", defaultValue: 0 }),
                   backgroundColorForBDHrs: returnQueryObj({
                     key: "backgroundColorForBDHrs",
-                    defaultValue: null,
+                    defaultValue: "ef5350",
                   }),
                   mttrData: returnQueryObj({
                     key: "mttrData",
@@ -6886,7 +6886,7 @@ router.get(
                   }),
                   backgroundColorForMTTR: returnQueryObj({
                     key: "backgroundColorForMTTR",
-                    defaultValue: null,
+                    defaultValue: "ef5350",
                   }),
                   mtbfData: returnQueryObj({
                     key: "mtbfData",
@@ -6894,7 +6894,7 @@ router.get(
                   }),
                   backgroundColorForMTBF: returnQueryObj({
                     key: "backgroundColorForMTBF",
-                    defaultValue: null,
+                    defaultValue: "ef5350",
                   }),
                   bdPercentage: returnQueryObj({
                     key: "bdPercentage",
@@ -6902,7 +6902,7 @@ router.get(
                   }),
                   backgroundColorForBDPercentage: returnQueryObj({
                     key: "backgroundColorForBDPercentage",
-                    defaultValue: null,
+                    defaultValue: "ef5350",
                   }),
                 },
               },
