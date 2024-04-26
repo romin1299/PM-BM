@@ -78,7 +78,7 @@ const ChartCard = ({ category }) => {
 
       <Box
         className="d-flex align-items-center justify-content-center"
-        sx={{ height: { lg: "420px", md: "350px" } }}
+        sx={{ height: {  md: "355px" } }}
         // sx={{ maxHeight: "350px" }}
       >
         {category?.bdCount === undefined ? (

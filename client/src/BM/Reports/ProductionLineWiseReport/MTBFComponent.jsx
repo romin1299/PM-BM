@@ -83,8 +83,8 @@ const MTBFComponent = ({
 
     try {
       const res = await fetch(
-        // `/getMtbfData/${flagForTogglingFilter}/632c41261d1becfedab325f9/?selectedYear=${selectedYear}`,
-        `/getMtbfData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
+        // `/getMtbfData/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
+        `/getTrendData/MTBF/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&targetKey=monthlyMTBFTarget`,
         {
           method: "GET",
           headers: {

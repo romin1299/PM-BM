@@ -1811,14 +1811,16 @@ const targetMiddleware = async (req, res, next) => {
             $sum: 1,
           };
 
-          arr.push({
-            $divide: [
-              `$${allMonths?.[i]?.monthName}`,
-              `$count_${allMonths?.[i]?.monthName}`,
-            ],
-          });
+          arr.push(
+            truncValue({
+              $divide: [
+                `$${allMonths?.[i]?.monthName}`,
+                `$count_${allMonths?.[i]?.monthName}`,
+              ],
+            })
+          );
         } else {
-          arr.push(`$${allMonths?.[i]?.monthName}`);
+          arr.push(truncValue(`$${allMonths?.[i]?.monthName}`));
         }
       }
 
@@ -8162,7 +8164,7 @@ const middlewareForFindingPercentageData = async (req, res, next) => {
           labels: { $push: "$month" },
 
           data: {
-            $push: { $trunc: ["$value.hours", 1] },
+            $push: "$value.hours",
           },
         },
       },
@@ -8172,8 +8174,8 @@ const middlewareForFindingPercentageData = async (req, res, next) => {
       message: "BD Percentage data for Product/Line Wise KPI get successfully",
       data: {
         ...getBdPercentage?.[0],
-        target: req.targetForBdPercentage,
-        backgroundColor: req.targetForBdPercentage?.map((item, index) =>
+        target: req?.target,
+        backgroundColor: getBdPercentage?.[0]?.data?.map((item, index) =>
           getBdPercentage?.[0]?.data?.[index] <= item ? "#16FF00" : "red"
         ),
       },
@@ -8233,13 +8235,26 @@ const targetMiddlewareForProductionLineWise = async (req, res, next) => {
 
       for (let i = 0; i < allMonths.length; i++) {
         objMtbf[allMonths?.[i]?.monthName] = {
-          $sum: `$allTargetData.monthlyMTBFTarget.${allMonths?.[i]?.monthName}`,
+          $avg: `$allTargetData.monthlyMTBFTarget.${allMonths?.[i]?.monthName}`,
         };
         objBd[allMonths?.[i]?.monthName] = {
-          $sum: `$allTargetData.monthlyBDPercentageTarget.${allMonths?.[i]?.monthName}`,
+          $avg: `$allTargetData.monthlyBDPercentageTarget.${allMonths?.[i]?.monthName}`,
         };
 
-        arr.push(`$${allMonths?.[i]?.monthName}`);
+        if (req.query?.targetKey === "monthlyMTBFTarget") {
+          obj[`count_${allMonths?.[i]?.monthName}`] = {
+            $sum: 1,
+          };
+
+          arr.push({
+            $divide: [
+              `$${allMonths?.[i]?.monthName}`,
+              `$count_${allMonths?.[i]?.monthName}`,
+            ],
+          });
+        } else {
+          arr.push(`$${allMonths?.[i]?.monthName}`);
+        }
       }
 
       pipelineForMtbf = [
@@ -8570,8 +8585,8 @@ router.get(
   "/getBdPercentage/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-  targetMiddlewareForProductionLineWise,
-  productionMiddleware,
+  targetMiddleware,
+  productionHourFiltration,
   async (req, res, next) => {
     try {
       req.hourCalculationFormula = {
@@ -14875,6 +14890,9 @@ const responseMiddlewareForDataTrendReport = async (req, res, next) => {
       data: {
         ...req?.TrendData?.[0],
         target: req.target,
+        backgroundColor: req.target?.map((item, index) =>
+          req?.TrendData?.[0]?.data?.[index] >= item ? "#16FF00" : "red"
+        ),
       },
     });
   } catch (error) {
