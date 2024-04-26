@@ -6709,7 +6709,7 @@ router.get(
                       ],
                     },
                     "ef5350",
-                    "c2c933",
+                    "16FF00",
                   ],
                 },
                 mttrData: {
@@ -6731,7 +6731,7 @@ router.get(
                         // "$line.eachMonthBDHrsTarget.v",
                       ],
                     },
-                    "c2c933",
+                    "16FF00",
                     "ef5350",
                   ],
                 },
@@ -6768,7 +6768,7 @@ router.get(
                       ],
                     },
                     "ef5350",
-                    "c2c933",
+                    "16FF00",
                   ],
                 },
                 bdPercentage: {
@@ -6802,7 +6802,7 @@ router.get(
                       ],
                     },
                     "ef5350",
-                    "c2c933",
+                    "16FF00",
                   ],
                 },
               },
@@ -6840,7 +6840,7 @@ router.get(
                   bdHours: returnQueryObj({ key: "bdHours", defaultValue: 0 }),
                   backgroundColorForBDHrs: returnQueryObj({
                     key: "backgroundColorForBDHrs",
-                    defaultValue: null,
+                    defaultValue: "ef5350",
                   }),
                   mttrData: returnQueryObj({
                     key: "mttrData",
@@ -6848,7 +6848,7 @@ router.get(
                   }),
                   backgroundColorForMTTR: returnQueryObj({
                     key: "backgroundColorForMTTR",
-                    defaultValue: null,
+                    defaultValue: "ef5350",
                   }),
                   mtbfData: returnQueryObj({
                     key: "mtbfData",
@@ -6856,7 +6856,7 @@ router.get(
                   }),
                   backgroundColorForMTBF: returnQueryObj({
                     key: "backgroundColorForMTBF",
-                    defaultValue: null,
+                    defaultValue: "ef5350",
                   }),
                   bdPercentage: returnQueryObj({
                     key: "bdPercentage",
@@ -6864,7 +6864,7 @@ router.get(
                   }),
                   backgroundColorForBDPercentage: returnQueryObj({
                     key: "backgroundColorForBDPercentage",
-                    defaultValue: null,
+                    defaultValue: "ef5350",
                   }),
                 },
               },
@@ -7940,7 +7940,7 @@ const productionHourFiltration = async (req, res, next) => {
       },
       {
         $match: {
-          "allTargetData.yearTotalProductionHrs": { $ne: 0 }
+          "allTargetData.yearTotalProductionHrs": { $ne: 0 },
         },
       },
       {
@@ -15060,18 +15060,22 @@ router.get(
   async (req, res, next) => {
     try {
       // let productionHrs = "$allTargetData.yearTotalProductionHrs";
-      
+
       let productionHrs = {
-        $sum: []
+        $sum: [],
       };
-  
+
       if (req.query?.selectedMonth) {
         productionHrs = `$allTargetData.monthlyProductionHrs.${req.query?.selectedMonth}`;
       } else {
-        
         for (let index = 0; index < allMonths.length; index++) {
-          productionHrs["$sum"].push(`$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`);
-          if (allMonths?.[index]?.monthName === currentMonth && currentYear === req?.query?.selectedYear) {
+          productionHrs["$sum"].push(
+            `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`
+          );
+          if (
+            allMonths?.[index]?.monthName === currentMonth &&
+            currentYear === req?.query?.selectedYear
+          ) {
             break;
           }
         }
